@@ -1,0 +1,7 @@
+# directories
+
+.vs/
+
+# files
+*.sln
+*.vcxproj
