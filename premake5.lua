@@ -17,10 +17,10 @@ workspace "Wyvern"
         defines {"WYVERN_BUILD_DLL"}
 
         kind "SharedLib"
-        location "WyvernEngine/src"
+        location "WyvernEngine/source"
         targetdir "bin/Wyvern"
 
-        files { "WyvernEngine/src/**.h","WyvernEngine/src/**.cpp" }
+        files { "WyvernEngine/source/**.h","WyvernEngine/source/**.cpp" }
 
         libdirs
         {
@@ -29,7 +29,7 @@ workspace "Wyvern"
 
         includedirs
         {
-            "WyvernEngine/src"
+            "WyvernEngine/source"
         }
 
         links { }
@@ -37,11 +37,11 @@ workspace "Wyvern"
     
     project "Sandbox"
     kind "ConsoleApp"
-    location "Sandbox/src"
+    location "Sandbox/source"
     targetdir "bin/Sandbox"
 
-    files { "Sandbox/src/**.h","Sandbox/src/**.cpp" }
+    files { "Sandbox/source/**.h","Sandbox/source/**.cpp" }
 
-    includedirs{ "WyvernEngine/src/","Sandbox/src" }
+    includedirs{ "WyvernEngine/source/","Sandbox/source" }
 
     links { "WyvernEngine" }
