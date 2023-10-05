@@ -16,11 +16,15 @@ Wyvern::~Wyvern()
 void Wyvern::init()
 {
 	LOG_WYVERN_MESSAGE( "Wyvern Engine Loaded!\n\n" );
-	LOG_MESSAGE( "bob was at home\n" );
-	LOG_WARNING( "bob was hungry\n" );
-	LOG_ERROR( "bob set the fire alarm off trying to make hamburgers\n" );
 }
 
-void WV::Wyvern::getInstance()
+Wyvern& Wyvern::getInstance()
 {
+	static Wyvern instance;
+	return instance;
+}
+
+void Wyvern::deinit()
+{
+	
 }

@@ -10,9 +10,7 @@ namespace WV
 		~Wyvern();
 
 		static void init();
-		static void getInstance();
-
-	private:
-		static Wyvern* m_instance;
+		static Wyvern& getInstance();
+		static void deinit();
 	};
 }

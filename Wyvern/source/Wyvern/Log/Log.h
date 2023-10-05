@@ -1,8 +1,8 @@
 #pragma once
 #include <stdio.h>
+// std studio -david 2023
 
 #define LOG_RESET printf("\033[0m")
-
 #define LOG_WHITE printf("\033[0;37m")
 #define LOG_YELLOW printf("\033[0;33m")
 #define LOG_RED printf("\033[0;31m")
