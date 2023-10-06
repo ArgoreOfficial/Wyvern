@@ -51,9 +51,9 @@ int Window::createWindow()
 		return 0;
 	}
 
-
 	glViewport( 0, 0, 800, 600 );
 	glfwSetFramebufferSizeCallback( m_window, windowResizeCallback );
+	
 	WVDEBUG( "Window Created" );
 	
 	return 1;
@@ -68,7 +68,6 @@ int WV::Window::pollEvents()
 		WVDEBUG( "GLFW Terminated" );
 		return 0;
 	}
-	glfwSwapBuffers( m_window );
 	glfwPollEvents();
 	
 	return 1;

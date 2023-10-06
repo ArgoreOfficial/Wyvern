@@ -17,7 +17,6 @@ namespace WV
 		static Wyvern& getInstance();
 		static void deinit();
 	private:
-		static void createWindow();
 		static void run();
 
 		WV::Game* m_game = nullptr;

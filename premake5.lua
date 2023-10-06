@@ -35,7 +35,7 @@ project "Wyvern"
 
     libdirs { "Libraries/glfw/lib-vc2022", "Libraries/glew/lib/Release/x64" }
 
-    includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
+    includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm", "Libraries/stb_image" }
     
     links { "glfw3", "opengl32", "glew32" }
     

@@ -8,5 +8,8 @@ namespace WV
 	public:
 		DefaultGame();
 		~DefaultGame();
+
+		void update( float _deltaTime ) override;
+		void draw() override;
 	};
 }

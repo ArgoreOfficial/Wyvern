@@ -14,7 +14,9 @@ int main()
 #endif
 
 	WV::DefaultGame* game = new WV::DefaultGame();
+	
 	WV::Wyvern::init( game );
+	
 	delete game;
 
 	return 0;
