@@ -25,7 +25,11 @@ project "Wyvern"
     defines { "WYVERN_BUILD_DLL" }
 
     buildmessage 'Compiling %{file.relpath} to %{cfg.targetdir}'
-    postbuildcommands { 'xcopy /S /Q /Y /F "%{cfg.targetdir}/Wyvern.dll" "$(SolutionDir)bin/Sandbox/"' }
+    postbuildcommands 
+    {
+        'xcopy /S /Q /Y /F "%{cfg.targetdir}/Wyvern.dll" "$(SolutionDir)bin/Sandbox/"',
+        'xcopy /S /Q /Y /F "$(SolutionDir)Libraries/copy-to-build" "$(SolutionDir)bin/Sandbox/"',
+    }
 
     files { "Wyvern/source/**.h", "Wyvern/source/**.cpp" }
 
