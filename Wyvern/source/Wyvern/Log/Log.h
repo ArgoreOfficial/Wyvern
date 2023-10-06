@@ -1,6 +1,18 @@
 #pragma once
 #include <stdio.h>
+#include <Wyvern/API/Core.h>
 // std studio -david 2023
+
+enum logLevel
+{
+	FATAL = 0,
+	ERROR = 1,
+	WARNING = 2,
+	INFO = 3,
+	DEBUG = 4
+};
+
+WYVERN_API void outputLog( logLevel _level, const char* message, ... );
 
 #define LOG_RESET printf("\033[0m")
 #define LOG_WHITE printf("\033[0;37m")
@@ -8,7 +20,8 @@
 #define LOG_RED printf("\033[0;31m")
 #define LOG_CYAN printf("\033[0;36m")
 
-#define LOG_MESSAGE(str) LOG_WHITE; printf("    "); printf(str); LOG_RESET
-#define LOG_WARNING(str) LOG_YELLOW; printf("[!] "); printf(str); LOG_RESET
-#define LOG_ERROR(str) LOG_RED; printf("[X] "); printf(str); LOG_RESET
-#define LOG_WYVERN_MESSAGE(str) LOG_CYAN; printf("[*] "); printf(str); LOG_RESET
+#define WVFATAL(msg, ...) outputLog(logLevel::FATAL, msg, __VA_ARGS__)
+#define WVERROR(msg, ...) outputLog(logLevel::ERROR, msg, __VA_ARGS__)
+#define WVWARNING(msg, ...) outputLog(logLevel::WARNING, msg, __VA_ARGS__)
+#define WVINFO(msg, ...) outputLog(logLevel::INFO, msg, __VA_ARGS__)
+#define WVDEBUG(msg, ...) outputLog(logLevel::DEBUG, msg, __VA_ARGS__)

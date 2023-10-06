@@ -33,7 +33,7 @@ project "Wyvern"
 
     includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     
-    links { "glfw3", "glfw3dll", "glew32" }
+    links { "glfw3", "opengl32", "glew32" }
     
 
     -- editor
@@ -45,7 +45,7 @@ project "Editor"
 
     files { "Editor/source/**.h","Editor/source/**.cpp" }
 
-    includedirs { "Wyvern/source/","Editor/source" }
+    includedirs { "Wyvern/source/", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     links { "Wyvern" }
 
 
@@ -59,5 +59,5 @@ project "Editor"
 
     files { "Sandbox/source/**.h","Sandbox/source/**.cpp" }
 
-    includedirs{ "Wyvern/source/","Sandbox/source" }
+    includedirs{ "Wyvern/source/", "Sandbox/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     links { "Wyvern" }

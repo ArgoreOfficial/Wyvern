@@ -3,7 +3,7 @@
 
 namespace WV
 {
-	class DefaultGame : public Game
+	class WYVERN_API DefaultGame : public Game
 	{
 	public:
 		DefaultGame();

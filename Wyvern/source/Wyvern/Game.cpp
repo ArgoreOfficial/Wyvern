@@ -1,4 +1,5 @@
 #include "Game.h"
+
 using namespace WV;
 
 Game::Game()
