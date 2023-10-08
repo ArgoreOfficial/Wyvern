@@ -17,17 +17,15 @@ workspace "Wyvern"
     -- engine
     
 project "Wyvern"
-    
-    kind "SharedLib"
+    kind "StaticLib"
     location "Wyvern/source"
     targetdir "bin/Wyvern"
+    staticruntime "on"
 
     defines { "WYVERN_BUILD_DLL" }
 
     buildmessage 'Compiling %{file.relpath} to %{cfg.targetdir}'
-    postbuildcommands 
-    {
-        'xcopy /S /Q /Y /F "%{cfg.targetdir}/Wyvern.dll" "$(SolutionDir)bin/Sandbox/"',
+    postbuildcommands {
         'xcopy /S /Q /Y /F "$(SolutionDir)Libraries/copy-to-build" "$(SolutionDir)bin/Sandbox/"',
     }
 
@@ -40,22 +38,23 @@ project "Wyvern"
     links { "glfw3", "opengl32", "glew32" }
     
 
-    -- editor
+-- editor
 
 project "Editor"
     kind "ConsoleApp"
+    debugenvs { "bin/Wyvern" }
     location "Editor/source"
     targetdir "bin/Editor"
 
     files { "Editor/source/**.h","Editor/source/**.cpp" }
 
-    includedirs { "Wyvern/source/", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
+    includedirs{ "Wyvern/source/", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     links { "Wyvern" }
 
 
-    -- sandbox
+-- sandbox
     
-    project "Sandbox"
+project "Sandbox"
     kind "ConsoleApp"
     debugenvs { "bin/Wyvern" }
     location "Sandbox/source"
