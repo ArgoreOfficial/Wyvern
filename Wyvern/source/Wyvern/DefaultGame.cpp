@@ -1,11 +1,10 @@
 #include "DefaultGame.h"
-#include <Wyvern/Logging/Logging.h>
 
 using namespace WV;
 
 DefaultGame::DefaultGame()
 {
-
+	
 }
 
 DefaultGame::~DefaultGame()

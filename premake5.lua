@@ -33,7 +33,7 @@ project "Wyvern"
 
     libdirs { "Libraries/glfw/lib-vc2022", "Libraries/glew/lib/Release/x64" }
 
-    includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm", "Libraries/stb_image" }
+    includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     
     links { "glfw3", "opengl32", "glew32" }
     
@@ -48,7 +48,7 @@ project "Editor"
 
     files { "Editor/source/**.h","Editor/source/**.cpp" }
 
-    includedirs{ "Wyvern/source/", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
+    includedirs{ "Wyvern/source", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     links { "Wyvern" }
 
 
@@ -62,5 +62,5 @@ project "Sandbox"
 
     files { "Sandbox/source/**.h","Sandbox/source/**.cpp" }
 
-    includedirs{ "Wyvern/source/", "Sandbox/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
+    includedirs{ "Wyvern/source", "Sandbox/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     links { "Wyvern" }

@@ -97,11 +97,12 @@ RenderObject* RenderObject::CreateFromFiles( std::string meshPath, std::string s
 	vertexArray->AddBuffer( *vertexBuffer, layout );
 
 	IndexBuffer* indexBuffer = new IndexBuffer( &indices[0], indices.size() );
-
+	/*
 	Texture* texture = new Texture( texturePath );
 	texture->Bind();
 	shaderProgram->SetUniform1i( "u_Texture", 0 );
+	*/
 
-	RenderObject* renderObject = new RenderObject( vertexArray, indexBuffer, shaderProgram, texture );
+	RenderObject* renderObject = new RenderObject( vertexArray, indexBuffer, shaderProgram, nullptr );
 	return renderObject;
 }

@@ -1,5 +1,7 @@
 #pragma once
 #include <Wyvern/Game.h>
+#include <Wyvern/Rendering/Renderer.h>
+#include <Wyvern/Logging/Logging.h>
 
 namespace WV
 {
