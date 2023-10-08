@@ -20,21 +20,26 @@ void windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 
 int Window::createWindow()
 {
-	WVDEBUG( "Creating window..." );
+
+	int width = 800;
+	int height = 600;
+
+
+	WVDEBUG( "Creating Window..." );
 
 	if ( glfwInit() == GLFW_FALSE )
 	{
-		WVFATAL( "glfw could not initialize!" );
+		WVFATAL( "GLFW could not initialize!" );
 		glfwTerminate();
 		return 0;
 	}
+	WVDEBUG( "GLFW Initialized" );
 
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-
-	m_window = glfwCreateWindow( 800, 600, "Wyvern", NULL, NULL );
+	m_window = glfwCreateWindow( width, height, "Wyvern", NULL, NULL );
 
 	if ( m_window == NULL )
 	{
@@ -42,20 +47,23 @@ int Window::createWindow()
 		glfwTerminate();
 		return 0;
 	}
+	WVDEBUG( "GLFW Window created" );
+
 
 	glfwMakeContextCurrent( m_window );
 
 	if ( glewInit() )
 	{
-		WVFATAL( "glew could not initialize!" );
+		WVFATAL( "GLEW could not initialize!" );
 		glfwTerminate();
 		return 0;
 	}
+	WVDEBUG( "GLEW Initialized" );
 
-	glViewport( 0, 0, 800, 600 );
+	glViewport( 0, 0, width, height );
 	glfwSetFramebufferSizeCallback( m_window, windowResizeCallback );
-	
-	WVDEBUG( "Window Created" );
+
+	WVDEBUG( "Window Created [%i, %i]", width, height );
 	
 	return 1;
 }

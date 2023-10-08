@@ -1,19 +1,14 @@
 #pragma once
+#include <Wyvern/Core/ISingleton.h>
 #include <Wyvern/Game.h>
 #include <Wyvern/Window/Window.h>
 
-
-
 namespace WV
 {
-	class Application
+	class Application : ISingleton<Application>
 	{
 	public:
-		Application();
-		~Application();
-
 		static void init( Game* _game );
-		static Application& getInstance();
 		static void deinit();
 	private:
 		static void run();

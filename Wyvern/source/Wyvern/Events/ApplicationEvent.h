@@ -1,11 +1,11 @@
 #pragma once
+#include "Event.h"
 
 namespace WV
 {
-	class ApplicationEvent
+	class ApplicationEvent : public Event
 	{
-	public:
+	protected:
 		ApplicationEvent();
-		~ApplicationEvent();
 	};
 }

@@ -1,11 +1,15 @@
 #pragma once
-#include "GLHeader.h"
-#include "RenderObject.h"
+#include <Wyvern/Core/ISingleton.h>
+#include "Framework/GLHeader.h"
+#include "Framework/RenderObject.h"
 
-class Renderer
+namespace WV
 {
-public:
-	void Clear() const;
-	void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const ShaderProgram& shaderProgram);
-	void Draw( const RenderObject& renderObject );
-};
+	class Renderer : ISingleton<Renderer>
+	{
+	public:
+		void Clear() const;
+		void Draw( const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const ShaderProgram& shaderProgram );
+		void Draw( const RenderObject& renderObject );
+	};
+}

@@ -1,8 +1,9 @@
 #pragma once
+#include "Event.h"
 
 namespace WV
 {
-	class KeyEvent
+	class KeyEvent : public Event
 	{
 		inline int getKeyCode() { return m_keycode; }
 	protected:

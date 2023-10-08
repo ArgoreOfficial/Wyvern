@@ -1,4 +1,5 @@
 #include "Renderer.h"
+using namespace WV;
 
 void Renderer::Clear() const
 { 

@@ -14,8 +14,7 @@ namespace WV
 
 	class Event
 	{
-	public:
+	protected:
 		Event();
-		~Event();
 	};
 }
