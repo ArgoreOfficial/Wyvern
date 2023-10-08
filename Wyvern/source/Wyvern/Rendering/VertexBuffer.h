@@ -1,7 +1,6 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 
-class WYVERN_API VertexBuffer
+class VertexBuffer
 {
 private:
 	unsigned int _renderID;

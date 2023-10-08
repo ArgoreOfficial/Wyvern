@@ -1,13 +1,12 @@
 #pragma once
-#include <Wyvern/API/Core.h>
-#include <Wyvern/Log/Log.h>
+#include <Wyvern/Logging/Logging.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace WV
 {
-	class WYVERN_API Window
+	class Window
 	{
 	public:
 		Window();

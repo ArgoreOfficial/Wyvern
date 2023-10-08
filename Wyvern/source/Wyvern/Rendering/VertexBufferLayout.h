@@ -1,9 +1,8 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include <vector>
 #include "GLHeader.h"
 
-struct WYVERN_API VertexBufferElement
+struct VertexBufferElement
 {
 	unsigned int type;
 	unsigned int count;

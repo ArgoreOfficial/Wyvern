@@ -1,19 +1,19 @@
-#include "Wyvern.h"
-#include <Wyvern/Log/Log.h>
+#include "Application.h"
+#include <Wyvern/Logging/Logging.h>
 
 using namespace WV;
 
-Wyvern::Wyvern()
+Application::Application()
 {
 
 }
 
-Wyvern::~Wyvern()
+Application::~Application()
 {
 
 }
 
-void Wyvern::init( Game* _game )
+void Application::init( Game* _game )
 {
 	int major = 0;
 	int minor = 1;
@@ -30,7 +30,7 @@ void Wyvern::init( Game* _game )
 	WVDEBUG( "Game instance created" );
 
 	getInstance().m_window = new WV::Window();
-	if ( !Wyvern::getInstance().m_window->createWindow() )
+	if ( !getInstance().m_window->createWindow() )
 	{
 		delete getInstance().m_window;
 		return;
@@ -39,13 +39,13 @@ void Wyvern::init( Game* _game )
 	run();
 }
 
-Wyvern& Wyvern::getInstance()
+Application& Application::getInstance()
 {
-	static Wyvern instance;
+	static Application instance;
 	return instance;
 }
 
-void Wyvern::deinit()
+void Application::deinit()
 {
 
 }
@@ -55,7 +55,7 @@ void drawtest()
 	
 }
 
-void Wyvern::run()
+void Application::run()
 {
 	Game* game = getInstance().m_game;
 	Window* window = getInstance().m_window;

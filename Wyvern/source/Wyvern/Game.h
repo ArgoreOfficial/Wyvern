@@ -1,9 +1,8 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 
 namespace WV
 {
-	class WYVERN_API Game
+	class Game
 	{
 	public:
 		Game();

@@ -1,7 +1,8 @@
 #include "Window.h"
 using namespace WV;
 
-Window::Window()
+Window::Window():
+	m_window(nullptr)
 {
 
 }

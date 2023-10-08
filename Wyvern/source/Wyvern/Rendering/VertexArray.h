@@ -1,9 +1,8 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
-class WYVERN_API VertexArray
+class VertexArray
 { 
 private:
 	unsigned int _renderID;

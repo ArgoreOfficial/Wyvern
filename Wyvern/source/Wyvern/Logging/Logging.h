@@ -1,6 +1,5 @@
 #pragma once
 #include <stdio.h>
-#include <Wyvern/API/Core.h>
 // std studio -david 2023
 
 enum logLevel
@@ -12,7 +11,7 @@ enum logLevel
 	DEBUG = 4
 };
 
-WYVERN_API void outputLog( logLevel _level, const char* message, ... );
+void outputLog( logLevel _level, const char* message, ... );
 
 #define LOG_RESET printf("\033[0m")
 #define LOG_WHITE printf("\033[0;37m")

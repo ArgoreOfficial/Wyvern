@@ -1,11 +1,10 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include "ShaderSource.h"
 #include "GLHeader.h"
 #include <iostream>
 #include <unordered_map>
 
-class WYVERN_API ShaderProgram
+class ShaderProgram
 {
 private:
 	unsigned int _renderID;

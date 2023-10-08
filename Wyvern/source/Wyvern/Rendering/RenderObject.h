@@ -1,5 +1,4 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include "GLHeader.h"
 #include <string>
 #include <sstream>
@@ -9,7 +8,7 @@
 #include "ShaderProgram.h"
 #include "Texture.h"
 
-class WYVERN_API RenderObject
+class RenderObject
 {
 private:
 	glm::vec3 _position;

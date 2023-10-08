@@ -1,10 +1,9 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include "GLHeader.h"
 #include <string>
 #include <stb_image.h>
 
-class WYVERN_API Texture
+class Texture
 {
 private:
 	unsigned int _renderID;

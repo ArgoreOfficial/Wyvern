@@ -1,9 +1,8 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include "GLHeader.h"
 #include "RenderObject.h"
 
-class WYVERN_API Renderer
+class Renderer
 {
 public:
 	void Clear() const;

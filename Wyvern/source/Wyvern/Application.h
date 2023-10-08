@@ -1,5 +1,4 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include <Wyvern/Game.h>
 #include <Wyvern/Window/Window.h>
 
@@ -7,14 +6,14 @@
 
 namespace WV
 {
-	class WYVERN_API Wyvern
+	class Application
 	{
 	public:
-		Wyvern();
-		~Wyvern();
+		Application();
+		~Application();
 
 		static void init( Game* _game );
-		static Wyvern& getInstance();
+		static Application& getInstance();
 		static void deinit();
 	private:
 		static void run();

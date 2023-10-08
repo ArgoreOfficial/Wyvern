@@ -1,9 +1,8 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 #include <string>
 #include <fstream>
 
-class WYVERN_API ShaderSource
+class ShaderSource
 {
 public:
 	std::string vertexSource;

@@ -1,4 +1,4 @@
-#include <Wyvern.h>
+#include <Wyvern/Application.h>
 #include <Wyvern/Game.h>
 #include <Wyvern/DefaultGame.h>
 
@@ -14,9 +14,7 @@ int main()
 #endif
 
 	WV::DefaultGame* game = new WV::DefaultGame();
-	
-	WV::Wyvern::init( game );
-	
+	WV::Application::init( game );
 	delete game;
 
 	return 0;

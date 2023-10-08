@@ -1,7 +1,6 @@
 #pragma once
-#include <Wyvern/API/Core.h>
 
-class WYVERN_API IndexBuffer
+class IndexBuffer
 {
 private:
 	unsigned int _renderID;
