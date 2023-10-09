@@ -24,10 +24,15 @@ out vec4 color;
 in vec2 v_TexCoord;
 
 uniform vec4 u_Color;
+uniform int u_hasTexture = 0;
 uniform sampler2D u_Texture;
 
 void main()
 {
-	vec4 texColor = texture( u_Texture, v_TexCoord );
+	vec4 texColor = u_Color;
+	if ( u_hasTexture == 1 )
+	{
+		texColor = texture( u_Texture, v_TexCoord );
+	}
 	color = texColor;
 }

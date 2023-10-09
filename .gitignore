@@ -8,3 +8,4 @@ bin/
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
+*.blend1

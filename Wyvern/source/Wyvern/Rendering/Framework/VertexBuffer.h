@@ -4,15 +4,18 @@ namespace WV
 {
 	class VertexBuffer
 	{
-	private:
-		unsigned int _renderID;
 	public:
 		VertexBuffer();
-		VertexBuffer( const void* _data, unsigned int _size );
+		VertexBuffer( void* _data, unsigned int _size );
 		~VertexBuffer();
 
-		void Bind() const;
-		void Unbind() const;
+		void bind() const;
+		void unbind() const;
+
+	private:
+		unsigned int m_renderID = 0;
+		unsigned int m_size = 0;
+		const void* m_vertices = nullptr;
 
 	};
 }

@@ -13,8 +13,8 @@ VertexArray::~VertexArray()
 
 void VertexArray::AddBuffer( const VertexBuffer& vertexBuffer, const VertexBufferLayout& layout )
 { 
-	Bind();
-	vertexBuffer.Bind();
+	bind();
+	vertexBuffer.bind();
 	
 	const auto& elements = layout.GetElements();
 	unsigned int offset = 0;
@@ -28,7 +28,7 @@ void VertexArray::AddBuffer( const VertexBuffer& vertexBuffer, const VertexBuffe
 
 }
 
-void VertexArray::Bind() const
+void VertexArray::bind() const
 { 
 	glBindVertexArray( _renderID );
 }

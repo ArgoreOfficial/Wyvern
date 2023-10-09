@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Rendering/Renderer.h>
+#include <Wyvern/Managers/AssetManager.h>
 
 using namespace WV;
 
@@ -45,12 +46,14 @@ void Application::internalRun( Game* _game )
 	double lastTime = 0.0;
 
 	game->load();
-
-	while ( !game->loaded() )
+	/*
+	while ( !AssetManager::isDoneLoading() )
 	{
 		game->loadUpdate();
 		game->loadDraw();
 	}
+	*/
+	
 
 	bool run = true;
 	while ( run )
@@ -69,4 +72,6 @@ void Application::internalRun( Game* _game )
 		glfwSwapBuffers( window->getWindow() );
 		run = window->pollEvents();
 	}
+
+	AssetManager::unloadAll();
 }

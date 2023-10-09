@@ -11,8 +11,8 @@ void Renderer::Clear() const
 void Renderer::internalDraw( const VertexArray& _vertexArray, const IndexBuffer& _indexBuffer, const ShaderProgram& _shaderProgram )
 {
 	_shaderProgram.Bind();
-	_vertexArray.Bind();
-	_indexBuffer.Bind();
+	_vertexArray.bind();
+	_indexBuffer.bind();
 
 	glDrawElements( GL_TRIANGLES, _indexBuffer.GetIndexCount(), GL_UNSIGNED_INT, nullptr );
 }
@@ -24,6 +24,7 @@ void Renderer::internalDraw( RenderObject& _renderObject )
 		WVFATAL( "No Active Camera!" );
 		return;
 	}
+
 	_renderObject.bind( *m_activeCamera);
 
 	glDrawElements( GL_TRIANGLES, _renderObject.getIndexBuffer().GetIndexCount(), GL_UNSIGNED_INT, nullptr );

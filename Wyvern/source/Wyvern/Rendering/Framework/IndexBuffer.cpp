@@ -3,27 +3,30 @@
 using namespace WV;
 
 IndexBuffer::IndexBuffer()
-{ }
+{
 
-IndexBuffer::IndexBuffer( const unsigned int* data, unsigned int count ):
-	_count(count)
-{ 
-	glGenBuffers( 1, &_renderID );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _renderID );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW );
+}
+
+IndexBuffer::IndexBuffer( unsigned int* _data, unsigned int _count ) :
+	m_count( _count ),
+	m_indices( _data )
+{
+	glGenBuffers( 1, &m_renderID );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_renderID );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, _count * sizeof( unsigned int ), _data, GL_STATIC_DRAW );
 }
 
 IndexBuffer::~IndexBuffer()
-{ 
-	glDeleteBuffers( 1, &_renderID );
-}
-
-void IndexBuffer::Bind() const
 {
-	glBindBuffer( GL_ARRAY_BUFFER, _renderID );
+	glDeleteBuffers( 1, &m_renderID );
 }
 
-void IndexBuffer::Unbind() const
+void IndexBuffer::bind() const
+{
+	glBindBuffer( GL_ARRAY_BUFFER, m_renderID );
+}
+
+void IndexBuffer::unbind() const
 {
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }

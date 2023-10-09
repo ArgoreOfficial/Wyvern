@@ -3,28 +3,30 @@
 using namespace WV;
 
 VertexBuffer::VertexBuffer()
-{ }
-
-VertexBuffer::VertexBuffer( const void* data, unsigned int size )
 { 
 
-	glGenBuffers( 1, &_renderID );
-	glBindBuffer( GL_ARRAY_BUFFER, _renderID );
-	glBufferData( GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW );
+}
 
+VertexBuffer::VertexBuffer( void* _data, unsigned int _size ):
+	m_size(_size),
+	m_vertices(_data)
+{
+	glGenBuffers( 1, &m_renderID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_renderID );
+	glBufferData( GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW );
 }
 
 VertexBuffer::~VertexBuffer()
 { 
-	glDeleteBuffers( 1, &_renderID );
+	glDeleteBuffers( 1, &m_renderID );
 }
 
-void VertexBuffer::Bind() const
+void VertexBuffer::bind() const
 {
-	glBindBuffer( GL_ARRAY_BUFFER, _renderID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_renderID );
 }
 
-void VertexBuffer::Unbind() const
+void VertexBuffer::unbind() const
 {
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }

@@ -15,5 +15,6 @@ public:
 
 	WV::Camera* m_camera = nullptr;
 	WV::RenderObject* m_testModel = nullptr;
+	WV::RenderObject* m_testModel2 = nullptr;
 };
 

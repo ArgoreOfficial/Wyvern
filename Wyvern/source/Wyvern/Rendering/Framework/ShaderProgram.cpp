@@ -17,7 +17,7 @@ ShaderProgram::ShaderProgram( ShaderSource _source )
 	glDeleteShader( vertShader );
 	glDeleteShader( fragShader );
 
-	// glUseProgram( 0 );
+	glUseProgram( 0 );
 }
 
 ShaderProgram::~ShaderProgram()

@@ -4,17 +4,19 @@ namespace WV
 {
 	class IndexBuffer
 	{
-	private:
-		unsigned int _renderID;
-		unsigned int _count;
 	public:
 		IndexBuffer();
-		IndexBuffer( const unsigned int* data, unsigned int count );
+		IndexBuffer( unsigned int* _data, unsigned int _count );
 		~IndexBuffer();
 
-		void Bind() const;
-		void Unbind() const;
+		void bind() const;
+		void unbind() const;
 
-		const unsigned int GetIndexCount() const { return _count; }
+		const unsigned int GetIndexCount() const { return m_count; }
+
+	private:
+		unsigned int m_renderID = 0;
+		unsigned int m_count = 0;
+		unsigned int* m_indices = nullptr;
 	};
 }

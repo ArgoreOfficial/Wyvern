@@ -5,12 +5,17 @@
 #include <fstream>
 #include "VertexArray.h"
 #include "IndexBuffer.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
+#include "Material.h"
 
 namespace WV
 {
 	class Camera;
+
+	struct Mesh
+	{
+		VertexArray* vertexArray;
+		IndexBuffer* indexBuffer;
+	};
 
 	class RenderObject
 	{
@@ -19,24 +24,19 @@ namespace WV
 		glm::vec3 m_rotation;
 		glm::vec3 m_scale;
 
-		VertexArray* m_vertexArray;
-		IndexBuffer* m_indexBuffer;
-
-		ShaderProgram* m_shaderProgram; // change to material later
-		Texture* m_texture;
-
+		Mesh* m_mesh;
+		Material* m_material;
 	public:
-		RenderObject( VertexArray* _vertexArray, IndexBuffer* _indexBuffer, ShaderProgram* _shaderProgram, Texture* _texture );
+		RenderObject( Mesh* _mesh, Material* _material );
 		~RenderObject();
 
 		void bind( Camera& _camera );
 
-		VertexArray& getVertexArray() { return *m_vertexArray; }
-		IndexBuffer& getIndexBuffer() { return *m_indexBuffer; }
-		ShaderProgram& getShaderProgram() { return *m_shaderProgram; }
-		Texture& getTexture() { return *m_texture; }
+		VertexArray& getVertexArray() { return *(m_mesh->vertexArray); }
+		IndexBuffer& getIndexBuffer() { return *(m_mesh->indexBuffer); }
+		Material& getMaterial() { return *m_material; }
 
-		static RenderObject* createFromFiles( std::string meshPath, std::string shaderPath, std::string texturePath );
+		static RenderObject* createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath );
 
 		glm::vec3 getPosition() { return m_position; }
 		glm::vec3 getRotation() { return m_rotation; }

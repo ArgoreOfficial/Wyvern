@@ -2,10 +2,10 @@
 using namespace WV;
 
 Texture::Texture( std::string path ) :
-	_renderID( 0 ), _filePath( path ), _localBuffer( nullptr ), _width( 0 ), _height( 0 ), _bpp(0)
+	m_renderID( 0 ), _filePath( path ), _localBuffer( nullptr ), _width( 0 ), _height( 0 ), _bpp(0)
 {
-	glGenTextures( 1, &_renderID );
-	glBindTexture( GL_TEXTURE_2D, _renderID );
+	glGenTextures( 1, &m_renderID );
+	glBindTexture( GL_TEXTURE_2D, m_renderID );
 
 	stbi_set_flip_vertically_on_load( 1 );
 	_localBuffer = stbi_load( path.c_str(), &_width, &_height, &_bpp, 4 );
@@ -24,14 +24,14 @@ Texture::Texture( std::string path ) :
 
 Texture::~Texture()
 {
-	glDeleteTextures( 1, &_renderID );
+	glDeleteTextures( 1, &m_renderID );
 }
 
 void Texture::Bind( unsigned int slot ) const
 {
 	glActiveTexture( GL_TEXTURE0 + slot );
 
-	glBindTexture( GL_TEXTURE_2D, _renderID );
+	glBindTexture( GL_TEXTURE_2D, m_renderID );
 }
 
 void Texture::Unbind() const

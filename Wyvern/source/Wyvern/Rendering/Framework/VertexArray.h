@@ -13,7 +13,7 @@ namespace WV
 		~VertexArray();
 
 		void AddBuffer( const VertexBuffer& vertexBuffer, const VertexBufferLayout& layout );
-		void Bind() const;
+		void bind() const;
 		void Unbind() const;
 	};
 
