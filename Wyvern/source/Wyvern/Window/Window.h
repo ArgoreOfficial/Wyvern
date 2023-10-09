@@ -16,6 +16,7 @@ namespace WV
 		void processInput();
 
 		GLFWwindow* getWindow() { return m_window; }
+		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 
 	private:
 		GLFWwindow* m_window;

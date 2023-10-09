@@ -1,9 +1,14 @@
 language "C++"
 filter "configurations:Debug"
+    debugdir "assets"
+    staticruntime "on"
+	runtime "Debug"
     symbols "On"
     defines {"WYVERN_DEBUG"}
 
 filter "configurations:Release"
+    staticruntime "on"
+	runtime "Release"
     symbols "Off"
     optimize "On"
     defines {"WYVERN_RELEASE"}
@@ -20,7 +25,6 @@ project "Wyvern"
     kind "StaticLib"
     location "Wyvern/source"
     targetdir "bin/Wyvern"
-    staticruntime "on"
 
     defines { "WYVERN_BUILD_DLL" }
 
@@ -35,7 +39,7 @@ project "Wyvern"
 
     includedirs { "Wyvern/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
     
-    links { "glfw3", "opengl32", "glew32" }
+    links { "glfw3_mt", "opengl32", "glew32" }
     
 
 -- editor
@@ -45,7 +49,7 @@ project "Editor"
     debugenvs { "bin/Wyvern" }
     location "Editor/source"
     targetdir "bin/Editor"
-
+    
     files { "Editor/source/**.h","Editor/source/**.cpp" }
 
     includedirs{ "Wyvern/source", "Editor/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }
@@ -59,7 +63,7 @@ project "Sandbox"
     debugenvs { "bin/Wyvern" }
     location "Sandbox/source"
     targetdir "bin/Sandbox"
-
+    
     files { "Sandbox/source/**.h","Sandbox/source/**.cpp" }
 
     includedirs{ "Wyvern/source", "Sandbox/source", "Libraries/glfw/include", "Libraries/glew/include", "Libraries/glm" }

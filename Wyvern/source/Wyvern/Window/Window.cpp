@@ -22,7 +22,7 @@ int Window::createWindow()
 {
 
 	int width = 800;
-	int height = 600;
+	int height = 800;
 
 
 	WVDEBUG( "Creating Window..." );
@@ -62,9 +62,18 @@ int Window::createWindow()
 
 	glViewport( 0, 0, width, height );
 	glfwSetFramebufferSizeCallback( m_window, windowResizeCallback );
-
-	WVDEBUG( "Window Created [%i, %i]", width, height );
 	
+	WVDEBUG( "Window Created [%i, %i]", width, height );
+
+	glEnable( GL_TEXTURE_2D );
+
+	glEnable( GL_CULL_FACE );
+	glEnable( GL_DEPTH_TEST );
+	glDepthMask( GL_TRUE );
+	glDepthFunc( GL_LESS );
+	glDepthRange( 0.0f, 1.0f );
+
+
 	return 1;
 }
 
@@ -89,3 +98,4 @@ void WV::Window::processInput()
 		glfwSetWindowShouldClose( m_window, true );
 	}
 }
+

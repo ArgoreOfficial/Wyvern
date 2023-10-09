@@ -7,8 +7,9 @@ namespace WV
 	class ShaderSource
 	{
 	public:
-		std::string vertexSource;
-		std::string fragmentSource;
+		std::string m_vertexSource;
+		std::string m_fragmentSource;
+		std::string m_path;
 
 		ShaderSource( std::string path );
 		~ShaderSource();

@@ -1,17 +1,20 @@
 #pragma once
 
-template <class T>
-class ISingleton
+namespace WV
 {
-public:
-	ISingleton<T>( const ISingleton<T>& ) = delete;
-
-	static T& getInstance()
+	template <class T>
+	class ISingleton
 	{
-		static T instance;
-		return instance;
-	}
+	public:
+		ISingleton<T>( const ISingleton<T>& ) = delete;
 
-protected:
-	ISingleton<T>() { }
-};
+		static T& getInstance()
+		{
+			static T instance;
+			return instance;
+		}
+
+	protected:
+		ISingleton<T>() { }
+	};
+}

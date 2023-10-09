@@ -11,7 +11,7 @@ namespace WV
 	private:
 		unsigned int _renderID;
 		std::unordered_map<std::string, int> _locationCache;
-		unsigned int CompileShader( unsigned int type, const std::string& source );
+		unsigned int CompileShader( unsigned int type, const std::string& source, const std::string& _path );
 
 	public:
 		ShaderProgram( ShaderSource source );

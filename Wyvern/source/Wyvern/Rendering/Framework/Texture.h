@@ -1,7 +1,7 @@
 #pragma once
 #include "GLHeader.h"
 #include <string>
-#include <vendor/stb_image/stb_image.h>
+#include <vendor/stb_image.h>
 
 namespace WV
 {

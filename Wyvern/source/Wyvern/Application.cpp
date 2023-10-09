@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <Wyvern/Logging/Logging.h>
+#include <Wyvern/Rendering/Renderer.h>
 
 using namespace WV;
 
@@ -27,8 +28,6 @@ void Application::init( Game* _game )
 		delete instance.m_window;
 		return;
 	}
-
-	run();
 }
 
 void Application::deinit()
@@ -36,20 +35,35 @@ void Application::deinit()
 
 }
 
-void Application::run()
+void Application::internalRun( Game* _game )
 {
+	Application::init( _game );
+
 	Game* game = getInstance().m_game;
 	Window* window = getInstance().m_window;
 
+	double lastTime = 0.0;
+
 	game->load();
+
+	while ( !game->loaded() )
+	{
+		game->loadUpdate();
+		game->loadDraw();
+	}
+
 	bool run = true;
 	while ( run )
 	{
+		m_time = glfwGetTime();
+		float deltaTime = m_time - lastTime;
+		lastTime = m_time;
+
 		window->processInput();
 		glClearColor( 0.4f, 0.4f, 0.6f, 1.0f );
-		glClear( GL_COLOR_BUFFER_BIT );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-		game->update( 0.0f );
+		game->update( deltaTime );
 		game->draw();
 
 		glfwSwapBuffers( window->getWindow() );

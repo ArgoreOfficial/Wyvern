@@ -1,9 +1,11 @@
 #include "ShaderSource.h"
 using namespace WV;
 
-ShaderSource::ShaderSource( std::string path )
+ShaderSource::ShaderSource( std::string _path )
 { 
-	std::ifstream stream( path );
+	m_path = _path;
+
+	std::ifstream stream( _path );
 	std::string line;
 	
 	enum ShaderType { NONE, VERT, FRAG };
@@ -25,9 +27,9 @@ ShaderSource::ShaderSource( std::string path )
 		else
 		{
 			if( shaderType == ShaderType::VERT )
-				vertexSource += line + "\n";
+				m_vertexSource += line + "\n";
 			else if ( shaderType == ShaderType::FRAG )
-				fragmentSource += line + "\n";
+				m_fragmentSource += line + "\n";
 		}
 
 	}
