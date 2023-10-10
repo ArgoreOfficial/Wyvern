@@ -1,5 +1,9 @@
 #pragma once
 #include <stdio.h>
+#include <gl/glew.h>
+#include <GLFW/glfw3.h>
+
+
 // std studio -david 2023
 
 enum logLevel
@@ -24,3 +28,5 @@ void outputLog( logLevel _level, const char* message, ... );
 #define WVWARNING(msg, ...) outputLog(logLevel::WARNING, msg, __VA_ARGS__)
 #define WVINFO(msg, ...) outputLog(logLevel::INFO, msg, __VA_ARGS__)
 #define WVDEBUG(msg, ...) outputLog(logLevel::DEBUG, msg, __VA_ARGS__)
+
+void GLAPIENTRY glLogCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam );
