@@ -1,5 +1,3 @@
-#include <Wyvern/Application.h>
-#include <Wyvern/Game.h>
 #include "DefaultGame.h"
 
 #ifdef _WIN32

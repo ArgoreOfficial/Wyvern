@@ -1,10 +1,11 @@
 #pragma once
 #include <Wyvern/Core/ISingleton.h>
-#include <Wyvern/Game.h>
 #include <Wyvern/Window/Window.h>
 
 namespace WV
 {
+	class Game;
+
 	class Application : ISingleton<Application>
 	{
 	public:

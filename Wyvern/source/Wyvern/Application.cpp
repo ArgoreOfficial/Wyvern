@@ -1,10 +1,10 @@
 #include "Application.h"
-#include <Wyvern/Logging/Logging.h>
-#include <Wyvern/Rendering/Renderer.h>
 #include <Wyvern/Managers/AssetManager.h>
+#include <Wyvern/Game.h>
+#include <Wyvern/Rendering/Renderer.h>
+#include <Wyvern/Logging/Logging.h>
 
 using namespace WV;
-
 
 void Application::init( Game* _game )
 {

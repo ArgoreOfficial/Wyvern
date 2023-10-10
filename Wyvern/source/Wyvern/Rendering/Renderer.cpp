@@ -17,7 +17,7 @@ void Renderer::internalDraw( const VertexArray& _vertexArray, const IndexBuffer&
 	glDrawElements( GL_TRIANGLES, _indexBuffer.GetIndexCount(), GL_UNSIGNED_INT, nullptr );
 }
 
-void Renderer::internalDraw( RenderObject& _renderObject )
+void Renderer::internalDraw( Model& _renderObject )
 {
 	if ( !m_activeCamera )
 	{

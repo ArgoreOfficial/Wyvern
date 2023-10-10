@@ -1,7 +1,10 @@
 #pragma once
 #include <Wyvern/Game.h>
-#include <Wyvern/Rendering/Renderer.h>
+#include <Wyvern/Application.h>
 #include <Wyvern/Logging/Logging.h>
+
+namespace WV { class Camera; }
+namespace WV { class Model; }
 
 class DefaultGame : public WV::Game
 {
@@ -14,7 +17,7 @@ public:
 	void draw() override;
 
 	WV::Camera* m_camera = nullptr;
-	WV::RenderObject* m_testModel = nullptr;
-	WV::RenderObject* m_testModel2 = nullptr;
+	WV::Model* m_testModel = nullptr;
+	WV::Model* m_testModel2 = nullptr;
 };
 

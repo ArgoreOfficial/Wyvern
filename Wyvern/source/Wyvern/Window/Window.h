@@ -1,6 +1,5 @@
 #pragma once
 #include <Wyvern/Logging/Logging.h>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 

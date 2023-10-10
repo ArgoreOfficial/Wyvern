@@ -1,21 +1,20 @@
-#include "RenderObject.h"
+#include "Model.h"
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Rendering/Camera.h>
-#include <Wyvern/Managers/AssetManager.h>
 
 using namespace WV;
 
-RenderObject::RenderObject( Mesh* _mesh, Material* _material ) :
+Model::Model( Mesh* _mesh, Material* _material ) :
 	m_mesh(_mesh), m_material(_material)
 {
 }
 
-RenderObject::~RenderObject()
+Model::~Model()
 {
 	delete m_material;
 }
 
-void WV::RenderObject::bind( Camera& _camera )
+void WV::Model::bind( Camera& _camera )
 {
 
 	glm::mat4 model;
@@ -30,10 +29,11 @@ void WV::RenderObject::bind( Camera& _camera )
 	m_mesh->indexBuffer->bind();
 }
 
-RenderObject* RenderObject::createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath )
+Model* Model::createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath )
 {
-	WVDEBUG( "Creating RenderObject...", _meshPath );
-	
+	/*
+	WVDEBUG( "Creating Model...", _meshPath );
+
 	Mesh* mesh = AssetManager::loadMesh( _meshPath );
 	ShaderProgram* shaderProgram = AssetManager::loadShader( _shaderPath );
 	Texture* texture = AssetManager::loadTexture( _texturePath );
@@ -41,6 +41,8 @@ RenderObject* RenderObject::createFromFiles( const char* _meshPath, const char* 
 	Diffuse diffuse{ glm::vec4( 1.0f,1.0f,1.0f,1.0f ), texture };
 	Material* material = new Material( shaderProgram, diffuse, glm::vec4( 1.0f,1.0f,1.0f,1.0f ) );
 
-	RenderObject* renderObject = new RenderObject( mesh, material );
-	return renderObject;
+	Model* renderObject = new Model( mesh, material );
+
+	*/
+	return nullptr;
 }

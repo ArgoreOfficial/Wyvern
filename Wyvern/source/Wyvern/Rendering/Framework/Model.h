@@ -17,7 +17,7 @@ namespace WV
 		IndexBuffer* indexBuffer;
 	};
 
-	class RenderObject
+	class Model
 	{
 	private:
 		glm::vec3 m_position;
@@ -27,8 +27,8 @@ namespace WV
 		Mesh* m_mesh;
 		Material* m_material;
 	public:
-		RenderObject( Mesh* _mesh, Material* _material );
-		~RenderObject();
+		Model( Mesh* _mesh, Material* _material );
+		~Model();
 
 		void bind( Camera& _camera );
 
@@ -36,7 +36,7 @@ namespace WV
 		IndexBuffer& getIndexBuffer() { return *(m_mesh->indexBuffer); }
 		Material& getMaterial() { return *m_material; }
 
-		static RenderObject* createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath );
+		static Model* createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath );
 
 		glm::vec3 getPosition() { return m_position; }
 		glm::vec3 getRotation() { return m_rotation; }
