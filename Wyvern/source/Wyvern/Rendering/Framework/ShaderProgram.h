@@ -8,14 +8,11 @@ namespace WV
 {
 	class ShaderProgram
 	{
-	private:
-		unsigned int _renderID;
-		std::unordered_map<std::string, int> _locationCache;
-		unsigned int CompileShader( unsigned int type, const std::string& source, const std::string& _path );
-
 	public:
-		ShaderProgram( ShaderSource source );
+		ShaderProgram( ShaderSource _source );
 		~ShaderProgram();
+
+		void glInit();
 
 		void Bind() const { glUseProgram( _renderID ); }
 		void Unbind() const { glUseProgram( 0 ); }
@@ -26,5 +23,13 @@ namespace WV
 		int GetUniformLocation( const std::string& name );
 
 		unsigned int getShaderProgram() { return( _renderID ); }
+	
+	private:
+		unsigned int _renderID;
+		std::unordered_map<std::string, int> _locationCache;
+		ShaderSource m_source;
+		
+		unsigned int CompileShader( unsigned int type, const std::string& source, const std::string& _path );
+
 	};
 }

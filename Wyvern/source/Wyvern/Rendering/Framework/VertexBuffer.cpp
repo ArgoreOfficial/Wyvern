@@ -11,14 +11,20 @@ VertexBuffer::VertexBuffer( void* _data, unsigned int _size ):
 	m_size(_size),
 	m_vertices(_data)
 {
-	glGenBuffers( 1, &m_renderID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_renderID );
-	glBufferData( GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW );
+	
 }
 
 VertexBuffer::~VertexBuffer()
 { 
 	glDeleteBuffers( 1, &m_renderID );
+}
+
+
+void WV::VertexBuffer::glInit()
+{
+	glGenBuffers( 1, &m_renderID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_renderID );
+	glBufferData( GL_ARRAY_BUFFER, m_size, m_vertices, GL_STATIC_DRAW );
 }
 
 void VertexBuffer::bind() const
@@ -30,3 +36,4 @@ void VertexBuffer::unbind() const
 {
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
+

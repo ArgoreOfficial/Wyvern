@@ -6,15 +6,20 @@ namespace WV
 {
 	class VertexArray
 	{
-	private:
-		unsigned int _renderID;
 	public:
 		VertexArray();
 		~VertexArray();
 
-		void AddBuffer( const VertexBuffer& vertexBuffer, const VertexBufferLayout& layout );
+		void glInit();
+
+		void AddBuffer( VertexBuffer* vertexBuffer, VertexBufferLayout layout );
 		void bind() const;
 		void Unbind() const;
+	private:
+		unsigned int _renderID;
+
+		VertexBuffer* m_vertexBuffer;
+		VertexBufferLayout m_layout;
 	};
 
 }

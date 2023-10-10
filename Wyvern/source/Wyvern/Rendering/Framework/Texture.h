@@ -17,6 +17,8 @@ namespace WV
 		Texture( std::string path );
 		~Texture();
 
+		void glInit();
+
 		unsigned int getID() { return m_renderID; }
 		void Bind( unsigned int slot = 0 ) const;
 		void Unbind() const;

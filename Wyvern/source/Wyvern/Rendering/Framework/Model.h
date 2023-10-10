@@ -36,8 +36,6 @@ namespace WV
 		IndexBuffer& getIndexBuffer() { return *(m_mesh->indexBuffer); }
 		Material& getMaterial() { return *m_material; }
 
-		static Model* createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath );
-
 		glm::vec3 getPosition() { return m_position; }
 		glm::vec3 getRotation() { return m_rotation; }
 		glm::vec3 getScale() { return m_scale; }

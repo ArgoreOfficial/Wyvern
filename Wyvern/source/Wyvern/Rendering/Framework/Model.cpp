@@ -28,21 +28,3 @@ void WV::Model::bind( Camera& _camera )
 	m_mesh->vertexArray->bind();
 	m_mesh->indexBuffer->bind();
 }
-
-Model* Model::createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath )
-{
-	/*
-	WVDEBUG( "Creating Model...", _meshPath );
-
-	Mesh* mesh = AssetManager::loadMesh( _meshPath );
-	ShaderProgram* shaderProgram = AssetManager::loadShader( _shaderPath );
-	Texture* texture = AssetManager::loadTexture( _texturePath );
-
-	Diffuse diffuse{ glm::vec4( 1.0f,1.0f,1.0f,1.0f ), texture };
-	Material* material = new Material( shaderProgram, diffuse, glm::vec4( 1.0f,1.0f,1.0f,1.0f ) );
-
-	Model* renderObject = new Model( mesh, material );
-
-	*/
-	return nullptr;
-}

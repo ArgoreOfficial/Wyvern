@@ -3,7 +3,7 @@ using namespace WV;
 
 VertexArray::VertexArray()
 { 
-	glGenVertexArrays( 1, &_renderID );
+	
 }
 
 VertexArray::~VertexArray()
@@ -11,21 +11,30 @@ VertexArray::~VertexArray()
 	glDeleteVertexArrays( 1, &_renderID );
 }
 
-void VertexArray::AddBuffer( const VertexBuffer& vertexBuffer, const VertexBufferLayout& layout )
-{ 
+void WV::VertexArray::glInit()
+{
+	glGenVertexArrays( 1, &_renderID );
+
+	m_vertexBuffer->glInit();
+
 	bind();
-	vertexBuffer.bind();
-	
-	const auto& elements = layout.GetElements();
+	m_vertexBuffer->bind();
+
+	const auto& elements = m_layout.GetElements();
 	unsigned int offset = 0;
 	for ( unsigned int i = 0; i < elements.size(); i++ )
 	{
 		const auto& element = elements[ i ];
 		glEnableVertexAttribArray( i );
-		glVertexAttribPointer( i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
+		glVertexAttribPointer( i, element.count, element.type, element.normalized, m_layout.GetStride(), (const void*)offset );
 		offset += element.count * VertexBufferElement::GetSizeOfType( element.type );
 	}
+}
 
+void VertexArray::AddBuffer( VertexBuffer* _vertexBuffer, VertexBufferLayout _layout )
+{ 
+	m_vertexBuffer = _vertexBuffer;
+	m_layout = _layout;
 }
 
 void VertexArray::bind() const

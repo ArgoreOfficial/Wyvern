@@ -46,14 +46,26 @@ void Application::internalRun( Game* _game )
 	double lastTime = 0.0;
 
 	game->load();
-	/*
-	while ( !AssetManager::isDoneLoading() )
+	
+	AssetManager::startLoadingThread();
+
+	while ( AssetManager::isLoading() )
 	{
+		window->processInput();
+		glClearColor( 0.4f, 0.4f, 0.6f, 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+		/*
 		game->loadUpdate();
 		game->loadDraw();
+		*/
+
+		glfwSwapBuffers( window->getWindow() );
 	}
-	*/
-	
+
+	AssetManager& instance = AssetManager::getInstance();
+	AssetManager::glInitQueued();
+
 
 	bool run = true;
 	while ( run )

@@ -5,16 +5,17 @@
 void DefaultGame::load()
 {
 	m_camera = new WV::Camera(40, 800, 800);
-
+	
 	WV::AssetManager::loadModel( &m_testModel, "meshes/fire.obj", "textures/whisperingdeath.png" );
 	WV::AssetManager::loadModel( &m_testModel2, "meshes/fire.obj", "textures/stone_card.png" );
-
+	
 
 	m_camera->rotate( glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	m_camera->move( glm::vec3( 0, 0.0f, 3.0f ) );
 
 	WV::Renderer::setActiveCamera( m_camera );
 }
+
 
 void DefaultGame::update( float _deltaTime )
 {

@@ -11,9 +11,7 @@ IndexBuffer::IndexBuffer( unsigned int* _data, unsigned int _count ) :
 	m_count( _count ),
 	m_indices( _data )
 {
-	glGenBuffers( 1, &m_renderID );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_renderID );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, _count * sizeof( unsigned int ), _data, GL_STATIC_DRAW );
+	
 }
 
 IndexBuffer::~IndexBuffer()
@@ -29,4 +27,11 @@ void IndexBuffer::bind() const
 void IndexBuffer::unbind() const
 {
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+}
+
+void WV::IndexBuffer::glInit()
+{
+	glGenBuffers( 1, &m_renderID );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_renderID );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, m_count * sizeof( unsigned int ), m_indices, GL_STATIC_DRAW );
 }

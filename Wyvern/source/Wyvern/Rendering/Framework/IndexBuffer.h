@@ -12,6 +12,8 @@ namespace WV
 		void bind() const;
 		void unbind() const;
 
+		void glInit();
+
 		const unsigned int GetIndexCount() const { return m_count; }
 
 	private:

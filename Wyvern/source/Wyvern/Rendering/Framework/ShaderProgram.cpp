@@ -2,12 +2,23 @@
 #include <Wyvern/Logging/Logging.h>
 using namespace WV;
 
-ShaderProgram::ShaderProgram( ShaderSource _source )
+ShaderProgram::ShaderProgram( ShaderSource _source ):
+	m_source(_source)
+{
+	
+}
+
+ShaderProgram::~ShaderProgram()
+{
+	glDeleteProgram( _renderID );
+}
+
+void WV::ShaderProgram::glInit()
 {
 	_renderID = glCreateProgram();
 
-	unsigned int vertShader = CompileShader( GL_VERTEX_SHADER, _source.m_vertexSource.c_str(), _source.m_path );
-	unsigned int fragShader = CompileShader( GL_FRAGMENT_SHADER, _source.m_fragmentSource.c_str(), _source.m_path );
+	unsigned int vertShader = CompileShader( GL_VERTEX_SHADER, m_source.m_vertexSource.c_str(), m_source.m_path );
+	unsigned int fragShader = CompileShader( GL_FRAGMENT_SHADER, m_source.m_fragmentSource.c_str(), m_source.m_path );
 
 	glAttachShader( _renderID, vertShader );
 	glAttachShader( _renderID, fragShader );
@@ -18,11 +29,6 @@ ShaderProgram::ShaderProgram( ShaderSource _source )
 	glDeleteShader( fragShader );
 
 	glUseProgram( 0 );
-}
-
-ShaderProgram::~ShaderProgram()
-{
-	glDeleteProgram( _renderID );
 }
 
 void ShaderProgram::SetUniform1i( const std::string& name, int val )
