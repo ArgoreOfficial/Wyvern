@@ -1,6 +1,7 @@
 #include "AssetManager.h"
-
+#include <thread>
 using namespace WV;
+
 
 Model* WV::AssetManager::internalAssembleModel( std::string _meshName, std::string _textureName )
 {
@@ -15,26 +16,6 @@ Model* WV::AssetManager::internalAssembleModel( std::string _meshName, std::stri
 	return new Model( mesh, material );
 }
 
-void WV::AssetManager::internalLoadModel( Model** _out, const char* _meshPath, const char* _texturePath )
-{
-	WVDEBUG( "Creating Model...", _meshPath );
-
-	Mesh* mesh = nullptr;
-	AssetManager::load<Mesh>( &mesh, _meshPath );
-
-	ShaderProgram* shaderProgram = nullptr;
-	AssetManager::load<ShaderProgram>( &shaderProgram, "shaders/default.shader" );
-
-	Texture* texture = nullptr;
-	AssetManager::load<Texture>( &texture, _texturePath );
-
-	Diffuse diffuse{ glm::vec4( 1.0f,1.0f,1.0f,1.0f ), texture };
-	Material* material = new Material( shaderProgram, diffuse, glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-
-	Model* tmp = new Model( mesh, material );
-	*_out = tmp;
-}
-
 void AssetManager::internalUnloadAll()
 {
 	clearMap<std::string, Mesh*>( m_meshes );
@@ -43,11 +24,13 @@ void AssetManager::internalUnloadAll()
 	clearMap<std::string, Texture*>( m_textures );
 }
 
-void WV::AssetManager::internalLoadQueued()
+void WV::AssetManager::loadQueuedAssetThread( AssetManager* _instance )
 {
-	while ( m_loadQueue.size() > 0 )
+	AssetManager& instance = *_instance;
+
+	while ( instance.m_loadQueue.size() > 0 )
 	{
-		AssetQueueObject current = m_loadQueue.front();
+		AssetQueueObject current = instance.m_loadQueue.front();
 
 		std::string filename = Filesystem::getFilenameFromPath( current.path );
 
@@ -55,31 +38,77 @@ void WV::AssetManager::internalLoadQueued()
 		{
 		case( Asset::AssetType::MESH ):
 		{
+			if ( instance.m_meshAssets.find( filename ) != instance.m_meshAssets.end() )
+			{
+				WVDEBUG( "File already loaded %s", filename );
+				break;
+			}
+
 			MeshAsset* meshAsset = new MeshAsset();
 			meshAsset->load( current.path );
-			m_meshAssets[ filename ] = meshAsset;
-			
+
+			instance.m_meshAssets[ filename ] = meshAsset;
+
 			break;
 		}
 		case( Asset::AssetType::TEXTURE ):
 		{
+			if ( instance.m_textureAssets.find( filename ) != instance.m_textureAssets.end() )
+			{
+				WVDEBUG( "File already loaded %s", filename );
+				break;
+			}
+
 			TextureAsset* textureAsset = new TextureAsset();
 			textureAsset->load( current.path );
-			m_textureAssets[ filename ] = textureAsset;
+			
+			instance.m_textureAssets[ filename ] = textureAsset;
 
 			break;
 		}
 		case( Asset::AssetType::SHADER ):
 		{
+			if ( instance.m_shaderAssets.find( filename ) != instance.m_shaderAssets.end() )
+			{
+				WVDEBUG( "File already loaded %s", filename );
+				break;
+			}
+
 			ShaderSource* shader = new ShaderSource( current.path );
-			// meshAsset->load( current.path );
-			m_shaderAssets[ filename ] = shader;
+			// shader->load( current.path );
+
+			instance.m_shaderAssets[ filename ] = shader;
 
 			break;
 		}
 		}
 
-		m_loadQueue.erase( m_loadQueue.begin() );
+		instance.m_loadQueue.erase( instance.m_loadQueue.begin() );
 	}
+
+	instance.m_assetManagerMutex.lock();
+	WVDEBUG( "Loading complete. Killing thread..." );
+	instance.m_isLoading = false;
+	instance.m_assetManagerMutex.unlock();
+}
+std::thread* AssetManager::internalLoadQueued()
+{
+	m_isLoading = true;
+
+	WVDEBUG( "Loading assets. Creating thread..." );
+
+	AssetManager& instance = getInstance();
+	instance.m_assetLoadThread = new std::thread( AssetManager::loadQueuedAssetThread, &instance );
+	return m_assetLoadThread;
+}
+
+bool AssetManager::internalIsLoading()
+{
+	bool out = true;
+	m_assetManagerMutex.lock();
+	out = m_isLoading;
+	m_assetManagerMutex.unlock();
+
+	return out;
 }
 

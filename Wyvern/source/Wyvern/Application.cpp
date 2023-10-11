@@ -43,18 +43,23 @@ void Application::internalRun( Game* _game )
 	Game* game = getInstance().m_game;
 	Window* window = getInstance().m_window;
 
-	AssetManager::queueLoad<ShaderSource>("shaders/default.shader");
+	AssetManager::load<ShaderSource>("shaders/default.shader");
 	game->load();
-	AssetManager::loadQueued();
+	std::thread* loadthread = AssetManager::loadQueuedAssets();
 
-	/*
-	while ( !AssetManager::isDoneLoading() )
+	while ( AssetManager::isLoading() )
 	{
-		game->loadUpdate();
-		game->loadDraw();
-	}
-	*/
+		window->processInput();
+		glClearColor( 0.1f, 0.1f, 0.15f, 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+
+
+		glfwSwapBuffers( window->getWindow() );
+		window->pollEvents();
+	}
+
+	loadthread->join();
 	game->start();
 
 	double lastTime = 0.0;
