@@ -25,8 +25,8 @@ void WV::Model::bind( Camera& _camera )
 
 	m_material->bind( _camera.getProjectionMatrix(), _camera.getViewMatrix(), model );
 
-	m_mesh->vertexArray->bind();
-	m_mesh->indexBuffer->bind();
+	m_mesh->getVertexArray()->bind();
+	m_mesh->getIndexBuffer()->bind();
 }
 
 Model* Model::createFromFiles( const char* _meshPath, const char* _shaderPath, const char* _texturePath )
