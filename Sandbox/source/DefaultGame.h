@@ -13,6 +13,7 @@ public:
 	~DefaultGame() { };
 
 	void load() override;
+	void start() override;
 	void update( float _deltaTime ) override;
 	void draw() override;
 

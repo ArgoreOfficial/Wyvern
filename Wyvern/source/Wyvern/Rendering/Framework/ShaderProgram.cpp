@@ -2,7 +2,7 @@
 #include <Wyvern/Logging/Logging.h>
 using namespace WV;
 
-ShaderProgram::ShaderProgram( ShaderSource _source )
+ShaderProgram::ShaderProgram( ShaderSource& _source )
 {
 	_renderID = glCreateProgram();
 

@@ -43,9 +43,10 @@ void Application::internalRun( Game* _game )
 	Game* game = getInstance().m_game;
 	Window* window = getInstance().m_window;
 
-	double lastTime = 0.0;
-
+	AssetManager::queueLoad<ShaderSource>("shaders/default.shader");
 	game->load();
+	AssetManager::loadQueued();
+
 	/*
 	while ( !AssetManager::isDoneLoading() )
 	{
@@ -53,8 +54,10 @@ void Application::internalRun( Game* _game )
 		game->loadDraw();
 	}
 	*/
-	
 
+	game->start();
+
+	double lastTime = 0.0;
 	bool run = true;
 	while ( run )
 	{

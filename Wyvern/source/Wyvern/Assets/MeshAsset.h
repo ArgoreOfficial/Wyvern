@@ -7,7 +7,7 @@ namespace WV
 	class MeshAsset : public IAsset
 	{
 	public:
-		bool load( std::string _path, std::string _name = "" ) override;
+		bool load( std::string _path ) override;
 
 		void* getVertexData() { return &( m_vertices[ 0 ] ); }
 		unsigned int* getIndexData() { return &( m_indices[ 0 ] ); }

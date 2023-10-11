@@ -13,7 +13,7 @@ namespace WV
 			static T instance;
 			return instance;
 		}
-
+		
 	protected:
 		ISingleton<T>() { }
 	};

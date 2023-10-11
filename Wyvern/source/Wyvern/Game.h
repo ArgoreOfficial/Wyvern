@@ -9,6 +9,7 @@ namespace WV
 		~Game();
 
 		virtual void load() { }
+		virtual void start() { }
 		virtual void update( float _deltaTime ) { }
 		virtual void draw() { }
 

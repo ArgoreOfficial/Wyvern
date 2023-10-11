@@ -14,7 +14,7 @@ namespace WV
 		unsigned int CompileShader( unsigned int type, const std::string& source, const std::string& _path );
 
 	public:
-		ShaderProgram( ShaderSource source );
+		ShaderProgram( ShaderSource& source );
 		~ShaderProgram();
 
 		void Bind() const { glUseProgram( _renderID ); }
