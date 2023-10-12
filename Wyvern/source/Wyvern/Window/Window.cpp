@@ -1,4 +1,6 @@
 #include "Window.h"
+#include <Wyvern/Events/Events.h>
+
 using namespace WV;
 
 Window::Window():
@@ -77,7 +79,7 @@ int Window::createWindow()
 	return 1;
 }
 
-int WV::Window::pollEvents()
+int Window::pollEvents()
 {
 	if ( glfwWindowShouldClose( m_window ) )
 	{
@@ -91,11 +93,45 @@ int WV::Window::pollEvents()
 	return 1;
 }
 
-void WV::Window::processInput()
+void Window::processInput()
 {
 	if ( glfwGetKey( m_window, GLFW_KEY_ESCAPE ) == GLFW_PRESS ) // escape exit
 	{
 		glfwSetWindowShouldClose( m_window, true );
 	}
+}
+
+void Window::hookEvents()
+{
+	glfwSetKeyCallback( m_window, Window::handleKeyEvents );
+	// glfwSetCursorPosCallback()
+}
+
+void Window::handleApplicationEvents()
+{
+
+}
+
+void Window::handleKeyEvents( GLFWwindow* window, int key, int scancode, int action, int mods )
+{
+	Events::KeyEvent keyEvent( key );
+	EventManager::call<Events::KeyEvent>( keyEvent );
+
+	if ( action == GLFW_PRESS )
+	{
+		Events::KeyDownEvent downEvent( key );
+		EventManager::call<Events::KeyDownEvent>( downEvent );
+	}
+	else if ( action == GLFW_RELEASE )
+	{
+		Events::KeyUpEvent upEvent( key );
+		EventManager::call<Events::KeyUpEvent>( upEvent );
+	}
+
+}
+
+void Window::handleMouseEvents( GLFWwindow* window, double xpos, double ypos )
+{
+
 }
 

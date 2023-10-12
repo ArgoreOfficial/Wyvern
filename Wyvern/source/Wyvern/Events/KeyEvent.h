@@ -1,27 +1,38 @@
 #pragma once
-#include "Event.h"
+#include "IEvent.h"
 
 namespace WV
 {
-	class KeyEvent : public Event
+	namespace Events
 	{
-		inline int getKeyCode() { return m_keycode; }
-	protected:
-		KeyEvent(int _keycode):
-			m_keycode(_keycode) { }
+		class KeyEvent : public IEvent<KeyEvent>
+		{
+		public:
+			KeyEvent( int _keyCode ) : m_keycode(_keyCode) { }
+			inline int getKeyCode() { return m_keycode; }
 
-		int m_keycode;
-	};
+		protected:
+			int m_keycode;
+		};
 
-	class KeyDownEvent : public KeyEvent
-	{
-	public:
-		KeyDownEvent();
-	};
+		class KeyDownEvent : public IEvent<KeyDownEvent>
+		{
+		public:
+			KeyDownEvent( int _keyCode ) : m_keycode( _keyCode ) { }
+			inline int getKeyCode() { return m_keycode; }
 
-	class KeyUpEvent : public KeyEvent
-	{
-	public:
-		KeyUpEvent();
-	};
+		protected:
+			int m_keycode;
+		};
+
+		class KeyUpEvent : public IEvent<KeyDownEvent>
+		{
+		public:
+			KeyUpEvent( int _keyCode ) : m_keycode( _keyCode ) { }
+			inline int getKeyCode() { return m_keycode; }
+
+		protected:
+			int m_keycode;
+		};
+	}
 }

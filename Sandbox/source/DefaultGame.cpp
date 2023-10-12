@@ -1,6 +1,7 @@
 #include "DefaultGame.h"
 #include <Wyvern/Managers/AssetManager.h>
 #include <Wyvern/Rendering/Renderer.h>
+#include <Wyvern/Events/Events.h>
 
 void DefaultGame::load()
 {
@@ -12,6 +13,11 @@ void DefaultGame::load()
 	WV::AssetManager::load<WV::Texture>( "textures/logo_fire_BaseColor.png" );
 	WV::AssetManager::load<WV::Texture>( "textures/reaction_sheet.png" );
 	WV::AssetManager::load<WV::Texture>( "textures/monitor.png" );
+}
+
+void keyEventHandler( WV::Events::KeyDownEvent& _event )
+{
+	WVDEBUG( "keycode %c was pressed", (char)_event.getKeyCode() );
 }
 
 void DefaultGame::start()
@@ -33,6 +39,8 @@ void DefaultGame::start()
 	m_monitorScreen->setPosition( pos );
 
 	m_monitor->getMesh().recalculateNormals();
+
+	WV::Events::KeyDownEvent::hook( keyEventHandler );
 }
 
 void DefaultGame::update( float _deltaTime )

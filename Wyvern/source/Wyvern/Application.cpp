@@ -29,6 +29,8 @@ void Application::init( Game* _game )
 		delete instance.m_window;
 		return;
 	}
+
+	instance.m_window->hookEvents();
 }
 
 void Application::deinit()
