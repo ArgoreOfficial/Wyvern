@@ -6,34 +6,59 @@ void DefaultGame::load()
 {
 
 	WV::AssetManager::load<WV::Mesh>( "meshes/logo.obj" );
+	WV::AssetManager::load<WV::Mesh>( "meshes/monitor_bare.obj" );
+	WV::AssetManager::load<WV::Mesh>( "meshes/monitor_screen.obj" );
+
 	WV::AssetManager::load<WV::Texture>( "textures/logo_fire_BaseColor.png" );
-	WV::AssetManager::load<WV::Texture>( "textures/logo_fire_Roughness.png" );
+	WV::AssetManager::load<WV::Texture>( "textures/reaction_sheet.png" );
+	WV::AssetManager::load<WV::Texture>( "textures/monitor.png" );
 }
 
 void DefaultGame::start()
 {
-	m_camera = new WV::Camera(40, 800, 800);
-	WV::Renderer::setActiveCamera( m_camera );	
-	
+	m_camera = new WV::Camera( 40, 800, 800 );
+	WV::Renderer::setActiveCamera( m_camera );
+
 	m_camera->rotate( glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	m_camera->move( glm::vec3( 0, 0.0f, 3.0f ) );
 
-	m_testModel = WV::AssetManager::assembleModel( "logo.obj", "logo_fire_BaseColor.png" );
-	m_testModel2 = WV::AssetManager::assembleModel( "logo.obj", "logo_fire_Roughness.png" );
+	m_logo = WV::AssetManager::assembleModel( "logo.obj", "logo_fire_BaseColor.png" );
+
+	m_monitor = WV::AssetManager::assembleModel( "monitor_bare.obj", "monitor.png" );
+	m_monitorScreen = WV::AssetManager::assembleModel( "monitor_screen.obj", "reaction_sheet.png" );
+	m_monitorScreen->getMaterial().setTileCount( { 109, 1 } );
+
+	glm::vec3 pos( 0.25f, -0.2f, 1.5f );
+	m_monitor->setPosition( pos );
+	m_monitorScreen->setPosition( pos );
+
+	m_monitor->getMesh().recalculateNormals();
 }
 
 void DefaultGame::update( float _deltaTime )
 {
-	float posy = sinf( WV::Application::getTime() * 2.0f );
-	m_testModel->setPosition( { -0.5f, posy / 15.0f, 0 } );
-	m_testModel->rotate( { 0, _deltaTime * 45, 0 } );
+	float time = WV::Application::getTime();
 
-	m_testModel2->setPosition( { 0.5f, posy / 15.0f, 0 } );
-	m_testModel2->rotate( { 0, _deltaTime * 45, 0 } );
+	m_logo->setPosition( { -0.5f, sinf( time ) / 15.0f, 0 } );
+	m_logo->rotate( { 0, _deltaTime * 45, 0 } );
+
+	glm::vec3 monitorRotation = 
+	{ 
+		cosf( time ) * 15.0f, 
+		sinf( time ) * 15.0f, 
+		0 
+	};
+
+	m_monitor->setRotation( monitorRotation );
+	m_monitorScreen->setRotation( monitorRotation );
+
+	m_monitorScreen->getMaterial().setUVOffset( { floorf( time * 28.0f ), 0 } );
 }
 
 void DefaultGame::draw()
 {
-	WV::Renderer::getInstance().draw( *m_testModel );
-	WV::Renderer::getInstance().draw( *m_testModel2 );
+	WV::Renderer::getInstance().draw( *m_logo );
+
+	WV::Renderer::getInstance().draw( *m_monitor );
+	WV::Renderer::getInstance().draw( *m_monitorScreen );
 }

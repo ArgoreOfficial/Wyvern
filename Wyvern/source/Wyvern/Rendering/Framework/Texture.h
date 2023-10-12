@@ -17,6 +17,6 @@ namespace WV
 	
 	private:
 		unsigned int m_renderID;
-
+		int m_width, m_height, m_bpp;
 	};
 }

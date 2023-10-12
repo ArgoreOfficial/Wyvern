@@ -1,6 +1,8 @@
 #pragma once
 #include "IAsset.h"
 #include <vector>
+#include <glm/vec3.hpp>
+#include <glm/geometric.hpp>
 
 namespace WV
 {
@@ -14,9 +16,18 @@ namespace WV
 
 		unsigned int getVerticeSize() { return m_vertices.size() * sizeof( float ); }
 		unsigned int getIndexCount() { return m_indices.size(); }
-	
+		
+		void recalculateNormals();
+
 	private:
 		std::vector<float> m_vertices;
+		int m_stride;
 		std::vector<unsigned int> m_indices;
+
+		inline glm::vec3 calculateTriangleNormal( glm::vec3 _a, glm::vec3 _b, glm::vec3 _c )
+		{
+			glm::vec3 normal = glm::cross( _c - _a, _b - _a );
+			return normal;
+		}
 	};
 }

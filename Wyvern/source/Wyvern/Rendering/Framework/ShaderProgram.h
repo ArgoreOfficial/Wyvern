@@ -19,8 +19,12 @@ namespace WV
 
 		void Bind() const { glUseProgram( _renderID ); }
 		void Unbind() const { glUseProgram( 0 ); }
+
 		void SetUniform1i( const std::string& name, int val );
+		
 		void SetUniform4f( const std::string& name, glm::vec4 vec );
+		void SetUniform2f( const std::string& name, glm::vec2 vec );
+		
 		void SetUniformMat4( const std::string& name, glm::mat4 mat );
 
 		int GetUniformLocation( const std::string& name );

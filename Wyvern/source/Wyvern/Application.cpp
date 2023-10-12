@@ -40,46 +40,58 @@ void Application::internalRun( Game* _game )
 {
 	Application::init( _game );
 
-	Game* game = getInstance().m_game;
-	Window* window = getInstance().m_window;
+	m_game = getInstance().m_game;
+	m_window = getInstance().m_window;
 
-	AssetManager::load<ShaderSource>("shaders/default.shader");
-	game->load();
+	AssetManager::load<ShaderSource>( "shaders/default.shader" );
+	m_game->load();
 	std::thread* loadthread = AssetManager::loadQueuedAssets();
 
 	while ( AssetManager::isLoading() )
 	{
-		window->processInput();
+		m_window->processInput();
 		glClearColor( 0.1f, 0.1f, 0.15f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-
-
-		glfwSwapBuffers( window->getWindow() );
-		window->pollEvents();
+		glfwSwapBuffers( m_window->getWindow() );
+		m_window->pollEvents();
 	}
 
 	loadthread->join();
-	game->start();
+	m_game->start();
 
-	double lastTime = 0.0;
+	m_lastTime = 0.0;
 	bool run = true;
 	while ( run )
 	{
-		m_time = glfwGetTime();
-		float deltaTime = m_time - lastTime;
-		lastTime = m_time;
+		update();
+		draw();
 
-		window->processInput();
-		glClearColor( 0.4f, 0.4f, 0.6f, 1.0f );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-		game->update( deltaTime );
-		game->draw();
-
-		glfwSwapBuffers( window->getWindow() );
-		run = window->pollEvents();
+		run = m_window->pollEvents();
 	}
 
 	AssetManager::unloadAll();
+}
+
+void Application::update()
+{
+	m_time = glfwGetTime();
+	m_deltaTime = m_time - m_lastTime;
+	m_lastTime = m_time;
+
+	m_window->processInput();
+
+	m_game->update( m_deltaTime );
+}
+
+void Application::draw()
+{
+	glClearColor( 0.4f, 0.4f, 0.6f, 1.0f );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	m_game->draw();
+	glfwSwapBuffers( m_window->getWindow() );
+}
+
+void Application::pollEvents()
+{
 }

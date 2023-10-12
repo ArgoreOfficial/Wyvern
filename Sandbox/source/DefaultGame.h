@@ -18,7 +18,9 @@ public:
 	void draw() override;
 
 	WV::Camera* m_camera = nullptr;
-	WV::Model* m_testModel = nullptr;
-	WV::Model* m_testModel2 = nullptr;
+	WV::Model* m_logo = nullptr;
+	
+	WV::Model* m_monitor = nullptr;
+	WV::Model* m_monitorScreen = nullptr;
 };
 

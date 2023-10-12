@@ -35,6 +35,11 @@ void ShaderProgram::SetUniform4f( const std::string& name, glm::vec4 vec )
 	glUniform4f( GetUniformLocation( name ), vec.x, vec.y, vec.z, vec.w );
 }
 
+void WV::ShaderProgram::SetUniform2f( const std::string& name, glm::vec2 vec )
+{
+	glUniform2f( GetUniformLocation( name ), vec.x, vec.y );
+}
+
 void ShaderProgram::SetUniformMat4( const std::string& name, glm::mat4 mat )
 {
 	glUniformMatrix4fv( GetUniformLocation( name ), 1, GL_FALSE, glm::value_ptr( mat ) );

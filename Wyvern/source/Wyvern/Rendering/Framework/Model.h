@@ -22,6 +22,7 @@ namespace WV
 
 		VertexArray& getVertexArray() { return *( m_mesh->getVertexArray() ); }
 		IndexBuffer& getIndexBuffer() { return *( m_mesh->getIndexBuffer() ); }
+		Mesh& getMesh() { return *m_mesh; }
 		Material& getMaterial() { return *m_material; }
 
 		glm::vec3 getPosition() { return m_position; }

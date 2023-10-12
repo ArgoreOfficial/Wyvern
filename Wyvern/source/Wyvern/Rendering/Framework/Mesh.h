@@ -13,8 +13,13 @@ namespace WV
 
 		VertexArray* getVertexArray() { return m_vertexArray; }
 		IndexBuffer* getIndexBuffer() { return m_indexBuffer; }
+		void recalculateNormals();
 
 	private:
+		void destroyMeshObject();
+		void createMeshObject();
+		MeshAsset* m_meshAsset;
+
 		VertexArray* m_vertexArray;
 		IndexBuffer* m_indexBuffer;
 	};

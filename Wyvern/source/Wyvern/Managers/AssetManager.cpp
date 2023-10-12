@@ -18,6 +18,11 @@ Model* WV::AssetManager::internalAssembleModel( std::string _meshName, std::stri
 
 void AssetManager::internalUnloadAll()
 {
+	WVDEBUG( "Unloading Assets:" );
+	clearMap<std::string, MeshAsset*>( m_meshAssets );
+	clearMap<std::string, TextureAsset*>( m_textureAssets );
+	clearMap<std::string, ShaderSource*>( m_shaderAssets );
+	WVDEBUG( "Unloading GL Objects" );
 	clearMap<std::string, Mesh*>( m_meshes );
 	clearMap<std::string, Material*>( m_materials );
 	clearMap<std::string, ShaderProgram*>( m_shaderPrograms );
@@ -38,45 +43,30 @@ void WV::AssetManager::loadQueuedAssetThread( AssetManager* _instance )
 		{
 		case( Asset::AssetType::MESH ):
 		{
-			if ( instance.m_meshAssets.find( filename ) != instance.m_meshAssets.end() )
-			{
-				WVDEBUG( "File already loaded %s", filename );
-				break;
-			}
+			if ( checkFileAlreadyLoaded<MeshAsset*>(instance.m_meshAssets, filename) ) break;
 
 			MeshAsset* meshAsset = new MeshAsset();
 			meshAsset->load( current.path );
-
 			instance.m_meshAssets[ filename ] = meshAsset;
 
 			break;
 		}
 		case( Asset::AssetType::TEXTURE ):
 		{
-			if ( instance.m_textureAssets.find( filename ) != instance.m_textureAssets.end() )
-			{
-				WVDEBUG( "File already loaded %s", filename );
-				break;
-			}
+			if ( checkFileAlreadyLoaded<TextureAsset*>( instance.m_textureAssets, filename ) ) break;
 
 			TextureAsset* textureAsset = new TextureAsset();
 			textureAsset->load( current.path );
-			
 			instance.m_textureAssets[ filename ] = textureAsset;
 
 			break;
 		}
 		case( Asset::AssetType::SHADER ):
 		{
-			if ( instance.m_shaderAssets.find( filename ) != instance.m_shaderAssets.end() )
-			{
-				WVDEBUG( "File already loaded %s", filename );
-				break;
-			}
+			if ( checkFileAlreadyLoaded<ShaderSource*>( instance.m_shaderAssets, filename ) ) break;
 
 			ShaderSource* shader = new ShaderSource( current.path );
 			// shader->load( current.path );
-
 			instance.m_shaderAssets[ filename ] = shader;
 
 			break;
@@ -91,6 +81,7 @@ void WV::AssetManager::loadQueuedAssetThread( AssetManager* _instance )
 	instance.m_isLoading = false;
 	instance.m_assetManagerMutex.unlock();
 }
+
 std::thread* AssetManager::internalLoadQueued()
 {
 	m_isLoading = true;

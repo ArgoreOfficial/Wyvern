@@ -44,11 +44,14 @@ namespace WV
 		template<class kT, class T>
 		void clearMap( std::map<kT, T> _map );
 
+		template<class T>
+		static bool checkFileAlreadyLoaded( std::map<std::string, T> _map, std::string _key );
+
 		std::vector<AssetQueueObject> m_loadQueue;
 		std::map<std::string, MeshAsset*> m_meshAssets;
 		std::map<std::string, TextureAsset*> m_textureAssets;
 		std::map<std::string, ShaderSource*> m_shaderAssets;
-		
+
 		// TEMP, MOVE TO DIFFERENT MANAGER
 		std::vector<Model> m_renderObjects;
 		std::map<std::string, Mesh*> m_meshes;
@@ -71,12 +74,21 @@ namespace WV
 		_map.clear();
 	}
 
+	template<class T>
+	inline static bool AssetManager::checkFileAlreadyLoaded( std::map<std::string, T> _map, std::string _key )
+	{
+		bool result = ( getInstance().m_meshAssets.find(_key) != getInstance().m_meshAssets.end() );
+		if ( result ) WVDEBUG( "File already loaded %s", _key.c_str() );
+		return result;
+	}
+
+
 	// ------------------- load templates ------------------- //
-	
+
 	template<class T> void AssetManager::load( std::string _path ) { WVERROR( "Invalid load type" ); }
-	template<> inline void AssetManager::load<Mesh>(std::string _path) { getInstance().m_loadQueue.push_back( { Asset::AssetType::MESH, _path } ); }
-	template<> inline void AssetManager::load<Texture>(std::string _path) { getInstance().m_loadQueue.push_back( { Asset::AssetType::TEXTURE, _path } ); }
-	template<> inline void AssetManager::load<ShaderSource>(std::string _path) { getInstance().m_loadQueue.push_back( { Asset::AssetType::SHADER, _path } ); }
+	template<> inline void AssetManager::load<Mesh>( std::string _path ) { getInstance().m_loadQueue.push_back( { Asset::AssetType::MESH, _path } ); }
+	template<> inline void AssetManager::load<Texture>( std::string _path ) { getInstance().m_loadQueue.push_back( { Asset::AssetType::TEXTURE, _path } ); }
+	template<> inline void AssetManager::load<ShaderSource>( std::string _path ) { getInstance().m_loadQueue.push_back( { Asset::AssetType::SHADER, _path } ); }
 
 
 }

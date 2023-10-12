@@ -8,8 +8,6 @@ TextureAsset::~TextureAsset()
 {
 	if ( m_buffer )
 		stbi_image_free( m_buffer );
-	
-	delete m_buffer;
 }
 
 bool TextureAsset::load( std::string _path )

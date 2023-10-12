@@ -18,8 +18,16 @@ namespace WV
 
 		void internalRun( Game* _game );
 		
+		
+		void update();
+		void draw();
+		void pollEvents();
+
 		WV::Game* m_game = nullptr;
 		WV::Window* m_window = nullptr;
+		
+		double m_lastTime = 0.0;
 		double m_time = 0.0;
+		float m_deltaTime = 0.0f;
 	};
 }
