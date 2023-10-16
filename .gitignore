@@ -5,6 +5,11 @@ bin/
 obj/
 #     files
 
+<<<<<<< HEAD
+=======
+#     files
+
+>>>>>>> d198a8d (imgui implementation)
 *.sln
 *.vcxproj
 *.vcxproj.user

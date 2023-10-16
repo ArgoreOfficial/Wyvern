@@ -30,10 +30,24 @@ void Application::init( Game* _game )
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+<<<<<<< HEAD
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui_Implbgfx_Init( instance.m_window->getView() );
 	ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
+=======
+
+	WVDEBUG("ImGui Context Created");
+
+	outputLog( FATAL, "test" );
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui_Implbgfx_Init( instance.m_window->getView() );
+	WVTRACE("ImGui_Implbgfx_Init");
+
+	ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
+	WVTRACE( "ImGui_ImplGlfw_InitForOther" );
+>>>>>>> d198a8d (imgui implementation)
 }
 
 void Application::deinit()
@@ -64,9 +78,13 @@ void Application::internalRun( Game* _game )
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d198a8d (imgui implementation)
 	m_window->shutdown();
 	bgfx::shutdown();
+	WVDEBUG("BGFX Terminated");
 }
 
 void Application::update()
@@ -77,26 +95,35 @@ void Application::update()
 
 	m_window->processInput();
 
-	
-	m_game->update( m_deltaTime );
-	
+	m_game->update( m_deltaTime );	
 }
 
 void Application::draw()
 {
 	m_window->touch();
+
+	ImGui_Implbgfx_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+
+	ImGui::NewFrame();
+	
+
 	m_game->draw();
 	
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Debug" );
+	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 
+<<<<<<< HEAD
 	
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 
 	ImGui::NewFrame();
 	ImGui::ShowDemoWindow(); // your drawing here
+=======
+>>>>>>> d198a8d (imgui implementation)
 	ImGui::Render();
 	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
 

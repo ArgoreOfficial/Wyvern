@@ -13,5 +13,7 @@ public:
 	void start() override;
 	void update( float _deltaTime ) override;
 	void draw() override;
+
+	float m_slider = 0.0f;
 };
 

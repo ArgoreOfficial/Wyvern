@@ -17,6 +17,7 @@ namespace WV
 	public:
 		static void run( Game* _game ) { getInstance().internalRun(_game); }
 		static double getTime() { return getInstance().m_time; }
+		static double getDeltaTime() { return getInstance().m_deltaTime; }
 
 	private:
 		static void init( Game* _game );

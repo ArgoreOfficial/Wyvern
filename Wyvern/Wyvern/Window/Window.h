@@ -19,7 +19,11 @@ namespace WV
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 		
 		void touch() { bgfx::touch( m_clearView ); }
-		void shutdown() { glfwTerminate(); }
+		inline void shutdown() 
+		{ 
+			WVDEBUG("Terminated GLFW");
+			glfwTerminate(); 
+		}
 
 	private:
 		GLFWwindow* m_window;

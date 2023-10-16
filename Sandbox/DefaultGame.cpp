@@ -18,5 +18,11 @@ void DefaultGame::update( float _deltaTime )
 
 void DefaultGame::draw()
 {
-	
+	if ( ImGui::Begin("Wyvern") )
+	{
+		ImGui::Text( "Welcome to Wyvern!" );
+
+		ImGui::SliderFloat( "I'm a Slider!", &m_slider, 0.0f, 5.0f );
+	}
+	ImGui::End();
 }
