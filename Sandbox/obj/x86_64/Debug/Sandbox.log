@@ -1,3 +1,8 @@
-﻿  main.cpp
+﻿  DefaultGame.cpp
+D:\Projects\Other\Wyvern\Sandbox\DefaultGame.cpp(15,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  main.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+D:\Projects\Other\Wyvern\glfw\include\GLFW\glfw3.h(123,1): message : see previous definition of 'APIENTRY'
+  Generating Code...
      Creating library ..\bin\Sandbox.lib and object ..\bin\Sandbox.exp
   Sandbox.vcxproj -> D:\Projects\Other\Wyvern\bin\Sandbox.exe
