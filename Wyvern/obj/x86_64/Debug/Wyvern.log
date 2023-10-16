@@ -1,32 +1,4 @@
-﻿  Application.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  MeshAsset.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Assets\MeshAsset.h(4,10): fatal  error C1083: Cannot open include file: 'glm/vec3.hpp': No such file or directory
-  TextureAsset.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  Logging.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  AssetManager.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  Camera.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Camera.h(2,10): fatal  error C1083: Cannot open include file: 'glm/glm.hpp': No such file or directory
-  IndexBuffer.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\IndexBuffer.cpp(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  Mesh.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Assets\MeshAsset.h(4,10): fatal  error C1083: Cannot open include file: 'glm/vec3.hpp': No such file or directory
-  Model.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\GLHeader.h(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  ShaderProgram.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\GLHeader.h(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  Texture.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\GLHeader.h(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  VertexArray.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\GLHeader.h(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  VertexBuffer.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\VertexBuffer.cpp(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  Renderer.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Rendering\Framework\GLHeader.h(2,10): fatal  error C1083: Cannot open include file: 'GL/glew.h': No such file or directory
-  Window.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  stb_image.cpp
-  Generating Code...
+﻿  thing.cpp
+kernel32.lib(KERNEL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in gdi32.lib(GDI32.dll); second definition ignored
+psapi.lib(PSAPI.DLL) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in gdi32.lib(GDI32.dll); second definition ignored
+  Wyvern.vcxproj -> D:\Projects\Other\Wyvern\bin\Wyvern.lib

@@ -1,7 +1,7 @@
 # directories
 .vs/
 bin/
-*/source/obj/
+obj/
 
 # files
 *.sln

@@ -10,7 +10,6 @@ cppdialect "C++17"
 buildoptions{"/Zc:__cplusplus"}
 
 filter "configurations:Debug"
-    debugdir "assets"
     staticruntime "on"
 	runtime "Debug"
     symbols "On"
@@ -126,7 +125,7 @@ project "Sandbox"
 		WYVERN_DIR
 	}
 
-	links { "Wyvern", "bgfx", "bimg", "bx", "glfw" }
+	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
 
 	filter "system:windows"
 		links { "gdi32", "kernel32", "psapi" }
@@ -155,13 +154,12 @@ project "bgfx"
 	}
 	includedirs
 	{
-		path.join(BX_DIR, "include"),
-		path.join(BIMG_DIR, "include"),
-		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
-		path.join(BGFX_DIR, "3rdparty/directx-headers/include"),
+		path.join(BIMG_DIR, "include"),
+		path.join(BX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty/directx-headers/include/directx"),
-		path.join(BGFX_DIR, "3rdparty/khronos")
+		path.join(BGFX_DIR, "3rdparty/khronos"),
+		path.join(BGFX_DIR, "include")
 	}
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
@@ -189,14 +187,15 @@ project "bimg"
 		path.join(BIMG_DIR, "src/image.cpp"),
 		path.join(BIMG_DIR, "src/image_gnf.cpp"),
 		path.join(BIMG_DIR, "src/*.h"),
-		path.join(BIMG_DIR, "3rdparty/astc-encoder/source/*.cc")
+		path.join(BIMG_DIR, "3rdparty/astc-encoder/source/*.cpp")
 	}
 	includedirs
 	{
-		path.join(BX_DIR, "include"),
 		path.join(BIMG_DIR, "include"),
-		path.join(BIMG_DIR, "3rdparty/astc-encoder"),
 		path.join(BIMG_DIR, "3rdparty/astc-encoder/include"),
+		path.join(BIMG_DIR, "3rdparty/astc-encoder/source"),
+		path.join(BIMG_DIR, "3rdparty/tinyexr/deps/miniz"),
+		path.join(BX_DIR, "include")
 	}
 	setBxCompat()
 
@@ -224,6 +223,7 @@ project "bx"
 		path.join(BX_DIR, "3rdparty"),
 		path.join(BX_DIR, "include")
 	}
+
 	filter "configurations:Release"
 		defines "BX_CONFIG_DEBUG=0"
 	filter "configurations:Debug"
@@ -231,7 +231,8 @@ project "bx"
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
 	setBxCompat()
-		
+
+
 project "glfw"
 	kind "StaticLib"
 	language "C"
@@ -251,7 +252,11 @@ project "glfw"
 		path.join(GLFW_DIR, "src/vulkan.c"),
 		path.join(GLFW_DIR, "src/window.c"),
 	}
-	includedirs { path.join(GLFW_DIR, "include") }
+	includedirs 
+	{ 
+		path.join(GLFW_DIR, "include") 
+	}
+
 	filter "system:windows"
 		defines "_GLFW_WIN32"
 		files
