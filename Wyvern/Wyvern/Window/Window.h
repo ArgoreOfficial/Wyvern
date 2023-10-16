@@ -15,6 +15,7 @@ namespace WV
 		void processInput();
 
 		GLFWwindow* getWindow() { return m_window; }
+		bgfx::ViewId& getView() { return m_clearView; }
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 		
 		void touch() { bgfx::touch( m_clearView ); }

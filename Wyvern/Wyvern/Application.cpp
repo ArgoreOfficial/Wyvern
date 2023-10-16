@@ -2,8 +2,6 @@
 #include <Wyvern/Game.h>
 #include <Wyvern/Logging/Logging.h>
 
-#include <bgfx/bgfx.h>
-
 using namespace WV;
 
 void Application::init( Game* _game )
@@ -30,6 +28,12 @@ void Application::init( Game* _game )
 		return;
 	}
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui_Implbgfx_Init( instance.m_window->getView() );
+	ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
 }
 
 void Application::deinit()
@@ -56,6 +60,11 @@ void Application::internalRun( Game* _game )
 		run = m_window->pollEvents();
 	}
 
+	ImGui_Implbgfx_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+
 	m_window->shutdown();
 	bgfx::shutdown();
 }
@@ -81,6 +90,16 @@ void Application::draw()
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Debug" );
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
+
+	
+	ImGui_Implbgfx_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow(); // your drawing here
+	ImGui::Render();
+	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
+
 
 	bgfx::frame();
 

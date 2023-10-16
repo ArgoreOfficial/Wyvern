@@ -1,11 +1,18 @@
-# directories
+#     directories
+
 .vs/
 bin/
 obj/
+#     files
 
-# files
 *.sln
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
+
 *.blend1
+
+*.idb
+*.pdb
+*.lastbuildstate
+*.tlog

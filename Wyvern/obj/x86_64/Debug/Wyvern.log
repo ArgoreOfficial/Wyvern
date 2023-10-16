@@ -1,7 +1,0 @@
-﻿  Application.cpp
-D:\Projects\Other\Wyvern\Wyvern\Wyvern\Application.cpp(66,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  Window.cpp
-  Generating Code...
-kernel32.lib(KERNEL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in gdi32.lib(GDI32.dll); second definition ignored
-psapi.lib(PSAPI.DLL) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in gdi32.lib(GDI32.dll); second definition ignored
-  Wyvern.vcxproj -> D:\Projects\Other\Wyvern\bin\Wyvern.lib

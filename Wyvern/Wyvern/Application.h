@@ -1,6 +1,12 @@
 #pragma once
 #include <Wyvern/Core/ISingleton.h>
 #include <Wyvern/Window/Window.h>
+#include <vendor/imgui_impl_bgfx.h>
+
+#include <imgui_impl_glfw.h>
+#include <imgui.h>
+
+
 
 namespace WV
 {
@@ -21,7 +27,6 @@ namespace WV
 		
 		void update();
 		void draw();
-		void pollEvents();
 
 		WV::Game* m_game = nullptr;
 		WV::Window* m_window = nullptr;

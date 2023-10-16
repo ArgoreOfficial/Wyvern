@@ -4,6 +4,7 @@ local BIMG_DIR = "bimg"
 local BX_DIR = "bx"
 local GLFW_DIR = "glfw"
 local WYVERN_DIR = "Wyvern"
+local IMGUI_DIR = "imgui"
 
 language "C++"
 cppdialect "C++17"
@@ -93,10 +94,11 @@ project "Wyvern"
 		path.join(BGFX_DIR, "include"),
 		path.join(BX_DIR, "include"),
 		path.join(GLFW_DIR, "include"),
-		WYVERN_DIR
+		WYVERN_DIR,
+		IMGUI_DIR
 	}
 
-	links { "bgfx", "bimg", "bx", "glfw" }
+	links { "bgfx", "bimg", "bx", "glfw", "imgui" }
 
 	filter "system:windows"
 		links { "gdi32", "kernel32", "psapi" }
@@ -122,7 +124,8 @@ project "Sandbox"
 		path.join(BGFX_DIR, "include"),
 		path.join(BX_DIR, "include"),
 		path.join(GLFW_DIR, "include"),
-		WYVERN_DIR
+		WYVERN_DIR,
+		IMGUI_DIR
 	}
 
 	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
@@ -134,6 +137,23 @@ project "Sandbox"
 	filter "system:macosx"
 		links { "QuartzCore.framework", "Metal.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 	setBxCompat()
+
+
+project "imgui"
+	kind "StaticLib"
+	language "C++"
+	location "imgui"
+	files
+	{
+		"imgui/**.cpp",
+		"imgui/**.h",
+	}
+	includedirs
+	{
+		"imgui",
+		"glfw/include"
+	}
+	links { "glfw" }
 
 project "bgfx"
 	kind "StaticLib"
