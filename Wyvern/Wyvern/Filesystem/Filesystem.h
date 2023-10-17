@@ -27,5 +27,22 @@ namespace WV
 			
 			return filename.c_str();
 		}
+
+		static const bgfx::Memory* readMemoryFromFile( std::string file_path )
+		{
+			std::ifstream ifs( file_path, std::ios::binary );
+
+			std::vector<char> data( std::filesystem::file_size( file_path ) / sizeof( char ) );
+			ifs.read( reinterpret_cast<char*>( data.data() ), data.size() * sizeof( char ) );
+
+			uint32_t size = data.size();
+
+			const bgfx::Memory* mem = bgfx::alloc( size + 1 );
+			memcpy( mem->data, &data[ 0 ], size );
+
+			mem->data[ mem->size - 1 ] = '\0';
+			return mem;
+		}
+
 	};
 }
