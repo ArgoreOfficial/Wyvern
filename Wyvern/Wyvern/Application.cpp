@@ -4,6 +4,11 @@
 
 using namespace WV;
 
+void WV::Application::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
+{
+	getInstance().m_window->windowResizeCallback( _window, _width, _height );
+}
+
 void Application::init( Game* _game )
 {
 	Application& instance = getInstance();
@@ -22,32 +27,47 @@ void Application::init( Game* _game )
 	WVDEBUG( "Game instance created" );
 
 	instance.m_window = new WV::Window();
-	if ( !instance.m_window->createWindow() )
+	if ( !instance.m_window->createWindow( 512, 512, "Wyvern" ) )
 	{
 		delete instance.m_window;
 		return;
 	}
 
+	glfwSetFramebufferSizeCallback( instance.m_window->getWindow(), Application::windowResizeCallback );
+
+
+
+	// --------------- ImGui --------------- //
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-<<<<<<< HEAD
-	ImGuiIO& io = ImGui::GetIO();
-
-	ImGui_Implbgfx_Init( instance.m_window->getView() );
-	ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
-=======
 
 	WVDEBUG("ImGui Context Created");
-
-	outputLog( FATAL, "test" );
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui_Implbgfx_Init( instance.m_window->getView() );
 	WVTRACE("ImGui_Implbgfx_Init");
 
-	ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
-	WVTRACE( "ImGui_ImplGlfw_InitForOther" );
->>>>>>> d198a8d (imgui implementation)
+	// imgui-glfw backend specific init
+	bgfx::RendererType::Enum backend = bgfx::getRendererType();
+	switch ( backend )
+	{
+	case( bgfx::RendererType::Vulkan ):
+		ImGui_ImplGlfw_InitForVulkan( instance.m_window->getWindow(), true );
+		WVTRACE( "ImGui_ImplGlfw_InitForVulkan" );
+		break;
+
+	case( bgfx::RendererType::OpenGL ):
+		ImGui_ImplGlfw_InitForOpenGL( instance.m_window->getWindow(), true );
+		WVTRACE( "ImGui_ImplGlfw_InitForOpenGL" );
+		break;
+
+	default:
+		ImGui_ImplGlfw_InitForOther( instance.m_window->getWindow(), true );
+		WVTRACE( "ImGui_ImplGlfw_InitForOther" );
+		break;
+	}
+
 }
 
 void Application::deinit()
@@ -78,10 +98,7 @@ void Application::internalRun( Game* _game )
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-<<<<<<< HEAD
 
-=======
->>>>>>> d198a8d (imgui implementation)
 	m_window->shutdown();
 	bgfx::shutdown();
 	WVDEBUG("BGFX Terminated");
@@ -104,9 +121,7 @@ void Application::draw()
 
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
-
 	ImGui::NewFrame();
-	
 
 	m_game->draw();
 	
@@ -115,18 +130,8 @@ void Application::draw()
 	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 
-<<<<<<< HEAD
-	
-	ImGui_Implbgfx_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-
-	ImGui::NewFrame();
-	ImGui::ShowDemoWindow(); // your drawing here
-=======
->>>>>>> d198a8d (imgui implementation)
 	ImGui::Render();
 	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
-
 
 	bgfx::frame();
 

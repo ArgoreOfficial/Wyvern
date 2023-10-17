@@ -19,12 +19,16 @@ namespace WV
 		static double getTime() { return getInstance().m_time; }
 		static double getDeltaTime() { return getInstance().m_deltaTime; }
 
+		static void windowResizeCallback( GLFWwindow* _window, int _width, int _height );
+
+		static WV::Window* getWindow() { return getInstance().m_window; }
+
 	private:
+
 		static void init( Game* _game );
 		static void deinit();
 
 		void internalRun( Game* _game );
-		
 		
 		void update();
 		void draw();
