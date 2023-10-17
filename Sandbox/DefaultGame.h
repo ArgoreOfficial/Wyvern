@@ -2,6 +2,7 @@
 #include <Wyvern/Game.h>
 #include <Wyvern/Application.h>
 #include <Wyvern/Logging/Logging.h>
+#include <Wyvern/Managers/EventManager.h>
 
 class DefaultGame : public WV::Game
 {
@@ -14,6 +15,9 @@ public:
 	void update( float _deltaTime ) override;
 	void draw() override;
 
+	void handleKeyInput( WV::Events::KeyDownEvent& _event );
+
 	float m_slider = 0.0f;
+	bool m_showWindow = false;
 };
 

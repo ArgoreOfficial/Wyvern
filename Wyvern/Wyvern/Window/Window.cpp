@@ -4,6 +4,8 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 
+#include <Wyvern/Managers/EventManager.h>
+
 #if BX_PLATFORM_LINUX
 #define GLFW_EXPOSE_NATIVE_X11
 #elif BX_PLATFORM_WINDOWS
@@ -26,6 +28,7 @@ Window::~Window()
 {
 
 }
+
 
 void Window::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 {
@@ -60,6 +63,7 @@ int Window::createWindow( int _width, int _height, const char* _title )
 
 	glfwMakeContextCurrent( m_window );
 
+	hookEvents();
 
 	// ----------------------- bgfx -------------------------- //
 
@@ -89,7 +93,7 @@ int Window::createWindow( int _width, int _height, const char* _title )
 		return 0;
 	}
 
-	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR, 0x000000FF, 1.0f, 0 );
+	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR, 0x666699FF, 1.0f, 0 );
 	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
 
 	bgfx::RendererType::Enum backend = bgfx::getRendererType();
@@ -123,9 +127,45 @@ void Window::processInput()
 	}
 }
 
+
+void Window::hookEvents()
+{
+	glfwSetKeyCallback( m_window, Window::handleKeyEvents );
+	// glfwSetCursorPosCallback()
+}
+
 void WV::Window::setVSync( bool _value )
 {
 	m_vsync_enabled = _value;
 	glfwSwapInterval( _value ? 1 : 0 );
+
+}
+
+
+void Window::handleApplicationEvents()
+{
+
+}
+
+void Window::handleKeyEvents( GLFWwindow* window, int key, int scancode, int action, int mods )
+{
+	Events::KeyEvent keyEvent( key );
+	EventManager::call<Events::KeyEvent>( keyEvent );
+
+	if ( action == GLFW_PRESS )
+	{
+		Events::KeyDownEvent downEvent( key );
+		EventManager::call<Events::KeyDownEvent>( downEvent );
+	}
+	else if ( action == GLFW_RELEASE )
+	{
+		Events::KeyUpEvent upEvent( key );
+		EventManager::call<Events::KeyUpEvent>( upEvent );
+	}
+
+}
+
+void Window::handleMouseEvents( GLFWwindow* window, double xpos, double ypos )
+{
 
 }

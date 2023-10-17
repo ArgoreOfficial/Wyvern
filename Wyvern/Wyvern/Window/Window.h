@@ -13,10 +13,12 @@ namespace WV
 		int createWindow( int _width, int _height, const char* _title );
 		int pollEvents();
 		void processInput();
+		void hookEvents();
 
 		GLFWwindow* getWindow() { return m_window; }
 		bgfx::ViewId& getView() { return m_clearView; }
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
+		void setVSync( bool _value );
 		
 		void touch() { bgfx::touch( m_clearView ); }
 		inline void shutdown() 
@@ -25,7 +27,6 @@ namespace WV
 			glfwTerminate(); 
 		}
 
-		void setVSync( bool _value );
 		void windowResizeCallback( GLFWwindow* _window, int _width, int _height );
 
 	private:
@@ -35,5 +36,9 @@ namespace WV
 		bool m_vsync_enabled = false;
 		int m_view_width;
 		int m_view_height;
+
+		static void handleApplicationEvents();
+		static void handleKeyEvents( GLFWwindow* window, int key, int scancode, int action, int mods );
+		static void handleMouseEvents( GLFWwindow* window, double xpos, double ypos );
 	};
 }
