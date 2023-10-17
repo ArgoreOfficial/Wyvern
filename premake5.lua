@@ -112,6 +112,7 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	location "Sandbox"
+	debugdir "Sandbox"
 	
 	files 
 	{ 

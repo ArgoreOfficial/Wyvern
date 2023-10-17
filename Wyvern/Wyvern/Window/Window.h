@@ -20,6 +20,10 @@ namespace WV
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 		void setVSync( bool _value );
 		
+		int getWidth() { return m_view_width; }
+		int getHeight() { return m_view_height; }
+		float getAspect() { return float( m_view_width ) / float( m_view_height ); }
+
 		void touch() { bgfx::touch( m_clearView ); }
 		inline void shutdown() 
 		{ 

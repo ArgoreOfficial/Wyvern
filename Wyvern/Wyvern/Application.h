@@ -32,7 +32,7 @@ namespace WV
 		
 		void update();
 		void draw();
-
+		
 		WV::Game* m_game = nullptr;
 		WV::Window* m_window = nullptr;
 		

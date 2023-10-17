@@ -93,7 +93,7 @@ int Window::createWindow( int _width, int _height, const char* _title )
 		return 0;
 	}
 
-	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR, 0x666699FF, 1.0f, 0 );
+	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x666699FF, 1.0f, 0 );
 	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
 
 	bgfx::RendererType::Enum backend = bgfx::getRendererType();

@@ -45,7 +45,7 @@ void Application::init( Game* _game )
 	WVDEBUG("ImGui Context Created");
 	ImGuiIO& io = ImGui::GetIO();
 
-	ImGui_Implbgfx_Init( instance.m_window->getView() );
+	ImGui_Implbgfx_Init( 255 );
 	WVTRACE("ImGui_Implbgfx_Init");
 
 	// imgui-glfw backend specific init
@@ -75,6 +75,7 @@ void Application::deinit()
 	
 }
 
+
 void Application::internalRun( Game* _game )
 {
 	Application::init( _game );
@@ -98,7 +99,6 @@ void Application::internalRun( Game* _game )
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-
 	m_window->shutdown();
 	bgfx::shutdown();
 	WVDEBUG("BGFX Terminated");
@@ -119,20 +119,22 @@ void Application::draw()
 {
 	m_window->touch();
 
+	m_game->draw();
+	
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	m_game->draw();
-	
+	m_game->drawUI();
+
+	ImGui::Render();
+	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
+	/*
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Debug" );
 	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 
-	ImGui::Render();
-	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
-
+	*/
 	bgfx::frame();
-
 }

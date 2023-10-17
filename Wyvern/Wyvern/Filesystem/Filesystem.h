@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <sstream>
 #include <Wyvern/Logging/Logging.h>
 
 namespace WV
