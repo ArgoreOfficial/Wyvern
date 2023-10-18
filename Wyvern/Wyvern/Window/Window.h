@@ -10,6 +10,7 @@ namespace WV
 	public:
 		Window();
 		~Window();
+		int createWindow( const char* _title );
 		int createWindow( int _width, int _height, const char* _title );
 		int pollEvents();
 		void processInput();
@@ -27,7 +28,7 @@ namespace WV
 
 		void touch() { bgfx::touch( m_clearView ); }
 		inline void shutdown() 
-		{ 
+		{
 			WVDEBUG("Terminated GLFW");
 			glfwTerminate(); 
 		}

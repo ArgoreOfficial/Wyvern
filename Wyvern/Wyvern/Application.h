@@ -25,17 +25,19 @@ namespace WV
 
 	private:
 
-		static void init( Game* _game );
-		static void deinit();
-
+		void init( Game* _game );
+		void deinit();
+		void initImgui();
+		void styleImgui();
 		void internalRun( Game* _game );
-		
 		void update();
 		void draw();
 		
 		WV::Game* m_game = nullptr;
 		WV::Window* m_window = nullptr;
-		
+		ImGuiIO* m_io;
+
+
 		double m_lastTime = 0.0;
 		double m_time = 0.0;
 		float m_deltaTime = 0.0f;

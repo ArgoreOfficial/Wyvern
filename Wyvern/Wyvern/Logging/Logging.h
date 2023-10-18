@@ -22,9 +22,9 @@ void outputLog( logLevel _level, const char* message, ... );
 #define LOG_CYAN    printf("\x1b[36m")
 #define LOG_RESET   printf("\x1b[0m")
 
-#define WVFATAL(msg, ...)	LOG_RED;    outputLog(logLevel::FATAL, msg, __VA_ARGS__);   LOG_RESET;
-#define WVERROR(msg, ...)	LOG_RED;    outputLog(logLevel::ERROR, msg, __VA_ARGS__);   LOG_RESET;
-#define WVWARNING(msg, ...) LOG_YELLOW; outputLog(logLevel::WARNING, msg, __VA_ARGS__); LOG_RESET;
-#define WVINFO(msg, ...)	LOG_RESET;  outputLog(logLevel::INFO, msg, __VA_ARGS__);    LOG_RESET;
-#define WVDEBUG(msg, ...)	LOG_CYAN;   outputLog(logLevel::DEBUG, msg, __VA_ARGS__);   LOG_RESET;
-#define WVTRACE(msg, ...)	LOG_MAGENTA;   outputLog(logLevel::TRACE, msg, __VA_ARGS__);   LOG_RESET;
+#define WVFATAL(msg, ...)	LOG_RED;     outputLog(logLevel::FATAL, msg, __VA_ARGS__);   LOG_RESET;
+#define WVERROR(msg, ...)	LOG_RED;     outputLog(logLevel::ERROR, msg, __VA_ARGS__);   LOG_RESET;
+#define WVWARNING(msg, ...) LOG_YELLOW;  outputLog(logLevel::WARNING, msg, __VA_ARGS__); LOG_RESET;
+#define WVINFO(msg, ...)	LOG_RESET;   outputLog(logLevel::INFO, msg, __VA_ARGS__);    LOG_RESET;
+#define WVDEBUG(msg, ...)	LOG_RESET;   outputLog(logLevel::DEBUG, msg, __VA_ARGS__);   LOG_RESET;
+#define WVTRACE(msg, ...)	LOG_MAGENTA; outputLog(logLevel::TRACE, msg, __VA_ARGS__);   LOG_RESET;

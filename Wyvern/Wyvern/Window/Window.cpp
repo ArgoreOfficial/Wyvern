@@ -29,13 +29,28 @@ Window::~Window()
 
 }
 
-
 void Window::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 {
 	bgfx::reset( (uint32_t)_width, (uint32_t)_height, m_vsync_enabled ? BGFX_RESET_VSYNC : BGFX_RESET_NONE );
-	// glfwGetWindowSize( m_window, &_width, &_height );
 	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
 }
+
+int WV::Window::createWindow( const char* _title )
+{
+	int result = createWindow( 512, 512, _title );
+	
+	if ( result )
+	{
+		int width, height;
+		glfwMaximizeWindow( m_window );
+
+		glfwGetWindowSize( m_window, &width, &height );
+		windowResizeCallback( m_window, width, height );
+	}
+
+	return result;
+}
+
 
 int Window::createWindow( int _width, int _height, const char* _title )
 {
@@ -107,9 +122,7 @@ int Window::pollEvents()
 {
 	if ( glfwWindowShouldClose( m_window ) )
 	{
-		WVDEBUG( "Closing..." );
-		glfwTerminate();
-		WVDEBUG( "GLFW Terminated" );
+		WVDEBUG( "Closing" );
 		return 0;
 	}
 

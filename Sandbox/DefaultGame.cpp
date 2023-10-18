@@ -8,8 +8,10 @@
 
 void DefaultGame::load()
 {
+	/*
 	WV::cAssetManager::load( "assets/beemovie.txt", WV::eAssetType::RAW );
 	WV::cAssetManager::load( "assets/MULLEBAT.iso", WV::RAW );
+	*/
 	WV::Application::getWindow()->setClearColour( 0x222233FF );
 }
 
@@ -154,13 +156,17 @@ void DefaultGame::draw()
 }
 
 void DefaultGame::drawUI()
-{
+{	
+	ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
+
+	ImGui::ShowDemoWindow();
+
 	if ( m_showWindow )
 	{
 		if ( ImGui::Begin( "Wyvern" ) )
 		{
 			ImGui::Text( "Welcome to Wyvern!" );
-
+			
 			ImGui::SliderFloat( "I'm a Slider!", &m_slider, 0.0f, 5.0f );
 		}
 		ImGui::End();
