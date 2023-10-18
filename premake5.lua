@@ -14,6 +14,7 @@ filter "configurations:Debug"
     staticruntime "on"
 	runtime "Debug"
     symbols "On"
+	optimize "Off"
     defines {"WYVERN_DEBUG"}
 
 filter "configurations:Release"
@@ -48,6 +49,7 @@ solution "Wyvern"
 			"BX_CONFIG_DEBUG=0"
 		}
 		optimize "Full"
+	
 	filter "configurations:Debug*"
 		defines
 		{
@@ -76,7 +78,7 @@ function setBxCompat()
 		includedirs { path.join(BX_DIR, "include/compat/osx") }
 		buildoptions { "-x objective-c++" }
 end
-	
+
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
@@ -86,7 +88,7 @@ project "Wyvern"
 	files 
 	{ 
 		"Wyvern/**.h",
-		"Wyvern/**.cpp" 
+		"Wyvern/**.cpp"
 	}
 
 	includedirs

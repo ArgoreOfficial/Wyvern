@@ -19,7 +19,8 @@ namespace WV
 		bgfx::ViewId& getView() { return m_clearView; }
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 		void setVSync( bool _value );
-		
+		void setClearColour( uint32_t hex );
+
 		int getWidth() { return m_view_width; }
 		int getHeight() { return m_view_height; }
 		float getAspect() { return float( m_view_width ) / float( m_view_height ); }

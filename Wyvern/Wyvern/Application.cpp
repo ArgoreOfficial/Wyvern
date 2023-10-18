@@ -1,6 +1,8 @@
 #include "Application.h"
 #include <Wyvern/Game.h>
 #include <Wyvern/Logging/Logging.h>
+#include <Wyvern/Managers/AssetManager.h>
+#include <thread>
 
 using namespace WV;
 
@@ -83,7 +85,25 @@ void Application::internalRun( Game* _game )
 	m_game = getInstance().m_game;
 	m_window = getInstance().m_window;
 	
+	m_game->load();
+	std::thread* loadthread = cAssetManager::loadQueuedAssets();
+
+	double loadtimer = glfwGetTime();
+	while ( cAssetManager::isLoading() )
+	{
+		m_window->touch();
+
+		bgfx::dbgTextClear();
+		bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Loading..." );
+		bgfx::setDebug( BGFX_DEBUG_TEXT );
+
+		bgfx::frame();
+	}
+
+	loadthread->join();
 	m_game->start();
+
+	WVDEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
 
 	m_lastTime = 0.0;
 	bool run = true;
@@ -129,12 +149,12 @@ void Application::draw()
 
 	ImGui::Render();
 	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
-	/*
+	
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Debug" );
 	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 
-	*/
+	
 	bgfx::frame();
 }

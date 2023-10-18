@@ -141,6 +141,11 @@ void WV::Window::setVSync( bool _value )
 
 }
 
+void WV::Window::setClearColour( uint32_t hex )
+{
+	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, hex, 1.0f, 0 );
+}
+
 
 void Window::handleApplicationEvents()
 {

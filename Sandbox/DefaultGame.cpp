@@ -4,28 +4,15 @@
 #include <bx/math.h>
 #include <bx/readerwriter.h>
 #include <filesystem>
+#include <Wyvern/Managers/AssetManager.h>
 
 void DefaultGame::load()
 {
-
+	WV::cAssetManager::load( "assets/beemovie.txt", WV::eAssetType::RAW );
+	WV::cAssetManager::load( "assets/MULLEBAT.iso", WV::RAW );
+	WV::Application::getWindow()->setClearColour( 0x222233FF );
 }
 
-
-static const bgfx::Memory* loadMem( bx::FileReaderI* _reader, const char* _filePath )
-{
-	if ( bx::open( _reader, _filePath ) )
-	{
-		uint32_t size = (uint32_t)bx::getSize( _reader );
-		const bgfx::Memory* mem = bgfx::alloc( size + 1 );
-		bx::read( _reader, mem->data, size, bx::ErrorAssert{} );
-		bx::close( _reader );
-		mem->data[ mem->size - 1 ] = '\0';
-		return mem;
-	}
-
-	WVDEBUG( "Failed to load %s.", _filePath );
-	return NULL;
-}
 
 static bgfx::ShaderHandle loadShader( const char* _name )
 {
@@ -57,7 +44,7 @@ static bgfx::ShaderHandle loadShader( const char* _name )
 	bx::strCat( filePath, BX_COUNTOF( filePath ), _name );
 	bx::strCat( filePath, BX_COUNTOF( filePath ), ".bin" );
 
-	bgfx::ShaderHandle handle = bgfx::createShader( WV::Filesystem::readMemoryFromFile( filePath ) );
+	bgfx::ShaderHandle handle = bgfx::createShader( WV::Filesystem::loadMemoryFromFile( filePath ) );
 	bgfx::setName( handle, _name );
 
 	return handle;
@@ -102,7 +89,7 @@ static const uint16_t cubeIndices[] =
 void DefaultGame::start()
 {
 	WV::Events::KeyDownEvent::hook<DefaultGame>( &DefaultGame::handleKeyInput, this );
-
+	WV::Application::getWindow()->setClearColour( 0x666699FF );
 
 	// --------------- MESH TESTING --------------- //
 
@@ -126,7 +113,8 @@ void DefaultGame::start()
 void DefaultGame::update( float _deltaTime )
 {
 	float time = WV::Application::getTime();
-
+	m_rotX += _deltaTime * m_slider;
+	m_rotY += _deltaTime * m_slider;
 }
 
 
@@ -155,7 +143,7 @@ void DefaultGame::draw()
 	
 	bgfx::setViewTransform( 0, view, proj );
 	float mtx[ 16 ];
-	bx::mtxRotateXY( mtx, WV::Application::getTime() * m_slider, WV::Application::getTime());
+	bx::mtxRotateXY( mtx, m_rotX, m_rotY );
 	bgfx::setTransform( mtx );
 
 	bgfx::setVertexBuffer( 0, vbh );

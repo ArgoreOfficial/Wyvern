@@ -27,6 +27,8 @@ public:
 	bgfx::ShaderHandle vsh;
 	bgfx::ShaderHandle fsh;
 	bgfx::ProgramHandle program;
+	float m_rotX = 0.0f;
+	float m_rotY = 0.0f;
 
 };
 
