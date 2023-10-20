@@ -3,6 +3,8 @@
 #include <Wyvern/Application.h>
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Managers/EventManager.h>
+#include <Wyvern/Rendering/Model.h>
+#include <Wyvern/Camera.h>
 
 class DefaultGame : public WV::Game
 {
@@ -21,14 +23,7 @@ public:
 	float m_slider = 0.0f;
 	bool m_showWindow = false;
 
-	bgfx::VertexLayout layout;
-	bgfx::VertexBufferHandle vbh;
-	bgfx::IndexBufferHandle ibh;
-	bgfx::ShaderHandle vsh;
-	bgfx::ShaderHandle fsh;
-	bgfx::ProgramHandle program;
-	float m_rotX = 0.0f;
-	float m_rotY = 0.0f;
-
+	WV::Model* m_model;
+	WV::Camera m_camera;
 };
 

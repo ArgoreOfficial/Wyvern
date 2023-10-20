@@ -1,4 +1,5 @@
 #pragma once
+#include <Wyvern/Camera.h>
 
 namespace WV
 {

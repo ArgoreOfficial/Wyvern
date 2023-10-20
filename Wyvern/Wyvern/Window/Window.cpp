@@ -33,6 +33,9 @@ void Window::windowResizeCallback( GLFWwindow* _window, int _width, int _height 
 {
 	bgfx::reset( (uint32_t)_width, (uint32_t)_height, m_vsync_enabled ? BGFX_RESET_VSYNC : BGFX_RESET_NONE );
 	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
+
+	m_view_width = _width;
+	m_view_height = _height;
 }
 
 int WV::Window::createWindow( const char* _title )

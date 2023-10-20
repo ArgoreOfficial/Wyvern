@@ -2,7 +2,7 @@
 #include <Wyvern/Core/ISingleton.h>
 #include <Wyvern/Window/Window.h>
 #include <vendor/imgui_impl_bgfx.h>
-
+#include <Wyvern/Camera.h>
 #include <imgui_impl_glfw.h>
 #include <imgui.h>
 
@@ -22,7 +22,7 @@ namespace WV
 		static void windowResizeCallback( GLFWwindow* _window, int _width, int _height );
 
 		static WV::Window* getWindow() { return getInstance().m_window; }
-
+		static void setActiveCamera( Camera* _camera ) { getInstance().m_activeCamera = _camera; }
 	private:
 
 		void init( Game* _game );
@@ -36,7 +36,7 @@ namespace WV
 		WV::Game* m_game = nullptr;
 		WV::Window* m_window = nullptr;
 		ImGuiIO* m_io;
-
+		Camera* m_activeCamera;
 
 		double m_lastTime = 0.0;
 		double m_time = 0.0;

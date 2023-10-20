@@ -5,7 +5,7 @@
 #include <Wyvern/Filesystem/Filesystem.h>
 // #include <Wyvern/Rendering/Framework/Model.h>
 #include <Wyvern/Assets/Asset.h>
-
+#include <Wyvern/Rendering/Mesh.h>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -21,6 +21,10 @@ namespace WV
 
 		static void load( std::string _path, eAssetType _type = eAssetType::AUTO );
 		static const sAsset* getAsset( std::string _name );
+		
+		// ------------------------- TEMPORARY ------------------------- //
+		static Mesh* getMesh( std::string _name );
+		// ------------------------- TEMPORARY ------------------------- //
 
 	private:
 		static void loadQueuedAssetThread( cAssetManager* _instance );
@@ -37,6 +41,8 @@ namespace WV
 		
 		std::vector<sAsset> m_loadQueue;
 		std::map<std::string, sAsset*> m_loadedAssets;
+
+		std::map<std::string, Mesh*> m_loadedMeshes;
 
 		bool m_isLoading = false;
 		bool m_hasLoaded = false;

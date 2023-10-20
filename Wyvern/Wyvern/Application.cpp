@@ -8,7 +8,10 @@ using namespace WV;
 
 void WV::Application::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 {
-	getInstance().m_window->windowResizeCallback( _window, _width, _height );
+	Application& instance = getInstance();
+	instance.m_window->windowResizeCallback( _window, _width, _height );
+	if ( instance.m_activeCamera )
+		instance.m_activeCamera->setAspect( instance.m_window->getAspect() );
 }
 
 void Application::init( Game* _game )
@@ -199,6 +202,12 @@ void Application::draw()
 {
 	m_window->touch();
 
+	if ( m_activeCamera )
+	{
+		m_activeCamera->setAspect( m_window->getAspect() );
+		m_activeCamera->submit();
+	}
+
 	m_game->draw();
 
 	ImGui_Implbgfx_NewFrame();
@@ -219,8 +228,18 @@ void Application::draw()
 	}
 
 	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine Debug" );
+	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine" );
 	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
+	
+	/*
+	if ( m_activeCamera )
+	{
+		bgfx::dbgTextPrintf( 0, 1, 0x0f, "Camera Pos: %f, %f, %f", m_activeCamera->m_position.x, m_activeCamera->m_position.y, m_activeCamera->m_position.z );
+		bgfx::dbgTextPrintf( 0, 2, 0x0f, "Camera Rot: %f, %f, %f", m_activeCamera->m_rotation.x, m_activeCamera->m_rotation.y, m_activeCamera->m_rotation.z );
+	}
+	*/
+
+
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 
 
