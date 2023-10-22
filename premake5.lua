@@ -142,44 +142,6 @@ project "Sandbox"
 	setBxCompat()
 
 
--- gamejam
-
-
-project "DragonDefense"
-	kind "ConsoleApp"
-	language "C++"
-	location "DragonDefense"
-	debugdir "DragonDefense"
-	
-	files 
-	{ 
-		"DragonDefense/**.h",
-		"DragonDefense/**.cpp" 
-	}
-
-	includedirs
-	{
-		path.join(BGFX_DIR, "include"),
-		path.join(BX_DIR, "include"),
-		path.join(GLFW_DIR, "include"),
-		WYVERN_DIR,
-		IMGUI_DIR
-	}
-
-	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
-
-	filter "system:windows"
-		links { "gdi32", "kernel32", "psapi" }
-	filter "system:linux"
-		links { "dl", "GL", "pthread", "X11" }
-	filter "system:macosx"
-		links { "QuartzCore.framework", "Metal.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
-	setBxCompat()
-
-
--- gamejame
-
-
 project "imgui"
 	kind "StaticLib"
 	language "C++"

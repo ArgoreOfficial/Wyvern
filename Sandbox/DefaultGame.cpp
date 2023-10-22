@@ -3,15 +3,6 @@
 
 #include <Wyvern/Managers/AssetManager.h>
 
-void DefaultGame::load()
-{
-	WV::Application::getWindow()->setClearColour( 0x222233FF );
-
-	WV::cAssetManager::load( "assets/logo_fire_BaseColor.png", WV::eAssetType::RAW );
-	WV::cAssetManager::load( "assets/logo.obj", WV::eAssetType::MESH );
-}
-
-
 void DefaultGame::start()
 {
 	WV::Events::KeyDownEvent::hook<DefaultGame>( &DefaultGame::handleKeyInput, this );
@@ -22,9 +13,41 @@ void DefaultGame::start()
 	WV::Application::setActiveCamera( &m_camera );
 
 	m_model = new WV::Model( *WV::cAssetManager::getMesh( "logo.obj" ) );
+
+
+	/*
+
+
+	// --------- Goal --------- //
+
+	// this returns an asset* with m_ready=false
+	// all function calls will return until m_ready==true
+	Mesh* mesh = new Mesh( "logo.obj" );
+
+	// however, objects (entities) are prefered:
+	Entity* entity = new Entity(); // all entities have a transform component by default
+	entity->addComponent<Mesh>( "logo.obj" );
+
+	// addComponent<T>() returns a T*
+	Material* material entity->addComponent<Material>();
+	material->albedo.texture = new Texture( "logo_fire_BaseColor" );
+	material->roughness = 0.5f;
+
+	entity->addComponent<MyCustomComponent>();
+
+	// --------- Goal --------- //
+
+
+	*/
+
+	WV::Application::getWindow()->setClearColour( 0x222233FF );
+
+	WV::cAssetManager::load( "assets/logo_fire_BaseColor.png", WV::eAssetType::RAW );
+	WV::cAssetManager::load( "assets/logo.obj", WV::eAssetType::MESH );
+
 }
 
-void DefaultGame::update( float _deltaTime )
+void DefaultGame::update( double _deltaTime )
 {
 	float time = WV::Application::getTime();
 
@@ -32,8 +55,7 @@ void DefaultGame::update( float _deltaTime )
 	
 }
 
-
-void DefaultGame::draw()
+void DefaultGame::draw3D()
 {
 	m_model->submit( WV::Application::getWindow()->getAspect() );
 }

@@ -1,21 +1,20 @@
 #pragma once
-#include <Wyvern/Game.h>
+#include <Wyvern/Core/ILayer.h>
 #include <Wyvern/Application.h>
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Managers/EventManager.h>
 #include <Wyvern/Rendering/Model.h>
 #include <Wyvern/Camera.h>
 
-class DefaultGame : public WV::Game
+class DefaultGame : public WV::ILayer
 {
 public:
 	DefaultGame() { };
 	~DefaultGame() { };
 
-	void load() override;
 	void start() override;
-	void update( float _deltaTime ) override;
-	void draw() override;
+	void update( double _deltaTime ) override;
+	void draw3D() override;
 	void drawUI() override;
 
 	void handleKeyInput( WV::Events::KeyDownEvent& _event );
