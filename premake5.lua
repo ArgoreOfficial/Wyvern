@@ -5,6 +5,7 @@ local BX_DIR = "bx"
 local GLFW_DIR = "glfw"
 local WYVERN_DIR = "Wyvern"
 local IMGUI_DIR = "imgui"
+local ASSIMP_DIR = "assimp"
 
 language "C++"
 cppdialect "C++17"
@@ -97,10 +98,11 @@ project "Wyvern"
 		path.join(BX_DIR, "include"),
 		path.join(GLFW_DIR, "include"),
 		WYVERN_DIR,
-		IMGUI_DIR
+		IMGUI_DIR,
+		ASSIMP_DIR
 	}
 
-	links { "bgfx", "bimg", "bx", "glfw", "imgui" }
+	links { "bgfx", "bimg", "bx", "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
 	filter "system:windows"
 		links { "gdi32", "kernel32", "psapi" }

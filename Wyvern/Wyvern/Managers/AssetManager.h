@@ -3,8 +3,6 @@
 #include <vendor/OBJ_Loader.h>
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Filesystem/Filesystem.h>
-// #include <Wyvern/Rendering/Framework/Model.h>
-#include <Wyvern/Assets/Asset.h>
 #include <Wyvern/Rendering/Mesh.h>
 #include <vector>
 #include <map>
@@ -19,35 +17,23 @@ namespace WV
 		static void unloadAll() { getInstance().internalUnloadAll(); }
 		static bool isLoading() { return getInstance().internalIsLoading(); }
 
-		static void load( std::string _path, eAssetType _type = eAssetType::AUTO );
-		static const sAsset* getAsset( std::string _name );
-		
-		// ------------------------- TEMPORARY ------------------------- //
-		static Mesh* getMesh( std::string _name );
-		// ------------------------- TEMPORARY ------------------------- //
+		static void addAssetToLoadQueue( IAsset* _asset );
 
 	private:
 		static void loadQueuedAssetThread( cAssetManager* _instance );
-		
+
 		void internalUnloadAll();
 		std::thread* internalLoadQueued();
 		bool internalIsLoading();
-
 		template<class kT, class T>
 		void clearMap( std::map<kT, T> _map );
 
-		template<class T>
-		static bool checkFileAlreadyLoaded( std::map<std::string, T> _map, std::string _key );
-		
-		std::vector<sAsset> m_loadQueue;
-		std::map<std::string, sAsset*> m_loadedAssets;
-
-		std::map<std::string, Mesh*> m_loadedMeshes;
+		std::vector<IAsset*> m_loadQueue;
 
 		bool m_isLoading = false;
 		bool m_hasLoaded = false;
 		std::mutex m_assetManagerMutex;
-		std::thread* m_assetLoadThread;
+		std::thread* m_assetLoadThread = nullptr;
 	};
 
 	template<class kT, class T>
@@ -58,13 +44,5 @@ namespace WV
 			delete itr->second;
 		}
 		_map.clear();
-	}
-
-	template<class T>
-	inline static bool cAssetManager::checkFileAlreadyLoaded( std::map<std::string, T> _map, std::string _key )
-	{
-		bool result = ( getInstance().m_meshAssets.find(_key) != getInstance().m_meshAssets.end() );
-		if ( result ) WVDEBUG( "File already loaded %s", _key.c_str() );
-		return result;
 	}
 }

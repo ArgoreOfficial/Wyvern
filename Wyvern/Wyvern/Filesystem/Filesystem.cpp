@@ -4,7 +4,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include <Wyvern/Assets/Asset.h>
 #include <Wyvern/Logging/Logging.h>
 #include <bgfx/bgfx.h>
 

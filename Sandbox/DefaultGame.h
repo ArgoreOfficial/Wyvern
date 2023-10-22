@@ -9,7 +9,7 @@
 class DefaultGame : public WV::ILayer
 {
 public:
-	DefaultGame() { };
+	DefaultGame() : ILayer( "GameLayer" ) { };
 	~DefaultGame() { };
 
 	void start() override;
@@ -22,7 +22,8 @@ public:
 	float m_slider = 0.0f;
 	bool m_showWindow = false;
 
-	WV::Model* m_model;
+	WV::Mesh* m_meshAsset;
+
 	WV::Camera m_camera;
 };
 

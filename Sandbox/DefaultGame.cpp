@@ -12,17 +12,13 @@ void DefaultGame::start()
 	m_camera.setPosition( 0, 0, -1.0f );
 	WV::Application::setActiveCamera( &m_camera );
 
-	m_model = new WV::Model( *WV::cAssetManager::getMesh( "logo.obj" ) );
-
+	// this returns an asset* with m_ready=false
+	// all function calls will return until m_ready==true
+	m_meshAsset = new WV::Mesh( "assets/logo.obj" );
 
 	/*
 
-
 	// --------- Goal --------- //
-
-	// this returns an asset* with m_ready=false
-	// all function calls will return until m_ready==true
-	Mesh* mesh = new Mesh( "logo.obj" );
 
 	// however, objects (entities) are prefered:
 	Entity* entity = new Entity(); // all entities have a transform component by default
@@ -41,14 +37,12 @@ void DefaultGame::start()
 	*/
 
 	WV::Application::getWindow()->setClearColour( 0x222233FF );
-
-	WV::cAssetManager::load( "assets/logo_fire_BaseColor.png", WV::eAssetType::RAW );
-	WV::cAssetManager::load( "assets/logo.obj", WV::eAssetType::MESH );
-
 }
 
 void DefaultGame::update( double _deltaTime )
 {
+	WV::Application::getWindow()->setClearColour( 0x666699FF );
+
 	float time = WV::Application::getTime();
 
 	m_camera.rotate( 0.0f, _deltaTime, 0.0f );
@@ -57,7 +51,7 @@ void DefaultGame::update( double _deltaTime )
 
 void DefaultGame::draw3D()
 {
-	m_model->submit( WV::Application::getWindow()->getAspect() );
+	
 }
 
 void DefaultGame::drawUI()

@@ -1,5 +1,4 @@
 #include "Application.h"
-
 #include <Wyvern/Core/ILayer.h>
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Managers/AssetManager.h>
@@ -162,7 +161,6 @@ void Application::draw()
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
 
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{

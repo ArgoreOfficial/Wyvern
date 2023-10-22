@@ -3,8 +3,15 @@
 #include <Wyvern/Filesystem/Filesystem.h>
 #include <bx/bx.h>
 #include <bx/pixelformat.h>
+#include <Wyvern/Managers/AssetManager.h>
 
 using namespace WV;
+
+WV::Mesh::Mesh( std::string _path ) :
+	IAsset( _path )
+{
+	cAssetManager::addAssetToLoadQueue( this );
+}
 
 inline uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f )
 {
@@ -20,14 +27,14 @@ inline uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, f
 	return dst;
 }
 
-void Mesh::loadOBJ( std::string _path )
+void WV::Mesh::load()
 {
-	if ( !Filesystem::fileExists( _path, true ) ) return; // check if mesh file exists
-	std::string filename = Filesystem::getFilenameFromPath( _path );
+	if ( !Filesystem::fileExists( m_path, true ) ) return; // check if mesh file exists
+	std::string filename = Filesystem::getFilenameFromPath( m_path );
 
 	WVDEBUG( "Loading mesh %s", filename.c_str() );
 	objl::Loader loader;
-	loader.LoadFile( _path );
+	loader.LoadFile( m_path );
 
 	if ( loader.LoadedMeshes.size() == 0 || loader.LoadedVertices.size() == 0 || loader.LoadedIndices.size() == 0 )
 	{
@@ -44,7 +51,7 @@ void Mesh::loadOBJ( std::string _path )
 			current.Position.X,
 			current.Position.Y,
 			current.Position.Z,
-			encodeNormalRgba8(current.TextureCoordinate.X, current.TextureCoordinate.Y, 0 )
+			encodeNormalRgba8( current.TextureCoordinate.X, current.TextureCoordinate.Y, 0 )
 			/*
 			current.Normal.X,
 			current.Normal.Y,
@@ -66,4 +73,5 @@ void Mesh::loadOBJ( std::string _path )
 	WVDEBUG( "Loaded indices (%i)", m_indices.size() );
 
 	WVDEBUG( "Model mesh succesfully" );
+	m_ready = true;
 }

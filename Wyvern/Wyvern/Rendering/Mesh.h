@@ -1,13 +1,16 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <Wyvern/Assets/Asset.h>
+#include <Wyvern/Assets/IAsset.h>
 
 namespace WV
 {
-	class Mesh
+	class Mesh : public IAsset
 	{
 	public:
+		Mesh( std::string _path );
+		void load() override;
+
 		struct Vertex
 		{
 			/*
@@ -26,7 +29,6 @@ namespace WV
 			uint32_t abgr;
 		};
 
-		void loadOBJ( std::string _path );
 		std::vector<Vertex>& getVertices() { return m_vertices; };
 		std::vector<uint16_t>& getIndices() { return m_indices; }
 
