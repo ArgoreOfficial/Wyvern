@@ -10,6 +10,6 @@ namespace WV
 	public:
 		
 	private:
-		
+		std::vector<void*> m_systems;
 	};
 }

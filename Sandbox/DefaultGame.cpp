@@ -1,6 +1,6 @@
 #include "DefaultGame.h"
 #include <Wyvern/Filesystem/Filesystem.h>
-
+#include <Wyvern/ECS/Entity.h>
 #include <Wyvern/Managers/AssetManager.h>
 
 void DefaultGame::start()
@@ -16,23 +16,22 @@ void DefaultGame::start()
 	// all function calls will return until m_ready==true
 	m_meshAsset = new WV::Mesh( "assets/logo.obj" );
 
-	/*
-
-	// --------- Goal --------- //
-
 	// however, objects (entities) are prefered:
-	Entity* entity = new Entity(); // all entities have a transform component by default
-	entity->addComponent<Mesh>( "logo.obj" );
+	WV::Entity* entity = new WV::Entity(); // all entities have a transform component by default
+	entity->addComponent<WV::Mesh>();
+
+	/*
+	
+	// --------- Goal Syntax --------- //
 
 	// addComponent<T>() returns a T*
 	Material* material entity->addComponent<Material>();
 	material->albedo.texture = new Texture( "logo_fire_BaseColor" );
 	material->roughness = 0.5f;
 
-	entity->addComponent<MyCustomComponent>();
+	entity->addComponent<MyCustomComponent2>();
 
-	// --------- Goal --------- //
-
+	// ------------------------------- //
 
 	*/
 
@@ -46,12 +45,12 @@ void DefaultGame::update( double _deltaTime )
 	float time = WV::Application::getTime();
 
 	m_camera.rotate( 0.0f, _deltaTime, 0.0f );
-	
+
 }
 
 void DefaultGame::draw3D()
 {
-	
+
 }
 
 void DefaultGame::drawUI()
