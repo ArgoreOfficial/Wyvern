@@ -1,6 +1,5 @@
 #include "DefaultGame.h"
 #include <Wyvern/Filesystem/Filesystem.h>
-#include <Wyvern/ECS/Entity.h>
 #include <Wyvern/Managers/AssetManager.h>
 
 void DefaultGame::start()
@@ -16,20 +15,15 @@ void DefaultGame::start()
 	// all function calls will return until m_ready==true
 	m_meshAsset = new WV::Mesh( "assets/logo.obj" );
 
-	// however, objects (entities) are prefered:
-	WV::Entity* entity = new WV::Entity(); // all entities have a transform component by default
-	entity->addComponent<WV::Mesh>();
-
 	/*
-	
-	// --------- Goal Syntax --------- //
 
-	// addComponent<T>() returns a T*
-	Material* material entity->addComponent<Material>();
-	material->albedo.texture = new Texture( "logo_fire_BaseColor" );
-	material->roughness = 0.5f;
+	// ------------------------------- //
 
-	entity->addComponent<MyCustomComponent2>();
+	auto myplayer& = SceneGraph::CreateObject<SomePlayerClass2>()
+	myplayer.setPosition();
+
+	SomePlayerClass2* myplayer2 = new SomePlayerClass2( 0, 0, 0, true );
+	SceneGraph::Insert( myplayer2 );
 
 	// ------------------------------- //
 

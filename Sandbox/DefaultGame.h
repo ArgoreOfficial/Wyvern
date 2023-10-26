@@ -23,7 +23,7 @@ public:
 	bool m_showWindow = false;
 
 	WV::Mesh* m_meshAsset;
-
+	
 	WV::Camera m_camera;
 };
 
