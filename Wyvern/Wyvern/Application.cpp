@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <Wyvern/Core/ILayer.h>
+#include <Wyvern/Core/LayerStack.h>
 #include <Wyvern/Logging/Logging.h>
 #include <Wyvern/Managers/AssetManager.h>
 
@@ -110,12 +111,8 @@ void WV::Application::initImgui()
 }
 
 void Application::internalRun()
-{
-	for ( size_t i = 0; i < m_layers.size(); i++ )
-	{
-		m_layers[ i ]->start();
-	}
-	
+{	
+	m_layerStack->start();
 	startLoadThread();
 	
 	m_lastTime = 0.0;
@@ -137,10 +134,7 @@ void Application::update()
 
 	m_window->processInput();
 
-	for ( size_t i = 0; i < m_layers.size(); i++ )
-	{
-		m_layers[ i ]->update( m_deltaTime );
-	}
+	m_layerStack->update( m_deltaTime );
 }
 
 void Application::draw()
@@ -153,19 +147,14 @@ void Application::draw()
 		m_activeCamera->submit();
 	}
 
-	for ( size_t i = 0; i < m_layers.size(); i++ )
-	{
-		m_layers[ i ]->draw3D();
-	}
+	m_layerStack->draw3D();
+	m_layerStack->draw2D();
 
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	for ( size_t i = 0; i < m_layers.size(); i++ )
-	{
-		m_layers[ i ]->drawUI();
-	}
+	m_layerStack->drawUI();
 
 	ImGui::Render();
 	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );

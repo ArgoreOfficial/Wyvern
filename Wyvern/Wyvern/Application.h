@@ -12,6 +12,7 @@
 namespace WV
 {
 	class ILayer;
+	class LayerStack;
 
 	class Application : ISingleton<Application>
 	{
@@ -27,7 +28,7 @@ namespace WV
 		// temp?
 		static void setActiveCamera( Camera* _camera ) { getInstance().m_activeCamera = _camera; }
 
-		void pushLayer( ILayer* _layer ) { m_layers.push_back( _layer ); } // move to LayerStack class?
+		void pushLayer( ILayer* _layer ) { m_layerStack->push_back( _layer ); }
 		void startLoadThread();
 	private:
 		
@@ -40,7 +41,7 @@ namespace WV
 
 		void initImgui();
 
-		std::vector<ILayer*> m_layers;
+		LayerStack* m_layerStack;
 		Window* m_window = nullptr;
 		ImGuiIO* m_io;
 		Camera* m_activeCamera;
