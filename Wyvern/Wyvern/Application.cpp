@@ -16,7 +16,7 @@ void WV::Application::windowResizeCallback( GLFWwindow* _window, int _width, int
 		instance.m_activeCamera->setAspect( instance.m_window->getAspect() );
 }
 
-void Application::run( ILayer* _gameLayer )
+void Application::run()
 {
 	Application& instance = getInstance();
 
@@ -26,8 +26,6 @@ void Application::run( ILayer* _gameLayer )
 		return;
 	}
 	instance.initImgui();
-
-	instance.pushLayer( _gameLayer );
 
 	instance.internalRun();
 	instance.shutdown();
@@ -59,7 +57,7 @@ int Application::create( )
 	WVINFO( "Loading Wyvern runtime version %i.%i", major, minor );
 
 	m_window = new WV::Window();
-	if ( !m_window->createWindow( "Wyvern" ) )
+	if ( !m_window->createWindow( 700, 500, "SPETS 2" ) )
 	{
 		delete m_window;
 		return 0;
@@ -112,7 +110,7 @@ void WV::Application::initImgui()
 
 void Application::internalRun()
 {	
-	m_layerStack->start();
+	m_layerStack.start();
 	startLoadThread();
 	
 	m_lastTime = 0.0;
@@ -134,7 +132,7 @@ void Application::update()
 
 	m_window->processInput();
 
-	m_layerStack->update( m_deltaTime );
+	m_layerStack.update( m_deltaTime );
 }
 
 void Application::draw()
@@ -147,14 +145,14 @@ void Application::draw()
 		m_activeCamera->submit();
 	}
 
-	m_layerStack->draw3D();
-	m_layerStack->draw2D();
+	m_layerStack.draw3D();
+	m_layerStack.draw2D();
 
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	m_layerStack->drawUI();
+	m_layerStack.drawUI();
 
 	ImGui::Render();
 	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
@@ -168,10 +166,10 @@ void Application::draw()
 	}
 
 	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine" );
-	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %f", 1.0f / m_deltaTime );
-	
 	/*
+	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine" );
+	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %.0f", 1.0f / m_deltaTime );
+	
 	if ( m_activeCamera )
 	{
 		bgfx::dbgTextPrintf( 0, 1, 0x0f, "Camera Pos: %f, %f, %f", m_activeCamera->m_position.x, m_activeCamera->m_position.y, m_activeCamera->m_position.z );

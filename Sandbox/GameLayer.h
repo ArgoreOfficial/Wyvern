@@ -6,24 +6,19 @@
 #include <Wyvern/Rendering/Model.h>
 #include <Wyvern/Camera.h>
 
-class DefaultGame : public WV::ILayer
+class GameLayer : public WV::ILayer
 {
 public:
-	DefaultGame() : ILayer( "GameLayer" ) { };
-	~DefaultGame() { };
+	GameLayer() : ILayer( "GameLayer" ) { };
+	~GameLayer() { };
 
 	void start() override;
 	void update( double _deltaTime ) override;
-	void draw3D() override;
 	void drawUI() override;
 
 	void handleKeyInput( WV::Events::KeyDownEvent& _event );
 
-	float m_slider = 0.0f;
-	bool m_showWindow = false;
-
-	WV::Mesh* m_meshAsset;
-	
+	WV::Mesh* m_meshAsset = nullptr;
 	WV::Camera m_camera;
 };
 

@@ -42,6 +42,7 @@ int WV::Window::createWindow( const char* _title )
 {
 	int result = createWindow( 512, 512, _title );
 	
+	/*
 	if ( result )
 	{
 		int width, height;
@@ -50,6 +51,7 @@ int WV::Window::createWindow( const char* _title )
 		glfwGetWindowSize( m_window, &width, &height );
 		windowResizeCallback( m_window, width, height );
 	}
+	*/
 
 	return result;
 }

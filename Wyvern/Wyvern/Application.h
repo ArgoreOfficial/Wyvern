@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Wyvern/Core/ISingleton.h>
-#include <Wyvern/Window/Window.h>
-#include <Wyvern/Camera.h>
+#include "Wyvern/Core/ISingleton.h"
+#include "Wyvern/Core/LayerStack.h"
+#include "Wyvern/Window/Window.h"
+#include "Wyvern/Camera.h"
 
 #include <vector>
 #include <imgui.h>
@@ -12,26 +13,24 @@
 namespace WV
 {
 	class ILayer;
-	class LayerStack;
-
+	
 	class Application : ISingleton<Application>
 	{
 	public:
-		static void run( ILayer* _gameLayer );
+		static void run();
 		
 		static double getTime() { return getInstance().m_time; }
 		static double getDeltaTime() { return getInstance().m_deltaTime; }
 		
 		static void windowResizeCallback( GLFWwindow* _window, int _width, int _height );
-		static WV::Window* getWindow() { return getInstance().m_window; }
+		static WV::Window& getWindow() { return *getInstance().m_window; }
 		
-		// temp?
+		// temp, move to renderer
 		static void setActiveCamera( Camera* _camera ) { getInstance().m_activeCamera = _camera; }
+		static void pushLayer( ILayer* _layer ) { getInstance().m_layerStack.push_back( _layer ); }
 
-		void pushLayer( ILayer* _layer ) { m_layerStack->push_back( _layer ); }
 		void startLoadThread();
 	private:
-		
 		int create( );
 		void destroy();
 		void internalRun();
@@ -41,9 +40,10 @@ namespace WV
 
 		void initImgui();
 
-		LayerStack* m_layerStack;
+		LayerStack m_layerStack;
 		Window* m_window = nullptr;
-		ImGuiIO* m_io;
+		ImGuiIO* m_io    = nullptr;
+		// temp, move to renderer
 		Camera* m_activeCamera;
 
 		double m_lastTime = 0.0;

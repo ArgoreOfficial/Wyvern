@@ -11,30 +11,9 @@ language "C++"
 cppdialect "C++17"
 buildoptions{"/Zc:__cplusplus"}
 
-filter "configurations:Debug"
-    staticruntime "on"
-	runtime "Debug"
-    symbols "On"
-	optimize "Off"
-    defines {"WYVERN_DEBUG"}
-
-filter "configurations:Release"
-    staticruntime "on"
-	runtime "Release"
-    symbols "Off"
-    optimize "On"
-    defines {"WYVERN_RELEASE"}
-
-filter "configurations:Final"
-    staticruntime "on"
-	runtime "Release"
-    symbols "Off"
-    optimize "Full"
-    defines {"WYVERN_FINAL"}
-
 solution "Wyvern"
 	startproject "Sandbox"
-	configurations { "Release", "Debug" }
+	configurations { "Release", "Debug", "Final" }
 	targetdir "bin"
 	
 	if os.is64bit() and not os.istarget("windows") then
@@ -43,23 +22,41 @@ solution "Wyvern"
 		platforms { "x86", "x86_64" }
 	end
 
-	filter "configurations:Release"
-		defines
-		{
-			"NDEBUG",
-			"BX_CONFIG_DEBUG=0"
-		}
-		optimize "Full"
-	
 	filter "configurations:Debug*"
 		defines
 		{
 			"_DEBUG",
-			"BX_CONFIG_DEBUG=1"
+			"BX_CONFIG_DEBUG=1",
+			"WYVERN_DEBUG"
 		}
+		runtime "Debug"
 		optimize "Debug"
 		symbols "On"
-	
+
+	filter "configurations:Release"
+		defines 
+		{
+			"NDEBUG",
+			"BX_CONFIG_DEBUG=0",
+			"WYVERN_RELEASE"
+		}
+		staticruntime "On"
+		runtime "Release"
+		optimize "On"
+		symbols "On"
+
+	filter "configurations:Final*"
+		defines 
+		{
+			"NDEBUG",
+			"BX_CONFIG_DEBUG=0",
+			"WYVERN_FINAL"
+		}
+		staticruntime "On"
+		runtime "Release"
+		optimize "Debug"
+		symbols "Off"
+
 	filter "platforms:x86"
 		architecture "x86"
 	filter "platforms:x86_64"

@@ -1,18 +1,9 @@
-#include "DefaultGame.h"
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
+#include "GameLayer.h"
 
 int main()
 {
-#ifdef _WIN32
-	SetConsoleTitleA( "Wyvern Log" );
-#endif
-
-	DefaultGame* game = new DefaultGame();
-	WV::Application::run( game );
-	delete game;
+	WV::Application::pushLayer( new GameLayer() );
+	WV::Application::run();
 
 	return 0;
 }
