@@ -13,7 +13,7 @@ buildoptions{"/Zc:__cplusplus"}
 
 solution "Wyvern"
 	startproject "Sandbox"
-	configurations { "Release", "Debug", "Final" }
+	configurations { "Debug", "Release", "Final" }
 	targetdir "bin"
 	
 	if os.is64bit() and not os.istarget("windows") then
@@ -21,7 +21,7 @@ solution "Wyvern"
 	else
 		platforms { "x86", "x86_64" }
 	end
-
+	
 	filter "configurations:Debug*"
 		defines
 		{
@@ -29,6 +29,7 @@ solution "Wyvern"
 			"BX_CONFIG_DEBUG=1",
 			"WYVERN_DEBUG"
 		}
+		staticruntime "On"
 		runtime "Debug"
 		optimize "Debug"
 		symbols "On"

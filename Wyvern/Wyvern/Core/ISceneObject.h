@@ -1,10 +1,11 @@
-#pragma ocne
+#pragma once
 
 namespace WV
 {
 	class ISceneObject
 	{
 	public:
+		ISceneObject() { }
 		~ISceneObject() { }
 		
 		inline void setID( unsigned int _id ) 
@@ -13,8 +14,12 @@ namespace WV
 				m_internalID = _id; 
 		}
 
+		virtual void update( double _deltaTime ) { }
+		virtual void draw3D() { }
+		virtual void draw2D() { }
+		virtual void drawUI() { }
+
 	protected:
-		ISceneObject() { }
 		unsigned int m_internalID = 0;
 	};
 }

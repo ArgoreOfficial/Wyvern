@@ -146,6 +146,7 @@ void Application::draw()
 	}
 
 	m_layerStack.draw3D();
+
 	m_layerStack.draw2D();
 
 	ImGui_Implbgfx_NewFrame();

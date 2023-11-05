@@ -9,7 +9,10 @@
 class GameLayer : public WV::ILayer
 {
 public:
-	GameLayer() : ILayer( "GameLayer" ) { };
+	GameLayer() : 
+		ILayer( "GameLayer" ), m_scene( WV::Application::getScene() ) 
+	{ };
+
 	~GameLayer() { };
 
 	void start() override;
@@ -18,6 +21,7 @@ public:
 
 	void handleKeyInput( WV::Events::KeyDownEvent& _event );
 
+	WV::SceneGraph& m_scene;
 	WV::Mesh* m_meshAsset = nullptr;
 	WV::Camera m_camera;
 };
