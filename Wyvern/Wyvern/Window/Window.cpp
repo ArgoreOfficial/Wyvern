@@ -1,35 +1,69 @@
 #include "Window.h"
-#include <Wyvern/Events/Events.h>
+
+#include <bx/bx.h>
+#include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+
+#include <Wyvern/Managers/EventManager.h>
+
+#if BX_PLATFORM_LINUX
+#define GLFW_EXPOSE_NATIVE_X11
+#elif BX_PLATFORM_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#elif BX_PLATFORM_OSX
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+
+#include <GLFW/glfw3native.h>
 
 using namespace WV;
 
-Window::Window():
-	m_window(nullptr)
+Window::Window() :
+	m_window( nullptr )
 {
 
 }
 
 Window::~Window()
 {
-	glfwTerminate();
+
 }
 
-void windowResizeCallback( GLFWwindow* _window, int _width, int _height )
+void Window::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 {
-	glViewport( 0, 0, _width, _height );
-	// WVDEBUG( "Window resized: %i, %i", _width, _height );
+	bgfx::reset( (uint32_t)_width, (uint32_t)_height, m_vsync_enabled ? BGFX_RESET_VSYNC : BGFX_RESET_NONE );
+	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
+
+	m_view_width = _width;
+	m_view_height = _height;
 }
 
-int Window::createWindow()
+int WV::Window::createWindow( const char* _title )
 {
+	int result = createWindow( 512, 512, _title );
+	
+	/*
+	if ( result )
+	{
+		int width, height;
+		glfwMaximizeWindow( m_window );
 
-	int width = 800;
-	int height = 800;
+		glfwGetWindowSize( m_window, &width, &height );
+		windowResizeCallback( m_window, width, height );
+	}
+	*/
+
+	return result;
+}
 
 
-	WVDEBUG( "Creating Window..." );
+int Window::createWindow( int _width, int _height, const char* _title )
+{
+	// ----------------------- glfw -------------------------- //
 
-	if ( glfwInit() == GLFW_FALSE )
+	WVDEBUG( "Creating Window [%i, %i]", _width, _height );
+
+	if ( !glfwInit() )
 	{
 		WVFATAL( "GLFW could not initialize!" );
 		glfwTerminate();
@@ -37,13 +71,9 @@ int Window::createWindow()
 	}
 	WVDEBUG( "GLFW Initialized" );
 
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	m_window = glfwCreateWindow( _width, _height, _title, nullptr, nullptr );
 
-	m_window = glfwCreateWindow( width, height, "Wyvern", NULL, NULL );
-
-	if ( m_window == NULL )
+	if ( !m_window )
 	{
 		WVFATAL( "Failed to create GLFW window" );
 		glfwTerminate();
@@ -51,30 +81,44 @@ int Window::createWindow()
 	}
 	WVDEBUG( "GLFW Window created" );
 
-
 	glfwMakeContextCurrent( m_window );
 
-	if ( glewInit() )
+	hookEvents();
+
+	// ----------------------- bgfx -------------------------- //
+
+	WVDEBUG( "Setting up BGFX" );
+
+	bgfx::renderFrame();
+
+	bgfx::Init init;
+
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+	init.platformData.ndt = glfwGetX11Display();
+	init.platformData.nwh = (void*)(uintptr_t)glfwGetX11Window( m_window );
+#elif BX_PLATFORM_OSX
+	init.platformData.nwh = glfwGetCocoaWindow( m_window );
+#elif BX_PLATFORM_WINDOWS
+	init.platformData.nwh = glfwGetWin32Window( m_window );
+#endif
+
+	init.type = bgfx::RendererType::Count;
+	init.resolution.width = (uint32_t)_width;
+	init.resolution.height = (uint32_t)_height;
+
+	if ( !bgfx::init( init ) )
 	{
-		WVFATAL( "GLEW could not initialize!" );
+		WVFATAL( "BGFX could not initialize!" );
 		glfwTerminate();
 		return 0;
 	}
-	WVDEBUG( "GLEW Initialized" );
 
-	glViewport( 0, 0, width, height );
-	glfwSetFramebufferSizeCallback( m_window, windowResizeCallback );
-	
-	WVDEBUG( "Window Created [%i, %i]", width, height );
+	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x666699FF, 1.0f, 0 );
+	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
 
-	glEnable( GL_TEXTURE_2D );
-
-	glEnable( GL_CULL_FACE );
-	glEnable( GL_DEPTH_TEST );
-	glDepthMask( GL_TRUE );
-	glDepthFunc( GL_LESS );
-	glDepthRange( 0.0f, 1.0f );
-
+	bgfx::RendererType::Enum backend = bgfx::getRendererType();
+	const char* backendstrings[ 12 ] = { "Noop", "Agc", "Direct3D9", "Direct3D11", "Direct3D12", "Gnm", "Metal", "Nvn", "OpenGLES", "OpenGL", "Vulkan", "WebGPU" };
+	WVDEBUG( "Selected backend %s", backendstrings[ backend ] );
 
 	return 1;
 }
@@ -83,13 +127,13 @@ int Window::pollEvents()
 {
 	if ( glfwWindowShouldClose( m_window ) )
 	{
-		WVDEBUG( "Closing..." );
-		glfwTerminate();
-		WVDEBUG( "GLFW Terminated" );
+		WVDEBUG( "Closing" );
 		return 0;
 	}
+
 	glfwPollEvents();
-	
+
+
 	return 1;
 }
 
@@ -101,11 +145,25 @@ void Window::processInput()
 	}
 }
 
+
 void Window::hookEvents()
 {
 	glfwSetKeyCallback( m_window, Window::handleKeyEvents );
 	// glfwSetCursorPosCallback()
 }
+
+void WV::Window::setVSync( bool _value )
+{
+	m_vsync_enabled = _value;
+	glfwSwapInterval( _value ? 1 : 0 );
+
+}
+
+void WV::Window::setClearColour( uint32_t hex )
+{
+	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, hex, 1.0f, 0 );
+}
+
 
 void Window::handleApplicationEvents()
 {
@@ -134,4 +192,3 @@ void Window::handleMouseEvents( GLFWwindow* window, double xpos, double ypos )
 {
 
 }
-

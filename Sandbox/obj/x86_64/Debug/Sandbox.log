@@ -1,5 +1,0 @@
-﻿  DefaultGame.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  main.cpp
-D:\Dev\Wyvern\Wyvern\Wyvern\Logging\Logging.h(3,10): fatal  error C1083: Cannot open include file: 'gl/glew.h': No such file or directory
-  Generating Code...

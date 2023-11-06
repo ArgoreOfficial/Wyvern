@@ -8,13 +8,13 @@ namespace WV
 	public:
 		ISingleton<T>( const ISingleton<T>& ) = delete;
 
+	protected:
 		static T& getInstance()
 		{
 			static T instance;
 			return instance;
 		}
 		
-	protected:
 		ISingleton<T>() { }
 	};
 }

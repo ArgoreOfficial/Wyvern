@@ -25,7 +25,7 @@ namespace WV
 			int m_keycode;
 		};
 
-		class KeyUpEvent : public IEvent<KeyDownEvent>
+		class KeyUpEvent : public IEvent<KeyUpEvent>
 		{
 		public:
 			KeyUpEvent( int _keyCode ) : m_keycode( _keyCode ) { }

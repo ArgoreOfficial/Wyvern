@@ -4,35 +4,16 @@ local BIMG_DIR = "bimg"
 local BX_DIR = "bx"
 local GLFW_DIR = "glfw"
 local WYVERN_DIR = "Wyvern"
+local IMGUI_DIR = "imgui"
+local ASSIMP_DIR = "assimp"
 
 language "C++"
 cppdialect "C++17"
 buildoptions{"/Zc:__cplusplus"}
 
-filter "configurations:Debug"
-    debugdir "assets"
-    staticruntime "on"
-	runtime "Debug"
-    symbols "On"
-    defines {"WYVERN_DEBUG"}
-
-filter "configurations:Release"
-    staticruntime "on"
-	runtime "Release"
-    symbols "Off"
-    optimize "On"
-    defines {"WYVERN_RELEASE"}
-
-filter "configurations:Final"
-    staticruntime "on"
-	runtime "Release"
-    symbols "Off"
-    optimize "Full"
-    defines {"WYVERN_FINAL"}
-
 solution "Wyvern"
 	startproject "Sandbox"
-	configurations { "Release", "Debug" }
+	configurations { "Debug", "Release", "Final" }
 	targetdir "bin"
 	
 	if os.is64bit() and not os.istarget("windows") then
@@ -40,23 +21,43 @@ solution "Wyvern"
 	else
 		platforms { "x86", "x86_64" }
 	end
-
-	filter "configurations:Release"
-		defines
-		{
-			"NDEBUG",
-			"BX_CONFIG_DEBUG=0"
-		}
-		optimize "Full"
+	
 	filter "configurations:Debug*"
 		defines
 		{
 			"_DEBUG",
-			"BX_CONFIG_DEBUG=1"
+			"BX_CONFIG_DEBUG=1",
+			"WYVERN_DEBUG"
 		}
+		staticruntime "On"
+		runtime "Debug"
 		optimize "Debug"
 		symbols "On"
-	
+
+	filter "configurations:Release"
+		defines 
+		{
+			"NDEBUG",
+			"BX_CONFIG_DEBUG=0",
+			"WYVERN_RELEASE"
+		}
+		staticruntime "On"
+		runtime "Release"
+		optimize "On"
+		symbols "On"
+
+	filter "configurations:Final*"
+		defines 
+		{
+			"NDEBUG",
+			"BX_CONFIG_DEBUG=0",
+			"WYVERN_FINAL"
+		}
+		staticruntime "On"
+		runtime "Release"
+		optimize "Debug"
+		symbols "Off"
+
 	filter "platforms:x86"
 		architecture "x86"
 	filter "platforms:x86_64"
@@ -76,7 +77,7 @@ function setBxCompat()
 		includedirs { path.join(BX_DIR, "include/compat/osx") }
 		buildoptions { "-x objective-c++" }
 end
-	
+
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
@@ -86,7 +87,7 @@ project "Wyvern"
 	files 
 	{ 
 		"Wyvern/**.h",
-		"Wyvern/**.cpp" 
+		"Wyvern/**.cpp"
 	}
 
 	includedirs
@@ -94,10 +95,12 @@ project "Wyvern"
 		path.join(BGFX_DIR, "include"),
 		path.join(BX_DIR, "include"),
 		path.join(GLFW_DIR, "include"),
-		WYVERN_DIR
+		WYVERN_DIR,
+		IMGUI_DIR,
+		ASSIMP_DIR
 	}
 
-	links { "bgfx", "bimg", "bx", "glfw" }
+	links { "bgfx", "bimg", "bx", "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
 	filter "system:windows"
 		links { "gdi32", "kernel32", "psapi" }
@@ -111,6 +114,7 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	location "Sandbox"
+	debugdir "Sandbox"
 	
 	files 
 	{ 
@@ -123,10 +127,11 @@ project "Sandbox"
 		path.join(BGFX_DIR, "include"),
 		path.join(BX_DIR, "include"),
 		path.join(GLFW_DIR, "include"),
-		WYVERN_DIR
+		WYVERN_DIR,
+		IMGUI_DIR
 	}
 
-	links { "Wyvern", "bgfx", "bimg", "bx", "glfw" }
+	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
 
 	filter "system:windows"
 		links { "gdi32", "kernel32", "psapi" }
@@ -135,6 +140,23 @@ project "Sandbox"
 	filter "system:macosx"
 		links { "QuartzCore.framework", "Metal.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 	setBxCompat()
+
+
+project "imgui"
+	kind "StaticLib"
+	language "C++"
+	location "imgui"
+	files
+	{
+		"imgui/**.cpp",
+		"imgui/**.h",
+	}
+	includedirs
+	{
+		"imgui",
+		"glfw/include"
+	}
+	links { "glfw" }
 
 project "bgfx"
 	kind "StaticLib"
@@ -155,13 +177,12 @@ project "bgfx"
 	}
 	includedirs
 	{
-		path.join(BX_DIR, "include"),
-		path.join(BIMG_DIR, "include"),
-		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
-		path.join(BGFX_DIR, "3rdparty/directx-headers/include"),
+		path.join(BIMG_DIR, "include"),
+		path.join(BX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty/directx-headers/include/directx"),
-		path.join(BGFX_DIR, "3rdparty/khronos")
+		path.join(BGFX_DIR, "3rdparty/khronos"),
+		path.join(BGFX_DIR, "include")
 	}
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
@@ -189,14 +210,15 @@ project "bimg"
 		path.join(BIMG_DIR, "src/image.cpp"),
 		path.join(BIMG_DIR, "src/image_gnf.cpp"),
 		path.join(BIMG_DIR, "src/*.h"),
-		path.join(BIMG_DIR, "3rdparty/astc-encoder/source/*.cc")
+		path.join(BIMG_DIR, "3rdparty/astc-encoder/source/*.cpp")
 	}
 	includedirs
 	{
-		path.join(BX_DIR, "include"),
 		path.join(BIMG_DIR, "include"),
-		path.join(BIMG_DIR, "3rdparty/astc-encoder"),
 		path.join(BIMG_DIR, "3rdparty/astc-encoder/include"),
+		path.join(BIMG_DIR, "3rdparty/astc-encoder/source"),
+		path.join(BIMG_DIR, "3rdparty/tinyexr/deps/miniz"),
+		path.join(BX_DIR, "include")
 	}
 	setBxCompat()
 
@@ -224,6 +246,7 @@ project "bx"
 		path.join(BX_DIR, "3rdparty"),
 		path.join(BX_DIR, "include")
 	}
+
 	filter "configurations:Release"
 		defines "BX_CONFIG_DEBUG=0"
 	filter "configurations:Debug"
@@ -231,7 +254,8 @@ project "bx"
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
 	setBxCompat()
-		
+
+
 project "glfw"
 	kind "StaticLib"
 	language "C"
@@ -251,7 +275,11 @@ project "glfw"
 		path.join(GLFW_DIR, "src/vulkan.c"),
 		path.join(GLFW_DIR, "src/window.c"),
 	}
-	includedirs { path.join(GLFW_DIR, "include") }
+	includedirs 
+	{ 
+		path.join(GLFW_DIR, "include") 
+	}
+
 	filter "system:windows"
 		defines "_GLFW_WIN32"
 		files

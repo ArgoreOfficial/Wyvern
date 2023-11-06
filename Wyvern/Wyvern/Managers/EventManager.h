@@ -1,6 +1,6 @@
 #pragma once
 #include <Wyvern/Core/ISingleton.h>
-// #include <Wyvern/Events/Events.h>
+#include <Wyvern/Events/Events.h>
 #include <functional>
 #include <vector>
 
@@ -33,7 +33,7 @@ namespace WV
 	private:
 		template<class T>
 		static inline std::vector<std::function<void( T& )>>& getHookedEvents()
-		{ 
+		{
 			static std::vector<std::function<void( T& )>> hookedEvents;
 			return hookedEvents;
 		}

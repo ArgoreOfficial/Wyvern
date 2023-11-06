@@ -1,30 +1,35 @@
 #pragma once
-#include <fstream>
-#include <Wyvern/Logging/Logging.h>
+#include <string>
+#include <vector>
+
+namespace bgfx { struct Memory; }
 
 namespace WV
 {
+	struct sAsset;
+
 	class Filesystem
 	{
 	public:
-		static bool fileExists( std::string _path, bool _printError = false )
-		{
-			std::ifstream infile( _path );
-			if ( _printError && !infile.good() )
-			{
-				WVERROR( "File not found:\n    %s", _path.c_str() );
-			}
+		static bool fileExists( std::string _path, bool _printError = false );
+		static std::string getFilenameFromPath( std::string _path, bool _keepExtension = true );
+		static std::string getFileExtension( std::string _path );
+		static const bgfx::Memory* loadMemoryFromFile( std::string _path );
+		static std::vector<char>* loadByteArrayFromPath( std::string _path );
 
-			return infile.good();
-		}
-
-		static std::string getFilenameFromPath( std::string _path )
-		{
-			std::string filename = _path.substr( _path.find_last_of( "/\\" ) + 1 );
-			// std::string::size_type const p( filename.find_last_of( '.' ) );
-			// std::string withoutExtension = filename.substr( 0, p );
-			
-			return filename.c_str();
-		}
+		template<class T>
+		static const bgfx::Memory* vectorToMemory( std::vector<T>* _vec );
 	};
+
+	template<class T>
+	inline const bgfx::Memory* Filesystem::vectorToMemory( std::vector<T>* _vec )
+	{
+		uint32_t size = _vec->size() * sizeof(T);
+
+		const bgfx::Memory* mem = bgfx::alloc( size + 1 );
+		memcpy( mem->data, _vec->data(), size );
+
+		mem->data[ mem->size - 1 ] = '\0';
+		return mem;
+	}
 }
