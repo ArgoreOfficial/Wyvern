@@ -1,12 +1,3 @@
-[submodule "bx"]
-	path = bx
-	url = https://github.com/bkaradzic/bx
-[submodule "bimg"]
-	path = bimg
-	url = https://github.com/bkaradzic/bimg
-[submodule "bgfx"]
-	path = bgfx
-	url = https://github.com/bkaradzic/bgfx
 [submodule "glfw"]
 	path = glfw
 	url = https://github.com/glfw/glfw
