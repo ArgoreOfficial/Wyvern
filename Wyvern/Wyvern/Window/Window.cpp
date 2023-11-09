@@ -1,9 +1,4 @@
 #include "Window.h"
-
-#include <bx/bx.h>
-#include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
-
 #include <Wyvern/Managers/EventManager.h>
 
 #if BX_PLATFORM_LINUX
@@ -31,8 +26,10 @@ Window::~Window()
 
 void Window::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
 {
+	/*
 	bgfx::reset( (uint32_t)_width, (uint32_t)_height, m_vsync_enabled ? BGFX_RESET_VSYNC : BGFX_RESET_NONE );
 	bgfx::setViewRect( m_clearView, 0, 0, bgfx::BackbufferRatio::Equal );
+	*/
 
 	m_view_width = _width;
 	m_view_height = _height;
@@ -89,9 +86,9 @@ int Window::createWindow( int _width, int _height, const char* _title )
 
 	WVDEBUG( "Setting up BGFX" );
 
-	bgfx::renderFrame();
+	// bgfx::renderFrame();
 
-	bgfx::Init init;
+	// bgfx::Init init;
 
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
 	init.platformData.ndt = glfwGetX11Display();
@@ -101,7 +98,7 @@ int Window::createWindow( int _width, int _height, const char* _title )
 #elif BX_PLATFORM_WINDOWS
 	init.platformData.nwh = glfwGetWin32Window( m_window );
 #endif
-
+	/*
 	init.type = bgfx::RendererType::Count;
 	init.resolution.width = (uint32_t)_width;
 	init.resolution.height = (uint32_t)_height;
@@ -120,6 +117,7 @@ int Window::createWindow( int _width, int _height, const char* _title )
 	const char* backendstrings[ 12 ] = { "Noop", "Agc", "Direct3D9", "Direct3D11", "Direct3D12", "Gnm", "Metal", "Nvn", "OpenGLES", "OpenGL", "Vulkan", "WebGPU" };
 	WVDEBUG( "Selected backend %s", backendstrings[ backend ] );
 
+	*/
 	return 1;
 }
 
@@ -161,7 +159,7 @@ void WV::Window::setVSync( bool _value )
 
 void WV::Window::setClearColour( uint32_t hex )
 {
-	bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, hex, 1.0f, 0 );
+	// bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, hex, 1.0f, 0 );
 }
 
 

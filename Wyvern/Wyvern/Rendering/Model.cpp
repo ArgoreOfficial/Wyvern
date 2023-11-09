@@ -1,12 +1,9 @@
 #include "Model.h"
-#include <bx/bx.h>
-#include <bx/math.h>
-#include <bx/readerwriter.h>
 #include <Wyvern/Filesystem/Filesystem.h>
 
 using namespace WV;
 
-
+/*
 // ------------ TEMPORARY ------------ //
 static bgfx::ShaderHandle loadShader( const char* _name )
 {
@@ -43,6 +40,7 @@ static bgfx::ShaderHandle loadShader( const char* _name )
 
 	return handle;
 }
+*/
 
 Model::Model( Mesh& _mesh )
 {
@@ -53,7 +51,6 @@ Model::Model( Mesh& _mesh )
 		//.add( bgfx::Attrib::Tangent, 4, bgfx::AttribType::Uint8, true, true )
 		.add( bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true, true )
 		.end();
-	*/
 	
 	m_layout.begin()
 		.add( bgfx::Attrib::Position, 3, bgfx::AttribType::Float ) // position attribute
@@ -72,15 +69,18 @@ Model::Model( Mesh& _mesh )
 	m_vertexShaderHandle = loadShader( "vs_cubes" );
 	m_fragmentShaderHandle = loadShader( "fs_cubes" );
 	m_program = bgfx::createProgram( m_vertexShaderHandle, m_fragmentShaderHandle, true );
+	*/
 }
 
 Model::~Model()
 {
+	/*
 	bgfx::destroy( m_vertexBufferHandle );
 	bgfx::destroy( m_indexBufferHandle );
 	bgfx::destroy( m_program );
 	bgfx::destroy( m_vertexShaderHandle );
 	bgfx::destroy( m_fragmentShaderHandle );
+	*/
 }
 
 void WV::Model::setPosition( float _x, float _y, float _z )
@@ -120,6 +120,7 @@ void WV::Model::rotate( float _x, float _y, float _z )
 
 void Model::submit( float _aspect )
 {
+	/*
 	float scale[ 16 ];
 	bx::mtxScale( scale, m_scaleX, m_scaleY, m_scaleZ );
 	
@@ -150,4 +151,5 @@ void Model::submit( float _aspect )
 	bgfx::setState( state );
 
 	bgfx::submit( 0, m_program );
+	*/
 }

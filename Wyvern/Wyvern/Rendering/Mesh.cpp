@@ -1,8 +1,6 @@
 #include "Mesh.h"
 #include <vendor/OBJ_Loader.h>
 #include <Wyvern/Filesystem/Filesystem.h>
-#include <bx/bx.h>
-#include <bx/pixelformat.h>
 #include <Wyvern/Managers/AssetManager.h>
 
 using namespace WV;
@@ -12,9 +10,9 @@ WV::Mesh::Mesh( std::string _path ) :
 {
 	cAssetManager::addAssetToLoadQueue( this );
 }
-
 inline uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f )
 {
+/*
 	const float src[] =
 	{
 		_x, // * 0.5f + 0.5f,
@@ -25,10 +23,13 @@ inline uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, f
 	uint32_t dst;
 	bx::packRgba8( &dst, src );
 	return dst;
+*/
+	return uint32_t();
 }
 
 void WV::Mesh::load()
 {
+			/*
 	if ( !Filesystem::fileExists( m_path, true ) ) return; // check if mesh file exists
 	std::string filename = Filesystem::getFilenameFromPath( m_path );
 
@@ -52,14 +53,12 @@ void WV::Mesh::load()
 			current.Position.Y,
 			current.Position.Z,
 			encodeNormalRgba8( current.TextureCoordinate.X, current.TextureCoordinate.Y, 0 )
-			/*
 			current.Normal.X,
 			current.Normal.Y,
 			current.Normal.Z,
 			// tangent
 			current.TextureCoordinate.X,
 			current.TextureCoordinate.Y,
-			*/
 		};
 
 		m_vertices.push_back( v );
@@ -74,4 +73,5 @@ void WV::Mesh::load()
 
 	WVDEBUG( "Model mesh succesfully" );
 	m_ready = true;
+			*/
 }

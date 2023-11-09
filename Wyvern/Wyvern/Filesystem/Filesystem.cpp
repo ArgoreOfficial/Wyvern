@@ -5,7 +5,6 @@
 #include <filesystem>
 
 #include <Wyvern/Logging/Logging.h>
-#include <bgfx/bgfx.h>
 
 bool WV::Filesystem::fileExists( std::string _path, bool _printError )
 {
@@ -49,6 +48,7 @@ std::vector<char>* WV::Filesystem::loadByteArrayFromPath( std::string _path )
 	return data;
 }
 
+	/*
 const bgfx::Memory* WV::Filesystem::loadMemoryFromFile( std::string _path )
 {
 	std::vector<char>* data = loadByteArrayFromPath( _path );
@@ -61,3 +61,4 @@ const bgfx::Memory* WV::Filesystem::loadMemoryFromFile( std::string _path )
 	mem->data[ mem->size - 1 ] = '\0';
 	return mem;
 }
+	*/

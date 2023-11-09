@@ -1,6 +1,5 @@
 #pragma once
 #include <Wyvern/Logging/Logging.h>
-#include <bgfx/bgfx.h>
 #include <GLFW/glfw3.h>
 
 namespace WV
@@ -17,7 +16,6 @@ namespace WV
 		void hookEvents();
 
 		GLFWwindow* getWindow() { return m_window; }
-		bgfx::ViewId& getView() { return m_clearView; }
 		void setTitle( const char* _title ) { glfwSetWindowTitle( m_window, _title ); }
 		void setVSync( bool _value );
 		void setClearColour( uint32_t hex );
@@ -26,7 +24,6 @@ namespace WV
 		int getHeight() { return m_view_height; }
 		float getAspect() { return float( m_view_width ) / float( m_view_height ); }
 
-		void touch() { bgfx::touch( m_clearView ); }
 		inline void shutdown() 
 		{
 			WVDEBUG("Terminated GLFW");
@@ -37,7 +34,6 @@ namespace WV
 
 	private:
 		GLFWwindow* m_window;
-		bgfx::ViewId m_clearView = 0;
 		
 		bool m_vsync_enabled = false;
 		int m_view_width;

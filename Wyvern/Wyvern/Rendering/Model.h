@@ -1,6 +1,5 @@
 #pragma once
 #include <Wyvern/Rendering/Mesh.h>
-#include <bgfx/bgfx.h>
 
 namespace WV
 {
@@ -31,12 +30,13 @@ namespace WV
 		float m_scaleX = 1.0f;
 		float m_scaleY = 1.0f;
 		float m_scaleZ = 1.0f;
-
+		/*
 		bgfx::VertexLayout m_layout;
 		bgfx::VertexBufferHandle m_vertexBufferHandle;
 		bgfx::IndexBufferHandle m_indexBufferHandle;
 		bgfx::ShaderHandle m_vertexShaderHandle;
 		bgfx::ShaderHandle m_fragmentShaderHandle;
 		bgfx::ProgramHandle m_program;
+		*/
 	};
 }

@@ -37,6 +37,7 @@ void WV::Application::startLoadThread()
 	double loadtimer = glfwGetTime();
 	while ( cAssetManager::isLoading() )
 	{
+		/*
 		m_window->touch();
 
 		bgfx::dbgTextClear();
@@ -44,6 +45,7 @@ void WV::Application::startLoadThread()
 		bgfx::setDebug( BGFX_DEBUG_TEXT );
 
 		bgfx::frame();
+		*/
 	}
 	loadthread->join();
 	WVDEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
@@ -83,6 +85,10 @@ void WV::Application::initImgui()
 	m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	m_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
+
+	// temp
+	ImGui_ImplGlfw_InitForOpenGL( m_window->getWindow(), true );
+	/*
 	// imgui-glfw backend specific init
 	bgfx::RendererType::Enum backend = bgfx::getRendererType();
 	switch ( backend )
@@ -102,9 +108,10 @@ void WV::Application::initImgui()
 		WVTRACE( "ImGui_ImplGlfw_InitForOther" );
 		break;
 	}
+	*/
 
 	int viewid = 255;
-	ImGui_Implbgfx_Init( viewid );
+	// ImGui_Implbgfx_Init( viewid );
 	WVTRACE( "ImGui_Implbgfx_Init(%i)", viewid );
 }
 
@@ -137,7 +144,7 @@ void Application::update()
 
 void Application::draw()
 {
-	m_window->touch();
+	// m_window->touch();
 
 	if ( m_activeCamera )
 	{
@@ -149,14 +156,14 @@ void Application::draw()
 
 	m_layerStack.draw2D();
 
-	ImGui_Implbgfx_NewFrame();
+	// ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
 	m_layerStack.drawUI();
 
 	ImGui::Render();
-	ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
+	// ImGui_Implbgfx_RenderDrawLists( ImGui::GetDrawData() );
 
 	if ( m_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
 	{
@@ -166,7 +173,7 @@ void Application::draw()
 		glfwMakeContextCurrent( backup_current_context );
 	}
 
-	bgfx::dbgTextClear();
+	// bgfx::dbgTextClear();
 	/*
 	bgfx::dbgTextPrintf( 0, 0, 0x0f, "Wyvern Engine" );
 	bgfx::dbgTextPrintf( 0, 1, 0x0f, "FPS: %.0f", 1.0f / m_deltaTime );
@@ -177,16 +184,17 @@ void Application::draw()
 		bgfx::dbgTextPrintf( 0, 2, 0x0f, "Camera Rot: %f, %f, %f", m_activeCamera->m_rotation.x, m_activeCamera->m_rotation.y, m_activeCamera->m_rotation.z );
 	}
 	*/
-
+	/*
 	bgfx::setDebug( BGFX_DEBUG_TEXT );
 	bgfx::frame();
+	*/
 }
 
 void Application::shutdown()
 {
-	ImGui_Implbgfx_Shutdown();
+	// ImGui_Implbgfx_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	bgfx::shutdown();
+	// bgfx::shutdown();
 	m_window->shutdown();
 }

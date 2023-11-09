@@ -15,6 +15,7 @@ WV::Camera::~Camera()
 
 void WV::Camera::submit()
 {
+	/*
 	bx::Vec3 dir = {
 		sinf( m_rotation.y ),
 		-( sin( m_rotation.x ) * cos( m_rotation.y ) ),
@@ -32,4 +33,5 @@ void WV::Camera::submit()
 
 	bgfx::setViewTransform( 0, m_view, m_proj );
 
+	*/
 }

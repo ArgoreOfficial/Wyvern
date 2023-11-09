@@ -7,7 +7,6 @@
 #include <vector>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include <vendor/imgui_impl_bgfx.h>
 
 namespace WV
 {
