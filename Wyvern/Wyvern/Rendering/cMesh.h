@@ -5,10 +5,10 @@
 
 namespace WV
 {
-	class Mesh : public IAsset
+	class cMesh : public IAsset
 	{
 	public:
-		Mesh( std::string _path );
+		cMesh( std::string _path );
 		void load() override;
 
 		struct Vertex

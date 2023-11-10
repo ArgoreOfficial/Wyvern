@@ -2,7 +2,7 @@
 // OBJ_Loader.h - A Single Header OBJ Model Loader
 
 // for wyvern logging
-#include <Wyvern/Logging/Logging.h>
+#include <Wyvern/Logging/cLogging.h>
 
 // Iostream - STD I/O Library
 #include <iostream>
@@ -472,9 +472,9 @@ namespace objl
 				{
 					if (!meshname.empty())
 					{
-						WVDEBUG( "%s", meshname.c_str() );
-						WVDEBUG( "Verts:%i, UVs:%i, Normals:%i, Tris:%i", Positions.size(), TCoords.size(), Normals.size(), ( Vertices.size() / 3 ) );
-						WVDEBUG( "Material: %s", ( !MeshMatNames.empty() ? MeshMatNames.back().c_str() : "None" ));
+						WV_DEBUG( "%s", meshname.c_str() );
+						WV_DEBUG( "Verts:%i, UVs:%i, Normals:%i, Tris:%i", Positions.size(), TCoords.size(), Normals.size(), ( Vertices.size() / 3 ) );
+						WV_DEBUG( "Material: %s", ( !MeshMatNames.empty() ? MeshMatNames.back().c_str() : "None" ));
 					}
 				}
 				#endif

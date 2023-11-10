@@ -3,12 +3,12 @@
 
 namespace WV
 {
-	class ILayer
+	class iLayer
 	{
 	public:
-		ILayer( std::string _debugName = "Layer" ) : 
+		iLayer( std::string _debugName = "Layer" ) : 
 			m_debugName(_debugName), m_enabled(true) { }
-		~ILayer() { }
+		~iLayer() { }
 
 		virtual void start() { }
 		virtual void update( double _deltaTime ) { }

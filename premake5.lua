@@ -13,6 +13,12 @@ solution "Wyvern"
 	configurations { "Debug", "Release", "Final" }
 	targetdir "bin"
 	
+	if os.is64bit() and not os.istarget("windows") then
+		platforms "x86_64"
+	else
+		platforms { "x86", "x86_64" }
+	end
+
 	filter "configurations:Debug*"
 		defines
 		{
@@ -45,6 +51,11 @@ solution "Wyvern"
 		runtime "Release"
 		optimize "Debug"
 		symbols "Off"
+
+	filter "platforms:x86"
+		architecture "x86"
+	filter "platforms:x86_64"
+		architecture "x86_64"
 
 project "Wyvern"
 	kind "StaticLib"
@@ -89,7 +100,7 @@ project "Sandbox"
 		IMGUI_DIR
 	}
 
-	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
+	links { "glad", "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
 
 project "imgui"
 	kind "StaticLib"

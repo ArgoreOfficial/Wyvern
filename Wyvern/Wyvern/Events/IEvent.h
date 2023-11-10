@@ -1,11 +1,11 @@
 #pragma once
 #include <functional>
-#include <Wyvern/Managers/EventManager.h>
+#include <Wyvern/Managers/cEventManager.h>
 
 namespace WV
 {
 	template<class T>
-	class IEvent
+	class iEvent
 	{
 	public:
 		/// <summary>
@@ -23,22 +23,22 @@ namespace WV
 		static void hook( std::function<void( T& )> _func );
 
 	protected:
-		IEvent() { }
+		iEvent() { }
 
 	};
 	
 	template<class T>
 	template<class C>
-	inline void IEvent<T>::hook( std::function<void( C*, T& )> _func, C* _obj )
+	inline void iEvent<T>::hook( std::function<void( C*, T& )> _func, C* _obj )
 	{
 		auto& func = std::bind( _func, _obj, std::placeholders::_1 );
-		EventManager::hook<T>( func );
+		cEventManager::hook<T>( func );
 	}
 
 	template<class T>
-	inline void IEvent<T>::hook( std::function<void( T& )> _func )
+	inline void iEvent<T>::hook( std::function<void( T& )> _func )
 	{
-		EventManager::hook<T>( _func );
+		cEventManager::hook<T>( _func );
 	}
 
 }

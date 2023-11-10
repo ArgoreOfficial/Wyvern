@@ -4,11 +4,11 @@
 
 namespace WV
 {
-	class SceneGraph
+	class cSceneGraph
 	{
 	public:
-		SceneGraph() { }
-		~SceneGraph() { }
+		cSceneGraph() { }
+		~cSceneGraph() { }
 
 		void add( ISceneObject* _object );
 		void update( double _deltaTime );

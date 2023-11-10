@@ -3,10 +3,10 @@
 namespace WV
 {
 	template <class T>
-	class ISingleton
+	class iSingleton
 	{
 	public:
-		ISingleton<T>( const ISingleton<T>& ) = delete;
+		iSingleton<T>( const iSingleton<T>& ) = delete;
 
 	protected:
 		static T& getInstance()
@@ -15,6 +15,6 @@ namespace WV
 			return instance;
 		}
 		
-		ISingleton<T>() { }
+		iSingleton<T>() { }
 	};
 }

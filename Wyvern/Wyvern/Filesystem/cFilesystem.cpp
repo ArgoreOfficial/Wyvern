@@ -1,17 +1,17 @@
-#include "Filesystem.h"
+#include "cFilesystem.h"
 
 #include <fstream>
 #include <sstream>
 #include <filesystem>
 
-#include <Wyvern/Logging/Logging.h>
+#include <Wyvern/Logging/cLogging.h>
 
 bool WV::Filesystem::fileExists( std::string _path, bool _printError )
 {
 	std::ifstream infile( _path );
 	if ( _printError && !infile.good() )
 	{
-		WVERROR( "File not found:\n    %s", _path.c_str() );
+		WV_ERROR( "File not found:\n    %s", _path.c_str() );
 	}
 
 	return infile.good();

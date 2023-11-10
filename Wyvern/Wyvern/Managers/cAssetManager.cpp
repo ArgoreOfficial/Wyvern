@@ -1,11 +1,11 @@
-#include "AssetManager.h"
+#include "cAssetManager.h"
 #include <thread>
 
 using namespace WV;
 
 void cAssetManager::internalUnloadAll()
 {
-	WVDEBUG( "Unloaded assets" );
+	WV_DEBUG( "Unloaded assets" );
 }
 
 void WV::cAssetManager::addAssetToLoadQueue( IAsset* _asset )
@@ -28,7 +28,7 @@ void WV::cAssetManager::loadQueuedAssetThread( cAssetManager* _instance )
 	}
 
 	instance.m_assetManagerMutex.lock();
-	WVDEBUG( "Loading complete. Killing thread..." );
+	WV_DEBUG( "Loading complete. Killing thread..." );
 	instance.m_hasLoaded = true;
 	instance.m_isLoading = false;
 	instance.m_assetManagerMutex.unlock();
@@ -38,7 +38,7 @@ std::thread* cAssetManager::internalLoadQueued()
 {
 	m_isLoading = true;
 
-	WVDEBUG( "Loading assets. Creating thread..." );
+	WV_DEBUG( "Loading assets. Creating thread..." );
 
 	cAssetManager& instance = getInstance();
 	instance.m_assetLoadThread = new std::thread( cAssetManager::loadQueuedAssetThread, &instance );

@@ -5,7 +5,7 @@
 
 namespace WV
 {
-	class ComponentManager : public ISingleton<ComponentManager>
+	class ComponentManager : public iSingleton<ComponentManager>
 	{
 	public:
 		

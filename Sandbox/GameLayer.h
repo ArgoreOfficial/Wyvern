@@ -1,16 +1,16 @@
 #pragma once
-#include "Wyvern/Core/ILayer.h"
-#include "Wyvern/Application.h"
-#include "Wyvern/Logging/Logging.h"
-#include "Wyvern/Managers/EventManager.h"
-#include "Wyvern/Rendering/Model.h"
-#include "Wyvern/Camera.h"
+#include "Wyvern/Core/iLayer.h"
+#include "Wyvern/cApplication.h"
+#include "Wyvern/Logging/cLogging.h"
+#include "Wyvern/Managers/cEventManager.h"
+#include "Wyvern/Rendering/cModel.h"
+#include "Wyvern/cCamera.h"
 
-class GameLayer : public WV::ILayer
+class GameLayer : public WV::iLayer
 {
 public:
 	GameLayer() : 
-		ILayer( "GameLayer" ), m_scene( WV::Application::getScene() ) 
+		iLayer( "GameLayer" ), m_scene( WV::cApplication::getScene() ) 
 	{ };
 
 	~GameLayer() { };
@@ -19,10 +19,10 @@ public:
 	void update( double _deltaTime ) override;
 	void drawUI() override;
 
-	void handleKeyInput( WV::Events::KeyDownEvent& _event );
+	void handleKeyInput( WV::Events::cKeyDownEvent& _event );
 
-	WV::SceneGraph& m_scene;
-	WV::Mesh* m_meshAsset = nullptr;
-	WV::Camera m_camera;
+	WV::cSceneGraph& m_scene;
+	WV::cMesh* m_meshAsset = nullptr;
+	WV::cCamera m_camera;
 };
 

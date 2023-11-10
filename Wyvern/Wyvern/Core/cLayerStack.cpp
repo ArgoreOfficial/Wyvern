@@ -1,6 +1,6 @@
-#include "LayerStack.h"
+#include "cLayerStack.h"
 
-void WV::LayerStack::start()
+void WV::cLayerStack::start()
 {
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
@@ -8,7 +8,7 @@ void WV::LayerStack::start()
 	}
 }
 
-void WV::LayerStack::update( double _deltaTime )
+void WV::cLayerStack::update( double _deltaTime )
 {
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
@@ -16,7 +16,7 @@ void WV::LayerStack::update( double _deltaTime )
 	}
 }
 
-void WV::LayerStack::draw3D()
+void WV::cLayerStack::draw3D()
 {
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
@@ -24,7 +24,7 @@ void WV::LayerStack::draw3D()
 	}
 }
 
-void WV::LayerStack::draw2D()
+void WV::cLayerStack::draw2D()
 {
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
@@ -32,7 +32,7 @@ void WV::LayerStack::draw2D()
 	}
 }
 
-void WV::LayerStack::drawUI()
+void WV::cLayerStack::drawUI()
 {
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{

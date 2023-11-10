@@ -1,11 +1,11 @@
 #pragma once
-#include "IEvent.h"
+#include "iEvent.h"
 
 namespace WV
 {
 	namespace Events
 	{
-		class MouseEvent : public IEvent<MouseEvent>
+		class MouseEvent : public iEvent<MouseEvent>
 		{
 		protected:
 			MouseEvent() { }

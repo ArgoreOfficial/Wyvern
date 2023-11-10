@@ -2,11 +2,11 @@
 
 namespace WV
 {
-	class Camera
+	class cCamera
 	{
 	public:
-		Camera();
-		~Camera();
+		cCamera();
+		~cCamera();
 
 		void setPosition( float _x, float _y, float _z ) { /*m_position = { _x, _y, _z };*/ }
 		void setRotation( float _x, float _y, float _z  ) { /*m_rotation = { _x, _y, _z };*/ };

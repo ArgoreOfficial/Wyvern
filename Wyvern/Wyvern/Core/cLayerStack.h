@@ -4,11 +4,11 @@
 
 namespace WV
 {
-	class LayerStack
+	class cLayerStack
 	{
 	public:
-		LayerStack() { }
-		~LayerStack() { }
+		cLayerStack() { }
+		~cLayerStack() { }
 
 		void start();
 		void update( double _deltaTime );
@@ -16,10 +16,10 @@ namespace WV
 		void draw2D();
 		void drawUI();
 
-		void push_back( ILayer* _layer ) { m_layers.push_back( _layer ); }
+		void push_back( iLayer* _layer ) { m_layers.push_back( _layer ); }
 
 	private:
-		std::vector<ILayer*> m_layers;
+		std::vector<iLayer*> m_layers;
 
 	};
 }

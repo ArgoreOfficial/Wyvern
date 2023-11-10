@@ -1,19 +1,19 @@
-#include "Camera.h"
+#include "cCamera.h"
 #include <tgmath.h>
 
 using namespace WV;
 
-Camera::Camera()
+cCamera::cCamera()
 {
 
 }
 
-WV::Camera::~Camera()
+WV::cCamera::~cCamera()
 {
 
 }
 
-void WV::Camera::submit()
+void WV::cCamera::submit()
 {
 	/*
 	bx::Vec3 dir = {

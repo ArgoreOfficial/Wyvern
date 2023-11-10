@@ -1,13 +1,13 @@
 #pragma once
-#include <Wyvern/Rendering/Mesh.h>
+#include <Wyvern/Rendering/cMesh.h>
 
 namespace WV
 {
-	class Model
+	class cModel
 	{
 	public:
-		Model( Mesh& _mesh );
-		~Model();
+		cModel( cMesh& _mesh );
+		~cModel();
 
 		void setPosition(float _x, float _y, float _z);
 		void setRotation( float _x, float _y, float _z );

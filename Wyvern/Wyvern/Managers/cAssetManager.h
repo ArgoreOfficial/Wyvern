@@ -1,16 +1,16 @@
 #pragma once
-#include <Wyvern/Core/ISingleton.h>
 #include <vendor/OBJ_Loader.h>
-#include <Wyvern/Logging/Logging.h>
-#include <Wyvern/Filesystem/Filesystem.h>
-#include <Wyvern/Rendering/Mesh.h>
+#include <Wyvern/Core/iSingleton.h>
+#include <Wyvern/Logging/cLogging.h>
+#include <Wyvern/Filesystem/cFilesystem.h>
+#include <Wyvern/Rendering/cMesh.h>
 #include <vector>
 #include <map>
 #include <mutex>
 
 namespace WV
 {
-	class cAssetManager : ISingleton<cAssetManager>
+	class cAssetManager : iSingleton<cAssetManager>
 	{
 	public:
 		static std::thread* loadQueuedAssets() { return getInstance().internalLoadQueued(); };

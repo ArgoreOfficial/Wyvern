@@ -3,7 +3,7 @@
 
 namespace WV
 {
-	class Renderer : public ISingleton<Renderer>
+	class Renderer : public iSingleton<Renderer>
 	{
 		
 	};

@@ -1,5 +1,5 @@
-#include "Model.h"
-#include <Wyvern/Filesystem/Filesystem.h>
+#include "cModel.h"
+#include <Wyvern/Filesystem/cFilesystem.h>
 
 using namespace WV;
 
@@ -42,7 +42,7 @@ static bgfx::ShaderHandle loadShader( const char* _name )
 }
 */
 
-Model::Model( Mesh& _mesh )
+cModel::cModel( cMesh& _mesh )
 {
 	/*
 	m_layout.begin()
@@ -72,7 +72,7 @@ Model::Model( Mesh& _mesh )
 	*/
 }
 
-Model::~Model()
+cModel::~cModel()
 {
 	/*
 	bgfx::destroy( m_vertexBufferHandle );
@@ -83,42 +83,42 @@ Model::~Model()
 	*/
 }
 
-void WV::Model::setPosition( float _x, float _y, float _z )
+void WV::cModel::setPosition( float _x, float _y, float _z )
 {
 	m_positionX = _x;
 	m_positionY = _y;
 	m_positionZ = _z;
 }
 
-void WV::Model::setRotation( float _x, float _y, float _z )
+void WV::cModel::setRotation( float _x, float _y, float _z )
 {
 	m_rotationX = _x;
 	m_rotationY = _y;
 	m_rotationZ = _z;
 }
 
-void WV::Model::setScale( float _x, float _y, float _z )
+void WV::cModel::setScale( float _x, float _y, float _z )
 {
 	m_scaleX = _x;
 	m_scaleY = _y;
 	m_scaleZ = _z;
 }
 
-void WV::Model::move( float _x, float _y, float _z )
+void WV::cModel::move( float _x, float _y, float _z )
 {
 	m_positionX += _x;
 	m_positionY += _y;
 	m_positionZ += _z;
 }
 
-void WV::Model::rotate( float _x, float _y, float _z )
+void WV::cModel::rotate( float _x, float _y, float _z )
 {
 	m_rotationX += _x;
 	m_rotationY += _y;
 	m_rotationZ += _z;
 }
 
-void Model::submit( float _aspect )
+void cModel::submit( float _aspect )
 {
 	/*
 	float scale[ 16 ];

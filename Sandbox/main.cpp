@@ -2,8 +2,8 @@
 
 int main()
 {
-	WV::Application::pushLayer( new GameLayer() );
-	WV::Application::run();
+	WV::cApplication::pushLayer( new GameLayer() );
+	WV::cApplication::run();
 
 	return 0;
 }
