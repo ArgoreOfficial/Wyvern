@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wyvern/Core/ISceneObject.h>
+#include <Wyvern/Core/iSceneObject.h>
 
-class MenuBarWindow : public WV::ISceneObject
+class MenuBarWindow : public WV::iSceneObject
 {
 public:
 	MenuBarWindow() { }

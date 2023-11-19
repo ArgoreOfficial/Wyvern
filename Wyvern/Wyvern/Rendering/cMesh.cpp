@@ -6,7 +6,7 @@
 using namespace WV;
 
 WV::cMesh::cMesh( std::string _path ) :
-	IAsset( _path )
+	iAsset( _path )
 {
 	cAssetManager::addAssetToLoadQueue( this );
 }

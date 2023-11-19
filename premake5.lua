@@ -1,4 +1,5 @@
 local BUILD_DIR = "build"
+local BIN_DIR = "bin"
 local GLFW_DIR = "glfw"
 local WYVERN_DIR = "Wyvern"
 local IMGUI_DIR = "imgui"
@@ -11,7 +12,7 @@ cppdialect "C++17"
 solution "Wyvern"
 	startproject "Sandbox"
 	configurations { "Debug", "Release", "Final" }
-	targetdir "bin"
+	targetdir (BIN_DIR)
 	
 	if os.is64bit() and not os.istarget("windows") then
 		platforms "x86_64"
@@ -60,19 +61,19 @@ solution "Wyvern"
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
-	location "Wyvern"
+	location (WYVERN_DIR)
 	rtti "Off"
 
 	files 
 	{ 
-		"Wyvern/**.h",
-		"Wyvern/**.cpp"
+		path.join( WYVERN_DIR, "**.h" ),
+		path.join( WYVERN_DIR, "**.cpp" ),
 	}
 
 	includedirs
 	{
-		path.join(GLAD_DIR, "include"),
-		path.join(GLFW_DIR, "include"),
+		path.join( GLAD_DIR, "include" ),
+		path.join( GLFW_DIR, "include" ),
 		WYVERN_DIR,
 		IMGUI_DIR,
 		ASSIMP_DIR
@@ -80,22 +81,26 @@ project "Wyvern"
 
 	links { "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
-project "Sandbox"
+local PROJECT_NAME = "Sandbox"
+local PROJECT_DIR  = "Sandbox"
+
+project (PROJECT_NAME)
 	kind "ConsoleApp"
 	language "C++"
-	location "Sandbox"
-	debugdir "Sandbox"
+	location (PROJECT_DIR)
+	debugdir (PROJECT_DIR)
+	targetdir (BUILD_DIR)
 	
 	files 
 	{ 
-		"Sandbox/**.h",
-		"Sandbox/**.cpp" 
+		path.join( PROJECT_DIR, "**.h" ),
+		path.join( PROJECT_DIR, "**.cpp" ),
 	}
 
 	includedirs
 	{
-		path.join(GLAD_DIR, "include"),
-		path.join(GLFW_DIR, "include"),
+		path.join( GLAD_DIR, "include" ),
+		path.join( GLFW_DIR, "include" ),
 		WYVERN_DIR,
 		IMGUI_DIR
 	}
@@ -105,16 +110,16 @@ project "Sandbox"
 project "imgui"
 	kind "StaticLib"
 	language "C++"
-	location "imgui"
+	location (IMGUI_DIR)
 	files
 	{
-		"imgui/**.cpp",
-		"imgui/**.h",
+		path.join(IMGUI_DIR, "**.h"),
+		path.join(IMGUI_DIR, "**.cpp"),
 	}
 	includedirs
 	{
-		"imgui",
-		"glfw/include"
+		IMGUI_DIR,
+		path.join(GLFW_DIR, "include")
 	}
 	links { "glfw" }
 
@@ -122,23 +127,24 @@ project "imgui"
 project "glad"
 	kind "StaticLib"
 	language "C++"
-	location "glad"
+	location (GLAD_DIR)
 	files
 	{
-		"glad/**.cpp",
-		"glad/**.c",
-		"glad/**.h",
+		path.join(GLAD_DIR, "**.h"),
+		path.join(GLAD_DIR, "**.c"),
+		path.join(GLAD_DIR, "**.cpp"),
 	}
 	includedirs 
 	{
-		"glad/include",
-		"glad/include/glad"
+		path.join(GLAD_DIR, "include"),
+		path.join(GLAD_DIR, "include/glad"),
 	}
+
 
 project "glfw"
 	kind "StaticLib"
 	language "C"
-	location "glfw"
+	location (GLFW_DIR)
 	files
 	{
 		path.join(GLFW_DIR, "include/GLFW/*.h"),
@@ -155,7 +161,7 @@ project "glfw"
 		path.join(GLFW_DIR, "src/window.c"),
 	}
 	includedirs 
-	{ 
+	{
 		path.join(GLFW_DIR, "include") 
 	}
 

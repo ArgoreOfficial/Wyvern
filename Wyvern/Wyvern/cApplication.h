@@ -23,7 +23,7 @@ namespace WV
 		static double getTime() { return getInstance().m_time; }
 		static double getDeltaTime() { return getInstance().m_deltaTime; }
 		static cSceneGraph& getScene() { return getInstance().m_sceneGraph; }
-		static WV::cWindow& getWindow() { return *getInstance().m_window; }
+		static WV::cWindow& getWindow() { return getInstance().m_window; }
 
 		// temp, move to renderer
 		static void setActiveCamera( cCamera* _camera ) { getInstance().m_activeCamera = _camera; }
@@ -43,11 +43,10 @@ namespace WV
 		cLayerStack m_layerStack;
 		cSceneGraph m_sceneGraph;
 
-		cWindow* m_window = nullptr;
-		ImGuiIO* m_io     = nullptr;
+		cWindow m_window;
 		// temp, move to renderer
 		cCamera* m_activeCamera = nullptr;
-
+		
 		double m_lastTime = 0.0;
 		double m_time = 0.0;
 		double m_deltaTime = 0.0f;

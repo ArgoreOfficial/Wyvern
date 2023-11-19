@@ -17,7 +17,7 @@ namespace WV
 		static void unloadAll() { getInstance().internalUnloadAll(); }
 		static bool isLoading() { return getInstance().internalIsLoading(); }
 
-		static void addAssetToLoadQueue( IAsset* _asset );
+		static void addAssetToLoadQueue( iAsset* _asset );
 
 	private:
 		static void loadQueuedAssetThread( cAssetManager* _instance );
@@ -28,7 +28,7 @@ namespace WV
 		template<class kT, class T>
 		void clearMap( std::map<kT, T> _map );
 
-		std::vector<IAsset*> m_loadQueue;
+		std::vector<iAsset*> m_loadQueue;
 
 		bool m_isLoading = false;
 		bool m_hasLoaded = false;

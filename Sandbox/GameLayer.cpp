@@ -15,12 +15,10 @@ void GameLayer::start()
 	m_camera.setPosition( 0, 0, -1.0f );
 	WV::cApplication::setActiveCamera( &m_camera );
 
-	/*
 	m_scene.add( new MenuBarWindow() );
 	m_scene.add( new PropertiesWindow() );
 	m_scene.add( new PreviewWindow() );
 	m_scene.add( new SceneGraphWindow() );
-	*/
 
 	WV::cApplication::getWindow().setClearColour( 0x222233FF );
 }
@@ -33,7 +31,7 @@ void GameLayer::update( double _deltaTime )
 
 void GameLayer::drawUI()
 {
-	// ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
+	ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
 	WV::cApplication::getScene().drawUI();
 }
 

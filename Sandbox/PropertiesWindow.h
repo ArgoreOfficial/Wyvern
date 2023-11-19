@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wyvern/Core/ISceneObject.h>
+#include <Wyvern/Core/iSceneObject.h>
 
-class PropertiesWindow : public WV::ISceneObject
+class PropertiesWindow : public WV::iSceneObject
 {
 public:
 	PropertiesWindow();

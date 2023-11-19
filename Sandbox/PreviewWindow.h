@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wyvern/Core/ISceneObject.h>
+#include <Wyvern/Core/iSceneObject.h>
 
-class PreviewWindow : public WV::ISceneObject
+class PreviewWindow : public WV::iSceneObject
 {
 public:
 	PreviewWindow() { }

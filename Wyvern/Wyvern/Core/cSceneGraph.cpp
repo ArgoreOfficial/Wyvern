@@ -1,7 +1,7 @@
 #include "cSceneGraph.h"
 using namespace WV;
 
-void WV::cSceneGraph::add( ISceneObject* _object )
+void WV::cSceneGraph::add( iSceneObject* _object )
 {
 	m_objects.push_back( _object );
 	_object->setID( m_internalIDCount );

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wyvern/Core/ISceneObject.h>
+#include <Wyvern/Core/iSceneObject.h>
 
-class SceneGraphWindow : public WV::ISceneObject
+class SceneGraphWindow : public WV::iSceneObject
 {
 public:
 	SceneGraphWindow() { }

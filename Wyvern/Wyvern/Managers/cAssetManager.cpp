@@ -8,7 +8,7 @@ void cAssetManager::internalUnloadAll()
 	WV_DEBUG( "Unloaded assets" );
 }
 
-void WV::cAssetManager::addAssetToLoadQueue( IAsset* _asset )
+void WV::cAssetManager::addAssetToLoadQueue( iAsset* _asset )
 {
 	if ( !_asset )
 		return;
@@ -22,7 +22,7 @@ void WV::cAssetManager::loadQueuedAssetThread( cAssetManager* _instance )
 
 	while ( instance.m_loadQueue.size() > 0 )
 	{
-		IAsset* current = instance.m_loadQueue.front();
+		iAsset* current = instance.m_loadQueue.front();
 		current->load();
 		instance.m_loadQueue.erase( instance.m_loadQueue.begin() );
 	}

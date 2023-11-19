@@ -44,7 +44,6 @@ int cWindow::createWindow( int _width, int _height, const char* _title )
 
 	m_window = glfwCreateWindow( _width, _height, _title, nullptr, nullptr );
 
-
 	if ( !m_window )
 	{
 		WV_FATAL( "Failed to create GLFW window" );
@@ -93,7 +92,6 @@ void WV::cWindow::setVSync( bool _value )
 {
 	m_vsync_enabled = _value;
 	glfwSwapInterval( _value ? 1 : 0 );
-
 }
 
 void WV::cWindow::setClearColour( uint32_t hex )

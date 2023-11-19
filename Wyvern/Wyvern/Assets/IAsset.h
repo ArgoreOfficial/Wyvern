@@ -3,11 +3,11 @@
 
 namespace WV
 {
-	class IAsset
+	class iAsset
 	{
 	public:
-		IAsset( std::string _path ): m_ready(false), m_path( _path ) { }
-		~IAsset() { }
+		iAsset( std::string _path ): m_ready(false), m_path( _path ) { }
+		~iAsset() { }
 
 		virtual void load() { }
 		bool isReady() { return m_ready; }

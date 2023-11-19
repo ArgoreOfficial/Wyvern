@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <Wyvern/Assets/IAsset.h>
+#include <Wyvern/Assets/iAsset.h>
 
 namespace WV
 {
-	class cMesh : public IAsset
+	class cMesh : public iAsset
 	{
 	public:
 		cMesh( std::string _path );

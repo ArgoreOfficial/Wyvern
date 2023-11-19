@@ -1,5 +1,5 @@
 #pragma once
-#include "Wyvern/Core/ISceneObject.h"
+#include "Wyvern/Core/iSceneObject.h"
 #include <vector>
 
 namespace WV
@@ -10,14 +10,14 @@ namespace WV
 		cSceneGraph() { }
 		~cSceneGraph() { }
 
-		void add( ISceneObject* _object );
+		void add( iSceneObject* _object );
 		void update( double _deltaTime );
 		void draw3D();
 		void draw2D();
 		void drawUI();
 	private:
 		unsigned int m_internalIDCount = 1;
-		std::vector<ISceneObject*> m_objects;
+		std::vector<iSceneObject*> m_objects;
 	};
 
 }

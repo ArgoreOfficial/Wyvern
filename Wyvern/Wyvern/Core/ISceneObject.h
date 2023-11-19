@@ -2,11 +2,11 @@
 
 namespace WV
 {
-	class ISceneObject
+	class iSceneObject
 	{
 	public:
-		ISceneObject() { }
-		~ISceneObject() { }
+		iSceneObject() { }
+		~iSceneObject() { }
 		
 		inline void setID( unsigned int _id ) 
 		{ 
