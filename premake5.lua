@@ -2,6 +2,7 @@ local BUILD_DIR = "build"
 local BIN_DIR = "bin"
 local GLFW_DIR = "glfw"
 local WYVERN_DIR = "Wyvern"
+local RENDERER_DIR = "WyvernRenderer" 
 local IMGUI_DIR = "imgui"
 local ASSIMP_DIR = "assimp"
 local GLAD_DIR = "glad"
@@ -58,6 +59,27 @@ solution "Wyvern"
 	filter "platforms:x86_64"
 		architecture "x86_64"
 
+project "WyvernRenderer"
+	kind "StaticLib"
+	language "C++"
+	location (RENDERER_DIR)
+	rtti "Off"
+
+	files 
+	{ 
+		path.join( RENDERER_DIR, "**.h" ),
+		path.join( RENDERER_DIR, "**.cpp" ),
+	}
+
+	includedirs
+	{
+		path.join( GLAD_DIR, "include" ),
+		path.join( GLFW_DIR, "include" ),
+		RENDERER_DIR
+	}
+
+	links { "glfw"  }
+
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
@@ -75,11 +97,13 @@ project "Wyvern"
 		path.join( GLAD_DIR, "include" ),
 		path.join( GLFW_DIR, "include" ),
 		WYVERN_DIR,
+		RENDERER_DIR,
 		IMGUI_DIR,
 		ASSIMP_DIR
 	}
 
-	links { "glfw", "imgui", "assimp/assimp-vc143-mt" }
+	links { "WyvernRenderer", "glfw", "imgui", "assimp/assimp-vc143-mt" }
+
 
 local PROJECT_NAME = "Sandbox"
 local PROJECT_DIR  = "Sandbox"
