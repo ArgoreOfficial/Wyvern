@@ -1,6 +1,6 @@
 #pragma once
 
-namespace WV
+namespace wv
 {
 	class iSceneObject
 	{

@@ -2,7 +2,7 @@
 #include <functional>
 #include <Wyvern/Managers/cEventManager.h>
 
-namespace WV
+namespace wv
 {
 	template<class T>
 	class iEvent

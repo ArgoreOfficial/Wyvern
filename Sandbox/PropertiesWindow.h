@@ -2,7 +2,7 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class PropertiesWindow : public WV::iSceneObject
+class PropertiesWindow : public wv::iSceneObject
 {
 public:
 	PropertiesWindow();

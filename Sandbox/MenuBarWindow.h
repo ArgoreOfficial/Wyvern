@@ -2,7 +2,7 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class MenuBarWindow : public WV::iSceneObject
+class MenuBarWindow : public wv::iSceneObject
 {
 public:
 	MenuBarWindow() { }

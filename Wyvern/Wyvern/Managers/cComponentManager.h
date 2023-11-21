@@ -3,7 +3,7 @@
 #include <Wyvern/ECS/ComponentSystem.h>
 #include <vector>
 
-namespace WV
+namespace wv
 {
 	class ComponentManager : public iSingleton<ComponentManager>
 	{

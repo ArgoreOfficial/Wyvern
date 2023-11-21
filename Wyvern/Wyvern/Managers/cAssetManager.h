@@ -3,12 +3,12 @@
 #include <Wyvern/Core/iSingleton.h>
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Filesystem/cFilesystem.h>
-#include <Wyvern/Rendering/cMesh.h>
+#include <Wyvern/Renderer/cMesh.h>
 #include <vector>
 #include <map>
 #include <mutex>
 
-namespace WV
+namespace wv
 {
 	class cAssetManager : iSingleton<cAssetManager>
 	{

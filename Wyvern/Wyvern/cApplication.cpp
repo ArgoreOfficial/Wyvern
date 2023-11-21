@@ -6,19 +6,11 @@
 
 #include <thread>
 
-using namespace WV;
-
-void WV::cApplication::windowResizeCallback( GLFWwindow* _window, int _width, int _height )
-{
-	cApplication& instance = getInstance();
-	instance.m_window.windowResizeCallback( _window, _width, _height );
-
-	if ( instance.m_activeCamera )
-		instance.m_activeCamera->setAspect( instance.m_window.getAspect() );
-}
+using namespace wv;
 
 void cApplication::run()
 {
+
 	cApplication& instance = getInstance();
 
 	if ( !instance.create() )
@@ -32,16 +24,18 @@ void cApplication::run()
 	instance.shutdown();
 }
 
-void WV::cApplication::startLoadThread()
+void wv::cApplication::startLoadThread()
 {
 	std::thread* loadthread = cAssetManager::loadQueuedAssets();
 	double loadtimer = glfwGetTime();
 
-	glClearColor( 0.3f, 0.3f, 0.3f, 1.0f );
 	while ( cAssetManager::isLoading() )
 	{
-		glClear( GL_COLOR_BUFFER_BIT ); // move to renderer
-		glfwSwapBuffers( m_window.getWindow() );
+		m_viewport.clear();
+
+		// draw
+
+		m_viewport.clear();
 	}
 	loadthread->join();
 	WV_DEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
@@ -54,15 +48,8 @@ int cApplication::create()
 
 	WV_INFO( "Loading Wyvern runtime version %i.%i", major, minor );
 
-	//m_window = new WV::cWindow();
-	if ( !m_window.createWindow( 320, 240, "Wyvern" ) )
-	{
-		//delete m_window;
-		return 0;
-	}
+	m_viewport.create( "Wyvern", 500, 500 );
 
-	glfwSetFramebufferSizeCallback( m_window.getWindow(), cApplication::windowResizeCallback );
-	m_window.setVSync( false );
 	return 1;
 }
 
@@ -71,7 +58,7 @@ void cApplication::destroy()
 
 }
 
-void WV::cApplication::initImgui()
+void wv::cApplication::initImgui()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -92,7 +79,8 @@ void WV::cApplication::initImgui()
 		style.Colors[ ImGuiCol_WindowBg ].w = 1.0f;
 	}
 
-	ImGui_ImplGlfw_InitForOpenGL( m_window.getWindow(), true );
+	// should prbably be moved out somewhere else
+	m_viewport.initImguiImpl();
 	ImGui_ImplOpenGL3_Init();
 	WV_DEBUG( "ImGui_ImplOpenGL3_Init()" );
 }
@@ -109,7 +97,7 @@ void cApplication::internalRun()
 		update();
 		draw();
 
-		if ( !m_window.pollEvents() ) { run = false; }
+		if ( m_viewport.shouldClose() ) { run = false; }
 	}
 }
 
@@ -120,23 +108,18 @@ void cApplication::update()
 	m_lastTime = m_time;
 
 	std::string title = "Wyvern " + std::to_string( 1.0f / m_deltaTime );
-	m_window.setTitle(title.c_str());
+	m_viewport.setTitle(title.c_str());
 
-	m_window.processInput();
+	m_viewport.update();
 
 	m_layerStack.update( m_deltaTime );
 }
 
 void cApplication::draw()
 {
+
 	ImGuiIO& io = ImGui::GetIO();;
 	
-	if ( m_activeCamera )
-	{
-		m_activeCamera->setAspect( m_window.getAspect() );
-		m_activeCamera->submit();
-	}
-
 	m_layerStack.draw3D();
 
 	m_layerStack.draw2D();
@@ -147,12 +130,12 @@ void cApplication::draw()
 
 	m_layerStack.drawUI();
 
+	// move most of this out somewhere
 	ImGui::Render();
-	int width, height;
-	glfwGetFramebufferSize( m_window.getWindow(), &width, &height );
+	int width = m_viewport.getWidth();
+	int height = m_viewport.getHeight();
+
 	glViewport( 0, 0, width, height );
-	glClearColor( 0.4f, 0.4f, 0.6f, 1.0f );
-	glClear( GL_COLOR_BUFFER_BIT );
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 
 	// Update and Render additional Platform Windows
@@ -166,14 +149,14 @@ void cApplication::draw()
 		glfwMakeContextCurrent( backup_current_context );
 	}
 
-	glfwSwapBuffers( m_window.getWindow() );
+	m_viewport.display();
 
 }
 
 void cApplication::shutdown()
 {
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	ImGui_ImplGlfw_Shutdown(); // move to viewport
 	ImGui::DestroyContext();
-	m_window.shutdown();
+	m_viewport.destroy();
 }

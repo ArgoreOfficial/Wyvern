@@ -3,15 +3,17 @@
 #include "Wyvern/cApplication.h"
 #include "Wyvern/Logging/cLogging.h"
 #include "Wyvern/Managers/cEventManager.h"
-#include "Wyvern/Rendering/cModel.h"
-#include "Wyvern/cCamera.h"
+#include "Wyvern/Renderer/cModel.h"
+#include "Wyvern/Renderer/Camera/cCamera.h"
 
-class GameLayer : public WV::iLayer
+class GameLayer : public wv::iLayer
 {
 public:
-	GameLayer() : 
-		iLayer( "GameLayer" ), m_scene( WV::cApplication::getScene() ) 
-	{ };
+	GameLayer() :
+		iLayer( "GameLayer" ), 
+		m_scene( wv::cApplication::getScene() )
+	{
+	};
 
 	~GameLayer() { };
 
@@ -19,10 +21,10 @@ public:
 	void update( double _deltaTime ) override;
 	void drawUI() override;
 
-	void handleKeyInput( WV::Events::cKeyDownEvent& _event );
+	void handleKeyInput( wv::Events::cKeyDownEvent& _event );
 
-	WV::cSceneGraph& m_scene;
-	WV::cMesh* m_meshAsset = nullptr;
-	WV::cCamera m_camera;
+	wv::cSceneGraph& m_scene;
+	wv::cMesh* m_meshAsset = nullptr;
+	wv::cCamera m_camera;
 };
 

@@ -2,7 +2,7 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class SceneGraphWindow : public WV::iSceneObject
+class SceneGraphWindow : public wv::iSceneObject
 {
 public:
 	SceneGraphWindow() { }

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 
-namespace WV
+namespace wv
 {
 	class cDebug
 	{

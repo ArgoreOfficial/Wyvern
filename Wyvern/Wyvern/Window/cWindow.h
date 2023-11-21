@@ -4,7 +4,7 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
-namespace WV
+namespace wv
 {
 	class cWindow
 	{

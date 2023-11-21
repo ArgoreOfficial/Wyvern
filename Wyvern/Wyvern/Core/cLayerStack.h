@@ -2,7 +2,7 @@
 #include <Wyvern/Core/ILayer.h>
 #include <vector>
 
-namespace WV
+namespace wv
 {
 	class cLayerStack
 	{

@@ -1,14 +1,14 @@
 #include "cSceneGraph.h"
-using namespace WV;
+using namespace wv;
 
-void WV::cSceneGraph::add( iSceneObject* _object )
+void wv::cSceneGraph::add( iSceneObject* _object )
 {
 	m_objects.push_back( _object );
 	_object->setID( m_internalIDCount );
 	m_internalIDCount++;
 }
 
-void WV::cSceneGraph::update( double _deltaTime )
+void wv::cSceneGraph::update( double _deltaTime )
 {
 	for ( size_t i = 0; i < m_objects.size(); i++ )
 	{
@@ -16,7 +16,7 @@ void WV::cSceneGraph::update( double _deltaTime )
 	}
 }
 
-void WV::cSceneGraph::draw3D()
+void wv::cSceneGraph::draw3D()
 {
 	for ( size_t i = 0; i < m_objects.size(); i++ )
 	{
@@ -24,7 +24,7 @@ void WV::cSceneGraph::draw3D()
 	}
 }
 
-void WV::cSceneGraph::draw2D()
+void wv::cSceneGraph::draw2D()
 {
 	for ( size_t i = 0; i < m_objects.size(); i++ )
 	{
@@ -32,7 +32,7 @@ void WV::cSceneGraph::draw2D()
 	}
 }
 
-void WV::cSceneGraph::drawUI()
+void wv::cSceneGraph::drawUI()
 {
 	for ( size_t i = 0; i < m_objects.size(); i++ )
 	{

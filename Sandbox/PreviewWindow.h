@@ -2,7 +2,7 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class PreviewWindow : public WV::iSceneObject
+class PreviewWindow : public wv::iSceneObject
 {
 public:
 	PreviewWindow() { }

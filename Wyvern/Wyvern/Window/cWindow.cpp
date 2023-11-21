@@ -1,7 +1,7 @@
 #include "cWindow.h"
 #include <Wyvern/Managers/cEventManager.h>
 
-using namespace WV;
+using namespace wv;
 
 cWindow::cWindow()
 {
@@ -20,7 +20,7 @@ void cWindow::windowResizeCallback( GLFWwindow* _window, int _width, int _height
 	m_view_height = _height;
 }
 
-int WV::cWindow::createWindow( const char* _title )
+int wv::cWindow::createWindow( const char* _title )
 {
 	int result = createWindow( 512, 512, _title );
 	
@@ -88,13 +88,13 @@ void cWindow::hookEvents()
 	// glfwSetCursorPosCallback()
 }
 
-void WV::cWindow::setVSync( bool _value )
+void wv::cWindow::setVSync( bool _value )
 {
 	m_vsync_enabled = _value;
 	glfwSwapInterval( _value ? 1 : 0 );
 }
 
-void WV::cWindow::setClearColour( uint32_t hex )
+void wv::cWindow::setClearColour( uint32_t hex )
 {
 	// bgfx::setViewClear( m_clearView, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, hex, 1.0f, 0 );
 }

@@ -2,7 +2,7 @@
 #include "Wyvern/Core/iSceneObject.h"
 #include <vector>
 
-namespace WV
+namespace wv
 {
 	class cSceneGraph
 	{

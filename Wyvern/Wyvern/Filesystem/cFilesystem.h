@@ -4,7 +4,7 @@
 
 namespace bgfx { struct Memory; }
 
-namespace WV
+namespace wv
 {
 	struct sAsset;
 

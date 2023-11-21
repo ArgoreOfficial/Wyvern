@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-namespace WV
+namespace wv
 {
 	class cEventManager : public iSingleton<cEventManager>
 	{

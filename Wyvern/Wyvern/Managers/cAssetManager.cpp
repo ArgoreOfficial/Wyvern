@@ -1,14 +1,14 @@
 #include "cAssetManager.h"
 #include <thread>
 
-using namespace WV;
+using namespace wv;
 
 void cAssetManager::internalUnloadAll()
 {
 	WV_DEBUG( "Unloaded assets" );
 }
 
-void WV::cAssetManager::addAssetToLoadQueue( iAsset* _asset )
+void wv::cAssetManager::addAssetToLoadQueue( iAsset* _asset )
 {
 	if ( !_asset )
 		return;
@@ -16,7 +16,7 @@ void WV::cAssetManager::addAssetToLoadQueue( iAsset* _asset )
 	getInstance().m_loadQueue.push_back( _asset );
 }
 
-void WV::cAssetManager::loadQueuedAssetThread( cAssetManager* _instance )
+void wv::cAssetManager::loadQueuedAssetThread( cAssetManager* _instance )
 {
 	cAssetManager& instance = *_instance;
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "iEvent.h"
 
-namespace WV
+namespace wv
 {
 	namespace Events
 	{
