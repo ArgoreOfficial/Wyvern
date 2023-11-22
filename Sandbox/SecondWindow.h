@@ -2,11 +2,11 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class PreviewWindow : public wv::iSceneObject
+class SecondWindow : public wv::iSceneObject
 {
 public:
-	PreviewWindow() { }
-	~PreviewWindow() { }
+	SecondWindow() { }
+	~SecondWindow() { }
 
 	void drawUI() override;
 

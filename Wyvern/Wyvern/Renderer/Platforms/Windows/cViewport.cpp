@@ -1,4 +1,5 @@
 #include <Wyvern/Renderer/cViewport.h>
+#include <Wyvern/Managers/cEventManager.h>
 
 using namespace wv;
 
@@ -21,6 +22,34 @@ void onResize( GLFWwindow* _window, int _width, int _height )
 	if ( instance.m_activeCamera )
 		instance.m_activeCamera->setAspect( instance.m_window.getAspect() );
 	*/
+}
+
+void handleApplicationEvents()
+{
+
+}
+
+void handleKeyEvents( GLFWwindow* window, int key, int scancode, int action, int mods )
+{
+	Events::cKeyEvent keyEvent( key );
+	cEventManager::call<Events::cKeyEvent>( keyEvent );
+
+	if ( action == GLFW_PRESS )
+	{
+		Events::cKeyDownEvent downEvent( key );
+		cEventManager::call<Events::cKeyDownEvent>( downEvent );
+	}
+	else if ( action == GLFW_RELEASE )
+	{
+		Events::cKeyUpEvent upEvent( key );
+		cEventManager::call<Events::cKeyUpEvent>( upEvent );
+	}
+
+}
+
+void handleMouseEvents( GLFWwindow* window, double xpos, double ypos )
+{
+
 }
 
 void cViewport::create( std::string _title, unsigned int _width, unsigned int _height )
@@ -51,7 +80,7 @@ void cViewport::create( std::string _title, unsigned int _width, unsigned int _h
 	glfwMakeContextCurrent( m_window );
 	gladLoadGL( glfwGetProcAddress );
 
-	// hookEvents();
+	hookEvents();
 }
 
 void cViewport::destroy()
@@ -63,6 +92,12 @@ void cViewport::destroy()
 void cViewport::initImguiImpl()
 {
 	ImGui_ImplGlfw_InitForOpenGL( m_window, true );
+}
+
+void cViewport::hookEvents()
+{
+	glfwSetKeyCallback( m_window, handleKeyEvents );
+	// glfwSetCursorPosCallback()
 }
 
 void cViewport::setTitle( const std::string& _title )
@@ -104,4 +139,12 @@ void cViewport::clear( const cColor& _color )
 void cViewport::display()
 {
 	glfwSwapBuffers( m_window );
+}
+
+void cViewport::processInput()
+{
+	if ( glfwGetKey( m_window, GLFW_KEY_ESCAPE ) == GLFW_PRESS ) // escape exit
+	{
+		glfwSetWindowShouldClose( m_window, true );
+	}
 }

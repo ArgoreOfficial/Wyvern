@@ -2,11 +2,11 @@
 
 #include <Wyvern/Core/iSceneObject.h>
 
-class MenuBarWindow : public wv::iSceneObject
+class FirstWindow : public wv::iSceneObject
 {
 public:
-	MenuBarWindow() { }
-	~MenuBarWindow() { }
+	FirstWindow();
+	~FirstWindow();
 
 	void drawUI() override;
 

@@ -27,6 +27,7 @@ namespace wv
 		void create( std::string _title, unsigned int _width, unsigned int _height );
 		void destroy();
 		void initImguiImpl();
+		void hookEvents();
 
 		void setTitle( const std::string& _title );
 		void setActiveCamera( cCamera* _camera ) { m_activeCamera = _camera; }
@@ -37,6 +38,7 @@ namespace wv
 		unsigned int getHeight() { return m_viewHeight; }
 		bool shouldClose() { return m_shouldClose; }
 
+		void processInput();
 		void update();
 		void clear() { clear( m_clearColor ); }
 		void clear( const cColor& _color );

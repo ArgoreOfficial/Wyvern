@@ -1,7 +1,7 @@
-#include "SceneGraphWindow.h"
+#include "SecondWindow.h"
 #include <imgui.h>
 
-void SceneGraphWindow::drawUI()
+void SecondWindow::drawUI()
 {
 	if ( ImGui::Begin( "SceneGraph" ) )
 	{

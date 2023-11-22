@@ -19,6 +19,8 @@ public:
 
 	void start() override;
 	void update( double _deltaTime ) override;
+	void draw3D() override { }
+	void draw2D() override { }
 	void drawUI() override;
 
 	void handleKeyInput( wv::Events::cKeyDownEvent& _event );
