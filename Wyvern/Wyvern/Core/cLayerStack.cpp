@@ -1,42 +1,56 @@
 #include "cLayerStack.h"
 
-void wv::cLayerStack::start()
+using namespace wv;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cLayerStack::start( void )
 {
+
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
 		m_layers[ i ]->start();
 	}
+
 }
 
-void wv::cLayerStack::update( double _deltaTime )
+void cLayerStack::update( double _deltaTime )
 {
+
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
 		m_layers[ i ]->update( _deltaTime );
 	}
+
 }
 
-void wv::cLayerStack::draw3D()
+void cLayerStack::draw3D( void )
 {
+
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
 		m_layers[ i ]->draw3D();
 	}
+
 }
 
-void wv::cLayerStack::draw2D()
+void cLayerStack::draw2D( void )
 {
+
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
 		m_layers[ i ]->draw2D( );
 	}
+
 }
 
-void wv::cLayerStack::drawUI()
+void cLayerStack::drawUI( void )
 {
+
 	for ( size_t i = 0; i < m_layers.size(); i++ )
 	{
 		m_layers[ i ]->drawUI();
 	}
+
 }
 

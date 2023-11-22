@@ -1,13 +1,21 @@
 #include "cColor.h"
+
 #include <Wyvern/Math/Math.h>
 
 using namespace wv;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 cColor::cColor( byte _r, byte _g, byte _b, byte _a ) :
-	m_red( _r ), m_green( _g ), m_blue( _b ), m_alpha( _a )
+	m_red  ( _r ), 
+	m_green( _g ), 
+	m_blue ( _b ), 
+	m_alpha( _a )
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 cColor::cColor( float _r, float _g, float _b, float _a ) :
 	m_red  ( (byte)( wv::Math::clamp( _r, 0.0f, 1.0f ) * 255.0f ) ),
@@ -17,6 +25,8 @@ cColor::cColor( float _r, float _g, float _b, float _a ) :
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 cColor::cColor( dword _rgba ):
 	m_red  ( ( _rgba >> 24 ) & 0xFF ),

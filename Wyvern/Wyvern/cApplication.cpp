@@ -1,4 +1,5 @@
 #include "cApplication.h"
+
 #include <Wyvern/Core/iLayer.h>
 #include <Wyvern/Core/cLayerStack.h>
 #include <Wyvern/Logging/cLogging.h>
@@ -8,7 +9,9 @@
 
 using namespace wv;
 
-void cApplication::run()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::run( void )
 {
 
 	cApplication& instance = getInstance();
@@ -18,14 +21,21 @@ void cApplication::run()
 		WV_FATAL( "Application could not be created!" );
 		return;
 	}
+
+	// if( imguiEnabled )
 	instance.initImgui();
 
 	instance.internalRun();
-	instance.shutdown();
+	
+	instance.destroy();
+
 }
 
-void wv::cApplication::startLoadThread()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::startLoadThread( void )
 {
+
 	std::thread* loadthread = cAssetManager::loadQueuedAssets();
 	double loadtimer = glfwGetTime();
 
@@ -33,33 +43,48 @@ void wv::cApplication::startLoadThread()
 	{
 		m_viewport.clear();
 
-		// draw
+		// loading time draw
 
-		m_viewport.clear();
+		m_viewport.display();
 	}
 	loadthread->join();
 	WV_DEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
+
 }
 
-int cApplication::create()
+///////////////////////////////////////////////////////////////////////////////////////
+
+int cApplication::create( void )
 {
+
 	int major = 0;
-	int minor = 2;
+	int minor = 3;
 
 	WV_INFO( "Loading Wyvern runtime version %i.%i", major, minor );
 
-	m_viewport.create( "Wyvern", 500, 500 );
+	m_viewport.create( "Wyvern", 640, 480 );
 
 	return 1;
-}
-
-void cApplication::destroy()
-{
 
 }
 
-void wv::cApplication::initImgui()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::destroy( void )
 {
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown(); // move to viewport
+	ImGui::DestroyContext();
+	m_viewport.destroy();
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::initImgui( void )
+{
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
@@ -83,10 +108,14 @@ void wv::cApplication::initImgui()
 	m_viewport.initImguiImpl();
 	ImGui_ImplOpenGL3_Init();
 	WV_DEBUG( "ImGui_ImplOpenGL3_Init()" );
+
 }
 
-void cApplication::internalRun()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::internalRun( void )
 {
+
 	m_layerStack.start();
 	startLoadThread();
 
@@ -97,12 +126,17 @@ void cApplication::internalRun()
 		update();
 		draw();
 
-		if ( m_viewport.shouldClose() ) { run = false; }
+		if ( m_viewport.getState() == cViewport::eViewportState::kClosing ) 
+			run = false;
 	}
+
 }
 
-void cApplication::update()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::update( void )
 {
+
 	m_time = glfwGetTime();
 	m_deltaTime = m_time - m_lastTime;
 	m_lastTime = m_time;
@@ -113,9 +147,12 @@ void cApplication::update()
 	m_viewport.update();
 
 	m_layerStack.update( m_deltaTime );
+
 }
 
-void cApplication::draw()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cApplication::draw( void )
 {
 
 	ImGuiIO& io = ImGui::GetIO();;
@@ -153,10 +190,3 @@ void cApplication::draw()
 
 }
 
-void cApplication::shutdown()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown(); // move to viewport
-	ImGui::DestroyContext();
-	m_viewport.destroy();
-}

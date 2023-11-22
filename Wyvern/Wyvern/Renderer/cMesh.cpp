@@ -1,5 +1,4 @@
 #include "cMesh.h"
-#include <vendor/OBJ_Loader.h>
 #include <Wyvern/Filesystem/cFilesystem.h>
 #include <Wyvern/Managers/cAssetManager.h>
 
@@ -10,7 +9,8 @@ wv::cMesh::cMesh( std::string _path ) :
 {
 	cAssetManager::addAssetToLoadQueue( this );
 }
-inline uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f )
+
+uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f )
 {
 /*
 	const float src[] =

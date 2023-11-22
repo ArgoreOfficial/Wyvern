@@ -11,10 +11,10 @@ cppdialect "C++17"
 
 solution "Wyvern"
 	startproject "Sandbox"
-	configurations { "Debug", "Release", "Final" }
+	configurations { "Debug", "Release" }
 	targetdir (BIN_DIR)
-	platforms { "x32", "x64", "Linux" }
-	
+	platforms { "Win32", "Win64", "Linux" }
+
 	filter "configurations:Debug*"
 		defines
 		{
@@ -37,24 +37,19 @@ solution "Wyvern"
 		optimize "On"
 		symbols "On"
 
-	filter "configurations:Final*"
-		defines 
-		{
-			"NDEBUG",
-			"WYVERN_FINAL"
-		}
-		staticruntime "On"
-		runtime "Release"
-		optimize "Debug"
-		symbols "Off"
-
-	filter "platforms:x32"
-		architecture "x32"
+	filter "platforms:Win32"
+		architecture "x86"
+		system "windows"
 		defines { "WV_PLATFORM_WINDOWS_32" }
 
-	filter "platforms:x64"
-		architecture "x64"
+	filter "platforms:Win64"
+		architecture "x86_64"
+		system "windows"
 		defines { "WV_PLATFORM_WINDOWS" }
+
+	filter "platforms:Linux"
+		system "linux"
+		defines { "WV_PLATFORM_LINUX" }	
 
 project "Wyvern"
 	kind "StaticLib"
@@ -77,7 +72,7 @@ project "Wyvern"
 		ASSIMP_DIR
 	}
 
-	links { "glfw", "imgui", "assimp/assimp-vc143-mt" }
+	links { "glad", "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
 
 local PROJECT_NAME = "Sandbox"
@@ -104,7 +99,7 @@ project (PROJECT_NAME)
 		IMGUI_DIR
 	}
 
-	links { "glad", "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
+	links { "Wyvern", "gdi32.lib", "kernel32.lib", "psapi" }
 
 project "imgui"
 	kind "StaticLib"

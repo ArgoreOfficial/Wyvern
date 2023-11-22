@@ -6,8 +6,13 @@
 
 #include <Wyvern/Logging/cLogging.h>
 
-bool wv::Filesystem::fileExists( std::string _path, bool _printError )
+using namespace wv;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool Filesystem::fileExists( std::string _path, bool _printError )
 {
+
 	std::ifstream infile( _path );
 	if ( _printError && !infile.good() )
 	{
@@ -15,10 +20,14 @@ bool wv::Filesystem::fileExists( std::string _path, bool _printError )
 	}
 
 	return infile.good();
+
 }
 
-std::string wv::Filesystem::getFilenameFromPath( std::string _path, bool _keepExtension )
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::string Filesystem::getFilenameFromPath( std::string _path, bool _keepExtension )
 {
+
 	std::string filename = _path.substr( _path.find_last_of( "/\\" ) + 1 );
 
 	if ( !_keepExtension )
@@ -28,24 +37,33 @@ std::string wv::Filesystem::getFilenameFromPath( std::string _path, bool _keepEx
 	}
 
 	return filename.c_str();
+
 }
 
-std::string wv::Filesystem::getFileExtension( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::string Filesystem::getFileExtension( std::string _path )
 {
+
 	std::string::size_type const p( _path.find_last_of( '.' ) );
 	std::string extension = _path.substr( p, _path.size() );
 	
 	return extension;
+
 }
 
-std::vector<char>* wv::Filesystem::loadByteArrayFromPath( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::vector<char>* Filesystem::loadByteArrayFromPath( std::string _path )
 {
+
 	std::ifstream stream( _path, std::ios::binary );
 
 	std::vector<char>* data = new std::vector<char>( std::filesystem::file_size( _path ) / sizeof( char ) );
 	stream.read( reinterpret_cast<char*>( data->data() ), data->size() * sizeof( char ) );
 
 	return data;
+
 }
 
 	/*

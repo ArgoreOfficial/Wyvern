@@ -1,6 +1,6 @@
 #pragma once
+
 #include <Wyvern/Core/ISingleton.h>
-#include <Wyvern/ECS/ComponentSystem.h>
 #include <vector>
 
 namespace wv
