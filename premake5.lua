@@ -13,13 +13,8 @@ solution "Wyvern"
 	startproject "Sandbox"
 	configurations { "Debug", "Release", "Final" }
 	targetdir (BIN_DIR)
+	platforms { "x32", "x64", "Linux" }
 	
-	if os.is64bit() and not os.istarget("windows") then
-		platforms "x86_64"
-	else
-		platforms { "x86", "x86_64" }
-	end
-
 	filter "configurations:Debug*"
 		defines
 		{
@@ -53,12 +48,12 @@ solution "Wyvern"
 		optimize "Debug"
 		symbols "Off"
 
-	filter "platforms:x86"
-		architecture "x86"
+	filter "platforms:x32"
+		architecture "x32"
 		defines { "WV_PLATFORM_WINDOWS_32" }
 
-	filter "platforms:x86_64"
-		architecture "x86_64"
+	filter "platforms:x64"
+		architecture "x64"
 		defines { "WV_PLATFORM_WINDOWS" }
 
 project "Wyvern"

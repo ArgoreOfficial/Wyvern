@@ -3,18 +3,6 @@
 
 namespace wv
 {
-	namespace Color
-	{
-		enum
-		{
-			White = 0xFFFFFFFF,
-			Black = 0x000000Ff,
-			Red = 0xFF0000FF,
-			Blue = 0x00FF00FF,
-			PacificBlue = 0x039BCFFF,
-			Green = 0x0000FFFF
-		};
-	}
 
 	class cColor
 	{
@@ -27,4 +15,15 @@ namespace wv
 		byte m_red = 0x00, m_blue = 0x00, m_green = 0x00, m_alpha = 0xFF;
 
 	};
+
+	namespace Color
+	{
+		const cColor White      ( 0xFFFFFFFF );
+		const cColor Black      ( 0x000000Ff );
+		const cColor Red        ( 0xFF0000FF );
+		const cColor Blue       ( 0x00FF00FF );
+		const cColor PacificBlue( 0x039BCFFF );
+		const cColor Green      ( 0x0000FFFF );
+	}
+
 }

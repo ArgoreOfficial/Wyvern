@@ -25,7 +25,7 @@ void GameLayer::start()
 
 void GameLayer::update( double _deltaTime )
 {
-	wv::cApplication::getViewport().clear( 0x039BCFFF );
+	wv::cApplication::getViewport().clear( wv::Color::PacificBlue );
 	wv::cApplication::getScene().update( _deltaTime );
 }
 
