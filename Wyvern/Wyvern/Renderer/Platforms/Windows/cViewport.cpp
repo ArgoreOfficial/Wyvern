@@ -176,10 +176,10 @@ void cViewport::clear( const cColor& _color )
 
 	m_clearColor = _color;
 
-	const float red   = (float)( _color.m_red )   / 255.0f;
-	const float green = (float)( _color.m_green ) / 255.0f;
-	const float blue  = (float)( _color.m_blue )  / 255.0f;
-	const float alpha = (float)( _color.m_alpha ) / 255.0f;
+	const float red   = ( float )( _color.r ) / 255.0f;
+	const float green = ( float )( _color.g ) / 255.0f;
+	const float blue  = ( float )( _color.b ) / 255.0f;
+	const float alpha = ( float )( _color.a ) / 255.0f;
 	
 	glClearColor( red, green, blue, alpha );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

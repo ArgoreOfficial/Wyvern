@@ -15,9 +15,9 @@ void GameLayer::start( void )
 	m_scene.add( new FirstWindow() );
 	m_scene.add( new SecondWindow() );
 
-	wv::cApplication::getViewport().clear( 0x222233FF );
+	wv::cApplication::getViewport().clear( wv::Color::PacificBlue );
 
-}
+} // start
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ void GameLayer::update( double _deltaTime )
 	wv::cApplication::getViewport().clear( wv::Color::PacificBlue );
 	wv::cApplication::getScene().update( _deltaTime );
 
-}
+} // update
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ void GameLayer::drawUI( void )
 
 	wv::cApplication::getScene().drawUI();
 
-}
+} // drawUI
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,4 +49,4 @@ void GameLayer::handleKeyInput( wv::Events::cKeyDownEvent& _event )
 		WV_DEBUG( "B was pressed" );
 	}
 
-}
+} // handleKeyInput

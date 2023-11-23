@@ -12,44 +12,56 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		template<typename T>
-		T clamp( const T& _value, const T& _min, const T& _max ) 
+		template < typename T > T clamp( const T& _value, const T& _min, const T& _max );
+		template < typename T > T pow2 ( const T& _value );
+		template < typename T > T pow3 ( const T& _value );
+		template < typename T > T pow4 ( const T& _value );
+		template < typename T > T pow5 ( const T& _value );
+		template < typename T > T abs  ( const T& _value );
+		template < typename T > T min  ( const T& _a, const T& _b );
+		template < typename T > T max  ( const T& _a, const T& _b );
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+		template < typename T > T clamp( const T& _value, const T& _min, const T& _max )
 		{ 
-
-			return T; 
+			const T t = _value < _min ? _min : _value;
+			return t > _max ? _max : t;
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-		template<>
-		float clamp( const float& _value, const float& _min, const float& _max )
+		template< typename T > T pow2( const T& _value )
 		{
-
-			const float t = _value < _min ? _min : _value;
-			return t > _max ? _max : t;
-
+			return _value * _value;
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-		template<>
-		double clamp( const double& _value, const double& _min, const double& _max )
+		template< typename T > T pow3( const T& _value )
 		{
-
-			const double t = _value < _min ? _min : _value;
-			return t > _max ? _max : t;
-
+			return _value * _value * _value;
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-		template<>
-		int clamp( const int& _value, const int& _min, const int& _max )
+		template< typename T > T pow4( const T& _value )
 		{
+			return _value * _value * _value * _value;
+		}
 
-			const int t = _value < _min ? _min : _value;
-			return t > _max ? _max : t;
+		template< typename T > T pow5( const T& _value )
+		{
+			return _value * _value * _value * _value * _value;
+		}
 
+		template< typename T > T abs( const T& _value )
+		{
+			return _value < T( 0 ) ? -_value : _value;
+		}
+
+		template< typename T > T min( const T& _a, const T& _b )
+		{
+			return _a < _b ? _a : _b;
+		}
+
+		template< typename T > T max( const T& _a, const T& _b )
+		{
+			return _a > _b ? _a : _b;
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////

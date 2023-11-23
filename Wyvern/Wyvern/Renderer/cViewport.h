@@ -63,8 +63,8 @@ namespace wv
 
 		void processInput( void );
 		void update      ( void );
-		void clear       ( const cColor& _color );
 		void display     ( void );
+		void clear       ( const cColor& _color );
 		void clear       ( void ) { clear( m_clearColor ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
