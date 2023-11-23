@@ -16,7 +16,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cAssetManager : iSingleton<cAssetManager>
+	class cAssetManager : public iSingleton<cAssetManager>
 	{
 	
 	public:

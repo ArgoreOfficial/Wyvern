@@ -16,3 +16,7 @@ obj/
 *.pdb
 *.lastbuildstate
 *.tlog
+build/Sandbox.exe
+Sandbox/imgui.ini
+Sandbox/imgui.ini
+build/Sandbox.exe
