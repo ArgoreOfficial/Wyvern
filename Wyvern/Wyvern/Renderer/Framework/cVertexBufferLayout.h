@@ -46,8 +46,8 @@ namespace wv
 		std::vector<sVertexBufferElement> m_elements;
 		
 		unsigned int m_stride = 0;
+	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	};
 }

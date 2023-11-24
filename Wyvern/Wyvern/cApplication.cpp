@@ -9,6 +9,8 @@
 #include <Wyvern/Renderer/Framework/cVertexArray.h>
 #include <Wyvern/Renderer/Framework/cVertexBuffer.h>
 #include <Wyvern/Renderer/Framework/cVertexBufferLayout.h>
+#include <Wyvern/Renderer/Framework/cShaderProgram.h>
+#include <Wyvern/Assets/cShaderSource.h>
 
 #include <thread>
 
@@ -130,15 +132,16 @@ void cApplication::internalRun( void )
 	
 	// opengl stuff
 
-	float vertices[] = {
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
+	float vertices[] = { // xyz rgb
+		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f  // top left 
 	};
+
 	unsigned int indices[] = {
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
 	};
 
 
@@ -155,53 +158,19 @@ void cApplication::internalRun( void )
 
 	cVertexBufferLayout layout;
 	layout.push( WV_TYPE::WV_FLOAT, 3 );
+	layout.push( WV_TYPE::WV_FLOAT, 3 );
 
 	vertexArray.addLayout( layout );
+	vertexArray.addLayout( layout );
 
+	cShaderSource vertSource( "assets/shaders/vert.shader" );
+	vertSource.load();
 
-	// todo: create shader classes
+	cShaderSource fragSource( "assets/shaders/frag.shader" );
+	fragSource.load();
 
-	// vert shader
-	const char* vertexShaderSource = 
-		"#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-
-	unsigned int vertexShader;
-	vertexShader = glCreateShader( GL_VERTEX_SHADER );
-
-	glShaderSource( vertexShader, 1, &vertexShaderSource, NULL );
-	glCompileShader( vertexShader );
-
-	// frag shader
-	const char* fragmentShaderSource =
-		"#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4( 1.0f, 0.5f, 0.2f, 1.0f );\n"
-		"}\0";
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-	glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
-	glCompileShader( fragmentShader );
-
-	// shader program
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	glAttachShader( shaderProgram, vertexShader );
-	glAttachShader( shaderProgram, fragmentShader );
-	glLinkProgram( shaderProgram );
-
-	glUseProgram( shaderProgram );
-
-	glDeleteShader( vertexShader );
-	glDeleteShader( fragmentShader );
+	cShaderProgram shaderProgram;
+	shaderProgram.create( vertSource, fragSource );
 
 	// select draw mode
 	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
@@ -212,7 +181,7 @@ void cApplication::internalRun( void )
 	{
 		update();
 
-		glUseProgram( shaderProgram );
+		shaderProgram.use();
 		vertexArray.bind();
 		indexBuffer.bind();// glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
@@ -231,7 +200,6 @@ void cApplication::internalRun( void )
 
 void cApplication::update( void )
 {
-
 	m_time = glfwGetTime();
 	m_deltaTime = m_time - m_lastTime;
 	m_lastTime = m_time;
@@ -242,20 +210,18 @@ void cApplication::update( void )
 	m_viewport.update();
 
 	m_layerStack.update( m_deltaTime );
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void cApplication::draw( void )
 {
-
 	ImGuiIO& io = ImGui::GetIO();;
 	
 	m_layerStack.draw3D();
 
 	m_layerStack.draw2D();
-
+	
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -280,7 +246,7 @@ void cApplication::draw( void )
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent( backup_current_context );
 	}
-
+	
 	m_viewport.display();
 
 }

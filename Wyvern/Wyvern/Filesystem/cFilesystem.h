@@ -4,58 +4,27 @@
 #include <vector>
 
                           /////////////////////////////
-                          /// A lot of reword needed //
+                          /// A lot of rework needed //
                           /////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-namespace bgfx { struct Memory; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct sAsset;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	class Filesystem
-	{
-	
-	public:
-		
-		static bool                fileExists           ( std::string _path, bool _printError = false );
-		static std::string         getFilenameFromPath  ( std::string _path, bool _keepExtension = true );
-		static std::string         getFileExtension     ( std::string _path );
-		static const bgfx::Memory* loadMemoryFromFile   ( std::string _path );
-		static std::vector<char>*  loadByteArrayFromPath( std::string _path );
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-		template<class T>
-		static const bgfx::Memory* vectorToMemory( std::vector<T>* _vec );
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	};
-
-	template<class T>
-	const bgfx::Memory* Filesystem::vectorToMemory( std::vector<T>* _vec )
+	namespace Filesystem
 	{
 
-		uint32_t size = _vec->size() * sizeof(T);
+///////////////////////////////////////////////////////////////////////////////////////
 
-		const bgfx::Memory* mem = bgfx::alloc( size + 1 );
-		memcpy( mem->data, _vec->data(), size );
+		bool                fileExists           ( std::string _path, bool _printError = false );
+		std::string         getFilenameFromPath  ( std::string _path, bool _keepExtension = true );
+		std::string         getFileExtension     ( std::string _path );
+		std::vector<char>   loadByteArrayFromPath( std::string _path );
+		std::string         loadFileToString     ( std::string _path );
 
-		mem->data[ mem->size - 1 ] = '\0';
-		return mem;
+///////////////////////////////////////////////////////////////////////////////////////
 
 	}
-
-///////////////////////////////////////////////////////////////////////////////////////
 
 }

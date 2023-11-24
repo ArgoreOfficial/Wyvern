@@ -54,29 +54,31 @@ std::string Filesystem::getFileExtension( std::string _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<char>* Filesystem::loadByteArrayFromPath( std::string _path )
+std::vector<char> Filesystem::loadByteArrayFromPath( std::string _path )
 {
 
 	std::ifstream stream( _path, std::ios::binary );
 
-	std::vector<char>* data = new std::vector<char>( std::filesystem::file_size( _path ) / sizeof( char ) );
-	stream.read( reinterpret_cast<char*>( data->data() ), data->size() * sizeof( char ) );
+	std::vector<char> data( std::filesystem::file_size( _path ) / sizeof( char ) );
+	stream.read( reinterpret_cast<char*>( data.data() ), data.size() * sizeof( char ) );
 
 	return data;
 
 }
 
-	/*
-const bgfx::Memory* wv::Filesystem::loadMemoryFromFile( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::string Filesystem::loadFileToString( std::string _path )
 {
-	std::vector<char>* data = loadByteArrayFromPath( _path );
 
-	uint32_t size = data->size();
+	std::string line, text;
+	std::ifstream in( _path );
+	
+	while ( std::getline( in, line ) )
+	{
+		text += line + "\n";
+	}
 
-	const bgfx::Memory* mem = bgfx::alloc( size + 1 );
-	memcpy( mem->data, data->data(), size);
+	return text;
 
-	mem->data[ mem->size - 1 ] = '\0';
-	return mem;
 }
-	*/

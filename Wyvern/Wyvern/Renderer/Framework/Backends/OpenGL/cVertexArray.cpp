@@ -1,17 +1,24 @@
-#include <Wyvern/Renderer/Framework/cVertexArray.h>
+#include "Wyvern/Renderer/Framework/cVertexArray.h"
+
 #include <glad/gl.h>
 
 using namespace wv;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 cVertexArray::cVertexArray()
 {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 cVertexArray::~cVertexArray()
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cVertexArray::create()
 {
@@ -19,13 +26,18 @@ void wv::cVertexArray::create()
 	bind();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cVertexArray::addLayout( cVertexBufferLayout _layout )
 {
+
 	const auto& elements = _layout.getElements();
-	unsigned int offset = 0;
+	unsigned int offset  = 0;
+
 	for ( unsigned int i = 0; i < elements.size(); i++ )
 	{
 		const auto& element = elements[ i ];
+
 		glEnableVertexAttribArray( i );
 
 		GLenum type = GL_UNSIGNED_BYTE;
@@ -50,7 +62,13 @@ void wv::cVertexArray::addLayout( cVertexBufferLayout _layout )
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cVertexArray::bind()
 {
+	
 	glBindVertexArray( m_handle );
+
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
