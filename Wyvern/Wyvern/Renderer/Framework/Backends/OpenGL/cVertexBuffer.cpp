@@ -1,0 +1,30 @@
+#include <Wyvern/Renderer/Framework/cVertexBuffer.h>
+#include <glad/gl.h>
+
+using namespace wv;
+
+cVertexBuffer::cVertexBuffer()
+{
+
+}
+
+cVertexBuffer::~cVertexBuffer()
+{
+
+}
+
+void wv::cVertexBuffer::create()
+{
+	glGenBuffers( 1, &m_handle );
+	bind();
+}
+
+void wv::cVertexBuffer::bufferData( float* _data, unsigned long long _size )
+{
+	glBufferData( GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW );
+}
+
+void wv::cVertexBuffer::bind()
+{
+	glBindBuffer( GL_ARRAY_BUFFER, m_handle );
+}

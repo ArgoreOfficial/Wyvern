@@ -4,7 +4,6 @@
 #include <Wyvern/cApplication.h>
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Managers/cEventManager.h>
-#include <Wyvern/Renderer/cModel.h>
 #include <Wyvern/Renderer/Camera/cCamera.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////

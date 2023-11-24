@@ -1,19 +1,20 @@
 #pragma once
 
+#if defined( WV_PLATFORM_WINDOWS ) || defined( WV_PLATFORM_WINDOWS_32 ) || defined( WV_PLATFORM_LINUX ) || defined( WV_PLATFORM_MAC )
+#include <glad/gl.h>
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include "imgui_impl_glfw.h"
+#endif
+
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Misc/cColor.h>
 #include <Wyvern/Renderer/Camera/cCamera.h>
 
 #include <string>
 
-#if defined( WV_PLATFORM_WINDOWS ) || defined( WV_PLATFORM_WINDOWS_32 ) || defined( WV_PLATFORM_LINUX ) || defined( WV_PLATFORM_MAC )
 
-#define GLFW_INCLUDE_NONE
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
-#include "imgui_impl_glfw.h"
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

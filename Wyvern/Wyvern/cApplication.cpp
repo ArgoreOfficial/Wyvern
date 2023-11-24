@@ -5,6 +5,11 @@
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Managers/cAssetManager.h>
 
+#include <Wyvern/Renderer/Framework/cIndexBuffer.h>
+#include <Wyvern/Renderer/Framework/cVertexArray.h>
+#include <Wyvern/Renderer/Framework/cVertexBuffer.h>
+#include <Wyvern/Renderer/Framework/cVertexBufferLayout.h>
+
 #include <thread>
 
 using namespace wv;
@@ -121,9 +126,99 @@ void cApplication::internalRun( void )
 
 	m_lastTime = 0.0;
 	bool run = true;
+	
+	
+	// opengl stuff
+
+	float vertices[] = {
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left 
+	};
+	unsigned int indices[] = {
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
+	};
+
+
+	cVertexArray vertexArray;
+	vertexArray.create();
+
+	cIndexBuffer indexBuffer;
+	indexBuffer.create();
+	indexBuffer.bufferData( indices, sizeof( indices ) );
+
+	cVertexBuffer vertexBuffer;
+	vertexBuffer.create();
+	vertexBuffer.bufferData( vertices, sizeof( vertices ) );
+
+	cVertexBufferLayout layout;
+	layout.push( WV_TYPE::WV_FLOAT, 3 );
+
+	vertexArray.addLayout( layout );
+
+
+	// todo: create shader classes
+
+	// vert shader
+	const char* vertexShaderSource = 
+		"#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"}\0";
+
+	unsigned int vertexShader;
+	vertexShader = glCreateShader( GL_VERTEX_SHADER );
+
+	glShaderSource( vertexShader, 1, &vertexShaderSource, NULL );
+	glCompileShader( vertexShader );
+
+	// frag shader
+	const char* fragmentShaderSource =
+		"#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"   FragColor = vec4( 1.0f, 0.5f, 0.2f, 1.0f );\n"
+		"}\0";
+
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
+	glCompileShader( fragmentShader );
+
+	// shader program
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
+
+	glAttachShader( shaderProgram, vertexShader );
+	glAttachShader( shaderProgram, fragmentShader );
+	glLinkProgram( shaderProgram );
+
+	glUseProgram( shaderProgram );
+
+	glDeleteShader( vertexShader );
+	glDeleteShader( fragmentShader );
+
+	// select draw mode
+	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
+
+
 	while ( run )
 	{
 		update();
+
+		glUseProgram( shaderProgram );
+		vertexArray.bind();
+		indexBuffer.bind();// glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
+		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+
+		// mesh.render();
+
 		draw();
 
 		if ( m_viewport.getState() == cViewport::eViewportState::kClosing ) 

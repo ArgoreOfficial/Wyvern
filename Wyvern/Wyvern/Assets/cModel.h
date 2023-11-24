@@ -1,5 +1,5 @@
 #pragma once
-#include <Wyvern/Renderer/cMesh.h>
+#include <Wyvern/Assets/cMesh.h>
 
 namespace wv
 {

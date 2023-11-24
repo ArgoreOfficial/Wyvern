@@ -3,7 +3,7 @@
 #include <Wyvern/Core/iSingleton.h>
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Filesystem/cFilesystem.h>
-#include <Wyvern/Renderer/cMesh.h>
+#include <Wyvern/Assets/cMesh.h>
 
 #include <vector>
 #include <map>

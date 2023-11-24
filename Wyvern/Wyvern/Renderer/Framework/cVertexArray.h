@@ -1,0 +1,19 @@
+#pragma once
+#include <Wyvern/Renderer/Framework/cVertexBufferLayout.h>
+
+namespace wv
+{
+	class cVertexArray
+	{
+	public:
+		 cVertexArray();
+		~cVertexArray();
+
+		void create();
+		void addLayout( cVertexBufferLayout _layout );
+		void bind();
+
+	private:
+		unsigned int m_handle = 0;
+	};
+}

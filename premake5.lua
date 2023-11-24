@@ -40,17 +40,25 @@ solution "Wyvern"
 	filter "platforms:Win32"
 		architecture "x86"
 		system "windows"
-		defines { "WV_PLATFORM_WINDOWS_32" }
+		defines { 
+			"WV_PLATFORM_WINDOWS_32",
+			"WV_BACKEND_OPENGL"
+		}
 
 	filter "platforms:Win64"
 		architecture "x86_64"
 		system "windows"
-		defines { "WV_PLATFORM_WINDOWS" }
+		defines { 
+			"WV_PLATFORM_WINDOWS",
+			"WV_BACKEND_OPENGL"
+		}
 
 	filter "platforms:Linux"
 		system "linux"
-		defines { "WV_PLATFORM_LINUX" }	
-
+		defines { 
+			"WV_PLATFORM_LINUX",
+			"WV_BACKEND_OPENGL"
+		}
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
