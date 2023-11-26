@@ -5,12 +5,9 @@
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Managers/cAssetManager.h>
 
-#include <Wyvern/Renderer/Framework/cIndexBuffer.h>
-#include <Wyvern/Renderer/Framework/cVertexArray.h>
-#include <Wyvern/Renderer/Framework/cVertexBuffer.h>
-#include <Wyvern/Renderer/Framework/cVertexBufferLayout.h>
 #include <Wyvern/Renderer/Framework/cShaderProgram.h>
 #include <Wyvern/Assets/cShaderSource.h>
+#include <Wyvern/Assets/cModel.h>
 
 #include <thread>
 
@@ -132,36 +129,8 @@ void cApplication::internalRun( void )
 	
 	// opengl stuff
 
-	float vertices[] = { // xyz rgb
-		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
-		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f  // top left 
-	};
-
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-	};
-
-
-	cVertexArray vertexArray;
-	vertexArray.create();
-
-	cIndexBuffer indexBuffer;
-	indexBuffer.create();
-	indexBuffer.bufferData( indices, sizeof( indices ) );
-
-	cVertexBuffer vertexBuffer;
-	vertexBuffer.create();
-	vertexBuffer.bufferData( vertices, sizeof( vertices ) );
-
-	cVertexBufferLayout layout;
-	layout.push( WV_TYPE::WV_FLOAT, 3 );
-	layout.push( WV_TYPE::WV_FLOAT, 3 );
-
-	vertexArray.addLayout( layout );
-	vertexArray.addLayout( layout );
+	cModel model( "assets/NormalWhisperingDeath.obj" );
+	model.load();
 
 	cShaderSource vertSource( "assets/shaders/vert.shader" );
 	vertSource.load();
@@ -182,11 +151,8 @@ void cApplication::internalRun( void )
 		update();
 
 		shaderProgram.use();
-		vertexArray.bind();
-		indexBuffer.bind();// glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
-		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
-
-		// mesh.render();
+		
+		model.render();
 
 		draw();
 

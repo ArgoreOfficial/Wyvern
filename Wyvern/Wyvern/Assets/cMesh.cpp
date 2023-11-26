@@ -1,77 +1,45 @@
 #include "cMesh.h"
+
 #include <Wyvern/Filesystem/cFilesystem.h>
 #include <Wyvern/Managers/cAssetManager.h>
 
+#include <glad/gl.h>
+
 using namespace wv;
 
-wv::cMesh::cMesh( std::string _path ) :
-	iAsset( _path )
+wv::cMesh::cMesh( void )
 {
-	cAssetManager::addAssetToLoadQueue( this );
+	
 }
 
-uint32_t encodeNormalRgba8( float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f )
+wv::cMesh::~cMesh( void )
 {
-/*
-	const float src[] =
-	{
-		_x, // * 0.5f + 0.5f,
-		_y, // * 0.5f + 0.5f,
-		_z, // * 0.5f + 0.5f,
-		_w, // * 0.5f + 0.5f,
-	};
-	uint32_t dst;
-	bx::packRgba8( &dst, src );
-	return dst;
-*/
-	return uint32_t();
+	
 }
 
-void wv::cMesh::load()
+void cMesh::create( void )
 {
-			/*
-	if ( !Filesystem::fileExists( m_path, true ) ) return; // check if mesh file exists
-	std::string filename = Filesystem::getFilenameFromPath( m_path );
 
-	WV_DEBUG( "Loading mesh %s", filename.c_str() );
-	objl::Loader loader;
-	loader.LoadFile( m_path );
+	m_vertexArray.create();
 
-	if ( loader.LoadedMeshes.size() == 0 || loader.LoadedVertices.size() == 0 || loader.LoadedIndices.size() == 0 )
-	{
-		// file didn't load properly or is empty
-		WVERROR( "Could not load mesh %s", filename.c_str() );
-		return;
-	}
+	m_indexBuffer.create();
+	m_indexBuffer.bufferData( indices.data(), indices.size() * sizeof(unsigned int));
 
-	for ( int i = 0; i < loader.LoadedVertices.size(); i++ )
-	{
-		objl::Vertex& current = loader.LoadedVertices[ i ];
+	m_vertexBuffer.create();
+	m_vertexBuffer.bufferData( vertices.data(), vertices.size() * sizeof( float ));
 
-		Vertex v = {
-			current.Position.X,
-			current.Position.Y,
-			current.Position.Z,
-			encodeNormalRgba8( current.TextureCoordinate.X, current.TextureCoordinate.Y, 0 )
-			current.Normal.X,
-			current.Normal.Y,
-			current.Normal.Z,
-			// tangent
-			current.TextureCoordinate.X,
-			current.TextureCoordinate.Y,
-		};
+	cVertexBufferLayout layout;
+	layout.push( WV_TYPE::WV_FLOAT, 3 );
+	// layout.push( WV_TYPE::WV_FLOAT, 3 );
 
-		m_vertices.push_back( v );
-	}
-	WV_DEBUG( "Loaded vertices (%i)", m_vertices.size() );
+	m_vertexArray.addLayout( layout );
+}
 
-	for ( int i = 0; i < loader.LoadedIndices.size(); i++ )
-	{
-		m_indices.push_back( loader.LoadedIndices[ i ] );
-	}
-	WV_DEBUG( "Loaded indices (%i)", m_indices.size() );
+void wv::cMesh::render()
+{
 
-	WV_DEBUG( "Model mesh succesfully" );
-	m_ready = true;
-			*/
+	m_vertexArray.bind();
+	m_indexBuffer.bind();
+	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+
 }

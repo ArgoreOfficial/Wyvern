@@ -6,19 +6,19 @@ using namespace wv;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cIndexBuffer::cIndexBuffer()
+cIndexBuffer::cIndexBuffer( void )
 {
 
 }
 
-cIndexBuffer::~cIndexBuffer()
+cIndexBuffer::~cIndexBuffer( void )
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cIndexBuffer::create()
+void wv::cIndexBuffer::create( void )
 {
 
 	glGenBuffers( 1, &m_handle );
@@ -28,18 +28,18 @@ void wv::cIndexBuffer::create()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cIndexBuffer::bufferData( unsigned int* _data, unsigned long long _size )
+void wv::cIndexBuffer::bind( void )
 {
 
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_handle );
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cIndexBuffer::bind()
+void wv::cIndexBuffer::bufferData( unsigned int* _data, unsigned long long _size )
 {
 
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_handle );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW );
 
 }

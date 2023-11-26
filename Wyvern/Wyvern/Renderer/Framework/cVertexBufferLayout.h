@@ -27,8 +27,8 @@ namespace wv
 	
 	public:
 
-		 cVertexBufferLayout();
-		~cVertexBufferLayout();
+		 cVertexBufferLayout( void );
+		~cVertexBufferLayout( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,8 +36,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		const std::vector<sVertexBufferElement> getElements() const { return m_elements; }
-		unsigned int                            getStride  () const { return m_stride; }
+		const std::vector<sVertexBufferElement> getElements( void ) const { return m_elements; }
+		unsigned int                            getStride  ( void ) const { return m_stride; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	

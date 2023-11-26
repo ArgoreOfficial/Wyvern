@@ -10,14 +10,14 @@ namespace wv
 	
 	public:
 	
-		 cVertexBuffer();
-		~cVertexBuffer();
+		 cVertexBuffer( void );
+		~cVertexBuffer( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		void create();
+		void create    ( void );
+		void bind      ( void );
 		void bufferData( float* _data, unsigned long long _size );
-		void bind();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

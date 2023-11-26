@@ -8,14 +8,14 @@ using namespace wv;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cShaderProgram::cShaderProgram()
+cShaderProgram::cShaderProgram( void )
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cShaderProgram::~cShaderProgram()
+cShaderProgram::~cShaderProgram( void )
 {
 
 }
@@ -52,7 +52,7 @@ void cShaderProgram::create( cShaderSource _vertexSource, cShaderSource _fragmen
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cShaderProgram::use()
+void cShaderProgram::use( void )
 {
 	glUseProgram( m_handle );
 }

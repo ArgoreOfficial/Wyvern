@@ -12,14 +12,14 @@ namespace wv
 
 	public:
 
-		 cIndexBuffer();
-		~cIndexBuffer();
+		 cIndexBuffer( void );
+		~cIndexBuffer( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		void create();
+		void create    ( void );
+		void bind      ( void );
 		void bufferData( unsigned int* _data, unsigned long long _size );
-		void bind();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

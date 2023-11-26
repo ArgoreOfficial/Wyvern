@@ -1,42 +1,33 @@
 #pragma once
 #include <Wyvern/Assets/cMesh.h>
+#include <Wyvern/Math/Vector3.h>
+#include <Wyvern/Assets/iAsset.h>
 
 namespace wv
 {
-	class cModel
+	class cModel : iAsset
 	{
 	public:
-		cModel( cMesh& _mesh );
-		~cModel();
+		 cModel ( std::string _path );
+		~cModel( void );
 
-		void setPosition(float _x, float _y, float _z);
-		void setRotation( float _x, float _y, float _z );
-		void setScale( float _x, float _y, float _z );
+		void load( void ) override;
 
-		void move( float _x, float _y, float _z );
-		void rotate( float _x, float _y, float _z );
+		void setPosition( cVector3f _position );
+		void setRotation( cVector3f _euler );
+		void setScale   ( cVector3f _scale );
 
-		void submit( float _aspect );
+		void move( cVector3f _value );
+		void rotate( cVector3f _euler );
+
+		void render( void );
 
 	private:
-		float m_rotationX = 0.0f;
-		float m_rotationY = 0.0f;
-		float m_rotationZ = 0.0f;
 
-		float m_positionX = 0.0f;
-		float m_positionY = 0.0f;
-		float m_positionZ = 0.0f;
+		cVector3f m_position{ 0.0f, 0.0f, 0.0f };
+		cVector3f m_rotation{ 0.0f, 0.0f, 0.0f };
+		cVector3f m_scale   { 1.0f, 1.0f, 1.0f };
 
-		float m_scaleX = 1.0f;
-		float m_scaleY = 1.0f;
-		float m_scaleZ = 1.0f;
-		/*
-		bgfx::VertexLayout m_layout;
-		bgfx::VertexBufferHandle m_vertexBufferHandle;
-		bgfx::IndexBufferHandle m_indexBufferHandle;
-		bgfx::ShaderHandle m_vertexShaderHandle;
-		bgfx::ShaderHandle m_fragmentShaderHandle;
-		bgfx::ProgramHandle m_program;
-		*/
+		std::vector<cMesh*> m_meshes;
 	};
 }

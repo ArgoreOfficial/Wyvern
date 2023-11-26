@@ -14,13 +14,13 @@ namespace wv
 
 	public:
 
-		 cShaderProgram();
-		~cShaderProgram();
+		 cShaderProgram( void );
+		~cShaderProgram( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		void create( cShaderSource _vertexSource, cShaderSource _fragmentSource );
-		void use();
+		void use   ( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

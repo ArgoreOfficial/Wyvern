@@ -14,14 +14,14 @@ namespace wv
 
 	public:
 
-		 cVertexArray();
-		~cVertexArray();
+		 cVertexArray( void );
+		~cVertexArray( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		void create();
+		void create   ( void );
+		void bind     ( void );
 		void addLayout( cVertexBufferLayout _layout );
-		void bind();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
