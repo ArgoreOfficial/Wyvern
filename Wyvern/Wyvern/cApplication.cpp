@@ -130,7 +130,7 @@ void cApplication::internalRun( void )
 	// opengl stuff
 
 	cModel model( "assets/NormalWhisperingDeath.obj" );
-	model.load();
+	// model.load();
 
 	cShaderSource vertSource( "assets/shaders/vert.shader" );
 	vertSource.load();

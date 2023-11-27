@@ -30,7 +30,7 @@ void cMesh::create( void )
 
 	cVertexBufferLayout layout;
 	layout.push( WV_TYPE::WV_FLOAT, 3 );
-	// layout.push( WV_TYPE::WV_FLOAT, 3 );
+	layout.push( WV_TYPE::WV_FLOAT, 3 );
 
 	m_vertexArray.addLayout( layout );
 }

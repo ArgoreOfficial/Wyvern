@@ -8,11 +8,26 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <glad/gl.h>
+
 using namespace wv;
 
 cModel::cModel( std::string _path ) : iAsset( _path )
 {
 	cAssetManager::addAssetToLoadQueue( this );
+
+	// temp
+	auto* mesh = new cMesh();
+	mesh->create();
+	m_meshes.push_back( mesh );
+
+	cShaderSource vertSource( "assets/shaders/vert.shader" );
+	vertSource.load();
+
+	cShaderSource fragSource( "assets/shaders/frag.shader" );
+	fragSource.load();
+
+	m_shader.create( vertSource, fragSource );
 }
 
 cModel::~cModel( void )

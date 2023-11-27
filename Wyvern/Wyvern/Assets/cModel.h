@@ -2,6 +2,7 @@
 #include <Wyvern/Assets/cMesh.h>
 #include <Wyvern/Math/Vector3.h>
 #include <Wyvern/Assets/iAsset.h>
+#include <Wyvern/Renderer/Framework/cShaderProgram.h>
 
 namespace wv
 {
@@ -29,5 +30,8 @@ namespace wv
 		cVector3f m_scale   { 1.0f, 1.0f, 1.0f };
 
 		std::vector<cMesh*> m_meshes;
+		
+		// change to material
+		cShaderProgram m_shader;
 	};
 }
