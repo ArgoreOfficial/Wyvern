@@ -56,9 +56,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		unsigned int   getWidth ( void ) { return m_viewWidth; }
-		unsigned int   getHeight( void ) { return m_viewHeight; }
-		eViewportState getState ( void ) { return m_state; }
+		unsigned int   getWidth  ( void ) { return m_viewWidth; }
+		unsigned int   getHeight ( void ) { return m_viewHeight; }
+		eViewportState getState  ( void ) { return m_state; }
+		cCamera* getActiveCamera ( void ) { return m_activeCamera; }
+		float getAspect          ( void ) { return (float)m_viewWidth / (float)m_viewHeight; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

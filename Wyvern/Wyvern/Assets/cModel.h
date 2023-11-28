@@ -1,8 +1,8 @@
 #pragma once
+#include <Wyvern/Assets/cMaterial.h>
 #include <Wyvern/Assets/cMesh.h>
 #include <Wyvern/Math/Vector3.h>
 #include <Wyvern/Assets/iAsset.h>
-#include <Wyvern/Renderer/Framework/cShaderProgram.h>
 
 namespace wv
 {
@@ -31,7 +31,6 @@ namespace wv
 
 		std::vector<cMesh*> m_meshes;
 		
-		// change to material
-		cShaderProgram m_shader;
+		cMaterial m_material;
 	};
 }

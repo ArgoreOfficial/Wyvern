@@ -129,18 +129,10 @@ void cApplication::internalRun( void )
 	
 	// opengl stuff
 
-	cModel model( "assets/NormalWhisperingDeath.obj" );
-	// model.load();
+	cModel model( "assets/logo.obj" );
+	model.load();
 
-	cShaderSource vertSource( "assets/shaders/vert.shader" );
-	vertSource.load();
-
-	cShaderSource fragSource( "assets/shaders/frag.shader" );
-	fragSource.load();
-
-	cShaderProgram shaderProgram;
-	shaderProgram.create( vertSource, fragSource );
-
+	
 	// select draw mode
 	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
@@ -150,8 +142,6 @@ void cApplication::internalRun( void )
 	{
 		update();
 
-		shaderProgram.use();
-		
 		model.render();
 
 		draw();

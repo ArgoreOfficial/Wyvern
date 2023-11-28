@@ -28,12 +28,15 @@ public:
 	void draw3D( void )              override { }
 	void draw2D( void )              override { }
 	void drawUI( void )              override;
-	void handleKeyInput( wv::Events::cKeyDownEvent& _event );
+	void handleKeyDownInput( wv::Events::cKeyDownEvent& _event );
+	void handleKeyUpInput( wv::Events::cKeyUpEvent& _event );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	wv::cSceneGraph& m_scene;
-	wv::cCamera      m_camera;
-
+	wv::cCamera*     m_camera;
+	float dx = 0.0f;
+	float dz = 0.0f;
+	float dr = 0.0f;
 };
 

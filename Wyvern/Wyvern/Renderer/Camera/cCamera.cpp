@@ -1,10 +1,11 @@
 #include "cCamera.h"
-#include <tgmath.h>
-
+#include <Wyvern/cApplication.h>
 using namespace wv;
 
 cCamera::cCamera()
 {
+
+	m_aspect = cApplication::getViewport().getAspect();
 
 }
 
@@ -13,25 +14,26 @@ wv::cCamera::~cCamera()
 
 }
 
-void wv::cCamera::submit()
+void wv::cCamera::update()
 {
-	/*
-	bx::Vec3 dir = {
-		sinf( m_rotation.y ),
-		-( sin( m_rotation.x ) * cos( m_rotation.y ) ),
-		-( cos( m_rotation.x ) * cos( m_rotation.y ) )
-	};
 
-	bx::Vec3 at = {
-		m_position.x + dir.x,
-		m_position.y + dir.y,
-		m_position.z + dir.z
-	};
+	glm_proj = glm::perspective( glm::radians( m_fov ), m_aspect, 0.1f, 100.0f );
+	glm::vec3 pos{ m_position.x, m_position.y, m_position.z };
 
-	bx::mtxLookAt( m_view, m_position, at );
-	bx::mtxProj( m_proj, m_fov, m_aspect, 0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth );
+	glm::mat4 view = glm::mat4( 1.0f );
+	
+	glm::vec3 direction;
+	float yaw = m_rotation.y;
+	float pitch = m_rotation.x;
 
-	bgfx::setViewTransform( 0, m_view, m_proj );
+	direction.x = cos( glm::radians( yaw ) ) * cos( glm::radians( pitch ) );
+	direction.y = sin( glm::radians( pitch ) );
+	direction.z = sin( glm::radians( yaw ) ) * cos( glm::radians( pitch ) );
 
-	*/
+	glm::vec3 cameraPos = glm::vec3( m_position.x, m_position.y, m_position.z );
+	glm::vec3 cameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
+	view = glm::lookAt( cameraPos, cameraPos + direction, cameraUp );
+
+	glm_view = view;
 }
+

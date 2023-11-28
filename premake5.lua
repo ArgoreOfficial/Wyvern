@@ -5,6 +5,7 @@ local WYVERN_DIR = "Wyvern"
 local IMGUI_DIR = "imgui"
 local ASSIMP_DIR = "assimp"
 local GLAD_DIR = "glad"
+local GLM_DIR = "glm"
 
 language "C++"
 cppdialect "C++17"
@@ -59,6 +60,7 @@ solution "Wyvern"
 			"WV_PLATFORM_LINUX",
 			"WV_BACKEND_OPENGL"
 		}
+
 project "Wyvern"
 	kind "StaticLib"
 	language "C++"
@@ -77,10 +79,11 @@ project "Wyvern"
 		path.join( GLFW_DIR, "include" ),
 		WYVERN_DIR,
 		IMGUI_DIR,
-		ASSIMP_DIR
+		ASSIMP_DIR,
+		GLM_DIR
 	}
 
-	links { "glad", "glfw", "imgui", "assimp/assimp-vc143-mt" }
+	links { "glm", "glad", "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
 
 local PROJECT_NAME = "Sandbox"
@@ -104,6 +107,7 @@ project (PROJECT_NAME)
 		path.join( GLAD_DIR, "include" ),
 		path.join( GLFW_DIR, "include" ),
 		WYVERN_DIR,
+		GLM_DIR,
 		IMGUI_DIR
 	}
 
@@ -203,3 +207,22 @@ project "glfw"
 
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
+
+		
+project "glm"
+	kind "StaticLib"
+	language "C++"
+	location (GLM_DIR)
+
+	files 
+	{ 
+		path.join( GLM_DIR, "**.h" ),
+		path.join( GLM_DIR, "**.hpp" ),
+		path.join( GLM_DIR, "**.cpp" ),
+	}
+
+	includedirs
+	{
+		GLM_DIR
+	}
+

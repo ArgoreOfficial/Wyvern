@@ -1,5 +1,11 @@
 #pragma once
 
+#include <Wyvern/Math/Vector3.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+
 namespace wv
 {
 	class cCamera
@@ -8,38 +14,32 @@ namespace wv
 		cCamera();
 		~cCamera();
 
-		void setPosition( float _x, float _y, float _z ) { /*m_position = { _x, _y, _z };*/ }
-		void setRotation( float _x, float _y, float _z  ) { /*m_rotation = { _x, _y, _z };*/ };
+		void update();
 
-		void move( float _x, float _y, float _z ) 
-		{ 
-			/*
-			m_position.x += _x;
-			m_position.y += _y;
-			m_position.z += _z;
-			*/
-		}
-
-		void rotate( float _x, float _y, float _z )
-		{
-			/*
-			m_rotation.x += _x;
-			m_rotation.y += _y;
-			m_rotation.z += _z;
-			*/
-		}
-
+		void setPosition( cVector3f _position ) { m_position = _position; }
+		void setRotation( cVector3f _euler ) { m_rotation = _euler; };
 		void setFOV( float _fov ) { m_fov = _fov; }
 		void setAspect( float _aspect ) { m_aspect = _aspect; }
 
-		void submit();
+		void move( cVector3f _move ) { m_position += _move; }
+		void rotate( cVector3f _euler ) { m_rotation += _euler; }
+		
+		glm::mat4 getViewMatrix( void ) { return glm_view; }
+		glm::mat4 getProjMatrix( void ) { return glm_proj; }
+		cVector3f getRotation  ( void ) { return m_rotation; }
+		cVector3f getPosition  ( void ) { return m_position; }
 
 	private:
 		float m_view[ 16 ];
 		float m_proj[ 16 ];
 
+		glm::mat4 glm_view{1.0f}; // change to use wv::Math
+		glm::mat4 glm_proj{1.0f};
 
-		float m_aspect;
-		float m_fov;
+		cVector3f m_position = { 0.0f, 0.0f, 0.0f };
+		cVector3f m_rotation = { 0.0f, 0.0f, 0.0f};
+
+		float m_aspect = 1.0f;
+		float m_fov = 45.0f;
 	};
 }

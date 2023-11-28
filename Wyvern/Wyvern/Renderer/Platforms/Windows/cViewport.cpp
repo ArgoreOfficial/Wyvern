@@ -1,5 +1,6 @@
 #include <Wyvern/Renderer/cViewport.h>
 #include <Wyvern/Managers/cEventManager.h>
+#include <Wyvern/cApplication.h>
 
 using namespace wv;
 
@@ -21,13 +22,9 @@ cViewport::~cViewport()
 
 void onResize( GLFWwindow* _window, int _width, int _height )
 {
-	
-	// cApplication& instance = getInstance();
-	// instance.m_window.windowResizeCallback( _window, _width, _height );
-	// 
-	// if ( instance.m_activeCamera )
-	//	instance.m_activeCamera->setAspect( instance.m_window.getAspect() );
-	
+	auto& viewport = cApplication::getViewport();
+
+	viewport.getActiveCamera()->setAspect( (float)_width / (float)_height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +91,12 @@ void cViewport::create( std::string _title, unsigned int _width, unsigned int _h
 	gladLoadGL( glfwGetProcAddress );
 
 	hookEvents();
+
+	glfwGetFramebufferSize( m_window, &m_viewWidth, &m_viewHeight );
+
+	// move to backend.init() or something
+
+	glEnable( GL_DEPTH_TEST );
 
 }
 
