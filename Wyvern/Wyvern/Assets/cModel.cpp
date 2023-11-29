@@ -18,7 +18,7 @@ using namespace wv;
 
 cModel::cModel( std::string _path ) : iAsset( _path )
 {
-	cAssetManager::addAssetToLoadQueue( this );
+	//cAssetManager::addAssetToLoadQueue( this );
 }
 
 cModel::~cModel( void )
@@ -70,8 +70,8 @@ void wv::cModel::load( void )
 		m_meshes.push_back( newMesh );
 	}
 
-	m_material.loadTexture( "assets/logo_fire_BaseColor.png" );
 	m_material.load();
+
 }
 
 void cModel::render( void )

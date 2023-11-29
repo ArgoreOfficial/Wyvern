@@ -23,6 +23,8 @@ namespace wv
 
 		void render( void );
 
+		cMaterial& getMaterial( void ) { return m_material; }
+
 	private:
 
 		cVector3f m_position{ 0.0f, 0.0f, 0.0f };

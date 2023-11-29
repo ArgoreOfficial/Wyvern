@@ -83,7 +83,7 @@ project "Wyvern"
 		GLM_DIR
 	}
 
-	links { "glm", "glad", "glfw", "imgui", "assimp/assimp-vc143-mt" }
+	links { "glad", "glfw", "imgui", "assimp/assimp-vc143-mt" }
 
 
 local PROJECT_NAME = "Sandbox"
@@ -207,22 +207,4 @@ project "glfw"
 
 	filter "action:vs*"
 		defines "_CRT_SECURE_NO_WARNINGS"
-
-		
-project "glm"
-	kind "StaticLib"
-	language "C++"
-	location (GLM_DIR)
-
-	files 
-	{ 
-		path.join( GLM_DIR, "**.h" ),
-		path.join( GLM_DIR, "**.hpp" ),
-		path.join( GLM_DIR, "**.cpp" ),
-	}
-
-	includedirs
-	{
-		GLM_DIR
-	}
 

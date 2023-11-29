@@ -126,13 +126,6 @@ void cApplication::internalRun( void )
 	m_lastTime = 0.0;
 	bool run = true;
 	
-	
-	// opengl stuff
-
-	cModel model( "assets/logo.obj" );
-	model.load();
-
-	
 	// select draw mode
 	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
@@ -141,8 +134,6 @@ void cApplication::internalRun( void )
 	while ( run )
 	{
 		update();
-
-		model.render();
 
 		draw();
 
