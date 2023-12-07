@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wyvern/Assets/iAsset.h>
+#include <Wyvern/Assets/iResource.h>
 #include <Wyvern/Renderer/Framework/cIndexBuffer.h>
 #include <Wyvern/Renderer/Framework/cVertexArray.h>
 #include <Wyvern/Renderer/Framework/cVertexBuffer.h>

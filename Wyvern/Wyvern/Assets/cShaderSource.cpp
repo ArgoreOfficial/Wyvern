@@ -6,7 +6,7 @@ using namespace wv;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cShaderSource::cShaderSource( std::string _path ) : iAsset( _path )
+cShaderSource::cShaderSource( void ) : iResource()
 {
 
 }
@@ -20,9 +20,9 @@ cShaderSource::~cShaderSource()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cShaderSource::load()
+void cShaderSource::load( std::string _path )
 {
 
-	m_source = Filesystem::loadFileToString( m_path );
+	m_source = Filesystem::loadFileToString( _path );
 
 }

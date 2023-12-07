@@ -2,8 +2,10 @@
 
 int main()
 {
-	wv::cApplication::pushLayer( new GameLayer() );
-	wv::cApplication::run();
+	auto& app = wv::cApplication::getInstance();
+
+	app.pushLayer( new GameLayer() );
+	app.run();
 
 	return 0;
 }

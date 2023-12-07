@@ -83,10 +83,12 @@ void wv::cShaderProgram::setUniform4f( std::string _name, glm::mat4x4 _matrix )
 
 unsigned int wv::cShaderProgram::getUniformLocation( std::string _name )
 {
+	/*
 	if ( m_uniforms.count( _name ) )
 		return m_uniforms[_name];
+	*/
 
 	unsigned int location = glGetUniformLocation( m_handle, _name.c_str() );
-	m_uniforms[ _name ] = location;
+	// m_uniforms[ _name ] = location;
 	return location;
 }

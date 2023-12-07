@@ -21,24 +21,25 @@ namespace wv
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cApplication : iSingleton<cApplication>
+	class cApplication : public iSingleton<cApplication>
 	{
 
 	public:
 
-		static void run( void );
-		static void pushLayer( iLayer* _layer ) { getInstance().m_layerStack.push_back( _layer ); }
+		void run( void );
+		void pushLayer( iLayer* _layer ) { m_layerStack.push_back( _layer ); }
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		static double       getTime     ( void ) { return getInstance().m_time; }
-		static double       getDeltaTime( void ) { return getInstance().m_deltaTime; }
-		static cSceneGraph& getScene    ( void ) { return getInstance().m_sceneGraph; }
-		static cViewport&   getViewport ( void ) { return getInstance().m_viewport; }
+		double       getTime     ( void ) { return m_time; }
+		double       getDeltaTime( void ) { return m_deltaTime; }
+		cSceneGraph& getScene    ( void ) { return m_sceneGraph; }
+		cViewport&   getViewport ( void ) { return m_viewport; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		void startLoadThread();
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +47,7 @@ namespace wv
 
 		int  create     ( void );
 		void destroy    ( void );
-		void initImgui  ( void ); // move?
-		void internalRun( void );
+		void initImgui  ( void ); // move
 		void update     ( void );
 		void draw       ( void );
 

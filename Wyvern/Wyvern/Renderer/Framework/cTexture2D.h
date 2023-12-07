@@ -1,20 +1,25 @@
 #pragma once
-#include <Wyvern/Assets/iAsset.h>
+
+#include <Wyvern/Assets/iResource.h>
 
 namespace wv
 {
-	class cTexture2D : public iAsset
+	class cTexture2D : public iResource
 	{
 	public:
 
-		 cTexture2D( std::string _path ) : iAsset( _path ) { }
-		~cTexture2D();
+		 cTexture2D( void ) : iResource() { }
+		~cTexture2D( void ) { }
 
-		void load( void ) override;
+		void load  ( std::string _path ) override;
+		void create( void ) override;
 		void bind( void );
+	
 	private:
 
 		unsigned int m_handle = 0;
+		unsigned char* m_data;
+		int m_width, m_height, m_nrChannels;
 
 	};
 }

@@ -3,7 +3,7 @@
 #include <Wyvern/Core/iLayer.h>
 #include <Wyvern/Core/cLayerStack.h>
 #include <Wyvern/Logging/cLogging.h>
-#include <Wyvern/Managers/cAssetManager.h>
+#include <Wyvern/Managers/cResourceManager.h>
 
 #include <Wyvern/Renderer/Framework/cShaderProgram.h>
 #include <Wyvern/Assets/cShaderSource.h>
@@ -18,20 +18,43 @@ using namespace wv;
 void cApplication::run( void )
 {
 
-	cApplication& instance = getInstance();
+	///////// EXIT POINT ///////// 
 
-	if ( !instance.create() )
+	if ( !create() )
 	{
 		WV_FATAL( "Application could not be created!" );
 		return;
 	}
 
 	// if( imguiEnabled )
-	instance.initImgui();
+	// initImgui();
 
-	instance.internalRun();
-	
-	instance.destroy();
+	m_layerStack.start();
+	startLoadThread();
+	cResourceManager::getInstance().createResources();
+
+	///////// RUN LOOP ///////// 
+
+	m_lastTime = 0.0;
+	bool run = true;
+
+	// select draw mode, move to renderer
+	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // default
+
+	while ( run )
+	{
+		update();
+
+		draw();
+
+		if ( m_viewport.getState() == cViewport::eViewportState::kClosing )
+			run = false;
+	}
+
+	///////// EXITPOINT ///////// 
+
+	destroy();
 
 }
 
@@ -39,18 +62,30 @@ void cApplication::run( void )
 
 void cApplication::startLoadThread( void )
 {
+	auto& resourceManager = cResourceManager::getInstance();
 
-	std::thread* loadthread = cAssetManager::loadQueuedAssets();
+	std::thread* loadthread = resourceManager.loadResources();
 	double loadtimer = glfwGetTime();
 
-	while ( cAssetManager::isLoading() )
-	{
-		m_viewport.clear();
+	m_viewport.setClearColor( wv::Color::Black );
 
-		// loading time draw
+	while ( resourceManager.isLoading() )
+	{
+		m_time = glfwGetTime();
+		m_deltaTime = m_time - m_lastTime;
+		m_lastTime = m_time;
+
+		
+		m_viewport.clear();
+		
+		std::string title = "Loading... " + std::to_string( 1.0f / m_deltaTime );
+		m_viewport.setTitle( title.c_str() );
+
+		m_viewport.update();
 
 		m_viewport.display();
 	}
+
 	loadthread->join();
 	WV_DEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
 
@@ -76,10 +111,11 @@ int cApplication::create( void )
 
 void cApplication::destroy( void )
 {
-
+	/*
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown(); // move to viewport
 	ImGui::DestroyContext();
+	*/
 	m_viewport.destroy();
 
 }
@@ -117,34 +153,6 @@ void cApplication::initImgui( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cApplication::internalRun( void )
-{
-
-	m_layerStack.start();
-	startLoadThread();
-
-	m_lastTime = 0.0;
-	bool run = true;
-	
-	// select draw mode
-	// glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // default
-
-
-	while ( run )
-	{
-		update();
-
-		draw();
-
-		if ( m_viewport.getState() == cViewport::eViewportState::kClosing ) 
-			run = false;
-	}
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void cApplication::update( void )
 {
 	m_time = glfwGetTime();
@@ -163,18 +171,19 @@ void cApplication::update( void )
 
 void cApplication::draw( void )
 {
-	ImGuiIO& io = ImGui::GetIO();;
+	// ImGuiIO& io = ImGui::GetIO();;
 	
 	m_layerStack.draw3D();
 
 	m_layerStack.draw2D();
-	
+	/*
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	*/
 
 	m_layerStack.drawUI();
-
+	/*
 	// move most of this out somewhere
 	ImGui::Render();
 	int width = m_viewport.getWidth();
@@ -193,6 +202,7 @@ void cApplication::draw( void )
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent( backup_current_context );
 	}
+	*/
 	
 	m_viewport.display();
 

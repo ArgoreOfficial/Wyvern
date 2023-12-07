@@ -22,7 +22,7 @@ cViewport::~cViewport()
 
 void onResize( GLFWwindow* _window, int _width, int _height )
 {
-	auto& viewport = cApplication::getViewport();
+	auto& viewport = cApplication::getInstance().getViewport();
 
 	viewport.getActiveCamera()->setAspect( (float)_width / (float)_height );
 }

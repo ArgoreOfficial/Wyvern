@@ -5,7 +5,7 @@ using namespace wv;
 cCamera::cCamera()
 {
 
-	m_aspect = cApplication::getViewport().getAspect();
+	m_aspect = cApplication::getInstance().getViewport().getAspect();
 
 }
 

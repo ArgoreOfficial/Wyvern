@@ -1,12 +1,17 @@
 #pragma once
 
+#include <Wyvern/Assets/iResource.h>
+#include <Wyvern/Assets/cResourceHandle.h>
+
+#include <Wyvern/Assets/cModel.h>
 #include <Wyvern/Core/iSingleton.h>
+#include <Wyvern/Renderer/Framework/cTexture2D.h>
+
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Filesystem/cFilesystem.h>
-#include <Wyvern/Assets/cMesh.h>
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -16,49 +21,63 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cAssetManager : public iSingleton<cAssetManager>
+	class cResourceManager : public iSingleton<cResourceManager>
 	{
 	
 	public:
 
-		static std::thread* loadQueuedAssets( void ) { return getInstance().internalLoadQueued(); };
-		static void unloadAll               ( void ) { getInstance().internalUnloadAll(); }
-		static void addAssetToLoadQueue     ( iAsset* _asset );
+		std::thread* loadResources     ( void );
+		void         createResources   ( void );
+		void         unloadAllResources( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		static bool isLoading( void ) { return getInstance().internalIsLoading(); }
+		tModelHandle   loadModel  ( std::string _path );
+		tTextureHandle loadTexture( std::string _path );
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+		bool isLoading( void );
+
+		unsigned int getNewUUID( void );
+		cModel*      getModel  ( tModelHandle _handle );
+		cTexture2D*  getTexture( tTextureHandle _handle );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 
-		static void loadQueuedAssetThread( cAssetManager* _instance );
+		static void loadQueuedAssetThread( cResourceManager* _instance );
 
-		void         internalUnloadAll ( void );
-		std::thread* internalLoadQueued( void );
-		bool         internalIsLoading ( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
+		
+		void pushResource( cResourceHandle& _handle, iResource* _resource );
 
 		template<class kT, class T>
 		void clearMap( std::map<kT, T> _map );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		std::vector<iAsset*> m_loadQueue;
+		std::vector<cResourceHandle> m_resourceQueue;
 
+		std::unordered_map<unsigned int, iResource*> m_resources;
+		std::unordered_map<unsigned int, cModel*> m_models;
+		std::unordered_map<unsigned int, cTexture2D*> m_textures;
+		
+///////////////////////////////////////////////////////////////////////////////////////
+		
 		bool m_isLoading = false;
 		bool m_hasLoaded = false;
 		std::mutex m_assetManagerMutex;
 		std::thread* m_assetLoadThread = nullptr;
-
+		unsigned int m_lastUUID = 0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<class kT, class T>
-	void cAssetManager::clearMap( std::map<kT, T> _map )
+	void cResourceManager::clearMap( std::map<kT, T> _map )
 	{
 
 		for ( std::map<kT, T>::iterator itr = _map.begin(); itr != _map.end(); itr++ )

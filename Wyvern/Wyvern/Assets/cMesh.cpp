@@ -1,7 +1,7 @@
 #include "cMesh.h"
 
 #include <Wyvern/Filesystem/cFilesystem.h>
-#include <Wyvern/Managers/cAssetManager.h>
+#include <Wyvern/Managers/cResourceManager.h>
 
 #include <glad/gl.h>
 
@@ -33,6 +33,12 @@ void cMesh::create( void )
 	layout.push( WV_TYPE::WV_FLOAT, 2 ); // tex coord
 
 	m_vertexArray.addLayout( layout );
+
+	vertices.clear();
+	indices.clear();
+	vertices.shrink_to_fit();
+	indices.shrink_to_fit();
+
 }
 
 void wv::cMesh::render()

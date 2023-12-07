@@ -6,6 +6,7 @@
 #include <Wyvern/Managers/cEventManager.h>
 #include <Wyvern/Renderer/Camera/cCamera.h>
 #include <Wyvern/Assets/cModel.h>
+#include <Wyvern/Managers/cResourceManager.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +17,7 @@ public:
 
 	GameLayer( void ) :
 		iLayer( "GameLayer" ), 
-		m_scene( wv::cApplication::getScene() )
+		m_scene( wv::cApplication::getInstance().getScene() )
 	{
 	};
 
@@ -36,7 +37,10 @@ public:
 
 	wv::cSceneGraph& m_scene;
 	wv::cCamera*     m_camera;
-	wv::cModel m_model{ "assets/meshes/logo.obj" };
+
+	wv::tModelHandle m_modelHandle;
+	wv::cModel* m_model = nullptr;
+	
 	float dx = 0.0f;
 	float dz = 0.0f;
 	float dr = 0.0f;

@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Wyvern/Assets/cShaderSource.h>
-#include <map>
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <map>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +34,7 @@ namespace wv
 		unsigned int getUniformLocation( std::string _name );
 
 		unsigned int m_handle;
-		std::map<std::string, unsigned int> m_uniforms;
+		// std::map<std::string, unsigned int> m_uniforms;
 
 	};
 

@@ -1,18 +1,22 @@
 #pragma once
+
+#include <Wyvern/Assets/iResource.h>
 #include <Wyvern/Assets/cMaterial.h>
 #include <Wyvern/Assets/cMesh.h>
 #include <Wyvern/Math/Vector3.h>
-#include <Wyvern/Assets/iAsset.h>
 
 namespace wv
 {
-	class cModel : iAsset
+
+	class cModel : public iResource
 	{
+
 	public:
-		 cModel ( std::string _path );
+		 cModel( void );
 		~cModel( void );
 
-		void load( void ) override;
+		void load  ( std::string _path ) override;
+		void create( void ) override;
 
 		void setPosition( cVector3f _position );
 		void setRotation( cVector3f _euler );
@@ -21,9 +25,9 @@ namespace wv
 		void move( cVector3f _value );
 		void rotate( cVector3f _euler );
 
-		void render( void );
-
 		cMaterial& getMaterial( void ) { return m_material; }
+
+		void render( void );
 
 	private:
 

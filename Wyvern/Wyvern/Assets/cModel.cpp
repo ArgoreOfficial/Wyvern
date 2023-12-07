@@ -3,7 +3,7 @@
 #include <Wyvern/cApplication.h>
 #include <Wyvern/Filesystem/cFilesystem.h>
 #include <Wyvern/Logging/cLogging.h>
-#include <Wyvern/Managers/cAssetManager.h>
+#include <Wyvern/Managers/cResourceManager.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -16,9 +16,9 @@
 
 using namespace wv;
 
-cModel::cModel( std::string _path ) : iAsset( _path )
+cModel::cModel( void ) : iResource()
 {
-	//cAssetManager::addAssetToLoadQueue( this );
+	//cResourceManager::addAssetToLoadQueue( this );
 }
 
 cModel::~cModel( void )
@@ -26,12 +26,11 @@ cModel::~cModel( void )
 	// destroy meshes
 }
 
-void wv::cModel::load( void )
+void wv::cModel::load( std::string _path )
 {
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile( m_path.c_str(), aiProcess_Triangulate );
-
+	const aiScene* scene = importer.ReadFile( _path.c_str(), aiProcess_Triangulate );
 	if ( !scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		WV_ERROR( "%s", importer.GetErrorString() );
@@ -65,22 +64,34 @@ void wv::cModel::load( void )
 			}
 		}
 		
-		newMesh->create();
-
 		m_meshes.push_back( newMesh );
 	}
 
-	m_material.load();
+	importer.FreeScene();
 
+	m_material.load();
+}
+
+void wv::cModel::create( void )
+{
+	m_material.create();
+
+	for ( size_t i = 0; i < m_meshes.size(); i++ )
+	{
+		m_meshes[ i ]->create();
+	}
 }
 
 void cModel::render( void )
 {
 	glm::mat4 model = glm::mat4( 1.0f );
 
-	m_material.getShader().setUniform4f( "model",      model );
-	m_material.getShader().setUniform4f( "view",       cApplication::getViewport().getActiveCamera()->getViewMatrix() );
-	m_material.getShader().setUniform4f( "projection", cApplication::getViewport().getActiveCamera()->getProjMatrix() );
+	cApplication& app = cApplication::getInstance();
+	cShaderProgram& shader = m_material.getShader();
+
+	shader.setUniform4f( "model",      model );
+	shader.setUniform4f( "view",       app.getViewport().getActiveCamera()->getViewMatrix() );
+	shader.setUniform4f( "projection", app.getViewport().getActiveCamera()->getProjMatrix() );
 	m_material.use();
 
 	for ( size_t i = 0; i < m_meshes.size(); i++ )
