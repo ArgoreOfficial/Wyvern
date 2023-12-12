@@ -18,8 +18,10 @@ namespace wv
 	private:
 
 		unsigned int m_handle = 0;
-		unsigned char* m_data;
-		int m_width, m_height, m_nrChannels;
+		unsigned char* m_data = 0;
+		int m_width  = 0;
+		int m_height = 0;
+		int m_nrChannels = 0;
 
 	};
 }

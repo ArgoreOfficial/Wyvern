@@ -69,6 +69,8 @@ void wv::cModel::load( std::string _path )
 
 	importer.FreeScene();
 
+	WV_INFO( "Loaded model %s", _path.c_str() );
+
 	m_material.load();
 }
 

@@ -6,6 +6,7 @@ using namespace wv;
 
 void wv::cResourceManager::loadQueuedAssetThread( cResourceManager* _instance )
 {
+
 	cResourceManager& instance = *_instance;
 
 	for ( size_t i = 0; i < instance.m_resourceQueue.size(); i++ )
@@ -31,9 +32,11 @@ void wv::cResourceManager::loadQueuedAssetThread( cResourceManager* _instance )
 
 void wv::cResourceManager::pushResource( cResourceHandle& _handle, iResource* _resource )
 {
+
 	unsigned int uuid = _handle.getUUID();
 	m_resources[ uuid ] = _resource;
 	m_resourceQueue.push_back( _handle );
+
 }
 
 std::thread* cResourceManager::loadResources()
@@ -50,33 +53,12 @@ std::thread* cResourceManager::loadResources()
 
 void wv::cResourceManager::createResources( void )
 {
+
 	for ( size_t i = 0; i < m_resourceQueue.size(); i++ )
 	{
 		cResourceHandle handle = m_resourceQueue[ i ];
 		m_resources[ handle.getUUID() ]->create();
 	}
-
-	//m_resourceQueue.clear();
-
-	/*
-	// create models
-	for ( auto itr = m_models.begin(); itr != m_models.end(); itr++ )
-	{
-		if ( itr->second->isReady() )
-			continue;
-
-		itr->second->create();
-	}
-
-	// create textures
-	for ( auto itr = m_textures.begin(); itr != m_textures.end(); itr++ )
-	{
-		if ( itr->second->isReady() )
-			continue;
-
-		itr->second->create();
-	}
-	*/
 
 }
 
