@@ -16,17 +16,23 @@
 
 using namespace wv;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 cModel::cModel( void ) : iResource()
 {
-	//cResourceManager::addAssetToLoadQueue( this );
+	
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 cModel::~cModel( void )
 {
 	// destroy meshes
 }
 
-void wv::cModel::load( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cModel::load( std::string _path )
 {
 
 	Assimp::Importer importer;
@@ -34,6 +40,7 @@ void wv::cModel::load( std::string _path )
 	if ( !scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		WV_ERROR( "%s", importer.GetErrorString() );
+		return;
 	}
 
 	for ( size_t i = 0; i < scene->mNumMeshes; i++ )
@@ -57,11 +64,11 @@ void wv::cModel::load( std::string _path )
 
 		for ( size_t face = 0; face < mesh->mNumFaces; face++ )
 		{
+
 			aiFace& faceref = mesh->mFaces[ face ];
 			for ( size_t indice = 0; indice < faceref.mNumIndices; indice++ )
-			{
 				newMesh->indices.push_back( faceref.mIndices[indice] );
-			}
+			
 		}
 		
 		m_meshes.push_back( newMesh );
@@ -72,32 +79,38 @@ void wv::cModel::load( std::string _path )
 	WV_INFO( "Loaded model %s", _path.c_str() );
 
 	m_material.load();
+
 }
 
-void wv::cModel::create( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cModel::create( void )
 {
+
 	m_material.create();
 
 	for ( size_t i = 0; i < m_meshes.size(); i++ )
-	{
 		m_meshes[ i ]->create();
-	}
+	
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cModel::render( void )
 {
+
 	glm::mat4 model = glm::mat4( 1.0f );
 
 	cApplication& app = cApplication::getInstance();
 	cShaderProgram& shader = m_material.getShader();
 
+	m_material.use();
+	
 	shader.setUniform4f( "model",      model );
 	shader.setUniform4f( "view",       app.getViewport().getActiveCamera()->getViewMatrix() );
 	shader.setUniform4f( "projection", app.getViewport().getActiveCamera()->getProjMatrix() );
-	m_material.use();
 
 	for ( size_t i = 0; i < m_meshes.size(); i++ )
-	{
 		m_meshes[ i ]->render();
-	}
+	
 }

@@ -4,9 +4,13 @@
 #include <Wyvern/cApplication.h>
 #include <Wyvern/Logging/cLogging.h>
 #include <Wyvern/Managers/cEventManager.h>
-#include <Wyvern/Renderer/Camera/cCamera.h>
 #include <Wyvern/Assets/cModel.h>
 #include <Wyvern/Managers/cResourceManager.h>
+#include <Wyvern/Assets/cSprite.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+namespace wv { class iCamera; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +40,12 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	wv::cSceneGraph& m_scene;
-	wv::cCamera*     m_camera;
+	wv::iCamera*     m_camera3D = nullptr;
+	wv::iCamera*     m_camera2D = nullptr;
 
 	wv::tModelHandle m_modelHandle;
-	wv::cModel* m_model = nullptr;
+
+	wv::cModel* m_model   = nullptr;
 	
 	float dx = 0.0f;
 	float dz = 0.0f;

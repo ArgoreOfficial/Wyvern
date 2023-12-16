@@ -8,6 +8,7 @@
 #include <Wyvern/Renderer/Framework/cShaderProgram.h>
 #include <Wyvern/Assets/cShaderSource.h>
 #include <Wyvern/Assets/cModel.h>
+#include <Wyvern/Assets/cSprite.h>
 
 #include <thread>
 
@@ -18,7 +19,7 @@ using namespace wv;
 void cApplication::run( void )
 {
 
-	///////// EXIT POINT ///////// 
+	///////// START ///////// 
 
 	if ( !create() )
 	{
@@ -30,6 +31,9 @@ void cApplication::run( void )
 	// initImgui();
 
 	m_layerStack.start();
+
+	m_viewport.getActiveCamera()->update();
+
 	startLoadThread();
 	cResourceManager::getInstance().createResources();
 
@@ -44,15 +48,18 @@ void cApplication::run( void )
 
 	while ( run )
 	{
+
 		update();
+		m_viewport.getActiveCamera()->update();
 
 		draw();
 
 		if ( m_viewport.getState() == cViewport::eViewportState::kClosing )
 			run = false;
+
 	}
 
-	///////// EXITPOINT ///////// 
+	///////// CLOSE ///////// 
 
 	destroy();
 
@@ -69,25 +76,32 @@ void cApplication::startLoadThread( void )
 
 	m_viewport.setClearColor( wv::Color::Black );
 
+	cSprite* loadingSprite = new cSprite();
+	loadingSprite->load( "assets/textures/loading.png" );
+	loadingSprite->create();
+
 	while ( resourceManager.isLoading() )
 	{
 		m_time = glfwGetTime();
 		m_deltaTime = m_time - m_lastTime;
 		m_lastTime = m_time;
-
 		
 		m_viewport.clear();
 		
 		std::string title = "Loading... " + std::to_string( 1.0f / m_deltaTime );
 		m_viewport.setTitle( title.c_str() );
-
+		
 		m_viewport.update();
+
+		loadingSprite->render();
 
 		m_viewport.display();
 	}
 
 	loadthread->join();
 	WV_DEBUG( "Loading took %.5f seconds", ( glfwGetTime() - loadtimer ) );
+
+	delete loadingSprite;
 
 }
 

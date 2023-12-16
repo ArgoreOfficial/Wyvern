@@ -22,9 +22,11 @@ cViewport::~cViewport()
 
 void onResize( GLFWwindow* _window, int _width, int _height )
 {
-	auto& viewport = cApplication::getInstance().getViewport();
 
+	auto& viewport = cApplication::getInstance().getViewport();
+	glViewport( 0, 0, _width, _height );
 	viewport.getActiveCamera()->setAspect( (float)_width / (float)_height );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -38,18 +40,23 @@ void handleApplicationEvents()
 
 void handleKeyEvents( GLFWwindow* window, int key, int scancode, int action, int mods )
 {
+
 	Events::cKeyEvent keyEvent( key );
 	cEventManager::call<Events::cKeyEvent>( keyEvent );
 
 	if ( action == GLFW_PRESS )
 	{
+
 		Events::cKeyDownEvent downEvent( key );
 		cEventManager::call<Events::cKeyDownEvent>( downEvent );
+
 	}
 	else if ( action == GLFW_RELEASE )
 	{
+
 		Events::cKeyUpEvent upEvent( key );
 		cEventManager::call<Events::cKeyUpEvent>( upEvent );
+
 	}
 
 }
@@ -70,9 +77,11 @@ void cViewport::create( std::string _title, unsigned int _width, unsigned int _h
 
 	if ( !glfwInit() )
 	{
+
 		WV_FATAL( "GLFW could not initialize!" );
 		glfwTerminate();
 		return;
+
 	}
 	WV_DEBUG( "GLFW Initialized" );
 
@@ -80,9 +89,11 @@ void cViewport::create( std::string _title, unsigned int _width, unsigned int _h
 	
 	if ( !m_window )
 	{
+
 		WV_FATAL( "Failed to create GLFW window" );
 		glfwTerminate();
 		return;
+
 	}
 	WV_DEBUG( "GLFW Window created" );
 
@@ -164,8 +175,10 @@ void cViewport::update()
 	processInput();
 	if ( glfwWindowShouldClose( m_window ) )
 	{
+
 		m_state = eViewportState::kClosing;
 		WV_DEBUG( "Closing" );
+
 	}
 
 	glfwPollEvents();
@@ -205,8 +218,10 @@ void cViewport::processInput()
 
 	if ( glfwGetKey( m_window, GLFW_KEY_ESCAPE ) == GLFW_PRESS ) // escape exit
 	{
+
 		m_state = eViewportState::kClosing;
 		glfwSetWindowShouldClose( m_window, true );
+
 	}
 
 }

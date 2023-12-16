@@ -18,7 +18,7 @@ cShaderProgram::cShaderProgram( void )
 
 cShaderProgram::~cShaderProgram( void )
 {
-
+	glDeleteProgram( m_handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +43,10 @@ void cShaderProgram::create( cShaderSource _vertexSource, cShaderSource _fragmen
 	glGetShaderiv( vertexShader, GL_COMPILE_STATUS, &success );
 	if ( !success )
 	{
+
 		glGetShaderInfoLog( vertexShader, 512, NULL, infoLog );
 		WV_ERROR("ERROR::SHADER::VERTEX::COMPILATION_FAILED \n %s", infoLog);
+
 	};
 
 	// fragment shader
@@ -56,8 +58,10 @@ void cShaderProgram::create( cShaderSource _vertexSource, cShaderSource _fragmen
 	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &success );
 	if ( !success )
 	{
+
 		glGetShaderInfoLog( fragmentShader, 512, NULL, infoLog );
 		WV_ERROR( "ERROR::SHADER::VERTEX::COMPILATION_FAILED \n %s", infoLog );
+
 	};
 
 	glAttachShader( m_handle, vertexShader );

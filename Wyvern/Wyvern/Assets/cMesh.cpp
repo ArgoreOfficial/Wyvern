@@ -7,15 +7,22 @@
 
 using namespace wv;
 
-wv::cMesh::cMesh( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+cMesh::cMesh( void )
 {
 	
 }
 
-wv::cMesh::~cMesh( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+cMesh::~cMesh( void )
 {
-	
+	vertices.clear();
+	indices.clear();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cMesh::create( void )
 {
@@ -34,6 +41,7 @@ void cMesh::create( void )
 
 	m_vertexArray.addLayout( layout );
 
+	// clear vertice and indice data from ram
 	vertices.clear();
 	indices.clear();
 	vertices.shrink_to_fit();
@@ -41,11 +49,13 @@ void cMesh::create( void )
 
 }
 
-void wv::cMesh::render()
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cMesh::render()
 {
 
 	m_vertexArray.bind();
 	m_indexBuffer.bind();
-	glDrawElements( GL_TRIANGLES, m_vertex_count, GL_UNSIGNED_INT, 0 );
+	glDrawElements( GL_TRIANGLES, m_vertex_count, GL_UNSIGNED_INT, 0 ); // move to renderer
 
 }

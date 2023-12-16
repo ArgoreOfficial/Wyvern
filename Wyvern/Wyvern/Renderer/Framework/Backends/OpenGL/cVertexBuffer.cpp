@@ -16,6 +16,8 @@ cVertexBuffer::cVertexBuffer( void )
 cVertexBuffer::~cVertexBuffer( void )
 {
 
+	glDeleteBuffers( 1, &m_handle );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@ cIndexBuffer::cIndexBuffer( void )
 
 cIndexBuffer::~cIndexBuffer( void )
 {
-
+	glDeleteBuffers( 1, &m_handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

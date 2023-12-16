@@ -4,13 +4,16 @@
 
 using namespace wv;
 
-void wv::cResourceManager::loadQueuedAssetThread( cResourceManager* _instance )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::loadQueuedAssetThread( cResourceManager* _instance )
 {
 
 	cResourceManager& instance = *_instance;
 
 	for ( size_t i = 0; i < instance.m_resourceQueue.size(); i++ )
 	{
+
 		cResourceHandle handle = instance.m_resourceQueue[ i ];
 		unsigned int uuid = handle.getUUID();
 		std::string path = handle.getPath();
@@ -30,7 +33,9 @@ void wv::cResourceManager::loadQueuedAssetThread( cResourceManager* _instance )
 
 }
 
-void wv::cResourceManager::pushResource( cResourceHandle& _handle, iResource* _resource )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::pushResource( cResourceHandle& _handle, iResource* _resource )
 {
 
 	unsigned int uuid = _handle.getUUID();
@@ -38,6 +43,23 @@ void wv::cResourceManager::pushResource( cResourceHandle& _handle, iResource* _r
 	m_resourceQueue.push_back( _handle );
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::unloadResource( cResourceHandle& _handle )
+{
+
+	unsigned int uuid = _handle.getUUID();
+
+	if ( !m_resources.count( uuid ) )
+		return;
+
+	delete m_resources[ uuid ];
+	m_resources.erase( uuid );
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 std::thread* cResourceManager::loadResources()
 {
@@ -51,16 +73,26 @@ std::thread* cResourceManager::loadResources()
 
 }
 
-void wv::cResourceManager::createResources( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::createResources( void )
 {
 
 	for ( size_t i = 0; i < m_resourceQueue.size(); i++ )
 	{
+
 		cResourceHandle handle = m_resourceQueue[ i ];
-		m_resources[ handle.getUUID() ]->create();
+		iResource* resource = m_resources[ handle.getUUID() ];
+
+		if( resource )
+			resource->create();
+		
 	}
 
+	m_resourceQueue.clear();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cResourceManager::unloadAllResources()
 {
@@ -69,7 +101,9 @@ void cResourceManager::unloadAllResources()
 
 }
 
-tModelHandle wv::cResourceManager::loadModel( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+tModelHandle cResourceManager::loadModel( std::string _path )
 {
 
 	tModelHandle handle{ _path };
@@ -82,11 +116,13 @@ tModelHandle wv::cResourceManager::loadModel( std::string _path )
 
 }
 
-tTextureHandle wv::cResourceManager::loadTexture( std::string _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+tTextureHandle cResourceManager::loadTexture( std::string _path )
 {
 
 	tTextureHandle handle{ _path };
-	cTexture2D* resource = new cTexture2D();
+	cTextureObject* resource = new cTextureObject();
 
 	m_textures[ handle.getUUID() ] = resource;
 	pushResource( handle, resource );
@@ -95,25 +131,62 @@ tTextureHandle wv::cResourceManager::loadTexture( std::string _path )
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::unloadModel( tModelHandle _handle )
+{
+
+	unsigned int uuid = _handle.getUUID();
+
+	if ( !m_models.count( uuid ) )
+		return;
+
+	m_models.erase( uuid );
+	unloadResource( _handle );
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cResourceManager::unloadTexture( tTextureHandle _handle )
+{
+	
+	unsigned int uuid = _handle.getUUID();
+
+	if ( !m_textures.count( uuid ) )
+		return;
+
+	m_textures.erase( uuid );
+	unloadResource( _handle );
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool cResourceManager::isLoading()
 {
 
-	bool out = false;
 	m_assetManagerMutex.lock();
-	out = m_isLoading;
+	const bool out = m_isLoading;
 	m_assetManagerMutex.unlock();
 
 	return out;
 
 }
 
-unsigned int wv::cResourceManager::getNewUUID( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+unsigned int cResourceManager::getNewUUID( void )
 {
+
 	m_lastUUID++;
 	return m_lastUUID;
+
 }
 
-cModel* wv::cResourceManager::getModel( tModelHandle _handle )
+///////////////////////////////////////////////////////////////////////////////////////
+
+cModel* cResourceManager::getModel( tModelHandle _handle )
 {
 
 	unsigned long long uuid = _handle.getUUID();
@@ -125,7 +198,9 @@ cModel* wv::cResourceManager::getModel( tModelHandle _handle )
 
 }
 
-cTexture2D* wv::cResourceManager::getTexture( tTextureHandle _handle )
+///////////////////////////////////////////////////////////////////////////////////////
+
+cTextureObject* cResourceManager::getTexture( tTextureHandle _handle )
 {
 	
 	unsigned long long uuid = _handle.getUUID();
@@ -136,4 +211,3 @@ cTexture2D* wv::cResourceManager::getTexture( tTextureHandle _handle )
 	return nullptr;
 
 }
-

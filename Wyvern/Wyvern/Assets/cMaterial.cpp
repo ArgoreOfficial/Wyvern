@@ -1,7 +1,33 @@
 #include "cMaterial.h"
 #include <Wyvern/Managers/cResourceManager.h>
 
-void wv::cMaterial::loadTexture( std::string _path )
+using namespace wv;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+cMaterial::cMaterial()
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+cMaterial::~cMaterial()
+{
+
+	if ( m_texture )
+	{
+
+		cResourceManager::getInstance().unloadTexture( m_textureHandle );
+		m_texture = nullptr;
+
+	}
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cMaterial::loadTexture( std::string _path )
 {
 
 	m_hasTexture = true;
@@ -12,25 +38,33 @@ void wv::cMaterial::loadTexture( std::string _path )
 
 }
 
-void wv::cMaterial::load( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cMaterial::load( void )
 {
-	
+
 	m_vertSource.load( "assets/shaders/vert.shader" );
 	m_fragSource.load( "assets/shaders/frag.shader" );
 
 }
 
-void wv::cMaterial::create( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cMaterial::create( void )
 {
 
 	m_shader.create( m_vertSource, m_fragSource );
 
 }
 
-void wv::cMaterial::use( void )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cMaterial::use( void )
 {
+
 	if ( m_hasTexture )
 		m_texture->bind();
 
 	m_shader.use();
+
 }
