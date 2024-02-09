@@ -1,0 +1,3 @@
+[submodule "source/Engine/Chimera"]
+	path = source/Engine/Chimera
+	url = https://github.com/ArgoreOfficial/Chimera.git

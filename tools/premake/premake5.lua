@@ -1,22 +1,10 @@
-local path = require "./path"
-PROJECT_NAME = path.getProjectName( 2 )
 
-workspace (PROJECT_NAME)
+workspace "Wyvern"
 	configurations { "Debug", "Release" }
 	platforms { "x64", "x86" }
 	location "../../"
 
-project (PROJECT_NAME)
-	kind "ConsoleApp"
-	language "C++"
-	cppdialect "C++17"
-	
-	targetdir "../../bin"
-	objdir "../../bin/obj/"
+group "Engine"
 
-	location "../../build"
-
-	files { 
-		"../../src/**.h", 
-		"../../src/**.cpp" 
-	}
+include "../../source/Engine/Wyvern.lua"
+include "../../source/Engine/Chimera.lua"

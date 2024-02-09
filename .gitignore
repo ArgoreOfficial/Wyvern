@@ -1,0 +1,9 @@
+﻿bin
+build
+obj
+.vs
+*.sln
+*.vcxproj
+*.filters
+*.vcxproj.user
+templates/psx/.vscode
