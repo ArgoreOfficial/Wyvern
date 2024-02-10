@@ -1,5 +1,6 @@
+
 project "Wyvern"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
     
@@ -8,13 +9,17 @@ project "Wyvern"
 	objdir "../../bin/obj/"
 	
 	includedirs {
-		"./Chimera/src"
+		"Wyvern/",
+		"Chimera/src",
+		"Chimera/libs/glad/include/", 
+        "Chimera/libs/glfw/include/", 
+        "Chimera/libs/glm/",
 	}
 
 	files { 
-        "Wyvern/src/*.cpp",
-        "Wyvern/src/*.h",
+        "Wyvern/**.cpp",
+        "Wyvern/**.h",
     }
 
-	links { "Chimera" }
+	links { "Chimera", "GLFW" }
     

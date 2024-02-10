@@ -4,12 +4,12 @@ project "Chimera"
     language "C++"
     cppdialect "C++17"
 
+    location "../../build"
     targetdir "../../bin"
     objdir "../../bin/obj/"
-    
-    location "../../build"
 
     includedirs { 
+        "Wyvern/",
         "Chimera/src/",
         "Chimera/libs/glad/include/", 
         "Chimera/libs/glfw/include/", 
@@ -31,7 +31,7 @@ project "Chimera"
         defines { "_WINDOWS" }
 
 
-group "Dependencies"
+group "Engine/Dependencies"
 
 include "Chimera/libs/glfw.lua"
 include "Chimera/libs/glad.lua"
