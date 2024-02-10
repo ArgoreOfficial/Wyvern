@@ -1,7 +1,8 @@
+
 project "Game"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
 
     targetdir "../../bin"
     objdir "../../bin/obj/"
@@ -9,14 +10,12 @@ project "Game"
     location "../../build"
 
     includedirs { 
-        "./",
-        "../Engine/Wyvern/",
-        "../Engine/Chimera/src/",
+        "../../source/engine/"
     }
 
     files { 
-        "Game/**.h", 
-        "Game/**.cpp" 
+        "../../source/app/**.h", 
+        "../../source/app/**.cpp" 
     }
 
-    links { "Wyvern" }
+    links { "Wyvern", "Chimera" }

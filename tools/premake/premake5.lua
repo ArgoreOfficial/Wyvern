@@ -7,10 +7,10 @@ workspace "Wyvern"
 	
 group "App"
 
-include "../../source/Application/Game.lua"
+include "game.lua"
 
 group "Engine"
 
-include "../../source/Engine/Wyvern.lua"
-include "../../source/Engine/Chimera.lua"
+include "wv.lua"
+include "cm.lua"
 

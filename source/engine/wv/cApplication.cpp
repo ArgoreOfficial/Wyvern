@@ -1,10 +1,10 @@
 #include "cApplication.h"
 
 #include <cm/Core/cWindow.h>
-#include <cm/Core/Renderer/cRenderer.h>
-#include <cm/Core/Renderer/Backends/iBackend.h>
+#include <cm/cRenderer.h>
+#include <cm/Backends/iBackend.h>
 
-#include <cm/Core/Renderer/Framework/cVertexLayout.h>
+#include <cm/Framework/cVertexLayout.h>
 
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
@@ -104,7 +104,7 @@ void cApplication::run()
 	/* texture */
 
 	sTexture2D texture = backend->createTexture();
-	unsigned char* data = stbi_load( "../res/funnyman.png", &texture.width, &texture.height, &texture.num_channels, 0 );
+	unsigned char* data = stbi_load( "../res/wyvern_logo_white.png", &texture.width, &texture.height, &texture.num_channels, 0 );
 	backend->generateTexture( texture, data );
 	stbi_image_free( data );
 
