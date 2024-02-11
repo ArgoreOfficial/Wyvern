@@ -17,8 +17,8 @@
 #include <string>
 
 cApplication::cApplication() :
-	m_window{ new cWindow() },
-	m_renderer{ new cRenderer() }
+	m_window  { new cm::cWindow() },
+	m_renderer{ new cm::cRenderer() }
 {
 }
 
@@ -30,7 +30,7 @@ cApplication::~cApplication()
 void cApplication::onCreate()
 {
 	m_window->create( 1500, 1000, "renderer idfk" );
-	m_renderer->create( *m_window, cRenderer::eBackendType::OpenGL );
+	m_renderer->create( *m_window, cm::cRenderer::eBackendType::OpenGL );
 
 }
 
@@ -55,7 +55,7 @@ void cApplication::run()
 {
 	double time = m_window->getTime();;
 	double delta_time = 0.0;
-	iBackend* backend = m_renderer->getBackend();
+	cm::iBackend* backend = m_renderer->getBackend();
 
 
 	/* sandbox */
@@ -75,26 +75,26 @@ void cApplication::run()
 
 	std::string vert = loadShaderSource( "../res/texture.vert" );
 	std::string frag = loadShaderSource( "../res/texture.frag" );
-	sShader vert_shader = m_renderer->createShader( vert.data(), eShaderType::Shader_Vertex );
-	sShader frag_shader = m_renderer->createShader( frag.data(), eShaderType::Shader_Fragment );
+	cm::sShader vert_shader = m_renderer->createShader( vert.data(), cm::eShaderType::Shader_Vertex );
+	cm::sShader frag_shader = m_renderer->createShader( frag.data(), cm::eShaderType::Shader_Fragment );
 
-	hShaderProgram shader = backend->createShaderProgram();
+	cm::hShaderProgram shader = backend->createShaderProgram();
 	backend->attachShader( shader, vert_shader );
 	backend->attachShader( shader, frag_shader );
 	backend->linkShaderProgram( shader );
 
 	/* create vertex array */
-	hVertexArray vertex_array = backend->createVertexArray();
+	cm::hVertexArray vertex_array = backend->createVertexArray();
 	backend->bindVertexArray( vertex_array );
 
 	/* create vertex buffer */
-	sBuffer vertex_buffer = backend->createBuffer( eBufferType::Buffer_Vertex );
+	cm::sBuffer vertex_buffer = backend->createBuffer( cm::eBufferType::BufferType_Vertex );
 	backend->bufferData( vertex_buffer, points, sizeof( points ) );
 
-	sBuffer index_buffer = backend->createBuffer( eBufferType::Buffer_Index );
+	cm::sBuffer index_buffer = backend->createBuffer( cm::eBufferType::BufferType_Index );
 	backend->bufferData( index_buffer, indices, sizeof( indices ) );
 
-	cVertexLayout layout;
+	cm::cVertexLayout layout;
 	layout.push<float>( 3 );
 	layout.push<float>( 2 );
 	
@@ -103,7 +103,7 @@ void cApplication::run()
 
 	/* texture */
 
-	sTexture2D texture = backend->createTexture();
+	cm::sTexture2D texture = backend->createTexture();
 	unsigned char* data = stbi_load( "../res/wyvern_logo_white.png", &texture.width, &texture.height, &texture.num_channels, 0 );
 	backend->generateTexture( texture, data );
 	stbi_image_free( data );
@@ -125,7 +125,7 @@ void cApplication::run()
 		backend->bindVertexArray( vertex_array );
 		backend->bindTexture2D( texture.handle );
 
-		backend->drawElements( 6, eDrawMode::DrawMode_Triangle );
+		backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 
 
 		m_renderer->endFrame();

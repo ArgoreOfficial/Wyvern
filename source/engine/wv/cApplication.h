@@ -1,7 +1,7 @@
 #pragma once
 
-class cRenderer;
-class cWindow;
+namespace cm { class cRenderer; }
+namespace cm { class cWindow; }
 class iScene;
 
 #include <wv/Core/iSingleton.h>
@@ -30,20 +30,21 @@ public:
 	 cApplication( void );
 	~cApplication( void );
 
-	void onCreate() override;
-	void onResize( int _width, int _height );
+	void onCreate  ( void ) override;
+	void onResize  ( int _width, int _height );
 	void onRawInput( sInputInfo* _info );
 
-	cWindow* getWindow() { return m_window; }
-	void run    ( void );
-	cRenderer* getRenderer() { return m_renderer; }
+	cm::cWindow* getWindow    ( void ) { return m_window; }
+	cm::cRenderer* getRenderer( void ) { return m_renderer; }
 
 	std::string loadShaderSource( const char* _path );
 
+	void run( void );
+
 private:
 
-	cRenderer* m_renderer;
+	cm::cRenderer* m_renderer;
 
-	cWindow* m_window;
+	cm::cWindow* m_window;
 	
 };
