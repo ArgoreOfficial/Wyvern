@@ -5,7 +5,6 @@ namespace cm { class cWindow; }
 class iScene;
 
 #include <wv/Core/iSingleton.h>
-#include <string>
 
 struct sInputInfo
 {
@@ -18,7 +17,7 @@ struct sInputInfo
 	bool repeat;
 };
 
-class cApplication : public iSingleton<cApplication>
+class cApplication : public iSingleton<cApplication> /* add singleton manager? */
 {
 public:
 	enum class eBackend
@@ -36,8 +35,6 @@ public:
 
 	cm::cWindow* getWindow    ( void ) { return m_window; }
 	cm::cRenderer* getRenderer( void ) { return m_renderer; }
-
-	std::string loadShaderSource( const char* _path );
 
 	void run( void );
 

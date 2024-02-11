@@ -6,7 +6,7 @@ class iSingleton
 public:
 	iSingleton<T>( const iSingleton<T>& ) = delete;
 
-	virtual void onCreate() { }
+	virtual void onCreate() = 0;
 
 	static T& getInstance( void ) 
 	{

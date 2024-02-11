@@ -1,0 +1,14 @@
+
+wv::cRenderer renderer = wv::cApplication::getInstance().getRenderer();
+wv::cSpriteBatch spritebatch( 3 );
+
+spritebatch.batch( &sprites[ 0 ] );
+spritebatch.batch( &sprites[ 1 ] );
+spritebatch.batch( &sprites[ 2 ] );
+
+// or
+spritebatch.batch( sprites, 3 ) 
+
+spritebatch.translate( player_pos ); /* moves all batched sprites */
+
+renderer.dispatchSpritebatch( spritebatch );

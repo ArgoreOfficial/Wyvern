@@ -4,17 +4,15 @@
 #include <cm/cRenderer.h>
 #include <cm/Backends/iBackend.h>
 
-#include <cm/Framework/cVertexLayout.h>
+#include <wv/Graphics/cSprite.h>
+
+#include <wv/Manager/cContentManager.h>
 
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <cm/Core/stb_image.h>
-
-#include <iostream>
-#include <fstream>
-#include <string>
 
 cApplication::cApplication() :
 	m_window  { new cm::cWindow() },
@@ -32,6 +30,7 @@ void cApplication::onCreate()
 	m_window->create( 1500, 1000, "renderer idfk" );
 	m_renderer->create( *m_window, cm::cRenderer::eBackendType::OpenGL );
 
+	wv::cContentManager::getInstance();
 }
 
 void cApplication::onResize( int _width, int _height )
@@ -45,68 +44,17 @@ void cApplication::onRawInput( sInputInfo* _info )
 
 }
 
-struct sVertex
-{
-	wv::cVector3f position;
-	wv::cVector2f UV;
-};
-
 void cApplication::run()
 {
 	double time = m_window->getTime();;
 	double delta_time = 0.0;
 	cm::iBackend* backend = m_renderer->getBackend();
-
+	wv::cContentManager& content_manager = wv::cContentManager::getInstance();
 
 	/* sandbox */
 
-	sVertex points[] = {
-		/*    Position            UV      */
-		{ { -0.5,  0.5, 0}, { 0.0f, 0.0f } },
-		{ { -0.5, -0.5, 0}, { 0.0f, 1.0f } },
-		{ {  0.5, -0.5, 0}, { 1.0f, 1.0f } },
-		{ {  0.5,  0.5, 0}, { 1.0f, 0.0f } },
-	};
-
-	unsigned int indices[] = {
-		0,1,2,
-		0,2,3
-	};
-
-	std::string vert = loadShaderSource( "../res/texture.vert" );
-	std::string frag = loadShaderSource( "../res/texture.frag" );
-	cm::sShader vert_shader = m_renderer->createShader( vert.data(), cm::eShaderType::Shader_Vertex );
-	cm::sShader frag_shader = m_renderer->createShader( frag.data(), cm::eShaderType::Shader_Fragment );
-
-	cm::hShaderProgram shader = backend->createShaderProgram();
-	backend->attachShader( shader, vert_shader );
-	backend->attachShader( shader, frag_shader );
-	backend->linkShaderProgram( shader );
-
-	/* create vertex array */
-	cm::hVertexArray vertex_array = backend->createVertexArray();
-	backend->bindVertexArray( vertex_array );
-
-	/* create vertex buffer */
-	cm::sBuffer vertex_buffer = backend->createBuffer( cm::eBufferType::BufferType_Vertex );
-	backend->bufferData( vertex_buffer, points, sizeof( points ) );
-
-	cm::sBuffer index_buffer = backend->createBuffer( cm::eBufferType::BufferType_Index );
-	backend->bufferData( index_buffer, indices, sizeof( indices ) );
-
-	cm::cVertexLayout layout;
-	layout.push<float>( 3 );
-	layout.push<float>( 2 );
-	
-	backend->bindVertexLayout( layout );
-
-
-	/* texture */
-
-	cm::sTexture2D texture = backend->createTexture();
-	unsigned char* data = stbi_load( "../res/wyvern_logo_white.png", &texture.width, &texture.height, &texture.num_channels, 0 );
-	backend->generateTexture( texture, data );
-	stbi_image_free( data );
+	wv::cSprite sprite;
+	sprite.create( "../res/textures/wyvern_logo_white.png" );
 
 	/* sandbox */
 
@@ -120,29 +68,10 @@ void cApplication::run()
 		m_renderer->beginFrame();
 		m_renderer->clear( 0x000000FF );
 
-		backend->useShaderProgram( shader );
-
-		backend->bindVertexArray( vertex_array );
-		backend->bindTexture2D( texture.handle );
-
-		backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
-
+		sprite.render();
 
 		m_renderer->endFrame();
 		m_window->endFrame();
 	}
-}
-
-std::string cApplication::loadShaderSource( const char* _path )
-{
-	std::string line, text;
-	std::ifstream in( _path );
-
-	while ( std::getline( in, line ) )
-	{
-		text += line + "\n";
-	}
-	
-	return text;
 }
 
