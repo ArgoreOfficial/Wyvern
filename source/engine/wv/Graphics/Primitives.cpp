@@ -1,7 +1,7 @@
 #include "Primitives.h"
 
-#include <wv/cApplication.h>
-#include <cm/cRenderer.h>
+#include <wv/Core/cApplication.h>
+#include <wv/Core/cRenderer.h>
 #include <cm/Backends/iBackend.h>
 
 #include <wv/Math/Vector3.h>
@@ -15,7 +15,7 @@ struct sVertex
 
 wv::cMesh* wv::Primitives::quad()
 {
-	cm::iBackend* backend = cApplication::getInstance().getRenderer()->getBackend();
+	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
 
 	sVertex points[] = {
 		/*    Position            UV      */

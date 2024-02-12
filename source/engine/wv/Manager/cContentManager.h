@@ -9,7 +9,7 @@ namespace wv
 	{
 	public:
 
-		void onCreate() override;
+		void create() override;
 		std::string loadShaderSource( const std::string& _path );
 	};
 }

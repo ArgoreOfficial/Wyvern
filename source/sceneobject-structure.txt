@@ -1,0 +1,71 @@
+
+
+
+// sceneobjects
+
+struct Player {};
+
+
+
+
+
+cSceneObject<Player> player_object( "PlayerObject" );
+Player player_object( "PlayerObject" );
+
+/* singleton */
+cSceneManager::createSceneObject<NetworkedPlayer>( "Player1" );
+cSceneManager::createSceneObject<NetworkedPlayer>( "Player2" );
+cSceneManager::createSceneObject<WorldGenerator> ( "WorldGenerator" );
+
+
+/* wyvern prefab file
+prefabs.wp
+
+# Player
+cRigidBody
+cPlayerController
+cCameraFollow
+*/
+
+/* wyvern scene file
+scene0.ws
+
+# Player1
+# Player2
+*/
+
+: iSceneObject
+: iSceneComponent
+
+class cSceneObjectContainer : public iSceneObject {
+    vector<iSceneComponents> m_components;
+}
+
+class cScene 
+{
+    std::vector<iSceneObject*> m_scene_objects;
+}
+
+SceneStack
+  |
+  | - SceneGame
+  |    |
+  |    | - "MainCamera"     -> cCamera
+  |    | - "Player"         -> cSceneObjectContainer
+  |    |     |
+  |    |     | - [     cRigidBody    ];
+  |    |     | - [ cPlayerController ];
+  |    |     | - [   cCameraFollow   ];
+  |    |
+  |    | - "Sun"            -> cSun : cLight
+  |    | - "Ant"            -> cSceneObjectContainer
+  |    | - "mega_big_plane" -> cStaticMesh
+  |
+  | - SceneMenu
+       |
+       | - "Logo.png"
+       | - "StartButton"
+       | - "UnStartButton"
+
+
+

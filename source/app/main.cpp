@@ -1,8 +1,9 @@
 #include <stdio.h>
 
-#include <wv/cApplication.h>
+#include <wv/Core/cApplication.h>
 
 int main()
 {
-	cApplication::getInstance().run();
+	wv::cApplication::getInstance().create();
+	wv::cApplication::getInstance().run();
 }

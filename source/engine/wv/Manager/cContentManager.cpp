@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-void wv::cContentManager::onCreate()
+void wv::cContentManager::create()
 {
 }
 

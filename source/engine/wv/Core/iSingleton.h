@@ -6,16 +6,13 @@ class iSingleton
 public:
 	iSingleton<T>( const iSingleton<T>& ) = delete;
 
-	virtual void onCreate() = 0;
+	virtual void create() = 0;
 
 	static T& getInstance( void ) 
 	{
 		if ( !m_instance )
-		{
 			m_instance = new T();
-			m_instance->onCreate();
-		}
-
+		
 		return *m_instance; 
 	}
 
