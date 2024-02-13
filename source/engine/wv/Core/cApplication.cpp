@@ -36,7 +36,8 @@ wv::cApplication::~cApplication()
 
 void wv::cApplication::create()
 {
-	m_window->create( 1500, 1000, "renderer idfk" );
+
+	m_window->create( 1920, 1080, "renderer idfk" );
 	m_window->setVSync( false );
 
 	wv::cRenderer::getInstance().create();
@@ -45,6 +46,7 @@ void wv::cApplication::create()
 
 	m_camera2D = new wv::cCamera( cCamera::CameraType_Orthographic );
 	m_camera3D = new wv::cCamera( cCamera::CameraType_Perspective );
+
 }
 
 void wv::cApplication::onResize( int _width, int _height )
@@ -66,7 +68,7 @@ void wv::cApplication::run()
 
 	/* sandbox */
 	wv::cSprite sprite;
-	sprite.create( "../res/textures/wyvern_logo.png" );
+	sprite.create( "../res/textures/wyvern_logo_white.png" );
 
 	sprite .getTransform().position = { 0.0f, 0.0f, 0.0f };
 	sprite .getTransform().scale    = { 1.0f, 1.0f, 1.0f };
@@ -103,7 +105,7 @@ void wv::cApplication::run()
 		sprite.getTransform().rotate( { 90.0f * (float)delta_time, 180.0f * (float)delta_time, 90.0f * (float)delta_time } );
 
 		renderer.begin();
-		renderer.clear( 0xFFFFFFFF );
+		renderer.clear( 0x000000FF );
 
 		sprite2.render();
 		sprite.render();

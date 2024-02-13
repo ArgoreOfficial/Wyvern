@@ -18,7 +18,9 @@ wv::cRenderer::~cRenderer( void )
 
 void wv::cRenderer::create()
 {
-	
+	if ( m_backend )
+		delete m_backend;
+
 	switch ( m_backend_type )
 	{
 	case BackendType_OpenGL:     m_backend = new cm::cBackend_OpenGL(); break;
