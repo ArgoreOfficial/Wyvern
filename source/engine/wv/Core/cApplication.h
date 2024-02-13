@@ -2,7 +2,6 @@
 
 namespace cm { class cRenderer; }
 namespace cm { class cWindow; }
-class iScene;
 
 #include <wv/Core/iSingleton.h>
 
@@ -19,6 +18,8 @@ struct sInputInfo
 
 namespace wv
 {
+	class cCamera;
+
 	class cApplication : public iSingleton<cApplication> /* add singleton manager? */
 	{
 	public:
@@ -38,6 +39,11 @@ namespace wv
 		cm::cWindow* getWindow    ( void ) { return m_window; }
 	
 		void run( void );
+
+		// TODO: move to scene
+		cCamera* m_current_camera;
+		cCamera* m_camera2D;
+		cCamera* m_camera3D;
 
 	private:
 

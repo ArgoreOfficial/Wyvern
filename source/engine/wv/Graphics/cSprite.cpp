@@ -9,6 +9,7 @@
 #include <wv/Core/cApplication.h>
 
 #include <cm/Core/cWindow.h>
+#include <wv/Camera/cCamera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -63,6 +64,8 @@ void wv::cSprite::render()
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 	cm::cWindow* window = cApplication::getInstance().getWindow();
 
+	cCamera* camera = cApplication::getInstance().m_current_camera;
+
 	int proj_loc  = backend->getUniformLocation( m_shader_program, "uProj" );
 	int view_loc  = backend->getUniformLocation( m_shader_program, "uView" );
 	int model_loc = backend->getUniformLocation( m_shader_program, "uModel" );
@@ -71,16 +74,9 @@ void wv::cSprite::render()
 	float w = (float)window->getWidth();
 	float h = (float)window->getHeight();
 
+	glm::mat4 projection = camera->getProjectionMatrix();
 
-
-	/* move to cCamera */
-	glm::mat4 projection = glm::ortho( -w / 2.0f, w / 2.0f,
-								       -h / 2.0f, h / 2.0f,
-								      -1000.0f, 1000.0f );
-
-	// glm::mat4 projection = glm::perspective( 45.0f, window->getAspect(), 0.01f, 100.0f);
-
-	glm::mat4 view( 1.0f );
+	glm::mat4 view = camera->getViewMatrix();
 
 	glm::mat4 model = m_transform.getMatrix();
 	

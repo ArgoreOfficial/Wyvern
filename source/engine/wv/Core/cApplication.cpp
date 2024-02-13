@@ -1,5 +1,7 @@
 #include "cApplication.h"
 
+#include <wv/Camera/cCamera.h>
+
 #include <cm/Core/cWindow.h>
 #include <cm/Backends/iBackend.h>
 
@@ -11,6 +13,16 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <cm/Core/stb_image.h>
+
+
+
+
+
+#include <format>
+
+
+
+
 
 wv::cApplication::cApplication() :
 	m_window  { new cm::cWindow() }
@@ -25,9 +37,14 @@ wv::cApplication::~cApplication()
 void wv::cApplication::create()
 {
 	m_window->create( 1500, 1000, "renderer idfk" );
+	m_window->setVSync( false );
+
 	wv::cRenderer::getInstance().create();
 
 	wv::cContentManager::getInstance();
+
+	m_camera2D = new wv::cCamera( cCamera::CameraType_Orthographic );
+	m_camera3D = new wv::cCamera( cCamera::CameraType_Perspective );
 }
 
 void wv::cApplication::onResize( int _width, int _height )
@@ -51,23 +68,39 @@ void wv::cApplication::run()
 	wv::cSprite sprite;
 	sprite.create( "../res/textures/wyvern_logo.png" );
 
+	sprite .getTransform().position = { 0.0f, 0.0f, 0.0f };
+	sprite .getTransform().scale    = { 1.0f, 1.0f, 1.0f };
+
+	
+	// ground sprite
 	wv::cSprite sprite2;
 	sprite2.create( "../res/textures/funnyman.png" );
-	sprite.getTransform().rotate( { 0.1f, 0.0f, 0.0f } );
+	
+	sprite2.getTransform().position = {  0.0f,  -1.0f,  0.0f };
+	sprite2.getTransform().rotation = { -90.0f,  0.0f,  0.0f };
+	sprite2.getTransform().scale    = {  10.0f, 10.0f, 10.0f };
+
+
+	m_camera3D->getTransform().position = { 0.0f, 0.0f, 2.0f };
+	m_current_camera = m_camera3D;
 
 	/* sandbox */
 
 	wv::cRenderer& renderer = wv::cRenderer::getInstance();
 
+
 	while ( !m_window->shouldClose() )
 	{
 		updateDeltaTime( time, delta_time );
 
+		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / delta_time ) ).c_str() );
 		m_window->processInput();
 
 		// scenemanager.update();
-
-		sprite.getTransform().rotate( { 1.0f * (float)delta_time, 2.0f * (float)delta_time, 3.0f * (float)delta_time } );
+		
+		m_camera3D->getTransform().position.z = (sin( time ) + 1.0f) * 1.5f + 0.5f;
+		
+		sprite.getTransform().rotate( { 90.0f * (float)delta_time, 180.0f * (float)delta_time, 90.0f * (float)delta_time } );
 
 		renderer.begin();
 		renderer.clear( 0xFFFFFFFF );

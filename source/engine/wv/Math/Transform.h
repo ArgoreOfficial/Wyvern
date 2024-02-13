@@ -32,9 +32,9 @@ namespace wv
 			model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
 			model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
 			
-			model = glm::rotate<T>( model, rotation.x, glm::vec<3, T>{ 1, 0, 0 } );
-			model = glm::rotate<T>( model, rotation.y, glm::vec<3, T>{ 0, 1, 0 } );
-			model = glm::rotate<T>( model, rotation.z, glm::vec<3, T>{ 0, 0, 1 } );
+			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } );
+			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } );
+			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } );
 			
 			return model;
 		}
