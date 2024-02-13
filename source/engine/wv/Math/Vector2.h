@@ -15,13 +15,13 @@ namespace wv
 		cVector2( const T& _t ) : x( _t ), y( _t ){}
 		cVector2( const T& _x, const T& _y ) : x( _x ), y( _y ){}
 
-		cVector2< T >& operator = ( const cVector2< T >& _other );
-		cVector2< T >& operator +=( const cVector2< T >& _other );
-		cVector2< T >  operator + ( const cVector2< T >& _other );
-		cVector2< T >  operator * ( const float& _scalar );
-		cVector2< T >& operator *=( const float& _scalar );
-		cVector2< T >  operator / ( const float& _scalar );
-		cVector2< T >& operator /=( const float& _scalar );
+		cVector2<T>& operator = ( const cVector2<T>& _other );
+		cVector2<T>& operator +=( const cVector2<T>& _other );
+		cVector2<T>  operator + ( const cVector2<T>& _other );
+		cVector2<T>  operator * ( const float& _scalar );
+		cVector2<T>& operator *=( const float& _scalar );
+		cVector2<T>  operator / ( const float& _scalar );
+		cVector2<T>& operator /=( const float& _scalar );
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline cVector2< T >& cVector2< T >::operator=( const cVector2< T >& _other )
+	inline cVector2<T>& cVector2<T>::operator=( const cVector2<T>& _other )
 	{
 		x = _other.x;
 		y = _other.y;
@@ -39,7 +39,7 @@ namespace wv
 	}
 
 	template< typename T >
-	inline cVector2< T >& cVector2< T >::operator+=( const cVector2< T >& _other )
+	inline cVector2<T>& cVector2<T>::operator+=( const cVector2<T>& _other )
 	{
 		x += _other.x;
 		y += _other.y;
@@ -47,19 +47,19 @@ namespace wv
 	}
 
 	template< typename T >
-	inline cVector2< T > cVector2< T >::operator+( const cVector2< T >& _other )
+	inline cVector2<T> cVector2<T>::operator+( const cVector2<T>& _other )
 	{
-		return cVector2< T >( x + _other.x, y + _other.y );
+		return cVector2<T>( x + _other.x, y + _other.y );
 	}
 
 	template< typename T >
-	inline cVector2< T > wv::cVector2< T >::operator*( const float & _scalar )
+	inline cVector2<T> wv::cVector2<T>::operator*( const float & _scalar )
 	{
-		return cVector2< T >( x * _scalar, y * _scalar );
+		return cVector2<T>( x * _scalar, y * _scalar );
 	}
 
 	template< typename T >
-	inline cVector2< T >& cVector2< T >::operator*=( const float & _scalar )
+	inline cVector2<T>& cVector2<T>::operator*=( const float & _scalar )
 	{
 		x *= _scalar;
 		y *= _scalar;
@@ -67,13 +67,13 @@ namespace wv
 	}
 	
 	template< typename T >
-	inline cVector2< T > wv::cVector2< T >::operator/( const float & _scalar )
+	inline cVector2<T> wv::cVector2<T>::operator/( const float & _scalar )
 	{
-		return cVector2< T >( x / _scalar, y / _scalar );
+		return cVector2<T>( x / _scalar, y / _scalar );
 	}
 
 	template< typename T >
-	inline cVector2< T >& cVector2< T >::operator/=( const float & _scalar )
+	inline cVector2<T>& cVector2<T>::operator/=( const float & _scalar )
 	{
 		x /= _scalar;
 		y /= _scalar;

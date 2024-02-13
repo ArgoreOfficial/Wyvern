@@ -54,7 +54,8 @@ void wv::cSprite::create( const std::string& _texture_path  )
 	backend->generateTexture( m_texture, data );
 	stbi_image_free( data );
 
-	setScale( wv::cVector3f{ (float)m_texture.width, (float)m_texture.height, 1.0f } );
+	m_transform.setScale( { (float)m_texture.width, (float)m_texture.height, 1.0f } );
+
 }
 
 void wv::cSprite::render()
@@ -77,22 +78,24 @@ void wv::cSprite::render()
 								       -h / 2.0f, h / 2.0f,
 								      -1000.0f, 1000.0f );
 
+	// glm::mat4 projection = glm::perspective( 45.0f, window->getAspect(), 0.01f, 100.0f);
+
 	glm::mat4 view( 1.0f );
 
-	glm::mat4 model( 1.0f );
-	model = glm::scale    ( model, { m_scale.x, m_scale.y, m_scale.z } );
-	model = glm::rotate   ( model, m_rotation, { 0, 0, 1.0f } );
-	model = glm::translate( model, { m_position.x, m_position.y, m_position.z } );
+	glm::mat4 model = m_transform.getMatrix();
 	
+	backend->useShaderProgram( m_shader_program );
+
 	backend->setUniformMat4f( proj_loc, glm::value_ptr( projection ) );
 	backend->setUniformMat4f( view_loc, glm::value_ptr( view ) );
 	backend->setUniformMat4f( model_loc, glm::value_ptr( model ) );
 	backend->setUniformVec4f( color_loc, { 1.0f, 1.0f, 1.0f, 1.0f } );
 
-	backend->useShaderProgram( m_shader_program );
-
 	backend->bindVertexArray( m_quad->vertex_array );
 	backend->bindTexture2D( m_texture.handle );
 
 	backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+
+	backend->bindVertexArray( 0 );
+	backend->bindTexture2D( 0 );
 }

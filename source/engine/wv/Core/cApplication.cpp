@@ -50,8 +50,12 @@ void wv::cApplication::run()
 	/* sandbox */
 	wv::cSprite sprite;
 	sprite.create( "../res/textures/wyvern_logo.png" );
-	/* sandbox */
 
+	wv::cSprite sprite2;
+	sprite2.create( "../res/textures/funnyman.png" );
+	sprite.getTransform().rotate( { 0.1f, 0.0f, 0.0f } );
+
+	/* sandbox */
 
 	wv::cRenderer& renderer = wv::cRenderer::getInstance();
 
@@ -63,11 +67,12 @@ void wv::cApplication::run()
 
 		// scenemanager.update();
 
-		sprite.rotateEuler( 5.0f * delta_time );
+		sprite.getTransform().rotate( { 1.0f * (float)delta_time, 2.0f * (float)delta_time, 3.0f * (float)delta_time } );
 
 		renderer.begin();
 		renderer.clear( 0xFFFFFFFF );
 
+		sprite2.render();
 		sprite.render();
 
 		renderer.end();
