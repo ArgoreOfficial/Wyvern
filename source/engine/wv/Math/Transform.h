@@ -1,5 +1,4 @@
 #pragma once
-
 #include <wv/Math/Vector3.h>
 
 // TODO: change to wv/Math/Matrix

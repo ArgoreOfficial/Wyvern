@@ -18,6 +18,7 @@ struct sInputInfo
 
 namespace wv
 {
+	class cSceneLoader;
 	class cCamera;
 
 	class cApplication : public iSingleton<cApplication> /* add singleton manager? */
@@ -34,11 +35,12 @@ namespace wv
 
 		void create    ( void ) override;
 		void onResize  ( int _width, int _height );
-		void onRawInput( sInputInfo* _info );
+		
+		void onRawInput( sInputInfo* _info ) { }
 
 		cm::cWindow* getWindow    ( void ) { return m_window; }
 	
-		void run( void );
+		void run( cSceneLoader* _scene_loader );
 
 		// TODO: move to scene
 		cCamera* m_current_camera;

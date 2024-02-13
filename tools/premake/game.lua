@@ -10,7 +10,10 @@ project "Game"
     location "../../build"
 
     includedirs { 
-        "../../source/engine/"
+        "../../source/engine/",
+		"../../libs/glad/include/", 
+        "../../libs/glfw/include/", 
+        "../../libs/glm/"
     }
 
     files { 
