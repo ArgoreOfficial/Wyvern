@@ -10,29 +10,6 @@
 
 namespace wv
 {
-	enum eUniformDataType
-	{
-		UniformDataType_Float,
-		UniformDataType_Vec3,
-		UniformDataType_Vec4,
-		UniformDataType_Texture,
-		UniformDataType_Mat4,
-	};
-
-	struct sUniformData
-	{
-		std::string name;
-		eUniformDataType type;
-		union
-		{
-			float u_float;
-			wv::cVector3f u_vec3;
-			wv::cVector4f u_vec4;
-			std::string u_tex_path;
-			float* u_mat4;
-		} data;
-	};
-
 	class cShader
 	{
 	public:

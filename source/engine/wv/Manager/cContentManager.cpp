@@ -99,7 +99,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 
 	cMaterial* mat = new cMaterial();
 	mat->shader = loadShader( material_values["shader"] );
-
+	
 	for ( int i = 0; i < material_values.size() - 1; i++ )
 	{
 		cm::Shader::sShaderUniform uniform = backend->getUniform( mat->shader->shader_program_handle, i );
@@ -197,7 +197,7 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimp_material = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		mesh->material = loadMaterial( "res/materials/mesh_default" );
+		mesh->material = loadMaterial( "res/materials/mesh" );
 
 		aiString texpath;
 		assimp_material->GetTexture( aiTextureType_DIFFUSE, 0, &texpath );
