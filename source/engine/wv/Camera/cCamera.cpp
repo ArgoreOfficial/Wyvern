@@ -16,6 +16,49 @@ wv::cCamera::~cCamera( void )
 {
 }
 
+void wv::cCamera::onRawInput( sInputInfo* _info )
+{
+	int button_delta = _info->buttondown ? 1 : -1;
+
+	if ( _info->type == sInputInfo::InputInfo_Key && !_info->repeat )
+	{
+		switch ( _info->key )
+		{
+		case GLFW_KEY_W: m_move.z += -button_delta; break;
+		case GLFW_KEY_S: m_move.z +=  button_delta; break;
+		case GLFW_KEY_A: m_move.x += -button_delta; break;
+		case GLFW_KEY_D: m_move.x +=  button_delta; break;
+		}
+	}
+	else if( _info->type == sInputInfo::InputInfo_Mouse )
+	{
+		
+		cm::cWindow* window = cApplication::getInstance().getWindow();
+		int delta_x = _info->mouse_position.x - m_old_mouse_pos.x;
+		int delta_y = _info->mouse_position.y - m_old_mouse_pos.y;
+		m_old_mouse_pos = _info->mouse_position;
+
+		if( abs(delta_x) < 500 && abs( delta_y ) < 500 )
+			m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
+	}
+}
+
+void wv::cCamera::update( double _delta_time )
+{
+	m_transform.rotation.y += m_rotate.x * 100.0f * (float)_delta_time;
+	m_transform.rotation.x -= m_rotate.y * 100.0f * (float)_delta_time;
+	
+	float yaw   = glm::radians( m_transform.rotation.y );
+	float pitch = glm::radians( m_transform.rotation.x );
+
+	float move_z =  cos( yaw ) * m_move.z + sin( yaw ) * m_move.x;
+	float move_x = -sin( yaw ) * m_move.z + cos( yaw ) * m_move.x;
+
+	m_transform.translate( wv::cVector3f{ move_x, 0.0f, move_z } * 2.0f * (float)_delta_time );
+
+	m_rotate = { 0.0f, 0.0f };
+}
+
 glm::mat4 wv::cCamera::getProjectionMatrix( void )
 {
 	switch ( m_type )

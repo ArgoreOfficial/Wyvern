@@ -54,6 +54,11 @@ void wv::cApplication::onResize( int _width, int _height )
 	m_window->onResize( _width, _height );
 }
 
+void wv::cApplication::onRawInput( sInputInfo* _info )
+{
+	m_camera3D->onRawInput( _info );
+}
+
 void wv::cApplication::run( cSceneLoader* _scene_loader )
 {
 	cSceneManager& scene_manager = cSceneManager::getInstance();
@@ -77,7 +82,8 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / delta_time ) ).c_str() );
 		m_window->processInput();
 
-		m_camera3D->getTransform().position.z = ( sin( time ) + 1.0f ) * 1.5f + 0.5f;
+		m_camera2D->update( delta_time );
+		m_camera3D->update( delta_time );
 
 		scene_manager.update( delta_time );
 		

@@ -4,9 +4,17 @@ namespace cm { class cRenderer; }
 namespace cm { class cWindow; }
 
 #include <wv/Core/iSingleton.h>
+#include <wv/Math/Vector2.h>
 
+// TODO: change to proper event system
 struct sInputInfo
 {
+	enum
+	{
+		InputInfo_Key,
+		InputInfo_Mouse
+	} type ;
+
 	int key;
 	int scancode;
 	int mods;
@@ -14,6 +22,8 @@ struct sInputInfo
 	bool buttondown;
 	bool buttonup;
 	bool repeat;
+
+	wv::cVector2i mouse_position;
 };
 
 namespace wv
@@ -36,9 +46,9 @@ namespace wv
 		void create    ( void ) override;
 		void onResize  ( int _width, int _height );
 		
-		void onRawInput( sInputInfo* _info ) { }
+		void onRawInput( sInputInfo* _info );
 
-		cm::cWindow* getWindow    ( void ) { return m_window; }
+		cm::cWindow* getWindow( void ) { return m_window; }
 	
 		void run( cSceneLoader* _scene_loader );
 
