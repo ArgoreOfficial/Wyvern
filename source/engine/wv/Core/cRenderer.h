@@ -34,7 +34,7 @@ namespace wv
 
 		void setBackendType( cRenderer::eBackendType _backend ) { m_backend_type = _backend; }
 
-		cm::hShaderProgram getDefaultShader( void ) const { return m_shader_default; }
+		cm::Shader::hShaderProgram getDefaultShader( void ) const { return m_shader_default; }
 		cm::iBackend* getBackend           ( void ) { return m_backend; }
 
 	private:
@@ -63,7 +63,7 @@ namespace wv
 			"	FragColor = vec4( 1.0f, 1.0f, 1.0f, 1.0f );\n"
 			"}\0";
 
-		cm::hShaderProgram m_shader_default;
+		cm::Shader::hShaderProgram m_shader_default;
 	};
 
 }

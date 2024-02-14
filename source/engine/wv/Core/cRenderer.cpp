@@ -42,8 +42,8 @@ void wv::cRenderer::end  ( void ) { m_backend->end  (); }
 
 void wv::cRenderer::createDefaultShader( void )
 {
-	cm::sShader vertex_shader   = m_backend->createShader( m_shader_default_vert, cm::eShaderType::Shader_Vertex );
-	cm::sShader fragment_shader = m_backend->createShader( m_shader_default_frag, cm::eShaderType::Shader_Fragment );
+	cm::Shader::sShader vertex_shader   = m_backend->createShader( m_shader_default_vert, cm::Shader::eShaderType::ShaderType_Vertex );
+	cm::Shader::sShader fragment_shader = m_backend->createShader( m_shader_default_frag, cm::Shader::eShaderType::ShaderType_Fragment );
 	
 	m_shader_default = m_backend->createShaderProgram();
 	

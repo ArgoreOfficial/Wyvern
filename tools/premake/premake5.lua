@@ -4,6 +4,8 @@ workspace "Wyvern"
 	platforms { "x64", "x86" }
 	location "../../"
 	startproject "Game"
+	debugdir "../../"
+	
 	
 group "App"
 

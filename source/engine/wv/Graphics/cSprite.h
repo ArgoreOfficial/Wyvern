@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cm/Framework/Shader.h>
-#include <cm/Framework/Texture.h>
+#include <wv/Graphics/cMaterial.h>
 
 #include <wv/Graphics/cMesh.h>
 #include <wv/Math/Transform.h>
@@ -27,13 +26,11 @@ namespace wv
 
 	private:
 
-		wv::cMesh*         m_quad;
-		
-		/* change to material */
-		cm::sTexture2D     m_texture; 
-		cm::hShaderProgram m_shader_program;
-
+		wv::cMesh*      m_quad;
+		wv::cMaterial*  m_material;
 		wv::cTransformf m_transform;
+
+		float m_aspect = 1.0f;
 
 	};
 }

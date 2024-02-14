@@ -14,7 +14,7 @@ void cGameSceneLoader::load( wv::cScene* _scene )
 	printf( "Loading %s\n", _scene->getName().c_str() );
 
 	wv::cSpriteObject* sprite = new wv::cSpriteObject( "sprite" );
-	sprite->create( "../res/textures/funnyman.png" );
+	sprite->create( "res/textures/AAAAAAAAAAAAAAAAAAAAAAAAAAAAA.png" );
 
 	_scene->addObject( sprite );
 
