@@ -25,5 +25,5 @@ project "Wyvern"
         "../../source/engine/wv/**.h"
     }
 
-	links { "Chimera", "GLFW" }
+	links { "Chimera", "GLFW", "assimp-vc143-mt" }
     

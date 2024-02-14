@@ -14,17 +14,16 @@ namespace wv
 	class cModel
 	{
 	public:
-		 cModel();
-		~cModel();
+		 cModel( void ) { }
+		~cModel( void ) { }
 
 		void create( std::string _path );
 		void render();
 
-	private:
-		cMesh*          m_mesh;
-		cMaterial       m_material;
-		wv::cTransformf m_transform;
-
+		std::vector<cMesh*> meshes;
+		
+		wv::cTransformf transform;
+		std::string path;
 	};
 
 }

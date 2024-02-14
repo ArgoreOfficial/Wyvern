@@ -1,4 +1,3 @@
 shader    : res/shaders/sprite
-uAlbedo   : res/textures/WEEEEEEE.gif
-uSpecular : res/textures/funnyman.png
+uAlbedo   : res/textures/funnyman.png
 uColor    : 1.0, 1.0, 1.0, 1.0

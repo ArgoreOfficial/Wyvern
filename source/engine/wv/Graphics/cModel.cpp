@@ -16,20 +16,41 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-wv::cModel::cModel()
-{
-}
-
-wv::cModel::~cModel()
-{
-}
-
 void wv::cModel::create( std::string _path )
 {
-
+	
 }
 
 void wv::cModel::render()
 {
-	
+	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	cm::cWindow* window = cApplication::getInstance().getWindow();
+
+	cCamera* camera = cApplication::getInstance().m_current_camera;
+
+	float w = (float)window->getWidth();
+	float h = (float)window->getHeight();
+
+	glm::mat4 projection = camera->getProjectionMatrix();
+	glm::mat4 view = camera->getViewMatrix();
+
+	glm::mat4 model = transform.getMatrix();
+
+	for ( int i = 0; i < meshes.size(); i++ )
+	{
+		cMaterial& material = *meshes[ i ]->material;
+		
+		material.bind();
+
+		material.shader->setMatrix( "uProj", glm::value_ptr( projection ) );
+		material.shader->setMatrix( "uView", glm::value_ptr( view ) );
+		material.shader->setMatrix( "uModel", glm::value_ptr( model ) );
+
+		backend->bindVertexArray( meshes[ i ]->vertex_array );
+		backend->drawElements( meshes[ i ]->num_vertices, cm::eDrawMode::DrawMode_Triangle );
+
+		material.unbind();
+	}
+
+	backend->bindVertexArray( 0 );
 }

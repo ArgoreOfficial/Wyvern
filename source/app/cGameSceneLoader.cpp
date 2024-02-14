@@ -5,6 +5,7 @@
 #include <wv/Scene/cSceneManager.h>
 
 #include <wv/Objects/cSpriteObject.h>
+#include <wv/Objects/cMeshObject.h>
 
 void cGameSceneLoader::load( wv::cScene* _scene )
 {
@@ -14,8 +15,12 @@ void cGameSceneLoader::load( wv::cScene* _scene )
 	printf( "Loading %s\n", _scene->getName().c_str() );
 
 	wv::cSpriteObject* sprite = new wv::cSpriteObject( "sprite" );
-	sprite->create( "res/textures/AAAAAAAAAAAAAAAAAAAAAAAAAAAAA.png" );
+	sprite->create( "" ); /* TODO: change, make better pls */
 
-	_scene->addObject( sprite );
 
+	wv::cMeshObject* model = new wv::cMeshObject( "funnycube" );
+	model->create( "res/models/funnycube.dae" );
+
+	//_scene->addObject( sprite );
+	_scene->addObject( model );
 }

@@ -26,4 +26,4 @@ project "Game"
         "../../source/app/**.cpp" 
     }
 
-    links { "Wyvern", "Chimera" }
+    links { "Wyvern", "Chimera", "assimp-vc143-mt" }

@@ -1,17 +1,22 @@
 #include "cApplication.h"
 
 #include <cm/Backends/iBackend.h>
+#include <cm/Core/cWindow.h>
 
 #include <wv/Camera/cCamera.h>
-#include <cm/Core/cWindow.h>
 #include <wv/Core/cRenderer.h>
+
 #include <wv/Graphics/cSprite.h>
+
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 #include <wv/Manager/cContentManager.h>
+
 #include <wv/Scene/cScene.h>
 #include <wv/Scene/cSceneLoader.h>
 #include <wv/Scene/cSceneManager.h>
+
+#include <wv/Graphics/cModel.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <cm/Core/stb_image.h>

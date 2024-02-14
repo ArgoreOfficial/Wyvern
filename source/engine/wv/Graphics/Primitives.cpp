@@ -7,18 +7,12 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
-struct sVertex
-{
-	wv::cVector3f position;
-	wv::cVector2f UV;
-};
-
 wv::cMesh* wv::Primitives::quad()
 {
 	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
 
 	sVertex points[] = {
-		/*    Position            UV      */
+		/*    Position        Tex Coords   */
 		{ { -0.5,  0.5, 0}, { 0.0f, 0.0f } },
 		{ { -0.5, -0.5, 0}, { 0.0f, 1.0f } },
 		{ {  0.5, -0.5, 0}, { 1.0f, 1.0f } },
