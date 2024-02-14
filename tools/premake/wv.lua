@@ -7,12 +7,17 @@ project "Wyvern"
 	location "../../build"
 	targetdir "../../bin"
 	objdir "../../bin/obj/"
-	
+
 	includedirs {
 		"../../source/engine/",
 		"../../libs/glad/include/", 
         "../../libs/glfw/include/", 
-        "../../libs/glm/"
+        "../../libs/glm/",
+		"C:/Program Files/Assimp/include"
+	}
+
+	libdirs {
+		"C:/Program Files/Assimp/lib/x64"
 	}
 
 	files { 

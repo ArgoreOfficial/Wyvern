@@ -13,8 +13,13 @@ project "Game"
         "../../source/engine/",
 		"../../libs/glad/include/", 
         "../../libs/glfw/include/", 
-        "../../libs/glm/"
+        "../../libs/glm/",
+        "C:/Program Files/Assimp/include"
     }
+
+    libdirs {
+		"C:/Program Files/Assimp/lib/x64"
+	}
 
     files { 
         "../../source/app/**.h", 
