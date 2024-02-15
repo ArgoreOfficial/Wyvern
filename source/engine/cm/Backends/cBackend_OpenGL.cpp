@@ -29,8 +29,9 @@ static GLuint getBufferTarget_OpenGL( cm::eBufferType _type )
 
 	switch ( _type )
 	{
-	case BufferType_Vertex: return GL_ARRAY_BUFFER;         break;
-	case BufferType_Index:  return GL_ELEMENT_ARRAY_BUFFER; break;
+	case BufferType_Vertex:  return GL_ARRAY_BUFFER;         break;
+	case BufferType_Index:   return GL_ELEMENT_ARRAY_BUFFER; break;
+	case BufferType_Uniform: return GL_UNIFORM_BUFFER;       break;
 	}
 
 	return GL_BUFFER;
@@ -52,25 +53,17 @@ static GLuint getPrimitive_OpenGL( cm::eDrawMode _mode )
 	return GL_LINES;
 }
 
-static cm::Shader::eShaderUniformType getShaderType( GLenum _type )
+static int getShaderType( GLenum _type )
 {
 	switch ( _type )
 	{
-	case GL_FLOAT:        return cm::Shader::ShaderUniformType_Float;       break;
-	case GL_INT:          return cm::Shader::ShaderUniformType_Int;         break;
-	case GL_DOUBLE:       return cm::Shader::ShaderUniformType_Double;      break;
-	case GL_BOOL:         return cm::Shader::ShaderUniformType_Bool;        break;
-	case GL_FLOAT_VEC2:   return cm::Shader::ShaderUniformType_Vec2;        break;
-	case GL_FLOAT_VEC3:   return cm::Shader::ShaderUniformType_Vec3;        break;
-	case GL_FLOAT_VEC4:   return cm::Shader::ShaderUniformType_Vec4;        break;
 	case GL_SAMPLER_1D:   return cm::Shader::ShaderUniformType_Sampler1D;   break;
 	case GL_SAMPLER_2D:   return cm::Shader::ShaderUniformType_Sampler2D;   break;
 	case GL_SAMPLER_3D:   return cm::Shader::ShaderUniformType_Sampler3D;   break;
 	case GL_SAMPLER_CUBE: return cm::Shader::ShaderUniformType_SamplerCube; break;
 	}
-	
-	printf( "type %i not implemented lol\n", (int)_type );
-	return cm::Shader::ShaderUniformType_Float;
+
+	return cm::Shader::ShaderUniformType_Other;
 }
 
 cm::cBackend_OpenGL::cBackend_OpenGL()
@@ -164,13 +157,13 @@ cm::Shader::hShaderProgram cm::cBackend_OpenGL::createShaderProgram()
 	return program;
 }
 
-cm::sBuffer cm::cBackend_OpenGL::createBuffer( eBufferType _type )
+cm::sBuffer cm::cBackend_OpenGL::createBuffer( eBufferType _type, eBufferUsage _usage )
 {
 	hBuffer buffer = 0;
 	glGenBuffers( 1, &buffer );
 	glBindBuffer( getBufferTarget_OpenGL( _type ), buffer );
 
-	return { buffer, _type };
+	return { buffer, _type, _usage };
 }
 
 cm::hVertexArray cm::cBackend_OpenGL::createVertexArray()
@@ -250,7 +243,15 @@ void cm::cBackend_OpenGL::bufferData( sBuffer& _buffer, void* _data, size_t _siz
 	if ( !target )
 		return;
 
-	glBufferData( target, _size, _data, GL_DYNAMIC_DRAW ); /* move usage to buffer object */
+	GLenum usage = GL_INVALID_ENUM;
+	switch ( _buffer.usage )
+	{
+	case eBufferUsage::BufferUsage_Static:  usage = GL_STATIC_COPY;  break;
+	case eBufferUsage::BufferUsage_Dynamic: usage = GL_DYNAMIC_DRAW; break;
+	}
+
+	glBindBuffer( target, _buffer.handle );
+	glBufferData( target, _size, _data, usage );
 
 }
 
@@ -289,6 +290,16 @@ void cm::cBackend_OpenGL::bindTexture2D( hTexture _texture )
 	glBindTexture( GL_TEXTURE_2D, _texture );
 }
 
+void cm::cBackend_OpenGL::bindBuffer( sBuffer _buffer )
+{
+	glBindBuffer( getBufferTarget_OpenGL( _buffer.type ), _buffer.handle );
+}
+
+void cm::cBackend_OpenGL::bindBufferBase( sBuffer _buffer, unsigned int _slot )
+{
+	glBindBufferBase( getBufferTarget_OpenGL( _buffer.type ), _slot, _buffer.handle );
+}
+
 void cm::cBackend_OpenGL::setActiveTextureSlot( int _slot )
 {
 	glActiveTexture( GL_TEXTURE0 + _slot );
@@ -316,7 +327,7 @@ cm::Shader::sShaderUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgr
 	glGetProgramiv( _program, GL_ACTIVE_UNIFORMS, &count );
 	
 	if ( _slot >= count )
-		return Shader::sShaderUniform{ "NULL", -1, -1 };
+		return Shader::sShaderUniform{ "NULL", -1, -1, 0 };
 	
 	const GLsizei buffer_size = 16;
 
@@ -326,7 +337,37 @@ cm::Shader::sShaderUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgr
 	GLint size;
 	glGetActiveUniform( _program, (GLuint)_slot, buffer_size, &name_length, &size, &type, name );
 	
-	return Shader::sShaderUniform{ std::string( name, name_length ), (int)_slot, getShaderType( type ) };
+	return Shader::sShaderUniform{ std::string( name, name_length ), (int)_slot, getShaderType( type ), (size_t)size };
+}
+
+cm::Shader::sShaderUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
+{
+	GLint block_size;
+	GLint uniform_count;
+	GLint uniforms[64];
+
+	const GLsizei name_buffer_size = 16;
+	GLsizei name_length;
+	GLchar name[ name_buffer_size ];
+
+	glGetActiveUniformBlockName( _program, _slot, name_buffer_size, &name_length, name );
+
+	glGetActiveUniformBlockiv( _program, _slot, GL_UNIFORM_BLOCK_DATA_SIZE,              &block_size );
+	glGetActiveUniformBlockiv( _program, _slot, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,        &uniform_count );
+	glGetActiveUniformBlockiv( _program, _slot, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniforms );
+
+	Shader::sShaderUniformBlock uniform_block{ std::string( name ), _slot, block_size, {} };
+
+	for ( int i = 0; i < uniform_count; i++ )
+		uniform_block.uniforms.push_back( uniforms[ i ] );
+	
+	return uniform_block;
+}
+
+void cm::cBackend_OpenGL::setUniformBlockBinding( Shader::hShaderProgram _program, const char* _uniform_block, unsigned int _slot )
+{
+	unsigned int lights_index = glGetUniformBlockIndex( _program, _uniform_block );
+	glUniformBlockBinding( _program, lights_index, _slot );
 }
 
 void cm::cBackend_OpenGL::setUniformMat4f( int _location, float* _matrix_ptr )

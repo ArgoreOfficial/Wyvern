@@ -31,10 +31,10 @@ wv::cMesh* wv::Primitives::quad()
 	backend->bindVertexArray( vertex_array );
 
 	/* create vertex buffer */
-	cm::sBuffer vertex_buffer = backend->createBuffer( cm::eBufferType::BufferType_Vertex );
+	cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
 	backend->bufferData( vertex_buffer, points, sizeof( points ) );
 
-	cm::sBuffer index_buffer = backend->createBuffer( cm::eBufferType::BufferType_Index );
+	cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
 	backend->bufferData( index_buffer, indices, sizeof( indices ) );
 
 	cm::cVertexLayout layout;

@@ -100,15 +100,21 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 	cMaterial* mat = new cMaterial();
 	mat->shader = loadShader( material_values["shader"] );
 	
-	for ( int i = 0; i < material_values.size() - 1; i++ )
+	int loc = -1;
+	int uniform_index = 0;
+	do
 	{
-		cm::Shader::sShaderUniform uniform = backend->getUniform( mat->shader->shader_program_handle, i );
+		cm::Shader::sShaderUniform uniform = backend->getUniform( mat->shader->shader_program_handle, uniform_index );
+		loc = uniform.location;
+		uniform_index++;
+		
 		if ( material_values.count( uniform.name ) == 0 )
 			continue;
 		
 		if ( uniform.type == cm::Shader::ShaderUniformType_Sampler2D )
 			mat->addTexture( uniform.name, material_values[ uniform.name ] );
-	}
+
+	} while ( loc != -1 );
 
 	return mat;
 }
@@ -117,6 +123,7 @@ wv::cShader* wv::cContentManager::loadShader( const std::string& _path )
 {
 	wv::cShader* shader = new cShader();
 	shader->shader_program_handle = loadShaderProgram( _path );
+	shader->createUniformBlock();
 
 	return shader;
 }
@@ -205,6 +212,7 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		fullpath = _directory + "/" + fullpath;
 
 		mesh->material->addTexture( "uAlbedo", fullpath.c_str() );
+		mesh->material->shader->createUniformBlock();
 	}
 
 	/* create vertex array */
@@ -212,10 +220,10 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	backend->bindVertexArray( vertex_array );
 
 	/* create vertex buffer */
-	cm::sBuffer vertex_buffer = backend->createBuffer( cm::eBufferType::BufferType_Vertex );
+	cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
 	backend->bufferData( vertex_buffer, vertices.data(), sizeof( sVertex ) * vertices.size() );
 
-	cm::sBuffer index_buffer = backend->createBuffer( cm::eBufferType::BufferType_Index );
+	cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
 	backend->bufferData( index_buffer, indices.data(), sizeof( unsigned int ) * indices.size() );
 
 	cm::cVertexLayout layout;

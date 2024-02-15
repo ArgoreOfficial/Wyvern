@@ -42,9 +42,11 @@ void wv::cModel::render()
 		
 		material.bind();
 
-		material.shader->setMatrix( "uProj", glm::value_ptr( projection ) );
-		material.shader->setMatrix( "uView", glm::value_ptr( view ) );
-		material.shader->setMatrix( "uModel", glm::value_ptr( model ) );
+		material.shader->uniformBlockBegin();
+		material.shader->uniformBlockBuffer( "uProj",  glm::value_ptr( projection ), 64 );
+		material.shader->uniformBlockBuffer( "uView",  glm::value_ptr( view ),       64 );
+		material.shader->uniformBlockBuffer( "uModel", glm::value_ptr( model ),      64 );
+		material.shader->uniformBlockEnd();
 
 		backend->bindVertexArray( meshes[ i ]->vertex_array );
 		backend->drawElements( meshes[ i ]->num_vertices, cm::eDrawMode::DrawMode_Triangle );

@@ -54,10 +54,14 @@ void wv::cSprite::render()
 	
 	m_material->bind();
 
-	m_material->shader->setMatrix( "uProj",  glm::value_ptr( projection ) );
-	m_material->shader->setMatrix( "uView",  glm::value_ptr( view ) );
-	m_material->shader->setMatrix( "uModel", glm::value_ptr( model ) );
-	m_material->shader->setVec4f ( "uColor", { 1.0f, 1.0f, 1.0f, 1.0f } );
+	cVector4f col{ 1.0f, 1.0f, 1.0f, 1.0f };
+
+	m_material->shader->uniformBlockBegin();
+	m_material->shader->uniformBlockBuffer( "uProj", glm::value_ptr(projection), 64);
+	m_material->shader->uniformBlockBuffer( "uView", glm::value_ptr( view ), 64 );
+	m_material->shader->uniformBlockBuffer( "uModel", glm::value_ptr( model ), 64 );
+	m_material->shader->uniformBlockBuffer( "uColor", &col, 16 );
+	m_material->shader->uniformBlockEnd();
 
 	backend->bindVertexArray( m_quad->vertex_array );
 	backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );

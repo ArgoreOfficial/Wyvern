@@ -80,6 +80,11 @@ void cm::cBackend_D3D11::clear( unsigned int _color )
 	m_device_context->ClearRenderTargetView( m_render_target.Get(), clear_color );
 }
 
+void cm::cBackend_D3D11::onResize( int _width, int _height )
+{
+
+}
+
 void cm::cBackend_D3D11::begin( void )
 {
 	D3D11_VIEWPORT viewport = {};
@@ -110,7 +115,7 @@ cm::Shader::hShaderProgram cm::cBackend_D3D11::createShaderProgram()
 	return Shader::hShaderProgram{};
 }
 
-cm::sBuffer cm::cBackend_D3D11::createBuffer( eBufferType _type )
+cm::sBuffer cm::cBackend_D3D11::createBuffer( eBufferType _type, eBufferUsage _usage )
 {
 	return sBuffer{};
 }
@@ -157,6 +162,14 @@ void cm::cBackend_D3D11::bindTexture2D( hTexture _texture )
 {
 }
 
+void cm::cBackend_D3D11::bindBuffer( sBuffer _buffer )
+{
+}
+
+void cm::cBackend_D3D11::bindBufferBase( sBuffer _buffer, unsigned int _slot )
+{
+}
+
 void cm::cBackend_D3D11::setActiveTextureSlot( int _slot )
 {
 }
@@ -177,6 +190,15 @@ int cm::cBackend_D3D11::getUniformLocation( Shader::hShaderProgram _shader, cons
 cm::Shader::sShaderUniform cm::cBackend_D3D11::getUniform( Shader::hShaderProgram _program, unsigned int _slot )
 {
 	return Shader::sShaderUniform{ "", -1, -1 };
+}
+
+cm::Shader::sShaderUniformBlock cm::cBackend_D3D11::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
+{
+	return Shader::sShaderUniformBlock();
+}
+
+void cm::cBackend_D3D11::setUniformBlockBinding( Shader::hShaderProgram _program, const char* _uniform, unsigned int _slot )
+{
 }
 
 void cm::cBackend_D3D11::setUniformMat4f( int _location, float* _matrix_ptr )

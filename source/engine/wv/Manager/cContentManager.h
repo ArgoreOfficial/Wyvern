@@ -35,10 +35,14 @@ namespace wv
 		cShader*   loadShader  ( const std::string& _path );
 		cModel*    loadModel   ( const std::string& _path );
 
+		int getUniformBlockLocation() { return m_uniform_blocks++; }
+
 	private:
 
 		void processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model );
 		cMesh* processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, const std::string& _directory );
+
+		int m_uniform_blocks = 0;
 
 	};
 }

@@ -37,7 +37,7 @@ namespace cm
 
 		virtual Shader::sShader        createShader( const char* _source, Shader::eShaderType _type ) = 0;
 		virtual Shader::hShaderProgram createShaderProgram() = 0;
-		virtual sBuffer        createBuffer( eBufferType _type ) = 0;
+		virtual sBuffer        createBuffer( eBufferType _type, eBufferUsage _usage ) = 0;
 		virtual hVertexArray   createVertexArray() = 0;
 		virtual sTexture2D     createTexture() = 0;
 
@@ -51,13 +51,18 @@ namespace cm
 		virtual void bindVertexLayout( cVertexLayout& _layout ) = 0;
 		virtual void bindVertexArray ( hVertexArray _vertex_array ) = 0;
 		virtual void bindTexture2D   ( hTexture _texture ) = 0;
+		virtual void bindBuffer      ( sBuffer _buffer ) = 0;
+		virtual void bindBufferBase  ( sBuffer _buffer, unsigned int _slot ) = 0;
 		virtual void setActiveTextureSlot( int _slot ) = 0;
 
 		virtual void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) = 0;
 		virtual void drawElements( unsigned int _index_count, eDrawMode _mode ) = 0;
 
-		virtual int                    getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) = 0;
-		virtual Shader::sShaderUniform getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
+		virtual int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) = 0;
+		virtual Shader::sShaderUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
+		virtual Shader::sShaderUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
+
+		virtual void setUniformBlockBinding( Shader::hShaderProgram _program, const char* _uniform, unsigned int _slot ) = 0;
 
 		virtual void setUniformMat4f( int _location, float* _matrix_ptr ) = 0;
 		virtual void setUniformFloat( int _location, float _float ) = 0;

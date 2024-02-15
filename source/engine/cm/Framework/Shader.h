@@ -9,6 +9,7 @@
  */
 
 #include <string>
+#include <vector>
 
 namespace cm
 {
@@ -19,13 +20,7 @@ namespace cm
 
 		enum eShaderUniformType
 		{
-			ShaderUniformType_Float,
-			ShaderUniformType_Int,
-			ShaderUniformType_Double,
-			ShaderUniformType_Bool,
-			ShaderUniformType_Vec2,
-			ShaderUniformType_Vec3,
-			ShaderUniformType_Vec4,
+			ShaderUniformType_Other,
 			ShaderUniformType_Sampler1D,
 			ShaderUniformType_Sampler2D,
 			ShaderUniformType_Sampler3D,
@@ -51,6 +46,15 @@ namespace cm
 			std::string name;
 			int location;
 			int type;
+			size_t size;
+		};
+
+		struct sShaderUniformBlock
+		{
+			std::string name;
+			int index;
+			int size;
+			std::vector<int> uniforms;
 		};
 	}
 }

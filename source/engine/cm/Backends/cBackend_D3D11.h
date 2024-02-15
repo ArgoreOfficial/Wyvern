@@ -17,32 +17,39 @@ namespace cm
 		void create( cWindow& _window ) override;
 		void clear( unsigned int _color ) override;
 	
+		void onResize( int _width, int _height ) override;
+
 		void begin( void ) override;
-		void end  ( void ) override;
+		void end( void ) override;
 
 		Shader::sShader        createShader( const char* _source, Shader::eShaderType _type ) override;
 		Shader::hShaderProgram createShaderProgram() override;
-		sBuffer        createBuffer( eBufferType _type ) override;
+		sBuffer        createBuffer( eBufferType _type, eBufferUsage _usage ) override;
 		hVertexArray   createVertexArray() override;
 		sTexture2D     createTexture() override;
 
-		void attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
+		void attachShader     ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
 		void linkShaderProgram( Shader::hShaderProgram& _program ) override;
-		void generateTexture( sTexture2D _texture, unsigned char* _data ) override;
-
-		void bufferData( sBuffer& _buffer, void* _data, size_t _size ) override;
+		void generateTexture  ( sTexture2D _texture, unsigned char* _data ) override;
 
 		void useShaderProgram( Shader::hShaderProgram _program ) override;
+		void bufferData      ( sBuffer& _buffer, void* _data, size_t _size ) override;
+
 		void bindVertexLayout( cVertexLayout& _layout ) override;
-		void bindVertexArray( hVertexArray _vertex_array ) override;
-		void bindTexture2D( hTexture _texture ) override;
+		void bindVertexArray ( hVertexArray _vertex_array ) override;
+		void bindTexture2D   ( hTexture _texture ) override;
+		void bindBuffer      ( sBuffer _buffer ) override;
+		void bindBufferBase( sBuffer _buffer, unsigned int _slot ) override;
 		void setActiveTextureSlot( int _slot ) override;
 
-		void drawArrays( unsigned int _vertex_count, eDrawMode _mode ) override;
+		void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) override;
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
+		
+		int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
+		Shader::sShaderUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		Shader::sShaderUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
 
-		int                    getUniformLocation( Shader::hShaderProgram _shader, const char* _uniform ) override;
-		Shader::sShaderUniform getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		void setUniformBlockBinding( Shader::hShaderProgram _program, const char* _uniform, unsigned int _slot ) override;
 
 		void setUniformMat4f( int _location, float* _matrix_ptr ) override;
 		void setUniformFloat( int _location, float _float ) override;
