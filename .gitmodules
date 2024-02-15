@@ -1,6 +1,3 @@
-[submodule "source/engine/cm"]
-	path = source/engine/cm
-	url = https://github.com/ArgoreOfficial/Chimera.git
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw.git
