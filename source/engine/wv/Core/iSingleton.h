@@ -5,6 +5,7 @@ class iSingleton
 {
 public:
 	iSingleton<T>( const iSingleton<T>& ) = delete;
+	iSingleton<T>& operator= ( const iSingleton<T>& ) = delete;
 
 	virtual void create() = 0;
 

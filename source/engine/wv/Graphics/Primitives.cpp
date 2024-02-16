@@ -24,8 +24,6 @@ wv::cMesh* wv::Primitives::quad()
 		0,2,3
 	};
 
-	/* mesh */
-
 	/* create vertex array */
 	cm::hVertexArray vertex_array = backend->createVertexArray();
 	backend->bindVertexArray( vertex_array );

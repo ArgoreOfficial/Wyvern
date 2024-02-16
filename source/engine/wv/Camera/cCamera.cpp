@@ -89,7 +89,7 @@ glm::mat4 wv::cCamera::getViewMatrix( void )
 {
 	glm::vec3 pos{ m_transform.position.x, m_transform.position.y, m_transform.position.z };
 
-	float yaw = glm::radians( m_transform.rotation.y - 90.0f ); // TODO: change from radians to degrees?
+	float yaw = glm::radians( m_transform.rotation.y - 90.0f );
 	float pitch = glm::radians( m_transform.rotation.x );
 
 	glm::vec3 direction;

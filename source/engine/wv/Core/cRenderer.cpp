@@ -1,9 +1,10 @@
 #include "cRenderer.h"
 
-#include <wv/Core/cApplication.h>
-
 #include <cm/backends/cBackend_OpenGL.h>
 #include <cm/backends/cBackend_D3D11.h>
+
+#include <wv/Core/cApplication.h>
+#include <wv/Rendering/RenderPass/iRenderPass.h>
 
 wv::cRenderer::cRenderer( void ):
 	m_backend{ nullptr }
@@ -39,6 +40,11 @@ void wv::cRenderer::clear   ( unsigned int _color )     { m_backend->clear   ( _
 
 void wv::cRenderer::begin( void ) { m_backend->begin(); }
 void wv::cRenderer::end  ( void ) { m_backend->end  (); }
+
+void wv::cRenderer::addRenderPass( iRenderPass* _render_pass )
+{
+	m_render_passes.push_back( _render_pass );
+}
 
 void wv::cRenderer::createDefaultShader( void )
 {

@@ -5,12 +5,15 @@
 #include <cm/Framework/Shader.h>
 #include <cm/Framework/Buffer.h>
 
+#include <vector>
+
 namespace cm { class cWindow; }
 namespace cm { class iBackend; }
 namespace cm { class iShader; }
 
 namespace wv
 {
+    class iRenderPass;
 	
 	class cRenderer : public iSingleton<cRenderer>
 	{
@@ -35,7 +38,9 @@ namespace wv
 		void setBackendType( cRenderer::eBackendType _backend ) { m_backend_type = _backend; }
 
 		cm::Shader::hShaderProgram getDefaultShader( void ) const { return m_shader_default; }
-		cm::iBackend* getBackend           ( void ) { return m_backend; }
+		cm::iBackend*              getBackend      ( void )       { return m_backend; }
+
+		void addRenderPass( iRenderPass* _render_pass );
 
 	private:
 
@@ -43,6 +48,8 @@ namespace wv
 
 		eBackendType m_backend_type = eBackendType::BackendType_OpenGL;
 		cm::iBackend* m_backend     = nullptr;
+
+		std::vector<iRenderPass*> m_render_passes;
 
 		const char* m_shader_default_vert =
 			"#version 330 core\n"
