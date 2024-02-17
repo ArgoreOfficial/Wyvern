@@ -4,7 +4,7 @@
  *
  * VertexArray.h
  * 
- * Type definition for VertexArray handle
+ * Type definition for VertexArray objects
  * 
  */
 namespace cm

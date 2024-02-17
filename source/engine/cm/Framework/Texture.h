@@ -4,7 +4,7 @@
  *
  * Texture.h
  *
- * Type definition for Texture handle
+ * Type definition for Texture objects
  *
  */
 

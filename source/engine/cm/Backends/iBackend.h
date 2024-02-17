@@ -1,11 +1,12 @@
 #pragma once
 
-#include <cm/Framework/Shader.h>
 #include <cm/Framework/Buffer.h>
-#include <cm/Framework/VertexArray.h>
+#include <cm/Framework/Framebuffer.h>
+#include <cm/Framework/Shader.h>
 #include <cm/Framework/Texture.h>
-#include <wv/Math/Vector4.h>
+#include <cm/Framework/VertexArray.h>
 
+#include <wv/Math/Vector4.h>
 
 namespace cm
 {
@@ -35,24 +36,27 @@ namespace cm
 		virtual void begin( void ) { }
 		virtual void end  ( void ) { }
 
-		virtual Shader::sShader        createShader( const char* _source, Shader::eShaderType _type ) = 0;
-		virtual Shader::hShaderProgram createShaderProgram() = 0;
-		virtual sBuffer        createBuffer( eBufferType _type, eBufferUsage _usage ) = 0;
-		virtual hVertexArray   createVertexArray() = 0;
-		virtual sTexture2D     createTexture() = 0;
+		virtual Shader::sShader        createShader       ( const char* _source, Shader::eShaderType _type ) = 0;
+		virtual Shader::hShaderProgram createShaderProgram( void ) = 0;
+		virtual sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) = 0;
+		virtual hVertexArray           createVertexArray  ( void ) = 0;
+		virtual sTexture2D             createTexture      ( void ) = 0;
+		virtual sFramebuffer           createFramebuffer  ( void ) = 0;
+		virtual sFramebuffer           createRenderbuffer ( void ) = 0;
 
-		virtual void attachShader     ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) = 0;
-		virtual void linkShaderProgram( Shader::hShaderProgram& _program ) = 0;
-		virtual void generateTexture  ( sTexture2D _texture, unsigned char* _data ) = 0;
+		virtual void attachShader         ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) = 0;
+		virtual void linkShaderProgram    ( Shader::hShaderProgram& _program ) = 0;
+		virtual void generateTexture      ( sTexture2D _texture, unsigned char* _data ) = 0;
+		virtual void addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, cm::eFramebufferType _type, int _width, int _height ) = 0;
 
 		virtual void bufferData( sBuffer& _buffer, void* _data, size_t _size ) = 0;
 
-		virtual void useShaderProgram( Shader::hShaderProgram _program ) = 0;
-		virtual void bindVertexLayout( cVertexLayout& _layout ) = 0;
-		virtual void bindVertexArray ( hVertexArray _vertex_array ) = 0;
-		virtual void bindTexture2D   ( hTexture _texture ) = 0;
-		virtual void bindBuffer      ( sBuffer _buffer ) = 0;
-		virtual void bindBufferBase  ( sBuffer _buffer, unsigned int _slot ) = 0;
+		virtual void useShaderProgram    ( Shader::hShaderProgram _program ) = 0;
+		virtual void bindVertexLayout    ( cVertexLayout& _layout ) = 0;
+		virtual void bindVertexArray     ( hVertexArray _vertex_array ) = 0;
+		virtual void bindTexture2D       ( hTexture _texture ) = 0;
+		virtual void bindBuffer          ( sBuffer _buffer ) = 0;
+		virtual void bindBufferBase      ( sBuffer _buffer, unsigned int _slot ) = 0;
 		virtual void setActiveTextureSlot( int _slot ) = 0;
 
 		virtual void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) = 0;
@@ -69,8 +73,6 @@ namespace cm
 		virtual void setUniformInt  ( int _location, int _int ) = 0;
 		virtual void setUniformVec4f( int _location, wv::cVector4<float> _vector ) = 0;
 		virtual void setUniformVec4d( int _location, wv::cVector4<double> _vector ) = 0;
-
-
 
 	protected:
 		iBackend() { }

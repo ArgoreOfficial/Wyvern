@@ -4,9 +4,10 @@
  *
  * Buffer.h
  * 
- * Type definitions for buffer handles
+ * Type definitions for buffer objects
  * 
  */
+
 namespace cm
 {
 	typedef unsigned int hBuffer;

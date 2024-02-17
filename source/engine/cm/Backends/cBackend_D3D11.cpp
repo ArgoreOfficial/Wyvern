@@ -130,6 +130,11 @@ cm::sTexture2D cm::cBackend_D3D11::createTexture()
 	return sTexture2D{};
 }
 
+cm::sFramebuffer cm::cBackend_D3D11::createFramebuffer( void )
+{
+    return sFramebuffer();
+}
+
 void cm::cBackend_D3D11::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )
 {
 }
@@ -139,6 +144,10 @@ void cm::cBackend_D3D11::linkShaderProgram( Shader::hShaderProgram& _program )
 }
 
 void cm::cBackend_D3D11::generateTexture( sTexture2D _texture, unsigned char* _data )
+{
+}
+
+void cm::cBackend_D3D11::addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, int _width, int _height )
 {
 }
 

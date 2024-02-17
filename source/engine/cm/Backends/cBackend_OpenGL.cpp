@@ -182,6 +182,15 @@ cm::sTexture2D cm::cBackend_OpenGL::createTexture()
 	return texture;
 }
 
+cm::sFramebuffer cm::cBackend_OpenGL::createFramebuffer( void )
+{
+	sFramebuffer framebuffer;
+	glGenFramebuffers( 1, &framebuffer.handle );
+	glBindFramebuffer( GL_FRAMEBUFFER, framebuffer.handle );
+	
+    return framebuffer;
+}
+
 void cm::cBackend_OpenGL::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )
 {
 	glAttachShader( _program, _shader.handle );
@@ -230,6 +239,71 @@ void cm::cBackend_OpenGL::generateTexture( sTexture2D _texture, unsigned char* _
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, _texture.width, _texture.height, 0, format, GL_UNSIGNED_BYTE, _data );
 	glGenerateMipmap( GL_TEXTURE_2D );
+}
+
+void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, cm::eFramebufferType _type, int _width, int _height )
+{
+	GLenum format = GL_RGB;
+	GLenum sized_format = GL_RGB32I;
+	GLenum type = _format < 4 ? GL_UNSIGNED_INT : GL_FLOAT;
+	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + _buffer.textures.size(); // will break if any texture is removed
+
+	if ( _type == FramebufferType_Color )
+	{
+		switch ( _format % 4 )
+		{
+		case FramebufferFormat_Ri:    format = GL_RED;  break;
+		case FramebufferFormat_RGi:   format = GL_RG;   break;
+		case FramebufferFormat_RGBi:  format = GL_RGB;  break;
+		case FramebufferFormat_RGBAi: format = GL_RGBA; break;
+		// case FramebufferFormat_Rf:    format = GL_RED;  break;
+		// case FramebufferFormat_RGf:   format = GL_RG;   break;
+		// case FramebufferFormat_RGBf:  format = GL_RGB;  break;
+		// case FramebufferFormat_RGBAf: format = GL_RGBA; break;
+		}
+		switch ( _format )
+		{
+		case FramebufferFormat_Ri:    sized_format = GL_R32I;    break;
+		case FramebufferFormat_RGi:   sized_format = GL_RG32I;   break;
+		case FramebufferFormat_RGBi:  sized_format = GL_RGB32I;  break;
+		case FramebufferFormat_RGBAi: sized_format = GL_RGBA32I; break;
+		case FramebufferFormat_Rf:    sized_format = GL_R16F;    break;
+		case FramebufferFormat_RGf:   sized_format = GL_RG16F;   break;
+		case FramebufferFormat_RGBf:  sized_format = GL_RGB16F;  break;
+		case FramebufferFormat_RGBAf: sized_format = GL_RGBA16F; break;
+		}
+	}
+	else
+	{
+		switch ( _type ) // depth and stencil buffer 
+		{
+		case FramebufferType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; break;
+		case FramebufferType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   break;
+		}
+	}
+
+	sFramebufferTexture texture;
+
+	glGenTextures( 1, &texture.handle );
+	glBindTexture( GL_TEXTURE_2D, texture.handle );
+	glTexImage2D( GL_TEXTURE_2D, 0, sized_format, _width, _height, 0, format, type, nullptr );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+
+	switch ( _type )
+	{
+	case FramebufferType_Color:   glFramebufferTexture2D( GL_FRAMEBUFFER, attachment_slot,             GL_TEXTURE_2D, texture.handle, 0 ); break;
+	case FramebufferType_Depth:   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,         GL_TEXTURE_2D, texture.handle, 0 ); break;
+	case FramebufferType_Stencil: glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.handle, 0 ); break;
+	}
+	
+	texture.format = _format;
+	texture.attachment_slot = attachment_slot;
+	texture.type = _type;
+	texture.width = _width;
+	texture.height = _height;
+
+	_buffer.textures.push_back( texture );
 }
 
 void cm::cBackend_OpenGL::useShaderProgram( Shader::hShaderProgram _program )

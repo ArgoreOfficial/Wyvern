@@ -93,12 +93,18 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 		std::vector<std::string> seglist;
 		while ( std::getline( stream, segment, ':' ) )
 			seglist.push_back( segment );
+		
+		if ( seglist.size() != 2 )
+			continue;
 
+		if ( seglist[ 0 ] == "" || seglist[ 1 ] == "" )
+			continue;
+		
 		material_values[ seglist[ 0 ] ] = seglist[ 1 ];
 	}
 
 	cMaterial* mat = new cMaterial();
-	mat->shader = loadShader( material_values["shader"] );
+	mat->shader = loadShader( material_values[ "shader" ] );
 	
 	int loc = -1;
 	int uniform_index = 0;

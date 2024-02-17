@@ -22,15 +22,17 @@ namespace cm
 		void begin( void ) override;
 		void end( void ) override;
 
-		Shader::sShader        createShader( const char* _source, Shader::eShaderType _type ) override;
-		Shader::hShaderProgram createShaderProgram() override;
-		sBuffer        createBuffer( eBufferType _type, eBufferUsage _usage ) override;
-		hVertexArray   createVertexArray() override;
-		sTexture2D     createTexture() override;
+		Shader::sShader        createShader       ( const char* _source, Shader::eShaderType _type ) override;
+		Shader::hShaderProgram createShaderProgram( void ) override;
+		sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) override;
+		hVertexArray           createVertexArray  ( void ) override;
+		sTexture2D             createTexture      ( void ) override;
+		sFramebuffer           createFramebuffer  ( void ) override;
 
-		void attachShader     ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
-		void linkShaderProgram( Shader::hShaderProgram& _program ) override;
-		void generateTexture  ( sTexture2D _texture, unsigned char* _data ) override;
+		void attachShader         ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
+		void linkShaderProgram    ( Shader::hShaderProgram& _program ) override;
+		void generateTexture      ( sTexture2D _texture, unsigned char* _data ) override;
+		void addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, int _width, int _height ) override;
 
 		void useShaderProgram( Shader::hShaderProgram _program ) override;
 		void bufferData      ( sBuffer& _buffer, void* _data, size_t _size ) override;

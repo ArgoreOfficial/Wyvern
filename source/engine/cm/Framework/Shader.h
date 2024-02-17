@@ -4,7 +4,7 @@
  *
  * Shader.h
  * 
- * Type definitions for shader handles
+ * Type definitions for shader objects
  * 
  */
 
