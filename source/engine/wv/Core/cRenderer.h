@@ -4,16 +4,18 @@
 
 #include <cm/Framework/Shader.h>
 #include <cm/Framework/Buffer.h>
+#include <cm/Framework/Framebuffer.h>
 
 #include <vector>
 
-namespace cm { class cWindow; }
 namespace cm { class iBackend; }
 namespace cm { class iShader; }
 
 namespace wv
 {
     class iRenderPass;
+	class cMesh;
+	class cShader;
 	
 	class cRenderer : public iSingleton<cRenderer>
 	{
@@ -27,50 +29,33 @@ namespace wv
 		 cRenderer( void );
 		~cRenderer( void );
 
-		void create() override;
+		void create( void ) override;
 		
 		void onResize( int _width, int _height );
-		void clear   ( unsigned int _color );
+		void clear   ( unsigned int _color, int _mode );
 
 		void begin( void );
 		void end  ( void );
 
 		void setBackendType( cRenderer::eBackendType _backend ) { m_backend_type = _backend; }
 
-		cm::Shader::hShaderProgram getDefaultShader( void ) const { return m_shader_default; }
-		cm::iBackend*              getBackend      ( void )       { return m_backend; }
+		cm::iBackend* getBackend( void ) { return m_backend; }
 
 		void addRenderPass( iRenderPass* _render_pass );
 
 	private:
 
-		void createDefaultShader( void );
-
-		eBackendType m_backend_type = eBackendType::BackendType_OpenGL;
-		cm::iBackend* m_backend     = nullptr;
+		eBackendType  m_backend_type = eBackendType::BackendType_OpenGL;
+		cm::iBackend* m_backend      = nullptr;
 
 		std::vector<iRenderPass*> m_render_passes;
 
-		const char* m_shader_default_vert =
-			"#version 330 core\n"
-			"layout (location = 0) in vec3 aPos;\n"
-			"uniform mat4 proj;\n"
-			"uniform mat4 view;\n"
-			"uniform mat4 model;\n"
-			"void main()\n"
-			"{\n"
-			"   gl_Position = proj * view * model * vec4(aPos, 1.0);\n"
-			"}\0";
+		cm::sFramebuffer m_gbuffer;
+		cMesh*           m_screen_quad;
 
-		const char* m_shader_default_frag =
-			"#version 330 core\n"
-			"out vec4 FragColor;\n"
-			"void main()\n"
-			"{\n"
-			"	FragColor = vec4( 1.0f, 1.0f, 1.0f, 1.0f );\n"
-			"}\0";
-
-		cm::Shader::hShaderProgram m_shader_default;
+		cShader* m_gpass_shader;
+		cShader* m_lightpass_shader;
+		cShader* m_screen_shader;
 	};
 
 }

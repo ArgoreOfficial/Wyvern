@@ -119,7 +119,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 		
 		if ( uniform.type == cm::Shader::ShaderUniformType_Sampler2D )
 			mat->addTexture( uniform.name, material_values[ uniform.name ] );
-
+		
 	} while ( loc != -1 );
 
 	return mat;
@@ -186,6 +186,10 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		v.position.y  = _assimp_mesh->mVertices[ i ].y;
 		v.position.z  = _assimp_mesh->mVertices[ i ].z;
 		
+		v.normal.x = _assimp_mesh->mNormals[ i ].x;
+		v.normal.y = _assimp_mesh->mNormals[ i ].y;
+		v.normal.z = _assimp_mesh->mNormals[ i ].z;
+
 		if ( _assimp_mesh->mTextureCoords[ 0 ] )
 		{
 			v.texCoord0.x = _assimp_mesh->mTextureCoords[ 0 ][ i ].x;
@@ -218,7 +222,6 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		fullpath = _directory + "/" + fullpath;
 
 		mesh->material->addTexture( "uAlbedo", fullpath.c_str() );
-		mesh->material->shader->createUniformBlock();
 	}
 
 	/* create vertex array */
@@ -233,8 +236,9 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	backend->bufferData( index_buffer, indices.data(), sizeof( unsigned int ) * indices.size() );
 
 	cm::cVertexLayout layout;
-	layout.push<float>( 3 );
-	layout.push<float>( 2 );
+	layout.push<float>( 3 ); // pos
+	layout.push<float>( 3 ); // normal
+	layout.push<float>( 2 ); // uv
 	backend->bindVertexLayout( layout );
 
 	backend->bindVertexArray( 0 );

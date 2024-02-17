@@ -5,7 +5,6 @@
 #include <wv/Graphics/cMesh.h>
 #include <wv/Core/iSingleton.h>
 
-
 #include <string>
 #include <vector>
 

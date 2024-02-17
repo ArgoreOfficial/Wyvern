@@ -7,7 +7,7 @@ namespace wv
 	namespace Primitives
 	{
 
-		wv::cMesh* quad();
+		wv::cMesh* quad( const float _size = 0.5f );
 		wv::cMesh* triangle();
 
 	}

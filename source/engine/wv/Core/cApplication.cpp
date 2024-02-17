@@ -36,7 +36,7 @@ wv::cApplication::~cApplication()
 void wv::cApplication::create()
 {
 
-	m_window->create( 1920, 1080, "renderer idfk" );
+	m_window->create( 800, 600, "Wyvern" );
 	m_window->setVSync( false );
 
 	cRenderer      ::getInstance().create();
@@ -79,7 +79,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 	{
 		updateDeltaTime( time, delta_time );
 
-		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / delta_time ) ).c_str() );
+		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / m_average_frametime ) ).c_str() );
 		m_window->processInput();
 
 		m_camera2D->update( delta_time );
@@ -88,7 +88,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 		scene_manager.update( delta_time );
 		
 		renderer.begin();
-		renderer.clear( 0x000000FF );
+		renderer.clear( 0x000000FF, cm::ClearMode_Color | cm::ClearMode_Depth );
 
 		scene_manager.render();
 
@@ -102,5 +102,15 @@ void wv::cApplication::updateDeltaTime( double& _time, double& _delta_time )
 	double now = m_window->getTime();
 	_delta_time = now - _time;
 	_time = now;
+
+	m_frametime_buffer[ m_frametime_buffer_counter ] = _delta_time;
+	m_frametime_buffer_counter++;
+	if ( m_frametime_buffer_counter >= AVERAGE_FRAMETIME_BUFFER_SIZE )
+		m_frametime_buffer_counter = 0;
+
+	for ( int i = 0; i < AVERAGE_FRAMETIME_BUFFER_SIZE; i++ )
+		m_average_frametime += m_frametime_buffer[ i ];
+	
+	m_average_frametime /= (double)AVERAGE_FRAMETIME_BUFFER_SIZE;
 }
 

@@ -7,16 +7,16 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
-wv::cMesh* wv::Primitives::quad()
+wv::cMesh* wv::Primitives::quad( const float _size )
 {
 	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
 
 	sVertex points[] = {
-		/*    Position        Tex Coords   */
-		{ { -0.5,  0.5, 0}, { 0.0f, 0.0f } },
-		{ { -0.5, -0.5, 0}, { 0.0f, 1.0f } },
-		{ {  0.5, -0.5, 0}, { 1.0f, 1.0f } },
-		{ {  0.5,  0.5, 0}, { 1.0f, 0.0f } },
+		/*    Position                 Normals           Tex Coords   */
+		{ { -_size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { -_size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ {  _size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ {  _size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
 	};
 
 	unsigned int indices[] = {
@@ -36,6 +36,7 @@ wv::cMesh* wv::Primitives::quad()
 	backend->bufferData( index_buffer, indices, sizeof( indices ) );
 
 	cm::cVertexLayout layout;
+	layout.push<float>( 3 );
 	layout.push<float>( 3 );
 	layout.push<float>( 2 );
 	backend->bindVertexLayout( layout );

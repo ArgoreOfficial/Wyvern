@@ -68,7 +68,7 @@ void cm::cBackend_D3D11::create( cWindow& _window )
 	printf( "Created D3D11 Renderer.\n" );
 }
 
-void cm::cBackend_D3D11::clear( unsigned int _color )
+void cm::cBackend_D3D11::clear( unsigned int _color, eClearMode _mode )
 {
 	const float r = ( _color & 0xFF000000 ) / 256.0f;
 	const float g = ( _color & 0x00FF0000 ) / 256.0f;
@@ -79,6 +79,12 @@ void cm::cBackend_D3D11::clear( unsigned int _color )
 
 	m_device_context->ClearRenderTargetView( m_render_target.Get(), clear_color );
 }
+
+void cm::cBackend_D3D11::destroy()
+{
+	
+}
+
 
 void cm::cBackend_D3D11::onResize( int _width, int _height )
 {
@@ -137,9 +143,14 @@ cm::sFramebuffer cm::cBackend_D3D11::createFramebuffer( void )
 
 void cm::cBackend_D3D11::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )
 {
+
 }
 
 void cm::cBackend_D3D11::linkShaderProgram( Shader::hShaderProgram& _program )
+{
+}
+
+void cm::cBackend_D3D11::attachFramebuffer( cm::sFramebuffer& _buffer )
 {
 }
 
@@ -147,16 +158,28 @@ void cm::cBackend_D3D11::generateTexture( sTexture2D _texture, unsigned char* _d
 {
 }
 
-void cm::cBackend_D3D11::addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, int _width, int _height )
+void cm::cBackend_D3D11::addFramebufferTexture( cm::sFramebuffer& _buffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height )
+{
+
+}
+
+void cm::cBackend_D3D11::addFramebufferRenderbuffer( cm::sFramebuffer& _buffer, cm::eRenderbufferType _type, int _width, int _height )
 {
 }
 
 void cm::cBackend_D3D11::bufferData( sBuffer& _buffer, void* _data, size_t _size )
 {
+
 }
 
 void cm::cBackend_D3D11::useShaderProgram( Shader::hShaderProgram _program )
 {
+
+}
+
+void cm::cBackend_D3D11::bindFramebuffer( cm::sFramebuffer* _framebuffer )
+{
+
 }
 
 void cm::cBackend_D3D11::bindVertexLayout( cVertexLayout& _layout )

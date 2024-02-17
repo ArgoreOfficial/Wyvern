@@ -1,7 +1,6 @@
 #include "cBackend_OpenGL.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h> /* temporary */
 
 #include <cm/Core/cWindow.h>
 #include <cm/Framework/cVertexLayout.h>
@@ -113,15 +112,26 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 	glDepthFunc( GL_LESS );
 }
 
-void cm::cBackend_OpenGL::clear( unsigned int _color )
+void cm::cBackend_OpenGL::clear( unsigned int _color, eClearMode _mode )
 {
 	float r = (float)( ( _color & 0xFF000000 ) >> 24 ) / 256.0f;
 	float g = (float)( ( _color & 0x00FF0000 ) >> 16 ) / 256.0f;
 	float b = (float)( ( _color & 0x0000FF00 ) >> 8  ) / 256.0f;
 	float a = (float)( ( _color & 0x000000FF ) )       / 256.0f;
 
+	GLenum clearmode = GL_NONE;
+
+	if ( _mode & eClearMode::ClearMode_Color   ) clearmode |= GL_COLOR_BUFFER_BIT;
+	if ( _mode & eClearMode::ClearMode_Depth   ) clearmode |= GL_DEPTH_BUFFER_BIT;
+	if ( _mode & eClearMode::ClearMode_Stencil ) clearmode |= GL_STENCIL_BUFFER_BIT;
+	
 	glClearColor( r, g, b, a );
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear( clearmode );
+}
+
+void cm::cBackend_OpenGL::destroy( void )
+{
+
 }
 
 void cm::cBackend_OpenGL::onResize( int _width, int _height )
@@ -176,7 +186,7 @@ cm::hVertexArray cm::cBackend_OpenGL::createVertexArray()
 
 cm::sTexture2D cm::cBackend_OpenGL::createTexture()
 {
-	sTexture2D texture{ 0,0,0,0 };
+	sTexture2D texture;
 	glGenTextures( 1, &texture.handle );
 
 	return texture;
@@ -186,8 +196,7 @@ cm::sFramebuffer cm::cBackend_OpenGL::createFramebuffer( void )
 {
 	sFramebuffer framebuffer;
 	glGenFramebuffers( 1, &framebuffer.handle );
-	glBindFramebuffer( GL_FRAMEBUFFER, framebuffer.handle );
-	
+
     return framebuffer;
 }
 
@@ -209,6 +218,40 @@ void cm::cBackend_OpenGL::linkShaderProgram( Shader::hShaderProgram& _program )
 		glGetProgramInfoLog( _program, 512, NULL, info_log );
 		printf( "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n %s \n", info_log );
 	}
+}
+
+void cm::cBackend_OpenGL::attachFramebuffer( cm::sFramebuffer& _framebuffer )
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer.handle );
+
+	int size = (int)_framebuffer.textures.size();
+
+	unsigned int* attachments = new unsigned int[ size ];
+
+	for ( int i = 0; i < size; i++ )
+		attachments[ i ] = _framebuffer.textures[ i ].attachment_slot;
+
+	glDrawBuffers( size, attachments );
+	delete[] attachments;
+
+	GLenum err = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	if ( err != GL_FRAMEBUFFER_COMPLETE )
+	{
+		printf( "ERROR::FRAMEBUFFER:: Framebuffer is not complete:\n  " ); // TODO: change to wv::log
+
+		switch ( err )
+		{
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         printf( "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n" );         break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: printf( "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n" ); break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        printf( "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n" );        break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        printf( "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n" );        break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:                   printf( "GL_FRAMEBUFFER_UNSUPPORTED\n" );                   break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        printf( "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n" );        break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      printf( "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n" );      break;
+		}
+	}
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
 void cm::cBackend_OpenGL::generateTexture( sTexture2D _texture, unsigned char* _data )
@@ -241,48 +284,46 @@ void cm::cBackend_OpenGL::generateTexture( sTexture2D _texture, unsigned char* _
 	glGenerateMipmap( GL_TEXTURE_2D );
 }
 
-void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _buffer, cm::eFramebufferFormat _format, cm::eFramebufferType _type, int _width, int _height )
+void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height )
 {
-	GLenum format = GL_RGB;
-	GLenum sized_format = GL_RGB32I;
-	GLenum type = _format < 4 ? GL_UNSIGNED_INT : GL_FLOAT;
-	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + _buffer.textures.size(); // will break if any texture is removed
+	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer.handle );
+
+	GLenum format;
+	GLenum sized_format;
+	GLenum type;
+	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + (int)_framebuffer.textures.size(); // will break if any texture is removed
 
 	if ( _type == FramebufferType_Color )
 	{
-		switch ( _format % 4 )
-		{
-		case FramebufferFormat_Ri:    format = GL_RED;  break;
-		case FramebufferFormat_RGi:   format = GL_RG;   break;
-		case FramebufferFormat_RGBi:  format = GL_RGB;  break;
-		case FramebufferFormat_RGBAi: format = GL_RGBA; break;
-		// case FramebufferFormat_Rf:    format = GL_RED;  break;
-		// case FramebufferFormat_RGf:   format = GL_RG;   break;
-		// case FramebufferFormat_RGBf:  format = GL_RGB;  break;
-		// case FramebufferFormat_RGBAf: format = GL_RGBA; break;
-		}
+		
 		switch ( _format )
 		{
-		case FramebufferFormat_Ri:    sized_format = GL_R32I;    break;
-		case FramebufferFormat_RGi:   sized_format = GL_RG32I;   break;
-		case FramebufferFormat_RGBi:  sized_format = GL_RGB32I;  break;
-		case FramebufferFormat_RGBAi: sized_format = GL_RGBA32I; break;
-		case FramebufferFormat_Rf:    sized_format = GL_R16F;    break;
-		case FramebufferFormat_RGf:   sized_format = GL_RG16F;   break;
-		case FramebufferFormat_RGBf:  sized_format = GL_RGB16F;  break;
-		case FramebufferFormat_RGBAf: sized_format = GL_RGBA16F; break;
+		case FramebufferFormat_R:     sized_format = GL_RED;    format = GL_RED;  type = GL_UNSIGNED_BYTE; break;
+		case FramebufferFormat_RG:    sized_format = GL_RG;     format = GL_RG;   type = GL_UNSIGNED_BYTE; break;
+		case FramebufferFormat_RGB:   sized_format = GL_RGB;    format = GL_RGB;  type = GL_UNSIGNED_BYTE; break;
+		case FramebufferFormat_RGBA:  sized_format = GL_RGBA;   format = GL_RGBA; type = GL_UNSIGNED_BYTE; break;
+
+		case FramebufferFormat_Ri:    sized_format = GL_R32I;    format = GL_RED;  type = GL_UNSIGNED_INT; break;
+		case FramebufferFormat_RGi:   sized_format = GL_RG32I;   format = GL_RG;   type = GL_UNSIGNED_INT; break;
+		case FramebufferFormat_RGBi:  sized_format = GL_RGB32I;  format = GL_RGB;  type = GL_UNSIGNED_INT; break;
+		case FramebufferFormat_RGBAi: sized_format = GL_RGBA32I; format = GL_RGBA; type = GL_UNSIGNED_INT; break;
+
+		case FramebufferFormat_Rf:    sized_format = GL_R16F;    format = GL_RED;  type = GL_FLOAT; break;
+		case FramebufferFormat_RGf:   sized_format = GL_RG16F;   format = GL_RG;   type = GL_FLOAT; break;
+		case FramebufferFormat_RGBf:  sized_format = GL_RGB16F;  format = GL_RGB;  type = GL_FLOAT; break;
+		case FramebufferFormat_RGBAf: sized_format = GL_RGBA16F; format = GL_RGBA; type = GL_FLOAT; break;
 		}
 	}
 	else
 	{
 		switch ( _type ) // depth and stencil buffer 
 		{
-		case FramebufferType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; break;
-		case FramebufferType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   break;
+		case FramebufferType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; type = GL_FLOAT; break;
+		case FramebufferType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   type = GL_BYTE;  break;
 		}
 	}
 
-	sFramebufferTexture texture;
+	sTexture2D texture;
 
 	glGenTextures( 1, &texture.handle );
 	glBindTexture( GL_TEXTURE_2D, texture.handle );
@@ -299,16 +340,69 @@ void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _buffer, cm::
 	
 	texture.format = _format;
 	texture.attachment_slot = attachment_slot;
+	texture.num_channels = _format % 4 + 1;
 	texture.type = _type;
 	texture.width = _width;
 	texture.height = _height;
+	texture.name = _name;
 
-	_buffer.textures.push_back( texture );
+	_framebuffer.textures.push_back( texture );
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void cm::cBackend_OpenGL::addFramebufferRenderbuffer( cm::sFramebuffer& _framebuffer, cm::eRenderbufferType _type, int _width, int _height )
+{
+
+	cm::sRenderbuffer renderbuffer;
+
+	GLenum internalformat = GL_DEPTH_COMPONENT;
+	GLenum attachment = GL_DEPTH_ATTACHMENT;
+	
+	switch ( _type )
+	{
+	case RenderbufferType_Depth:   internalformat = GL_DEPTH_COMPONENT;    attachment = GL_DEPTH_ATTACHMENT;   break;
+	case RenderbufferType_Stencil: internalformat = GL_STENCIL_COMPONENTS; attachment = GL_STENCIL_ATTACHMENT; break;
+	// TODO: case DepthStencil: 
+	}
+
+	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer.handle );
+
+	// create renderbuffer object
+	glGenRenderbuffers( 1, &renderbuffer.handle );
+	glBindRenderbuffer( GL_RENDERBUFFER, renderbuffer.handle );
+	glRenderbufferStorage( GL_RENDERBUFFER, internalformat, _width, _height );
+	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+	// bind to framebuffer object
+	glFramebufferRenderbuffer( GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer.handle );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+	renderbuffer.width  = _width;
+	renderbuffer.height = _height;
+	renderbuffer.type = _type;
+
+	_framebuffer.renderbuffers.push_back( renderbuffer );
 }
 
 void cm::cBackend_OpenGL::useShaderProgram( Shader::hShaderProgram _program )
 {
 	glUseProgram( _program );
+}
+
+void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer* _framebuffer )
+{
+	if ( !_framebuffer )
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+		return;
+	}
+
+	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer->handle );
+
+	GLuint attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 }; // TODO: make better
+	glDrawBuffers( (int)_framebuffer->textures.size(), attachments);
+	
 }
 
 void cm::cBackend_OpenGL::bufferData( sBuffer& _buffer, void* _data, size_t _size )
@@ -416,6 +510,12 @@ cm::Shader::sShaderUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgr
 
 cm::Shader::sShaderUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
 {
+	GLint num_blocks;
+	glGetProgramiv( _program, GL_ACTIVE_UNIFORM_BLOCKS, &num_blocks );
+
+	if ( num_blocks == 0 )
+		return { "", 0, 0, {} };
+
 	GLint block_size;
 	GLint uniform_count;
 	GLint uniforms[64];

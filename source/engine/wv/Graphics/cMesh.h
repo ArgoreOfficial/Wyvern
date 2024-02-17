@@ -14,6 +14,7 @@ namespace wv
 	struct sVertex
 	{
 		wv::cVector3f position;
+		wv::cVector3f normal;
 		wv::cVector2f texCoord0;
 	};
 

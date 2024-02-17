@@ -17,6 +17,9 @@ void wv::cShader::createUniformBlock()
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
 	cm::Shader::sShaderUniformBlock block = backend->getUniformBlock( shader_program_handle, 0 );
+	if ( block.name == "" )
+		return;
+
 	m_ubo_size = block.size;
 
 	// TODO: remove

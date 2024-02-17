@@ -1,0 +1,19 @@
+
+
+
+
+
+
+
+render( cMesh ); // -> adds render command to command buffer
+
+
+for ( int i = 0; i < m_command_buffer.size(); i++ )
+    executePass( m_command_buffer[ i ].render_pass, m_command_buffer[ i ].shader, m_command_buffer[ i ].object );
+
+for ( int i = 0; i < m_passes.size(); i++ )
+    executePass( m_passes[ i ], m_passes[ i ].shader, nullptr );
+
+executePass( m_final_render_pass, m_final_render_shader, m_screen_quad )
+
+
