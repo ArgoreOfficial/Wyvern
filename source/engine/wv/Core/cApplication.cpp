@@ -3,7 +3,9 @@
 #include <cm/Backends/iBackend.h>
 #include <cm/Core/cWindow.h>
 
-#include <wv/Camera/cCamera.h>
+#include <wv/Camera/iCamera.h>
+#include <wv/Camera/cFreeflightCamera.h>
+
 #include <wv/Core/cRenderer.h>
 
 #include <wv/Graphics/cSprite.h>
@@ -31,20 +33,26 @@ wv::cApplication::cApplication() :
 wv::cApplication::~cApplication()
 {
 	m_window->destroy();
+
+	delete m_camera2D;
+	delete m_camera3D;
+	m_current_camera = nullptr;
+	m_camera2D = nullptr;
+	m_camera3D = nullptr;
 }
 
 void wv::cApplication::create()
 {
 
-	m_window->create( 800, 600, "Wyvern" );
+	m_window->create( 1500, 1000, "Wyvern" );
 	m_window->setVSync( false );
 
 	cRenderer      ::getInstance().create();
 	cContentManager::getInstance().create();
 	cSceneManager  ::getInstance().create();
 
-	m_camera2D = new cCamera( cCamera::CameraType_Orthographic );
-	m_camera3D = new cCamera( cCamera::CameraType_Perspective );
+	m_camera2D = new cFreeflightCamera( iCamera::CameraType_Orthographic );
+	m_camera3D = new cFreeflightCamera( iCamera::CameraType_Perspective );
 
 }
 
@@ -57,6 +65,23 @@ void wv::cApplication::onResize( int _width, int _height )
 void wv::cApplication::onRawInput( sInputInfo* _info )
 {
 	m_camera3D->onRawInput( _info );
+
+	if ( _info->buttondown )
+	{
+		int debug_render_mode = -1;
+
+		switch ( _info->key )
+		{
+		case GLFW_KEY_1: debug_render_mode = 1; break;
+		case GLFW_KEY_2: debug_render_mode = 2; break;
+		case GLFW_KEY_3: debug_render_mode = 3; break;
+		case GLFW_KEY_4: debug_render_mode = 4; break;
+		case GLFW_KEY_5: debug_render_mode = 5; break;
+		}
+
+		if ( debug_render_mode != -1 )
+			cRenderer::getInstance().debug_render_mode = debug_render_mode;
+	}
 }
 
 void wv::cApplication::run( cSceneLoader* _scene_loader )
@@ -72,7 +97,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 	scene_manager.update( 1.0 );
 	scene_manager.loadScene( _scene_loader );
 
-	m_camera3D->getTransform().position = { 0.0f, 0.0f, 2.0f };
+	m_camera3D->getTransform().position = { 0.0f, 0.0f, 0.0f };
 	m_current_camera = m_camera3D;
 
 	while ( !m_window->shouldClose() )

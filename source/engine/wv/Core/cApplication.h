@@ -31,7 +31,7 @@ struct sInputInfo
 namespace wv
 {
 	class cSceneLoader;
-	class cCamera;
+	class iCamera;
 
 	class cApplication : public iSingleton<cApplication> /* add singleton manager? */
 	{
@@ -55,9 +55,9 @@ namespace wv
 		void run( cSceneLoader* _scene_loader );
 
 		// TODO: move to scene
-		cCamera* m_current_camera;
-		cCamera* m_camera2D;
-		cCamera* m_camera3D;
+		iCamera* m_current_camera;
+		iCamera* m_camera2D;
+		iCamera* m_camera3D;
 
 	private:
 

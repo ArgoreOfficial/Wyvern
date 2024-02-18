@@ -8,7 +8,7 @@
 #include <wv/Manager/cContentManager.h>
 
 #include <cm/Core/cWindow.h>
-#include <wv/Camera/cCamera.h>
+#include <wv/Camera/iCamera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -40,7 +40,7 @@ void wv::cSprite::render()
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 	cm::cWindow* window = cApplication::getInstance().getWindow();
 
-	cCamera* camera = cApplication::getInstance().m_current_camera;
+	iCamera* camera = cApplication::getInstance().m_current_camera;
 	
 	float w = (float)window->getWidth();
 	float h = (float)window->getHeight();

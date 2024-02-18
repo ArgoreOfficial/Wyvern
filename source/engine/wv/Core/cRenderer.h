@@ -43,6 +43,8 @@ namespace wv
 
 		void addRenderPass( iRenderPass* _render_pass );
 
+		int debug_render_mode = 1;
+
 	private:
 
 		eBackendType  m_backend_type = eBackendType::BackendType_OpenGL;
@@ -50,18 +52,13 @@ namespace wv
 
 		std::vector<iRenderPass*> m_render_passes;
 
-		cMesh*           m_screen_quad;
+		cMesh* m_screen_quad;
 
 		cFramebuffer* m_gbuffer;
-		cFramebuffer* m_2buffer;
+		cFramebuffer* m_lightbuffer;
 
-		cShader* m_gpass_shader;
 		cShader* m_lightpass_shader;
-		
 		cShader* m_screen_shader;
-		cShader* m_screen_shader2;
-
-		cShader* m_2pass;
 	};
 
 }

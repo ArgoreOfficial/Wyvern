@@ -7,14 +7,13 @@
 #include <wv/Core/cApplication.h>
 
 #include <cm/Core/cWindow.h>
-#include <wv/Camera/cCamera.h>
+#include <wv/Camera/iCamera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
-#include <sstream>
 
 wv::cMaterial::cMaterial()
 {
