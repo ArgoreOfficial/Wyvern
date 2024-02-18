@@ -11,7 +11,7 @@ namespace wv
 		 cMeshObject( std::string _name );
 		~cMeshObject() { }
 
-		void create( std::string _path );
+		cMeshObject* create( std::string _path );
 
 		void update( double _delta_time ) override;
 		void render() override;

@@ -55,6 +55,8 @@ cm::Shader::hShaderProgram wv::cContentManager::loadShaderProgram( const std::st
 	cm::Shader::sShader vert_shader = backend->createShader( vert.data(), cm::Shader::eShaderType::ShaderType_Vertex );
 	cm::Shader::sShader frag_shader = backend->createShader( frag.data(), cm::Shader::eShaderType::ShaderType_Fragment );
 
+	printf( "Creating shader %s\n", _path.c_str() ); // TODO: change to wv::log
+
 	cm::Shader::hShaderProgram program = backend->createShaderProgram();
 	backend->attachShader( program, vert_shader );
 	backend->attachShader( program, frag_shader );
@@ -110,7 +112,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 	int uniform_index = 0;
 	do
 	{
-		cm::Shader::sShaderUniform uniform = backend->getUniform( mat->shader->shader_program_handle, uniform_index );
+		cm::Shader::sUniform uniform = backend->getUniform( mat->shader->shader_program_handle, uniform_index );
 		loc = uniform.location;
 		uniform_index++;
 		
@@ -165,9 +167,8 @@ void wv::cContentManager::processAssimpNode( aiNode* _node, const aiScene* _scen
 
 	// then do the same for each of its children
 	for ( unsigned int i = 0; i < _node->mNumChildren; i++ )
-	{
 		processAssimpNode( _node->mChildren[ i ], _scene, _model );
-	}
+	
 }
 
 wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, const std::string& _directory )

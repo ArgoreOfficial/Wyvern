@@ -18,7 +18,7 @@ namespace wv
 		~cSprite( void );
 
 		/* abstract further? */
-		void create( const std::string& _texture_path );
+		void create( const std::string& _material );
 
 		wv::cTransformf& getTransform( void ) { return m_transform; }
 

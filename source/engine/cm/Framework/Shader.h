@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace cm
 {
@@ -41,7 +42,7 @@ namespace cm
 			const eShaderType type;
 		};
 
-		struct sShaderUniform
+		struct sUniform
 		{
 			std::string name;
 			int location;
@@ -49,12 +50,19 @@ namespace cm
 			size_t size;
 		};
 
-		struct sShaderUniformBlock
+		struct sUniformBlockVariable
+		{
+			std::string name;
+			int location;
+			int offset;
+		};
+
+		struct sUniformBlock
 		{
 			std::string name;
 			int index;
 			int size;
-			std::vector<int> uniforms;
+			std::map<std::string, sUniformBlockVariable> uniforms;
 		};
 	}
 }

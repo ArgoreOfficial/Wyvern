@@ -20,7 +20,6 @@ namespace wv
 		void unbind();
 
 		cm::sTexture2D* addTexture( std::string _name, std::string _path );
-
 		cm::sTexture2D* getTexture( std::string _name );
 
 		wv::cShader* shader;

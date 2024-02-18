@@ -6,7 +6,7 @@ in vec2 TexCoord;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
+uniform sampler2D gAlbedo;
 
 void main()
 {
@@ -19,7 +19,7 @@ void main()
     }
     else
     {
-        if( TexCoord.y > 0.5f ) FragColor = texture( gAlbedoSpec, tex );
+        if( TexCoord.y > 0.5f ) FragColor = texture( gAlbedo, tex );
         else discard;
     }
 }

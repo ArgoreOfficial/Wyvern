@@ -1,3 +1,3 @@
-shader  : res/shaders/sprite
+shader  : res/shaders/mesh
 uAlbedo : res/textures/wyvern_logo_white.png
 uColor  : 1.0, 1.0, 1.0, 1.0

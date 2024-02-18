@@ -24,12 +24,12 @@ wv::cSprite::~cSprite( void )
 
 }
 
-void wv::cSprite::create( const std::string& _texture_path  )
+void wv::cSprite::create( const std::string& _material )
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 	
 	m_quad = wv::Primitives::quad();
-	m_material = cContentManager::getInstance().loadMaterial( "res/materials/sprite" );
+	m_material = cContentManager::getInstance().loadMaterial( _material );
 
 	// m_transform.setScale( { (float)texture->width, (float)texture->height, 1.0f } );
 	// m_aspect = (float)texture->height / (float)texture->width;

@@ -291,35 +291,36 @@ void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer,
 	GLenum format;
 	GLenum sized_format;
 	GLenum type;
-	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + (int)_framebuffer.textures.size(); // will break if any texture is removed
+	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + _framebuffer.textures.size(); // m_framebuffer_textures;
+	m_framebuffer_textures++;
 
-	if ( _type == FramebufferType_Color )
+	if ( _type == TextureType_Color )
 	{
 		
 		switch ( _format )
 		{
-		case FramebufferFormat_R:     sized_format = GL_RED;    format = GL_RED;  type = GL_UNSIGNED_BYTE; break;
-		case FramebufferFormat_RG:    sized_format = GL_RG;     format = GL_RG;   type = GL_UNSIGNED_BYTE; break;
-		case FramebufferFormat_RGB:   sized_format = GL_RGB;    format = GL_RGB;  type = GL_UNSIGNED_BYTE; break;
-		case FramebufferFormat_RGBA:  sized_format = GL_RGBA;   format = GL_RGBA; type = GL_UNSIGNED_BYTE; break;
+		case TextureFormat_R:     sized_format = GL_RED;    format = GL_RED;  type = GL_UNSIGNED_BYTE; break;
+		case TextureFormat_RG:    sized_format = GL_RG;     format = GL_RG;   type = GL_UNSIGNED_BYTE; break;
+		case TextureFormat_RGB:   sized_format = GL_RGB;    format = GL_RGB;  type = GL_UNSIGNED_BYTE; break;
+		case TextureFormat_RGBA:  sized_format = GL_RGBA;   format = GL_RGBA; type = GL_UNSIGNED_BYTE; break;
 
-		case FramebufferFormat_Ri:    sized_format = GL_R32I;    format = GL_RED;  type = GL_UNSIGNED_INT; break;
-		case FramebufferFormat_RGi:   sized_format = GL_RG32I;   format = GL_RG;   type = GL_UNSIGNED_INT; break;
-		case FramebufferFormat_RGBi:  sized_format = GL_RGB32I;  format = GL_RGB;  type = GL_UNSIGNED_INT; break;
-		case FramebufferFormat_RGBAi: sized_format = GL_RGBA32I; format = GL_RGBA; type = GL_UNSIGNED_INT; break;
+		case TextureFormat_Ri:    sized_format = GL_R32I;    format = GL_RED;  type = GL_UNSIGNED_INT; break;
+		case TextureFormat_RGi:   sized_format = GL_RG32I;   format = GL_RG;   type = GL_UNSIGNED_INT; break;
+		case TextureFormat_RGBi:  sized_format = GL_RGB32I;  format = GL_RGB;  type = GL_UNSIGNED_INT; break;
+		case TextureFormat_RGBAi: sized_format = GL_RGBA32I; format = GL_RGBA; type = GL_UNSIGNED_INT; break;
 
-		case FramebufferFormat_Rf:    sized_format = GL_R16F;    format = GL_RED;  type = GL_FLOAT; break;
-		case FramebufferFormat_RGf:   sized_format = GL_RG16F;   format = GL_RG;   type = GL_FLOAT; break;
-		case FramebufferFormat_RGBf:  sized_format = GL_RGB16F;  format = GL_RGB;  type = GL_FLOAT; break;
-		case FramebufferFormat_RGBAf: sized_format = GL_RGBA16F; format = GL_RGBA; type = GL_FLOAT; break;
+		case TextureFormat_Rf:    sized_format = GL_R16F;    format = GL_RED;  type = GL_FLOAT; break;
+		case TextureFormat_RGf:   sized_format = GL_RG16F;   format = GL_RG;   type = GL_FLOAT; break;
+		case TextureFormat_RGBf:  sized_format = GL_RGB16F;  format = GL_RGB;  type = GL_FLOAT; break;
+		case TextureFormat_RGBAf: sized_format = GL_RGBA16F; format = GL_RGBA; type = GL_FLOAT; break;
 		}
 	}
 	else
 	{
 		switch ( _type ) // depth and stencil buffer 
 		{
-		case FramebufferType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; type = GL_FLOAT; break;
-		case FramebufferType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   type = GL_BYTE;  break;
+		case TextureType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; type = GL_FLOAT; break;
+		case TextureType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   type = GL_BYTE;  break;
 		}
 	}
 
@@ -333,9 +334,9 @@ void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer,
 
 	switch ( _type )
 	{
-	case FramebufferType_Color:   glFramebufferTexture2D( GL_FRAMEBUFFER, attachment_slot,             GL_TEXTURE_2D, texture.handle, 0 ); break;
-	case FramebufferType_Depth:   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,         GL_TEXTURE_2D, texture.handle, 0 ); break;
-	case FramebufferType_Stencil: glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.handle, 0 ); break;
+	case TextureType_Color:   glFramebufferTexture2D( GL_FRAMEBUFFER, attachment_slot,             GL_TEXTURE_2D, texture.handle, 0 ); break;
+	case TextureType_Depth:   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,         GL_TEXTURE_2D, texture.handle, 0 ); break;
+	case TextureType_Stencil: glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.handle, 0 ); break;
 	}
 	
 	texture.format = _format;
@@ -488,14 +489,14 @@ int cm::cBackend_OpenGL::getUniformLocation( Shader::hShaderProgram _program, co
 	return glGetUniformLocation( _program, _uniform );;
 }
 
-cm::Shader::sShaderUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgram _program, unsigned int _slot )
+cm::Shader::sUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgram _program, unsigned int _slot )
 {
 	GLint count;
 
 	glGetProgramiv( _program, GL_ACTIVE_UNIFORMS, &count );
 	
 	if ( _slot >= count )
-		return Shader::sShaderUniform{ "NULL", -1, -1, 0 };
+		return Shader::sUniform{ "NULL", -1, -1, 0 };
 	
 	const GLsizei buffer_size = 16;
 
@@ -505,10 +506,10 @@ cm::Shader::sShaderUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgr
 	GLint size;
 	glGetActiveUniform( _program, (GLuint)_slot, buffer_size, &name_length, &size, &type, name );
 	
-	return Shader::sShaderUniform{ std::string( name, name_length ), (int)_slot, getShaderType( type ), (size_t)size };
+	return Shader::sUniform{ std::string( name, name_length ), (int)_slot, getShaderType( type ), (size_t)size };
 }
 
-cm::Shader::sShaderUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
+cm::Shader::sUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
 {
 	GLint num_blocks;
 	glGetProgramiv( _program, GL_ACTIVE_UNIFORM_BLOCKS, &num_blocks );
@@ -530,10 +531,19 @@ cm::Shader::sShaderUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hS
 	glGetActiveUniformBlockiv( _program, _slot, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,        &uniform_count );
 	glGetActiveUniformBlockiv( _program, _slot, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniforms );
 
-	Shader::sShaderUniformBlock uniform_block{ std::string( name ), _slot, block_size, {} };
+	Shader::sUniformBlock uniform_block{ std::string( name ), _slot, block_size, {} };
 
 	for ( int i = 0; i < uniform_count; i++ )
-		uniform_block.uniforms.push_back( uniforms[ i ] );
+	{
+		Shader::sUniformBlockVariable variable;
+		variable.name = getUniform( _program, uniforms[ i ] ).name;
+		variable.location = uniforms[ i ];
+
+		GLenum props[] = { GL_OFFSET };
+		glGetProgramResourceiv( _program, GL_UNIFORM, variable.location, 1, props, 1, nullptr, &variable.offset );
+
+		uniform_block.uniforms[ variable.name ] = variable;
+	}
 	
 	return uniform_block;
 }

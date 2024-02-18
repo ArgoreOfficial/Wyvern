@@ -76,8 +76,8 @@ namespace cm
 		virtual void drawElements( unsigned int _index_count, eDrawMode _mode ) = 0;
 
 		virtual int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) = 0;
-		virtual Shader::sShaderUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
-		virtual Shader::sShaderUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
+		virtual Shader::sUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
+		virtual Shader::sUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) = 0;
 
 		virtual void setActiveTextureSlot( int _slot ) = 0;
 

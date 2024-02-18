@@ -9,7 +9,9 @@
 #include <wv/Core/cApplication.h>
 #include <wv/Graphics/cMesh.h>
 #include <wv/Graphics/Primitives.h>
+
 #include <wv/Rendering/RenderPass/iRenderPass.h>
+#include <wv/Rendering/cFramebuffer.h>
 
 #include <wv/Graphics/cShader.h>
 
@@ -42,39 +44,34 @@ void wv::cRenderer::create()
 
 	m_backend->create( *window );
 
-	m_gbuffer = m_backend->createFramebuffer();
-	
-	m_backend->addFramebufferTexture(  // position color buffer
-		m_gbuffer, "gPosition",
-		cm::eTextureFormat::FramebufferFormat_RGBAf, cm::eTextureType::FramebufferType_Color, 
-		window->getWidth(), window->getHeight() );
-	
-	m_backend->addFramebufferTexture(  // normal color buffer
-		m_gbuffer, "gNormal",
-		cm::eTextureFormat::FramebufferFormat_RGBAf, cm::eTextureType::FramebufferType_Color, 
-		window->getWidth(), window->getHeight() );
-	
-	m_backend->addFramebufferTexture(  // color + specular color buffer
-		m_gbuffer, "gAlbedoSpec",
-		cm::eTextureFormat::FramebufferFormat_RGBA, cm::eTextureType::FramebufferType_Color, 
-		window->getWidth(), window->getHeight() );
 
-	m_backend->attachFramebuffer( m_gbuffer );
 
-	m_backend->addFramebufferRenderbuffer( // depth renderbuffer
-		m_gbuffer, 
-		cm::eRenderbufferType::RenderbufferType_Depth, 
-		window->getWidth(), window->getHeight() );
 
+	m_gbuffer = new cFramebuffer();
+	m_gbuffer->create();
+	m_gbuffer->addTexture( "gPosition",   cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gNormal",     cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gAlbedo", cm::TextureFormat_RGBA,  cm::TextureType_Color );
+	m_gbuffer->finalize();
+	
+	m_2buffer = new cFramebuffer();
+	m_2buffer->create();
+	m_2buffer->addTexture( "gGamer", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_2buffer->finalize();
+	
 	m_screen_quad = Primitives::quad( 1.0f );
+
 
 	cContentManager& content_manager = cContentManager::getInstance();
 	// m_gpass_shader     = content_manager.loadShader( "res/shaders/deferred/s_gpass" );
 	// m_lightpass_shader = content_manager.loadShader( "res/shaders/deferred/s_lightpass" );
-	m_screen_shader = content_manager.loadShader( "res/shaders/deferred/s_screen" );
-	
-	// TODO: recreate FBO on resize
 
+
+	m_screen_shader  = content_manager.loadShader( "res/shaders/deferred/s_screen" );
+	m_screen_shader2 = content_manager.loadShader( "res/shaders/deferred/s_screen_2" );
+	m_2pass = content_manager.loadShader( "res/shaders/deferred/s_2pass" );
+	
+	// TODO: split pass shaders and framebuffer into cRenderPass
 }
 
 void wv::cRenderer::onResize( int _width, int _height )        { m_backend->onResize( _width, _height ); }
@@ -82,30 +79,43 @@ void wv::cRenderer::clear   ( unsigned int _color, int _mode ) { m_backend->clea
 
 void wv::cRenderer::begin( void ) 
 { 
-	m_backend->begin(); 
-	m_backend->bindFramebuffer( &m_gbuffer );
+	m_backend->begin();
+	m_gbuffer->bind();
 }
 
 void wv::cRenderer::end( void ) 
 { 
-	m_backend->bindFramebuffer( 0 );
+	m_gbuffer->unbind();
 
-	clear( 0xFF0000FF, cm::eClearMode::ClearMode_Color | cm::eClearMode::ClearMode_Depth );
+	// 2pass
 	
+	m_2buffer->bind();
+	
+	clear( 0x000000FF, cm::ClearMode_Color | cm::ClearMode_Depth );
+
+	m_backend->useShaderProgram( m_2pass->shader_program_handle );
+	m_gbuffer->bindTextures( m_2pass );
+	m_backend->bindVertexArray( m_screen_quad->vertex_array );
+	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+	m_2buffer->unbind();
+	
+	clear( 0x000000FF, cm::ClearMode_Depth );
+
+	// screen pass
 	m_backend->useShaderProgram( m_screen_shader->shader_program_handle );
-
-	for ( int i = 0; i < m_gbuffer.textures.size(); i++ )
-	{
-		int shader_loc = m_backend->getUniformLocation( m_screen_shader->shader_program_handle, m_gbuffer.textures[ i ].name.c_str() );
-		m_backend->setUniformInt( shader_loc, i );
-		m_backend->setActiveTextureSlot( i );
-		m_backend->bindTexture2D( m_gbuffer.textures[ i ].handle );
-	}
+	m_gbuffer->bindTextures( m_screen_shader );
+	m_backend->bindVertexArray( m_screen_quad->vertex_array );
+	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 	
+	clear( 0x000000FF, cm::ClearMode_Depth );
+
+	// screen2 pass composite
+	m_backend->useShaderProgram( m_screen_shader2->shader_program_handle );
+	m_2buffer->bindTextures( m_screen_shader2 );
 	m_backend->bindVertexArray( m_screen_quad->vertex_array );
 	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 
-	m_backend->end();	
+	m_backend->end();
 }
 
 void wv::cRenderer::addRenderPass( iRenderPass* _render_pass )

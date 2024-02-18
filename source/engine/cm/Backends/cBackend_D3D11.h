@@ -55,8 +55,8 @@ namespace cm
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
 
 		int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
-		Shader::sShaderUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
-		Shader::sShaderUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		Shader::sUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		Shader::sUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
 
 		void setActiveTextureSlot( int _slot ) override;
 

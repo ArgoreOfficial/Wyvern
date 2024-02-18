@@ -14,10 +14,8 @@ void cGameSceneLoader::load( wv::cScene* _scene )
 
 	printf( "Loading %s\n", _scene->getName().c_str() );
 
-	wv::cMeshObject* model = new wv::cMeshObject( "funnycube" );
-	model->create( "res/models/funnycube.dae" );
-	
-	wv::cSpriteObject* sprite = new wv::cSpriteObject( "sprite" );
-	sprite->create( "" ); /* TODO: change, make better pls */
+	/* TODO: change, make better pls */
+	(new wv::cMeshObject  ( "funnycube" ))->create( "res/models/funnycube.dae" );
+	(new wv::cSpriteObject( "sprite"    ))->create( "res/materials/sprite" );
 
 }

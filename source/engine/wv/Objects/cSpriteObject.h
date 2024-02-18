@@ -11,7 +11,7 @@ namespace wv
 		 cSpriteObject( std::string _name );
 		~cSpriteObject() { }
 
-		void create( std::string _path );
+		cSpriteObject* create( std::string _path );
 
 		void update( double _delta_time ) override;
 		void render() override;

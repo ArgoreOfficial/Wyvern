@@ -7,9 +7,10 @@ wv::cMeshObject::cMeshObject( std::string _name ) : iSceneObject( _name )
 
 }
 
-void wv::cMeshObject::create( std::string _path )
+wv::cMeshObject* wv::cMeshObject::create( std::string _path )
 {
 	m_model = cContentManager::getInstance().loadModel( _path );
+	return this;
 }
 
 void wv::cMeshObject::update( double _delta_time )

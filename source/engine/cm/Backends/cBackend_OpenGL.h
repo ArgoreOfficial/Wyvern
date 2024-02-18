@@ -49,8 +49,8 @@ namespace cm
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
 
 		int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
-		Shader::sShaderUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
-		Shader::sShaderUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		Shader::sUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
+		Shader::sUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
 
 		void setActiveTextureSlot( int _slot ) override;
 
@@ -62,6 +62,9 @@ namespace cm
 		void setUniformVec4d( int _location, wv::cVector4<double> _vector ) override;
 
 	private:
+
+		int m_framebuffer_textures = 0;
+		int m_max_framebuffer_textures = 32; // TODO: query
 
 	};
 }

@@ -16,25 +16,25 @@ namespace cm
 
 	enum eTextureFormat
 	{
-		FramebufferFormat_R,
-		FramebufferFormat_RG,
-		FramebufferFormat_RGB,
-		FramebufferFormat_RGBA,
-		FramebufferFormat_Ri,
-		FramebufferFormat_RGi,
-		FramebufferFormat_RGBi,
-		FramebufferFormat_RGBAi,
-		FramebufferFormat_Rf,
-		FramebufferFormat_RGf,
-		FramebufferFormat_RGBf,
-		FramebufferFormat_RGBAf,
+		TextureFormat_R,
+		TextureFormat_RG,
+		TextureFormat_RGB,
+		TextureFormat_RGBA,
+		TextureFormat_Ri,
+		TextureFormat_RGi,
+		TextureFormat_RGBi,
+		TextureFormat_RGBAi,
+		TextureFormat_Rf,
+		TextureFormat_RGf,
+		TextureFormat_RGBf,
+		TextureFormat_RGBAf,
 	};
 
 	enum eTextureType
 	{
-		FramebufferType_Color,
-		FramebufferType_Depth,
-		FramebufferType_Stencil,
+		TextureType_Color,
+		TextureType_Depth,
+		TextureType_Stencil,
 	};
 
 	struct sTexture2D

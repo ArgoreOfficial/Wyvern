@@ -219,14 +219,14 @@ int cm::cBackend_D3D11::getUniformLocation( Shader::hShaderProgram _shader, cons
 	return -1;
 }
 
-cm::Shader::sShaderUniform cm::cBackend_D3D11::getUniform( Shader::hShaderProgram _program, unsigned int _slot )
+cm::Shader::sUniform cm::cBackend_D3D11::getUniform( Shader::hShaderProgram _program, unsigned int _slot )
 {
-	return Shader::sShaderUniform{ "", -1, -1 };
+	return Shader::sUniform{ "", -1, -1 };
 }
 
-cm::Shader::sShaderUniformBlock cm::cBackend_D3D11::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
+cm::Shader::sUniformBlock cm::cBackend_D3D11::getUniformBlock( Shader::hShaderProgram _program, unsigned int _slot )
 {
-	return Shader::sShaderUniformBlock();
+	return Shader::sUniformBlock();
 }
 
 void cm::cBackend_D3D11::setUniformBlockBinding( Shader::hShaderProgram _program, const char* _uniform, unsigned int _slot )

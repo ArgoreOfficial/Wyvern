@@ -4,7 +4,6 @@
 
 #include <cm/Framework/Shader.h>
 #include <cm/Framework/Buffer.h>
-#include <cm/Framework/Framebuffer.h>
 
 #include <vector>
 
@@ -16,7 +15,8 @@ namespace wv
     class iRenderPass;
 	class cMesh;
 	class cShader;
-	
+	class cFramebuffer;
+
 	class cRenderer : public iSingleton<cRenderer>
 	{
 	public:
@@ -50,12 +50,18 @@ namespace wv
 
 		std::vector<iRenderPass*> m_render_passes;
 
-		cm::sFramebuffer m_gbuffer;
 		cMesh*           m_screen_quad;
+
+		cFramebuffer* m_gbuffer;
+		cFramebuffer* m_2buffer;
 
 		cShader* m_gpass_shader;
 		cShader* m_lightpass_shader;
+		
 		cShader* m_screen_shader;
+		cShader* m_screen_shader2;
+
+		cShader* m_2pass;
 	};
 
 }

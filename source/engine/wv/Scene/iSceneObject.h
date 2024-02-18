@@ -2,6 +2,7 @@
 
 #include <wv/Scene/cScene.h>
 #include <wv/Scene/cSceneManager.h>
+#include <string>
 
 namespace wv 
 {
