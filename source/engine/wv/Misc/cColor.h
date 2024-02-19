@@ -10,6 +10,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	/* TODO: don't */
+	typedef unsigned char byte;
+	typedef unsigned int dword;
+
 	class cColor
 	{
 

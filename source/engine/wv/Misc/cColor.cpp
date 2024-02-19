@@ -72,7 +72,7 @@ cColor::cColor( dword _rgba ):
 	r( ( _rgba >> 24 ) & 0xFF ),
 	g( ( _rgba >> 16 ) & 0xFF ),
 	b( ( _rgba >> 8  ) & 0xFF ),
-	a( _rgba & 0xFF )
+	a(   _rgba         & 0xFF )
 {
 	
 }
@@ -88,12 +88,5 @@ bool wv::cColor::operator==( cColor& _other )
 
 byte& wv::cColor::operator[]( const size_t& _index )
 {
-	switch( _index )
-	{
-		case 0:  return r;
-		case 1:  return g;
-		case 2:  return b;
-		case 3:  return a;
-		default: return r;
-	}
+	return ( &r )[ _index ];
 }
