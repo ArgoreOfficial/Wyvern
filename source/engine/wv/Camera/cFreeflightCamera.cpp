@@ -47,8 +47,8 @@ void wv::cFreeflightCamera::onRawInput( sInputInfo* _info )
 
 void wv::cFreeflightCamera::update( double _delta_time )
 {
-	m_transform.rotation.y += m_rotate.x * 100.0f * (float)_delta_time;
-	m_transform.rotation.x -= m_rotate.y * 100.0f * (float)_delta_time;
+	m_transform.rotation.y += m_rotate.x * 0.1f;
+	m_transform.rotation.x -= m_rotate.y * 0.1f;
 	
 	if ( m_transform.rotation.x > 89.0f )
 		m_transform.rotation.x = 89.0f;

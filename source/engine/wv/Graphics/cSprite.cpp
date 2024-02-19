@@ -10,11 +10,13 @@
 #include <cm/Core/cWindow.h>
 #include <wv/Camera/iCamera.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <wv/Math/Vector4.h>
 
-wv::cSprite::cSprite( void )
+wv::cSprite::cSprite( void ):
+	m_quad{ nullptr },
+	m_material{ nullptr },
+	m_transform{}
 {
 
 }

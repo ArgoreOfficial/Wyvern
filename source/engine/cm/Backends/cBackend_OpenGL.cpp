@@ -107,7 +107,11 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	glEnable( GL_PROGRAM_POINT_SIZE );
-	
+
+	glEnable( GL_CULL_FACE );
+	glCullFace( GL_FRONT );
+	glFrontFace( GL_CW );
+
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
 }
@@ -498,7 +502,7 @@ cm::Shader::sUniform cm::cBackend_OpenGL::getUniform( Shader::hShaderProgram _pr
 	if ( _slot >= count )
 		return Shader::sUniform{ "NULL", -1, -1, 0 };
 	
-	const GLsizei buffer_size = 16;
+	const GLsizei buffer_size = 72;
 
 	GLchar name[ buffer_size ];
 	GLsizei name_length;
@@ -519,7 +523,7 @@ cm::Shader::sUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderP
 
 	GLint block_size;
 	GLint uniform_count;
-	GLint uniforms[64];
+	GLint uniforms[512];
 
 	const GLsizei name_buffer_size = 16;
 	GLsizei name_length;

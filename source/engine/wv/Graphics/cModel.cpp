@@ -40,12 +40,15 @@ void wv::cModel::render()
 	{
 		cMaterial& material = *meshes[ i ]->material;
 		
+		cVector4f color{ 1.0f, 1.0f, 1.0f, 1.0f };
+
 		material.bind();
 
 		material.shader->uniformBlockBegin();
 		material.shader->uniformBlockBuffer( "uProj",  glm::value_ptr( projection ), 64 );
 		material.shader->uniformBlockBuffer( "uView",  glm::value_ptr( view ),       64 );
 		material.shader->uniformBlockBuffer( "uModel", glm::value_ptr( model ),      64 );
+		material.shader->uniformBlockBuffer( "uColor", &color, sizeof( cVector4f ) );
 		material.shader->uniformBlockEnd();
 
 		backend->bindVertexArray( meshes[ i ]->vertex_array );

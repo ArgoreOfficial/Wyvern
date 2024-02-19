@@ -15,13 +15,25 @@ wv::cSceneManager::~cSceneManager( void )
 
 void wv::cSceneManager::create( void )
 {
-	
+	srand( 1084710938 );
+
+	for ( int i = 0; i < 10; i++ )
+	{
+		float x = (float)( rand() % 200 ) / 100.0f - 1.0f;
+		float y = (float)( rand() % 200 ) / 100.0f;
+		float z = (float)( rand() % 200 ) / 100.0f - 1.0f;
+
+		light_positions.push_back( {    x,    y,    z, 0.0f } );
+		light_colors.push_back   ( { 1.0f, 0.0f, 0.0f, 0.5f } );
+	}
 }
 
 void wv::cSceneManager::update( double _delta_time )
 {
-	if( m_active_scene )
+	if ( m_active_scene )
 		m_active_scene->update( _delta_time );
+
+	rotateDirectionalLight( { 0.0f, (float)_delta_time * 60.0f } );
 
 	if ( !m_next_scene )
 		return;
@@ -58,10 +70,10 @@ void wv::cSceneManager::switchScene( std::string _scene )
 {
 	if ( m_next_scene )
 	{
-		printf( "[ERROR]: Already transitioning to Scene %s\n", m_next_scene->getName().c_str()); // TODO: change to wv::log or wv::assert
+		printf( "[ERROR]: Already transitioning to Scene %s\n", m_next_scene->getName().c_str() ); // TODO: change to wv::log or wv::assert
 		return;
 	}
-	
+
 	if ( m_scenes.count( _scene ) == 0 )
 	{
 		printf( "[ERROR]: No scene named %s\n", _scene.c_str() ); // TODO: change to wv::log or wv::assert
@@ -74,4 +86,19 @@ void wv::cSceneManager::switchScene( std::string _scene )
 void wv::cSceneManager::loadScene( cSceneLoader* _scene_loader )
 {
 	_scene_loader->load( m_active_scene );
+}
+
+wv::cVector3f wv::cSceneManager::getDirectionalLightDirection( void )
+{
+	float pitch = m_directional_light_rotation.x * ( 3.1415f / 180.0f ); // TODO: change to const or wv::math
+	float yaw   = m_directional_light_rotation.y * ( 3.1415f / 180.0f );
+
+	return cVector3f{ sin( yaw ),
+				   -( sin( pitch ) * cos( yaw ) ),
+				   -( cos( pitch ) * cos( yaw ) ) };
+}
+
+void wv::cSceneManager::rotateDirectionalLight( cVector2f _rotation )
+{
+	m_directional_light_rotation += _rotation;
 }

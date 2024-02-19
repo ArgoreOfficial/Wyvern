@@ -8,20 +8,10 @@
 
 #include <wv/Core/cRenderer.h>
 
-#include <wv/Graphics/cSprite.h>
-
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector2.h>
 #include <wv/Manager/cContentManager.h>
 
-#include <wv/Scene/cScene.h>
 #include <wv/Scene/cSceneLoader.h>
 #include <wv/Scene/cSceneManager.h>
-
-#include <wv/Graphics/cModel.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <cm/Core/stb_image.h>
 
 #include <format>
 
@@ -113,7 +103,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 		scene_manager.update( delta_time );
 		
 		renderer.begin();
-		renderer.clear( 0x000000FF, cm::ClearMode_Color | cm::ClearMode_Depth );
+		renderer.clear( 0x00000000, cm::ClearMode_Color | cm::ClearMode_Depth );
 
 		scene_manager.render();
 

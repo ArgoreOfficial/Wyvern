@@ -15,7 +15,7 @@ void cGameSceneLoader::load( wv::cScene* _scene )
 	printf( "Loading %s\n", _scene->getName().c_str() );
 
 	/* TODO: change, make better pls */
-	(new wv::cMeshObject  ( "funnycube" ))->create( "res/models/Glimmer.dae" );
+	(new wv::cMeshObject  ( "funnycube" ))->create( "res/models/CardboardTiger.dae" );
 	// (new wv::cSpriteObject( "sprite"    ))->create( "res/materials/sprite" );
 
 }

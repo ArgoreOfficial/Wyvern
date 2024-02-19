@@ -13,6 +13,11 @@
 #include <map>
 #include <sstream>
 
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <cm/Core/stb_image.h>
+
+
 void wv::cContentManager::create()
 {
 }
@@ -191,13 +196,19 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		v.normal.y = _assimp_mesh->mNormals[ i ].y;
 		v.normal.z = _assimp_mesh->mNormals[ i ].z;
 
-		if ( _assimp_mesh->mTextureCoords[ 0 ] )
+		if ( _assimp_mesh->HasVertexColors( i ) )
 		{
-			v.texCoord0.x = _assimp_mesh->mTextureCoords[ 0 ][ i ].x;
-			v.texCoord0.y = _assimp_mesh->mTextureCoords[ 0 ][ i ].y;
+			aiColor4D col = _assimp_mesh->mColors[ i ][ 1 ];
+			v.color = { col.r, col.g, col.b, col.a };
 		}
+		else 
+			v.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		aiVector3D* texcoord = _assimp_mesh->mTextureCoords[ 0 ];
+		if ( texcoord )
+			v.tex_coord_0 = { texcoord[ i ].x, texcoord[ i ].y };
 		else
-			v.texCoord0 = { 0.0f, 0.0f };
+			v.tex_coord_0 = { 0.0f, 0.0f };
 
 		vertices.push_back( v );
 	}
@@ -239,6 +250,7 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	cm::cVertexLayout layout;
 	layout.push<float>( 3 ); // pos
 	layout.push<float>( 3 ); // normal
+	layout.push<float>( 4 ); // vertex color
 	layout.push<float>( 2 ); // uv
 	backend->bindVertexLayout( layout );
 

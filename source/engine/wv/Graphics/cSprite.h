@@ -4,7 +4,6 @@
 
 #include <wv/Graphics/cMesh.h>
 #include <wv/Math/Transform.h>
-#include <wv/Math/Vector3.h>
 
 #include <string>
 
@@ -17,7 +16,7 @@ namespace wv
 		 cSprite( void );
 		~cSprite( void );
 
-		/* abstract further? */
+		/* TODO: abstract further? */
 		void create( const std::string& _material );
 
 		wv::cTransformf& getTransform( void ) { return m_transform; }

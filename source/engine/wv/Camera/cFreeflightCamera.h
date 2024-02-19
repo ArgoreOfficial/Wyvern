@@ -23,8 +23,8 @@ namespace wv
 
 		~cFreeflightCamera( void );
 
-		void onRawInput( sInputInfo* _info ) override;
-		void update( double _delta_time ) override;
+		void onRawInput( sInputInfo* _info )  override;
+		void update    ( double _delta_time ) override;
 	
 	private:
 

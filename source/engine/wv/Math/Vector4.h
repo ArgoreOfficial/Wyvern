@@ -11,9 +11,9 @@ namespace wv
 	public:
 		T x, y, z, w;
 
-		cVector4( void ) : x( 0 ), y( 0 ), z( 0 ), w( 0 ){}
-		cVector4( const T& _t ) : x( _t ), y( _t ), z( _t ), w( _t ){}
-		cVector4( const T& _x, const T& _y, const T& _z, const T& _w ) : x( _x ), y( _y ), z( _z ), w( _w ){}
+		cVector4( void )                                               : x{  0 }, y{  0 }, z{  0 }, w{  0 } { }
+		cVector4( const T& _t )                                        : x{ _t }, y{ _t }, z{ _t }, w{ _t } { }
+		cVector4( const T& _x, const T& _y, const T& _z, const T& _w ) : x{ _x }, y{ _y }, z{ _z }, w{ _w } { }
 
 		cVector4<T>& operator = ( const cVector4<T>& _other );
 		cVector4<T>& operator +=( const cVector4<T>& _other );

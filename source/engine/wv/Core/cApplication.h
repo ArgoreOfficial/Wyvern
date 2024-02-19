@@ -55,9 +55,9 @@ namespace wv
 		void run( cSceneLoader* _scene_loader );
 
 		// TODO: move to scene
-		iCamera* m_current_camera;
-		iCamera* m_camera2D;
-		iCamera* m_camera3D;
+		iCamera* m_current_camera = nullptr;
+		iCamera* m_camera2D       = nullptr;
+		iCamera* m_camera3D       = nullptr;
 
 	private:
 

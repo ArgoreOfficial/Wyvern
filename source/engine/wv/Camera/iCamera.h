@@ -29,10 +29,11 @@ namespace wv
 		virtual void update( double _delta_time ) { }
 
 		glm::mat4 getProjectionMatrix( void );
-
-		wv::cTransformf& getTransform( void ) { return m_transform; }
 		glm::mat4 getViewMatrix( void );
-	
+
+		cTransformf& getTransform( void ) { return m_transform; }
+		cVector3f getViewDirection();
+
 	protected:
 		glm::mat4 getPerspectiveMatrix ( void );
 		glm::mat4 getOrthographicMatrix( void );

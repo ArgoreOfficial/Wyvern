@@ -13,10 +13,10 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 
 	sVertex points[] = {
 		/*    Position                 Normals           Tex Coords   */
-		{ { -_size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { -_size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ {  _size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ {  _size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+		{ { -_size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { -_size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ {  _size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ {  _size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
 	};
 
 	unsigned int indices[] = {
@@ -38,6 +38,7 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 	cm::cVertexLayout layout;
 	layout.push<float>( 3 );
 	layout.push<float>( 3 );
+	layout.push<float>( 4 );
 	layout.push<float>( 2 );
 	backend->bindVertexLayout( layout );
 

@@ -8,6 +8,7 @@
 
 #include <wv/Math/Vector2.h>
 #include <wv/Math/Vector3.h>
+#include <wv/Math/Vector4.h>
 
 namespace wv
 {
@@ -15,7 +16,8 @@ namespace wv
 	{
 		wv::cVector3f position;
 		wv::cVector3f normal;
-		wv::cVector2f texCoord0;
+		wv::cVector4f color;
+		wv::cVector2f tex_coord_0;
 	};
 
 	class cMesh
@@ -24,17 +26,17 @@ namespace wv
 		 cMesh() { }
 		~cMesh() { }
 
-		cm::hVertexArray vertex_array;
+		cm::hVertexArray vertex_array{};
 
-		cm::sBuffer vertex_buffer;
-		cm::sBuffer index_buffer;
+		cm::sBuffer vertex_buffer{};
+		cm::sBuffer index_buffer {};
 
 		int num_vertices = 0;
-		int num_indices = 0;
+		int num_indices  = 0;
 
-		cm::cVertexLayout layout;
+		cm::cVertexLayout layout{};
 
-		cMaterial* material;
+		cMaterial* material = nullptr;
 
 	private:
 

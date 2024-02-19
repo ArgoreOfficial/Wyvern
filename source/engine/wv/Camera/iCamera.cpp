@@ -56,3 +56,15 @@ glm::mat4 wv::iCamera::getViewMatrix( void )
 
 	return glm::lookAt( pos, pos + glm::normalize( direction ), glm::vec3( 0.0, 1.0, 0.0 ) );
 }
+
+wv::cVector3f wv::iCamera::getViewDirection()
+{
+	float yaw = glm::radians( m_transform.rotation.y - 90.0f );
+	float pitch = glm::radians( m_transform.rotation.x );
+
+	cVector3f direction;
+	direction.x = cos( yaw ) * cos( pitch );
+	direction.y = sin( pitch );
+	direction.z = sin( yaw ) * cos( pitch );
+    return direction;
+}
