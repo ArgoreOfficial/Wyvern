@@ -5,7 +5,7 @@
 
 #include <wv/Graphics/Primitives.h>
 #include <wv/Core/cApplication.h>
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 
 #include <cm/Core/cWindow.h>
 #include <wv/Camera/iCamera.h>

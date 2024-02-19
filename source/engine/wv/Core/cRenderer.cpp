@@ -1,6 +1,6 @@
 #include "cRenderer.h"
 
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 
 #include <cm/backends/cBackend_OpenGL.h>
 #include <cm/backends/cBackend_D3D11.h>
@@ -44,9 +44,6 @@ void wv::cRenderer::create()
 	cm::cWindow* window = cApplication::getInstance().getWindow();
 
 	m_backend->create( *window );
-
-
-
 
 	m_gbuffer = new cFramebuffer();
 	m_gbuffer->create();

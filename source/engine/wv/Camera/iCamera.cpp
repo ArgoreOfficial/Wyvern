@@ -12,10 +12,6 @@ wv::iCamera::iCamera( eCameraType _type, float _fov, float _near, float _far ) :
 
 }
 
-wv::iCamera::~iCamera( void )
-{
-}
-
 glm::mat4 wv::iCamera::getProjectionMatrix( void )
 {
 	switch ( m_type )

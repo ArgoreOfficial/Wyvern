@@ -4,6 +4,10 @@
 
 #include <stdio.h>
 
+// TODO: change events to iListeners, separate classes?
+// iInputEventListener, iMouseEventListener, iWindowEventListener, iEventListener 
+// iEventInvoker
+
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
 	sInputInfo* info = new sInputInfo();
@@ -40,6 +44,11 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	wv::cApplication::getInstance().onRawInput( info );
 
 	delete info;
+}
+
+void mouseClickCallback( GLFWwindow* _window, int _button, int _action, int _mods )
+{
+
 }
 
 void onResizeCallback( GLFWwindow* window, int _width, int _height )

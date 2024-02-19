@@ -8,7 +8,7 @@
 
 #include <wv/Core/cRenderer.h>
 
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 
 #include <wv/Scene/cSceneLoader.h>
 #include <wv/Scene/cSceneManager.h>

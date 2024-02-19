@@ -7,6 +7,8 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
+#include <wv/Decl.h>
+
 struct sInputInfo;
 
 namespace wv
@@ -14,6 +16,8 @@ namespace wv
 	
 	class iCamera
 	{
+	WV_DECLARE_INTERFACE( iCamera )
+
 	public:
 		enum eCameraType
 		{
@@ -22,8 +26,6 @@ namespace wv
 		};
 
 		iCamera( eCameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
-
-		~iCamera( void );
 
 		virtual void onRawInput( sInputInfo* _info ) { }
 		virtual void update( double _delta_time ) { }

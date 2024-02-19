@@ -1,12 +1,13 @@
 #pragma once
 
+#include <wv/Decl.h>
+
 template<class T>
 class iSingleton
 {
-public:
-	iSingleton<T>( const iSingleton<T>& ) = delete;
-	iSingleton<T>& operator= ( const iSingleton<T>& ) = delete;
+WV_DECLARE_INTERFACE( iSingleton<T> )
 
+public:
 	virtual void create() = 0;
 
 	static T& getInstance( void ) 
@@ -18,7 +19,5 @@ public:
 	}
 
 protected:
-	iSingleton<T>( void ) { }
-
 	inline static T* m_instance;
 };

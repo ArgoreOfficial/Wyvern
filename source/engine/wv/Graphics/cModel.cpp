@@ -5,7 +5,7 @@
 #include <cm/Backends/iBackend.h>
 
 #include <wv/Graphics/Primitives.h>
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 #include <wv/Core/cApplication.h>
 
 #include <cm/Core/cWindow.h>

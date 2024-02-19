@@ -2,7 +2,7 @@
 
 #include <wv/Core/cRenderer.h>
 #include <cm/Backends/iBackend.h>
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 
 #include <wv/Core/cApplication.h>
 

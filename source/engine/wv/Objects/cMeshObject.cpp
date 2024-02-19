@@ -1,6 +1,6 @@
 #include "cMeshObject.h"
 
-#include <wv/Manager/cContentManager.h>
+#include <wv/Managers/cContentManager.h>
 
 wv::cMeshObject::cMeshObject( std::string _name ) : iSceneObject( _name )
 {

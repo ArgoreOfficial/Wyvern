@@ -1,16 +1,15 @@
 #pragma once
 
+#include <wv/Decl.h>
+
 namespace wv 
 {
-    class iRenderPass
-    {
-    public:
-         iRenderPass();
-        virtual ~iRenderPass();
+	class iRenderPass
+	{
+	WV_DECLARE_INTERFACE( iRenderPass )
 
-        virtual void execute();
-
-    private:
-        
-    };
+	public:
+		virtual void execute() = 0;
+		
+	};
 }

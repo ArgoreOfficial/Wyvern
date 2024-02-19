@@ -4,21 +4,26 @@
 #include <wv/Scene/cSceneManager.h>
 #include <string>
 
+#include <wv/Decl.h>
+
 namespace wv 
 {
 
-    class iSceneObject
-    {
-    public:
-		~iSceneObject() 
-		{ 
+	class iSceneObject
+	{
+	WV_DECLARE_INTERFACE( iSceneObject )
+
+	public:
+		
+		void destroy()
+		{
 			for ( int i = 0; i < m_children.size(); i++ )
 				delete m_children[ i ];
 			
 			m_children.clear();
 		}
-        
-        template<class T>
+
+		template<class T>
 		T* addObject( std::string _name )
 		{
 			iSceneObject* scene_object = new T( _name );
@@ -32,16 +37,16 @@ namespace wv
 
 		void setParent( iSceneObject* _parent ) { m_parent = _parent; }
 
-    protected:
+	protected:
 		iSceneObject( std::string _name ) : m_name{ _name } 
 		{ 
 			cSceneManager::getInstance().getActiveScene()->addObject( this );
 		};
-        
+
 		std::string m_name;
 		iSceneObject* m_parent = nullptr;
 		std::vector<iSceneObject*> m_children;
 
-    };
+	};
 
 }
