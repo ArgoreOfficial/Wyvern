@@ -23,19 +23,16 @@ wv::cApplication::cApplication() :
 wv::cApplication::~cApplication()
 {
 	m_window->destroy();
+	delete m_window;
 
 	delete m_camera2D;
 	delete m_camera3D;
+
 	m_current_camera = nullptr;
 	m_camera2D = nullptr;
 	m_camera3D = nullptr;
-}
 
-static void test1() 
-{ 
-	printf( "[ FUNCTION ] : test\n" ); 
 }
-
 
 void wv::cApplication::create()
 {
@@ -50,11 +47,6 @@ void wv::cApplication::create()
 	m_camera2D = new cFreeflightCamera( iCamera::CameraType_Orthographic );
 	m_camera3D = new cFreeflightCamera( iCamera::CameraType_Perspective );
 
-	testfunc.bind( test1 );
-	testfunc2.bind( &cApplication::test2, this );
-
-	testfunc();
-	testfunc2();
 }
 
 void wv::cApplication::onResize( int _width, int _height )
@@ -83,6 +75,15 @@ void wv::cApplication::onRawInput( sInputInfo* _info )
 		if ( debug_render_mode != -1 )
 			cRenderer::getInstance().debug_render_mode = debug_render_mode;
 	}
+
+	/*
+	
+	hook<sInputEvent>(  );
+
+	invoke<sInputEvent>( input_info );
+
+	*/
+
 }
 
 void wv::cApplication::run( cSceneLoader* _scene_loader )

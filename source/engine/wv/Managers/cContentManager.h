@@ -34,6 +34,8 @@ namespace wv
 		cShader*   loadShader  ( const std::string& _path );
 		cModel*    loadModel   ( const std::string& _path );
 
+		void destroyShader( cShader** _shader );
+
 		int getUniformBlockLocation() { return m_uniform_blocks++; }
 
 	private:

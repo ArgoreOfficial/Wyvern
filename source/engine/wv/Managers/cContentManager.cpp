@@ -155,8 +155,15 @@ wv::cModel* wv::cContentManager::loadModel( const std::string& _path )
 	cModel* model = new cModel();
 	model->path = _path;
 	processAssimpNode( scene->mRootNode, scene, model );
-
+	
 	return model;
+}
+
+void wv::cContentManager::destroyShader( cShader** _shader )
+{
+	// TODO: destroy shader object in backend
+	delete *_shader;
+	*_shader = nullptr;
 }
 
 void wv::cContentManager::processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model )

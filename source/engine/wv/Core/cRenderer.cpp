@@ -25,7 +25,11 @@ wv::cRenderer::cRenderer( void ):
 
 wv::cRenderer::~cRenderer( void )
 {
+	// TODO: move to destroy();
 
+	delete m_gbuffer;
+	delete m_lightbuffer;
+	delete m_backend;
 }
 
 void wv::cRenderer::create()
