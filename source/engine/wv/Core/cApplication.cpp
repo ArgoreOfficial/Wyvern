@@ -31,6 +31,12 @@ wv::cApplication::~cApplication()
 	m_camera3D = nullptr;
 }
 
+static void test1() 
+{ 
+	printf( "[ FUNCTION ] : test\n" ); 
+}
+
+
 void wv::cApplication::create()
 {
 
@@ -44,6 +50,11 @@ void wv::cApplication::create()
 	m_camera2D = new cFreeflightCamera( iCamera::CameraType_Orthographic );
 	m_camera3D = new cFreeflightCamera( iCamera::CameraType_Perspective );
 
+	testfunc.bind( test1 );
+	testfunc2.bind( &cApplication::test2, this );
+
+	testfunc();
+	testfunc2();
 }
 
 void wv::cApplication::onResize( int _width, int _height )

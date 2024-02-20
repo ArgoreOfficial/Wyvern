@@ -5,6 +5,9 @@ namespace cm { class cWindow; }
 
 #include <wv/Core/iSingleton.h>
 #include <wv/Math/Vector2.h>
+#include <wv/Memory/Function.h>
+
+#include <stdio.h>
 
 #define AVERAGE_FRAMETIME_BUFFER_SIZE 1000
 
@@ -58,6 +61,11 @@ namespace wv
 		iCamera* m_current_camera = nullptr;
 		iCamera* m_camera2D       = nullptr;
 		iCamera* m_camera3D       = nullptr;
+
+		void test2() { printf( "[ MEMBER FUNCTION ] : test\n" ); }
+
+		cFunction<void> testfunc;
+		cMemberFunction<cApplication, void> testfunc2;
 
 	private:
 
