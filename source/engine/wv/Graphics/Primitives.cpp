@@ -51,11 +51,10 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 	mesh->vertex_buffer = vertex_buffer;
 	mesh->index_buffer = index_buffer;
 
-    return mesh;
+    return mesh; // TODO: keep track and delete
 }
 
 wv::cMesh* wv::Primitives::triangle()
 {
-
-	return new wv::cMesh();
+	return nullptr;
 }

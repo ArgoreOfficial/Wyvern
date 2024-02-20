@@ -204,6 +204,39 @@ cm::sFramebuffer cm::cBackend_OpenGL::createFramebuffer( void )
     return framebuffer;
 }
 
+void cm::cBackend_OpenGL::destroyShaderProgram( Shader::hShaderProgram& _shader )
+{
+	glDeleteShader( _shader );
+}
+
+void cm::cBackend_OpenGL::destroyBuffer( sBuffer& _buffer )
+{
+	glDeleteBuffers( 1, &_buffer.handle );
+}
+
+void cm::cBackend_OpenGL::destroyVertexArray( hVertexArray& _vertex_array )
+{
+	glDeleteVertexArrays( 1, &_vertex_array );
+}
+
+void cm::cBackend_OpenGL::destroyTexture( sTexture2D& _texture )
+{
+	glDeleteTextures( 1, &_texture.handle );
+}
+
+void cm::cBackend_OpenGL::destroyFramebuffer( sFramebuffer& _framebuffer )
+{
+	for ( int i = 0; i < _framebuffer.textures.size(); i++ )
+		destroyTexture( _framebuffer.textures[ i ] );
+	
+	for ( int i = 0; i < _framebuffer.renderbuffers.size(); i++ )
+		glDeleteRenderbuffers( 1, &_framebuffer.renderbuffers[ i ].handle );
+	
+	_framebuffer.textures.clear();
+
+	glDeleteFramebuffers( 1, &_framebuffer.handle );
+}
+
 void cm::cBackend_OpenGL::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )
 {
 	glAttachShader( _program, _shader.handle );

@@ -23,7 +23,8 @@ wv::cSprite::cSprite( void ):
 
 wv::cSprite::~cSprite( void )
 {
-
+	delete m_quad;
+	delete m_material;
 }
 
 void wv::cSprite::create( const std::string& _material )

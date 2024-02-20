@@ -9,7 +9,7 @@ namespace wv
 	{
 	public:
 		 cMeshObject( std::string _name );
-		~cMeshObject() { }
+		~cMeshObject();
 
 		cMeshObject* create( std::string _path );
 

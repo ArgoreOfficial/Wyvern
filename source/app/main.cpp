@@ -7,4 +7,5 @@ int main()
 {
 	wv::cApplication::getInstance().create();
 	wv::cApplication::getInstance().run( new cGameSceneLoader() );
+	wv::cApplication::destroy();
 }

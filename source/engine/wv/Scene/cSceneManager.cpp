@@ -10,7 +10,10 @@ wv::cSceneManager::cSceneManager( void )
 
 wv::cSceneManager::~cSceneManager( void )
 {
-
+	for ( auto& scene : m_scenes )
+		delete scene.second;
+	
+	m_scenes.clear();
 }
 
 void wv::cSceneManager::create( void )

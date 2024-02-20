@@ -24,7 +24,7 @@ namespace wv
 	{
 	public:
 		 cMesh() { }
-		~cMesh() { }
+		~cMesh();
 
 		cm::hVertexArray vertex_array{};
 

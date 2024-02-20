@@ -15,7 +15,7 @@ namespace wv
 	{
 	public:
 		 cModel( void ) { }
-		~cModel( void ) { }
+		~cModel( void );
 
 		void create( std::string _path );
 		void render();

@@ -20,8 +20,9 @@ namespace wv
 		cFreeflightCamera( eCameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
 
 		~cFreeflightCamera( void );
-
+		/*
 		void onRawInput( sInputInfo* _info )  override;
+		*/
 		void update    ( double _delta_time ) override;
 	
 	private:

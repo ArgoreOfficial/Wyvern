@@ -10,6 +10,7 @@
 
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
+	/*
 	sInputInfo* info = new sInputInfo();
 	info->type = sInputInfo::InputInfo_Key;
 
@@ -24,10 +25,12 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	wv::cApplication::getInstance().onRawInput( info );
 
 	delete info;
+	*/
 }
 
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
+	/*
 	sInputInfo* info = new sInputInfo();
 	info->type = sInputInfo::InputInfo_Mouse;
 
@@ -44,6 +47,7 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	wv::cApplication::getInstance().onRawInput( info );
 
 	delete info;
+	*/
 }
 
 void mouseClickCallback( GLFWwindow* _window, int _button, int _action, int _mods )

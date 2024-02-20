@@ -7,6 +7,11 @@ wv::cMeshObject::cMeshObject( std::string _name ) : iSceneObject( _name )
 
 }
 
+wv::cMeshObject::~cMeshObject()
+{
+	delete m_model;
+}
+
 wv::cMeshObject* wv::cMeshObject::create( std::string _path )
 {
 	m_model = cContentManager::getInstance().loadModel( _path );

@@ -30,7 +30,8 @@ namespace wv
 		~cRenderer( void );
 
 		void create( void ) override;
-		
+		void destroyApplication();
+
 		void onResize( int _width, int _height );
 		void clear   ( unsigned int _color, int _mode );
 

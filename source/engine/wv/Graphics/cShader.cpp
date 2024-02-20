@@ -10,6 +10,11 @@ wv::cShader::cShader()
 
 wv::cShader::~cShader()
 {
+	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	backend->destroyBuffer( m_uniform_buffer );
+	backend->destroyShaderProgram( shader_program_handle );
+
+	delete[] m_uniform_buffer_data;
 }
 
 void wv::cShader::createUniformBlock()

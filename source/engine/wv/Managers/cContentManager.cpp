@@ -110,7 +110,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 		material_values[ seglist[ 0 ] ] = seglist[ 1 ];
 	}
 
-	cMaterial* mat = new cMaterial();
+	cMaterial* mat = new cMaterial(); // TODO: keep track and destroy
 	mat->shader = loadShader( material_values[ "shader" ] );
 	
 	int loc = -1;
@@ -134,7 +134,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 
 wv::cShader* wv::cContentManager::loadShader( const std::string& _path )
 {
-	wv::cShader* shader = new cShader();
+	wv::cShader* shader = new cShader(); // TODO: keep track and destroy
 	shader->shader_program_handle = loadShaderProgram( _path );
 	shader->createUniformBlock();
 
@@ -152,7 +152,7 @@ wv::cModel* wv::cContentManager::loadModel( const std::string& _path )
 		return nullptr;
 	}
 
-	cModel* model = new cModel();
+	cModel* model = new cModel(); // TODO: keep track and destroy
 	model->path = _path;
 	processAssimpNode( scene->mRootNode, scene, model );
 	
@@ -189,7 +189,7 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	std::vector<sVertex> vertices;
 	std::vector<unsigned int> indices;
 	
-	wv::cMesh* mesh = new wv::cMesh();
+	wv::cMesh* mesh = new wv::cMesh(); // TODO: keep track and destroy
 
 	// process vertices
 	for ( int i = 0; i < _assimp_mesh->mNumVertices; i++ )

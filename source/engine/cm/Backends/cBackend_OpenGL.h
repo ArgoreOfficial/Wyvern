@@ -24,6 +24,12 @@ namespace cm
 		sTexture2D             createTexture      ( void ) override;
 		sFramebuffer           createFramebuffer  ( void ) override;
 
+		void destroyShaderProgram( Shader::hShaderProgram& _shader ) override;
+		void destroyBuffer( sBuffer& _buffer ) override;
+		void destroyVertexArray( hVertexArray& _vertex_array ) override;
+		void destroyTexture( sTexture2D& _texture ) override;
+		void destroyFramebuffer( sFramebuffer& _framebuffer ) override;
+
 		void attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
 		void linkShaderProgram( Shader::hShaderProgram& _program ) override;
 		

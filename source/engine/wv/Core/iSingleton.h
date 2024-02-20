@@ -9,7 +9,8 @@ WV_DECLARE_INTERFACE( iSingleton<T> )
 
 public:
 	virtual void create() = 0;
-	virtual void destroy()
+	
+	static void destroy()
 	{
 		delete m_instance;
 		m_instance = nullptr;

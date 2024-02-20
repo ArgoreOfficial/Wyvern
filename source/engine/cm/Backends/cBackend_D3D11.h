@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <wrl.h>
+#include "cm/Framework/Framebuffer.h"
 
 namespace cm
 {
@@ -29,6 +30,12 @@ namespace cm
 		hVertexArray           createVertexArray  ( void ) override;
 		sTexture2D             createTexture      ( void ) override;
 		sFramebuffer           createFramebuffer  ( void ) override;
+
+		void destroyShaderProgram( Shader::hShaderProgram& _shader ) override;
+		void destroyBuffer( sBuffer& _buffer ) override;
+		void destroyVertexArray( hVertexArray& _vertex_array ) override;
+		void destroyTexture( sTexture2D& _texture ) override;
+		void destroyFramebuffer( sFramebuffer& _framebuffer ) override;
 
 		void attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader ) override;
 		void linkShaderProgram( Shader::hShaderProgram& _program ) override;

@@ -141,6 +141,26 @@ cm::sFramebuffer cm::cBackend_D3D11::createFramebuffer( void )
     return sFramebuffer();
 }
 
+void cm::cBackend_D3D11::destroyShaderProgram( Shader::hShaderProgram& _shader )
+{
+}
+
+void cm::cBackend_D3D11::destroyBuffer( sBuffer& _buffer )
+{
+}
+
+void cm::cBackend_D3D11::destroyVertexArray( hVertexArray& _vertex_array )
+{
+}
+
+void cm::cBackend_D3D11::destroyTexture( sTexture2D& _texture )
+{
+}
+
+void cm::cBackend_D3D11::destroyFramebuffer( sFramebuffer& _framebuffer )
+{
+}
+
 void cm::cBackend_D3D11::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )
 {
 

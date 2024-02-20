@@ -13,6 +13,7 @@ wv::cFreeflightCamera::~cFreeflightCamera( void )
 {
 
 }
+/*
 
 void wv::cFreeflightCamera::onRawInput( sInputInfo* _info )
 {
@@ -44,6 +45,7 @@ void wv::cFreeflightCamera::onRawInput( sInputInfo* _info )
 			m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
 	}
 }
+*/
 
 void wv::cFreeflightCamera::update( double _delta_time )
 {

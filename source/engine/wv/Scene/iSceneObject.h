@@ -40,7 +40,7 @@ namespace wv
 	protected:
 		iSceneObject( std::string _name ) : m_name{ _name } 
 		{ 
-			cSceneManager::getInstance().getActiveScene()->addObject( this );
+			// cSceneManager::getInstance().getActiveScene()->addObject( this );
 		};
 
 		std::string m_name;

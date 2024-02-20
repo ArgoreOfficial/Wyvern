@@ -16,6 +16,14 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+wv::cModel::~cModel( void )
+{
+	for ( int i = 0; i < meshes.size(); i++ )
+		delete meshes[ i ];
+
+	meshes.clear();
+}
+
 void wv::cModel::create( std::string _path )
 {
 	

@@ -5,8 +5,6 @@
 #include <string>
 #include <map>
 
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector4.h>
 #include <cm/Framework/Buffer.h>
 #include <cm/Framework/Shader.h>
 

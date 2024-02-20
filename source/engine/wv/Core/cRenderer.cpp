@@ -30,6 +30,7 @@ wv::cRenderer::~cRenderer( void )
 	delete m_gbuffer;
 	delete m_lightbuffer;
 	delete m_backend;
+	
 }
 
 void wv::cRenderer::create()
@@ -74,6 +75,11 @@ void wv::cRenderer::create()
 	// m_lightpass_shader = content_manager.loadShader( "res/shaders/deferred/s_lightpass" );
 
 	// TODO: split pass shaders and framebuffer into cRenderPass
+}
+
+void wv::cRenderer::destroyApplication()
+{
+	wv::cRenderer::destroy(); // TODO: clean up other singletons
 }
 
 void wv::cRenderer::onResize( int _width, int _height )        { m_backend->onResize( _width, _height ); }
