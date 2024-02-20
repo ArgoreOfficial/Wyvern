@@ -54,7 +54,7 @@ void wv::cApplication::onResize( int _width, int _height )
 	cRenderer::getInstance().onResize( _width, _height );
 	m_window->onResize( _width, _height );
 }
-
+/*
 void wv::cApplication::onRawInput( sInputInfo* _info )
 {
 	m_camera3D->onRawInput( _info );
@@ -75,16 +75,8 @@ void wv::cApplication::onRawInput( sInputInfo* _info )
 		if ( debug_render_mode != -1 )
 			cRenderer::getInstance().debug_render_mode = debug_render_mode;
 	}
-
-	/*
-	
-	hook<sInputEvent>(  );
-
-	invoke<sInputEvent>( input_info );
-
-	*/
-
 }
+*/
 
 void wv::cApplication::run( cSceneLoader* _scene_loader )
 {

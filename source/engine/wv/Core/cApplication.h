@@ -7,27 +7,15 @@ namespace cm { class cWindow; }
 #include <wv/Math/Vector2.h>
 #include <wv/Memory/Function.h>
 
+#include <wv/Events/iInputListener.h>
+
 #include <stdio.h>
 
 #define AVERAGE_FRAMETIME_BUFFER_SIZE 1000
 
 // TODO: change to proper event system
-struct sInputInfo
+struct sMouseInfo
 {
-	enum
-	{
-		InputInfo_Key,
-		InputInfo_Mouse
-	} type ;
-
-	int key;
-	int scancode;
-	int mods;
-
-	bool buttondown;
-	bool buttonup;
-	bool repeat;
-
 	wv::cVector2i mouse_position;
 };
 
@@ -36,7 +24,7 @@ namespace wv
 	class cSceneLoader;
 	class iCamera;
 
-	class cApplication : public iSingleton<cApplication> /* add singleton manager? */
+	class cApplication : public iSingleton<cApplication>
 	{
 	public:
 		
@@ -45,8 +33,6 @@ namespace wv
 
 		void create    ( void ) override;
 		void onResize  ( int _width, int _height );
-		
-		void onRawInput( sInputInfo* _info );
 
 		cm::cWindow* getWindow( void ) { return m_window; }
 	

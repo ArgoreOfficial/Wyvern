@@ -10,8 +10,6 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
-struct sInputInfo;
-
 namespace wv
 {
 	

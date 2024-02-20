@@ -26,6 +26,7 @@ namespace wv
 	class cMemberFunction
 	{
 	public:
+		
 		void operator()( Args..._args ) { (m_member->*m_func)( _args... ); }
 
 		void bind( R( T::* _func )( Args... ), T* _member ) { m_func = _func; m_member = _member; }
