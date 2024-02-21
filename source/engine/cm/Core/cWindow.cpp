@@ -93,6 +93,8 @@ void cm::cWindow::destroy( void )
 
 void cm::cWindow::processInput( void )
 {
+	glfwPollEvents();
+
 	if ( glfwGetKey( m_window_object, GLFW_KEY_ESCAPE ) == GLFW_PRESS )
 		glfwSetWindowShouldClose( m_window_object, true );
 
@@ -104,7 +106,6 @@ void cm::cWindow::processInput( void )
 void cm::cWindow::display( void )
 {
 	glfwSwapBuffers( m_window_object );
-	glfwPollEvents();
 }
 
 float cm::cWindow::getAspect()
@@ -160,7 +161,7 @@ void cm::cWindow::createWindow()
 {
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE );
 
 	printf( "GLFW version: %s\n", glfwGetVersionString() );
 

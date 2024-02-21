@@ -17,13 +17,14 @@ namespace cm
 	
 		void onResize( int _width, int _height ) override;
 
-		Shader::sShader        createShader       ( const char* _source, Shader::eShaderType _type ) override;
+		Shader::sShader        createShader       ( std::string& _source, Shader::eShaderType _type ) override;
 		Shader::hShaderProgram createShaderProgram( void ) override;
 		sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) override;
 		hVertexArray           createVertexArray  ( void ) override;
 		sTexture2D             createTexture      ( void ) override;
 		sFramebuffer           createFramebuffer  ( void ) override;
 
+		void destroyShader( Shader::sShader _shader ) override;
 		void destroyShaderProgram( Shader::hShaderProgram& _shader ) override;
 		void destroyBuffer( sBuffer& _buffer ) override;
 		void destroyVertexArray( hVertexArray& _vertex_array ) override;

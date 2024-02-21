@@ -44,19 +44,19 @@ namespace cm
 		virtual void begin( void ) { }
 		virtual void end  ( void ) { }
 
-		virtual Shader::sShader        createShader       ( const char* _source, Shader::eShaderType _type ) = 0;
+		virtual Shader::sShader        createShader       ( std::string& _source, Shader::eShaderType _type ) = 0;
 		virtual Shader::hShaderProgram createShaderProgram( void ) = 0;
 		virtual sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) = 0;
 		virtual hVertexArray           createVertexArray  ( void ) = 0;
 		virtual sTexture2D             createTexture      ( void ) = 0;
 		virtual sFramebuffer           createFramebuffer  ( void ) = 0;
 
+		virtual void destroyShader( Shader::sShader _shader ) = 0;
 		virtual void destroyShaderProgram( Shader::hShaderProgram& _shader ) = 0;
 		virtual void destroyBuffer( sBuffer& _buffer ) = 0;
 		virtual void destroyVertexArray( hVertexArray& _vertex_array ) = 0;
 		virtual void destroyTexture( sTexture2D& _texture ) = 0;
 		virtual void destroyFramebuffer( sFramebuffer& _framebuffer ) = 0;
-
 		virtual void attachShader     ( Shader::hShaderProgram& _program, Shader::sShader& _shader ) = 0;
 		virtual void linkShaderProgram( Shader::hShaderProgram& _program ) = 0;
 		

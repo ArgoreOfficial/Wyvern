@@ -152,8 +152,8 @@ wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ign
 	std::string vert = loadFileToString( vert_path );
 	std::string frag = loadFileToString( frag_path );
 
-	cm::Shader::sShader vert_shader = backend->createShader( vert.data(), cm::Shader::eShaderType::ShaderType_Vertex );
-	cm::Shader::sShader frag_shader = backend->createShader( frag.data(), cm::Shader::eShaderType::ShaderType_Fragment );
+	cm::Shader::sShader vert_shader = backend->createShader( vert, cm::Shader::eShaderType::ShaderType_Vertex );
+	cm::Shader::sShader frag_shader = backend->createShader( frag, cm::Shader::eShaderType::ShaderType_Fragment );
 
 	cm::Shader::hShaderProgram program = backend->createShaderProgram();
 	backend->attachShader( program, vert_shader );
@@ -163,6 +163,9 @@ wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ign
 	shader->shader_program_handle = program;
 	shader->createUniformBlock();
 	m_shaders[ name ] = shader;
+
+	backend->destroyShader( vert_shader );
+	backend->destroyShader( frag_shader );
 
 	return shader;
 }
@@ -193,16 +196,21 @@ std::string wv::cContentManager::getFilenameFromPath( const std::string& _path )
 
 void wv::cContentManager::reloadAllShaders()
 {
-	printf( "Reloading shaders\n" ); // TODO: change to wv::log
+	//printf( "Reloading shaders\n" ); // TODO: change to wv::log
 
-	m_uniform_blocks = 0;
-	for ( auto& shader : m_shaders )
+	//for ( int i = 0; i < 10000; i++ )
 	{
-		shader.second->destroy();
-		shader.second = cContentManager::getInstance().getShader( shader.second->path, true );
+		//printf( "Reloading %i\n", i );
+		m_uniform_blocks = 0;
+		for ( auto& shader : m_shaders )
+		{
+			shader.second->destroy();
+			shader.second = cContentManager::getInstance().getShader( shader.second->path, true );
+		}
 	}
+
 	
-	printf( "Reloading done\n" ); // TODO: change to wv::log
+	//printf( "Reloading done\n" ); // TODO: change to wv::log
 }
 
 void wv::cContentManager::processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model )

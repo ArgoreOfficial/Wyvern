@@ -111,7 +111,7 @@ void cm::cBackend_D3D11::end( void )
 	m_swap_chain->Present( 1, 0 );
 }
 
-cm::Shader::sShader cm::cBackend_D3D11::createShader( const char* _source, Shader::eShaderType _type )
+cm::Shader::sShader cm::cBackend_D3D11::createShader( std::string& _source, Shader::eShaderType _type )
 {
 	return Shader::sShader{};
 }
@@ -139,6 +139,10 @@ cm::sTexture2D cm::cBackend_D3D11::createTexture()
 cm::sFramebuffer cm::cBackend_D3D11::createFramebuffer( void )
 {
     return sFramebuffer();
+}
+
+void cm::cBackend_D3D11::destroyShader( Shader::sShader _shader )
+{
 }
 
 void cm::cBackend_D3D11::destroyShaderProgram( Shader::hShaderProgram& _shader )

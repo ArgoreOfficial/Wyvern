@@ -10,13 +10,11 @@
 
 static GLuint getShaderType_OpenGL( cm::Shader::eShaderType _type )
 {
-	using namespace cm;
-
 	switch ( _type )
 	{
-	case Shader::ShaderType_Vertex:   return GL_VERTEX_SHADER;   break;
-	case Shader::ShaderType_Fragment: return GL_FRAGMENT_SHADER; break;
-	case Shader::ShaderType_Geometry: return GL_GEOMETRY_SHADER; break;
+	case cm::Shader::ShaderType_Vertex:   return GL_VERTEX_SHADER;   break;
+	case cm::Shader::ShaderType_Fragment: return GL_FRAGMENT_SHADER; break;
+	case cm::Shader::ShaderType_Geometry: return GL_GEOMETRY_SHADER; break;
 	}
 
 	return GL_NONE;
@@ -24,13 +22,11 @@ static GLuint getShaderType_OpenGL( cm::Shader::eShaderType _type )
 
 static GLuint getBufferTarget_OpenGL( cm::eBufferType _type )
 {
-	using namespace cm;
-
 	switch ( _type )
 	{
-	case BufferType_Vertex:  return GL_ARRAY_BUFFER;         break;
-	case BufferType_Index:   return GL_ELEMENT_ARRAY_BUFFER; break;
-	case BufferType_Uniform: return GL_UNIFORM_BUFFER;       break;
+	case cm::BufferType_Vertex:  return GL_ARRAY_BUFFER;         break;
+	case cm::BufferType_Index:   return GL_ELEMENT_ARRAY_BUFFER; break;
+	case cm::BufferType_Uniform: return GL_UNIFORM_BUFFER;       break;
 	}
 
 	return GL_BUFFER;
@@ -38,15 +34,13 @@ static GLuint getBufferTarget_OpenGL( cm::eBufferType _type )
 
 static GLuint getPrimitive_OpenGL( cm::eDrawMode _mode )
 {
-	using namespace cm;
-
 	switch ( _mode )
 	{
-	case DrawMode_Lines:     return GL_LINES;      break;
-	case DrawMode_LineLoop:  return GL_LINE_LOOP;  break;
-	case DrawMode_LineStrip: return GL_LINE_STRIP; break;
-	case DrawMode_Points:    return GL_POINTS;     break;
-	case DrawMode_Triangle:  return GL_TRIANGLES;  break;
+	case cm::DrawMode_Lines:     return GL_LINES;      break;
+	case cm::DrawMode_LineLoop:  return GL_LINE_LOOP;  break;
+	case cm::DrawMode_LineStrip: return GL_LINE_STRIP; break;
+	case cm::DrawMode_Points:    return GL_POINTS;     break;
+	case cm::DrawMode_Triangle:  return GL_TRIANGLES;  break;
 	}
 
 	return GL_LINES;
@@ -143,15 +137,21 @@ void cm::cBackend_OpenGL::onResize( int _width, int _height )
 	glViewport( 0, 0, _width, _height );
 }
 
-cm::Shader::sShader cm::cBackend_OpenGL::createShader( const char* _source, Shader::eShaderType _type )
+cm::Shader::sShader cm::cBackend_OpenGL::createShader( std::string& _source, Shader::eShaderType _type )
 {
 	int  success;
 	char info_log[ 512 ];
 	cm::Shader::hShader shader;
 
-	shader = glCreateShader( getShaderType_OpenGL( _type ) );
+	GLenum shader_type = getShaderType_OpenGL( _type );
+	// vert 35633
+	// frag 35632
+	// geom 36313
 
-	glShaderSource( shader, 1, &_source, NULL );
+	shader = glCreateShader( shader_type );
+
+	const char* source = _source.data();
+	glShaderSource( shader, 1, &source, NULL );
 	glCompileShader( shader );
 
 	glGetShaderiv( shader, GL_COMPILE_STATUS, &success );
@@ -204,9 +204,14 @@ cm::sFramebuffer cm::cBackend_OpenGL::createFramebuffer( void )
     return framebuffer;
 }
 
+void cm::cBackend_OpenGL::destroyShader( Shader::sShader _shader )
+{
+	glDeleteShader( _shader.handle );
+}
+
 void cm::cBackend_OpenGL::destroyShaderProgram( Shader::hShaderProgram& _shader )
 {
-	glDeleteShader( _shader );
+	glDeleteProgram( _shader );
 }
 
 void cm::cBackend_OpenGL::destroyBuffer( sBuffer& _buffer )

@@ -78,7 +78,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 	while ( !m_window->shouldClose() )
 	{
 		updateDeltaTime( time, delta_time );
-
+		// update
 		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / m_average_frametime ) ).c_str() );
 		m_window->processInput();
 
@@ -87,6 +87,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 
 		scene_manager.update( delta_time );
 		
+		// render
 		renderer.begin();
 		renderer.clear( 0x00000000, cm::ClearMode_Color | cm::ClearMode_Depth );
 
