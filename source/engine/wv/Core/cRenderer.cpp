@@ -70,9 +70,9 @@ void wv::cRenderer::create()
 	cContentManager& content_manager = cContentManager::getInstance();
 
 
-	m_screen_shader  = content_manager.loadShader( "res/shaders/deferred/s_screen" );
+	m_screen_shader  = content_manager.getShader( "res/shaders/deferred/s_screen" );
 	m_screen_shader->createUniformBlock();
-	// m_lightpass_shader = content_manager.loadShader( "res/shaders/deferred/s_lightpass" );
+	// m_lightpass_shader = content_manager.getShader( "res/shaders/deferred/s_lightpass" );
 
 	// TODO: split pass shaders and framebuffer into cRenderPass
 }
@@ -127,20 +127,20 @@ void wv::cRenderer::end( void )
 
 	clear( 0x44A5FF00, cm::ClearMode_Color | cm::ClearMode_Depth );
 
-	m_screen_shader->uniformBlockBegin();
-	m_screen_shader->uniformBlockBuffer( "uRenderMode",                &debug_render_mode, sizeof( int ) );
-	m_screen_shader->uniformBlockBuffer( "uDirectionalLight",          &dirl,              sizeof( cVector3f ) );
-	m_screen_shader->uniformBlockBuffer( "uAmbientLightIntensity",     &ambl_intensity,    sizeof( float ) );
-	m_screen_shader->uniformBlockBuffer( "uDirectionalLightIntensity", &dirl_intensity,    sizeof( float ) );
-	m_screen_shader->uniformBlockBuffer( "uCameraDirection",           &cam_dir,           sizeof( cVector3f ) );
-	m_screen_shader->uniformBlockBuffer( "uCameraPosition",            &cam_pos,           sizeof( cVector3f ) );
+	m_screen_shader->ubBegin();
+	m_screen_shader->ubBufferData( "uRenderMode",                &debug_render_mode, sizeof( int ) );
+	m_screen_shader->ubBufferData( "uDirectionalLight",          &dirl,              sizeof( cVector3f ) );
+	m_screen_shader->ubBufferData( "uAmbientLightIntensity",     &ambl_intensity,    sizeof( float ) );
+	m_screen_shader->ubBufferData( "uDirectionalLightIntensity", &dirl_intensity,    sizeof( float ) );
+	m_screen_shader->ubBufferData( "uCameraDirection",           &cam_dir,           sizeof( cVector3f ) );
+	m_screen_shader->ubBufferData( "uCameraPosition",            &cam_pos,           sizeof( cVector3f ) );
 
 	int numlights = scene_manager.light_positions.size();
-	m_screen_shader->uniformBlockBuffer( "uNumLights",   &numlights, sizeof( int ) );
-	m_screen_shader->uniformBlockBuffer( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
-	m_screen_shader->uniformBlockBuffer( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
+	m_screen_shader->ubBufferData( "uNumLights",   &numlights, sizeof( int ) );
+	m_screen_shader->ubBufferData( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
+	m_screen_shader->ubBufferData( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
 
-	m_screen_shader->uniformBlockEnd();
+	m_screen_shader->ubEnd();
 
 	m_gbuffer->bindTextures( m_screen_shader );
 	m_backend->bindVertexArray( m_screen_quad->vertex_array );

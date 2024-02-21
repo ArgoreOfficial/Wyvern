@@ -27,7 +27,7 @@ namespace wv
 
 		iCamera( eCameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
 
-		virtual void onRawInput( sInputInfo* _info ) { }
+		virtual void onCreate() { }
 		virtual void update( double _delta_time ) { }
 
 		glm::mat4 getProjectionMatrix( void );

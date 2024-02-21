@@ -11,7 +11,7 @@ namespace cm { class cWindow; }
 
 #include <stdio.h>
 
-#define AVERAGE_FRAMETIME_BUFFER_SIZE 1000
+#define AVERAGE_FRAMETIME_BUFFER_SIZE 100
 
 // TODO: change to proper event system
 struct sMouseInfo
@@ -24,7 +24,7 @@ namespace wv
 	class cSceneLoader;
 	class iCamera;
 
-	class cApplication : public iSingleton<cApplication>
+	class cApplication : public iSingleton<cApplication>, public iInputListener
 	{
 	public:
 		
@@ -37,6 +37,8 @@ namespace wv
 		cm::cWindow* getWindow( void ) { return m_window; }
 	
 		void run( cSceneLoader* _scene_loader );
+
+		virtual void onInputEvent( sInputEvent _info ) override;
 
 		// TODO: move to scene
 		iCamera* m_current_camera = nullptr;

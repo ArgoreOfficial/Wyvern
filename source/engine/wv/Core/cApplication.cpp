@@ -47,6 +47,10 @@ void wv::cApplication::create()
 	m_camera2D = new cFreeflightCamera( iCamera::CameraType_Orthographic );
 	m_camera3D = new cFreeflightCamera( iCamera::CameraType_Perspective );
 
+	m_camera2D->onCreate();
+	m_camera3D->onCreate();
+
+	subscribeInputEvent();
 }
 
 void wv::cApplication::onResize( int _width, int _height )
@@ -54,29 +58,6 @@ void wv::cApplication::onResize( int _width, int _height )
 	cRenderer::getInstance().onResize( _width, _height );
 	m_window->onResize( _width, _height );
 }
-/*
-void wv::cApplication::onRawInput( sInputInfo* _info )
-{
-	m_camera3D->onRawInput( _info );
-
-	if ( _info->buttondown )
-	{
-		int debug_render_mode = -1;
-
-		switch ( _info->key )
-		{
-		case GLFW_KEY_1: debug_render_mode = 1; break;
-		case GLFW_KEY_2: debug_render_mode = 2; break;
-		case GLFW_KEY_3: debug_render_mode = 3; break;
-		case GLFW_KEY_4: debug_render_mode = 4; break;
-		case GLFW_KEY_5: debug_render_mode = 5; break;
-		}
-
-		if ( debug_render_mode != -1 )
-			cRenderer::getInstance().debug_render_mode = debug_render_mode;
-	}
-}
-*/
 
 void wv::cApplication::run( cSceneLoader* _scene_loader )
 {
@@ -91,7 +72,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 	scene_manager.update( 1.0 );
 	scene_manager.loadScene( _scene_loader );
 
-	m_camera3D->getTransform().position = { 0.0f, 0.0f, 0.0f };
+	m_camera3D->getTransform().position = { 0.0f, 10.0f, 0.0f };
 	m_current_camera = m_camera3D;
 
 	while ( !m_window->shouldClose() )
@@ -113,6 +94,28 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 
 		renderer.end();
 		m_window->display();
+	}
+}
+
+void wv::cApplication::onInputEvent( sInputEvent _event )
+{
+	if ( _event.buttondown )
+	{
+		int debug_render_mode = -1;
+
+		switch ( _event.key )
+		{
+		case GLFW_KEY_1: debug_render_mode = 1; break;
+		case GLFW_KEY_2: debug_render_mode = 2; break;
+		case GLFW_KEY_3: debug_render_mode = 3; break;
+		case GLFW_KEY_4: debug_render_mode = 4; break;
+		case GLFW_KEY_5: debug_render_mode = 5; break;
+
+		case GLFW_KEY_F5: cContentManager::getInstance().reloadAllShaders(); break;
+		}
+
+		if ( debug_render_mode != -1 )
+			cRenderer::getInstance().debug_render_mode = debug_render_mode;
 	}
 }
 

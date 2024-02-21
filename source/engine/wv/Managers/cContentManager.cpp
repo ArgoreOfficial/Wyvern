@@ -47,42 +47,36 @@ std::vector<std::string> wv::cContentManager::loadFileToVector( const std::strin
 	return lines;
 }
 
-cm::Shader::hShaderProgram wv::cContentManager::loadShaderProgram( const std::string& _path )
+cm::sTexture2D* wv::cContentManager::getTexture( const std::string& _path, bool _ignore_existing )
 {
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	std::string name = getFilenameFromPath( _path );
 
-	const std::string vert_path = _path + ".vert";
-	const std::string frag_path = _path + ".frag";
+	if ( m_textures.count( name ) )
+		return m_textures[ name ];
 
-	std::string vert = loadFileToString( vert_path );
-	std::string frag = loadFileToString( frag_path );
-
-	cm::Shader::sShader vert_shader = backend->createShader( vert.data(), cm::Shader::eShaderType::ShaderType_Vertex );
-	cm::Shader::sShader frag_shader = backend->createShader( frag.data(), cm::Shader::eShaderType::ShaderType_Fragment );
-
-	printf( "Creating shader %s\n", _path.c_str() ); // TODO: change to wv::log
-
-	cm::Shader::hShaderProgram program = backend->createShaderProgram();
-	backend->attachShader( program, vert_shader );
-	backend->attachShader( program, frag_shader );
-	backend->linkShaderProgram( program );
-
-	return program;
-}
-
-cm::sTexture2D wv::cContentManager::loadTexture( const std::string& _path )
-{
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 	
-	cm::sTexture2D texture = backend->createTexture();
-	unsigned char* data = stbi_load( _path.c_str(), &texture.width, &texture.height, &texture.num_channels, 0 );
-	backend->generateTexture( texture, data );
+	cm::sTexture2D* texture = new cm::sTexture2D();
+	*texture = backend->createTexture();
+
+	unsigned char* data = stbi_load( _path.c_str(), &texture->width, &texture->height, &texture->num_channels, 0 );
+	backend->generateTexture( *texture, data );
 	stbi_image_free( data );
+
+	if ( texture->handle == 0 )
+	{
+		printf( "Failed to load texture\n" ); // TODO: change wv::log
+		delete texture;
+		return nullptr;
+	}
+	
+	printf( "Loaded texture %s\n", name.c_str() ); // TODO: change wv::log
+	m_textures[ name ] = texture;
 
 	return texture;
 }
 
-wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
+wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool _ignore_existing )
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
@@ -111,7 +105,7 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 	}
 
 	cMaterial* mat = new cMaterial(); // TODO: keep track and destroy
-	mat->shader = loadShader( material_values[ "shader" ] );
+	mat->shader = getShader( material_values[ "shader" ] );
 	
 	int loc = -1;
 	int uniform_index = 0;
@@ -132,20 +126,53 @@ wv::cMaterial* wv::cContentManager::loadMaterial( const std::string& _path )
 	return mat;
 }
 
-wv::cShader* wv::cContentManager::loadShader( const std::string& _path )
+wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ignore_existing )
 {
-	wv::cShader* shader = new cShader(); // TODO: keep track and destroy
-	shader->shader_program_handle = loadShaderProgram( _path );
+	std::string name = getFilenameFromPath( _path );
+	wv::cShader* shader = nullptr;
+
+	if ( m_shaders.count( name ) != 0 )
+	{
+		if ( _ignore_existing )
+			shader = m_shaders[ name ];
+		else
+			return m_shaders[ name ];
+	}
+	else
+	{
+		shader = new cShader( name, _path );
+		printf( "Creating shader %s\n", name.c_str() ); // TODO: change wv::log
+	}
+
+	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+
+	const std::string vert_path = _path + ".vert";
+	const std::string frag_path = _path + ".frag";
+
+	std::string vert = loadFileToString( vert_path );
+	std::string frag = loadFileToString( frag_path );
+
+	cm::Shader::sShader vert_shader = backend->createShader( vert.data(), cm::Shader::eShaderType::ShaderType_Vertex );
+	cm::Shader::sShader frag_shader = backend->createShader( frag.data(), cm::Shader::eShaderType::ShaderType_Fragment );
+
+	cm::Shader::hShaderProgram program = backend->createShaderProgram();
+	backend->attachShader( program, vert_shader );
+	backend->attachShader( program, frag_shader );
+	backend->linkShaderProgram( program );
+
+	shader->shader_program_handle = program;
 	shader->createUniformBlock();
+	m_shaders[ name ] = shader;
 
 	return shader;
 }
 
-wv::cModel* wv::cContentManager::loadModel( const std::string& _path )
+wv::cModel* wv::cContentManager::getModel( const std::string& _path, bool _ignore_existing )
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile( _path, aiProcess_Triangulate | aiProcess_FlipUVs );
 
+	// TODO: change to wv::assert
 	if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		printf( "ERROR::ASSIMP::%s\n", importer.GetErrorString() );
@@ -159,11 +186,23 @@ wv::cModel* wv::cContentManager::loadModel( const std::string& _path )
 	return model;
 }
 
-void wv::cContentManager::destroyShader( cShader** _shader )
+std::string wv::cContentManager::getFilenameFromPath( const std::string& _path )
 {
-	// TODO: destroy shader object in backend
-	delete *_shader;
-	*_shader = nullptr;
+	return _path.substr( _path.find_last_of( "/\\" ) + 1 );
+}
+
+void wv::cContentManager::reloadAllShaders()
+{
+	printf( "Reloading shaders\n" ); // TODO: change to wv::log
+
+	m_uniform_blocks = 0;
+	for ( auto& shader : m_shaders )
+	{
+		shader.second->destroy();
+		shader.second = cContentManager::getInstance().getShader( shader.second->path, true );
+	}
+	
+	printf( "Reloading done\n" ); // TODO: change to wv::log
 }
 
 void wv::cContentManager::processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model )
@@ -199,9 +238,12 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		v.position.y  = _assimp_mesh->mVertices[ i ].y;
 		v.position.z  = _assimp_mesh->mVertices[ i ].z;
 		
-		v.normal.x = _assimp_mesh->mNormals[ i ].x;
-		v.normal.y = _assimp_mesh->mNormals[ i ].y;
-		v.normal.z = _assimp_mesh->mNormals[ i ].z;
+		if ( _assimp_mesh->HasNormals() )
+		{
+			v.normal.x = _assimp_mesh->mNormals[ i ].x;
+			v.normal.y = _assimp_mesh->mNormals[ i ].y;
+			v.normal.z = _assimp_mesh->mNormals[ i ].z;
+		}
 
 		if ( _assimp_mesh->HasVertexColors( i ) )
 		{
@@ -233,7 +275,7 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimp_material = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		mesh->material = loadMaterial( "res/materials/mesh" );
+		mesh->material = getMaterial( "res/materials/mesh" );
 
 		aiString texpath;
 		assimp_material->GetTexture( aiTextureType_DIFFUSE, 0, &texpath );

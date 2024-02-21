@@ -25,7 +25,7 @@ namespace wv
 		wv::cShader* shader;
 	private:
 
-		std::map<std::string, cm::sTexture2D> m_textures;
+		std::map<std::string, cm::sTexture2D*> m_textures;
 		
 	};
 }

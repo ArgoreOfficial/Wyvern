@@ -22,13 +22,13 @@ namespace wv
 	WV_DECLARE_INTERFACE( iInputListener )
 
 	public:
-		static void invoke( sInputEvent _info );
+		static void invoke( sInputEvent _event );
 
 	protected:
 
-		inline  void subscribeInputEvent  ( void );
-		inline  void unsubscribeInputEvent( void );
-		virtual void onInputEvent( sInputEvent _info ) = 0;
+		void subscribeInputEvent  ( void );
+		void unsubscribeInputEvent( void );
+		virtual void onInputEvent( sInputEvent _event ) = 0;
 
 	private:
 

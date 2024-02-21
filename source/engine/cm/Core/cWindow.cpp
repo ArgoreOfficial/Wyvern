@@ -1,6 +1,8 @@
 #include "cWindow.h"
 
 #include <wv/Core/cApplication.h>
+#include <wv/Events/iInputListener.h>
+#include <wv/Events/iMouseListener.h>
 
 #include <stdio.h>
 
@@ -10,49 +12,45 @@
 
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
-	/*
-	sInputInfo* info = new sInputInfo();
-	info->type = sInputInfo::InputInfo_Key;
-
-	info->buttondown     = _action == GLFW_PRESS;
-	info->buttonup       = _action == GLFW_RELEASE;
-	info->repeat         = _action == GLFW_REPEAT;
-	info->key            = _key;
-	info->scancode       = _scancode;
-	info->mods           = _mods;
-	info->mouse_position = { 0, 0 };
-
-	wv::cApplication::getInstance().onRawInput( info );
-
-	delete info;
-	*/
+	wv::sInputEvent input_event;
+	input_event.buttondown     = _action == GLFW_PRESS;
+	input_event.buttonup       = _action == GLFW_RELEASE;
+	input_event.repeat         = _action == GLFW_REPEAT;
+	input_event.key            = _key;
+	input_event.scancode       = _scancode;
+	input_event.mods           = _mods;
+	
+	wv::iInputListener::invoke( input_event );
 }
 
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
-	/*
-	sInputInfo* info = new sInputInfo();
-	info->type = sInputInfo::InputInfo_Mouse;
+	wv::sMouseEvent mouse_event;
 
-	info->buttondown = false;
-	info->buttonup   = false;
-	info->repeat     = false;
-	info->key        = 0;
-	info->scancode   = 0;
-	info->mods       = 0;
+	mouse_event.position = wv::cVector2i{ (int)xpos, (int)ypos };
 
-	wv::cVector2i new_pos = wv::cVector2i{ (int)xpos, (int)ypos };
-	info->mouse_position = new_pos;
-	
-	wv::cApplication::getInstance().onRawInput( info );
-
-	delete info;
-	*/
+	wv::iMouseListener::invoke( mouse_event );
 }
 
-void mouseClickCallback( GLFWwindow* _window, int _button, int _action, int _mods )
+void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
+	wv::sMouseEvent mouse_event;
+	
+	double xpos, ypos;
+	glfwGetCursorPos( _window, &xpos, &ypos );
+	mouse_event.position = { (int)xpos, (int)ypos };
 
+	switch ( _button )
+	{
+	case GLFW_MOUSE_BUTTON_LEFT:   mouse_event.button = wv::sMouseEvent::MouseButton_Left;   break;
+	case GLFW_MOUSE_BUTTON_RIGHT:  mouse_event.button = wv::sMouseEvent::MouseButton_Right;  break;
+	case GLFW_MOUSE_BUTTON_MIDDLE: mouse_event.button = wv::sMouseEvent::MouseButton_Middle; break;
+	}
+
+	mouse_event.button_down = _action == GLFW_PRESS;
+	mouse_event.button_up =   _action == GLFW_RELEASE;
+
+	wv::iMouseListener::invoke( mouse_event );
 }
 
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
@@ -106,8 +104,6 @@ void cm::cWindow::processInput( void )
 void cm::cWindow::display( void )
 {
 	glfwSwapBuffers( m_window_object );
-	
-	
 	glfwPollEvents();
 }
 
@@ -135,6 +131,11 @@ static int getWindowHint_glfw( cm::eWindowAttribute _attribute )
 
 	default: return GLFW_FALSE;
 	}
+}
+
+void cm::cWindow::setMouseLock( bool _state )
+{
+	glfwSetInputMode( m_window_object, GLFW_CURSOR, _state ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
 }
 
 void cm::cWindow::setWindowAttribute( eWindowAttribute _attribute, int _value )
@@ -177,8 +178,8 @@ void cm::cWindow::createWindow()
 	glfwSetFramebufferSizeCallback( m_window_object, onResizeCallback );
 	glfwSetKeyCallback( m_window_object, keyCallback );
 
-	glfwSetInputMode( m_window_object, GLFW_CURSOR, GLFW_CURSOR_DISABLED ); // center cursor, TODO: allow to be disabled
 	glfwSetCursorPosCallback( m_window_object, mouseCallback );
+	glfwSetMouseButtonCallback( m_window_object, mouseButtonCallback );
 }
 
 void cm::cWindow::onResize( int _width, int _height )

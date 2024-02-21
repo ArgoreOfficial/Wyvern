@@ -147,7 +147,7 @@ cm::Shader::sShader cm::cBackend_OpenGL::createShader( const char* _source, Shad
 {
 	int  success;
 	char info_log[ 512 ];
-	unsigned int shader;
+	cm::Shader::hShader shader;
 
 	shader = glCreateShader( getShaderType_OpenGL( _type ) );
 
@@ -291,11 +291,12 @@ void cm::cBackend_OpenGL::attachFramebuffer( cm::sFramebuffer& _framebuffer )
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-void cm::cBackend_OpenGL::generateTexture( sTexture2D _texture, unsigned char* _data )
+void cm::cBackend_OpenGL::generateTexture( sTexture2D& _texture, unsigned char* _data )
 {
 	if ( !_data )
 	{
-		printf( "No texture data.\n" );
+		glDeleteTextures( 1, &_texture.handle );
+		_texture.handle = 0;
 		return;
 	}
 
@@ -306,8 +307,8 @@ void cm::cBackend_OpenGL::generateTexture( sTexture2D _texture, unsigned char* _
 
 	// filtering, TODO: implement as flag
 	// glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
 	GLint format = GL_RGBA;
 	switch ( _texture.num_channels )

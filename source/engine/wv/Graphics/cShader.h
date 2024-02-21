@@ -13,18 +13,23 @@ namespace wv
 	class cShader
 	{
 	public:
-		 cShader();
+		 cShader( std::string _name, std::string _path );
 		~cShader();
+
+		void destroy();
+
+		void createUniformBlock();
+
+		void ubBegin     ( void );
+		void ubEnd       ( void );
+		void ubBufferData( const std::string& _uniform, void* _data, size_t _size );
+
+		int getUniformLocation( std::string _uniform );
 
 		cm::Shader::hShaderProgram shader_program_handle;
 
-		void createUniformBlock();
-		void uniformBlockBegin();
-		void uniformBlockEnd();
-
-		void uniformBlockBuffer( const std::string& _uniform, void* _data, size_t _size );
-
-		int getUniformLocation( std::string _uniform );
+		const std::string name;
+		const std::string path;
 
 	private:
 		std::map<std::string, cm::Shader::sUniform> m_uniforms;
@@ -34,8 +39,6 @@ namespace wv
 
 		unsigned char* m_uniform_buffer_data = nullptr;
 		int m_buffer_slot = 0;
-		
-
 	};
 
 }

@@ -4,17 +4,41 @@
 #include <wv/Core/cRenderer.h>
 #include <wv/Managers/cContentManager.h>
 
-wv::cShader::cShader()
+wv::cShader::cShader( std::string _name, std::string _path ):
+	name{ _name },
+	path{ _path }
 {
+	
 }
 
 wv::cShader::~cShader()
 {
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
-	backend->destroyBuffer( m_uniform_buffer );
-	backend->destroyShaderProgram( shader_program_handle );
+	destroy();
+}
 
-	delete[] m_uniform_buffer_data;
+void wv::cShader::destroy()
+{
+	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+
+	if ( m_uniform_buffer.handle != 0 )
+	{
+		backend->destroyBuffer( m_uniform_buffer );
+		m_uniform_buffer.handle = 0;
+	}
+
+	if ( shader_program_handle != 0 )
+	{
+		backend->destroyShaderProgram( shader_program_handle );
+		shader_program_handle = 0;
+	}
+
+	m_uniforms.clear();
+
+	if ( m_uniform_buffer_data )
+	{
+		delete[] m_uniform_buffer_data;
+		m_uniform_buffer_data = nullptr;
+	}
 }
 
 void wv::cShader::createUniformBlock()
@@ -50,12 +74,12 @@ void wv::cShader::createUniformBlock()
 	m_uniform_buffer_data = new unsigned char[ m_uniform_block.size ];
 }
 
-void wv::cShader::uniformBlockBegin()
+void wv::cShader::ubBegin()
 {
 	
 }
 
-void wv::cShader::uniformBlockEnd()
+void wv::cShader::ubEnd()
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 ;
@@ -63,7 +87,7 @@ void wv::cShader::uniformBlockEnd()
 	backend->bufferData( m_uniform_buffer, m_uniform_buffer_data, m_uniform_block.size );
 }
 
-void wv::cShader::uniformBlockBuffer( const std::string& _uniform, void* _data, size_t _size )
+void wv::cShader::ubBufferData( const std::string& _uniform, void* _data, size_t _size )
 {
 	if ( m_uniform_block.uniforms.count( _uniform ) == 0 )
 		return;

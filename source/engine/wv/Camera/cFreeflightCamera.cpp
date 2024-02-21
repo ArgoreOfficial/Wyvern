@@ -13,39 +13,63 @@ wv::cFreeflightCamera::~cFreeflightCamera( void )
 {
 
 }
-/*
 
-void wv::cFreeflightCamera::onRawInput( sInputInfo* _info )
+void wv::cFreeflightCamera::onCreate()
 {
-	int button_delta = _info->buttondown ? 1 : -1;
+	subscribeMouseEvents();
+	subscribeInputEvent();
+}
 
-	if ( _info->type == sInputInfo::InputInfo_Key && !_info->repeat )
+void wv::cFreeflightCamera::onMouseEvent( sMouseEvent _event )
+{
+	cm::cWindow* window = cApplication::getInstance().getWindow();
+	
+	if ( (_event.button_down || _event.button_up) && _event.button == sMouseEvent::MouseButton_Right )
 	{
-		switch ( _info->key )
+		window->setMouseLock( _event.button_down );
+		m_old_mouse_pos = _event.position;
+		m_freecam_enabled = _event.button_down;
+
+		// reset input
+		m_rotate = { 0.0f, 0.0f };
+		m_move = { 0.0f, 0.0f, 0.0f };
+		return;
+	}
+
+	if ( !m_freecam_enabled )
+		return;
+
+	int delta_x = _event.position.x - m_old_mouse_pos.x;
+	int delta_y = _event.position.y - m_old_mouse_pos.y;
+	m_old_mouse_pos = _event.position;
+
+	if ( abs( delta_x ) < 500 && abs( delta_y ) < 500 )
+		m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
+
+}
+
+void wv::cFreeflightCamera::onInputEvent( sInputEvent _event )
+{
+	int button_delta = _event.buttondown ? 1 : -1;
+
+	if ( !m_freecam_enabled )
+		return;
+
+	if ( !_event.repeat )
+	{
+		switch ( _event.key )
 		{
 		case GLFW_KEY_W:            m_move.z += -button_delta; break;
-		case GLFW_KEY_S:            m_move.z +=  button_delta; break;
+		case GLFW_KEY_S:            m_move.z += button_delta; break;
 		case GLFW_KEY_A:            m_move.x += -button_delta; break;
-		case GLFW_KEY_D:            m_move.x +=  button_delta; break;
-		case GLFW_KEY_SPACE:        m_move.y +=  button_delta; break;
+		case GLFW_KEY_D:            m_move.x += button_delta; break;
+		case GLFW_KEY_SPACE:        m_move.y += button_delta; break;
 		case GLFW_KEY_LEFT_CONTROL: m_move.y += -button_delta; break;
 
-		case GLFW_KEY_LEFT_SHIFT:   m_speed +=  button_delta * 7.0f; break;
+		case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 7.0f; break;
 		}
 	}
-	else if( _info->type == sInputInfo::InputInfo_Mouse )
-	{
-		
-		cm::cWindow* window = cApplication::getInstance().getWindow();
-		int delta_x = _info->mouse_position.x - m_old_mouse_pos.x;
-		int delta_y = _info->mouse_position.y - m_old_mouse_pos.y;
-		m_old_mouse_pos = _info->mouse_position;
-
-		if( abs(delta_x) < 500 && abs( delta_y ) < 500 )
-			m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
-	}
 }
-*/
 
 void wv::cFreeflightCamera::update( double _delta_time )
 {

@@ -1,17 +1,17 @@
 #include "iInputListener.h"
 
-void wv::iInputListener::invoke( sInputEvent _info )
+void wv::iInputListener::invoke( sInputEvent _event )
 {
 	for ( int i = 0; i < m_hooks.size(); i++ )
-		m_hooks[ i ]->onInputEvent( _info );
+		m_hooks[ i ]->onInputEvent( _event );
 }
 
-inline void wv::iInputListener::subscribeInputEvent( void )
+void wv::iInputListener::subscribeInputEvent( void )
 {
 	iInputListener::m_hooks.push_back( this );
 }
 
-inline void wv::iInputListener::unsubscribeInputEvent( void )
+void wv::iInputListener::unsubscribeInputEvent( void )
 {
 	for ( int i = 0; i < iInputListener::m_hooks.size(); i++ )
 	{

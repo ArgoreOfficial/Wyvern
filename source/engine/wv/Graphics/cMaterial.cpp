@@ -27,7 +27,7 @@ wv::cMaterial::~cMaterial()
 
 	
 	for ( auto& texture : m_textures )
-		backend->destroyTexture( texture.second );
+		backend->destroyTexture( *texture.second );
 	
 	m_textures.clear();
 
@@ -44,11 +44,14 @@ void wv::cMaterial::bind()
 	backend->useShaderProgram( shader->shader_program_handle );
 
 	int offset = 0;
+	if ( m_textures.size() == 0 )
+		return;
+
 	for ( auto& texture : m_textures )
 	{
 		backend->setUniformInt( shader->getUniformLocation( texture.first ), offset );
 		backend->setActiveTextureSlot( offset );
-		backend->bindTexture2D( texture.second.handle );
+		backend->bindTexture2D( texture.second->handle );
 		offset++;
 	}
 
@@ -79,14 +82,16 @@ cm::sTexture2D* wv::cMaterial::addTexture( std::string _name, std::string _path 
 
 	if ( m_textures.count( _name ) )
 	{
-		printf( "Texture already exists\n" );
-		return &m_textures[ _name ];
+		printf( "Texture already added\n" );
+		return m_textures[ _name ];
 	}
 	
-	cm::sTexture2D texture = cContentManager::getInstance().loadTexture( _path );
+	cm::sTexture2D* texture = cContentManager::getInstance().getTexture( _path );
+	if ( !texture )
+		return nullptr;
 
 	m_textures[ _name ] = texture;
-	return &m_textures[ _name ];
+	return m_textures[ _name ];
 }
 
 cm::sTexture2D* wv::cMaterial::getTexture( std::string _name )
@@ -95,7 +100,7 @@ cm::sTexture2D* wv::cMaterial::getTexture( std::string _name )
 		return nullptr;
 
 	if ( m_textures.count( _name ) )
-		return &m_textures[ _name ];
+		return m_textures[ _name ];
 
 	return nullptr;
 }

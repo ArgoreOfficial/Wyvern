@@ -174,7 +174,7 @@ void cm::cBackend_D3D11::attachFramebuffer( cm::sFramebuffer& _buffer )
 {
 }
 
-void cm::cBackend_D3D11::generateTexture( sTexture2D _texture, unsigned char* _data )
+void cm::cBackend_D3D11::generateTexture( sTexture2D& _texture, unsigned char* _data )
 {
 }
 

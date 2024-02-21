@@ -58,7 +58,7 @@ void main()
         specular = 0;
 
 	// vec3 so that alpha isn't affected by lighting
-    vec3 frag_light = vec3( 1.0, 1.0, 1.0) * ( uAmbientLightIntensity + dirLight + specular ) + vec3( pointlight_accumulated );
+    vec3 frag_light = vec3( 1.0, 1.0, 1.0 ) * ( uAmbientLightIntensity + dirLight + specular ) + vec3( pointlight_accumulated );
 	vec3 surface_color = vec3(albedo) * frag_light;
 	
 	// render modes

@@ -14,7 +14,7 @@ wv::cMeshObject::~cMeshObject()
 
 wv::cMeshObject* wv::cMeshObject::create( std::string _path )
 {
-	m_model = cContentManager::getInstance().loadModel( _path );
+	m_model = cContentManager::getInstance().getModel( _path );
 	return this;
 }
 

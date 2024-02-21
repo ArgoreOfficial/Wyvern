@@ -32,7 +32,7 @@ void wv::cSprite::create( const std::string& _material )
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 	
 	m_quad = wv::Primitives::quad();
-	m_material = cContentManager::getInstance().loadMaterial( _material );
+	m_material = cContentManager::getInstance().getMaterial( _material );
 
 	// m_transform.setScale( { (float)texture->width, (float)texture->height, 1.0f } );
 	// m_aspect = (float)texture->height / (float)texture->width;
@@ -59,12 +59,12 @@ void wv::cSprite::render()
 
 	cVector4f col{ 1.0f, 1.0f, 1.0f, 1.0f };
 
-	m_material->shader->uniformBlockBegin();
-	m_material->shader->uniformBlockBuffer( "uProj", glm::value_ptr(projection), 64);
-	m_material->shader->uniformBlockBuffer( "uView", glm::value_ptr( view ), 64 );
-	m_material->shader->uniformBlockBuffer( "uModel", glm::value_ptr( model ), 64 );
-	m_material->shader->uniformBlockBuffer( "uColor", &col, 16 );
-	m_material->shader->uniformBlockEnd();
+	m_material->shader->ubBegin();
+	m_material->shader->ubBufferData( "uProj", glm::value_ptr(projection), 64);
+	m_material->shader->ubBufferData( "uView", glm::value_ptr( view ), 64 );
+	m_material->shader->ubBufferData( "uModel", glm::value_ptr( model ), 64 );
+	m_material->shader->ubBufferData( "uColor", &col, 16 );
+	m_material->shader->ubEnd();
 
 	backend->bindVertexArray( m_quad->vertex_array );
 	backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );

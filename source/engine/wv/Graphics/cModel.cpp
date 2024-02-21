@@ -52,12 +52,12 @@ void wv::cModel::render()
 
 		material.bind();
 
-		material.shader->uniformBlockBegin();
-		material.shader->uniformBlockBuffer( "uProj",  glm::value_ptr( projection ), 64 );
-		material.shader->uniformBlockBuffer( "uView",  glm::value_ptr( view ),       64 );
-		material.shader->uniformBlockBuffer( "uModel", glm::value_ptr( model ),      64 );
-		material.shader->uniformBlockBuffer( "uColor", &color, sizeof( cVector4f ) );
-		material.shader->uniformBlockEnd();
+		material.shader->ubBegin();
+		material.shader->ubBufferData( "uProj",  glm::value_ptr( projection ), 64 );
+		material.shader->ubBufferData( "uView",  glm::value_ptr( view ),       64 );
+		material.shader->ubBufferData( "uModel", glm::value_ptr( model ),      64 );
+		material.shader->ubBufferData( "uColor", &color, sizeof( cVector4f ) );
+		material.shader->ubEnd();
 
 		backend->bindVertexArray( meshes[ i ]->vertex_array );
 		backend->drawElements( meshes[ i ]->num_vertices, cm::eDrawMode::DrawMode_Triangle );

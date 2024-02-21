@@ -42,7 +42,7 @@ namespace cm
 		
 		void attachFramebuffer( cm::sFramebuffer& _buffer ) override;
 
-		void generateTexture( sTexture2D _texture, unsigned char* _data ) override;
+		void generateTexture( sTexture2D& _texture, unsigned char* _data ) override;
 
 		void addFramebufferTexture     ( cm::sFramebuffer& _buffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height ) override;
 		void addFramebufferRenderbuffer( cm::sFramebuffer& _buffer, cm::eRenderbufferType _type, int _width, int _height ) override;

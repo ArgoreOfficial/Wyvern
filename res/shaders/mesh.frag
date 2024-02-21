@@ -13,7 +13,11 @@ uniform sampler2D uAlbedo;
 
 void main()
 {
+    vec4 frag_color = texture( uAlbedo, TexCoord );
+
     gPosition = vec4( FragPos, 1.0f );
     gNormal = vec4( normalize( Normal ), 1.0f );
-    gAlbedo = texture( uAlbedo, TexCoord ) * Color;
+    
+    gAlbedo = frag_color * Color;
+    // gAlbedo.w = 1.0f;
 }

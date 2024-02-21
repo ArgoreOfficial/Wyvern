@@ -27,16 +27,20 @@ namespace wv
 		std::string              loadFileToString( const std::string& _path );
 		std::vector<std::string> loadFileToVector( const std::string& _path );
 		
-		cm::Shader::hShaderProgram loadShaderProgram( const std::string& _path );
-		cm::sTexture2D             loadTexture      ( const std::string& _path );
+		// TODO: change to wv::cTexture
+		cm::sTexture2D* getTexture( const std::string& _path, bool _ignore_existing = false );
 
-		cMaterial* loadMaterial( const std::string& _path );
-		cShader*   loadShader  ( const std::string& _path );
-		cModel*    loadModel   ( const std::string& _path );
+		cMaterial* getMaterial( const std::string& _path, bool _ignore_existing = false );
+		cShader*   getShader  ( const std::string& _path, bool _ignore_existing = false );
+		cModel*    getModel   ( const std::string& _path, bool _ignore_existing = false );
 
-		void destroyShader( cShader** _shader );
+		void destroyShader( cShader** _shader ) { }
 
 		int getUniformBlockLocation() { return m_uniform_blocks++; }
+
+		std::string getFilenameFromPath( const std::string& _path );
+
+		void reloadAllShaders();
 
 	private:
 
@@ -45,5 +49,7 @@ namespace wv
 
 		int m_uniform_blocks = 0;
 
+		std::map<std::string, cShader*> m_shaders;
+		std::map<std::string, cm::sTexture2D*> m_textures;
 	};
 }

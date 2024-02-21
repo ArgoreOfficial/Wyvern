@@ -62,7 +62,7 @@ namespace cm
 		
 		virtual void attachFramebuffer( cm::sFramebuffer& _framebuffer ) = 0;
 		
-		virtual void generateTexture( sTexture2D _texture, unsigned char* _data ) = 0;
+		virtual void generateTexture( sTexture2D& _texture, unsigned char* _data ) = 0;
 
 		virtual void addFramebufferTexture     ( cm::sFramebuffer& _buffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height ) = 0;
 		virtual void addFramebufferRenderbuffer( cm::sFramebuffer& _buffer, cm::eRenderbufferType _type, int _width, int _height ) = 0;
