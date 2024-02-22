@@ -47,7 +47,7 @@ void wv::cFramebuffer::bind()
 	cRenderer::getInstance().getBackend()->bindFramebuffer( &m_framebuffer_object );
 }
 
-void wv::cFramebuffer::bindTextures( cShader* _shader )
+void wv::cFramebuffer::bindTexturesToShader( cShader* _shader )
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 

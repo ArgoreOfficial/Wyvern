@@ -37,9 +37,9 @@ vec3 calcSpecular( vec3 _frag_pos, vec3 _normal, vec3 _light_dir, vec4 _light_co
     vec3 view_dir      = normalize( uCameraPosition - _frag_pos );
     vec3 halfway_dir   = normalize( _light_dir + view_dir );
 
-    float shininess = 30;
+    float shininess = 20;
     float spec = pow(max(dot(vec3(_normal), halfway_dir), 0.0), shininess );
-    return _light_color.xyz * spec;
+    return _light_color.xyz * spec * _light_color.w;
 }
 
 void main()

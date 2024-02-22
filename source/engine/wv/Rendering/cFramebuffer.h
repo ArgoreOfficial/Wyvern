@@ -21,7 +21,7 @@ namespace wv
 		void addTexture( std::string _name, cm::eTextureFormat _format, cm::eTextureType _type );
         
 		void bind();
-        void bindTextures( cShader* _shader );
+        void bindTexturesToShader( cShader* _shader );
         void unbind();
 
         void onResize();

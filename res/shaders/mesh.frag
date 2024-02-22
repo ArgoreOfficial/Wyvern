@@ -18,7 +18,7 @@ void main()
 
     // Screen-door transparency: Discard pixel if below threshold.
     float threshold = 0.5;
-
+    /*
     if(frag_color.w < threshold)
     {
         mat4 thresholdMatrix;
@@ -30,7 +30,10 @@ void main()
         if( frag_color.w < thresholdMatrix[ int(mod(gl_FragCoord.x, 4)) ][ int(mod(gl_FragCoord.y, 4)) ] )
             discard;
     }
-
+    */
+    if( frag_color.w < 0.1 )
+        discard;
+        
     gPosition = vec4( FragPos, 1.0f );
     gNormal = vec4( normalize( Normal ), 1.0f );
     

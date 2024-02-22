@@ -10,12 +10,9 @@
 #include <wv/Graphics/Primitives.h>
 
 #include <wv/Rendering/RenderPass/iRenderPass.h>
+#include <wv/Rendering/RenderPass/cDeferredLightRenderPass.h>
+
 #include <wv/Rendering/cFramebuffer.h>
-#include <wv/Scene/cSceneManager.h>
-
-#include <wv/Graphics/cShader.h>
-#include <wv/Camera/iCamera.h>
-
 
 wv::cRenderer::cRenderer( void ):
 	m_backend{ nullptr }
@@ -28,7 +25,6 @@ wv::cRenderer::~cRenderer( void )
 	// TODO: move to destroy();
 
 	delete m_gbuffer;
-	delete m_lightbuffer;
 	delete m_backend;
 	
 }
@@ -57,27 +53,18 @@ void wv::cRenderer::create()
 	m_gbuffer->addTexture( "gAlbedo",     cm::TextureFormat_RGBA,  cm::TextureType_Color );
 	m_gbuffer->finalize();
 	
-	m_lightbuffer = new cFramebuffer();
-	m_lightbuffer->create();
-	m_lightbuffer->addTexture( "gPosition", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_lightbuffer->addTexture( "gNormal",   cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_lightbuffer->addTexture( "gAlbedo",   cm::TextureFormat_RGBAf,  cm::TextureType_Color );
-	m_lightbuffer->addTexture( "gLight",    cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_lightbuffer->finalize();
-	
 	m_screen_quad = Primitives::quad( 1.0f );
 
-	cContentManager& content_manager = cContentManager::getInstance();
-
-
-	m_screen_shader  = content_manager.getShader( "res/shaders/deferred/s_screen" );
-	// m_lightpass_shader = content_manager.getShader( "res/shaders/deferred/s_lightpass" );
+	m_lightpass = new cDeferredLightRenderPass();
+	m_lightpass->onCreate();
+	m_render_passes.push_back( m_lightpass );
 
 	// TODO: split pass shaders and framebuffer into cRenderPass
 }
 
-void wv::cRenderer::destroyApplication()
+void wv::cRenderer::onDestroy()
 {
+	m_lightpass->onDestroy();
 	wv::cRenderer::destroy(); // TODO: clean up other singletons
 }
 
@@ -94,56 +81,32 @@ void wv::cRenderer::end( void )
 { 
 	m_gbuffer->unbind();
 
-	// 2pass
 	
 	/*
+	// 2pass
 	m_lightbuffer->bind();
 	
 	clear( 0x000000FF, cm::ClearMode_Color | cm::ClearMode_Depth );
 
 	m_backend->useShaderProgram( m_2pass->shader_program_handle );
-	m_gbuffer->bindTextures( m_2pass );
+	m_gbuffer->bindTexturesToShader( m_2pass );
 	m_backend->bindVertexArray( m_screen_quad->vertex_array );
 	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 	m_lightbuffer->unbind();
 
 	*/
 
+	cFramebuffer* input_buffer = m_gbuffer;
+	for ( int i = 0; i < m_render_passes.size(); i++ )
+	{
+		m_render_passes[ i ]->execute( input_buffer );
+		m_backend->bindVertexArray( m_screen_quad->vertex_array );
+		m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+		
+		input_buffer = m_render_passes[ i ]->getFramebuffer();
 
-	// screen pass
-	m_backend->useShaderProgram( m_screen_shader->shader_program_handle );
-	
-	cSceneManager& scene_manager = cSceneManager::getInstance();
-	cApplication& application = cApplication::getInstance();
 
-	cVector3f cam_dir = application.m_current_camera->getViewDirection();
-	cVector3f cam_pos = application.m_current_camera->getTransform().position;
-
-	cVector3f dirl       = scene_manager.getDirectionalLightDirection();
-	dirl.normalize();
-	float dirl_intensity = scene_manager.getDirectionalLightIntensity();
-	float ambl_intensity = scene_manager.getAmbientLightIntensity();
-
-	clear( 0x44A5FF00, cm::ClearMode_Color | cm::ClearMode_Depth );
-
-	m_screen_shader->ubBegin();
-	m_screen_shader->ubBufferData( "uRenderMode",                &debug_render_mode, sizeof( int ) );
-	m_screen_shader->ubBufferData( "uDirectionalLight",          &dirl,              sizeof( cVector3f ) );
-	m_screen_shader->ubBufferData( "uAmbientLightIntensity",     &ambl_intensity,    sizeof( float ) );
-	m_screen_shader->ubBufferData( "uDirectionalLightIntensity", &dirl_intensity,    sizeof( float ) );
-	m_screen_shader->ubBufferData( "uCameraDirection",           &cam_dir,           sizeof( cVector3f ) );
-	m_screen_shader->ubBufferData( "uCameraPosition",            &cam_pos,           sizeof( cVector3f ) );
-
-	int numlights = scene_manager.light_positions.size();
-	m_screen_shader->ubBufferData( "uNumPointLights", &numlights, sizeof( int ) );
-	m_screen_shader->ubBufferData( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
-	m_screen_shader->ubBufferData( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
-	
-	m_screen_shader->ubEnd();
-
-	m_gbuffer->bindTextures( m_screen_shader );
-	m_backend->bindVertexArray( m_screen_quad->vertex_array );
-	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+	}
 	
 	m_backend->end();
 }

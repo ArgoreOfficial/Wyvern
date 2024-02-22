@@ -2,9 +2,6 @@
 
 #include <wv/Core/iSingleton.h>
 
-#include <cm/Framework/Shader.h>
-#include <cm/Framework/Buffer.h>
-
 #include <vector>
 
 namespace cm { class iBackend; }
@@ -30,7 +27,7 @@ namespace wv
 		~cRenderer( void );
 
 		void create( void ) override;
-		void destroyApplication();
+		void onDestroy();
 
 		void onResize( int _width, int _height );
 		void clear   ( unsigned int _color, int _mode );
@@ -40,26 +37,24 @@ namespace wv
 
 		void setBackendType( cRenderer::eBackendType _backend ) { m_backend_type = _backend; }
 
-		cm::iBackend* getBackend( void ) { return m_backend; }
+		cm::iBackend* getBackend   ( void ) { return m_backend; }
+		cFramebuffer* getGBuffer   ( void ) { return m_gbuffer; }
+		cMesh*        getScreenQuad( void ) { return m_screen_quad; }
 
 		void addRenderPass( iRenderPass* _render_pass );
 
-		int debug_render_mode = 1;
+		int debug_render_mode   = 1;
 
 	private:
 
 		eBackendType  m_backend_type = eBackendType::BackendType_OpenGL;
 		cm::iBackend* m_backend      = nullptr;
 
+		cMesh*        m_screen_quad = nullptr;
+		cFramebuffer* m_gbuffer     = nullptr;
+
 		std::vector<iRenderPass*> m_render_passes;
-
-		cMesh* m_screen_quad;
-
-		cFramebuffer* m_gbuffer;
-		cFramebuffer* m_lightbuffer;
-
-		cShader* m_lightpass_shader;
-		cShader* m_screen_shader;
+		iRenderPass* m_lightpass;
 	};
 
 }
