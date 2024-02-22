@@ -56,7 +56,7 @@ namespace wv
 		cVector2f m_directional_light_rotation{ -40.0f, 0.0f };
 		float m_directional_light_intensity = 0.8f;
 
-		float m_ambient_light_intensity = 0.1f;
+		float m_ambient_light_intensity = 0.0f;
 
 	};
 

@@ -4,6 +4,9 @@
 #include <wv/Core/cRenderer.h>
 #include <wv/Managers/cContentManager.h>
 
+#include <stdexcept>
+#include <format>
+
 wv::cShader::cShader( std::string _name, std::string _path ):
 	name{ _name },
 	path{ _path }
@@ -77,8 +80,8 @@ void wv::cShader::createUniformBlock()
 
 void wv::cShader::ubBegin()
 {
-	for ( auto& uniform : m_used_uniforms )
-		uniform.second = false;
+	for ( auto& uniform : m_uniform_block.uniforms )
+		m_used_uniforms[ uniform.first ] = false;
 }
 
 void wv::cShader::ubEnd()
@@ -92,8 +95,8 @@ void wv::cShader::ubEnd()
 	backend->bufferData( m_uniform_buffer, m_uniform_buffer_data, m_uniform_block.size );
 
 	for ( auto& uniform : m_used_uniforms )
-		if ( uniform.second == false ) 
-			printf( "Uniform '%s' was never set. This may cause crashes", uniform.first.c_str() );
+		if ( uniform.second == false )
+			printf( "Uniform '%s' was never set. This may cause crashes\n", uniform.first.c_str() );
 
 }
 
@@ -110,6 +113,7 @@ void wv::cShader::ubBufferData( const std::string& _uniform, void* _data, size_t
 
 	int offset = m_uniform_block.uniforms[ _uniform ].offset;
 	memcpy( &m_uniform_buffer_data[ offset ], _data, _size );
+	m_used_uniforms[ _uniform ] = true;
 }
 
 int wv::cShader::getUniformLocation( std::string _uniform )

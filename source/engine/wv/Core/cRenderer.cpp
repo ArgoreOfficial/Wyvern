@@ -61,7 +61,7 @@ void wv::cRenderer::create()
 	m_lightbuffer->create();
 	m_lightbuffer->addTexture( "gPosition", cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_lightbuffer->addTexture( "gNormal",   cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_lightbuffer->addTexture( "gAlbedo",   cm::TextureFormat_RGBA,  cm::TextureType_Color );
+	m_lightbuffer->addTexture( "gAlbedo",   cm::TextureFormat_RGBAf,  cm::TextureType_Color );
 	m_lightbuffer->addTexture( "gLight",    cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_lightbuffer->finalize();
 	
@@ -135,12 +135,10 @@ void wv::cRenderer::end( void )
 	m_screen_shader->ubBufferData( "uCameraPosition",            &cam_pos,           sizeof( cVector3f ) );
 
 	int numlights = scene_manager.light_positions.size();
-	m_screen_shader->ubBufferData( "uNumPointLights",   &numlights, sizeof( int ) );
-	if ( numlights != 0 )
-	{
-		m_screen_shader->ubBufferData( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
-		m_screen_shader->ubBufferData( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
-	}
+	m_screen_shader->ubBufferData( "uNumPointLights", &numlights, sizeof( int ) );
+	m_screen_shader->ubBufferData( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
+	m_screen_shader->ubBufferData( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
+	
 	m_screen_shader->ubEnd();
 
 	m_gbuffer->bindTextures( m_screen_shader );

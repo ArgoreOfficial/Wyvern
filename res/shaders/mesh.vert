@@ -17,6 +17,7 @@ out vec2 TexCoord;
 out vec3 FragPos;
 out vec3 Normal;
 out vec4 Color;
+out vec3 ScreenNormal;
 
 void main()
 {
@@ -26,4 +27,7 @@ void main()
    FragPos  = aPos;
    Normal   = aNormal;
    Color    = uColor * aVertexColor;
+
+   vec3 snormal = (uView * uModel * vec4( aNormal, 1.0 )).xyz;
+   ScreenNormal = normalize( snormal );
 }

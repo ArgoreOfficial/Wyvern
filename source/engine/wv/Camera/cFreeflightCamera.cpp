@@ -43,9 +43,7 @@ void wv::cFreeflightCamera::onMouseEvent( sMouseEvent _event )
 	int delta_y = _event.position.y - m_old_mouse_pos.y;
 	m_old_mouse_pos = _event.position;
 
-	if ( abs( delta_x ) < 500 && abs( delta_y ) < 500 )
-		m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
-
+	m_rotate = wv::cVector2f( (float)delta_x, (float)delta_y );
 }
 
 void wv::cFreeflightCamera::onInputEvent( sInputEvent _event )

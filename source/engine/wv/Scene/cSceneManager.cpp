@@ -18,7 +18,8 @@ wv::cSceneManager::~cSceneManager( void )
 
 void wv::cSceneManager::create( void )
 {
-	
+	light_positions.push_back( { 0.0f, 0.0f, 0.0f, 1.0f } );
+	light_colors.push_back( { 1.0f, 0.9f, 0.0f, 20.0f } );
 }
 
 void wv::cSceneManager::update( double _delta_time )

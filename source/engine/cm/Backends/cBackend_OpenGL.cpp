@@ -125,6 +125,8 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
+
+	//glEnable( GL_FRAMEBUFFER_SRGB );
 }
 
 void cm::cBackend_OpenGL::clear( unsigned int _color, eClearMode _mode )
@@ -199,7 +201,7 @@ cm::Shader::sShader cm::cBackend_OpenGL::createShader( std::string& _source, Sha
 	if ( !success )
 	{
 		glGetShaderInfoLog( shader, 512, NULL, info_log );
-		printf( "ERROR::SHADER::COMPILATION_FAILED\n %s \n", info_log );
+		printf( "Error:\n%s\n", info_log);
 	}
 
 	m_num_shaders++;
