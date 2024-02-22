@@ -16,3 +16,20 @@
 The Wyvern Engine Source and Editor falls under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/)
 
 The Wyven Runtime and Runtime derivatives falls under the [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
+
+## Todo:
+
+this is more of a personal todo list to help me, rather than a carved-in-stone roadmap
+
+- [x] Custom RenderPasses
+- [ ] PBR-Materials
+- [ ] More shader control
+- [ ] ContentManager rework
+- [ ] Mesh Instancing
+- [ ] Animations
+- [ ] Audio
+- [ ] Scene/Levels
+- [ ] Better render pipeline flow control (ability to change to other/custom pipelines)
+- [ ] Raytracing pipeline (maybe)
+- [ ] D3D11 or D3D12 backend
+- [ ] Vulkan backend (one day)
