@@ -22,16 +22,16 @@ wv::cMaterial::cMaterial()
 wv::cMaterial::~cMaterial()
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	cContentManager& content_manager = cContentManager::getInstance();
 
-	backend->destroyShaderProgram( shader->shader_program_handle );
-
-	
 	for ( auto& texture : m_textures )
-		backend->destroyTexture( *texture.second );
+		content_manager.destroyTexture( texture.second );
 	
 	m_textures.clear();
-
-	delete shader;
+	
+	if ( shader )
+		content_manager.destroyShader( shader );
+	
 }
 
 void wv::cMaterial::bind()

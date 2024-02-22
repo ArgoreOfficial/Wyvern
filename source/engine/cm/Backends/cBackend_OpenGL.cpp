@@ -76,23 +76,42 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 		fprintf( stderr, "Failed to initialize GLAD\n" );
 		return;
 	}
+
 	glViewport( 0, 0, _window.getWidth(), _window.getHeight() );
 
-	const GLubyte* renderer = glGetString( GL_RENDERER );
-	const GLubyte* vendor = glGetString( GL_VENDOR );
-	const GLubyte* version = glGetString( GL_VERSION );
+	const GLubyte* renderer    = glGetString( GL_RENDERER );
+	const GLubyte* vendor      = glGetString( GL_VENDOR );
+	const GLubyte* version     = glGetString( GL_VERSION );
 	const GLubyte* glslVersion = glGetString( GL_SHADING_LANGUAGE_VERSION );
 
 	GLint major, minor;
+	GLint max_uniform_block_bindings; 
+	GLint max_uniform_blocks_v, max_uniform_blocks_f, max_uniform_blocks_g;
+	GLint max_uniform_block_size;
+
 	glGetIntegerv( GL_MAJOR_VERSION, &major );
 	glGetIntegerv( GL_MINOR_VERSION, &minor );
 
-	printf( "Renderer Backend: OpenGL\n" );
-	printf( "   Vendor            : %s\n", vendor );
-	printf( "   Renderer          : %s\n", renderer );
-	printf( "   Version (string)  : %s\n", version );
-	printf( "   Version (integer) : %d.%d\n", major, minor );
-	printf( "   GLSL Version      : %s\n", glslVersion );
+	glGetIntegerv( GL_MAX_UNIFORM_BUFFER_BINDINGS, &max_uniform_block_bindings );
+	glGetIntegerv( GL_MAX_UNIFORM_BLOCK_SIZE,      &max_uniform_block_size );
+	glGetIntegerv( GL_MAX_VERTEX_UNIFORM_BLOCKS,   &max_uniform_blocks_v );
+	glGetIntegerv( GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &max_uniform_blocks_f );
+	glGetIntegerv( GL_MAX_GEOMETRY_UNIFORM_BLOCKS, &max_uniform_blocks_g );
+
+	printf( "OpenGL Information\n" );
+	printf( "    Vendor            : %s\n",    vendor );
+	printf( "    Renderer          : %s\n",    renderer );
+	printf( "    Version (string)  : %s\n",    version );
+	printf( "    Version (integer) : %d.%d\n", major, minor );
+	printf( "    GLSL Version      : %s\n",    glslVersion );
+	printf( "\n" );
+	printf( "Hardware Information\n" );
+	printf( "    Max Uniform Block Bindings : %i\n", max_uniform_block_bindings );
+	printf( "    Max Uniform Block Size     : %i\n", max_uniform_block_size );
+	printf( "    Max Vert Uniform Blocks    : %i\n", max_uniform_blocks_v );
+	printf( "    Max Frag Uniform Blocks    : %i\n", max_uniform_blocks_f );
+	printf( "    Max Geom Uniform Blocks    : %i\n", max_uniform_blocks_g );
+	
 
 
 	// ATTRIBUTES
@@ -100,11 +119,9 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
-	glEnable( GL_PROGRAM_POINT_SIZE );
-
 	glEnable( GL_CULL_FACE );
-	glCullFace( GL_FRONT );
-	glFrontFace( GL_CW );
+	glCullFace( GL_BACK );
+	glFrontFace( GL_CCW );
 
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
@@ -137,6 +154,30 @@ void cm::cBackend_OpenGL::onResize( int _width, int _height )
 	glViewport( 0, 0, _width, _height );
 }
 
+void cm::cBackend_OpenGL::begin( void )
+{
+}
+
+void cm::cBackend_OpenGL::end( void )
+{
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+	glBindVertexArray( 0 );
+	glUseProgram( 0 );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void cm::cBackend_OpenGL::printdebug( void )
+{
+	printf( "OpenGL Debug:\n\n" );
+	printf( "  num shaders         : %i\n",   m_num_shaders         );
+	printf( "  num shader programs : %i\n",   m_num_shader_programs );
+	printf( "  num buffers         : %i\n",   m_num_buffers         );
+	printf( "  num vertex arrays   : %i\n",   m_num_vertex_arrays   );
+	printf( "  num textures        : %i\n",   m_num_textures        );
+	printf( "  num framebuffers    : %i\n",   m_num_framebuffers    );
+	printf( "  num renderbuffers   : %i\n\n", m_num_renderbuffers   );
+}
+
 cm::Shader::sShader cm::cBackend_OpenGL::createShader( std::string& _source, Shader::eShaderType _type )
 {
 	int  success;
@@ -161,13 +202,15 @@ cm::Shader::sShader cm::cBackend_OpenGL::createShader( std::string& _source, Sha
 		printf( "ERROR::SHADER::COMPILATION_FAILED\n %s \n", info_log );
 	}
 
+	m_num_shaders++;
 	return { shader, _type };
 }
 
 cm::Shader::hShaderProgram cm::cBackend_OpenGL::createShaderProgram()
 {
 	Shader::hShaderProgram program = glCreateProgram();
-
+	
+	m_num_shader_programs++;
 	return program;
 }
 
@@ -177,6 +220,7 @@ cm::sBuffer cm::cBackend_OpenGL::createBuffer( eBufferType _type, eBufferUsage _
 	glGenBuffers( 1, &buffer );
 	glBindBuffer( getBufferTarget_OpenGL( _type ), buffer );
 
+	m_num_buffers++;
 	return { buffer, _type, _usage };
 }
 
@@ -185,6 +229,7 @@ cm::hVertexArray cm::cBackend_OpenGL::createVertexArray()
 	hVertexArray vertex_array;
 	glGenVertexArrays( 1, &vertex_array );
 
+	m_num_vertex_arrays++;
 	return vertex_array;
 }
 
@@ -193,6 +238,7 @@ cm::sTexture2D cm::cBackend_OpenGL::createTexture()
 	sTexture2D texture;
 	glGenTextures( 1, &texture.handle );
 
+	m_num_textures++;
 	return texture;
 }
 
@@ -201,32 +247,38 @@ cm::sFramebuffer cm::cBackend_OpenGL::createFramebuffer( void )
 	sFramebuffer framebuffer;
 	glGenFramebuffers( 1, &framebuffer.handle );
 
+	m_num_framebuffers++;
     return framebuffer;
 }
 
 void cm::cBackend_OpenGL::destroyShader( Shader::sShader _shader )
 {
 	glDeleteShader( _shader.handle );
+	m_num_shaders--;
 }
 
 void cm::cBackend_OpenGL::destroyShaderProgram( Shader::hShaderProgram& _shader )
 {
 	glDeleteProgram( _shader );
+	m_num_shader_programs--;
 }
 
 void cm::cBackend_OpenGL::destroyBuffer( sBuffer& _buffer )
 {
 	glDeleteBuffers( 1, &_buffer.handle );
+	m_num_buffers--;
 }
 
 void cm::cBackend_OpenGL::destroyVertexArray( hVertexArray& _vertex_array )
 {
 	glDeleteVertexArrays( 1, &_vertex_array );
+	m_num_vertex_arrays--;
 }
 
 void cm::cBackend_OpenGL::destroyTexture( sTexture2D& _texture )
 {
 	glDeleteTextures( 1, &_texture.handle );
+	m_num_textures--;
 }
 
 void cm::cBackend_OpenGL::destroyFramebuffer( sFramebuffer& _framebuffer )
@@ -240,6 +292,7 @@ void cm::cBackend_OpenGL::destroyFramebuffer( sFramebuffer& _framebuffer )
 	_framebuffer.textures.clear();
 
 	glDeleteFramebuffers( 1, &_framebuffer.handle );
+	m_num_framebuffers--;
 }
 
 void cm::cBackend_OpenGL::attachShader( Shader::hShaderProgram& _program, Shader::sShader& _shader )

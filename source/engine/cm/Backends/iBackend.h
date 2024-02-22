@@ -41,8 +41,9 @@ namespace cm
 
 		virtual void onResize( int _width, int _height ) { }
 
-		virtual void begin( void ) { }
-		virtual void end  ( void ) { }
+		virtual void begin( void ) = 0;
+		virtual void end  ( void ) = 0;
+		virtual void printdebug( void ) { }
 
 		virtual Shader::sShader        createShader       ( std::string& _source, Shader::eShaderType _type ) = 0;
 		virtual Shader::hShaderProgram createShaderProgram( void ) = 0;

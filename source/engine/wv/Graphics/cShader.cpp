@@ -19,26 +19,36 @@ wv::cShader::~cShader()
 void wv::cShader::destroy()
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
-
+	printf( "cShader::destroy\n" );
 	if ( m_uniform_buffer.handle != 0 )
 	{
+		printf( "    m_uniform_buffer:%i\n", m_uniform_buffer.handle );
 		backend->destroyBuffer( m_uniform_buffer );
 		m_uniform_buffer.handle = 0;
 	}
+	else
+		printf( "   [err] no uniform buffer\n" );
 
 	if ( shader_program_handle != 0 )
 	{
+		printf( "    shader_program_handle:%i\n", shader_program_handle );
 		backend->destroyShaderProgram( shader_program_handle );
 		shader_program_handle = 0;
 	}
+	else
+		printf( "   [err] no shader handle\n" );
 
-	m_uniforms.clear();
+	printf( "   [*] m_uniforms.clear()\n" );
+	if( m_uniforms.size() != 0 )
+		m_uniforms.clear();
 
+	printf( "   [*] delete[] m_uniform_buffer_data\n" );
 	if ( m_uniform_buffer_data )
 	{
 		delete[] m_uniform_buffer_data;
 		m_uniform_buffer_data = nullptr;
 	}
+	printf( "\n" );
 }
 
 void wv::cShader::createUniformBlock()
@@ -60,7 +70,6 @@ void wv::cShader::createUniformBlock()
 		m_uniforms[ uniform.name ] = uniform;
 	} while ( loc != -1 );
 
-
 	m_uniform_block = backend->getUniformBlock( shader_program_handle, 0 );
 	if ( m_uniform_block.name == "" )
 		return;
@@ -72,6 +81,7 @@ void wv::cShader::createUniformBlock()
 	backend->bindBufferBase( m_uniform_buffer, m_buffer_slot );
 
 	m_uniform_buffer_data = new unsigned char[ m_uniform_block.size ];
+	printf( "    ubo:%i (%i)\n", m_uniform_buffer.handle, m_uniform_block.size );
 }
 
 void wv::cShader::ubBegin()

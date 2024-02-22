@@ -100,7 +100,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 
 void wv::cApplication::onInputEvent( sInputEvent _event )
 {
-	if ( _event.buttondown )
+	if ( _event.repeat )
 	{
 		int debug_render_mode = -1;
 

@@ -17,6 +17,10 @@ namespace cm
 	
 		void onResize( int _width, int _height ) override;
 
+		void begin( void ) override;
+		void end  ( void ) override;
+		void printdebug( void ) override;
+
 		Shader::sShader        createShader       ( std::string& _source, Shader::eShaderType _type ) override;
 		Shader::hShaderProgram createShaderProgram( void ) override;
 		sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) override;
@@ -55,7 +59,7 @@ namespace cm
 		void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) override;
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
 
-		int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
+		int                   getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
 		Shader::sUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;
 		Shader::sUniformBlock getUniformBlock   ( Shader::hShaderProgram _program, unsigned int _slot ) override;
 
@@ -73,5 +77,12 @@ namespace cm
 		int m_framebuffer_textures = 0;
 		int m_max_framebuffer_textures = 32; // TODO: query
 
+		int m_num_shaders         = 0;
+		int m_num_shader_programs = 0;
+		int m_num_buffers         = 0;
+		int m_num_vertex_arrays   = 0;
+		int m_num_textures        = 0;
+		int m_num_framebuffers    = 0;
+		int m_num_renderbuffers   = 0;
 	};
 }

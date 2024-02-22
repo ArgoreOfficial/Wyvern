@@ -7,7 +7,10 @@ wv::cMesh::~cMesh()
 {
 
 	if ( material )
+	{
 		delete material;
+		material = nullptr;
+	}
 
 	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
 	backend->destroyVertexArray( vertex_array );

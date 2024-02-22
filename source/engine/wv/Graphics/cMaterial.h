@@ -22,7 +22,8 @@ namespace wv
 		cm::sTexture2D* addTexture( std::string _name, std::string _path );
 		cm::sTexture2D* getTexture( std::string _name );
 
-		wv::cShader* shader;
+		wv::cShader* shader = nullptr;
+
 	private:
 
 		std::map<std::string, cm::sTexture2D*> m_textures;

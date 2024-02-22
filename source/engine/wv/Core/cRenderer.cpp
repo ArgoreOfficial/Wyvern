@@ -71,7 +71,6 @@ void wv::cRenderer::create()
 
 
 	m_screen_shader  = content_manager.getShader( "res/shaders/deferred/s_screen" );
-	m_screen_shader->createUniformBlock();
 	// m_lightpass_shader = content_manager.getShader( "res/shaders/deferred/s_lightpass" );
 
 	// TODO: split pass shaders and framebuffer into cRenderPass
@@ -139,7 +138,6 @@ void wv::cRenderer::end( void )
 	m_screen_shader->ubBufferData( "uNumLights",   &numlights, sizeof( int ) );
 	m_screen_shader->ubBufferData( "uLightPos[0]", scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights);
 	m_screen_shader->ubBufferData( "uLightCol[0]", scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights);
-
 	m_screen_shader->ubEnd();
 
 	m_gbuffer->bindTextures( m_screen_shader );

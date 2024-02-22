@@ -33,8 +33,9 @@ namespace wv
 		cMaterial* getMaterial( const std::string& _path, bool _ignore_existing = false );
 		cShader*   getShader  ( const std::string& _path, bool _ignore_existing = false );
 		cModel*    getModel   ( const std::string& _path, bool _ignore_existing = false );
-
-		void destroyShader( cShader** _shader ) { }
+		
+		void destroyShader ( cShader*        _shader );
+		void destroyTexture( cm::sTexture2D* _texture );
 
 		int getUniformBlockLocation() { return m_uniform_blocks++; }
 
@@ -48,6 +49,7 @@ namespace wv
 		cMesh* processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, const std::string& _directory );
 
 		int m_uniform_blocks = 0;
+		int m_reload_count = 0;
 
 		std::map<std::string, cShader*> m_shaders;
 		std::map<std::string, cm::sTexture2D*> m_textures;
