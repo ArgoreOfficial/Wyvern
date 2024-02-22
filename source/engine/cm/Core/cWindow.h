@@ -47,7 +47,11 @@ namespace cm
 
 		wv::cVector2i getMousePosition( void ) { return m_mouse_pos; }
 		
-		void setTitle    ( const char* _title ) { m_title = _title; glfwSetWindowTitle( m_window_object, _title ); }
+		void setTitle    ( const char* _title ) 
+		{ 
+			m_title = _title; 
+			glfwSetWindowTitle( m_window_object, _title ); 
+		}
 		void setVSync    ( bool _state )        { glfwSwapInterval( _state ); }
 		void setMouseLock( bool _state );
 

@@ -134,20 +134,15 @@ wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ign
 	if ( m_shaders.count( name ) != 0 )
 	{
 		if ( _ignore_existing )
-		{
 			shader = m_shaders[ name ];
-			printf( "reloadShader:%s\n", name.c_str() );
-		}
 		else
-		{
 			return m_shaders[ name ];
-		}
+		
 	}
 	else
 	{
 		shader = new cShader( name, _path );
-		printf( "createShader:%s", name.c_str() );
-		// printf( "Creating shader %s\n", name.c_str() ); // TODO: change wv::log
+		printf( "Creating shader %s\n", name.c_str() ); // TODO: change wv::log
 	}
 
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
@@ -160,22 +155,18 @@ wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ign
 
 	cm::Shader::sShader vert_shader = backend->createShader( vert, cm::Shader::eShaderType::ShaderType_Vertex );
 	cm::Shader::sShader frag_shader = backend->createShader( frag, cm::Shader::eShaderType::ShaderType_Fragment );
-	printf( "    vs:%i fs:%i\n", vert_shader.handle, frag_shader.handle );
-
+	
 	cm::Shader::hShaderProgram program = backend->createShaderProgram();
 	backend->attachShader( program, vert_shader );
 	backend->attachShader( program, frag_shader );
 	backend->linkShaderProgram( program );
-	printf( "    prog:%i\n", program );
-
+	
 	shader->shader_program_handle = program;
 	shader->createUniformBlock();
 	m_shaders[ name ] = shader;
 
 	backend->destroyShader( vert_shader );
 	backend->destroyShader( frag_shader );
-
-	printf( "\n" );
 
 	return shader;
 }
@@ -226,20 +217,15 @@ std::string wv::cContentManager::getFilenameFromPath( const std::string& _path )
 
 void wv::cContentManager::reloadAllShaders()
 {
-
-	printf( "Reloading shaders %i\n", m_reload_count ); // TODO: change to wv::log
-	m_reload_count++;
 	m_uniform_blocks = 0; // reset uniform block count, used for binding uniform buffer objects
-
-	cRenderer::getInstance().getBackend()->printdebug();
 
 	for ( auto& shader : m_shaders )
 		shader.second->destroy();
-	
+
 	for ( auto& shader : m_shaders )
 		shader.second = getShader( shader.second->path, true );
 
-	printf( "Reloading done\n" ); // TODO: change to wv::log
+	printf( "Reloaded shaders\n" ); // TODO: change to wv::log
 }
 
 void wv::cContentManager::processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model )

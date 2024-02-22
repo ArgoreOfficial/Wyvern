@@ -27,7 +27,7 @@ namespace cm
 
 	struct sBuffer
 	{
-		hBuffer handle;
+		hBuffer handle = 0;
 		eBufferType type;
 		eBufferUsage usage;
 	};

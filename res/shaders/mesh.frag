@@ -19,5 +19,5 @@ void main()
     gNormal = vec4( normalize( Normal ), 1.0f );
     
     gAlbedo = frag_color * Color;
-    // gAlbedo.w = 1.0f;
+    gAlbedo.w = 1.0f;
 }

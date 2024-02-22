@@ -80,6 +80,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 		updateDeltaTime( time, delta_time );
 		// update
 		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / m_average_frametime ) ).c_str() );
+		
 		m_window->processInput();
 
 		m_camera2D->update( delta_time );
@@ -100,7 +101,7 @@ void wv::cApplication::run( cSceneLoader* _scene_loader )
 
 void wv::cApplication::onInputEvent( sInputEvent _event )
 {
-	if ( _event.repeat )
+	if ( _event.buttondown )
 	{
 		int debug_render_mode = -1;
 

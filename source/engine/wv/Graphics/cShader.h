@@ -33,6 +33,7 @@ namespace wv
 
 	private:
 		std::map<std::string, cm::Shader::sUniform> m_uniforms;
+		std::map<std::string, bool> m_used_uniforms;
 
 		cm::Shader::sUniformBlock m_uniform_block;
 		cm::sBuffer m_uniform_buffer;

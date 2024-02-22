@@ -8,7 +8,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedo;
 
-const int NUM_LIGHTS = 1000;
+const int MAX_LIGHTS = 2;
 
 layout (std140) uniform uboRenderInfo
 {
@@ -19,8 +19,8 @@ layout (std140) uniform uboRenderInfo
    int   uNumPointLights;
    vec3  uCameraDirection;
    vec3  uCameraPosition;
-   vec4  uLightPos[ NUM_LIGHTS ];
-   vec4  uLightCol[ NUM_LIGHTS ];
+   vec4  uLightPos[ MAX_LIGHTS ];
+   vec4  uLightCol[ MAX_LIGHTS ];
 };
 
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -43,7 +43,7 @@ void main()
         vec3 relative = vec3( position ) - vec3( uLightPos[ i ] );
         
         float dist = length( vec3( position ) - vec3( uLightPos[ i ] ) );
-
+    
         if( dist < 1.0 )
             pointlight_accumulated += (1.0 - dist) * uLightCol[ i ];
     }

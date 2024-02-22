@@ -49,8 +49,7 @@ namespace wv
 		cMesh* processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, const std::string& _directory );
 
 		int m_uniform_blocks = 0;
-		int m_reload_count = 0;
-
+		
 		std::map<std::string, cShader*> m_shaders;
 		std::map<std::string, cm::sTexture2D*> m_textures;
 	};

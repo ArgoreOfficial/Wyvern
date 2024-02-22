@@ -29,7 +29,7 @@ static GLuint getBufferTarget_OpenGL( cm::eBufferType _type )
 	case cm::BufferType_Uniform: return GL_UNIFORM_BUFFER;       break;
 	}
 
-	return GL_BUFFER;
+	return 0;
 }
 
 static GLuint getPrimitive_OpenGL( cm::eDrawMode _mode )
@@ -110,7 +110,7 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 	printf( "    Max Uniform Block Size     : %i\n", max_uniform_block_size );
 	printf( "    Max Vert Uniform Blocks    : %i\n", max_uniform_blocks_v );
 	printf( "    Max Frag Uniform Blocks    : %i\n", max_uniform_blocks_f );
-	printf( "    Max Geom Uniform Blocks    : %i\n", max_uniform_blocks_g );
+	printf( "    Max Geom Uniform Blocks    : %i\n\n", max_uniform_blocks_g );
 	
 
 
@@ -505,15 +505,18 @@ void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer* _framebuffer )
 void cm::cBackend_OpenGL::bufferData( sBuffer& _buffer, void* _data, size_t _size )
 {
 	int target = getBufferTarget_OpenGL( _buffer.type );
-	if ( !target )
+	
+	if ( target == 0 || _buffer.handle == 0 )
 		return;
 
-	GLenum usage = GL_INVALID_ENUM;
+	GLenum usage = 0;
 	switch ( _buffer.usage )
 	{
-	case eBufferUsage::BufferUsage_Static:  usage = GL_STATIC_COPY;  break;
+	case eBufferUsage::BufferUsage_Static:  usage = GL_STATIC_DRAW;  break;
 	case eBufferUsage::BufferUsage_Dynamic: usage = GL_DYNAMIC_DRAW; break;
 	}
+	if ( usage == 0 )
+		return;
 
 	glBindBuffer( target, _buffer.handle );
 	glBufferData( target, _size, _data, usage );
