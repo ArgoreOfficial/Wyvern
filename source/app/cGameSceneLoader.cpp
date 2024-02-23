@@ -10,9 +10,12 @@
 void cGameSceneLoader::load( wv::cScene* _scene )
 {
 
-	_scene->addObject( ( new wv::cMeshObject( "City17" ) )->create( "res/models/City17/city17.dae" ) );
+	//_scene->addObject( ( new wv::cMeshObject( "City17" ) )->create( "res/models/City17/city17.dae" ) );
 	//_scene->addObject( ( new wv::cMeshObject( "funnycube" ) )->create( "res/models/Glimmer.dae" ) );
 	
+	_scene->addObject( ( new wv::cMeshObject( "Sponza" ) )->create( "res/models/sponza-gltf/glTF/Sponza.gltf" ) );
+
+
 	// (new wv::cSpriteObject( "sprite"    ))->create( "res/materials/sprite" );
 }
 

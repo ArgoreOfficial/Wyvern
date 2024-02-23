@@ -14,6 +14,11 @@ namespace wv
 		virtual void onDestroy( void ) = 0;
 		virtual void execute  ( cFramebuffer* _input_buffer ) = 0;
 		
+		void onResize( int _width, int _height )
+		{
+			if ( m_framebuffer )
+				m_framebuffer->onResize();
+		}
 		cFramebuffer* getFramebuffer( void ) { return m_framebuffer; }
 
 	protected:

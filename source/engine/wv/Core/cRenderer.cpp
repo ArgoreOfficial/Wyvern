@@ -48,9 +48,11 @@ void wv::cRenderer::create()
 
 	m_gbuffer = new cFramebuffer();
 	m_gbuffer->create();
-	m_gbuffer->addTexture( "gPosition",   cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gNormal",     cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gAlbedo",     cm::TextureFormat_RGBA,  cm::TextureType_Color );
+	m_gbuffer->addTexture( "gPosition",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gNormal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gAlbedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gMetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gDepth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
 	m_gbuffer->finalize();
 	
 	m_screen_quad = Primitives::quad( 1.0f );
@@ -68,7 +70,14 @@ void wv::cRenderer::onDestroy()
 	wv::cRenderer::destroy(); // TODO: clean up other singletons
 }
 
-void wv::cRenderer::onResize( int _width, int _height )        { m_backend->onResize( _width, _height ); }
+void wv::cRenderer::onResize( int _width, int _height ) 
+{ 
+	m_backend->onResize( _width, _height );
+	m_gbuffer->onResize();
+
+	for ( int i = 0; i < m_render_passes.size(); i++ )
+		m_render_passes[ i ]->onResize( _width, _height );
+}
 void wv::cRenderer::clear   ( unsigned int _color, int _mode ) { m_backend->clear( _color, ( cm::eClearMode )_mode ); }
 
 void wv::cRenderer::begin( void ) 
@@ -81,21 +90,6 @@ void wv::cRenderer::end( void )
 { 
 	m_gbuffer->unbind();
 
-	
-	/*
-	// 2pass
-	m_lightbuffer->bind();
-	
-	clear( 0x000000FF, cm::ClearMode_Color | cm::ClearMode_Depth );
-
-	m_backend->useShaderProgram( m_2pass->shader_program_handle );
-	m_gbuffer->bindTexturesToShader( m_2pass );
-	m_backend->bindVertexArray( m_screen_quad->vertex_array );
-	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
-	m_lightbuffer->unbind();
-
-	*/
-
 	cFramebuffer* input_buffer = m_gbuffer;
 	for ( int i = 0; i < m_render_passes.size(); i++ )
 	{
@@ -104,8 +98,6 @@ void wv::cRenderer::end( void )
 		m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 		
 		input_buffer = m_render_passes[ i ]->getFramebuffer();
-
-
 	}
 	
 	m_backend->end();

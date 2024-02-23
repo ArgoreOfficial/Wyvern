@@ -29,7 +29,7 @@ namespace wv
 		void create( void ) override;
 		void onDestroy();
 
-		void onResize( int _width, int _height );
+		void onResize( int _width, int _height ); // TODO: change to iWindowEvent
 		void clear   ( unsigned int _color, int _mode );
 
 		void begin( void );
@@ -43,7 +43,7 @@ namespace wv
 
 		void addRenderPass( iRenderPass* _render_pass );
 
-		int debug_render_mode   = 1;
+		int debug_render_mode = 0;
 
 	private:
 

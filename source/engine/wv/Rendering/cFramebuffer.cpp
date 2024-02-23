@@ -30,7 +30,7 @@ void wv::cFramebuffer::finalize()
 	backend->attachFramebuffer( m_framebuffer_object );
 
 	// depth buffer, make optional?
-	backend->addFramebufferRenderbuffer( m_framebuffer_object, cm::eRenderbufferType::RenderbufferType_Depth, window->getWidth(), window->getHeight() );
+	//backend->addFramebufferRenderbuffer( m_framebuffer_object, cm::eRenderbufferType::RenderbufferType_Depth, window->getWidth(), window->getHeight() );
 
 }
 
@@ -67,5 +67,22 @@ void wv::cFramebuffer::unbind()
 
 void wv::cFramebuffer::onResize()
 {
-	// TODO: this
+	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	cm::cWindow* window = cApplication::getInstance().getWindow();
+
+	std::vector<cm::sTexture2D> textures = m_framebuffer_object.textures;
+	std::vector<cm::sRenderbuffer> renderbuffers = m_framebuffer_object.renderbuffers;
+
+	cRenderer::getInstance().getBackend()->destroyFramebuffer( m_framebuffer_object );
+	m_framebuffer_object = cRenderer::getInstance().getBackend()->createFramebuffer();
+
+	int width = window->getWidth();
+	int height = window->getHeight();
+
+	printf( "resized framebuffer %i,%i\n", width, height );
+
+	for ( int i = 0; i < textures.size(); i++ )
+		backend->addFramebufferTexture( m_framebuffer_object, textures[ i ].name, textures[ i ].format, textures[ i ].type, width, height );
+	
+	backend->addFramebufferRenderbuffer( m_framebuffer_object, cm::RenderbufferType_Depth, width, height );
 }

@@ -17,17 +17,13 @@ out vec2 TexCoord;
 out vec3 FragPos;
 out vec3 Normal;
 out vec4 Color;
-out vec3 ScreenNormal;
 
 void main()
 {
    gl_Position = uProj * uView * uModel * vec4( aPos, 1.0 );
    
    TexCoord = aTexCoord;
-   FragPos  = aPos;
+   FragPos  = (uModel * vec4( aPos, 1.0 )).xyz;
    Normal   = aNormal;
    Color    = uColor * aVertexColor;
-
-   vec3 snormal = (uView * uModel * vec4( aNormal, 1.0 )).xyz;
-   ScreenNormal = normalize( snormal );
 }

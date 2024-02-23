@@ -6,6 +6,7 @@
 
 #include <wv/Graphics/cMaterial.h>
 
+#include <wv/Math/Transform.h>
 #include <wv/Math/Vector2.h>
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
@@ -37,6 +38,8 @@ namespace wv
 		cm::cVertexLayout layout{};
 
 		cMaterial* material = nullptr;
+
+		cTransformf transform;
 
 	private:
 

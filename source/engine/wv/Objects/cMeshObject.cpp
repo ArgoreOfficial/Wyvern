@@ -15,6 +15,8 @@ wv::cMeshObject::~cMeshObject()
 wv::cMeshObject* wv::cMeshObject::create( std::string _path )
 {
 	m_model = cContentManager::getInstance().getModel( _path );
+	m_model->create( _path );
+	m_model->transform.scale = { 0.008f, 0.008f, 0.008f }; // TODO: fix
 	return this;
 }
 

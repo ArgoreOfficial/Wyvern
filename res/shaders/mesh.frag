@@ -3,14 +3,16 @@
 layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gAlbedo;
+layout (location = 3) out vec4 gMetallicRoughness;
+layout (location = 4) out float gDepth;
 
 in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
 in vec4 Color;
-in vec3 ScreenNormal;
 
 uniform sampler2D uAlbedo;
+uniform sampler2D uMetallicRoughness;
 
 void main()
 {
@@ -31,12 +33,14 @@ void main()
             discard;
     }
     */
+    
     if( frag_color.w < 0.1 )
         discard;
         
-    gPosition = vec4( FragPos, 1.0f );
-    gNormal = vec4( normalize( Normal ), 1.0f );
-    
+    gPosition  = vec4( FragPos, 1.0f );
+    gNormal    = vec4( normalize( Normal ), 1.0f );
+    gMetallicRoughness = texture( uMetallicRoughness, TexCoord );
+    gDepth = gl_FragCoord.z;
     gAlbedo = frag_color * Color;
     gAlbedo.w = 1.0f;
 }

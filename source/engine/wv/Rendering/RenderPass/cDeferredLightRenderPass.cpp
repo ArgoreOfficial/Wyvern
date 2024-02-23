@@ -1,17 +1,21 @@
 #include "cDeferredLightRenderPass.h"
 
 #include <cm/Backends/iBackend.h>
+
+#include <wv/Camera/iCamera.h>
 #include <wv/Core/cApplication.h>
 #include <wv/Core/cRenderer.h>
-#include <wv/Scene/cSceneManager.h>
-#include <wv/Managers/cContentManager.h>
-#include <wv/Camera/iCamera.h>
-
 #include <wv/Graphics/cShader.h>
 #include <wv/Graphics/cMesh.h>
-
+#include <wv/Managers/cContentManager.h>
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
+#include <wv/Scene/cSceneManager.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 void wv::cDeferredLightRenderPass::onCreate( void )
 {
@@ -19,10 +23,11 @@ void wv::cDeferredLightRenderPass::onCreate( void )
 
 	m_framebuffer = new cFramebuffer();
 	m_framebuffer->create();
-	m_framebuffer->addTexture( "gPosition", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gNormal", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gAlbedo", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gLight", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "gPosition",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "gNormal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "gAlbedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "gMetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "gLight",             cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_framebuffer->finalize();
 }
 
@@ -52,7 +57,11 @@ void wv::cDeferredLightRenderPass::execute( cFramebuffer* _input_buffer )
 	backend->useShaderProgram( m_shader->shader_program_handle );
 	_input_buffer->bindTexturesToShader( m_shader );
 
-	renderer.clear( 0x44A5FF00, cm::eClearMode::ClearMode_Color | cm::ClearMode_Depth );
+	renderer.clear( 0x44A5FFFF, cm::eClearMode::ClearMode_Color | cm::ClearMode_Depth );
+
+	iCamera* camera = cApplication::getInstance().m_current_camera;
+	glm::mat4 view = camera->getViewMatrix();
+	glm::mat4 proj = camera->getProjectionMatrix();
 
 	m_shader->ubBegin();
 	m_shader->ubBufferData( "uRenderMode",                &renderer.debug_render_mode,          sizeof( int ) );
@@ -62,6 +71,8 @@ void wv::cDeferredLightRenderPass::execute( cFramebuffer* _input_buffer )
 	m_shader->ubBufferData( "uCameraDirection",           &cam_dir,                             sizeof( cVector3f ) );
 	m_shader->ubBufferData( "uCameraPosition",            &cam_pos,                             sizeof( cVector3f ) );
 	m_shader->ubBufferData( "uNumPointLights",            &numlights,                           sizeof( int ) );
+	m_shader->ubBufferData( "uViewMatrix",                glm::value_ptr( view ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
+	m_shader->ubBufferData( "uProjMatrix",                glm::value_ptr( proj ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
 	m_shader->ubBufferData( "uLightPos[0]",               scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights );
 	m_shader->ubBufferData( "uLightCol[0]",               scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights );
 	m_shader->ubEnd();

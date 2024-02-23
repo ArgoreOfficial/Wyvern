@@ -300,12 +300,14 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		aiMaterial* assimp_material = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 		mesh->material = getMaterial( "res/materials/mesh" );
 
-		aiString texpath;
-		assimp_material->GetTexture( aiTextureType_DIFFUSE, 0, &texpath );
-		std::string fullpath( texpath.C_Str() );
-		fullpath = _directory + "/" + fullpath;
+		aiString albedo_path; assimp_material->GetTexture( aiTextureType_DIFFUSE, 0, &albedo_path );
+		std::string full_albedo_path( albedo_path.C_Str() ); full_albedo_path = _directory + "/" + full_albedo_path;
 
-		mesh->material->addTexture( "uAlbedo", fullpath.c_str() );
+		aiString mr_path; assimp_material->GetTexture( aiTextureType_DIFFUSE_ROUGHNESS, 0, &mr_path );
+		std::string full_mr_path( mr_path.C_Str() ); full_mr_path = _directory + "/" + full_mr_path;
+
+		mesh->material->addTexture( "uAlbedo",            full_albedo_path.c_str() );
+		mesh->material->addTexture( "uMetallicRoughness", full_mr_path.c_str() );
 	}
 
 	/* create vertex array */

@@ -60,7 +60,7 @@ void wv::cModel::render()
 		material.shader->ubEnd();
 
 		backend->bindVertexArray( meshes[ i ]->vertex_array );
-		backend->drawElements( meshes[ i ]->num_vertices, cm::eDrawMode::DrawMode_Triangle );
+		backend->drawElements( meshes[ i ]->num_indices, cm::eDrawMode::DrawMode_Triangle );
 
 		material.unbind();
 	}

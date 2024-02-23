@@ -29,6 +29,5 @@ namespace wv
 		cm::sFramebuffer m_framebuffer_object;
     private:
 
-
     };
 }

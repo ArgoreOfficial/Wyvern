@@ -417,8 +417,8 @@ void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer,
 	{
 		switch ( _type ) // depth and stencil buffer 
 		{
-		case TextureType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT; type = GL_FLOAT; break;
-		case TextureType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;   type = GL_BYTE;  break;
+		case TextureType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT32; type = GL_FLOAT; break;
+		case TextureType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;     type = GL_BYTE;  break;
 		}
 	}
 
@@ -430,13 +430,11 @@ void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer,
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
-	switch ( _type )
-	{
-	case TextureType_Color:   glFramebufferTexture2D( GL_FRAMEBUFFER, attachment_slot,             GL_TEXTURE_2D, texture.handle, 0 ); break;
-	case TextureType_Depth:   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,         GL_TEXTURE_2D, texture.handle, 0 ); break;
-	case TextureType_Stencil: glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.handle, 0 ); break;
-	}
+	if( _type == TextureType_Depth )   attachment_slot = GL_DEPTH_ATTACHMENT;
+	if( _type == TextureType_Stencil ) attachment_slot = GL_DEPTH_STENCIL_ATTACHMENT;
 	
+	glFramebufferTexture( GL_FRAMEBUFFER, attachment_slot, texture.handle, 0 );
+
 	texture.format = _format;
 	texture.attachment_slot = attachment_slot;
 	texture.num_channels = _format % 4 + 1;
@@ -499,9 +497,15 @@ void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer* _framebuffer )
 
 	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer->handle );
 
-	GLuint attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 }; // TODO: make better
-	glDrawBuffers( (int)_framebuffer->textures.size(), attachments);
+	//GLuint attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 }; // TODO: make better
+	GLuint* attachments = new GLuint[ _framebuffer->textures.size() ];
+
+	for ( int i = 0; i < (int)_framebuffer->textures.size(); i++ )
+		attachments[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	
+	glDrawBuffers( (int)_framebuffer->textures.size(), attachments );
+	
+	delete[] attachments;
 }
 
 void cm::cBackend_OpenGL::bufferData( sBuffer& _buffer, void* _data, size_t _size )
