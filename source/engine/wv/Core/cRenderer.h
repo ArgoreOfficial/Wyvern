@@ -13,6 +13,7 @@ namespace wv
 	class cMesh;
 	class cShader;
 	class cFramebuffer;
+	class cAssemblerPass;
 
 	class cRenderer : public iSingleton<cRenderer>
 	{
@@ -54,7 +55,7 @@ namespace wv
 		cFramebuffer* m_gbuffer     = nullptr;
 
 		std::vector<iRenderPass*> m_render_passes;
-		iRenderPass* m_lightpass;
+		cAssemblerPass* m_assembler = nullptr;
 	};
 
 }

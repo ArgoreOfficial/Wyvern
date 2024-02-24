@@ -16,7 +16,7 @@ const float EXPOSURE        = 0.04;
 
 const uint  SSS_MAX_STEPS          = 16;
 const float g_sss_ray_max_distance = 0.05f;
-const float SSS_THICKNESS          = 0.02f;  
+const float SSS_THICKNESS          = 0.2f;  
 const float SSS_STEP_LEN           = g_sss_ray_max_distance / float(SSS_MAX_STEPS);
 
 layout (std140) uniform uboRenderInfo
@@ -87,7 +87,7 @@ float computeScreenSpaceShadows( vec3 _light_dir )
 
     for(int i = 0; i < SSS_MAX_STEPS; i++)
     {
-        //ray_pos += ray_step;
+        ray_pos += ray_step;
         ray_uv = posToScreen( ray_pos ).xy;
 
         ray_uv.x = ray_uv.x * 0.5 + 0.5;
@@ -103,9 +103,9 @@ float computeScreenSpaceShadows( vec3 _light_dir )
         float depth_z     = texture( gDepth, ray_uv ).r;
         float depth_delta = ray_z - depth_z;
         
-        return depth_z;
-        return ray_z;
-        return -depth_delta;
+        //return depth_z;
+        //return -depth_delta;
+        //return ray_z;
 
         if( depth_delta > 0.0f && depth_delta < SSS_THICKNESS )
             return 0;

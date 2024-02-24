@@ -11,6 +11,7 @@
 
 #include <wv/Rendering/RenderPass/iRenderPass.h>
 #include <wv/Rendering/RenderPass/cDeferredLightRenderPass.h>
+#include <wv/Rendering/RenderPass/cAssemblerPass.h>
 
 #include <wv/Rendering/cFramebuffer.h>
 
@@ -48,25 +49,36 @@ void wv::cRenderer::create()
 
 	m_gbuffer = new cFramebuffer();
 	m_gbuffer->create();
-	m_gbuffer->addTexture( "gPosition",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gNormal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gAlbedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gMetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gDepth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
+	m_gbuffer->addTexture( "gbuffer_Position",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Normal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
 	m_gbuffer->finalize();
 	
 	m_screen_quad = Primitives::quad( 1.0f );
 
-	m_lightpass = new cDeferredLightRenderPass();
-	m_lightpass->onCreate();
-	m_render_passes.push_back( m_lightpass );
+	m_render_passes.push_back( new cDeferredLightRenderPass() );
+	m_assembler = new cAssemblerPass();
 
-	// TODO: split pass shaders and framebuffer into cRenderPass
+	for ( int i = 0; i < m_render_passes.size(); i++ )
+		m_render_passes[ i ]->onCreate();
+
+	m_assembler->onCreate();
 }
 
 void wv::cRenderer::onDestroy()
 {
-	m_lightpass->onDestroy();
+	for ( int i = 0; i < m_render_passes.size(); i++ )
+	{
+		m_render_passes[ i ]->onDestroy();
+		delete m_render_passes[ i ];
+	}
+	m_render_passes.clear();
+
+	m_assembler->onDestroy();
+	delete m_assembler;
+
 	wv::cRenderer::destroy(); // TODO: clean up other singletons
 }
 
@@ -93,13 +105,22 @@ void wv::cRenderer::end( void )
 	cFramebuffer* input_buffer = m_gbuffer;
 	for ( int i = 0; i < m_render_passes.size(); i++ )
 	{
+		m_render_passes[ i ]->bind();
+		
 		m_render_passes[ i ]->execute( input_buffer );
 		m_backend->bindVertexArray( m_screen_quad->vertex_array );
 		m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 		
+		m_render_passes[ i ]->unbind();
+		
 		input_buffer = m_render_passes[ i ]->getFramebuffer();
 	}
 	
+	// final pass
+	m_assembler->execute( input_buffer );
+	m_backend->bindVertexArray( m_screen_quad->vertex_array );
+	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+
 	m_backend->end();
 }
 

@@ -19,15 +19,15 @@
 
 void wv::cDeferredLightRenderPass::onCreate( void )
 {
-	m_shader = cContentManager::getInstance().getShader( "res/shaders/deferred/s_screen" );
+	m_shader = cContentManager::getInstance().getShader( "res/shaders/deferred/s_light_pass" );
 
 	m_framebuffer = new cFramebuffer();
 	m_framebuffer->create();
-	m_framebuffer->addTexture( "gPosition",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gNormal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gAlbedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gMetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_framebuffer->addTexture( "gLight",             cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "light_Position",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "light_Normal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "light_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "light_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_framebuffer->addTexture( "light_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
 	m_framebuffer->finalize();
 }
 
