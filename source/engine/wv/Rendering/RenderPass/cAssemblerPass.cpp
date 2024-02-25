@@ -22,13 +22,13 @@ void wv::cAssemblerPass::onCreate( void )
 	m_shader = cContentManager::getInstance().getShader( "res/shaders/deferred/s_assembler" );
 
 	m_framebuffer = new cFramebuffer();
-	m_framebuffer->create();
+	//m_framebuffer->create();
 	//m_framebuffer->addTexture( "final_Position",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	//m_framebuffer->addTexture( "final_Normal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	//m_framebuffer->addTexture( "final_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	//m_framebuffer->addTexture( "final_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	//m_framebuffer->addTexture( "final_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
-	m_framebuffer->finalize();
+	//m_framebuffer->finalize();
 }
 
 void wv::cAssemblerPass::onDestroy( void )

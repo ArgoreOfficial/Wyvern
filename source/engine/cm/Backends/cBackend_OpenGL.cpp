@@ -497,15 +497,12 @@ void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer* _framebuffer )
 
 	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer->handle );
 
-	//GLuint attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 }; // TODO: make better
-	GLuint* attachments = new GLuint[ _framebuffer->textures.size() ];
+	std::vector<GLuint> attachments;
 
 	for ( int i = 0; i < (int)_framebuffer->textures.size(); i++ )
-		attachments[ i ] = GL_COLOR_ATTACHMENT0 + i;
+		attachments.push_back( GL_COLOR_ATTACHMENT0 + i );
 	
-	glDrawBuffers( (int)_framebuffer->textures.size(), attachments );
-	
-	delete[] attachments;
+	glDrawBuffers( (int)attachments.size(), attachments.data() );
 }
 
 void cm::cBackend_OpenGL::bufferData( sBuffer& _buffer, void* _data, size_t _size )
@@ -682,4 +679,11 @@ void cm::cBackend_OpenGL::setUniformVec4f( int _location, wv::cVector4<float> _v
 void cm::cBackend_OpenGL::setUniformVec4d( int _location, wv::cVector4<double> _vector )
 {
 	glUniform4d( _location, _vector.x, _vector.y, _vector.z, _vector.w );
+}
+
+int cm::cBackend_OpenGL::getUniformInt( Shader::hShaderProgram _program, int _location )
+{
+	int val = -1;
+	glGetUniformiv( _program, _location, &val );
+    return val;
 }

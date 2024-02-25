@@ -95,6 +95,8 @@ namespace cm
 		virtual void setUniformVec4f       ( int _location, wv::cVector4<float> _vector ) = 0;
 		virtual void setUniformVec4d       ( int _location, wv::cVector4<double> _vector ) = 0;
 
+		virtual int getUniformInt( Shader::hShaderProgram _program, int _location ) = 0;
+
 	protected:
 		iBackend() { }
 

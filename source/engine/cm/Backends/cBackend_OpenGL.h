@@ -72,6 +72,8 @@ namespace cm
 		void setUniformVec4f( int _location, wv::cVector4<float> _vector ) override;
 		void setUniformVec4d( int _location, wv::cVector4<double> _vector ) override;
 
+		int getUniformInt( Shader::hShaderProgram _program, int _location ) override;
+
 	private:
 
 		int m_framebuffer_textures = 0;

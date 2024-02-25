@@ -95,6 +95,7 @@ void wv::cRenderer::clear   ( unsigned int _color, int _mode ) { m_backend->clea
 void wv::cRenderer::begin( void ) 
 { 
 	m_backend->begin();
+
 	m_gbuffer->bind();
 }
 
@@ -102,6 +103,7 @@ void wv::cRenderer::end( void )
 { 
 	m_gbuffer->unbind();
 
+	// execute render passes
 	cFramebuffer* input_buffer = m_gbuffer;
 	for ( int i = 0; i < m_render_passes.size(); i++ )
 	{
@@ -116,7 +118,7 @@ void wv::cRenderer::end( void )
 		input_buffer = m_render_passes[ i ]->getFramebuffer();
 	}
 	
-	// final pass
+	// assembler pass
 	m_assembler->execute( input_buffer );
 	m_backend->bindVertexArray( m_screen_quad->vertex_array );
 	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );

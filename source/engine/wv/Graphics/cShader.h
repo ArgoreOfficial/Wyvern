@@ -24,7 +24,8 @@ namespace wv
 		void ubEnd       ( void );
 		void ubBufferData( const std::string& _uniform, void* _data, size_t _size );
 
-		int getUniformLocation( std::string _uniform );
+		int getUniformLocation( const std::string& _uniform );
+		int getUniformBinding( const std::string& _uniform ); // should only be used for samplers
 
 		cm::Shader::hShaderProgram shader_program_handle;
 
@@ -34,6 +35,7 @@ namespace wv
 	private:
 		std::map<std::string, cm::Shader::sUniform> m_uniforms;
 		std::map<std::string, bool> m_used_uniforms;
+		std::map<std::string, int> m_uniform_bindings;
 
 		cm::Shader::sUniformBlock m_uniform_block;
 		cm::sBuffer m_uniform_buffer;

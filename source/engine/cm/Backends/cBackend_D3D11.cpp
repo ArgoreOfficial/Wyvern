@@ -277,6 +277,11 @@ void cm::cBackend_D3D11::setUniformVec4d( int _location, wv::cVector4<double> _v
 {
 }
 
+int cm::cBackend_D3D11::getUniformInt( Shader::hShaderProgram _program, int _location )
+{
+    return 0;
+}
+
 int cm::cBackend_D3D11::createSwapchainResources()
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer = nullptr;

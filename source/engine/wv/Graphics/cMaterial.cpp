@@ -43,18 +43,16 @@ void wv::cMaterial::bind()
 
 	backend->useShaderProgram( shader->shader_program_handle );
 
-	int offset = 0;
 	if ( m_textures.size() == 0 )
 		return;
 
 	for ( auto& texture : m_textures )
 	{
-		backend->setUniformInt( shader->getUniformLocation( texture.first ), offset );
-		backend->setActiveTextureSlot( offset );
+		int binding = shader->getUniformBinding( texture.first );
+		
+		backend->setActiveTextureSlot( binding );
 		backend->bindTexture2D( texture.second->handle );
-		offset++;
 	}
-
 }
 
 void wv::cMaterial::unbind()
@@ -75,7 +73,7 @@ void wv::cMaterial::unbind()
 	backend->useShaderProgram( shader->shader_program_handle );
 }
 
-cm::sTexture2D* wv::cMaterial::addTexture( std::string _name, std::string _path )
+cm::sTexture2D* wv::cMaterial::addTexture( const std::string& _name, std::string _path )
 {
 	if ( !shader )
 		return nullptr;
@@ -90,11 +88,13 @@ cm::sTexture2D* wv::cMaterial::addTexture( std::string _name, std::string _path 
 	if ( !texture )
 		return nullptr;
 
+	texture->name = _name;
+
 	m_textures[ _name ] = texture;
 	return m_textures[ _name ];
 }
 
-cm::sTexture2D* wv::cMaterial::getTexture( std::string _name )
+cm::sTexture2D* wv::cMaterial::getTexture( const std::string& _name )
 {
 	if ( !shader )
 		return nullptr;

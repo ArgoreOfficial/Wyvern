@@ -19,14 +19,15 @@ namespace wv
 		void bind();
 		void unbind();
 
-		cm::sTexture2D* addTexture( std::string _name, std::string _path );
-		cm::sTexture2D* getTexture( std::string _name );
+		cm::sTexture2D* addTexture( const std::string& _name, std::string _path );
+		cm::sTexture2D* getTexture( const std::string& _name );
 
 		wv::cShader* shader = nullptr;
 
 	private:
 
 		std::map<std::string, cm::sTexture2D*> m_textures;
+		std::map<std::string, int> m_bindings;
 		
 	};
 }
