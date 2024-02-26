@@ -34,6 +34,28 @@ void cEditorConfig::debugUpdate( double _delta_time )
 
 void cEditorConfig::debugRender( void )
 {
+	ImGui::DockSpaceOverViewport();
+
+	if ( ImGui::Begin( "Properties" ) )
+	{
+
+	}
+	ImGui::End();
+
+
+	if ( ImGui::Begin( "Scenegraph" ) )
+	{
+
+	}
+	ImGui::End();
+
+
+	if ( ImGui::Begin( "Asset Explorer" ) )
+	{
+
+	}
+	ImGui::End();
+
 	m_model->render();
 }
 
