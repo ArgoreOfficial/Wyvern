@@ -1,7 +1,6 @@
 #include "cSceneManager.h"
 
 #include <wv/Scene/cScene.h>
-#include <wv/Scene/cSceneLoader.h>
 
 wv::cSceneManager::cSceneManager( void )
 {
@@ -44,7 +43,8 @@ void wv::cSceneManager::update( double _delta_time )
 
 void wv::cSceneManager::render( void )
 {
-	m_active_scene->render();
+	if( m_active_scene )
+		m_active_scene->render();
 }
 
 void wv::cSceneManager::createScene( std::string _name )
@@ -77,7 +77,7 @@ void wv::cSceneManager::switchScene( std::string _scene )
 
 void wv::cSceneManager::loadScene( cSceneLoader* _scene_loader )
 {
-	_scene_loader->load( m_active_scene );
+	//_scene_loader->load( m_active_scene );
 }
 
 wv::cVector3f wv::cSceneManager::getDirectionalLightDirection( void )

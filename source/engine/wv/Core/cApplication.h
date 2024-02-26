@@ -8,6 +8,7 @@ namespace cm { class cWindow; }
 #include <wv/Memory/Function.h>
 
 #include <wv/Events/iInputListener.h>
+#include <wv/Core/iApplicationConfig.h>
 
 #include <stdio.h>
 
@@ -21,7 +22,6 @@ struct sMouseInfo
 
 namespace wv
 {
-	class cSceneLoader;
 	class iCamera;
 
 	class cApplication : public iSingleton<cApplication>, public iInputListener
@@ -35,8 +35,8 @@ namespace wv
 		void onResize  ( int _width, int _height );
 
 		cm::cWindow* getWindow( void ) { return m_window; }
-	
-		void run( cSceneLoader* _scene_loader );
+		
+		void run( iApplicationConfig* _config_creator );
 
 		virtual void onInputEvent( sInputEvent _info ) override;
 
@@ -46,6 +46,9 @@ namespace wv
 		iCamera* m_camera3D       = nullptr;
 
 	private:
+		void init  ( void );
+		void update( double _delta_time );
+		void render( void );
 
 		void updateDeltaTime( double& _time, double& _delta_time );
 
@@ -55,6 +58,10 @@ namespace wv
 
 		cm::cWindow* m_window;
 	
+		sApplicationConfig m_config;
+
+		iApplicationConfig* m_config_creator;
+
 	};
 }
 

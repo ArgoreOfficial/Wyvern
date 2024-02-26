@@ -7,10 +7,7 @@
 #include <wv/Camera/cFreeflightCamera.h>
 
 #include <wv/Core/cRenderer.h>
-
 #include <wv/Managers/cContentManager.h>
-
-#include <wv/Scene/cSceneLoader.h>
 #include <wv/Scene/cSceneManager.h>
 
 #include <format>
@@ -31,7 +28,6 @@ wv::cApplication::~cApplication()
 	m_current_camera = nullptr;
 	m_camera2D = nullptr;
 	m_camera3D = nullptr;
-
 }
 
 void wv::cApplication::create()
@@ -59,43 +55,22 @@ void wv::cApplication::onResize( int _width, int _height )
 	cRenderer::getInstance().onResize( _width, _height );
 }
 
-void wv::cApplication::run( cSceneLoader* _scene_loader )
+void wv::cApplication::run( iApplicationConfig* _config_creator )
 {
-	cSceneManager& scene_manager = cSceneManager::getInstance();
-	cRenderer& renderer          = cRenderer    ::getInstance();
+	m_config_creator = _config_creator;
+	m_config = _config_creator->config();
 
 	double time = m_window->getTime();
 	double delta_time = 0.0;
 	
-	scene_manager.createScene( _scene_loader->getName() );
-	scene_manager.switchScene( _scene_loader->getName() );
-	scene_manager.update( 1.0 );
-	scene_manager.loadScene( _scene_loader );
-
-	m_camera3D->getTransform().position = { 0.0f, 0.0f, 1.0f };
-	m_current_camera = m_camera3D;
+	init();
 
 	while ( !m_window->shouldClose() )
 	{
 		updateDeltaTime( time, delta_time );
-		// update
-		m_window->setTitle( std::format( "FPS: {}", ( 1.0 / m_average_frametime ) ).c_str() );
 		
-		m_window->processInput();
-
-		m_camera2D->update( delta_time );
-		m_camera3D->update( delta_time );
-
-		scene_manager.update( delta_time );
-		
-		// render
-		renderer.begin();
-		renderer.clear( 0x00000000, cm::ClearMode_Color | cm::ClearMode_Depth );
-
-		scene_manager.render();
-
-		renderer.end();
-		m_window->display();
+		update( delta_time );
+		render();
 	}
 }
 
@@ -116,6 +91,59 @@ void wv::cApplication::onInputEvent( sInputEvent _event )
 		if ( debug_render_mode >= 0 )
 			cRenderer::getInstance().debug_render_mode = debug_render_mode;
 	}
+}
+
+void wv::cApplication::init( void )
+{
+	cSceneManager& scene_manager = cSceneManager::getInstance();
+	scene_manager.createScene( "GameScene" ); // TODO: change to sceneloader
+	scene_manager.switchScene( "GameScene" );
+	scene_manager.update( 1.0 );
+	//scene_manager.loadScene( _scene_loader );
+
+	m_camera3D->getTransform().position = { 0.0f, 0.0f, 1.0f };
+	m_current_camera = m_camera3D;
+
+#ifdef WV_DEBUG
+	m_config_creator->debugInit();
+#endif
+}
+
+void wv::cApplication::update( double _delta_time )
+{
+	cSceneManager& scene_manager = cSceneManager::getInstance();
+
+	// update
+	m_window->setTitle( std::format( "FPS: {}", ( 1.0 / m_average_frametime ) ).c_str() );
+
+	m_window->processInput();
+
+#ifdef WV_DEBUG
+	m_config_creator->debugUpdate( _delta_time );
+#endif
+
+	m_camera2D->update( _delta_time );
+	m_camera3D->update( _delta_time );
+
+	scene_manager.update( _delta_time );
+}
+
+void wv::cApplication::render( void )
+{
+	cRenderer& renderer = cRenderer::getInstance();
+	cSceneManager& scene_manager = cSceneManager::getInstance();
+
+	renderer.begin();
+	renderer.clear( 0x00000000, cm::ClearMode_Color | cm::ClearMode_Depth );
+
+	scene_manager.render();
+
+#ifdef WV_DEBUG
+	m_config_creator->debugRender();
+#endif
+
+	renderer.end();
+	m_window->display();
 }
 
 void wv::cApplication::updateDeltaTime( double& _time, double& _delta_time )

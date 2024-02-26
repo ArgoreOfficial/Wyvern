@@ -1,6 +1,6 @@
 
 project "Wyvern"
-	kind "StaticLib"
+	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
     
@@ -9,10 +9,13 @@ project "Wyvern"
 	objdir "../../bin/obj/"
 
 	includedirs {
+		"../../source/app/",
+		"../../source/editor/",
 		"../../source/engine/",
 		"../../libs/glad/include/", 
         "../../libs/glfw/include/", 
         "../../libs/glm/",
+        "../../libs/imgui/",
 		"C:/Program Files/Assimp/include"
 	}
 
@@ -25,5 +28,10 @@ project "Wyvern"
         "../../source/engine/wv/**.h"
     }
 
-	links { "Chimera", "GLFW", "assimp-vc143-mt" }
+	links { "Game", "Editor", "Chimera", "GLFW", "assimp-vc143-mt" }
     
+	filter "Debug"
+  		defines { "WV_DEBUG" }
+	
+	filter "Release"
+		defines { "WV_RELEASE" }

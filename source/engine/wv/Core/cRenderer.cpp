@@ -15,6 +15,11 @@
 
 #include <wv/Rendering/cFramebuffer.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
+
 wv::cRenderer::cRenderer( void ):
 	m_backend{ nullptr }
 {
@@ -37,8 +42,16 @@ void wv::cRenderer::create()
 
 	switch ( m_backend_type )
 	{
-	case BackendType_OpenGL:     m_backend = new cm::cBackend_OpenGL(); break;
-	case BackendType_Direct3D11: m_backend = new cm::cBackend_D3D11(); break;
+	case BackendType_OpenGL:
+	{
+		m_backend = new cm::cBackend_OpenGL();
+
+	} break;
+	case BackendType_Direct3D11:
+	{
+		m_backend = new cm::cBackend_D3D11();
+
+	} break;
 
 	default: m_backend = new cm::cBackend_OpenGL();
 	}

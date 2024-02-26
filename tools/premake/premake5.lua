@@ -3,13 +3,14 @@ workspace "Wyvern"
 	configurations { "Debug", "Release" }
 	platforms { "x64", "x86" }
 	location "../../"
-	startproject "Game"
 	debugdir "../../"
-	
-	
+
+	startproject "Wyvern"
+
 group "App"
 
 include "game.lua"
+include "editor.lua"
 
 group "Engine"
 

@@ -1,5 +1,5 @@
 
-project "Game"
+project "Editor"
     kind "StaticLib"
     language "C++"
     cppdialect "C++20"
@@ -16,8 +16,8 @@ project "Game"
         "../../libs/glm/",
         "C:/Program Files/Assimp/include"
     }
-    
+
     files { 
-        "../../source/app/**.h", 
-        "../../source/app/**.cpp" 
+        "../../source/editor/**.h", 
+        "../../source/editor/**.cpp" 
     }
