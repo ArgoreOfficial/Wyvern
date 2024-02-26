@@ -17,7 +17,7 @@ namespace wv
 		void onResize( int _width, int _height )
 		{
 			if ( m_framebuffer )
-				m_framebuffer->onResize();
+				m_framebuffer->onResize( _width, _height );
 		}
 
 		void bind  ( void ) { m_framebuffer->bind(); }

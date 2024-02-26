@@ -14,6 +14,7 @@ project "Editor"
 		"../../libs/glad/include/", 
         "../../libs/glfw/include/", 
         "../../libs/glm/",
+        "../../libs/imgui/",
         "C:/Program Files/Assimp/include"
     }
 

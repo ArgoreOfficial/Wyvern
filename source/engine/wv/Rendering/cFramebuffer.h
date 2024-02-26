@@ -4,6 +4,7 @@
 #include <cm/Framework/Framebuffer.h>
 
 #include <string>
+#include <wv/Math/Vector2.h>
 
 namespace wv 
 {
@@ -19,15 +20,20 @@ namespace wv
         void finalize();
         
 		void addTexture( std::string _name, cm::eTextureFormat _format, cm::eTextureType _type );
-        
+		void addRenderbuffer( std::string _name, cm::eRenderbufferType _type );
+
 		void bind();
         void bindTexturesToShader( cShader* _shader );
         void unbind();
 
-        void onResize();
+        void onResize( int _width, int _height );
 
+		wv::cVector2i getSize() { return m_size; }
 		cm::sFramebuffer m_framebuffer_object;
-    private:
+		
+	private:
+		
+		wv::cVector2i m_size = { 1, 1 };
 
     };
 }

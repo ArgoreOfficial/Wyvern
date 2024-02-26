@@ -28,7 +28,7 @@ project "Wyvern"
         "../../source/engine/wv/**.h"
     }
 
-	links { "Game", "Editor", "Chimera", "GLFW", "assimp-vc143-mt" }
+	links { "Game", "Editor", "Chimera", "GLFW", "ImGui", "assimp-vc143-mt" }
     
 	filter "Debug"
   		defines { "WV_DEBUG" }

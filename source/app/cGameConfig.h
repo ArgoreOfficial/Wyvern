@@ -2,7 +2,7 @@
 
 #include <wv/Core/iApplicationConfig.h>
 
-#include <wv/Graphics/cModel.h>
+namespace wv { class cModel; }
 
 class cGameConfig : public wv::iApplicationConfig
 {

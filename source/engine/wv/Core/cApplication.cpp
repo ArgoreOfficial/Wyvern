@@ -52,7 +52,10 @@ void wv::cApplication::create()
 void wv::cApplication::onResize( int _width, int _height )
 {
 	m_window->onResize( _width, _height );
+	
+#if defined( WV_RELEASE )
 	cRenderer::getInstance().onResize( _width, _height );
+#endif
 }
 
 void wv::cApplication::run( iApplicationConfig* _config_creator )
@@ -143,6 +146,17 @@ void wv::cApplication::render( void )
 #endif
 
 	renderer.end();
+
+#if defined( WV_DEBUG )
+	m_config_creator->debugViewbufferBegin();
+#endif
+
+	renderer.display();
+
+#if defined( WV_DEBUG )
+	m_config_creator->debugViewbufferEnd();
+#endif
+
 	m_window->display();
 }
 

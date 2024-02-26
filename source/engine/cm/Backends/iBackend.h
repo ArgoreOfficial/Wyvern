@@ -39,7 +39,7 @@ namespace cm
 		virtual void clear  ( unsigned int _color, eClearMode _mode ) = 0;
 		virtual void destroy( void ) = 0;
 
-		virtual void onResize( int _width, int _height ) { }
+		virtual void onResize( int _width, int _height ) = 0;
 
 		virtual void begin( void ) = 0;
 		virtual void end  ( void ) = 0;

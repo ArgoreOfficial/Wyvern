@@ -31,13 +31,13 @@ void wv::cModel::create( std::string _path )
 
 void wv::cModel::render()
 {
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
-	cm::cWindow* window = cApplication::getInstance().getWindow();
-
+	cRenderer&    renderer  = cRenderer::getInstance();
+	cm::iBackend* backend   = cRenderer::getInstance().getBackend();
+	
 	iCamera* camera = cApplication::getInstance().m_current_camera;
 
-	float w = (float)window->getWidth();
-	float h = (float)window->getHeight();
+	float w = (float)renderer.getViewportWidth();
+	float h = (float)renderer.getViewportHeight();
 
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 view = camera->getViewMatrix();

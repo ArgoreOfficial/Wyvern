@@ -2,6 +2,7 @@
 
 #include <wv/Core/cApplication.h>
 #include <wv/Managers/cContentManager.h>
+#include <wv/Graphics/cModel.h>
 
 wv::sApplicationConfig cGameConfig::config( void )
 {

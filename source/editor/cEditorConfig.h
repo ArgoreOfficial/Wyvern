@@ -16,6 +16,9 @@ public:
 	void debugUpdate( double _delta_time ) override;
 	void debugRender( void ) override;
 	
+	void debugViewbufferBegin( void ) override;
+	void debugViewbufferEnd  ( void ) override;
+
 private:
 
 	wv::cModel* m_model;

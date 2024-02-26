@@ -1,7 +1,7 @@
 #include "iCamera.h"
 
-#include <cm/Core/cWindow.h>
 #include <wv/Core/cApplication.h>
+#include <wv/Core/cRenderer.h>
 
 wv::iCamera::iCamera( eCameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
@@ -25,15 +25,15 @@ glm::mat4 wv::iCamera::getProjectionMatrix( void )
 
 glm::mat4 wv::iCamera::getPerspectiveMatrix( void )
 {
-	cm::cWindow* window = cApplication::getInstance().getWindow();
-	return glm::perspective( glm::radians( m_fov ), window->getAspect(), m_near, m_far );
+	wv::cRenderer& renderer = cRenderer::getInstance();
+	return glm::perspective( glm::radians( m_fov ), renderer.getViewportAspect(), m_near, m_far );
 }
 
 glm::mat4 wv::iCamera::getOrthographicMatrix( void )
 {
-	cm::cWindow* window = cApplication::getInstance().getWindow();
-	float w = (float)window->getWidth () / 2.0f;
-	float h = (float)window->getHeight() / 2.0f;
+	wv::cRenderer& renderer = cRenderer::getInstance();
+	float w = (float)renderer.getViewportWidth () / 2.0f;
+	float h = (float)renderer.getViewportHeight() / 2.0f;
 
 	return glm::ortho( -w, w, -h, h, -1000.0f, 1000.0f );
 }

@@ -21,9 +21,12 @@ namespace wv
 	public:
 		virtual sApplicationConfig config( void ) = 0;
 
-		virtual void debugInit  ( void ) = 0; 
-		virtual void debugUpdate( double _delta_time ) = 0;
-		virtual void debugRender( void ) = 0;
+		virtual void debugInit  ( void )               { }; 
+		virtual void debugUpdate( double _delta_time ) { };
+		virtual void debugRender( void )               { };
+
+		virtual void debugViewbufferBegin( void ) { };
+		virtual void debugViewbufferEnd  ( void ) { };
 
 	protected:
 		
