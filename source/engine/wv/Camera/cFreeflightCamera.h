@@ -33,11 +33,12 @@ namespace wv
 
 		wv::cVector3f m_move;
 		wv::cVector2f m_rotate;
+		wv::cVector3f m_velocity;
 
 		wv::cVector2i m_old_mouse_pos;
 		bool m_freecam_enabled = false;
 
-		float m_speed = 4.0f;
+		float m_speed = 50.0f;
 		
 	};
 

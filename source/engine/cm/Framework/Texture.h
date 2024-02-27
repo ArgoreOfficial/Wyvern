@@ -37,11 +37,18 @@ namespace cm
 		TextureType_Stencil,
 	};
 
+	enum eTextureTarget
+	{
+		TextureTarget_Texture2D,
+		TextureTarget_Texture2DMultisample
+	};
+
 	struct sTexture2D
 	{
 		eTextureFormat format;
-		eTextureType type;
-		hTexture handle;
+		eTextureType   type;
+		eTextureTarget target;
+		hTexture       handle;
 		int width;
 		int height;
 		int num_channels;

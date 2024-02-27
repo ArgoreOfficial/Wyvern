@@ -29,12 +29,15 @@ namespace wv
 			);
 		}
 
-		void normalize( void )
+		void normalize( int _magnitude = 1.0f )
 		{
 			T magnitude = length();
 			x /= magnitude;
 			y /= magnitude;
 			z /= magnitude;
+
+			if( _magnitude != 1.0f )
+				*this *= _magnitude;
 		}
 
 		cVector3<T>& operator = ( const cVector3<T>& _other );
@@ -42,6 +45,7 @@ namespace wv
 		cVector3<T>& operator -=( const cVector3<T>& _other );
 		cVector3<T>  operator + ( const cVector3<T>& _other );
 		cVector3<T>  operator - ( const cVector3<T>& _other );
+		cVector3<T>  operator - ( void );
 		cVector3<T>  operator * ( const T& _scalar );
 		cVector3<T>& operator *=( const T& _scalar );
 		cVector3<T>  operator / ( const T& _scalar );
@@ -92,6 +96,12 @@ namespace wv
 	inline cVector3<T> cVector3<T>::operator-( const cVector3<T>& _other )
 	{
 		return cVector3<T>( x - _other.x, y - _other.y, z - _other.z );
+	}
+
+	template<typename T>
+	inline cVector3<T> cVector3<T>::operator-( void )
+	{
+		return cVector3<T>( -x, -y, -z );
 	}
 
 	template< typename T >

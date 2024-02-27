@@ -26,6 +26,7 @@ namespace cm
 		sBuffer                createBuffer       ( eBufferType _type, eBufferUsage _usage ) override;
 		hVertexArray           createVertexArray  ( void ) override;
 		sTexture2D             createTexture      ( void ) override;
+		sTexture2D             createTexture      ( cm::eTextureFormat _format, cm::eTextureTarget _target, cm::eTextureType _type, int _width, int _height ) override;
 		sFramebuffer           createFramebuffer  ( void ) override;
 
 		void destroyShader( Shader::sShader _shader ) override;
@@ -42,22 +43,28 @@ namespace cm
 
 		void generateTexture( sTexture2D& _texture, unsigned char* _data ) override;
 
-		void addFramebufferTexture     ( cm::sFramebuffer& _framebuffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height ) override;
+		void addFramebufferTexture     ( cm::sFramebuffer& _framebuffer, std::string _name, cm::sTexture2D _texture ) override;
 		void addFramebufferRenderbuffer( cm::sFramebuffer& _framebuffer, cm::eRenderbufferType _type, int _width, int _height ) override;
 		
 		void bufferData( sBuffer& _buffer, void* _data, size_t _size ) override;
 
 		void useShaderProgram( Shader::hShaderProgram _program ) override;
-		void bindFramebuffer  ( sFramebuffer* _framebuffer ) override;
 
+		void bindFramebuffer ( sFramebuffer& _framebuffer ) override;
 		void bindVertexLayout( cVertexLayout& _layout ) override;
-		void bindVertexArray( hVertexArray _vertex_array ) override;
-		void bindTexture2D( hTexture _texture ) override;
-		void bindBuffer( sBuffer _buffer ) override;
-		void bindBufferBase( sBuffer _buffer, unsigned int _slot ) override;
+		void bindVertexArray ( hVertexArray _vertex_array ) override;
+		void bindTexture2D   ( sTexture2D& _texture ) override;
+		void bindBuffer      ( sBuffer& _buffer ) override;
+		void bindBufferBase  ( sBuffer& _buffer, unsigned int _slot ) override;
 
+		void unbindFramebuffer( void ) override;
+		void unbindVertexArray( void ) override;
+		void unbindTexture2D  ( sTexture2D& _texture ) override;
+		void unbindBuffer     ( sBuffer& _buffer ) override;
+		
 		void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) override;
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
+		void blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write ) override;
 
 		int                   getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;
 		Shader::sUniform      getUniform        ( Shader::hShaderProgram _program, unsigned int _slot ) override;

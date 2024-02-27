@@ -17,9 +17,11 @@ wv::cFramebuffer::~cFramebuffer( void )
 
 }
 
-void wv::cFramebuffer::create()
+void wv::cFramebuffer::create( int _samples )
 {
 	m_framebuffer_object = cRenderer::getInstance().getBackend()->createFramebuffer();
+
+	m_framebuffer_object.samples = _samples;
 }
 
 void wv::cFramebuffer::finalize()
@@ -34,7 +36,11 @@ void wv::cFramebuffer::addTexture( std::string _name, cm::eTextureFormat _format
 	m_size.x = 300;
 	m_size.y = 300;
 
-	backend->addFramebufferTexture( m_framebuffer_object, _name, _format, _type, m_size.x, m_size.y );
+	cm::eTextureTarget target = cm::TextureTarget_Texture2D;
+	if ( m_framebuffer_object.samples != 0 ) target = cm::TextureTarget_Texture2DMultisample;
+
+	cm::sTexture2D texture = backend->createTexture( _format, target, _type, m_size.x, m_size.y );
+	backend->addFramebufferTexture( m_framebuffer_object, _name, texture );
 }
 
 void wv::cFramebuffer::addRenderbuffer( std::string _name, cm::eRenderbufferType _type )
@@ -46,7 +52,7 @@ void wv::cFramebuffer::addRenderbuffer( std::string _name, cm::eRenderbufferType
 
 void wv::cFramebuffer::bind()
 {
-	cRenderer::getInstance().getBackend()->bindFramebuffer( &m_framebuffer_object );
+	cRenderer::getInstance().getBackend()->bindFramebuffer( m_framebuffer_object );
 }
 
 void wv::cFramebuffer::bindTexturesToShader( cShader* _shader )
@@ -58,13 +64,13 @@ void wv::cFramebuffer::bindTexturesToShader( cShader* _shader )
 		int shader_loc = _shader->getUniformLocation( m_framebuffer_object.textures[ i ].name );
 		backend->setUniformInt( shader_loc, i );
 		backend->setActiveTextureSlot( i );
-		backend->bindTexture2D( m_framebuffer_object.textures[ i ].handle );
+		backend->bindTexture2D( m_framebuffer_object.textures[ i ] );
 	}
 }
 
 void wv::cFramebuffer::unbind()
 {
-	cRenderer::getInstance().getBackend()->bindFramebuffer( 0 );
+	cRenderer::getInstance().getBackend()->unbindFramebuffer();
 }
 
 void wv::cFramebuffer::onResize( int _width, int _height )
@@ -84,7 +90,10 @@ void wv::cFramebuffer::onResize( int _width, int _height )
 	m_framebuffer_object = cRenderer::getInstance().getBackend()->createFramebuffer();
 
 	for ( int i = 0; i < textures.size(); i++ )
-		backend->addFramebufferTexture( m_framebuffer_object, textures[ i ].name, textures[ i ].format, textures[ i ].type, _width, _height );
+	{
+		cm::sTexture2D texture = backend->createTexture( textures[ i ].format, textures[ i ].target, textures[i].type, _width, _height);
+		backend->addFramebufferTexture( m_framebuffer_object, textures[ i ].name, texture );
+	}
 	
 	for ( int i = 0; i < renderbuffers.size(); i++ )
 		backend->addFramebufferRenderbuffer( m_framebuffer_object, renderbuffers[ i ].type, _width, _height );

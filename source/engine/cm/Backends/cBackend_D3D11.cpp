@@ -136,6 +136,11 @@ cm::sTexture2D cm::cBackend_D3D11::createTexture()
 	return sTexture2D{};
 }
 
+cm::sTexture2D cm::cBackend_D3D11::createTexture( cm::eTextureFormat _format, cm::eTextureTarget _target, cm::eTextureType _type, int _width, int _height )
+{
+	return sTexture2D();
+}
+
 cm::sFramebuffer cm::cBackend_D3D11::createFramebuffer( void )
 {
     return sFramebuffer();
@@ -182,7 +187,7 @@ void cm::cBackend_D3D11::generateTexture( sTexture2D& _texture, unsigned char* _
 {
 }
 
-void cm::cBackend_D3D11::addFramebufferTexture( cm::sFramebuffer& _buffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height )
+void cm::cBackend_D3D11::addFramebufferTexture( cm::sFramebuffer& _framebuffer, std::string _name, cm::sTexture2D _texture )
 {
 
 }
@@ -201,7 +206,7 @@ void cm::cBackend_D3D11::useShaderProgram( Shader::hShaderProgram _program )
 
 }
 
-void cm::cBackend_D3D11::bindFramebuffer( cm::sFramebuffer* _framebuffer )
+void cm::cBackend_D3D11::bindFramebuffer( cm::sFramebuffer& _framebuffer )
 {
 
 }
@@ -214,15 +219,31 @@ void cm::cBackend_D3D11::bindVertexArray( hVertexArray _vertex_array )
 {
 }
 
-void cm::cBackend_D3D11::bindTexture2D( hTexture _texture )
+void cm::cBackend_D3D11::bindTexture2D( sTexture2D& _texture )
 {
 }
 
-void cm::cBackend_D3D11::bindBuffer( sBuffer _buffer )
+void cm::cBackend_D3D11::bindBuffer( sBuffer& _buffer )
 {
 }
 
-void cm::cBackend_D3D11::bindBufferBase( sBuffer _buffer, unsigned int _slot )
+void cm::cBackend_D3D11::bindBufferBase( sBuffer& _buffer, unsigned int _slot )
+{
+}
+
+void cm::cBackend_D3D11::unbindFramebuffer( void )
+{
+}
+
+void cm::cBackend_D3D11::unbindVertexArray( void )
+{
+}
+
+void cm::cBackend_D3D11::unbindTexture2D( sTexture2D& _texture )
+{
+}
+
+void cm::cBackend_D3D11::unbindBuffer( sBuffer& _buffer )
 {
 }
 
@@ -235,6 +256,10 @@ void cm::cBackend_D3D11::drawArrays( unsigned int _vertex_count, eDrawMode _mode
 }
 
 void cm::cBackend_D3D11::drawElements( unsigned int _index_count, eDrawMode _mode )
+{
+}
+
+void cm::cBackend_D3D11::blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write )
 {
 }
 

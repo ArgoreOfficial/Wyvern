@@ -64,16 +64,18 @@ void wv::cFreeflightCamera::onInputEvent( sInputEvent _event )
 		case GLFW_KEY_SPACE:        m_move.y += button_delta; break;
 		case GLFW_KEY_LEFT_CONTROL: m_move.y += -button_delta; break;
 
-		case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 7.0f; break;
+		case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 200.0f; break;
 		}
 	}
 }
 
 void wv::cFreeflightCamera::update( double _delta_time )
 {
+	m_velocity *= 1.0f - (float)_delta_time * 10.0f;
+
 	m_transform.rotation.y += m_rotate.x * 0.1f;
 	m_transform.rotation.x -= m_rotate.y * 0.1f;
-	
+
 	if ( m_transform.rotation.x > 89.0f )
 		m_transform.rotation.x = 89.0f;
 	if ( m_transform.rotation.x < -89.0f )
@@ -82,7 +84,6 @@ void wv::cFreeflightCamera::update( double _delta_time )
 	float yaw   = glm::radians( m_transform.rotation.y );
 	float pitch = glm::radians( m_transform.rotation.x );
 	float roll  = 0.0f; // glm::radians( 0.0f );
-
 
 	// TODO: change to wv::matrix
 
@@ -105,7 +106,10 @@ void wv::cFreeflightCamera::update( double _delta_time )
 	move += cVector3f{ right.x, right.y, right.z } * m_move.x;
 	move += cVector3f{ up.x, up.y, up.z } * m_move.y;
 
-	m_transform.translate( move * m_speed * (float)_delta_time );
+	cVector3f acceleration = move * m_speed;
+
+	m_transform.position += m_velocity * (float)_delta_time + acceleration * 0.5f * (float)_delta_time * (float)_delta_time;
+	m_velocity += acceleration * (float)_delta_time;
 
 	m_rotate = { 0.0f, 0.0f };
 }

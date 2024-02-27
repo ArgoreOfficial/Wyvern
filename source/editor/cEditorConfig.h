@@ -2,6 +2,11 @@
 
 #include <wv/Core/iApplicationConfig.h>
 
+#include "EditorWindows/Viewport/cViewportWindow.h"
+#include "EditorWindows/Properties/cRenderSettings.h"
+
+#include <vector>
+
 namespace wv { class cModel; }
 
 class cEditorConfig : public wv::iApplicationConfig
@@ -21,6 +26,12 @@ public:
 
 private:
 
-	wv::cModel* m_model;
+	wv::cModel* m_model; // testing
+	
+	bool m_render_setting_msaa = true;
+
+	cViewportWindow m_viewport_window;
+
+	std::vector<iEditorWindow*> m_editor_windows;
 
 };

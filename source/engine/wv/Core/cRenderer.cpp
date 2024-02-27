@@ -32,7 +32,8 @@ wv::cRenderer::~cRenderer( void )
 
 	delete m_gbuffer;
 	delete m_backend;
-	
+	delete m_viewbuffer;
+	delete m_msbuffer;
 }
 
 void wv::cRenderer::create()
@@ -47,20 +48,15 @@ void wv::cRenderer::create()
 
 	m_backend->create( *window );
 
-	m_gbuffer = new cFramebuffer();
-	m_gbuffer->create();
-	m_gbuffer->addTexture( "gbuffer_Position",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Normal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
-	m_gbuffer->finalize();
-	
-	m_viewbuffer = new cFramebuffer();
-	m_viewbuffer->create();
-	m_viewbuffer->addTexture( "viewbuffer_screen", cm::TextureFormat_RGBA, cm::TextureType_Color );
-	m_viewbuffer->finalize();
-	m_viewbuffer->addRenderbuffer( "viewbuffer_depth", cm::RenderbufferType_Depth );
+	createGBuffer( 4 );
+
+	{ // final screen buffer
+		m_viewbuffer = new cFramebuffer();
+		m_viewbuffer->create();
+		m_viewbuffer->addTexture( "viewbuffer_screen", cm::TextureFormat_RGBA, cm::TextureType_Color );
+		m_viewbuffer->finalize();
+		m_viewbuffer->addRenderbuffer( "viewbuffer_depth", cm::RenderbufferType_Depth );
+	}
 
 	m_screen_quad = Primitives::quad( 1.0f );
 
@@ -86,6 +82,31 @@ void wv::cRenderer::onDestroy()
 	delete m_assembler;
 
 	wv::cRenderer::destroy(); // TODO: clean up other singletons
+}
+
+void wv::cRenderer::createGBuffer( int _samples )
+{
+	if ( m_gbuffer )
+		delete m_gbuffer;
+
+	m_gbuffer = new cFramebuffer();
+	m_gbuffer->create( _samples );
+	m_gbuffer->addTexture( "gbuffer_Position", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Normal", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Albedo", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Depth", cm::TextureFormat_RGBAf, cm::TextureType_Depth );
+	m_gbuffer->finalize();
+	
+	// multisample intermediate buffer, identical to gbuffer but not multisampled
+	m_msbuffer = new cFramebuffer();
+	m_msbuffer->create();
+	for ( int i = 0; i < m_gbuffer->m_framebuffer_object.textures.size(); i++ )
+	{
+		cm::sTexture2D& texture = m_gbuffer->m_framebuffer_object.textures[ i ];
+		m_msbuffer->addTexture( texture.name, texture.format, texture.type );
+	}
+	m_msbuffer->finalize();
 }
 
 void wv::cRenderer::onResize( int _width, int _height ) 
@@ -123,8 +144,12 @@ void wv::cRenderer::end( void )
 { 
 	m_gbuffer->unbind();
 
+	// blit gbuffer onto intermediate msbuffer
+	m_backend->blitFramebuffer( m_gbuffer->m_framebuffer_object, m_msbuffer->m_framebuffer_object );
+
 	// execute render passes
-	cFramebuffer* input_buffer = m_gbuffer;
+	
+	cFramebuffer* input_buffer = m_msbuffer;
 	for ( int i = 0; i < m_render_passes.size(); i++ )
 	{
 		m_render_passes[ i ]->bind();
@@ -145,7 +170,7 @@ void wv::cRenderer::display( void )
 #if defined( WV_DEBUG )
 	m_viewbuffer->bind();
 #endif
-
+	
 	m_assembler->execute( m_render_passes.back()->getFramebuffer() );
 	m_backend->bindVertexArray( m_screen_quad->vertex_array );
 	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
@@ -153,10 +178,11 @@ void wv::cRenderer::display( void )
 #if defined( WV_DEBUG )
 	m_viewbuffer->unbind();
 #endif
+	
 	m_backend->end();
 
 	// imgui
-
+	
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 	if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
@@ -167,6 +193,7 @@ void wv::cRenderer::display( void )
 		glfwMakeContextCurrent( backup_current_context );
 	}
 }
+
 
 void wv::cRenderer::addRenderPass( iRenderPass* _render_pass )
 {
@@ -226,6 +253,7 @@ void wv::cRenderer::onResizeInternal()
 	m_backend   ->onResize( width, height );
 	m_gbuffer   ->onResize( width, height );
 	m_viewbuffer->onResize( width, height );
+	m_msbuffer->onResize( width, height );
 
 	for ( int i = 0; i < m_render_passes.size(); i++ )
 		m_render_passes[ i ]->onResize( width, height );

@@ -22,5 +22,6 @@ namespace cm
 		hFramebuffer handle;
 		std::vector<sTexture2D> textures;
 		std::vector<sRenderbuffer> renderbuffers;
+		int samples = 0;
 	};
 }

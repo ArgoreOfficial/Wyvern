@@ -46,6 +46,52 @@ static GLuint getPrimitive_OpenGL( cm::eDrawMode _mode )
 	return GL_LINES;
 }
 
+static void getTextureFormat_OpenGL( cm::eTextureFormat _format, GLenum* _format_out, GLenum* _sized_format_out )
+{
+	switch ( _format )
+	{
+	case cm::TextureFormat_R:     *_sized_format_out = GL_RED;    *_format_out = GL_RED;  break;
+	case cm::TextureFormat_RG:    *_sized_format_out = GL_RG;     *_format_out = GL_RG;   break;
+	case cm::TextureFormat_RGB:   *_sized_format_out = GL_RGB;    *_format_out = GL_RGB;  break;
+	case cm::TextureFormat_RGBA:  *_sized_format_out = GL_RGBA;   *_format_out = GL_RGBA; break;
+
+	case cm::TextureFormat_Ri:    *_sized_format_out = GL_R32I;    *_format_out = GL_RED;  break;
+	case cm::TextureFormat_RGi:   *_sized_format_out = GL_RG32I;   *_format_out = GL_RG;   break;
+	case cm::TextureFormat_RGBi:  *_sized_format_out = GL_RGB32I;  *_format_out = GL_RGB;  break;
+	case cm::TextureFormat_RGBAi: *_sized_format_out = GL_RGBA32I; *_format_out = GL_RGBA; break;
+
+	case cm::TextureFormat_Rf:    *_sized_format_out = GL_R16F;    *_format_out = GL_RED;  break;
+	case cm::TextureFormat_RGf:   *_sized_format_out = GL_RG16F;   *_format_out = GL_RG;   break;
+	case cm::TextureFormat_RGBf:  *_sized_format_out = GL_RGB16F;  *_format_out = GL_RGB;  break;
+	case cm::TextureFormat_RGBAf: *_sized_format_out = GL_RGBA16F; *_format_out = GL_RGBA; break;
+	}
+}
+
+static GLenum getTextureFormatType_OpenGL( cm::eTextureFormat _format )
+{
+	GLenum type;
+
+	switch ( _format )
+	{
+	case cm::TextureFormat_R:  case cm::TextureFormat_RG:  case cm::TextureFormat_RGB:  case cm::TextureFormat_RGBA:  type = GL_UNSIGNED_BYTE; break;
+	case cm::TextureFormat_Ri: case cm::TextureFormat_RGi: case cm::TextureFormat_RGBi: case cm::TextureFormat_RGBAi: type = GL_UNSIGNED_INT;  break;
+	case cm::TextureFormat_Rf: case cm::TextureFormat_RGf: case cm::TextureFormat_RGBf: case cm::TextureFormat_RGBAf: type = GL_FLOAT;         break;
+	}
+
+	return type;
+}
+
+static GLenum getTextureTarget_OpenGL( cm::eTextureTarget _target )
+{
+	switch ( _target )
+	{
+	case cm::TextureTarget_Texture2D:            return GL_TEXTURE_2D; break;
+	case cm::TextureTarget_Texture2DMultisample: return GL_TEXTURE_2D_MULTISAMPLE; break;
+	}
+
+	return GL_INVALID_ENUM;
+}
+
 static int getShaderType( GLenum _type )
 {
 	switch ( _type )
@@ -58,6 +104,10 @@ static int getShaderType( GLenum _type )
 
 	return cm::Shader::ShaderUniformType_Other;
 }
+
+
+//////////// tjomgojaeoirjogntaoiejr
+
 
 cm::cBackend_OpenGL::cBackend_OpenGL()
 {
@@ -126,7 +176,8 @@ void cm::cBackend_OpenGL::create( cWindow& _window )
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
 
-	//glEnable( GL_FRAMEBUFFER_SRGB );
+	glEnable( GL_MULTISAMPLE );
+
 }
 
 void cm::cBackend_OpenGL::clear( unsigned int _color, eClearMode _mode )
@@ -162,6 +213,11 @@ void cm::cBackend_OpenGL::begin( void )
 
 void cm::cBackend_OpenGL::end( void )
 {
+	//glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
+	//glBindFramebuffer( GL_READ_FRAMEBUFFER, fbo );
+	glDrawBuffer( GL_BACK );
+	glBlitFramebuffer( 0, 0, 1000, 1000, 0, 0, 1000, 1000, GL_COLOR_BUFFER_BIT, GL_LINEAR );
+
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 	glBindVertexArray( 0 );
 	glUseProgram( 0 );
@@ -241,6 +297,56 @@ cm::sTexture2D cm::cBackend_OpenGL::createTexture()
 	glGenTextures( 1, &texture.handle );
 
 	m_num_textures++;
+	return texture;
+}
+
+cm::sTexture2D cm::cBackend_OpenGL::createTexture( cm::eTextureFormat _format, cm::eTextureTarget _target, cm::eTextureType _type, int _width, int _height )
+{
+
+	GLenum format;
+	GLenum sized_format;
+	GLenum type;
+	GLenum target;
+
+	m_framebuffer_textures++;
+
+	if ( _type == TextureType_Color )
+	{
+		getTextureFormat_OpenGL( _format, &format, &sized_format );
+		type = getTextureFormatType_OpenGL( _format );
+	}
+	else
+	{
+		switch ( _type ) // depth and stencil buffer 
+		{
+		case TextureType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT32; type = GL_FLOAT; break;
+		case TextureType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;     type = GL_BYTE;  break;
+		}
+	}
+
+	target = getTextureTarget_OpenGL( _target );
+
+	sTexture2D texture;
+
+	glGenTextures( 1, &texture.handle );
+	glBindTexture( target, texture.handle );
+
+	switch ( _target )
+	{
+	case TextureTarget_Texture2D:            glTexImage2D( target, 0, sized_format, _width, _height, 0, format, type, nullptr );  break;
+	case TextureTarget_Texture2DMultisample: glTexImage2DMultisample( target, 3, sized_format, _width, _height, false ); break;
+	}
+	
+	glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+
+	texture.format = _format;
+	texture.num_channels = _format % 4 + 1;
+	texture.type = _type;
+	texture.width = _width;
+	texture.height = _height;
+	texture.target = _target;
+
 	return texture;
 }
 
@@ -380,70 +486,26 @@ void cm::cBackend_OpenGL::generateTexture( sTexture2D& _texture, unsigned char* 
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, _texture.width, _texture.height, 0, format, GL_UNSIGNED_BYTE, _data );
 	glGenerateMipmap( GL_TEXTURE_2D );
+
+	_texture.target = TextureTarget_Texture2D;
 }
 
-void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer, std::string _name, cm::eTextureFormat _format, cm::eTextureType _type, int _width, int _height )
+void cm::cBackend_OpenGL::addFramebufferTexture( cm::sFramebuffer& _framebuffer, std::string _name, cm::sTexture2D _texture )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer.handle );
 
-	GLenum format;
-	GLenum sized_format;
-	GLenum type;
 	GLenum attachment_slot = GL_COLOR_ATTACHMENT0 + _framebuffer.textures.size(); // m_framebuffer_textures;
 	m_framebuffer_textures++;
 
-	if ( _type == TextureType_Color )
-	{
-		
-		switch ( _format )
-		{
-		case TextureFormat_R:     sized_format = GL_RED;    format = GL_RED;  type = GL_UNSIGNED_BYTE; break;
-		case TextureFormat_RG:    sized_format = GL_RG;     format = GL_RG;   type = GL_UNSIGNED_BYTE; break;
-		case TextureFormat_RGB:   sized_format = GL_RGB;    format = GL_RGB;  type = GL_UNSIGNED_BYTE; break;
-		case TextureFormat_RGBA:  sized_format = GL_RGBA;   format = GL_RGBA; type = GL_UNSIGNED_BYTE; break;
-
-		case TextureFormat_Ri:    sized_format = GL_R32I;    format = GL_RED;  type = GL_UNSIGNED_INT; break;
-		case TextureFormat_RGi:   sized_format = GL_RG32I;   format = GL_RG;   type = GL_UNSIGNED_INT; break;
-		case TextureFormat_RGBi:  sized_format = GL_RGB32I;  format = GL_RGB;  type = GL_UNSIGNED_INT; break;
-		case TextureFormat_RGBAi: sized_format = GL_RGBA32I; format = GL_RGBA; type = GL_UNSIGNED_INT; break;
-
-		case TextureFormat_Rf:    sized_format = GL_R16F;    format = GL_RED;  type = GL_FLOAT; break;
-		case TextureFormat_RGf:   sized_format = GL_RG16F;   format = GL_RG;   type = GL_FLOAT; break;
-		case TextureFormat_RGBf:  sized_format = GL_RGB16F;  format = GL_RGB;  type = GL_FLOAT; break;
-		case TextureFormat_RGBAf: sized_format = GL_RGBA16F; format = GL_RGBA; type = GL_FLOAT; break;
-		}
-	}
-	else
-	{
-		switch ( _type ) // depth and stencil buffer 
-		{
-		case TextureType_Depth:   format = GL_DEPTH_COMPONENT; sized_format = GL_DEPTH_COMPONENT32; type = GL_FLOAT; break;
-		case TextureType_Stencil: format = GL_STENCIL_INDEX;   sized_format = GL_STENCIL_INDEX;     type = GL_BYTE;  break;
-		}
-	}
-
-	sTexture2D texture;
-
-	glGenTextures( 1, &texture.handle );
-	glBindTexture( GL_TEXTURE_2D, texture.handle );
-	glTexImage2D( GL_TEXTURE_2D, 0, sized_format, _width, _height, 0, format, type, nullptr );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-
-	if( _type == TextureType_Depth )   attachment_slot = GL_DEPTH_ATTACHMENT;
-	if( _type == TextureType_Stencil ) attachment_slot = GL_DEPTH_STENCIL_ATTACHMENT;
+	if( _texture.type == TextureType_Depth )   attachment_slot = GL_DEPTH_ATTACHMENT;
+	if( _texture.type == TextureType_Stencil ) attachment_slot = GL_DEPTH_STENCIL_ATTACHMENT;
 	
-	glFramebufferTexture( GL_FRAMEBUFFER, attachment_slot, texture.handle, 0 );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, attachment_slot, getTextureTarget_OpenGL( _texture.target ), _texture.handle, 0 );
 
-	texture.format = _format;
-	texture.attachment_slot = attachment_slot;
-	texture.num_channels = _format % 4 + 1;
-	texture.type = _type;
-	texture.width = _width;
-	texture.height = _height;
-	texture.name = _name;
+	_texture.attachment_slot = attachment_slot;
+	_texture.name = _name;
 
-	_framebuffer.textures.push_back( texture );
+	_framebuffer.textures.push_back( _texture );
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
@@ -454,7 +516,7 @@ void cm::cBackend_OpenGL::addFramebufferRenderbuffer( cm::sFramebuffer& _framebu
 	cm::sRenderbuffer renderbuffer;
 
 	GLenum internalformat = GL_DEPTH_COMPONENT;
-	GLenum attachment = GL_DEPTH_ATTACHMENT;
+	GLenum attachment     = GL_DEPTH_ATTACHMENT;
 	
 	switch ( _type )
 	{
@@ -468,7 +530,10 @@ void cm::cBackend_OpenGL::addFramebufferRenderbuffer( cm::sFramebuffer& _framebu
 	// create renderbuffer object
 	glGenRenderbuffers( 1, &renderbuffer.handle );
 	glBindRenderbuffer( GL_RENDERBUFFER, renderbuffer.handle );
-	glRenderbufferStorage( GL_RENDERBUFFER, internalformat, _width, _height );
+
+	if ( _framebuffer.samples != 0 ) glRenderbufferStorageMultisample( GL_RENDERBUFFER, _framebuffer.samples, internalformat, _width, _height );
+	else                             glRenderbufferStorage( GL_RENDERBUFFER, internalformat, _width, _height );
+
 	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 
 	// bind to framebuffer object
@@ -487,19 +552,13 @@ void cm::cBackend_OpenGL::useShaderProgram( Shader::hShaderProgram _program )
 	glUseProgram( _program );
 }
 
-void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer* _framebuffer )
+void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer& _framebuffer )
 {
-	if ( !_framebuffer )
-	{
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-		return;
-	}
-
-	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer->handle );
+	glBindFramebuffer( GL_FRAMEBUFFER, _framebuffer.handle );
 
 	std::vector<GLuint> attachments;
 
-	for ( int i = 0; i < (int)_framebuffer->textures.size(); i++ )
+	for ( int i = 0; i < (int)_framebuffer.textures.size(); i++ )
 		attachments.push_back( GL_COLOR_ATTACHMENT0 + i );
 	
 	glDrawBuffers( (int)attachments.size(), attachments.data() );
@@ -556,19 +615,39 @@ void cm::cBackend_OpenGL::bindVertexArray( hVertexArray _vertex_array )
 	glBindVertexArray( _vertex_array );
 }
 
-void cm::cBackend_OpenGL::bindTexture2D( hTexture _texture )
+void cm::cBackend_OpenGL::bindTexture2D( sTexture2D& _texture )
 {
-	glBindTexture( GL_TEXTURE_2D, _texture );
+	glBindTexture( getTextureTarget_OpenGL( _texture.target ), _texture.handle );
 }
 
-void cm::cBackend_OpenGL::bindBuffer( sBuffer _buffer )
+void cm::cBackend_OpenGL::bindBuffer( sBuffer& _buffer )
 {
 	glBindBuffer( getBufferTarget_OpenGL( _buffer.type ), _buffer.handle );
 }
 
-void cm::cBackend_OpenGL::bindBufferBase( sBuffer _buffer, unsigned int _slot )
+void cm::cBackend_OpenGL::bindBufferBase( sBuffer& _buffer, unsigned int _slot )
 {
 	glBindBufferBase( getBufferTarget_OpenGL( _buffer.type ), _slot, _buffer.handle );
+}
+
+void cm::cBackend_OpenGL::unbindFramebuffer( void )
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void cm::cBackend_OpenGL::unbindVertexArray( void )
+{
+	glBindVertexArray( 0 );
+}
+
+void cm::cBackend_OpenGL::unbindTexture2D( sTexture2D& _texture )
+{
+	glBindTexture( getTextureTarget_OpenGL( _texture.target ), 0 );
+}
+
+void cm::cBackend_OpenGL::unbindBuffer( sBuffer& _buffer )
+{
+
 }
 
 void cm::cBackend_OpenGL::setActiveTextureSlot( int _slot )
@@ -584,6 +663,29 @@ void cm::cBackend_OpenGL::drawArrays( unsigned int _vertex_count, eDrawMode _mod
 void cm::cBackend_OpenGL::drawElements( unsigned int _index_count, eDrawMode _mode )
 {
 	glDrawElements( getPrimitive_OpenGL( _mode ), _index_count, GL_UNSIGNED_INT, 0 );
+}
+
+void cm::cBackend_OpenGL::blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, _framebuffer_read.handle );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, _framebuffer_write.handle );
+
+	for ( int i = 0; i < _framebuffer_read.textures.size(); i++ )
+	{
+		glReadBuffer( GL_COLOR_ATTACHMENT0 + i );
+		glDrawBuffer( GL_COLOR_ATTACHMENT0 + i );
+
+		int src_width = _framebuffer_read.textures[ i ].width;
+		int src_height = _framebuffer_read.textures[ i ].height;
+
+		int dst_width = _framebuffer_write.textures[ i ].width;
+		int dst_height = _framebuffer_write.textures[ i ].height;
+
+		glBlitFramebuffer( 0, 0, src_width, src_height, 0, 0, dst_width, dst_height, GL_COLOR_BUFFER_BIT, GL_LINEAR );
+	}
+	
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, 0 );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
 }
 
 int cm::cBackend_OpenGL::getUniformLocation( Shader::hShaderProgram _program, const char* _uniform )

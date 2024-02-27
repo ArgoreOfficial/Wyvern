@@ -51,7 +51,7 @@ void wv::cMaterial::bind()
 		int binding = shader->getUniformBinding( texture.first );
 		
 		backend->setActiveTextureSlot( binding );
-		backend->bindTexture2D( texture.second->handle );
+		backend->bindTexture2D( *texture.second );
 	}
 }
 
@@ -66,7 +66,7 @@ void wv::cMaterial::unbind()
 	for ( auto& texture : m_textures )
 	{
 		backend->setActiveTextureSlot( offset );
-		backend->bindTexture2D( 0 );
+		backend->unbindTexture2D( *texture.second );
 		offset++;
 	}
 

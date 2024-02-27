@@ -17,11 +17,13 @@ layout (std140) uniform uboRenderInfo
 
 void main()
 {
-        if( uRenderMode == 0 ) FragColor.rgb = texture( light_Position,          TexCoord ).rgb;
-   else if( uRenderMode == 1 ) FragColor.rgb = texture( light_Normal,            TexCoord ).rgb;
-   else if( uRenderMode == 2 ) FragColor.rgb = texture( light_Albedo,            TexCoord ).rgb;
-   else if( uRenderMode == 3 ) FragColor.rgb = texture( light_MetallicRoughness, TexCoord ).rgb;
-   else if( uRenderMode == 4 ) FragColor.rgb = texture( light_Depth,             TexCoord ).rgb;
-   
-   FragColor.a = 1.0f;
+
+		 if( uRenderMode == 0 ) FragColor.rgb = texture( light_Albedo,            TexCoord ).rgb; // change to full lighting
+	else if( uRenderMode == 1 ) FragColor.rgb = texture( light_Albedo,            TexCoord ).rgb;
+	else if( uRenderMode == 2 ) FragColor.rgb = texture( light_Normal,            TexCoord ).rgb;
+	else if( uRenderMode == 3 ) FragColor.rgb = texture( light_Position,          TexCoord ).rgb;
+	else if( uRenderMode == 4 ) FragColor.rgb = texture( light_MetallicRoughness, TexCoord ).ggg;
+	else if( uRenderMode == 5 ) FragColor.rgb = texture( light_MetallicRoughness, TexCoord ).bbb;
+	
+	FragColor.a = 1.0f;
 }

@@ -16,7 +16,7 @@ namespace wv
          cFramebuffer( void );
         ~cFramebuffer( void );
 
-		void create();
+		void create( int _samples = 0 );
         void finalize();
         
 		void addTexture( std::string _name, cm::eTextureFormat _format, cm::eTextureType _type );

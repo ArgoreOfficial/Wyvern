@@ -31,6 +31,8 @@ namespace wv
 		void create( void ) override;
 		void onDestroy();
 
+		void createGBuffer( int _samples );
+
 		void onResize( int _width, int _height ); // TODO: change to iWindowEvent
 		void clear   ( unsigned int _color, int _mode );
 
@@ -45,6 +47,7 @@ namespace wv
 		void display( void );
 
 		void setBackendType( cRenderer::eBackendType _backend ) { m_backend_type = _backend; }
+		void setDebugRenderMode( int _mode ) { debug_render_mode = _mode; }
 
 		cm::iBackend* getBackend   ( void ) { return m_backend; }
 		cFramebuffer* getGBuffer   ( void ) { return m_gbuffer; }
@@ -67,6 +70,7 @@ namespace wv
 
 		cMesh*        m_screen_quad = nullptr;
 		cFramebuffer* m_gbuffer     = nullptr;
+		cFramebuffer* m_msbuffer    = nullptr;
 		cFramebuffer* m_viewbuffer  = nullptr;
 
 		std::vector<iRenderPass*> m_render_passes;

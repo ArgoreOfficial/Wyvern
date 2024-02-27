@@ -32,6 +32,8 @@ wv::cApplication::~cApplication()
 
 void wv::cApplication::create()
 {
+	m_window->setWindowAttribute( cm::WindowAttribute_Maximized, true );
+	m_window->setWindowAttribute( cm::WindowAttribute_Focused, true );
 
 	m_window->create( 1500, 1000, "Wyvern" );
 	m_window->setVSync( false );
@@ -85,14 +87,8 @@ void wv::cApplication::onInputEvent( sInputEvent _event )
 
 		switch ( _event.key )
 		{
-		case GLFW_KEY_RIGHT: debug_render_mode++; break;
-		case GLFW_KEY_LEFT:  debug_render_mode--; break;
-
 		case GLFW_KEY_F5: cContentManager::getInstance().reloadAllShaders(); break;
 		}
-
-		if ( debug_render_mode >= 0 )
-			cRenderer::getInstance().debug_render_mode = debug_render_mode;
 	}
 }
 

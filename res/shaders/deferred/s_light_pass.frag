@@ -16,9 +16,9 @@ layout( binding = 4 ) uniform sampler2D gbuffer_Depth;
 
 void main()
 {
-    light_Position          = texture( gbuffer_Position,          TexCoord );
-    light_Normal            = texture( gbuffer_Normal,            TexCoord );
-    light_Albedo            = texture( gbuffer_Albedo,            TexCoord );
-    light_MetallicRoughness = texture( gbuffer_MetallicRoughness, TexCoord );
-    light_Depth             = texture( gbuffer_Depth,             TexCoord ).r;
+	light_Position          = texture( gbuffer_Position,          TexCoord );
+	light_Normal            = texture( gbuffer_Normal,            TexCoord );
+	light_Albedo            = texture( gbuffer_Albedo,            TexCoord );
+	light_MetallicRoughness = texture( gbuffer_MetallicRoughness, TexCoord );
+	light_Depth             = texture( gbuffer_Depth,             TexCoord ).r;
 }
