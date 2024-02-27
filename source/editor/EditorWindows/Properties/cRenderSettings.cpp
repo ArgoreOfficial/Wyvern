@@ -22,7 +22,7 @@ void cRenderSettings::render( void )
 			renderer.createGBuffer( 4 * (int)m_msaa );
 		
 		// rendermode
-		const char* render_modes[] = { "None", "Albedo", "Normal", "Position", "Roughness", "Metallic" };
+		const char* render_modes[] = { "None", "Albedo", "Normal", "Position", "Roughness", "Metallic", "Depth", "Light" };
 		static const char* selected_render_mode = render_modes[ 0 ];
 
 		if ( ImGui::BeginCombo( "Debug RenderMode", selected_render_mode ) )

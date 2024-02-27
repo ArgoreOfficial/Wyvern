@@ -55,7 +55,7 @@ void wv::cRenderer::create()
 		m_viewbuffer->create();
 		m_viewbuffer->addTexture( "viewbuffer_screen", cm::TextureFormat_RGBA, cm::TextureType_Color );
 		m_viewbuffer->finalize();
-		m_viewbuffer->addRenderbuffer( "viewbuffer_depth", cm::RenderbufferType_Depth );
+		//m_viewbuffer->addRenderbuffer( "viewbuffer_depth", cm::RenderbufferType_Depth );
 	}
 
 	m_screen_quad = Primitives::quad( 1.0f );
@@ -91,11 +91,11 @@ void wv::cRenderer::createGBuffer( int _samples )
 
 	m_gbuffer = new cFramebuffer();
 	m_gbuffer->create( _samples );
-	m_gbuffer->addTexture( "gbuffer_Position", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Normal", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Albedo", cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Position",          cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Normal",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
+	m_gbuffer->addTexture( "gbuffer_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_gbuffer->addTexture( "gbuffer_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
-	m_gbuffer->addTexture( "gbuffer_Depth", cm::TextureFormat_RGBAf, cm::TextureType_Depth );
+	m_gbuffer->addTexture( "gbuffer_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
 	m_gbuffer->finalize();
 	
 	// multisample intermediate buffer, identical to gbuffer but not multisampled

@@ -28,6 +28,7 @@ void wv::cDeferredLightRenderPass::onCreate( void )
 	m_framebuffer->addTexture( "light_Albedo",            cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_framebuffer->addTexture( "light_MetallicRoughness", cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_framebuffer->addTexture( "light_Depth",             cm::TextureFormat_RGBAf, cm::TextureType_Depth );
+	m_framebuffer->addTexture( "light_Light",             cm::TextureFormat_RGBAf, cm::TextureType_Color );
 	m_framebuffer->finalize();
 }
 
@@ -62,18 +63,18 @@ void wv::cDeferredLightRenderPass::execute( cFramebuffer* _input_buffer )
 	iCamera* camera = cApplication::getInstance().m_current_camera;
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 proj = camera->getProjectionMatrix();
-
-	//m_shader->ubBegin();
-	//m_shader->ubBufferData( "uRenderMode",                &renderer.debug_render_mode,          sizeof( int ) );
-	//m_shader->ubBufferData( "uDirectionalLight",          &dirl,                                sizeof( cVector3f ) );
-	//m_shader->ubBufferData( "uAmbientLightIntensity",     &ambl_intensity,                      sizeof( float ) );
-	//m_shader->ubBufferData( "uDirectionalLightIntensity", &dirl_intensity,                      sizeof( float ) );
-	//m_shader->ubBufferData( "uCameraDirection",           &cam_dir,                             sizeof( cVector3f ) );
-	//m_shader->ubBufferData( "uCameraPosition",            &cam_pos,                             sizeof( cVector3f ) );
-	//m_shader->ubBufferData( "uNumPointLights",            &numlights,                           sizeof( int ) );
-	//m_shader->ubBufferData( "uViewMatrix",                glm::value_ptr( view ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
-	//m_shader->ubBufferData( "uProjMatrix",                glm::value_ptr( proj ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
-	//m_shader->ubBufferData( "uLightPos[0]",               scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights );
-	//m_shader->ubBufferData( "uLightCol[0]",               scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights );
-	//m_shader->ubEnd();
+	
+	m_shader->ubBegin();
+	m_shader->ubBufferData( "uRenderMode",                &renderer.debug_render_mode,          sizeof( int ) );
+	m_shader->ubBufferData( "uDirectionalLight",          &dirl,                                sizeof( cVector3f ) );
+	m_shader->ubBufferData( "uAmbientLightIntensity",     &ambl_intensity,                      sizeof( float ) );
+	m_shader->ubBufferData( "uDirectionalLightIntensity", &dirl_intensity,                      sizeof( float ) );
+	m_shader->ubBufferData( "uCameraDirection",           &cam_dir,                             sizeof( cVector3f ) );
+	m_shader->ubBufferData( "uCameraPosition",            &cam_pos,                             sizeof( cVector3f ) );
+	m_shader->ubBufferData( "uNumPointLights",            &numlights,                           sizeof( int ) );
+	m_shader->ubBufferData( "uViewMatrix",                glm::value_ptr( view ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
+	m_shader->ubBufferData( "uProjMatrix",                glm::value_ptr( proj ),               sizeof( cVector4f ) * 4 ); // TODO: change to wv::matrix
+	m_shader->ubBufferData( "uLightPos[0]",               scene_manager.light_positions.data(), sizeof( cVector4f ) * numlights );
+	m_shader->ubBufferData( "uLightCol[0]",               scene_manager.light_colors.data(),    sizeof( cVector4f ) * numlights );
+	m_shader->ubEnd();
 }

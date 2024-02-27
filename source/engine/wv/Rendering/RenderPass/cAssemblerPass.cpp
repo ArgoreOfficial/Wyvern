@@ -39,27 +39,12 @@ void wv::cAssemblerPass::onDestroy( void )
 void wv::cAssemblerPass::execute( cFramebuffer* _input_buffer )
 {
 	cRenderer& renderer = cRenderer::getInstance();
-	cSceneManager& scene_manager = cSceneManager::getInstance();
-	cApplication& application = cApplication::getInstance();
 	cm::iBackend* backend = renderer.getBackend();
-
-	cVector3f cam_dir = application.m_current_camera->getViewDirection();
-	cVector3f cam_pos = application.m_current_camera->getTransform().position;
-
-	cVector3f dirl = scene_manager.getDirectionalLightDirection();
-	dirl.normalize();
-	float dirl_intensity = scene_manager.getDirectionalLightIntensity();
-	float ambl_intensity = scene_manager.getAmbientLightIntensity();
-	int   numlights = scene_manager.light_positions.size();
 
 	backend->useShaderProgram( m_shader->shader_program_handle );
 	_input_buffer->bindTexturesToShader( m_shader );
 
 	renderer.clear( 0x44A5FFFF, cm::eClearMode::ClearMode_Color | cm::ClearMode_Depth );
-
-	iCamera* camera = cApplication::getInstance().m_current_camera;
-	glm::mat4 view = camera->getViewMatrix();
-	glm::mat4 proj = camera->getProjectionMatrix();
 
 	m_shader->ubBegin();
 	m_shader->ubBufferData( "uRenderMode", &renderer.debug_render_mode, sizeof( int ) );
