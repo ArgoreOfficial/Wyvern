@@ -259,6 +259,10 @@ void cm::cBackend_D3D11::drawElements( unsigned int _index_count, eDrawMode _mod
 {
 }
 
+void cm::cBackend_D3D11::drawElementsInstanced( unsigned int _index_count, eDrawMode _mode, int _count )
+{
+}
+
 void cm::cBackend_D3D11::blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write )
 {
 }

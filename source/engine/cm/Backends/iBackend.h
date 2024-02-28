@@ -85,8 +85,9 @@ namespace cm
 		virtual void unbindTexture2D  ( sTexture2D& _texture ) = 0;
 		virtual void unbindBuffer     ( sBuffer& _buffer ) = 0;
 
-		virtual void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) = 0;
-		virtual void drawElements( unsigned int _index_count, eDrawMode _mode ) = 0;
+		virtual void drawArrays           ( unsigned int _vertex_count, eDrawMode _mode ) = 0;
+		virtual void drawElements         ( unsigned int _index_count, eDrawMode _mode ) = 0;
+		virtual void drawElementsInstanced( unsigned int _index_count, eDrawMode _mode, int _count ) = 0;
 		virtual void blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write ) = 0;
 
 		virtual int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) = 0;

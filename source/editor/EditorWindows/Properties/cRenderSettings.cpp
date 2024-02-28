@@ -1,5 +1,8 @@
 #include "cRenderSettings.h"
+
+#include <wv/Core/cApplication.h>
 #include <wv/Core/cRenderer.h>
+#include <wv/Camera/iCamera.h>
 
 cRenderSettings::cRenderSettings( void )
 {
@@ -14,6 +17,7 @@ cRenderSettings::~cRenderSettings( void )
 void cRenderSettings::render( void )
 {
 	wv::cRenderer& renderer = wv::cRenderer::getInstance();
+	wv::cApplication& application = wv::cApplication::getInstance();
 
 	if ( ImGui::Begin( "Render Settings" ) )
 	{
@@ -41,6 +45,11 @@ void cRenderSettings::render( void )
 			}
 			ImGui::EndCombo();
 		}
+
+		// exposure and gamma
+		ImGui::InputFloat( "Gamma", &renderer.gamma );
+		ImGui::InputFloat( "Exposure", &renderer.exposure );
+		ImGui::InputFloat( "FOV", &application.m_camera3D->fov );
 	}
 	ImGui::End();
 

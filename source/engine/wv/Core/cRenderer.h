@@ -56,6 +56,8 @@ namespace wv
 		void addRenderPass( iRenderPass* _render_pass );
 
 		int debug_render_mode = 0;
+		float gamma    = 2.2f;
+		float exposure = 0.8f;
 
 	private:
 

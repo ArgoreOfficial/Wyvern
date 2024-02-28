@@ -139,7 +139,7 @@ void main()
 
         float intensity = 1.0 / pow( dist, 2 );
 
-        specular += calcSpecular( position.xyz, normal.xyz, light_dir, dist, uLightCol[ i ], (1 - met_rough.g) * 1000 );
+        specular += calcSpecular( position.xyz, normal.xyz, light_dir, dist, uLightCol[ i ], ( 1.0f - met_rough.g ) * 16.0f );
 
         float light_dot = dot( light_dir, normal.xyz );
 
@@ -147,7 +147,7 @@ void main()
             pointlight_accumulated += uLightCol[ i ] * light_dot * intensity * uLightCol[ i ].w;
 
     }
-    specular += calcSpecular( position.xyz, normal.xyz, uDirectionalLight, 1.0, vec4( uDirectionalLightIntensity ), (1.0f - met_rough.g) * 100.0f ); // directional light specular
+    specular += calcSpecular( position.xyz, normal.xyz, uDirectionalLight, 1.0, vec4( uDirectionalLightIntensity ), ( 1.0f - met_rough.g ) * 16.0f ); // directional light specular
     
 	// vec3 so that alpha isn't affected by lighting
     vec3 frag_light = vec3( 1.0 ) * ( uAmbientLightIntensity + dirLight ) + pointlight_accumulated.xyz * pointlight_accumulated.w + specular;

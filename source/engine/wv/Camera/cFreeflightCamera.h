@@ -39,6 +39,7 @@ namespace wv
 		bool m_freecam_enabled = false;
 
 		float m_speed = 50.0f;
+		float m_speed_normal = 50.0f;
 		
 	};
 

@@ -36,11 +36,12 @@ namespace wv
 		cTransformf& getTransform( void ) { return m_transform; }
 		cVector3f getViewDirection();
 
+		float fov  = 60.0f;
+
 	protected:
 		glm::mat4 getPerspectiveMatrix ( void );
 		glm::mat4 getOrthographicMatrix( void );
 
-		float m_fov  = 60.0f;
 		float m_near = 0.01f;
 		float m_far  = 100.0f;
 

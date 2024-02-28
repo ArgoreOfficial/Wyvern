@@ -549,7 +549,11 @@ void cm::cBackend_OpenGL::addFramebufferRenderbuffer( cm::sFramebuffer& _framebu
 
 void cm::cBackend_OpenGL::useShaderProgram( Shader::hShaderProgram _program )
 {
-	glUseProgram( _program );
+	if ( _program != m_currently_bound_program )
+	{
+		glUseProgram( _program );
+		m_currently_bound_program = _program;
+	}
 }
 
 void cm::cBackend_OpenGL::bindFramebuffer( sFramebuffer& _framebuffer )
@@ -665,6 +669,11 @@ void cm::cBackend_OpenGL::drawElements( unsigned int _index_count, eDrawMode _mo
 	glDrawElements( getPrimitive_OpenGL( _mode ), _index_count, GL_UNSIGNED_INT, 0 );
 }
 
+void cm::cBackend_OpenGL::drawElementsInstanced( unsigned int _index_count, eDrawMode _mode, int _count )
+{
+	glDrawElementsInstanced( getPrimitive_OpenGL( _mode ), _index_count, GL_UNSIGNED_INT, 0, _count );
+}
+
 void cm::cBackend_OpenGL::blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write )
 {
 	glBindFramebuffer( GL_READ_FRAMEBUFFER, _framebuffer_read.handle );
@@ -725,7 +734,7 @@ cm::Shader::sUniformBlock cm::cBackend_OpenGL::getUniformBlock( Shader::hShaderP
 	GLint uniform_count;
 	GLint uniforms[512];
 
-	const GLsizei name_buffer_size = 16;
+	const GLsizei name_buffer_size = 128;
 	GLsizei name_length;
 	GLchar name[ name_buffer_size ];
 

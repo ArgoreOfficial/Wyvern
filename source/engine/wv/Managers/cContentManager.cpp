@@ -174,7 +174,7 @@ wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ign
 wv::cModel* wv::cContentManager::getModel( const std::string& _path, bool _ignore_existing )
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile( _path, aiProcess_Triangulate | aiProcess_FlipUVs );
+	const aiScene* scene = importer.ReadFile( _path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
 
 	// TODO: change to wv::assert
 	if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
@@ -276,6 +276,13 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		else 
 			v.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+		if ( _assimp_mesh->HasTangentsAndBitangents() )
+		{
+			v.tangent.x = _assimp_mesh->mTangents[ i ].x;
+			v.tangent.y = _assimp_mesh->mTangents[ i ].y;
+			v.tangent.z = _assimp_mesh->mTangents[ i ].z;
+		}
+
 		aiVector3D* texcoord = _assimp_mesh->mTextureCoords[ 0 ];
 		if ( texcoord )
 			v.tex_coord_0 = { texcoord[ i ].x, texcoord[ i ].y };
@@ -300,18 +307,13 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		aiMaterial* assimp_material = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 		mesh->material = getMaterial( "res/materials/mesh" );
 
-		aiString albedo_path; 
-		assimp_material->GetTexture( aiTextureType_DIFFUSE, 0, &albedo_path );
-		std::string full_albedo_path( albedo_path.C_Str() ); 
-		full_albedo_path = _directory + "/" + full_albedo_path;
-
-		aiString mr_path; 
-		assimp_material->GetTexture( aiTextureType_DIFFUSE_ROUGHNESS, 0, &mr_path );
-		std::string full_mr_path( mr_path.C_Str() ); 
-		full_mr_path = _directory + "/" + full_mr_path;
-
-		mesh->material->addTexture( "uAlbedo",           full_albedo_path.c_str() );
-		mesh->material->addTexture( "uMetallicRoughness", full_mr_path.c_str() );
+		std::string albedo_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE, _directory );
+		std::string mr_path     = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
+		std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
+		
+		mesh->material->addTexture( "uAlbedo",            albedo_path.c_str() );
+		mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
+		mesh->material->addTexture( "uNormal",            normal_path.c_str() );
 	}
 
 	/* create vertex array */
@@ -328,8 +330,9 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	cm::cVertexLayout layout;
 	layout.push<float>( 3 ); // pos
 	layout.push<float>( 3 ); // normal
-	layout.push<float>( 4 ); // vertex color
-	layout.push<float>( 2 ); // uv
+	layout.push<float>( 3 ); // tangent
+	layout.push<float>( 4 ); // col
+	layout.push<float>( 2 ); // texcoord0
 	backend->bindVertexLayout( layout );
 
 	backend->bindVertexArray( 0 );
@@ -342,5 +345,15 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 	mesh->num_indices = indices.size();
 
 	return mesh;
+}
+
+std::string wv::cContentManager::getAssimpMaterialTexturePath( aiMaterial* _material ,aiTextureType _type, const std::string& _root_dir )
+{
+	aiString path;
+	_material->GetTexture( _type, 0, &path );
+
+	std::string full_path( path.C_Str() );
+	full_path = _root_dir + "/" + full_path;
+	return full_path;
 }
 

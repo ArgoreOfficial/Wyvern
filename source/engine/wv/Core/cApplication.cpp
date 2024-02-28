@@ -58,8 +58,8 @@ void wv::cApplication::onResize( int _width, int _height )
 {
 	m_window->onResize( _width, _height );
 	
-	cRenderer::getInstance().onResize( _width, _height );
 #if defined( WV_RELEASE )
+	cRenderer::getInstance().onResize( _width, _height );
 #endif
 }
 

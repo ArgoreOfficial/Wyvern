@@ -67,6 +67,7 @@ namespace cm
 
 		void drawArrays  ( unsigned int _vertex_count, eDrawMode _mode ) override;
 		void drawElements( unsigned int _index_count, eDrawMode _mode ) override;
+		void drawElementsInstanced( unsigned int _index_count, eDrawMode _mode, int _count ) override;
 		void blitFramebuffer( sFramebuffer& _framebuffer_read, sFramebuffer& _framebuffer_write ) override;
 
 		int                         getUniformLocation( Shader::hShaderProgram _program, const char* _uniform ) override;

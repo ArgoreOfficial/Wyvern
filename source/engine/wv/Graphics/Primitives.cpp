@@ -12,11 +12,11 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
 
 	sVertex points[] = {
-		/*    Position                 Normals           Tex Coords   */
-		{ { -_size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { -_size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ {  _size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ {  _size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
+		/*    Position                 Normals               Tangents                   Color              Tex Coords   */
+		{ { -_size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { -_size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ {  _size, -_size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ {  _size,  _size, 0 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
 	};
 
 	unsigned int indices[] = {
@@ -36,10 +36,11 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 	backend->bufferData( index_buffer, indices, sizeof( indices ) );
 
 	cm::cVertexLayout layout;
-	layout.push<float>( 3 );
-	layout.push<float>( 3 );
-	layout.push<float>( 4 );
-	layout.push<float>( 2 );
+	layout.push<float>( 3 ); // pos
+	layout.push<float>( 3 ); // normal
+	layout.push<float>( 3 ); // tangent
+	layout.push<float>( 4 ); // col
+	layout.push<float>( 2 ); // texcoord0
 	backend->bindVertexLayout( layout );
 
 	backend->bindVertexArray( 0 );

@@ -6,12 +6,14 @@ layout (location = 2) in vec3 aTangent;
 layout (location = 3) in vec4 aVertexColor;
 layout (location = 4) in vec2 aTexCoord;
 
-layout (std140) uniform uboTransform
+layout (std140) uniform uboInstanceTransform
 {
    mat4 uProj;
    mat4 uView;
    mat4 uModel;
    vec4 uColor;
+
+   mat4 uInstanceMatrices[ 512 ];
 };
 
 out vec2 TexCoord;
@@ -22,16 +24,17 @@ out mat3 TBN;
 
 void main()
 {
-   gl_Position = uProj * uView * uModel * vec4( aPos, 1.0 );
+   mat4 model = uInstanceMatrices[ gl_InstanceID ];
+   gl_Position = uProj * uView * model * vec4( aPos, 1.0 );
    
-   vec3 T = normalize( vec3( uModel * vec4( aTangent, 0.0f ) ) );
-   vec3 N = normalize( vec3( uModel * vec4( aNormal,  0.0f ) ) );
+   vec3 T = normalize( vec3( model * vec4( aTangent, 0.0f ) ) );
+   vec3 N = normalize( vec3( model * vec4( aNormal,  0.0f ) ) );
    vec3 B = cross( N, T );
 
    TBN = mat3(T, B, N);
    
    TexCoord = aTexCoord;
-   FragPos  = (uModel * vec4( aPos, 1.0 )).xyz;
+   FragPos  = (model * vec4( aPos, 1.0 )).xyz;
    Normal   = aNormal;
    Color    = uColor * aVertexColor;
 }

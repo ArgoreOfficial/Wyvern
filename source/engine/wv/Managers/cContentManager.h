@@ -45,8 +45,10 @@ namespace wv
 
 	private:
 
-		void processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model );
+		void   processAssimpNode( aiNode* _node, const aiScene* _scene, cModel* _model );
 		cMesh* processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, const std::string& _directory );
+
+		std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _root_dir );
 
 		int m_uniform_blocks = 0;
 		

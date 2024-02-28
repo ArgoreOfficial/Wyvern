@@ -5,7 +5,7 @@
 
 wv::iCamera::iCamera( eCameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
-	m_fov{ _fov },
+	fov{ _fov },
 	m_near{ _near },
 	m_far{ _far }
 {
@@ -26,7 +26,7 @@ glm::mat4 wv::iCamera::getProjectionMatrix( void )
 glm::mat4 wv::iCamera::getPerspectiveMatrix( void )
 {
 	wv::cRenderer& renderer = cRenderer::getInstance();
-	return glm::perspective( glm::radians( m_fov ), renderer.getViewportAspect(), m_near, m_far );
+	return glm::perspective( glm::radians( fov ), renderer.getViewportAspect(), m_near, m_far );
 }
 
 glm::mat4 wv::iCamera::getOrthographicMatrix( void )

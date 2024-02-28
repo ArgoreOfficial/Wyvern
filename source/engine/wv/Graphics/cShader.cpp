@@ -41,6 +41,8 @@ void wv::cShader::destroy()
 	if ( m_uniform_bindings.size() != 0 )
 		m_uniform_bindings.clear();
 
+	if ( m_printed_errors.size() != 0 )
+		m_printed_errors.clear();
 
 	if ( m_uniform_buffer_data )
 	{
@@ -99,8 +101,13 @@ void wv::cShader::ubEnd()
 	backend->bufferData( m_uniform_buffer, m_uniform_buffer_data, m_uniform_block.size );
 
 	for ( auto& uniform : m_used_uniforms )
-		if ( uniform.second == false )
+	{
+		if ( uniform.second == false && m_printed_errors.count( uniform.first ) == 0 )
+		{
 			printf( "Uniform '%s' was never set. This may cause crashes\n", uniform.first.c_str() );
+			m_printed_errors[ uniform.first ] = true;
+		}
+	}
 
 }
 
@@ -108,7 +115,12 @@ void wv::cShader::ubBufferData( const std::string& _uniform, void* _data, size_t
 {
 	if ( m_uniform_block.uniforms.count( _uniform ) == 0 )
 	{
-		printf( "[ubError] Unknown uniform '%s'\n", _uniform.c_str() );
+		if ( m_printed_errors.count( _uniform ) == 0 )
+		{
+			printf( "[ubError] Unknown uniform '%s'\n", _uniform.c_str() );
+			m_printed_errors[ _uniform ] = true;
+		}
+
 		return;
 	}
 

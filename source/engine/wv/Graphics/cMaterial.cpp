@@ -69,8 +69,6 @@ void wv::cMaterial::unbind()
 		backend->unbindTexture2D( *texture.second );
 		offset++;
 	}
-
-	backend->useShaderProgram( shader->shader_program_handle );
 }
 
 cm::sTexture2D* wv::cMaterial::addTexture( const std::string& _name, std::string _path )

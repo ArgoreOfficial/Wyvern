@@ -17,6 +17,7 @@ namespace wv
 	{
 		wv::cVector3f position;
 		wv::cVector3f normal;
+		wv::cVector3f tangent;
 		wv::cVector4f color;
 		wv::cVector2f tex_coord_0;
 	};

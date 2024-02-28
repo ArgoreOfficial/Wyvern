@@ -48,5 +48,7 @@ void wv::cAssemblerPass::execute( cFramebuffer* _input_buffer )
 
 	m_shader->ubBegin();
 	m_shader->ubBufferData( "uRenderMode", &renderer.debug_render_mode, sizeof( int ) );
+	m_shader->ubBufferData( "uGamma",      &renderer.gamma,             sizeof( float ) );
+	m_shader->ubBufferData( "uExposure",   &renderer.exposure,          sizeof( float ) );
 	m_shader->ubEnd();
 }

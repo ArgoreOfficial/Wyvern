@@ -33,6 +33,8 @@ void wv::cFreeflightCamera::onMouseEvent( sMouseEvent _event )
 		// reset input
 		m_rotate = { 0.0f, 0.0f };
 		m_move = { 0.0f, 0.0f, 0.0f };
+		m_speed = m_speed_normal;
+
 		return;
 	}
 
