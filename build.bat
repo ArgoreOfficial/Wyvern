@@ -14,7 +14,7 @@ if errorlevel 1 (
 
 :git_init
 echo Updating git
-git clone --bare https://github.com/ArgoreOfficial/Wyvern.git .git
+git clone --bare http://gitlab.psq.local/piostb/01-instance-rendering.git .git
 git init
 git pull
 git reset HEAD
@@ -24,6 +24,8 @@ git checkout master
 
 :submodule_update
 echo Updating submodule
+git submodule add https://github.com/glfw/glfw.git libs/glfw
+git submodule add https://github.com/g-truc/glm.git libs/glm
 git submodule init
 git submodule update
 
