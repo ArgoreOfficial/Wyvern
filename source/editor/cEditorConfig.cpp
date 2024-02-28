@@ -61,8 +61,6 @@ void cEditorConfig::debugRender( void )
 	}
 	ImGui::End();
 
-	
-
 	m_model->render();
 }
 

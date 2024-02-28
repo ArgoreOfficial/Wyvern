@@ -32,11 +32,12 @@ wv::cApplication::~cApplication()
 
 void wv::cApplication::create()
 {
-	m_window->setWindowAttribute( cm::WindowAttribute_Maximized, true );
+	//m_window->setWindowAttribute( cm::WindowAttribute_Maximized, true );
 	m_window->setWindowAttribute( cm::WindowAttribute_Focused, true );
 
 	m_window->create( 1500, 1000, "Wyvern" );
 	m_window->setVSync( false );
+
 
 	cRenderer      ::getInstance().create();
 	cContentManager::getInstance().create();
@@ -48,6 +49,8 @@ void wv::cApplication::create()
 	m_camera2D->onCreate();
 	m_camera3D->onCreate();
 
+	onResize( m_window->getWidth(), m_window->getHeight() );
+
 	subscribeInputEvent();
 }
 
@@ -55,8 +58,8 @@ void wv::cApplication::onResize( int _width, int _height )
 {
 	m_window->onResize( _width, _height );
 	
-#if defined( WV_RELEASE )
 	cRenderer::getInstance().onResize( _width, _height );
+#if defined( WV_RELEASE )
 #endif
 }
 

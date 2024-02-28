@@ -45,7 +45,6 @@ void wv::cRenderer::create()
 	initImgui();
 
 	cm::cWindow* window = cApplication::getInstance().getWindow();
-
 	m_backend->create( *window );
 
 	createGBuffer( 4 );
@@ -168,7 +167,7 @@ void wv::cRenderer::display( void )
 {
 	ImGui::Render();
 #if defined( WV_DEBUG )
-	m_viewbuffer->bind();
+	//m_viewbuffer->bind();
 #endif
 	
 	m_assembler->execute( m_render_passes.back()->getFramebuffer() );
@@ -176,7 +175,7 @@ void wv::cRenderer::display( void )
 	m_backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
 
 #if defined( WV_DEBUG )
-	m_viewbuffer->unbind();
+	//m_viewbuffer->unbind();
 #endif
 	
 	m_backend->end();

@@ -2,10 +2,11 @@
 
 #include <wv/Core/cApplication.h>
 
-#if defined( WV_DEBUG )
 #include <cEditorConfig.h>
-#elif defined( WV_RELEASE )
 #include <cGameConfig.h>
+
+#if defined( WV_DEBUG )
+#elif defined( WV_RELEASE )
 #endif
 
 int main()
@@ -13,9 +14,9 @@ int main()
 	wv::cApplication::getInstance().create();
 
 #if defined( WV_DEBUG )
-	wv::cApplication::getInstance().run( new cEditorConfig() );
-#elif defined( WV_RELEASE )
 	wv::cApplication::getInstance().run( new cGameConfig() );
+#elif defined( WV_RELEASE )
+	wv::cApplication::getInstance().run( new cEditorConfig() );
 #endif
 
 	wv::cApplication::destroy();
