@@ -24,8 +24,8 @@ git checkout master
 
 :submodule_update
 echo Updating submodule
-git submodule add https://github.com/glfw/glfw.git libs/glfw
-git submodule add https://github.com/g-truc/glm.git libs/glm
+if not exist libs\glfw\.git git submodule add https://github.com/glfw/glfw.git libs/glfw
+if not exist libs\glm\.git git submodule add https://github.com/g-truc/glm.git libs/glm
 git submodule init
 git submodule update
 
