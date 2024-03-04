@@ -31,8 +31,8 @@ void wv::cModel::create( std::string _path )
 
 void wv::cModel::render()
 {
-	cRenderer&    renderer  = cRenderer::getInstance();
-	cm::iBackend* backend   = cRenderer::getInstance().getBackend();
+	cRenderer&    renderer = cRenderer::getInstance();
+	cm::iBackend* backend  = cRenderer::getInstance().getBackend();
 	
 	iCamera* camera = cApplication::getInstance().m_current_camera;
 
@@ -62,7 +62,7 @@ void wv::cModel::render()
 		backend->bindVertexArray( meshes[ i ]->vertex_array );
 		backend->drawElements( meshes[ i ]->num_indices, cm::eDrawMode::DrawMode_Triangle );
 
-		material.unbind();
+		//material.unbind();
 	}
 
 	backend->bindVertexArray( 0 );

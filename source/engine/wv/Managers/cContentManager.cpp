@@ -78,10 +78,10 @@ cm::sTexture2D* wv::cContentManager::getTexture( const std::string& _path, bool 
 
 wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool _ignore_existing )
 {
-	std::string name = getFilenameFromPath( _path );
+	//std::string name = getFilenameFromPath( _path );
 
-	if ( m_materials.count( name ) )
-		return m_materials[ name ];
+	//if ( m_materials.count( name ) )
+	//	return m_materials[ name ];
 
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
@@ -128,7 +128,7 @@ wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool 
 		
 	} while ( loc != -1 );
 
-	m_materials[ name ] = mat;
+	//m_materials[ name ] = mat;
 	m_material_indices.push_back( mat );
 
 	return mat;
