@@ -78,6 +78,11 @@ cm::sTexture2D* wv::cContentManager::getTexture( const std::string& _path, bool 
 
 wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool _ignore_existing )
 {
+	std::string name = getFilenameFromPath( _path );
+
+	if ( m_materials.count( name ) )
+		return m_materials[ name ];
+
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
 	std::vector<std::string> file = loadFileToVector( _path + ".wmat" );
@@ -123,7 +128,33 @@ wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool 
 		
 	} while ( loc != -1 );
 
+	m_materials[ name ] = mat;
+	m_material_indices.push_back( mat );
+
 	return mat;
+}
+
+wv::cMaterial* wv::cContentManager::getMaterial( int _index )
+{
+	if( _index < 0 || _index > m_material_indices.size() )
+		return nullptr;
+
+	return m_material_indices[ _index ];
+}
+
+void wv::cContentManager::bindMaterial( int _index )
+{
+	if ( _index == m_currently_bound_material || _index < 0 || _index > m_material_indices.size() )
+		return;
+
+	m_material_indices[ _index ]->bind();
+	m_currently_bound_material = _index;
+}
+
+void wv::cContentManager::unbindMaterial()
+{
+	m_material_indices[ m_currently_bound_material ]->unbind();
+	m_currently_bound_material = -1;
 }
 
 wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ignore_existing )

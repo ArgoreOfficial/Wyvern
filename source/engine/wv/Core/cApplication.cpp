@@ -10,6 +10,8 @@
 #include <wv/Managers/cContentManager.h>
 #include <wv/Scene/cSceneManager.h>
 
+#include <wv/Rendering/cCommandQueue.h>
+
 #include <format>
 
 wv::cApplication::cApplication() :
@@ -71,6 +73,9 @@ void wv::cApplication::run( iApplicationConfig* _config_creator )
 	double time = m_window->getTime();
 	double delta_time = 0.0;
 	
+	cCommandQueue testqueue;
+	testqueue.pushStateCommand( false, 1.0f, 4, &time );
+
 	init();
 
 	while ( !m_window->shouldClose() )

@@ -31,6 +31,11 @@ namespace wv
 		cm::sTexture2D* getTexture( const std::string& _path, bool _ignore_existing = false );
 
 		cMaterial* getMaterial( const std::string& _path, bool _ignore_existing = false );
+		cMaterial* getMaterial( int _index );
+
+		void bindMaterial( int _index );
+		void unbindMaterial();
+
 		cShader*   getShader  ( const std::string& _path, bool _ignore_existing = false );
 		cModel*    getModel   ( const std::string& _path, bool _ignore_existing = false );
 		
@@ -54,5 +59,10 @@ namespace wv
 		
 		std::map<std::string, cShader*> m_shaders;
 		std::map<std::string, cm::sTexture2D*> m_textures;
+
+		std::map<std::string, cMaterial*> m_materials;
+		std::vector<cMaterial*> m_material_indices;
+
+		int m_currently_bound_material = -1;
 	};
 }
