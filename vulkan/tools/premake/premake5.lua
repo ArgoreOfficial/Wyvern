@@ -1,5 +1,22 @@
 local path = require "./path"
 PROJECT_NAME = path.getProjectName( 2 )
+TARGET_DIR = "bin/"
+
+rule "glsl_spirv_vert"
+  display "GLSL_Spirv Compiler"
+  fileextension ".vert"
+
+  buildmessage 'Compiling Vertex %(Filename)'
+  buildcommands 'glslc.exe %(FullPath) -o %{wks.location}%{TARGET_DIR}%(Filename)_vert.spv'
+  buildoutputs ''
+
+rule "glsl_spirv_frag"
+  display "GLSL_Spirv Compiler"
+  fileextension ".frag"
+
+  buildmessage 'Compiling Fragment %(Filename)'
+  buildcommands 'glslc.exe %(FullPath) -o %{wks.location}%{TARGET_DIR}%(Filename)_frag.spv'
+  buildoutputs ''
 
 workspace (PROJECT_NAME)
 	configurations { "Debug", "Release" }
@@ -22,10 +39,12 @@ project (PROJECT_NAME)
 	language "C++"
 	cppdialect "C++20"
 
-	targetdir "../../bin"
-	objdir "../../bin/obj/"
-	
+	--rules { "glsl_spirv_frag", "glsl_spirv_vert" }
+
+	targetdir "%{wks.location}%{TARGET_DIR}"
+	objdir "%{wks.location}%{TARGET_DIR}obj/"
 	location "../../build"
+	debugdir "%{wks.location}%{TARGET_DIR}"
 
 	includedirs { 
 		"../../include/", 
@@ -36,7 +55,9 @@ project (PROJECT_NAME)
 
 	files { 
 		"../../src/**.h", 
-		"../../src/**.cpp" 
+		"../../src/**.cpp",
+		"../../src/**.vert",
+		"../../src/**.frag"
 	}
 
 	links { "GLFW", "GLM", "$(VULKAN_SDK)/lib/vulkan-1.lib" }

@@ -23,11 +23,13 @@ namespace cm
 
 	private:
 
-		void createInstance      ( void );
-		void selectPhysicalDevice( void );
-		void createLogicalDevice ( void );
-		void createSurface       ( void );
-		void createSwapChain     ( void );
+		void createInstance        ( void );
+		void selectPhysicalDevice  ( void );
+		void createLogicalDevice   ( void );
+		void createSurface         ( void );
+		void createSwapChain       ( void );
+		void createImageViews      ( void );
+		void createGraphicsPipeline( void );
 
 		void printErrorResult( const std::string& _message, VkResult _result );
 
@@ -39,6 +41,8 @@ namespace cm
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat( const std::vector<VkSurfaceFormatKHR>& _available_formats );
 		VkPresentModeKHR   chooseSwapPresentMode  ( const std::vector<VkPresentModeKHR>& _available_present_modes );
 		VkExtent2D         chooseSwapExtent       ( const VkSurfaceCapabilitiesKHR& _capabilities );
+
+		VkShaderModule createShaderModule( const std::vector<char>& _code );
 
 		const std::vector<const char*> m_device_extensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -57,9 +61,10 @@ namespace cm
 		VkSurfaceKHR   m_surface   = VK_NULL_HANDLE;
 		VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
 		
-		std::vector<VkImage> m_swapchain_images;
+		std::vector<VkImage>     m_swapchain_images;
+		std::vector<VkImageView> m_swapchain_image_views;
 		
-		VkFormat m_swapchain_image_format;
+		VkFormat   m_swapchain_image_format;
 		VkExtent2D m_swapchain_extent;
 
 	};

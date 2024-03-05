@@ -2,9 +2,7 @@
 
 #include "../Window/cWindow.h"
 
-#include <vulkan/vulkan_win32.h>
-
-#include <stdio.h>
+#include <fstream>
 #include <set>
 #include <vector>
 #include <string>
@@ -20,6 +18,26 @@ if ( num_##_func != 0 )                              \
 	_func( __VA_ARGS__, &num_##_func, _vec.data() ); \
 }                                                    \
 
+// TODO: change to wv::memory and put in content manager or wv::filesystem
+static std::vector<char> readFile( const std::string& _filename )
+{
+	std::ifstream file( _filename, std::ios::ate | std::ios::binary );
+
+	if ( !file.is_open() )
+	{
+		printf( "[ERROR] Failed to open file %s.\n", _filename.c_str() );
+		return {};
+	}
+
+	size_t size = (size_t)file.tellg();
+	std::vector<char> buffer( size );
+
+	file.seekg( 0 );
+	file.read( buffer.data(), size );
+	file.close();
+
+	return buffer;
+}
 
 cm::cRenderer::cRenderer()
 {
@@ -38,10 +56,15 @@ void cm::cRenderer::init( cWindow* _window )
 	selectPhysicalDevice();
 	createLogicalDevice();
 	createSwapChain();
+	createImageViews();
+	createGraphicsPipeline();
 }
 
 void cm::cRenderer::destroy( void )
 {
+	for ( auto image_view : m_swapchain_image_views )
+		vkDestroyImageView( m_device, image_view, nullptr );
+	
 	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
 	vkDestroyDevice( m_device, nullptr );
 	vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
@@ -93,7 +116,7 @@ void cm::cRenderer::selectPhysicalDevice( void )
 	std::vector<VkPhysicalDevice> devices( num_devices );
 	vkEnumeratePhysicalDevices( m_instance, &num_devices, devices.data() );
 
-	int selected;
+	int selected = -1;
 	for ( int i = 0; i < num_devices; i++ )
 	{
 		if ( isDeviceSuitable( devices[ i ] ) )
@@ -107,7 +130,7 @@ void cm::cRenderer::selectPhysicalDevice( void )
 	if ( !m_physical_device )
 		printf( "[FATAL] Failed to select device!\n" );
 	else
-		printf( "[Info] Selected physical device %i.\n", selected );
+		printf( "[INFO] Selected physical device %i.\n", selected );
 }
 
 void cm::cRenderer::createLogicalDevice( void )
@@ -204,7 +227,7 @@ void cm::cRenderer::createSwapChain( void )
 	VkResult result = vkCreateSwapchainKHR( m_device, &create_info, nullptr, &m_swapchain );
 
 	if ( result == VK_SUCCESS )
-		printf("[INFO] Created Swapchain.");
+		printf("[INFO] Created Swapchain.\n");
 	else
 		printErrorResult( "[FATAL] Failed to create Swapchain:", result);
 
@@ -213,6 +236,69 @@ void cm::cRenderer::createSwapChain( void )
 
 	m_swapchain_image_format = surface_format.format;
 	m_swapchain_extent       = extent;
+}
+
+void cm::cRenderer::createImageViews( void )
+{
+	m_swapchain_image_views.resize( m_swapchain_images.size() );
+	for ( size_t i = 0; i < m_swapchain_image_views.size(); i++ )
+	{
+		VkImageViewCreateInfo create_info{};
+		create_info.sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		create_info.image    = m_swapchain_images[ i ];
+		create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		create_info.format   = m_swapchain_image_format;
+		create_info.components = {
+			VK_COMPONENT_SWIZZLE_IDENTITY, // r
+			VK_COMPONENT_SWIZZLE_IDENTITY, // g
+			VK_COMPONENT_SWIZZLE_IDENTITY, // b
+			VK_COMPONENT_SWIZZLE_IDENTITY  // a
+		};
+		create_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		create_info.subresourceRange.baseMipLevel   = 0;
+		create_info.subresourceRange.levelCount     = 1;
+		create_info.subresourceRange.baseArrayLayer = 0;
+		create_info.subresourceRange.layerCount     = 1;
+
+		VkResult result = vkCreateImageView( m_device, &create_info, nullptr, &m_swapchain_image_views[ i ] );
+		if ( result == VK_SUCCESS )
+			printf( "[INFO] Created Swapchain ImageView %i.\n", (int)i );
+		else
+		{
+			printf( "[FATAL] Failed to create Swapchain ImageView %i", (int)i );
+			printErrorResult( ":", result );
+		}
+	}
+}
+
+void cm::cRenderer::createGraphicsPipeline( void )
+{
+	auto vert_shader_code = readFile( "vert.spv" );
+	auto frag_shader_code = readFile( "frag.spv" );
+
+	VkShaderModule vert_shader_module = createShaderModule( vert_shader_code );
+	VkShaderModule frag_shader_module = createShaderModule( frag_shader_code );
+
+	/* vertex shader */
+	VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
+	vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vert_shader_stage_info.module = vert_shader_module;
+	vert_shader_stage_info.pName = "main";
+
+	/* fragment shader */
+	VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
+	frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	frag_shader_stage_info.module = frag_shader_module;
+	frag_shader_stage_info.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+
+	/* cleanup */
+	vkDestroyShaderModule( m_device, vert_shader_module, nullptr );
+	vkDestroyShaderModule( m_device, frag_shader_module, nullptr );
+
 }
 
 void cm::cRenderer::printErrorResult( const std::string& _message, VkResult _result )
@@ -233,6 +319,7 @@ void cm::cRenderer::printErrorResult( const std::string& _message, VkResult _res
 	case VK_ERROR_SURFACE_LOST_KHR:          printf( "SURFACE_LOST_KHR" );          break;
 	case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:  printf( "NATIVE_WINDOW_IN_USE_KHR" );  break;
 	case VK_ERROR_COMPRESSION_EXHAUSTED_EXT: printf( "COMPRESSION_EXHAUSTED_EXT" ); break;
+	case VK_ERROR_INVALID_SHADER_NV:         printf( "INVALID_SHADER_NV" );         break;
 	}
 
 	printf( "\n" );
@@ -351,5 +438,23 @@ VkExtent2D cm::cRenderer::chooseSwapExtent( const VkSurfaceCapabilitiesKHR& _cap
 
 		return extent;
 	}
+}
+
+VkShaderModule cm::cRenderer::createShaderModule( const std::vector<char>& _code )
+{
+	VkShaderModuleCreateInfo create_info{};
+
+	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	create_info.codeSize = _code.size();
+	create_info.pCode = reinterpret_cast<const uint32_t*>( _code.data() );
+
+	VkShaderModule shader_module;
+	VkResult result = vkCreateShaderModule( m_device, &create_info, nullptr, &shader_module );
+	if ( result == VK_SUCCESS )
+		printf( "[INFO] Created Shader Module.\n" );
+	else
+		printErrorResult( "[ERROR] Failed to create Shader Module", result );
+	
+	return shader_module;
 }
 
