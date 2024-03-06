@@ -8,3 +8,4 @@ obj
 *.vcxproj.user
 templates/psx/.vscode
 .vscode
+vulkan/libs
