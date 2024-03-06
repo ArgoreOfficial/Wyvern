@@ -29,6 +29,7 @@ namespace cm
 		void createSurface         ( void );
 		void createSwapChain       ( void );
 		void createImageViews      ( void );
+		void createRenderPass      ( void );
 		void createGraphicsPipeline( void );
 
 		void printErrorResult( const std::string& _message, VkResult _result );
@@ -67,5 +68,9 @@ namespace cm
 		VkFormat   m_swapchain_image_format;
 		VkExtent2D m_swapchain_extent;
 
+		/* pipeline */
+		VkRenderPass     m_render_pass;
+		VkPipelineLayout m_pipeline_layout;
+		VkPipeline       m_graphics_pipeline;
 	};
 }

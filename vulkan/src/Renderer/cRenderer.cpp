@@ -57,18 +57,24 @@ void cm::cRenderer::init( cWindow* _window )
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
+	createRenderPass();
 	createGraphicsPipeline();
 }
 
 void cm::cRenderer::destroy( void )
 {
+	vkDestroyPipeline      ( m_device, m_graphics_pipeline, nullptr );
+	vkDestroyPipelineLayout( m_device, m_pipeline_layout,   nullptr );
+	vkDestroyRenderPass    ( m_device, m_render_pass,       nullptr );
+
 	for ( auto image_view : m_swapchain_image_views )
 		vkDestroyImageView( m_device, image_view, nullptr );
 	
 	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
-	vkDestroyDevice( m_device, nullptr );
+	vkDestroyDevice      ( m_device,              nullptr );
+
 	vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
-	vkDestroyInstance( m_instance, nullptr );
+	vkDestroyInstance  ( m_instance,            nullptr );
 }
 
 void cm::cRenderer::createInstance( void )
@@ -271,6 +277,46 @@ void cm::cRenderer::createImageViews( void )
 	}
 }
 
+void cm::cRenderer::createRenderPass( void )
+{
+	VkAttachmentDescription color_attachment{
+		.format = m_swapchain_image_format,
+		.samples = VK_SAMPLE_COUNT_1_BIT,
+		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+	};
+
+	VkAttachmentReference color_attachment_ref{
+		.attachment = 0,
+		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkSubpassDescription subpass{
+		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &color_attachment_ref
+	};
+	
+	VkRenderPassCreateInfo render_pass_info{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.attachmentCount = 1,
+		.pAttachments = &color_attachment,
+		.subpassCount = 1,
+		.pSubpasses = &subpass
+	};
+
+	VkResult result = vkCreateRenderPass( m_device, &render_pass_info, nullptr, &m_render_pass );
+	if ( result == VK_SUCCESS )
+		printf( "[INFO] Created Render Pass\n" );
+	else
+		printErrorResult( "[FATAL] Failed to create Render Pass:", result );
+
+}
+
 void cm::cRenderer::createGraphicsPipeline( void )
 {
 	auto vert_shader_code = readFile( "vert.spv" );
@@ -280,20 +326,153 @@ void cm::cRenderer::createGraphicsPipeline( void )
 	VkShaderModule frag_shader_module = createShaderModule( frag_shader_code );
 
 	/* vertex shader */
-	VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
-	vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vert_shader_stage_info.module = vert_shader_module;
-	vert_shader_stage_info.pName = "main";
+	VkPipelineShaderStageCreateInfo vert_shader_stage_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.stage = VK_SHADER_STAGE_VERTEX_BIT,
+		.module = vert_shader_module,
+		.pName = "main"
+	};
 
 	/* fragment shader */
-	VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
-	frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	frag_shader_stage_info.module = frag_shader_module;
-	frag_shader_stage_info.pName = "main";
+	VkPipelineShaderStageCreateInfo frag_shader_stage_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+		.module = frag_shader_module,
+		.pName = "main"
+	};
 
+	/* shader stage */
 	VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+
+	/* dynamic state */
+	std::vector<VkDynamicState> dynamic_states = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamic_state_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		.dynamicStateCount = static_cast<uint32_t>( dynamic_states.size() ),
+		.pDynamicStates = dynamic_states.data()
+	};
+
+	/* vertex input */
+	VkPipelineVertexInputStateCreateInfo vertex_input_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		.vertexBindingDescriptionCount = 0,
+		.pVertexBindingDescriptions = nullptr,
+		.vertexAttributeDescriptionCount = 0,
+		.pVertexAttributeDescriptions = nullptr
+	};
+
+	/* input assembly */
+	VkPipelineInputAssemblyStateCreateInfo input_assemply_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		.primitiveRestartEnable = VK_FALSE
+	};
+
+	/* viewport */
+	/*
+	VkViewport viewport{
+		.x = 0.0f,
+		.y = 0.0f,
+		.width  = (float)m_swapchain_extent.width,
+		.height = (float)m_swapchain_extent.height,
+		.minDepth = 0.0f,
+		.maxDepth = 1.0f
+	};
+
+	VkRect2D scissor{
+		.offset = { 0, 0 },
+		.extent = m_swapchain_extent
+	};
+	*/
+
+	/* viewport state */
+	VkPipelineViewportStateCreateInfo viewport_state_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		.viewportCount = 1,
+		//.pViewports = &viewport,
+		.scissorCount = 1,
+		//.pScissors = &scissor
+	};
+
+	/* rasterizer */
+	VkPipelineRasterizationStateCreateInfo rasterizer_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+		.depthClampEnable = VK_FALSE,
+		.rasterizerDiscardEnable = VK_FALSE,
+		.polygonMode = VK_POLYGON_MODE_FILL,
+		.cullMode = VK_CULL_MODE_BACK_BIT,
+		.frontFace = VK_FRONT_FACE_CLOCKWISE,
+		.depthBiasEnable = VK_FALSE,
+		.lineWidth = 1.0f,
+	};
+
+	/* multisampling */
+	VkPipelineMultisampleStateCreateInfo multisample_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+		.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT,
+		.sampleShadingEnable   = VK_FALSE,
+		.minSampleShading      = 1.0f,
+		.pSampleMask           = nullptr,
+		.alphaToCoverageEnable = VK_FALSE,
+		.alphaToOneEnable      = VK_FALSE
+	};
+
+	/* blend attachment */
+	VkPipelineColorBlendAttachmentState blend_attachment_info{
+		.blendEnable = VK_FALSE,
+		.srcColorBlendFactor = VK_BLEND_FACTOR_ONE,  // Optional
+		.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO, // Optional
+		.colorBlendOp        = VK_BLEND_OP_ADD,      // Optional
+		.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,  // Optional
+		.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO, // Optional
+		.alphaBlendOp        = VK_BLEND_OP_ADD,      // Optional
+		.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+	};
+
+	/* blend state */
+	VkPipelineColorBlendStateCreateInfo blend_state_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		.logicOpEnable   = VK_FALSE,
+		.attachmentCount = 1,
+		.pAttachments    = &blend_attachment_info
+	};
+
+	VkPipelineLayoutCreateInfo pipeline_layout_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+	};
+
+	VkResult pipeline_layout_result = vkCreatePipelineLayout( m_device, &pipeline_layout_info, nullptr, &m_pipeline_layout );
+	if ( pipeline_layout_result == VK_SUCCESS )
+		printf( "[INFO] Created Pipeline Layout.\n" );
+	else
+		printErrorResult( "[FATAL] Failed to create Pipeline Layout:", pipeline_layout_result );
+
+
+	/* pipeline object */
+	VkGraphicsPipelineCreateInfo pipeline_info{
+		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+		.stageCount          = 2,
+		.pStages             = shader_stages,
+		.pVertexInputState   = &vertex_input_info,
+		.pInputAssemblyState = &input_assemply_info,
+		.pViewportState      = &viewport_state_info,
+		.pRasterizationState = &rasterizer_info,
+		.pMultisampleState   = &multisample_info,
+		.pDepthStencilState  = nullptr,
+		.pColorBlendState    = &blend_state_info,
+		.pDynamicState       = &dynamic_state_info
+	};
+
+
+	VkResult pipeline_result = vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &m_graphics_pipeline);
+	if ( pipeline_result == VK_SUCCESS )
+		printf( "[INFO] Created Graphics Pipeline.\n" );
+	else
+		printErrorResult( "[FATAL] Failed to create Graphics Pipeline:", pipeline_result );
 
 	/* cleanup */
 	vkDestroyShaderModule( m_device, vert_shader_module, nullptr );
@@ -320,6 +499,7 @@ void cm::cRenderer::printErrorResult( const std::string& _message, VkResult _res
 	case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:  printf( "NATIVE_WINDOW_IN_USE_KHR" );  break;
 	case VK_ERROR_COMPRESSION_EXHAUSTED_EXT: printf( "COMPRESSION_EXHAUSTED_EXT" ); break;
 	case VK_ERROR_INVALID_SHADER_NV:         printf( "INVALID_SHADER_NV" );         break;
+	case VK_PIPELINE_COMPILE_REQUIRED_EXT:   printf( "PIPELINE_COMPILE_REQUIRED_EXT" );         break;
 	}
 
 	printf( "\n" );
