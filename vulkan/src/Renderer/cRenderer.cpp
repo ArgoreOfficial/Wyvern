@@ -97,12 +97,22 @@ void cm::cRenderer::init( cWindow* _window )
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
+	createFramebuffers();
+	createCommandPool();
+	createCommandBuffer();
+	createSyncObjects();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void cm::cRenderer::destroy( void )
 {
+	vkDeviceWaitIdle( m_device );
+
+	vkDestroySemaphore( m_device, m_image_available_semaphore, nullptr );
+	vkDestroySemaphore( m_device, m_render_finished_semaphore, nullptr );
+	vkDestroyFence    ( m_device, m_in_flight_fence,           nullptr );
+
 	if ( m_enable_validation_layers )
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debug_messenger, nullptr );
 
@@ -123,6 +133,54 @@ void cm::cRenderer::destroy( void )
 
 	vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
 	vkDestroyInstance  ( m_instance,            nullptr );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cm::cRenderer::draw( void )
+{
+	vkWaitForFences( m_device, 1, &m_in_flight_fence, VK_TRUE, UINT64_MAX );
+	vkResetFences( m_device, 1, &m_in_flight_fence );
+
+	uint32_t image_index;
+	vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_image_available_semaphore, VK_NULL_HANDLE, &image_index );
+
+	vkResetCommandBuffer( m_command_buffer, 0 );
+	recordCommandBuffer( m_command_buffer, image_index );
+
+	VkSemaphore wait_semaphores  [] = { m_image_available_semaphore };
+	VkSemaphore signal_semaphores[] = { m_render_finished_semaphore };
+	VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	
+	VkSubmitInfo submit_info{
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.waitSemaphoreCount   = 1,
+		.pWaitSemaphores      = wait_semaphores,
+		.pWaitDstStageMask    = wait_stages,
+		.commandBufferCount   = 1,
+		.pCommandBuffers      = &m_command_buffer,
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores    = signal_semaphores
+	};
+
+	const VkResult result = vkQueueSubmit( m_graphics_queue, 1, &submit_info, m_in_flight_fence );
+	if ( result != VK_SUCCESS )
+		printErrorResult( "[FATAL] Failed to submit Command Buffer:", result );
+	
+	/* presenting */
+
+	VkSwapchainKHR swapchains[] = { m_swapchain };
+
+	VkPresentInfoKHR present_info{
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores    = signal_semaphores,
+		.swapchainCount     = 1,
+		.pSwapchains        = swapchains,
+		.pImageIndices      = &image_index
+	};
+
+	vkQueuePresentKHR( m_present_queue, &present_info );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -180,7 +238,7 @@ void cm::cRenderer::createInstance( void )
 
 
 
-	VkResult result = vkCreateInstance( &create_info, nullptr, &m_instance );
+	const VkResult result = vkCreateInstance( &create_info, nullptr, &m_instance );
 	if( result == VK_SUCCESS )
 		printf( "[INFO] Created Vulkan Instance.\n" );
 	else
@@ -200,7 +258,7 @@ void cm::cRenderer::setupDebugMessenger( void )
 		.pUserData       = nullptr
 	};
 
-	VkResult result = CreateDebugUtilsMessengerEXT( m_instance, &create_info, nullptr, &m_debug_messenger );
+	const VkResult result = CreateDebugUtilsMessengerEXT( m_instance, &create_info, nullptr, &m_debug_messenger );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Setup Debug Messenger.\n" );
 	else
@@ -274,7 +332,7 @@ void cm::cRenderer::createLogicalDevice( void )
 		.pEnabledFeatures        = &device_features
 	};
 
-	VkResult result = vkCreateDevice( m_physical_device, &create_info, nullptr, &m_device );
+	const VkResult result = vkCreateDevice( m_physical_device, &create_info, nullptr, &m_device );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Logical Device.\n" );
 	else
@@ -337,7 +395,7 @@ void cm::cRenderer::createSwapChain( void )
 		create_info.pQueueFamilyIndices = nullptr;
 	}
 
-	VkResult result = vkCreateSwapchainKHR( m_device, &create_info, nullptr, &m_swapchain );
+	const VkResult result = vkCreateSwapchainKHR( m_device, &create_info, nullptr, &m_swapchain );
 
 	if ( result == VK_SUCCESS )
 		printf("[INFO] Created Swapchain.\n");
@@ -378,7 +436,7 @@ void cm::cRenderer::createImageViews( void )
 			}
 		};
 
-		VkResult result = vkCreateImageView( m_device, &create_info, nullptr, &m_swapchain_image_views[ i ] );
+		const VkResult result = vkCreateImageView( m_device, &create_info, nullptr, &m_swapchain_image_views[ i ] );
 		if ( result == VK_SUCCESS )
 			printf( "[INFO] Created Swapchain ImageView %i.\n", (int)i );
 		else
@@ -415,15 +473,26 @@ void cm::cRenderer::createRenderPass( void )
 		.pColorAttachments = &color_attachment_ref
 	};
 	
+	VkSubpassDependency dependency{
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = 0,
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
+	};
+
 	VkRenderPassCreateInfo render_pass_info{
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		.attachmentCount = 1,
 		.pAttachments = &color_attachment,
 		.subpassCount = 1,
-		.pSubpasses = &subpass
+		.pSubpasses = &subpass,
+		.dependencyCount = 1,
+		.pDependencies = &dependency
 	};
 
-	VkResult result = vkCreateRenderPass( m_device, &render_pass_info, nullptr, &m_render_pass );
+	const VkResult result = vkCreateRenderPass( m_device, &render_pass_info, nullptr, &m_render_pass );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Render Pass\n" );
 	else
@@ -565,7 +634,7 @@ void cm::cRenderer::createGraphicsPipeline( void )
 		.pPushConstantRanges = nullptr
 	};
 
-	VkResult pipeline_layout_result = vkCreatePipelineLayout( m_device, &pipeline_layout_info, nullptr, &m_pipeline_layout );
+	const VkResult pipeline_layout_result = vkCreatePipelineLayout( m_device, &pipeline_layout_info, nullptr, &m_pipeline_layout );
 	if ( pipeline_layout_result == VK_SUCCESS )
 		printf( "[INFO] Created Pipeline Layout.\n" );
 	else
@@ -590,7 +659,7 @@ void cm::cRenderer::createGraphicsPipeline( void )
 	};
 
 
-	VkResult pipeline_result = vkCreateGraphicsPipelines( m_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &m_graphics_pipeline );
+	const VkResult pipeline_result = vkCreateGraphicsPipelines( m_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &m_graphics_pipeline );
 	if ( pipeline_result == VK_SUCCESS )
 		printf( "[INFO] Created Graphics Pipeline.\n" );
 	else
@@ -626,7 +695,7 @@ void cm::cRenderer::createFramebuffers( void )
 
 
 
-		VkResult result = vkCreateFramebuffer( m_device, &framebuffer_info, nullptr, &m_swapchain_framebuffers[ i ] );
+		const VkResult result = vkCreateFramebuffer( m_device, &framebuffer_info, nullptr, &m_swapchain_framebuffers[ i ] );
 		if ( result == VK_SUCCESS )
 			printf( "[INFO] Created Framebuffer %i.\n", i );
 		else
@@ -650,7 +719,7 @@ void cm::cRenderer::createCommandPool( void )
 		.queueFamilyIndex = queue_family_indices.graphics_family.value()
 	};
 
-	VkResult result = vkCreateCommandPool( m_device, &create_info, nullptr, &m_command_pool );
+	const VkResult result = vkCreateCommandPool( m_device, &create_info, nullptr, &m_command_pool );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Command Pool.\n" );
 	else
@@ -669,11 +738,39 @@ void cm::cRenderer::createCommandBuffer( void )
 		.commandBufferCount = 1
 	};
 
-	VkResult result = vkAllocateCommandBuffers( m_device, &alloc_info, &m_command_buffer );
+	const VkResult result = vkAllocateCommandBuffers( m_device, &alloc_info, &m_command_buffer );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Command Buffer.\n" );
 	else
 		printErrorResult( "[FATAL] Failed to create Command Buffer:", result );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void cm::cRenderer::createSyncObjects( void )
+{
+	VkSemaphoreCreateInfo semaphore_info{
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+	};
+
+	VkFenceCreateInfo fence_info{
+		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		.flags = VK_FENCE_CREATE_SIGNALED_BIT
+	};
+
+	
+	const VkResult result0 = vkCreateSemaphore( m_device, &semaphore_info, nullptr, &m_image_available_semaphore );
+	const VkResult result1 = vkCreateSemaphore( m_device, &semaphore_info, nullptr, &m_render_finished_semaphore );
+	const VkResult result2 = vkCreateFence( m_device, &fence_info, nullptr, &m_in_flight_fence );
+
+	if ( result0 != VK_SUCCESS || result1 != VK_SUCCESS || result2 != VK_SUCCESS )
+	{
+		printf( "[FATAL] Failed to create semaphores!\n" );
+		printErrorResult( "{m_image_available_semaphore}:", result0 );
+		printErrorResult( "{m_render_finished_semaphore}:", result1 );
+		printErrorResult( "{m_in_flight_fence}:", result2 );
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -685,7 +782,7 @@ void cm::cRenderer::recordCommandBuffer( VkCommandBuffer _command_buffer, uint32
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 	};
 
-	VkResult result = vkBeginCommandBuffer( _command_buffer, &begin_info );
+	const VkResult result = vkBeginCommandBuffer( _command_buffer, &begin_info );
 	if ( result != VK_SUCCESS )
 		printErrorResult( "[FATAL] Failed to Begin Command Buffer:", result );
 	
@@ -743,20 +840,21 @@ void cm::cRenderer::printErrorResult( const std::string& _message, VkResult _res
 
 	switch ( _result )
 	{
+	case VK_SUCCESS:                         printf( "SUCCESS" );                   break;
 	case VK_ERROR_VALIDATION_FAILED_EXT:     printf( "VALIDATION FAILED" );         break;
-	case VK_ERROR_OUT_OF_HOST_MEMORY:        printf( "OUT OF HOST MEMORY" );            break;
-	case VK_ERROR_OUT_OF_DEVICE_MEMORY:      printf( "OUT OF DEVICE MEMORY" );          break;
-	case VK_ERROR_INITIALIZATION_FAILED:     printf( "INITIALIZATION FAILED" );         break;
-	case VK_ERROR_EXTENSION_NOT_PRESENT:     printf( "EXTENSION NOT PRESENT" );         break;
-	case VK_ERROR_FEATURE_NOT_PRESENT:       printf( "FEATURE NOT PRESENT" );           break;
-	case VK_ERROR_TOO_MANY_OBJECTS:          printf( "TOO MANY OBJECTS" );              break;
-	case VK_ERROR_DEVICE_LOST:               printf( "DEVICE LOST" );                   break;
-	case VK_ERROR_LAYER_NOT_PRESENT:         printf( "LAYER NOT PRESENT" );             break;
-	case VK_ERROR_INCOMPATIBLE_DRIVER:       printf( "INCOMPATIBLE DRIVER" );           break;
+	case VK_ERROR_OUT_OF_HOST_MEMORY:        printf( "OUT OF HOST MEMORY" );        break;
+	case VK_ERROR_OUT_OF_DEVICE_MEMORY:      printf( "OUT OF DEVICE MEMORY" );      break;
+	case VK_ERROR_INITIALIZATION_FAILED:     printf( "INITIALIZATION FAILED" );     break;
+	case VK_ERROR_EXTENSION_NOT_PRESENT:     printf( "EXTENSION NOT PRESENT" );     break;
+	case VK_ERROR_FEATURE_NOT_PRESENT:       printf( "FEATURE NOT PRESENT" );       break;
+	case VK_ERROR_TOO_MANY_OBJECTS:          printf( "TOO MANY OBJECTS" );          break;
+	case VK_ERROR_DEVICE_LOST:               printf( "DEVICE LOST" );               break;
+	case VK_ERROR_LAYER_NOT_PRESENT:         printf( "LAYER NOT PRESENT" );         break;
+	case VK_ERROR_INCOMPATIBLE_DRIVER:       printf( "INCOMPATIBLE DRIVER" );       break;
 	case VK_ERROR_SURFACE_LOST_KHR:          printf( "SURFACE LOST" );              break;
 	case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:  printf( "NATIVE WINDOW IN USE" );      break;
 	case VK_ERROR_COMPRESSION_EXHAUSTED_EXT: printf( "COMPRESSION EXHAUSTED" );     break;
-	case VK_ERROR_INVALID_SHADER_NV:         printf( "INVALID SHADER NV" );             break;
+	case VK_ERROR_INVALID_SHADER_NV:         printf( "INVALID SHADER NV" );         break;
 	case VK_PIPELINE_COMPILE_REQUIRED_EXT:   printf( "PIPELINE COMPILE REQUIRED" ); break;
 	}
 
@@ -949,7 +1047,7 @@ VkShaderModule cm::cRenderer::createShaderModule( const std::vector<char>& _code
 	create_info.pCode = reinterpret_cast<const uint32_t*>( _code.data() );
 
 	VkShaderModule shader_module;
-	VkResult result = vkCreateShaderModule( m_device, &create_info, nullptr, &shader_module );
+	const VkResult result = vkCreateShaderModule( m_device, &create_info, nullptr, &shader_module );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Shader Module.\n" );
 	else

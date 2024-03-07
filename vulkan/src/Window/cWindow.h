@@ -39,5 +39,7 @@ namespace cm
 		uint32_t m_width  = 512;
 		uint32_t m_height = 512;
 
+		double m_last_time = 0.0;
+
 	};
 }

@@ -33,6 +33,7 @@ namespace cm
 
 		void init   ( cWindow* _window );
 		void destroy( void );
+		void draw   ( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,15 +53,16 @@ namespace cm
 		void createFramebuffers    ( void );
 		void createCommandPool     ( void );
 		void createCommandBuffer   ( void );
+		void createSyncObjects     ( void );
 
 		void recordCommandBuffer( VkCommandBuffer _command_buffer, uint32_t _image_index );
 		void printErrorResult   ( const std::string& _message, VkResult _result );
 
-		bool                isDeviceSuitable           ( VkPhysicalDevice _device );
-		bool                checkDeviceExtensionSupport( VkPhysicalDevice _device );
-		bool                checkValidationLayerSupport( void );
-		sSwapChainSupportDetails querySwapChainSupport ( VkPhysicalDevice _device );
-		sQueueFamilyIndices findQueueFamilies          ( VkPhysicalDevice _device );
+		bool                     checkValidationLayerSupport( void );
+		bool                     isDeviceSuitable           ( VkPhysicalDevice _device );
+		bool                     checkDeviceExtensionSupport( VkPhysicalDevice _device );
+		sSwapChainSupportDetails querySwapChainSupport      ( VkPhysicalDevice _device );
+		sQueueFamilyIndices      findQueueFamilies          ( VkPhysicalDevice _device );
 
 		std::vector<const char*> getRequiredExtensions();
 
@@ -119,6 +121,11 @@ namespace cm
 		/* commands */
 		VkCommandPool m_command_pool;
 		VkCommandBuffer m_command_buffer;
+
+		/* synchronization */
+		VkSemaphore m_image_available_semaphore;
+		VkSemaphore m_render_finished_semaphore;
+		VkFence     m_in_flight_fence;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

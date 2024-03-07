@@ -6,6 +6,9 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include <string>
+#include <format>
+
 cm::cWindow::cWindow( void )
 {
 }
@@ -27,6 +30,13 @@ void cm::cWindow::create( void )
 void cm::cWindow::update( void )
 {
 	glfwPollEvents();
+
+	double current_time = glfwGetTime();
+	double delta_time = current_time - m_last_time;
+	m_last_time = current_time;
+
+	std::string title = std::format( "Vulkan :: FPS: {}", ( 1.0 / delta_time ) );
+	glfwSetWindowTitle( m_window, title.c_str() );
 }
 
 void cm::cWindow::destroy( void )

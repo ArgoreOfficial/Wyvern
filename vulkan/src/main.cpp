@@ -18,7 +18,7 @@ int main()
 	{
 		window.update();
 
-
+		renderer.draw();
 	}
 
 	renderer.destroy();
