@@ -9,3 +9,6 @@ obj
 templates/psx/.vscode
 .vscode
 vulkan/libs
+vulkan/tools/premake/*.targets
+vulkan/tools/premake/*.props
+vulkan/tools/premake/*.xml
