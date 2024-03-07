@@ -35,6 +35,8 @@ namespace cm
 		void destroy( void );
 		void draw   ( void );
 
+		void recreateSwapchain();
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
@@ -52,8 +54,10 @@ namespace cm
 		void createGraphicsPipeline( void );
 		void createFramebuffers    ( void );
 		void createCommandPool     ( void );
-		void createCommandBuffer   ( void );
+		void createCommandBuffers  ( void );
 		void createSyncObjects     ( void );
+
+		void cleanupSwapchain();
 
 		void recordCommandBuffer( VkCommandBuffer _command_buffer, uint32_t _image_index );
 		void printErrorResult   ( const std::string& _message, VkResult _result );
@@ -88,6 +92,8 @@ namespace cm
 		const bool m_enable_validation_layers = false;
 	#endif
 
+		const int m_max_frames_in_flight = 2;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		cWindow* m_active_window;
@@ -113,19 +119,21 @@ namespace cm
 		VkFormat   m_swapchain_image_format;
 		VkExtent2D m_swapchain_extent;
 
+		uint32_t m_current_frame = 0;
+
 		/* pipeline */
-		VkRenderPass     m_render_pass;
-		VkPipelineLayout m_pipeline_layout;
-		VkPipeline       m_graphics_pipeline;
+		VkRenderPass     m_render_pass       = VK_NULL_HANDLE;
+		VkPipelineLayout m_pipeline_layout   = VK_NULL_HANDLE;
+		VkPipeline       m_graphics_pipeline = VK_NULL_HANDLE;
 
 		/* commands */
-		VkCommandPool m_command_pool;
-		VkCommandBuffer m_command_buffer;
+		VkCommandPool m_command_pool = VK_NULL_HANDLE;
+		std::vector<VkCommandBuffer> m_command_buffers;
 
 		/* synchronization */
-		VkSemaphore m_image_available_semaphore;
-		VkSemaphore m_render_finished_semaphore;
-		VkFence     m_in_flight_fence;
+		std::vector<VkSemaphore> m_image_available_semaphores;
+		std::vector<VkSemaphore> m_render_finished_semaphores;
+		std::vector<VkFence>     m_in_flight_fences;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
