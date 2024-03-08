@@ -41,7 +41,7 @@ void wv::cAssemblerPass::execute( cFramebuffer* _input_buffer )
 	cRenderer& renderer = cRenderer::getInstance();
 	cm::iBackend* backend = renderer.getBackend();
 
-	backend->useShaderProgram( m_shader->shader_program_handle );
+	//backend->useShaderProgram( m_shader->shader_program_handle );
 	_input_buffer->bindTexturesToShader( m_shader );
 
 	renderer.clear( 0x44A5FFFF, cm::eClearMode::ClearMode_Color | cm::ClearMode_Depth );

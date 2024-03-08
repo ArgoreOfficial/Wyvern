@@ -2,8 +2,8 @@
 
 #include <wv/Managers/cContentManager.h>
 
-#include <cm/backends/cBackend_OpenGL.h>
-#include <cm/backends/cBackend_D3D11.h>
+//#include <cm/backends/cBackend_OpenGL.h>
+//#include <cm/backends/cBackend_D3D11.h>
 #include <cm/Core/cWindow.h>
 
 #include <wv/Core/cApplication.h>

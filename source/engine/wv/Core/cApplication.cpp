@@ -73,6 +73,7 @@ void wv::cApplication::run( iApplicationConfig* _config_creator )
 	double time = m_window->getTime();
 	double delta_time = 0.0;
 	
+	// TODO: move into renderer
 	cCommandQueue testqueue;
 	testqueue.pushStateCommand( false, 1.0f, 4, &time );
 

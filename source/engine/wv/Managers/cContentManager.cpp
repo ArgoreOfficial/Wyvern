@@ -49,31 +49,32 @@ std::vector<std::string> wv::cContentManager::loadFileToVector( const std::strin
 
 cm::sTexture2D* wv::cContentManager::getTexture( const std::string& _path, bool _ignore_existing )
 {
-	std::string name = getFilenameFromPath( _path );
 
-	if ( m_textures.count( name ) )
-		return m_textures[ name ];
+	//std::string name = getFilenameFromPath( _path );
 
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
-	
-	cm::sTexture2D* texture = new cm::sTexture2D();
-	*texture = backend->createTexture();
+	//if ( m_textures.count( name ) )
+	//	return m_textures[ name ];
 
-	unsigned char* data = stbi_load( _path.c_str(), &texture->width, &texture->height, &texture->num_channels, 0 );
-	backend->generateTexture( *texture, data );
-	stbi_image_free( data );
+	//cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	//
+	//cm::sTexture2D* texture = new cm::sTexture2D();
+	//*texture = backend->createTexture();
 
-	if ( texture->handle == 0 )
-	{
-		printf( "Failed to load texture\n" ); // TODO: change wv::log
-		delete texture;
-		return nullptr;
-	}
+	//unsigned char* data = stbi_load( _path.c_str(), &texture->width, &texture->height, &texture->num_channels, 0 );
+	//backend->generateTexture( *texture, data );
+	//stbi_image_free( data );
 
-	printf( "Loaded texture %s\n", name.c_str() ); // TODO: change wv::log
-	m_textures[ name ] = texture;
+	//if ( texture->handle == 0 )
+	//{
+	//	printf( "Failed to load texture\n" ); // TODO: change wv::log
+	//	delete texture;
+	//	return nullptr;
+	//}
 
-	return texture;
+	//printf( "Loaded texture %s\n", name.c_str() ); // TODO: change wv::log
+	//m_textures[ name ] = texture;
+
+	return nullptr;
 }
 
 wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool _ignore_existing )
@@ -83,55 +84,55 @@ wv::cMaterial* wv::cContentManager::getMaterial( const std::string& _path, bool 
 	//if ( m_materials.count( name ) )
 	//	return m_materials[ name ];
 
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	//cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-	std::vector<std::string> file = loadFileToVector( _path + ".wmat" );
-	std::map<std::string, std::string> material_values;
+	//std::vector<std::string> file = loadFileToVector( _path + ".wmat" );
+	//std::map<std::string, std::string> material_values;
 
-	for ( int i = 0; i < file.size(); i++ )
-	{
-		std::string line = file[ i ];
+	//for ( int i = 0; i < file.size(); i++ )
+	//{
+	//	std::string line = file[ i ];
 
-		line.erase( remove( line.begin(), line.end(), ' ' ), line.end() );
+	//	line.erase( remove( line.begin(), line.end(), ' ' ), line.end() );
 
-		std::stringstream stream( line );
-		std::string segment;
-		std::vector<std::string> seglist;
-		while ( std::getline( stream, segment, ':' ) )
-			seglist.push_back( segment );
-		
-		if ( seglist.size() != 2 )
-			continue;
+	//	std::stringstream stream( line );
+	//	std::string segment;
+	//	std::vector<std::string> seglist;
+	//	while ( std::getline( stream, segment, ':' ) )
+	//		seglist.push_back( segment );
+	//	
+	//	if ( seglist.size() != 2 )
+	//		continue;
 
-		if ( seglist[ 0 ] == "" || seglist[ 1 ] == "" )
-			continue;
-		
-		material_values[ seglist[ 0 ] ] = seglist[ 1 ];
-	}
+	//	if ( seglist[ 0 ] == "" || seglist[ 1 ] == "" )
+	//		continue;
+	//	
+	//	material_values[ seglist[ 0 ] ] = seglist[ 1 ];
+	//}
 
-	cMaterial* mat = new cMaterial(); // TODO: keep track and destroy
-	mat->shader = getShader( material_values[ "shader" ] );
-	
-	int loc = -1;
-	int uniform_index = 0;
-	do
-	{
-		cm::Shader::sUniform uniform = backend->getUniform( mat->shader->shader_program_handle, uniform_index );
-		loc = uniform.location;
-		uniform_index++;
-		
-		if ( material_values.count( uniform.name ) == 0 )
-			continue;
-		
-		if ( uniform.type == cm::Shader::ShaderUniformType_Sampler2D )
-			mat->addTexture( uniform.name, material_values[ uniform.name ] );
-		
-	} while ( loc != -1 );
+	//cMaterial* mat = new cMaterial(); // TODO: keep track and destroy
+	//mat->shader = getShader( material_values[ "shader" ] );
+	//
+	//int loc = -1;
+	//int uniform_index = 0;
+	//do
+	//{
+	//	cm::Shader::sUniform uniform = backend->getUniform( mat->shader->shader_program_handle, uniform_index );
+	//	loc = uniform.location;
+	//	uniform_index++;
+	//	
+	//	if ( material_values.count( uniform.name ) == 0 )
+	//		continue;
+	//	
+	//	if ( uniform.type == cm::Shader::ShaderUniformType_Sampler2D )
+	//		mat->addTexture( uniform.name, material_values[ uniform.name ] );
+	//	
+	//} while ( loc != -1 );
 
-	//m_materials[ name ] = mat;
-	m_material_indices.push_back( mat );
+	////m_materials[ name ] = mat;
+	//m_material_indices.push_back( mat );
 
-	return mat;
+	return nullptr;
 }
 
 wv::cMaterial* wv::cContentManager::getMaterial( int _index )
@@ -159,47 +160,47 @@ void wv::cContentManager::unbindMaterial()
 
 wv::cShader* wv::cContentManager::getShader( const std::string& _path, bool _ignore_existing )
 {
-	std::string name = getFilenameFromPath( _path );
-	wv::cShader* shader = nullptr;
+	//std::string name = getFilenameFromPath( _path );
+	//wv::cShader* shader = nullptr;
 
-	if ( m_shaders.count( name ) != 0 )
-	{
-		if ( _ignore_existing )
-			shader = m_shaders[ name ];
-		else
-			return m_shaders[ name ];
-		
-	}
-	else
-	{
-		shader = new cShader( name, _path );
-		printf( "Creating shader %s\n", name.c_str() ); // TODO: change wv::log
-	}
+	//if ( m_shaders.count( name ) != 0 )
+	//{
+	//	if ( _ignore_existing )
+	//		shader = m_shaders[ name ];
+	//	else
+	//		return m_shaders[ name ];
+	//	
+	//}
+	//else
+	//{
+	//	shader = new cShader( name, _path );
+	//	printf( "Creating shader %s\n", name.c_str() ); // TODO: change wv::log
+	//}
 
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
+	//cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-	const std::string vert_path = _path + ".vert";
-	const std::string frag_path = _path + ".frag";
+	//const std::string vert_path = _path + ".vert";
+	//const std::string frag_path = _path + ".frag";
 
-	std::string vert = loadFileToString( vert_path );
-	std::string frag = loadFileToString( frag_path );
+	//std::string vert = loadFileToString( vert_path );
+	//std::string frag = loadFileToString( frag_path );
 
-	cm::Shader::sShader vert_shader = backend->createShader( vert, cm::Shader::eShaderType::ShaderType_Vertex );
-	cm::Shader::sShader frag_shader = backend->createShader( frag, cm::Shader::eShaderType::ShaderType_Fragment );
-	
-	cm::Shader::hShaderProgram program = backend->createShaderProgram();
-	backend->attachShader( program, vert_shader );
-	backend->attachShader( program, frag_shader );
-	backend->linkShaderProgram( program );
-	
-	shader->shader_program_handle = program;
-	shader->createUniformBlock();
-	m_shaders[ name ] = shader;
+	//cm::Shader::sShader vert_shader = backend->createShader( vert, cm::Shader::eShaderType::ShaderType_Vertex );
+	//cm::Shader::sShader frag_shader = backend->createShader( frag, cm::Shader::eShaderType::ShaderType_Fragment );
+	//
+	//cm::Shader::hShaderProgram program = backend->createShaderProgram();
+	//backend->attachShader( program, vert_shader );
+	//backend->attachShader( program, frag_shader );
+	//backend->linkShaderProgram( program );
+	//
+	//shader->shader_program_handle = program;
+	//shader->createUniformBlock();
+	//m_shaders[ name ] = shader;
 
-	backend->destroyShader( vert_shader );
-	backend->destroyShader( frag_shader );
+	//backend->destroyShader( vert_shader );
+	//backend->destroyShader( frag_shader );
 
-	return shader;
+	return nullptr;
 }
 
 wv::cModel* wv::cContentManager::getModel( const std::string& _path, bool _ignore_existing )
@@ -223,22 +224,22 @@ wv::cModel* wv::cContentManager::getModel( const std::string& _path, bool _ignor
 
 void wv::cContentManager::destroyShader( cShader* _shader )
 {
-	if ( m_shaders.count( _shader->name ) )
-	{
-		m_shaders.erase( _shader->name );
-		delete _shader;
-	}
+	//if ( m_shaders.count( _shader->name ) )
+	//{
+	//	m_shaders.erase( _shader->name );
+	//	delete _shader;
+	//}
 }
 
 void wv::cContentManager::destroyTexture( cm::sTexture2D* _texture )
 {
 
-	if ( m_shaders.count( _texture->name ) )
-	{
-		cRenderer::getInstance().getBackend()->destroyTexture( *_texture );
-		m_shaders.erase( _texture->name );
-		delete _texture;
-	}
+	//if ( m_shaders.count( _texture->name ) )
+	//{
+	//	cRenderer::getInstance().getBackend()->destroyTexture( *_texture );
+	//	m_shaders.erase( _texture->name );
+	//	delete _texture;
+	//}
 }
 
 std::string wv::cContentManager::getFilenameFromPath( const std::string& _path )
@@ -347,35 +348,35 @@ wv::cMesh* wv::cContentManager::processAssimpMesh( aiMesh* _assimp_mesh, const a
 		mesh->material->addTexture( "uNormal",            normal_path.c_str() );
 	}
 
-	/* create vertex array */
-	cm::hVertexArray vertex_array = backend->createVertexArray();
-	backend->bindVertexArray( vertex_array );
+	///* create vertex array */
+	//cm::hVertexArray vertex_array = backend->createVertexArray();
+	//backend->bindVertexArray( vertex_array );
 
-	/* create vertex buffer */
-	cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
-	backend->bufferData( vertex_buffer, vertices.data(), sizeof( sVertex ) * vertices.size() );
+	///* create vertex buffer */
+	//cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
+	//backend->bufferData( vertex_buffer, vertices.data(), sizeof( sVertex ) * vertices.size() );
 
-	cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
-	backend->bufferData( index_buffer, indices.data(), sizeof( unsigned int ) * indices.size() );
+	//cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
+	//backend->bufferData( index_buffer, indices.data(), sizeof( unsigned int ) * indices.size() );
 
-	cm::cVertexLayout layout;
-	layout.push<float>( 3 ); // pos
-	layout.push<float>( 3 ); // normal
-	layout.push<float>( 3 ); // tangent
-	layout.push<float>( 4 ); // col
-	layout.push<float>( 2 ); // texcoord0
-	backend->bindVertexLayout( layout );
+	//cm::cVertexLayout layout;
+	//layout.push<float>( 3 ); // pos
+	//layout.push<float>( 3 ); // normal
+	//layout.push<float>( 3 ); // tangent
+	//layout.push<float>( 4 ); // col
+	//layout.push<float>( 2 ); // texcoord0
+	//backend->bindVertexLayout( layout );
 
-	backend->bindVertexArray( 0 );
+	//backend->bindVertexArray( 0 );
 
-	mesh->layout = layout;
-	mesh->vertex_array = vertex_array;
-	mesh->vertex_buffer = vertex_buffer;
-	mesh->index_buffer = index_buffer;
-	mesh->num_vertices = vertices.size();
-	mesh->num_indices = indices.size();
+	//mesh->layout = layout;
+	//mesh->vertex_array = vertex_array;
+	//mesh->vertex_buffer = vertex_buffer;
+	//mesh->index_buffer = index_buffer;
+	//mesh->num_vertices = vertices.size();
+	//mesh->num_indices = indices.size();
 
-	return mesh;
+	//return mesh;
 }
 
 std::string wv::cContentManager::getAssimpMaterialTexturePath( aiMaterial* _material ,aiTextureType _type, const std::string& _root_dir )

@@ -13,7 +13,7 @@ wv::cMesh::~cMesh()
 	}
 
 	cm::iBackend* backend = wv::cRenderer::getInstance().getBackend();
-	backend->destroyVertexArray( vertex_array );
-	backend->destroyBuffer( vertex_buffer );
-	backend->destroyBuffer( index_buffer );
+	//backend->destroyVertexArray( vertex_array );
+	//backend->destroyBuffer( vertex_buffer );
+	//backend->destroyBuffer( index_buffer );
 }

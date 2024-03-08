@@ -31,6 +31,7 @@ namespace cm
 		void         getFramebufferSize           ( int* _out_width, int* _out_height );
 
 		bool shouldClose( void );
+		void waitEvents( void );
 
 	private:
 

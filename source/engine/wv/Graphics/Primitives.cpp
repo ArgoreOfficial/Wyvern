@@ -24,35 +24,35 @@ wv::cMesh* wv::Primitives::quad( const float _size )
 		0,2,3
 	};
 
-	/* create vertex array */
-	cm::hVertexArray vertex_array = backend->createVertexArray();
-	backend->bindVertexArray( vertex_array );
+	///* create vertex array */
+	//cm::hVertexArray vertex_array = backend->createVertexArray();
+	//backend->bindVertexArray( vertex_array );
 
-	/* create vertex buffer */
-	cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
-	backend->bufferData( vertex_buffer, points, sizeof( points ) );
+	///* create vertex buffer */
+	//cm::sBuffer vertex_buffer = backend->createBuffer( cm::BufferType_Vertex, cm::BufferUsage_Static );
+	//backend->bufferData( vertex_buffer, points, sizeof( points ) );
 
-	cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
-	backend->bufferData( index_buffer, indices, sizeof( indices ) );
+	//cm::sBuffer index_buffer = backend->createBuffer( cm::BufferType_Index, cm::BufferUsage_Static );
+	//backend->bufferData( index_buffer, indices, sizeof( indices ) );
 
-	cm::cVertexLayout layout;
-	layout.push<float>( 3 ); // pos
-	layout.push<float>( 3 ); // normal
-	layout.push<float>( 3 ); // tangent
-	layout.push<float>( 4 ); // col
-	layout.push<float>( 2 ); // texcoord0
-	backend->bindVertexLayout( layout );
+	//cm::cVertexLayout layout;
+	//layout.push<float>( 3 ); // pos
+	//layout.push<float>( 3 ); // normal
+	//layout.push<float>( 3 ); // tangent
+	//layout.push<float>( 4 ); // col
+	//layout.push<float>( 2 ); // texcoord0
+	//backend->bindVertexLayout( layout );
 
-	backend->bindVertexArray( 0 );
+	//backend->bindVertexArray( 0 );
 
-	wv::cMesh* mesh = new wv::cMesh();
+	//wv::cMesh* mesh = new wv::cMesh();
 
-	mesh->layout = layout;
-	mesh->vertex_array = vertex_array;
-	mesh->vertex_buffer = vertex_buffer;
-	mesh->index_buffer = index_buffer;
+	//mesh->layout = layout;
+	//mesh->vertex_array = vertex_array;
+	//mesh->vertex_buffer = vertex_buffer;
+	//mesh->index_buffer = index_buffer;
 
-    return mesh; // TODO: keep track and delete
+	return nullptr; //  mesh; // TODO: keep track and delete
 }
 
 wv::cMesh* wv::Primitives::triangle()

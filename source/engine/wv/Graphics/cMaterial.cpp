@@ -41,7 +41,7 @@ void wv::cMaterial::bind()
 
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-	backend->useShaderProgram( shader->shader_program_handle );
+	//backend->useShaderProgram( shader->shader_program_handle );
 
 	if ( m_textures.size() == 0 )
 		return;
@@ -50,8 +50,8 @@ void wv::cMaterial::bind()
 	{
 		int binding = shader->getUniformBinding( texture.first );
 		
-		backend->setActiveTextureSlot( binding );
-		backend->bindTexture2D( *texture.second );
+		//backend->setActiveTextureSlot( binding );
+		//backend->bindTexture2D( *texture.second );
 	}
 }
 
@@ -65,8 +65,8 @@ void wv::cMaterial::unbind()
 	int offset = 0;
 	for ( auto& texture : m_textures )
 	{
-		backend->setActiveTextureSlot( offset );
-		backend->unbindTexture2D( *texture.second );
+		//backend->setActiveTextureSlot( offset );
+		//backend->unbindTexture2D( *texture.second );
 		offset++;
 	}
 }

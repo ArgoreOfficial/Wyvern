@@ -55,7 +55,7 @@ void wv::cDeferredLightRenderPass::execute( cFramebuffer* _input_buffer )
 	float ambl_intensity = scene_manager.getAmbientLightIntensity();
 	int   numlights      = scene_manager.light_positions.size();
 
-	backend->useShaderProgram( m_shader->shader_program_handle );
+	//backend->useShaderProgram( m_shader->shader_program_handle );
 	_input_buffer->bindTexturesToShader( m_shader );
 
 	renderer.clear( 0x44A5FFFF, cm::eClearMode::ClearMode_Color | cm::ClearMode_Depth );

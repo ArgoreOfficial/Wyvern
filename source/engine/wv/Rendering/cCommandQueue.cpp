@@ -29,7 +29,6 @@ void wv::cCommandQueue::pushStateCommand( bool _translucency, float _depth, unsi
 	if ( _translucency ) depth    <<= 16; // depth priority
 	else                 material <<= 16; // material priority
 
-
 	uint64_t command = translucency | depth | material;
 	m_queue.push_back( std::pair<uint64_t, void*>( command, _obj_ptr ) );
 }

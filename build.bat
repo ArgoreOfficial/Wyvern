@@ -14,20 +14,22 @@ if errorlevel 1 (
 
 :git_init
 echo Updating git
-git clone --bare http://gitlab.psq.local/piostb/01-instance-rendering.git .git
+git clone --bare http://gitlab.psq.local/piostb/02-shadowmaps.git .git
 git init
 git pull
 git reset HEAD
 git submodule init
 git submodule update --recursive
 git checkout master
+git lfs install
+git lfs pull
 
 :submodule_update
-echo Updating submodule
+echo Updating submodules
 if not exist libs\glfw\.git git submodule add https://github.com/glfw/glfw.git libs/glfw
 if not exist libs\glm\.git git submodule add https://github.com/g-truc/glm.git libs/glm
 git submodule init
-git submodule update
+git submodule update --recursive
 
 :premake_create 
 echo Creating project

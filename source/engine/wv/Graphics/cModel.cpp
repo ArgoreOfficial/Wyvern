@@ -59,11 +59,11 @@ void wv::cModel::render()
 		material.shader->ubBufferData( "uColor", &color, sizeof( cVector4f ) );
 		material.shader->ubEnd();
 
-		backend->bindVertexArray( meshes[ i ]->vertex_array );
-		backend->drawElements( meshes[ i ]->num_indices, cm::eDrawMode::DrawMode_Triangle );
+		//backend->bindVertexArray( meshes[ i ]->vertex_array );
+		//backend->drawElements( meshes[ i ]->num_indices, cm::eDrawMode::DrawMode_Triangle );
 
 		//material.unbind();
 	}
 
-	backend->bindVertexArray( 0 );
+	//backend->bindVertexArray( 0 );
 }

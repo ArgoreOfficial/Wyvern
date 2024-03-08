@@ -22,7 +22,7 @@ wv::cShader::~cShader()
 void wv::cShader::destroy()
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
-	
+	/*
 	if ( m_uniform_buffer.handle != 0 )
 	{
 		backend->destroyBuffer( m_uniform_buffer );
@@ -48,43 +48,44 @@ void wv::cShader::destroy()
 	{
 		delete[] m_uniform_buffer_data;
 		m_uniform_buffer_data = nullptr;
-	}
+	}*/
 }
 
 void wv::cShader::createUniformBlock()
 {
-	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-	// TODO: remove?
-	int loc = -1;
-	int uniform_index = 0;
-	do
-	{
-		cm::Shader::sUniform uniform = backend->getUniform( shader_program_handle, uniform_index );
-		loc = uniform.location;
-		
-		getUniformLocation( uniform.name );
-		
-		uniform_index++;
+	//cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-		if ( loc == -1 )
-			continue;
+	//// TODO: remove?
+	//int loc = -1;
+	//int uniform_index = 0;
+	//do
+	//{
+	//	cm::Shader::sUniform uniform = backend->getUniform( shader_program_handle, uniform_index );
+	//	loc = uniform.location;
+	//	
+	//	getUniformLocation( uniform.name );
+	//	
+	//	uniform_index++;
 
-		//m_uniforms[ uniform.name ] = uniform;
-	} while ( loc != -1 );
+	//	if ( loc == -1 )
+	//		continue;
 
-	m_uniform_block = backend->getUniformBlock( shader_program_handle, 0 );
-	if ( m_uniform_block.name == "" )
-		return;
+	//	//m_uniforms[ uniform.name ] = uniform;
+	//} while ( loc != -1 );
 
-	m_buffer_slot = cContentManager::getInstance().getUniformBlockLocation();
+	//m_uniform_block = backend->getUniformBlock( shader_program_handle, 0 );
+	//if ( m_uniform_block.name == "" )
+	//	return;
 
-	m_uniform_buffer = backend->createBuffer( cm::BufferType_Uniform, cm::BufferUsage_Dynamic );
-	backend->setUniformBlockBinding( shader_program_handle, m_uniform_block.name.c_str(), m_buffer_slot );
-	backend->bindBufferBase( m_uniform_buffer, m_buffer_slot );
-	backend->bufferData( m_uniform_buffer, nullptr, m_uniform_block.size );
+	//m_buffer_slot = cContentManager::getInstance().getUniformBlockLocation();
 
-	m_uniform_buffer_data = new unsigned char[ m_uniform_block.size ];
+	//m_uniform_buffer = backend->createBuffer( cm::BufferType_Uniform, cm::BufferUsage_Dynamic );
+	//backend->setUniformBlockBinding( shader_program_handle, m_uniform_block.name.c_str(), m_buffer_slot );
+	//backend->bindBufferBase( m_uniform_buffer, m_buffer_slot );
+	//backend->bufferData( m_uniform_buffer, nullptr, m_uniform_block.size );
+
+	//m_uniform_buffer_data = new unsigned char[ m_uniform_block.size ];
 }
 
 void wv::cShader::ubBegin()
@@ -97,17 +98,17 @@ void wv::cShader::ubEnd()
 {
 	cm::iBackend* backend = cRenderer::getInstance().getBackend();
 
-	backend->bindBuffer( m_uniform_buffer );
-	backend->bufferData( m_uniform_buffer, m_uniform_buffer_data, m_uniform_block.size );
+	//backend->bindBuffer( m_uniform_buffer );
+	//backend->bufferData( m_uniform_buffer, m_uniform_buffer_data, m_uniform_block.size );
 
-	for ( auto& uniform : m_used_uniforms )
-	{
-		if ( uniform.second == false && m_printed_errors.count( uniform.first ) == 0 )
-		{
-			printf( "Uniform '%s' was never set. This may cause crashes\n", uniform.first.c_str() );
-			m_printed_errors[ uniform.first ] = true;
-		}
-	}
+	//for ( auto& uniform : m_used_uniforms )
+	//{
+	//	if ( uniform.second == false && m_printed_errors.count( uniform.first ) == 0 )
+	//	{
+	//		printf( "Uniform '%s' was never set. This may cause crashes\n", uniform.first.c_str() );
+	//		m_printed_errors[ uniform.first ] = true;
+	//	}
+	//}
 
 }
 
@@ -131,7 +132,7 @@ void wv::cShader::ubBufferData( const std::string& _uniform, void* _data, size_t
 
 int wv::cShader::getUniformLocation( const std::string& _uniform )
 {
-	if ( m_uniforms.count( _uniform ) == 0 )
+	/*if ( m_uniforms.count( _uniform ) == 0 )
 	{
 		cm::Shader::sUniform uniform;
 
@@ -141,19 +142,19 @@ int wv::cShader::getUniformLocation( const std::string& _uniform )
 		uniform.type = -1;
 
 		m_uniforms[ _uniform ] = uniform;
-	}
+	}*/
 
-	return m_uniforms[ _uniform ].location;
+	return 0; // m_uniforms[ _uniform ].location;
 }
 
 int wv::cShader::getUniformBinding( const std::string& _uniform )
 {
-	if ( m_uniform_bindings.count( _uniform ) == 0 )
+	/*if ( m_uniform_bindings.count( _uniform ) == 0 )
 	{
 		cm::iBackend* backend = cRenderer::getInstance().getBackend();
 		int location = getUniformLocation( _uniform );
 		m_uniform_bindings[ _uniform ] = backend->getUniformInt( shader_program_handle, location );
-	}
+	}*/
 
-	return m_uniform_bindings[ _uniform ];
+	return 0; // m_uniform_bindings[ _uniform ];
 }

@@ -143,8 +143,9 @@ void cm::cRenderer::draw( void )
 	uint32_t image_index;
 	VkResult image_result = vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_image_available_semaphores[ m_current_frame ], VK_NULL_HANDLE, &image_index );
 
-	if ( image_result == VK_ERROR_OUT_OF_DATE_KHR )
+	if ( image_result == VK_ERROR_OUT_OF_DATE_KHR || image_result == VK_SUBOPTIMAL_KHR || m_framebuffer_resized )
 	{
+		m_framebuffer_resized = false;
 		recreateSwapchain();
 		return;
 	}
@@ -188,8 +189,11 @@ void cm::cRenderer::draw( void )
 	};
 
 	const VkResult present_result = vkQueuePresentKHR( m_present_queue, &present_info );
-	if ( present_result == VK_ERROR_OUT_OF_DATE_KHR || present_result == VK_SUBOPTIMAL_KHR )
+	if ( present_result == VK_ERROR_OUT_OF_DATE_KHR || present_result == VK_SUBOPTIMAL_KHR || m_framebuffer_resized )
+	{
+		m_framebuffer_resized = false;
 		recreateSwapchain();
+	}
 	else if ( present_result != VK_SUCCESS )
 		printErrorResult( "[FATAL] Failed to present swap chain image:", image_result );
 	
@@ -200,6 +204,14 @@ void cm::cRenderer::draw( void )
 
 void cm::cRenderer::recreateSwapchain()
 {
+	int width = 0, height = 0;
+	m_active_window->getFramebufferSize( &width, &height );
+	while ( width == 0 || height == 0 )
+	{
+		m_active_window->getFramebufferSize( &width, &height );
+		m_active_window->waitEvents();
+	}
+
 	vkDeviceWaitIdle( m_device );
 
 	cleanupSwapchain();
@@ -907,6 +919,13 @@ void cm::cRenderer::printErrorResult( const std::string& _message, VkResult _res
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void cm::cRenderer::onResize( uint32_t _width, uint32_t _height )
+{
+	m_framebuffer_resized = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool cm::cRenderer::isDeviceSuitable( VkPhysicalDevice _device )
 {
 	sQueueFamilyIndices indices = findQueueFamilies( _device );
@@ -965,9 +984,7 @@ bool cm::cRenderer::checkValidationLayerSupport( void )
 		}
 
 		if ( !layer_found )
-		{
 			return false;
-		}
 	}
 
 	return true;
@@ -1084,13 +1101,13 @@ VkExtent2D cm::cRenderer::chooseSwapExtent( const VkSurfaceCapabilitiesKHR& _cap
 
 VkShaderModule cm::cRenderer::createShaderModule( const std::vector<char>& _code )
 {
-	VkShaderModuleCreateInfo create_info{};
-
-	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	create_info.codeSize = _code.size();
-	create_info.pCode = reinterpret_cast<const uint32_t*>( _code.data() );
-
 	VkShaderModule shader_module;
+	VkShaderModuleCreateInfo create_info{
+		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.codeSize = _code.size(),
+		.pCode = reinterpret_cast<const uint32_t*>( _code.data() )
+	};
+
 	const VkResult result = vkCreateShaderModule( m_device, &create_info, nullptr, &shader_module );
 	if ( result == VK_SUCCESS )
 		printf( "[INFO] Created Shader Module.\n" );

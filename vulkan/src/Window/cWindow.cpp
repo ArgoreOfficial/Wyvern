@@ -69,3 +69,8 @@ bool cm::cWindow::shouldClose( void )
 {
 	return glfwWindowShouldClose( m_window );
 }
+
+void cm::cWindow::waitEvents( void )
+{
+	glfwWaitEvents();
+}

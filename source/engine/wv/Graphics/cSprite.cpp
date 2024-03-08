@@ -66,9 +66,9 @@ void wv::cSprite::render()
 	m_material->shader->ubBufferData( "uColor", &col, 16 );
 	m_material->shader->ubEnd();
 
-	backend->bindVertexArray( m_quad->vertex_array );
-	backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
-	
-	backend->bindVertexArray( 0 );
+	//backend->bindVertexArray( m_quad->vertex_array );
+	//backend->drawElements( 6, cm::eDrawMode::DrawMode_Triangle );
+	//
+	//backend->bindVertexArray( 0 );
 	m_material->unbind();
 }

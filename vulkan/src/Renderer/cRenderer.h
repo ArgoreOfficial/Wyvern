@@ -35,7 +35,6 @@ namespace cm
 		void destroy( void );
 		void draw   ( void );
 
-		void recreateSwapchain();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +42,7 @@ namespace cm
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT _severity, VkDebugUtilsMessageTypeFlagsEXT _type, const VkDebugUtilsMessengerCallbackDataEXT* _data, void* _user_data );
 
+		void recreateSwapchain();
 		void createInstance        ( void );
 		void setupDebugMessenger   ( void );
 		void selectPhysicalDevice  ( void );
@@ -61,6 +61,8 @@ namespace cm
 
 		void recordCommandBuffer( VkCommandBuffer _command_buffer, uint32_t _image_index );
 		void printErrorResult   ( const std::string& _message, VkResult _result );
+
+		void onResize( uint32_t _width, uint32_t _height );
 
 		bool                     checkValidationLayerSupport( void );
 		bool                     isDeviceSuitable           ( VkPhysicalDevice _device );
@@ -120,6 +122,7 @@ namespace cm
 		VkExtent2D m_swapchain_extent;
 
 		uint32_t m_current_frame = 0;
+		bool m_framebuffer_resized = false;
 
 		/* pipeline */
 		VkRenderPass     m_render_pass       = VK_NULL_HANDLE;
