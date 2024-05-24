@@ -29,6 +29,7 @@ project (PROJECT_NAME)
 	location "../../build"
 
 	includedirs { 
+		"../../src",
 		"../../include/", 
 		"../../libs/glad/include/", 
 		"../../libs/glfw/include/", 

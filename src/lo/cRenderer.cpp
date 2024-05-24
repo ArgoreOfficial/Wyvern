@@ -4,17 +4,17 @@
 
 #include <stdio.h>
 
-cRenderer::cRenderer()
+lo::cRenderer::cRenderer()
 {
 
 }
 
-cRenderer::~cRenderer()
+lo::cRenderer::~cRenderer()
 {
 
 }
 
-bool cRenderer::create( cWindow& _window )
+bool lo::cRenderer::create( cWindow& _window )
 {
 	if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
 	{
@@ -29,7 +29,7 @@ bool cRenderer::create( cWindow& _window )
 	return true;
 }
 
-void cRenderer::clear( unsigned char _color )
+void lo::cRenderer::clear( unsigned char _color )
 {
 	float r = ( _color & 0xFF000000 ) / 256.0f;
 	float g = ( _color & 0x00FF0000 ) / 256.0f;
@@ -40,7 +40,63 @@ void cRenderer::clear( unsigned char _color )
 	glClear( GL_COLOR_BUFFER_BIT );
 }
 
-void cRenderer::createDefaultShader( void )
+lo::cPipelineState lo::cRenderer::createPipelineState( sPipelineStateDesc* _desc )
+{
+	// vertex array object
+	unsigned int vao;
+	glGenVertexArrays( 1, &vao );
+	glBindVertexArray( vao );
+
+	// create vertex buffer object
+	unsigned int vbo;
+	glGenBuffers( 1, &vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+
+	// buffer data
+	glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferDesc->size, _desc->vertexBufferDesc->data, GL_STATIC_DRAW );
+
+	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), (void*)0 );
+	glEnableVertexAttribArray( 0 );
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	cPipelineState ps;
+	ps.state = 0;
+
+	ps.state |= ( _desc->program  << PIPELINE_STATE_BIT_SHADER );
+	ps.state |= ( _desc->hasAlpha << PIPELINE_STATE_BIT_ALPHA );
+	ps.state |= ( _desc->cullFace << PIPELINE_STATE_BIT_CULLMODE );
+
+	return ps;
+}
+
+void lo::cRenderer::execCmd( sCmd _cmd )
+{
+	switch ( _cmd.type )
+	{
+		case LO_CMD_TYPE_CLEAR: 
+			clear( _cmd.idata); 
+			break;
+
+		case LO_CMD_TYPE_BIND_SHADER: 
+			glUseProgram( _cmd.idata ); 
+			break;
+
+		case LO_CMD_TYPE_BIND_VERTEX_ARRAY_OBJECT: 
+			glBindVertexArray( _cmd.idata ); 
+			break;
+
+		case LO_CMD_TYPE_BIND_DRAW: 
+			glDrawArrays( GL_TRIANGLES, 0, 3 ); 
+			break; /// TODO:
+
+		case LO_CMD_TYPE_BIND_SWAP: 
+			break;
+	}
+}
+
+void lo::cRenderer::createDefaultShader( void )
 {
 	int  success;
 	char infoLog[ 512 ];

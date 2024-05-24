@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types.h"
+#include <lo/types.h>
 
 namespace lo
 {
