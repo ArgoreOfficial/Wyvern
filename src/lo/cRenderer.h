@@ -15,13 +15,9 @@ namespace lo
 		~cRenderer();
 	
 		bool create( cWindow& _window );
-
 		void clear( unsigned char _color );
-
 		unsigned int getDefaultShader( void ) const { return m_shader_default; }
-
 		cPipelineState createPipelineState( sPipelineStateDesc* _desc );
-
 		void execCmd( sCmd _cmd );
 
 	private:
