@@ -1,8 +1,15 @@
 #pragma once
 #include <wv/Types.h>
+#include <wv/Shader/Shader.h>
+#include <wv/Shader/ShaderProgram.h>
 
 namespace wv
 {
+	struct PipelineDesc;
+	class Pipeline;
+	struct PrimitiveDesc;
+	class Primitive;
+	
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
@@ -34,7 +41,18 @@ namespace wv
 		void setRenderTarget( DummyRenderTarget* _target );
 		void clearRenderTarget( const float _color[4] );
 
+		wv::Pipeline* createPipeline( PipelineDesc* _desc );
+		void destroyPipeline( Pipeline** _pipeline );
+		void setActivePipeline( Pipeline* _pipeline );
+
+		Primitive* createPrimitive( PrimitiveDesc* _desc );
+
+		void draw( Primitive* _primitive );
+
 	private:
+		/// TODO: change to wv::Shader and wv::ShaderProgram?
+		wv::Handle createShader( ShaderSource* _desc );
+		wv::Handle createProgram( ShaderProgramDesc* _desc );
 
 		GraphicsDevice( GraphicsDeviceDesc* _desc );
 
