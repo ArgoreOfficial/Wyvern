@@ -1,16 +1,20 @@
 #include <stdio.h>
 
+#include <glad/glad.h>
+
 #include <wv/GraphicsDevice.h>
 #include <wv/Context.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
 
+#include <math.h>
+
 void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 {
 	wv::ContextDesc ctxDesc;
 	ctxDesc.name = "Wyvern Renderer";
-	ctxDesc.width = 350;
-	ctxDesc.height = 256;
+	ctxDesc.width = 630;
+	ctxDesc.height = 630;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
@@ -33,7 +37,7 @@ int main()
 	wv::GraphicsDevice* device;
 	initalize( &ctx, &device );
 
-	wv::DummyRenderTarget target{ 0, 350, 256 }; // temporary object until actual render targets exist
+	wv::DummyRenderTarget target{ 0, 630, 630 }; // temporary object until actual render targets exist
 	device->setRenderTarget( &target );
 
 	wv::Pipeline* pipeline;
@@ -63,10 +67,55 @@ int main()
 		layout.elements = &layoutPosition;
 		layout.numElements = 1;
 
+		//float vertices[] = {
+		//		-0.5f, -0.5f, 0.0f,
+		//		 0.5f, -0.5f, 0.0f,
+		//		 0.0f,  0.5f, 0.0f
+		//};
+
 		float vertices[] = {
-				-0.5f, -0.5f, 0.0f,
-				 0.5f, -0.5f, 0.0f,
-				 0.0f,  0.5f, 0.0f
+-0.486068, -0.436594, -0.000000,
+-0.588932, -0.203174, -0.000000,
+-0.410899, -0.293641, -0.000000,
+-0.486068, -0.436594, -0.000000,
+-0.834220, -0.634408, -0.000000,
+-0.588932, -0.203174, -0.000000,
+0.018752, -0.634408, -0.000000,
+0.018752, -0.436594, -0.000000,
+-0.486068, -0.436594, -0.000000,
+0.270371, -0.436594, -0.000000,
+0.018752, -0.634408, -0.000000,
+0.018752, -0.436594, -0.000000,
+0.493636, -0.433429, -0.000000,
+0.324176, -0.636518, -0.000000,
+0.324176, -0.433429, -0.000000,
+0.493636, -0.433429, -0.000000,
+0.324176, -0.636518, -0.000000,
+0.841788, -0.633880, -0.000000,
+0.493636, -0.433429, -0.000000,
+0.721781, -0.433429, -0.000000,
+0.841788, -0.633880, -0.000000,
+0.327473, 0.252588, 0.000000,
+0.493636, -0.433429, -0.000000,
+0.721781, -0.433429, -0.000000,
+0.153397, 0.158957, 0.000000,
+0.327473, 0.252588, 0.000000,
+0.493636, -0.433429, -0.000000,
+0.001740, 0.407790, 0.000000,
+0.128341, 0.580695, 0.000000,
+0.128341, 0.202476, 0.000000,
+0.001740, 0.811742, 0.000000,
+0.001740, 0.407790, 0.000000,
+0.128341, 0.580695, 0.000000,
+0.001740, 0.811742, 0.000000,
+-0.386296, 0.148881, 0.000000,
+0.001740, 0.407790, 0.000000,
+-0.386296, 0.148881, 0.000000,
+0.001740, 0.407790, 0.000000,
+-0.386296, -0.250805, -0.000000,
+0.018752, -0.634408, -0.000000,
+-0.486068, -0.436594, -0.000000,
+-0.834220, -0.634408, -0.000000
 		};
 
 		wv::PrimitiveDesc prDesc;
@@ -74,21 +123,36 @@ int main()
 		prDesc.layout = &layout;
 		prDesc.vertexBuffer = vertices;
 		prDesc.vertexBufferSize = sizeof( vertices );
-		prDesc.numVertices = 3;
+		prDesc.numVertices = 3 * 16;
 
 		primitive = device->createPrimitive( &prDesc );
 	}
 
 	device->setActivePipeline( pipeline );
 
+	/// TEMPORARY
+	GLint u_ColLoc = glGetUniformLocation( pipeline->program, "u_Col" );
+	float r = 0.0f;
+	float time = glfwGetTime();
+	/// TEMPORARY
+
 	while ( ctx->isAlive() )
 	{
 		ctx->beginFrame();
 
-		const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
+		//const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
+		const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		device->clearRenderTarget( clearColor );
 
+		/// TEMPORARY
+		time = glfwGetTime();
+		//float r = sin( time * 3.0f ) * 0.5f + 0.5f;
+		//float g = sin( time * 2.0f ) * 0.5f + 0.5f;
+		//float b = sin( time * 5.0f ) * 0.5f + 0.5f;
+
+		glProgramUniform3f( pipeline->program, u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
 		device->draw( primitive );
+		/// TEMPORARY
 
 		ctx->endFrame();
 	}

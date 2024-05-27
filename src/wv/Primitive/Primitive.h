@@ -7,16 +7,16 @@ namespace wv
 
 	struct InputLayoutElement
 	{
-		size_t   num;
+		unsigned int   num;
 		DataType type;
 		bool     normalized;
-		size_t   stride;
+		unsigned int   stride;
 	};
 
 	struct InputLayout
 	{
 		InputLayoutElement* elements;
-		size_t numElements;
+		unsigned int numElements;
 	};
 	
 	////////////////////////////////////////////
@@ -32,12 +32,12 @@ namespace wv
 		InputLayout* layout;
 
 		void* vertexBuffer;
-		size_t vertexBufferSize;
-		size_t numVertices;
+		unsigned int vertexBufferSize;
+		unsigned int numVertices;
 
 		void* indexBuffer;
-		size_t indexBufferSize;
-		size_t numIndices;
+		unsigned int indexBufferSize;
+		unsigned int numIndices;
 	};
 
 	class Primitive

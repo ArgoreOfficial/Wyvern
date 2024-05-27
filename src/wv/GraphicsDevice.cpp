@@ -18,6 +18,8 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	
 	// glViewport( 0, 0, _window.getWidth(), _window.getHeight() );
 
+	glCullFace( GL_NONE );
+
 	printf( "Lindorm Renderer Intialized\n" );
 }
 

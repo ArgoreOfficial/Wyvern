@@ -25,6 +25,7 @@ project (PROJECT_NAME)
 
 	targetdir "../../bin"
 	objdir "../../bin/obj/"
+	debugdir "../../bin"
 	
 	location "../../build"
 
