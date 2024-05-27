@@ -13,14 +13,17 @@
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
-	if ( !gladLoadGLLoader( _desc->loadProc ) )
+	/// TODO: make configurable
+#ifdef EMSCRIPTEN
+	if ( !gladLoadGLES2Loader( _desc->loadProc ) )
 		fprintf( stderr, "Failed to initialize GLAD\n" );
+#else
+    if ( !gladLoadGL() )
+#endif
 	
-	// glViewport( 0, 0, _window.getWidth(), _window.getHeight() );
-
 	glCullFace( GL_NONE );
 
-	printf( "Lindorm Renderer Intialized\n" );
+	printf( "Graphics Device Intialized\n" );
 }
 
 void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
@@ -115,7 +118,9 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 			case WV_INT:            type = GL_INT; break;
 			case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT; break;
 			case WV_FLOAT:          type = GL_FLOAT; break;
+		#ifndef EMSCRIPTEN
 			case WV_DOUBLE:         type = GL_DOUBLE; break;
+		#endif
 			}
 
 			glVertexAttribPointer( i, element.num, type, element.normalized, element.stride, (void*)0 );
@@ -168,7 +173,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	if ( !success )
 	{
 		glGetShaderInfoLog( shader, 512, NULL, infoLog );
-		printf( "ERROR :: Shader compilation failed\n %s \n", infoLog );
+		printf( "Shader compilation failed in '%s'\n %s \n", _desc->filePath, infoLog );
 	}
 
     return shader;

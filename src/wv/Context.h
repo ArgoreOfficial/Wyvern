@@ -3,6 +3,10 @@
 #include <GLFW/glfw3.h>
 #include <wv/Types.h>
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 namespace wv
 {
 

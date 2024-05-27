@@ -31,21 +31,53 @@ void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 	*_deviceOut = device;
 }
 
+wv::Context* ctx;
+wv::GraphicsDevice* device;
+wv::Primitive* primitive;
+wv::Pipeline* pipeline;
+
+void mainLoop() 
+{
+	ctx->beginFrame();
+
+	//const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
+	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	device->clearRenderTarget( clearColor );
+
+	/// TEMPORARY
+	// time = glfwGetTime();
+	//float r = sin( time * 3.0f ) * 0.5f + 0.5f;
+	//float g = sin( time * 2.0f ) * 0.5f + 0.5f;
+	//float b = sin( time * 5.0f ) * 0.5f + 0.5f;
+
+	GLint u_ColLoc = glGetUniformLocation( pipeline->program, "u_Col" );
+	glUniform3f( u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
+	device->draw( primitive );
+	/// TEMPORARY
+
+	ctx->endFrame();
+}
+
 int main()
 {
-	wv::Context* ctx;
-	wv::GraphicsDevice* device;
+	// wv::Context* ctx;
+	// wv::GraphicsDevice* device;
 	initalize( &ctx, &device );
 
 	wv::DummyRenderTarget target{ 0, 630, 630 }; // temporary object until actual render targets exist
 	device->setRenderTarget( &target );
 
-	wv::Pipeline* pipeline;
+	
 	{
 		wv::PipelineDesc pipelineDesc;
 		wv::ShaderSource shaders[] = {
+		#ifdef EMSCRIPTEN
+			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/basic_gles2.vert" },
+			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/basic_gles2.frag" }
+		#else
 			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/basic.vert" },
 			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/basic.frag" }
+		#endif
 		};
 
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
@@ -55,7 +87,7 @@ int main()
 		pipeline = device->createPipeline( &pipelineDesc );
 	}
 
-	wv::Primitive* primitive;
+	
 	{
 		wv::InputLayoutElement layoutPosition;
 		layoutPosition.num = 3;
@@ -136,6 +168,10 @@ int main()
 	float time = glfwGetTime();
 	/// TEMPORARY
 
+#ifdef EMSCRIPTEN
+    printf( "Emscripten Main Loop" );
+    emscripten_set_main_loop(&mainLoop, 0, 1);
+#else
 	while ( ctx->isAlive() )
 	{
 		ctx->beginFrame();
@@ -150,12 +186,13 @@ int main()
 		//float g = sin( time * 2.0f ) * 0.5f + 0.5f;
 		//float b = sin( time * 5.0f ) * 0.5f + 0.5f;
 
-		glProgramUniform3f( pipeline->program, u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
+		glUniform3f( u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
 		device->draw( primitive );
 		/// TEMPORARY
 
 		ctx->endFrame();
 	}
+#endif
 
 	ctx->terminate();
 
