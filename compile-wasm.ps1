@@ -9,12 +9,12 @@ $projname = "Wyvern"
 
 $includes = @(
     "src\",
-    "libs\glad-es\include\"
+    "libs\glad\include\"
 )
 
 $folders = @(
     "src",
-    "libs\glad-es\src"
+    "libs\glad\src"
     # "libs\glfw\src"
 )
 
@@ -92,5 +92,6 @@ $linkcmd = "em++ " + $linkfiles + " -o game/" + $projname + ".html " + $linkflag
 
 Write-Host( "Linking..." )
 
-try { Invoke-Expression $linkcmd }
-catch { pause }
+Invoke-Expression $linkcmd
+
+pause

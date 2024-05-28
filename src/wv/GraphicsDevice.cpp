@@ -164,18 +164,16 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	buffer << fs.rdbuf();
 	std::string source_str = buffer.str();
 
-#ifndef EMSCRIPTEN
 	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
 	// therefore #if GL_ES cannot be used in the shader itself
-	source_str = "#version 330 core\n" + source_str;
-#else
+#ifdef EMSCRIPTEN
 	source_str = "#version 300 es\n" + source_str;
+#else
+	source_str = "#version 460 core\n" + source_str;
 #endif
-
-	printf( "shader version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
 	const char* source = source_str.c_str();
 
-	GLenum type;
+	GLenum type = GL_NONE;
 	{
 		switch ( _desc->type )
 		{
