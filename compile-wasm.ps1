@@ -1,5 +1,12 @@
 
-# CONFIG
+#########################
+#                       #
+#  Build Configuration  #
+#                       #
+#########################
+
+$projname = "Wyvern"
+
 $includes = @(
     "src\",
     "libs\glad-es\include\"
@@ -12,21 +19,22 @@ $folders = @(
 )
 
 $embeds = @(
-    "res/basic_gles2.frag",
-    "res/basic_gles2.vert"
+    "res/frag.glsl",
+    "res/vert.glsl",
+    "res/psq.wpr"
 )
 
 $objdir = ".\obj\"
-
+$linkflags = "-sUSE_GLFW=3 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1"
 
 # END CONFIG
 
-
-# 
-# Don't touch anything under here 
-# unless you know what you're doing
-# 
-
+########################################
+#                                      #
+#   Don't touch anything under here    #
+#   unless you know what you're doing  #
+#                                      #
+########################################
 
 
 function compileDir($f, $emc, $ext, $incl) 
@@ -62,6 +70,8 @@ foreach( $include in $includes )
     $additionalincludes += " -I" + $include
 }
 
+Write-Host( "Compiling..." )
+
 # create link (*.o) flags
 $linkfiles = ""
 foreach( $folder in $folders )
@@ -77,10 +87,10 @@ foreach( $embed in $embeds )
     $embedfiles += " --preload-file " + $embed
 }
 
-Write-Host( $additionalincludes )
+If(!(test-path -PathType container "game")) { New-Item -ItemType Directory -Path "game" }
+$linkcmd = "em++ " + $linkfiles + " -o game/" + $projname + ".html " + $linkflags + $embedfiles
 
-Write-Host( "" )
-$linkcmd = "em++ " + $linkfiles + " -o bin/test.html -sUSE_GLFW=3 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1" + $embedfiles
-Write-Host( $linkcmd )
-Invoke-Expression $linkcmd
-pause
+Write-Host( "Linking..." )
+
+try { Invoke-Expression $linkcmd }
+catch { pause }
