@@ -8,13 +8,15 @@
 #include <wv/Primitive/Primitive.h>
 
 #include <math.h>
+#include <fstream>
+#include <vector>
 
 void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 {
 	wv::ContextDesc ctxDesc;
 	ctxDesc.name = "Wyvern Renderer";
-	ctxDesc.width = 630;
-	ctxDesc.height = 630;
+	ctxDesc.width = 1200;
+	ctxDesc.height = 960;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
@@ -31,14 +33,16 @@ void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 	*_deviceOut = device;
 }
 
+/// TEMPORARY
 wv::Context* ctx;
 wv::GraphicsDevice* device;
 wv::Primitive* primitive;
 wv::Pipeline* pipeline;
+/// TEMPORARY
 
 void mainLoop() 
 {
-	ctx->beginFrame();
+	ctx->pollEvents();
 
 	//const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
 	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -55,7 +59,19 @@ void mainLoop()
 	device->draw( primitive );
 	/// TEMPORARY
 
-	ctx->endFrame();
+	ctx->swapBuffers();
+}
+
+// called the first time device->draw() is called that frame
+void pipelineUniformCallback()
+{
+
+}
+
+// called every time device->draw() is called that frame
+void instanceUniformCallback()
+{
+
 }
 
 int main()
@@ -64,7 +80,7 @@ int main()
 	// wv::GraphicsDevice* device;
 	initalize( &ctx, &device );
 
-	wv::DummyRenderTarget target{ 0, 630, 630 }; // temporary object until actual render targets exist
+	wv::DummyRenderTarget target{ 0, 1200, 960 }; // temporary object until actual render targets exist
 	device->setRenderTarget( &target );
 
 	
@@ -72,11 +88,11 @@ int main()
 		wv::PipelineDesc pipelineDesc;
 		wv::ShaderSource shaders[] = {
 		#ifdef EMSCRIPTEN
-			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/basic_gles2.vert" },
-			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/basic_gles2.frag" }
+			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/vert.glsl" },
+			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/frag.glsl" }
 		#else
-			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/basic.vert" },
-			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/basic.frag" }
+			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/vert.glsl" },
+			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/frag.glsl" }
 		#endif
 		};
 
@@ -105,56 +121,14 @@ int main()
 		//		 0.0f,  0.5f, 0.0f
 		//};
 
-		float vertices[] = {
--0.486068, -0.436594, -0.000000,
--0.588932, -0.203174, -0.000000,
--0.410899, -0.293641, -0.000000,
--0.486068, -0.436594, -0.000000,
--0.834220, -0.634408, -0.000000,
--0.588932, -0.203174, -0.000000,
-0.018752, -0.634408, -0.000000,
-0.018752, -0.436594, -0.000000,
--0.486068, -0.436594, -0.000000,
-0.270371, -0.436594, -0.000000,
-0.018752, -0.634408, -0.000000,
-0.018752, -0.436594, -0.000000,
-0.493636, -0.433429, -0.000000,
-0.324176, -0.636518, -0.000000,
-0.324176, -0.433429, -0.000000,
-0.493636, -0.433429, -0.000000,
-0.324176, -0.636518, -0.000000,
-0.841788, -0.633880, -0.000000,
-0.493636, -0.433429, -0.000000,
-0.721781, -0.433429, -0.000000,
-0.841788, -0.633880, -0.000000,
-0.327473, 0.252588, 0.000000,
-0.493636, -0.433429, -0.000000,
-0.721781, -0.433429, -0.000000,
-0.153397, 0.158957, 0.000000,
-0.327473, 0.252588, 0.000000,
-0.493636, -0.433429, -0.000000,
-0.001740, 0.407790, 0.000000,
-0.128341, 0.580695, 0.000000,
-0.128341, 0.202476, 0.000000,
-0.001740, 0.811742, 0.000000,
-0.001740, 0.407790, 0.000000,
-0.128341, 0.580695, 0.000000,
-0.001740, 0.811742, 0.000000,
--0.386296, 0.148881, 0.000000,
-0.001740, 0.407790, 0.000000,
--0.386296, 0.148881, 0.000000,
-0.001740, 0.407790, 0.000000,
--0.386296, -0.250805, -0.000000,
-0.018752, -0.634408, -0.000000,
--0.486068, -0.436594, -0.000000,
--0.834220, -0.634408, -0.000000
-		};
+		std::ifstream in( "../res/psq.wpr", std::ios::binary );
+		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
 		wv::PrimitiveDesc prDesc;
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
-		prDesc.vertexBuffer = vertices;
-		prDesc.vertexBufferSize = sizeof( vertices );
+		prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
+		prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
 		prDesc.numVertices = 3 * 16;
 
 		primitive = device->createPrimitive( &prDesc );
@@ -163,39 +137,73 @@ int main()
 	device->setActivePipeline( pipeline );
 
 	/// TEMPORARY
-	GLint u_ColLoc = glGetUniformLocation( pipeline->program, "u_Col" );
+	GLuint ub = glGetUniformBlockIndex( pipeline->program, "UbInput" );
+	GLint ubSize = 0;
+	glGetActiveUniformBlockiv( pipeline->program, ub, GL_UNIFORM_BLOCK_DATA_SIZE, &ubSize );
+
+	GLuint ubBuffer;
+	glGenBuffers( 1, &ubBuffer );
+	glBindBuffer( GL_UNIFORM_BUFFER, ubBuffer );
+	glBufferData( GL_UNIFORM_BUFFER, ubSize, 0, GL_DYNAMIC_DRAW );
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+	glBindBufferBase( GL_UNIFORM_BUFFER, 0, ubBuffer );
+
+	const char* uniforms[] = { 
+		"u_Color",
+		"u_Alpha"
+	};
+	GLuint indices[ 2 ] = { 0, 0 };
+	GLint offsets[ 2 ] = { 0, 0 };
+	
+	glGetUniformIndices( pipeline->program, 2, uniforms, indices );
+	glGetActiveUniformsiv( pipeline->program, 2, indices, GL_UNIFORM_OFFSET, offsets );
+
+	
+	glUniformBlockBinding( pipeline->program, ub, 0 );
+
+	/// TODO: don't hardcode lol
+	float pbuf[ 4 ];// = new char[ ubSize ];
+
+	float col[ 3 ] = { 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f };
+	float alpha = 1.0f;
+
+	memcpy( reinterpret_cast<char*>( pbuf ) + offsets[ 0 ], col, sizeof( col ) );
+	memcpy( reinterpret_cast<char*>( pbuf ) + offsets[ 1 ], &alpha, sizeof( alpha ) );
+	
+	//delete[] pbuf;
+
+	glBufferData( GL_UNIFORM_BUFFER, ubSize, pbuf, GL_DYNAMIC_DRAW );
+
 	float r = 0.0f;
 	float time = glfwGetTime();
 	/// TEMPORARY
 
 #ifdef EMSCRIPTEN
-    printf( "Emscripten Main Loop" );
     emscripten_set_main_loop(&mainLoop, 0, 1);
 #else
 	while ( ctx->isAlive() )
 	{
-		ctx->beginFrame();
-
-		//const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
+		ctx->pollEvents();
+		
 		const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		device->clearRenderTarget( clearColor );
 
 		/// TEMPORARY
 		time = glfwGetTime();
-		//float r = sin( time * 3.0f ) * 0.5f + 0.5f;
-		//float g = sin( time * 2.0f ) * 0.5f + 0.5f;
-		//float b = sin( time * 5.0f ) * 0.5f + 0.5f;
-
-		glUniform3f( u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
-		device->draw( primitive );
+		//glUniform3f( u_ColLoc, 253.0f / 255.0f, 208.0f / 255.0f, 10.0f / 255.0f );
 		/// TEMPORARY
 
-		ctx->endFrame();
+		device->draw( primitive );
+
+		ctx->swapBuffers();
 	}
 #endif
 
 	ctx->terminate();
 
+	/// TEMPORARY
 	delete ctx;
 	delete device;
+	/// TEMPORARY
 }

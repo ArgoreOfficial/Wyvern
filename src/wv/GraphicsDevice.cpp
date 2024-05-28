@@ -15,15 +15,25 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 #ifdef EMSCRIPTEN
-	if ( !gladLoadGLES2Loader( _desc->loadProc ) )
-		fprintf( stderr, "Failed to initialize GLAD\n" );
+	int initRes = gladLoadGLES2Loader( _desc->loadProc );
+	_desc->graphicsApi = WV_GRAPHICS_API_OPENGL_ES; // only option
 #else
-    if ( !gladLoadGL() )
+	int initRes = gladLoadGL();
 #endif
 	
-	glCullFace( GL_NONE );
+	if( !initRes )
+	{
+		fprintf( stderr, "Failed to initialize Graphics Device\n" );
+		return;
+	}
+	
+	printf( "Intialized Graphics Device\n" );
 
-	printf( "Graphics Device Intialized\n" );
+	switch ( _desc->graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL:    printf( "  OpenGL %s\n", glGetString( GL_VERSION ) ); break;
+	case WV_GRAPHICS_API_OPENGL_ES: printf( "  %s\n", glGetString( GL_VERSION ) ); break;
+	}
 }
 
 void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
@@ -153,8 +163,18 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	std::stringstream buffer;
 	buffer << fs.rdbuf();
 	std::string source_str = buffer.str();
+
+#ifndef EMSCRIPTEN
+	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
+	// therefore #if GL_ES cannot be used in the shader itself
+	source_str = "#version 330 core\n" + source_str;
+#else
+	source_str = "#version 300 es\n" + source_str;
+#endif
+
+	printf( "shader version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
 	const char* source = source_str.c_str();
-	
+
 	GLenum type;
 	{
 		switch ( _desc->type )

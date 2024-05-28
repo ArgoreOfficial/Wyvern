@@ -2,7 +2,13 @@
 
 #include <stdio.h>
 
-void glfwerrcb(int _err, const char* _msg)
+void glfwKeyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
+{
+	if ( _key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS )
+		glfwSetWindowShouldClose( _window, true );
+}
+
+void glfwErrorCallback(int _err, const char* _msg)
 {
 	const char* errmsg;
 
@@ -27,11 +33,11 @@ void glfwerrcb(int _err, const char* _msg)
 
 wv::Context::Context( ContextDesc* _desc )
 {
-	glfwSetErrorCallback( glfwerrcb );
+	glfwSetErrorCallback( glfwErrorCallback );
 	
 	if ( !glfwInit() )
 	{
-		fprintf( stderr, "Failed to initialize GLFW\n" );
+		fprintf( stderr, "Failed to initialize Device Context\n" );
 		return;
 	}
 
@@ -39,7 +45,7 @@ wv::Context::Context( ContextDesc* _desc )
 #ifdef EMSCRIPTEN
 	glfwWindowHint( GLFW_CLIENT_API, GLFW_OPENGL_ES_API );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0 );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE );
 #else
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
@@ -47,12 +53,15 @@ wv::Context::Context( ContextDesc* _desc )
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 #endif
 
-	printf( "GLFW version: %s\n", glfwGetVersionString() );
+	printf( "Initialized Context Device\n" );
+	printf( "  %s\n", glfwGetVersionString() );
 
 	m_windowContext = glfwCreateWindow(_desc->width, _desc->height, _desc->name, NULL, NULL);
+	glfwSetKeyCallback( m_windowContext, glfwKeyCallback );
+
 	if ( !m_windowContext )
 	{
-		fprintf( stderr, "Failed to create context\n" );
+		fprintf( stderr, "Failed to create Context\n" );
 		return;
 	}
 	glfwMakeContextCurrent( m_windowContext );
@@ -68,17 +77,15 @@ wv::GraphicsDriverLoadProc wv::Context::getLoadProc()
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
 }
 
-void wv::Context::beginFrame()
+void wv::Context::pollEvents()
 {
 	// process input
-	if ( glfwGetKey( m_windowContext, GLFW_KEY_ESCAPE ) == GLFW_PRESS )
-		glfwSetWindowShouldClose( m_windowContext, true );
+	glfwPollEvents();
 }
 
-void wv::Context::endFrame()
+void wv::Context::swapBuffers()
 {
 	glfwSwapBuffers( m_windowContext );
-	glfwPollEvents();
 }
 
 bool wv::Context::isAlive()

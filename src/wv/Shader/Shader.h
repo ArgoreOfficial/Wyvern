@@ -16,10 +16,9 @@ namespace wv
 		const char* filePath;
 	};
 
-	class Shader
+	struct ShaderDesc
 	{
-	public:
-		ShaderType type;
-		wv::Handle handle;
+		ShaderSource* shaders;
+		int numShaders;
 	};
 }

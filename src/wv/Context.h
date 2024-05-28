@@ -29,8 +29,8 @@ namespace wv
 
 		GraphicsDriverLoadProc getLoadProc();
 
-		void beginFrame();
-		void endFrame();
+		void pollEvents();
+		void swapBuffers();
 
 		bool isAlive();
 
