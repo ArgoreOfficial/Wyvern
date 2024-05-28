@@ -74,6 +74,15 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		for ( int i = 0; i < _desc->numShaders; i++ )
 			glDeleteShader( shaders[ i ] );
 
+
+		for ( int i = 0; i < _desc->numUniformBlocks; i++ )
+		{
+			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
+		}
+
+		pipeline->instanceCallback = _desc->instanceCallback;
+		pipeline->pipelineCallback = _desc->pipelineCallback;
+
 	} break;
 	}
 
@@ -91,6 +100,7 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
 	glUseProgram( _pipeline->program );
+	m_activePipeline = _pipeline;
 }
 
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
@@ -149,6 +159,17 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 void wv::GraphicsDevice::draw( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->handle );
+
+	// block.second.set<float3>( "u_Color", { 1.0f, 1.0f, 1.0f } );
+
+	m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
+
+	for ( auto& block : m_activePipeline->uniformBlocks )
+	{
+		/// TODO: allow for multiple blocks
+		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, 0 );
+		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
+	}
 
 	/// TODO: change GL_TRIANGLES
 	glDrawArrays( GL_TRIANGLES, 0, _primitive->count );
@@ -218,4 +239,41 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 	}
 
 	return program;
+}
+
+void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
+{
+	UniformBlock block;
+
+	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name );
+	glGetActiveUniformBlockiv( _pipeline->program, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
+
+	block.m_buffer = new char[ block.m_bufferSize ];
+	memset( block.m_buffer, 0, block.m_bufferSize );
+
+	glGenBuffers( 1, &block.m_bufferHandle );
+	glBindBuffer( GL_UNIFORM_BUFFER, block.m_bufferHandle );
+	glBufferData( GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+	/// TODO: allow for more blocks
+	glBindBufferBase( GL_UNIFORM_BUFFER, 0, block.m_bufferHandle );
+
+	std::vector<unsigned int> indices( _desc->numUniforms );
+	std::vector<int> offsets( _desc->numUniforms );
+
+	glGetUniformIndices( _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
+	glGetActiveUniformsiv( _pipeline->program, _desc->numUniforms, indices.data(), GL_UNIFORM_OFFSET, offsets.data() );
+
+	for ( int o = 0; o < _desc->numUniforms; o++ )
+	{
+		Uniform u;
+		u.index = indices[ o ];
+		u.offset = offsets[ o ];
+		u.name = _desc->uniforms[ o ]; // remove?
+
+		block.m_uniforms[ u.name ] = u;
+	}
+
+	_pipeline->uniformBlocks[ _desc->name ] = block;
 }

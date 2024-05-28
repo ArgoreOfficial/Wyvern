@@ -10,6 +10,8 @@ namespace wv
 	struct PrimitiveDesc;
 	class Primitive;
 	
+	struct UniformBlockDesc;
+
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
@@ -50,11 +52,14 @@ namespace wv
 		void draw( Primitive* _primitive );
 
 	private:
-		/// TODO: change to wv::Shader and wv::ShaderProgram?
+		/// TODO: change wv::Handle to wv::Shader and wv::ShaderProgram?
 		wv::Handle createShader( ShaderSource* _desc );
 		wv::Handle createProgram( ShaderProgramDesc* _desc );
 
+		void createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc );
+
 		GraphicsDevice( GraphicsDeviceDesc* _desc );
 
+		wv::Pipeline* m_activePipeline = nullptr;
 	};
 }

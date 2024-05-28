@@ -30,4 +30,11 @@ namespace wv
 		int minor;
 		int major;
 	};
+
+	/// TEMPORARY
+	/// TODO: get wv::Vector3<T>
+	struct float3
+	{
+		float x, y, z;
+	};
 }

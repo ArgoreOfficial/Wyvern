@@ -15,7 +15,6 @@ $includes = @(
 $folders = @(
     "src",
     "libs\glad\src"
-    # "libs\glfw\src"
 )
 
 $embeds = @(

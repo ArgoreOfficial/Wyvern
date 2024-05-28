@@ -39,7 +39,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: C:\Users\piostb\AppData\Local\Temp\tmpf9m1lg6c.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmpccd165hk.js
 
   if (!Module.expectedDataFileDownloads) {
     Module.expectedDataFileDownloads = 0;
@@ -220,21 +220,21 @@ Module['FS_createPath']("/", "res", true, true);
 
   })();
 
-// end include: C:\Users\piostb\AppData\Local\Temp\tmpf9m1lg6c.js
-// include: C:\Users\piostb\AppData\Local\Temp\tmpq26hp1iq.js
+// end include: C:\Users\piostb\AppData\Local\Temp\tmpccd165hk.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmp046txx_v.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: C:\Users\piostb\AppData\Local\Temp\tmpq26hp1iq.js
-// include: C:\Users\piostb\AppData\Local\Temp\tmps3si5juh.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmp046txx_v.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmpxhuok49c.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach(function(task) {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: C:\Users\piostb\AppData\Local\Temp\tmps3si5juh.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmpxhuok49c.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -10101,8 +10101,6 @@ function dbg(...args) {
   };
   var _glfwCreateWindow = (width, height, title, monitor, share) => GLFW.createWindow(width, height, title, monitor, share);
 
-  var _glfwGetTime = () => GLFW.getTime() - GLFW.initialTime;
-
   var _glfwGetVersionString = () => {
       GLFW.versionString ||= stringToNewUTF8("3.2.1 JS WebGL Emscripten");
       return GLFW.versionString;
@@ -11140,8 +11138,6 @@ var wasmImports = {
   fd_write: _fd_write,
   /** @export */
   glfwCreateWindow: _glfwCreateWindow,
-  /** @export */
-  glfwGetTime: _glfwGetTime,
   /** @export */
   glfwGetVersionString: _glfwGetVersionString,
   /** @export */
