@@ -39,12 +39,12 @@ namespace wv
 	class Pipeline
 	{
 	public:
-		wv::Handle program;
-		uint32_t mode;
+		wv::Handle program = 0;
+		uint32_t mode = 0;
 		UniformBlockMap uniformBlocks;
 
-		PipelineUniformCallback pipelineCallback;
-		PipelineUniformCallback instanceCallback;
+		PipelineUniformCallback pipelineCallback = nullptr;
+		PipelineUniformCallback instanceCallback = nullptr;
 	private:
 
 	};

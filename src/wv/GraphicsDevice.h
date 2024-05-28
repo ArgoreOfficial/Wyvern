@@ -61,5 +61,6 @@ namespace wv
 		GraphicsDevice( GraphicsDeviceDesc* _desc );
 
 		wv::Pipeline* m_activePipeline = nullptr;
+		int m_numTotalUniformBlocks = 0;
 	};
 }

@@ -59,7 +59,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		std::vector<wv::Handle> shaders;
 
 		// create shaders
-		for ( int i = 0; i < _desc->numShaders; i++ )
+		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
 			shaders.push_back( createShader( &_desc->shaders[ i ] ) );
 
 		// create program
@@ -71,15 +71,13 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		}
 
 		// clean up shaders
-		for ( int i = 0; i < _desc->numShaders; i++ )
+		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
 			glDeleteShader( shaders[ i ] );
 
 
-		for ( int i = 0; i < _desc->numUniformBlocks; i++ )
-		{
+		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
-		}
-
+		
 		pipeline->instanceCallback = _desc->instanceCallback;
 		pipeline->pipelineCallback = _desc->pipelineCallback;
 
@@ -124,7 +122,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 		// buffer data
 		glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
 
-		for ( int i = 0; i < _desc->layout->numElements; i++ )
+		for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
 		{
 			InputLayoutElement& element = _desc->layout->elements[ i ];
 
@@ -167,7 +165,8 @@ void wv::GraphicsDevice::draw( Primitive* _primitive )
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{
 		/// TODO: allow for multiple blocks
-		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, 0 );
+		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, block.second.m_bindingIndex );
+		glBindBuffer( GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
 		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
 
@@ -245,6 +244,8 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 {
 	UniformBlock block;
 
+	block.m_bindingIndex = m_numTotalUniformBlocks;
+
 	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name );
 	glGetActiveUniformBlockiv( _pipeline->program, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
 
@@ -256,13 +257,12 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	glBufferData( GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
-	/// TODO: allow for more blocks
-	glBindBufferBase( GL_UNIFORM_BUFFER, 0, block.m_bufferHandle );
+	glBindBufferBase( GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
 
 	std::vector<unsigned int> indices( _desc->numUniforms );
 	std::vector<int> offsets( _desc->numUniforms );
 
-	glGetUniformIndices( _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
+	glGetUniformIndices(   _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
 	glGetActiveUniformsiv( _pipeline->program, _desc->numUniforms, indices.data(), GL_UNIFORM_OFFSET, offsets.data() );
 
 	for ( int o = 0; o < _desc->numUniforms; o++ )
@@ -276,4 +276,5 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	}
 
 	_pipeline->uniformBlocks[ _desc->name ] = block;
+	m_numTotalUniformBlocks++;
 }

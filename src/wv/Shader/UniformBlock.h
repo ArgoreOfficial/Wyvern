@@ -15,8 +15,8 @@ namespace wv
 
 	struct Uniform
 	{
-		unsigned int index;
-		unsigned int offset;
+		unsigned int index = 0;
+		unsigned int offset = 0;
 		std::string name;
 	};
 
@@ -40,12 +40,12 @@ namespace wv
 
 	private:
 
-		wv::Handle m_index;
-		wv::Handle m_bufferHandle;
-		wv::Handle m_bindingIndex;
+		wv::Handle m_index = 0;
+		wv::Handle m_bufferHandle = 0;
+		wv::Handle m_bindingIndex = 0;
 
-		char* m_buffer;
-		int m_bufferSize;
+		char* m_buffer = nullptr;
+		int m_bufferSize = 0;
 
 		std::unordered_map<std::string, Uniform> m_uniforms;
 

@@ -31,7 +31,8 @@ void glfwErrorCallback(int _err, const char* _msg)
 	fprintf( stderr, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
 }
 
-wv::Context::Context( ContextDesc* _desc )
+wv::Context::Context( ContextDesc* _desc ):
+	m_windowContext{ nullptr }
 {
 	glfwSetErrorCallback( glfwErrorCallback );
 	

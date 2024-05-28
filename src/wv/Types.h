@@ -16,7 +16,9 @@ namespace wv
 		WV_INT,
 		WV_UNSIGNED_INT,
 		WV_FLOAT,
+	#ifndef EMSCRIPTEN
 		WV_DOUBLE
+	#endif
 	};
 
 	enum GraphicsAPI

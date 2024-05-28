@@ -65,7 +65,7 @@ void instanceCB( wv::UniformBlockMap& _uniformBlocks )
 {
 	wv::UniformBlock& block = _uniformBlocks[ "UbInput" ];
 
-	wv::float3 psqYellow = { 0.9921568627, 0.8156862745, 0.03921568627 };
+	wv::float3 psqYellow = { 0.9921568627f, 0.8156862745f, 0.03921568627f };
 	block.set<wv::float3>( "u_Color", psqYellow );
 	block.set<float>( "u_Alpha", 1.0f );
 }
