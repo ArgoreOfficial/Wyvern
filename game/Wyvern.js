@@ -39,7 +39,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: C:\Users\jostb\AppData\Local\Temp\tmpj06wbdnu.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmpw3wmqv58.js
 
   if (!Module.expectedDataFileDownloads) {
     Module.expectedDataFileDownloads = 0;
@@ -60,8 +60,8 @@ if (ENVIRONMENT_IS_NODE) {
         // web worker
         PACKAGE_PATH = encodeURIComponent(location.pathname.toString().substring(0, location.pathname.toString().lastIndexOf('/')) + '/');
       }
-      var PACKAGE_NAME = 'bin/test.data';
-      var REMOTE_PACKAGE_BASE = 'test.data';
+      var PACKAGE_NAME = 'game/Wyvern.data';
+      var REMOTE_PACKAGE_BASE = 'Wyvern.data';
       if (typeof Module['locateFilePackage'] === 'function' && !Module['locateFile']) {
         Module['locateFile'] = Module['locateFilePackage'];
         err('warning: you defined Module.locateFilePackage, that has been renamed to Module.locateFile (using your locateFilePackage for now)');
@@ -192,10 +192,10 @@ Module['FS_createPath']("/", "res", true, true);
           var files = metadata['files'];
           for (var i = 0; i < files.length; ++i) {
             DataRequest.prototype.requests[files[i].filename].onload();
-          }          Module['removeRunDependency']('datafile_bin/test.data');
+          }          Module['removeRunDependency']('datafile_game/Wyvern.data');
 
       };
-      Module['addRunDependency']('datafile_bin/test.data');
+      Module['addRunDependency']('datafile_game/Wyvern.data');
 
       if (!Module.preloadResults) Module.preloadResults = {};
 
@@ -216,25 +216,25 @@ Module['FS_createPath']("/", "res", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/res/basic_gles2.frag", "start": 0, "end": 109}, {"filename": "/res/basic_gles2.vert", "start": 109, "end": 218}], "remote_package_size": 218});
+    loadPackage({"files": [{"filename": "/res/frag.glsl", "start": 0, "end": 196}, {"filename": "/res/psq.wpr", "start": 196, "end": 700}, {"filename": "/res/vert.glsl", "start": 700, "end": 838}], "remote_package_size": 838});
 
   })();
 
-// end include: C:\Users\jostb\AppData\Local\Temp\tmpj06wbdnu.js
-// include: C:\Users\jostb\AppData\Local\Temp\tmpyddfftk9.js
+// end include: C:\Users\piostb\AppData\Local\Temp\tmpw3wmqv58.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmpnb7ks4hq.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: C:\Users\jostb\AppData\Local\Temp\tmpyddfftk9.js
-// include: C:\Users\jostb\AppData\Local\Temp\tmpdfk4y2dp.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmpnb7ks4hq.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmpzotb0y61.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach(function(task) {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: C:\Users\jostb\AppData\Local\Temp\tmpdfk4y2dp.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmpzotb0y61.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -846,7 +846,7 @@ function createExportWrapper(name, nargs) {
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 function findWasmBinary() {
-    var f = 'test.wasm';
+    var f = 'Wyvern.wasm';
     if (!isDataURI(f)) {
       return locateFile(f);
     }
@@ -10101,8 +10101,6 @@ function dbg(...args) {
   };
   var _glfwCreateWindow = (width, height, title, monitor, share) => GLFW.createWindow(width, height, title, monitor, share);
 
-  var _glfwGetKey = (winid, key) => GLFW.getKey(winid, key);
-
   var _glfwGetTime = () => GLFW.getTime() - GLFW.initialTime;
 
   var _glfwGetVersionString = () => {
@@ -10172,6 +10170,8 @@ function dbg(...args) {
       GLFW.errorFunc = cbfun;
       return prevcbfun;
     };
+
+  var _glfwSetKeyCallback = (winid, cbfun) => GLFW.setKeyCallback(winid, cbfun);
 
   var _glfwSetWindowShouldClose = (winid, value) => {
       var win = GLFW.WindowFromId(winid);
@@ -11141,8 +11141,6 @@ var wasmImports = {
   /** @export */
   glfwCreateWindow: _glfwCreateWindow,
   /** @export */
-  glfwGetKey: _glfwGetKey,
-  /** @export */
   glfwGetTime: _glfwGetTime,
   /** @export */
   glfwGetVersionString: _glfwGetVersionString,
@@ -11154,6 +11152,8 @@ var wasmImports = {
   glfwPollEvents: _glfwPollEvents,
   /** @export */
   glfwSetErrorCallback: _glfwSetErrorCallback,
+  /** @export */
+  glfwSetKeyCallback: _glfwSetKeyCallback,
   /** @export */
   glfwSetWindowShouldClose: _glfwSetWindowShouldClose,
   /** @export */
