@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include <wv/GraphicsDevice.h>
-#include <wv/Context.h>
+#include <wv/Device/GraphicsDevice.h>
+#include <wv/Device/Context.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/Shader/UniformBlock.h>
@@ -61,49 +61,46 @@ void mainLoop()
 	ctx->swapBuffers();
 }
 
-float t = 0.0f;
-float pt = 0.0f;
-float s = 1.0f / 1000000000.0f;
+float rot = 0.0f;
 
 // called the first time device->draw() is called that frame
 void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 {
+	// material properties
+	wv::UniformBlock& fragBlock = _uniformBlocks[ "UbInput" ];
+	const wv::float3 psqYellow = { 0.9921568627f, 0.8156862745f, 0.03921568627f };
+
+	fragBlock.set<wv::float3>( "u_Color", psqYellow );
+	fragBlock.set<float>( "u_Alpha", 1.0f );
+
+
+	// camera transorm
 	wv::UniformBlock& block = _uniformBlocks[ "UbInstanceData" ];
 
 	glm::mat4x4 projection{ 1.0f };
-	projection = glm::perspectiveFov( 60.0f, 800.0f, 600.0f, 0.1f, 100.0f );
-
-	glm::mat4x4 view{ 1.0f };
-	view = glm::translate( view, { 0.0f, 0.0f, -0.1f } );
-	view = glm::rotate( view, 3.1415f, { 0.0f, 0.0f, 1.0f } );
-
-	glm::mat4x4 model{1.0f};
-	t += 0.016f;
-
-	glm::vec3 pos{ 0.0f, 0.0f, 1.0f };
+	glm::mat4x4 view      { 1.0f };
 	
-	if ( t > 2.0f )
-	{
-		pos.z = pt;
-		s *= 1.03f;
-		pt -= 0.0005f + s;
-	}
+	projection = glm::perspectiveFov( 1.0472f /*60 deg*/, 800.0f, 600.0f, 0.1f, 100.0f);
 
-	model = glm::translate( model, pos );
+	view = glm::translate( view, { 0.0f, 0.0f, -4.0f } );
+
+	rot += 0.016f;
+
+	view = glm::rotate( view, rot, { 0, 1, 0 } );
 
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
-	block.set( "u_Model", model );
 }
 
 // called every time device->draw() is called 
 void instanceCB( wv::UniformBlockMap& _uniformBlocks )
 {
-	wv::UniformBlock& block = _uniformBlocks[ "UbInput" ];
+	
+	// model transform
+	wv::UniformBlock& instanceBlock = _uniformBlocks[ "UbInstanceData" ];
+	glm::mat4x4 model{ 1.0f };
+	instanceBlock.set( "u_Model", model );
 
-	wv::float3 psqYellow = { 0.9921568627f, 0.8156862745f, 0.03921568627f };
-	block.set<wv::float3>( "u_Color", psqYellow );
-	block.set<float>( "u_Alpha", 1.0f );
 }
 
 int main()
@@ -114,12 +111,11 @@ int main()
 
 	wv::DummyRenderTarget target{ 0, 800, 600 }; // temporary object until actual render targets exist
 	device->setRenderTarget( &target );
-
 	
 	{
 		wv::ShaderSource shaders[] = {
-			{ wv::WV_SHADER_TYPE_VERTEX,   "../res/vert.glsl" },
-			{ wv::WV_SHADER_TYPE_FRAGMENT, "../res/frag.glsl" }
+			{ wv::WV_SHADER_TYPE_VERTEX,   "res/vert.glsl" },
+			{ wv::WV_SHADER_TYPE_FRAGMENT, "res/frag.glsl" }
 		};
 
 		/// TODO: change to UniformDesc?
@@ -171,7 +167,7 @@ int main()
 				 0.0f,  0.5f, 0.0f
 		};
 
-		std::ifstream in( "../res/psq.wpr", std::ios::binary );
+		std::ifstream in( "./res/psq.wpr", std::ios::binary );
 		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
 		wv::PrimitiveDesc prDesc;
@@ -198,9 +194,8 @@ int main()
 #endif
 
 	ctx->terminate();
+	device->terminate();
 
-	/// TEMPORARY
 	delete ctx;
 	delete device;
-	/// TEMPORARY
 }

@@ -1,5 +1,6 @@
-local path = require "./path"
-PROJECT_NAME = path.getProjectName( 2 )
+
+-- TODO: change to config file
+PROJECT_NAME = "Wyvern"
 
 workspace (PROJECT_NAME)
 	configurations { "Debug", "Release" }
@@ -23,14 +24,16 @@ project (PROJECT_NAME)
 	language "C++"
 	cppdialect "C++20"
 
-	targetdir "../../bin"
-	objdir "../../bin/obj/"
-	debugdir "../../bin"
-	
-	location "../../build"
+	targetdir "../../game"
+	debugdir "../../game"
+
+	location "../../build/%{prj.name}"
+	targetname "%{prj.name}_%{cfg.platform}_%{cfg.buildcfg}"
+	objdir "../../build/%{prj.name}/obj/%{cfg.platform}_%{cfg.buildcfg}"
+
 
 	includedirs { 
-		"../../src",
+		"../../source/Engine",
 		"../../include/", 
 		"../../libs/glad/include/", 
 		"../../libs/glfw/include/", 
@@ -40,19 +43,24 @@ project (PROJECT_NAME)
 	}
 
 	files { 
-		"../../src/**.h", 
-		"../../src/**.cpp" 
+		"../../source/**.h", 
+		"../../source/**.cpp" 
 	}
+	
 
 	links { "GLFW", "GLM", "GLAD", "ImGui" }
 
 	filter "system:linux"
 		links { "dl", "pthread" }
-
 		defines { "_X11" }
 
 	filter "system:windows"
 		defines { "_WINDOWS" }
+
+		files { "../../resources/resource.rc", "../../resources/**.ico" }
+		vpaths { ['Resources/*'] = { '*.rc', '**.ico' } }
+
+	filter{}
 
 include "../../libs/glfw.lua"
 include "../../libs/glad.lua"

@@ -2,9 +2,9 @@ project "GLFW"
 	kind "StaticLib"
 	language "C"
 
-	location "../build"
-	targetdir "../bin"
-	objdir "../bin/obj/"
+	location "../build/%{prj.name}"
+	targetdir "../build/%{prj.name}/bin/%{cfg.platform}_%{cfg.buildcfg}"
+	objdir "../build/%{prj.name}/obj/%{cfg.platform}_%{cfg.buildcfg}"
 	
 	includedirs { "../libs/glfw/include/" }
 

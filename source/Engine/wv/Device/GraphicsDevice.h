@@ -40,6 +40,8 @@ namespace wv
 			return new GraphicsDevice( _desc );
 		}
 
+		void terminate();
+
 		void setRenderTarget( DummyRenderTarget* _target );
 		void clearRenderTarget( const float _color[4] );
 

@@ -36,6 +36,11 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	}
 }
 
+void wv::GraphicsDevice::terminate()
+{
+	
+}
+
 void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, _target->framebuffer ); /// TEMPORARY
@@ -60,7 +65,11 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 		// create shaders
 		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
-			shaders.push_back( createShader( &_desc->shaders[ i ] ) );
+		{
+			wv::Handle shader = createShader( &_desc->shaders[ i ] );
+			if( shader != 0 )
+				shaders.push_back( shader );
+		}
 
 		// create program
 		{
@@ -178,7 +187,16 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	int  success;
 	char infoLog[ 512 ];
 
+
+	/// TODO: change to proper asset loader
 	std::ifstream fs( _desc->filePath );
+
+	if ( !fs.is_open() )
+	{
+		printf( "Could not find shader source\n" );
+		return 0;
+	}
+
 	std::stringstream buffer;
 	buffer << fs.rdbuf();
 	std::string source_str = buffer.str();
