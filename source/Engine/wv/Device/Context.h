@@ -40,8 +40,9 @@ namespace wv
 		int    getHeight()    { return m_height; }
 		double getTime()      { return m_time; };
 		double getDeltaTime() { return m_frameTime; }
-		float  getAspect( void );
+		float  getAspect();
 
+		void setMouseLock( bool _lock );
 	private:
 
 		GLFWwindow* m_windowContext;

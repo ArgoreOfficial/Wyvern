@@ -29,7 +29,7 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 	
 	if ( (_event.buttondown || _event.buttonup) && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 	{
-		// window->setMouseLock( _event.button_down );
+		ctx->setMouseLock( _event.buttondown );
 		m_old_mouse_pos = _event.position;
 		m_freecam_enabled = _event.buttondown;
 
@@ -62,12 +62,12 @@ void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 	{
 		switch ( _event.key )
 		{
-		case GLFW_KEY_W:            m_move.z += -button_delta; break;
-		case GLFW_KEY_S:            m_move.z += button_delta; break;
-		case GLFW_KEY_A:            m_move.x += -button_delta; break;
-		case GLFW_KEY_D:            m_move.x += button_delta; break;
-		case GLFW_KEY_SPACE:        m_move.y += button_delta; break;
-		case GLFW_KEY_LEFT_CONTROL: m_move.y += -button_delta; break;
+		case GLFW_KEY_W: m_move.z += -button_delta; break;
+		case GLFW_KEY_S: m_move.z +=  button_delta; break;
+		case GLFW_KEY_A: m_move.x += -button_delta; break;
+		case GLFW_KEY_D: m_move.x +=  button_delta; break;
+		case GLFW_KEY_E: m_move.y +=  button_delta; break; // up
+		case GLFW_KEY_Q: m_move.y += -button_delta; break; // down
 
 		case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 200.0f; break;
 		}

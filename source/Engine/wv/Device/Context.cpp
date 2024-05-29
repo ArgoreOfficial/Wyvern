@@ -186,10 +186,15 @@ bool wv::Context::isAlive()
 	return !glfwWindowShouldClose( m_windowContext );
 }
 
-float wv::Context::getAspect( void )
+float wv::Context::getAspect()
 {
 	if ( m_width == 0 || m_height == 0 )
 		return 1.0f;
 
 	return (float)m_width / (float)m_height;
+}
+
+void wv::Context::setMouseLock( bool _lock )
+{
+	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
 }
