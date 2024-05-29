@@ -16,18 +16,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-static wv::Application* appInstance = nullptr;
-
-/// TEMPORARY---
-static int screenWidth = 0;
-static int screenHeight = 0;
-/// ---TEMPORARY
-
 wv::Application::Application( ApplicationDesc* _desc )
 {
-	screenWidth = _desc->windowWidth;
-	screenHeight = _desc->windowHeight;
-
 	wv::ContextDesc ctxDesc;
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
@@ -43,18 +33,23 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
 #endif
-	m_ctx = new wv::Context( &ctxDesc );
+	context = new wv::Context( &ctxDesc );
 
 	wv::GraphicsDeviceDesc deviceDesc;
-	deviceDesc.loadProc = m_ctx->getLoadProc();
+	deviceDesc.loadProc = context->getLoadProc();
 	deviceDesc.graphicsApi = ctxDesc.graphicsApi; // must be same as context
 
-	m_device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
+	device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
 
 	wv::DummyRenderTarget target{ 0, _desc->windowWidth, _desc->windowHeight }; /// temporary object until actual render targets exist
-	m_device->setRenderTarget( &target );
+	device->setRenderTarget( &target );
 
-	appInstance = this;
+	s_instance = this;
+}
+
+wv::Application* wv::Application::getApplication()
+{
+	return s_instance;
 }
 
 #ifdef EMSCRIPTEN
@@ -66,6 +61,9 @@ void emscriptenMainLoop() { appInstance->tick(); }
 // called the first time device->draw() is called that frame
 void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 {
+	wv::Application* app = wv::Application::getApplication();
+	wv::Context* ctx = app->context;
+
 	// material properties
 	wv::UniformBlock& fragBlock = _uniformBlocks[ "UbInput" ];
 	const wv::float3 psqYellow = { 0.9921568627f, 0.8156862745f, 0.03921568627f };
@@ -79,12 +77,15 @@ void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 	glm::mat4x4 projection{ 1.0f };
 	glm::mat4x4 view{ 1.0f };
 
-	projection = glm::perspectiveFov( 1.0472f /*60 deg*/, (float)screenWidth, (float)screenHeight, 0.1f, 100.0f);
+	float sw = (float)ctx->getWidth();
+	float sh = (float)ctx->getHeight();
+
+	projection = glm::perspectiveFov( 1.0472f /*60 deg*/, sw, sh, 0.1f, 100.0f);
 
 	view = glm::translate( view, { 0.0f, 0.0f, -4.0f } );
 
-	appInstance->m_rot += 0.016f;
-	view = glm::rotate( view, appInstance->m_rot, { 0, 1, 0 } );
+	app->m_rot += 0.016f;
+	view = glm::rotate( view, app->m_rot, { 0, 1, 0 } );
 
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
@@ -138,7 +139,7 @@ void wv::Application::run()
 		pipelineDesc.instanceCallback = instanceCB;
 		pipelineDesc.pipelineCallback = pipelineCB;
 
-		m_pipeline = m_device->createPipeline( &pipelineDesc );
+		m_pipeline = device->createPipeline( &pipelineDesc );
 	}
 
 
@@ -160,15 +161,15 @@ void wv::Application::run()
 		prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
 		prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
 
-		m_primitive = m_device->createPrimitive( &prDesc );
+		m_primitive = device->createPrimitive( &prDesc );
 	}
 
-	m_device->setActivePipeline( m_pipeline );
+	device->setActivePipeline( m_pipeline );
 
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
 #else
-	while ( m_ctx->isAlive() )
+	while ( context->isAlive() )
 		tick();
 #endif
 
@@ -176,25 +177,25 @@ void wv::Application::run()
 
 void wv::Application::terminate()
 {
-	m_ctx->terminate();
-	m_device->terminate();
+	context->terminate();
+	device->terminate();
 
-	delete m_ctx;
-	delete m_device;
+	delete context;
+	delete device;
 }
 
 void wv::Application::tick()
 {
-	m_ctx->pollEvents();
+	context->pollEvents();
 
 	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	m_device->clearRenderTarget( clearColor );
+	device->clearRenderTarget( clearColor );
 
 	/// TODO: move to GraphicsDevice
 	if ( m_pipeline->pipelineCallback )
 		m_pipeline->pipelineCallback( m_pipeline->uniformBlocks );
 
-	m_device->draw( m_primitive );
+	device->draw( m_primitive );
 
-	m_ctx->swapBuffers();
+	context->swapBuffers();
 }

@@ -85,6 +85,8 @@ wv::Context::Context( ContextDesc* _desc ):
 	glfwMakeContextCurrent( m_windowContext );
 
 	glfwSwapInterval( 1 );
+
+	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 }
 
 void wv::Context::terminate()
@@ -101,6 +103,11 @@ void wv::Context::pollEvents()
 {
 	// process input
 	glfwPollEvents();
+
+	// update frametime
+	float t = m_time;
+	m_time = glfwGetTime();
+	m_frameTime = m_time - t;
 }
 
 void wv::Context::swapBuffers()
@@ -111,4 +118,12 @@ void wv::Context::swapBuffers()
 bool wv::Context::isAlive()
 {
 	return !glfwWindowShouldClose( m_windowContext );
+}
+
+float wv::Context::getAspect( void )
+{
+	if ( m_width == 0 || m_height == 0 )
+		return 1.0f;
+
+	return (float)m_width / (float)m_height;
 }
