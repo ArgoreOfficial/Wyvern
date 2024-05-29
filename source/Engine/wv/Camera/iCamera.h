@@ -30,8 +30,8 @@ namespace wv
 		virtual void onCreate() { }
 		virtual void update( double _delta_time ) { }
 
-		glm::mat4 getProjectionMatrix( void );
-		glm::mat4 getViewMatrix( void );
+		glm::mat4x4 getProjectionMatrix( void );
+		glm::mat4x4 getViewMatrix( void );
 
 		Transformf& getTransform( void ) { return m_transform; }
 		Vector3f getViewDirection();
@@ -39,8 +39,8 @@ namespace wv
 		float fov  = 60.0f;
 
 	protected:
-		glm::mat4 getPerspectiveMatrix ( void );
-		glm::mat4 getOrthographicMatrix( void );
+		glm::mat4x4 getPerspectiveMatrix ( void );
+		glm::mat4x4 getOrthographicMatrix( void );
 
 		float m_near = 0.01f;
 		float m_far  = 100.0f;

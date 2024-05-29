@@ -32,12 +32,14 @@ namespace wv
 		void pollEvents();
 		void swapBuffers();
 
+		void onResize( int _width, int _height );
+
 		bool isAlive();
 
 		int    getWidth()     { return m_width; }
 		int    getHeight()    { return m_height; }
 		double getTime()      { return m_time; };
-		double getFrameTime() { return m_frameTime; }
+		double getDeltaTime() { return m_frameTime; }
 		float  getAspect( void );
 
 	private:
@@ -47,7 +49,7 @@ namespace wv
 		int m_height = 0;
 		const char* m_title = nullptr;
 
-		double m_time;
-		double m_frameTime;
+		double m_time = 0.0f;
+		double m_frameTime = 0.016f;
 	};
 }

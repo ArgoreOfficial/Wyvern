@@ -1,7 +1,7 @@
 #include "iCamera.h"
 
-// #include <wv/Core/cApplication.h>
-// #include <wv/Core/cRenderer.h>
+#include <wv/Application/Application.h>
+#include <wv/Device/Context.h>
 
 wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
@@ -12,7 +12,7 @@ wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 
 }
 
-glm::mat4 wv::ICamera::getProjectionMatrix( void )
+glm::mat4x4 wv::ICamera::getProjectionMatrix( void )
 {
 	switch ( m_type )
 	{
@@ -20,28 +20,22 @@ glm::mat4 wv::ICamera::getProjectionMatrix( void )
 	case WV_CAMERA_TYPE_ORTHOGRAPHIC: return getOrthographicMatrix(); break;
 	}
 
-	return glm::mat4( 1.0f );
+	return glm::mat4x4( 1.0f );
 }
 
-glm::mat4 wv::ICamera::getPerspectiveMatrix( void )
+glm::mat4x4 wv::ICamera::getPerspectiveMatrix( void )
 {
-	/*
-	wv::cRenderer& renderer = cRenderer::getInstance();
-	return glm::perspective( glm::radians( fov ), renderer.getViewportAspect(), m_near, m_far );
-	*/
-	return glm::mat4{ 1.0f };
+	wv::Context* ctx = wv::Application::getApplication()->context;
+	return glm::perspective( glm::radians( fov ), ctx->getAspect(), m_near, m_far);
 }
 
-glm::mat4 wv::ICamera::getOrthographicMatrix( void )
+glm::mat4x4 wv::ICamera::getOrthographicMatrix( void )
 {
-	/*
-	wv::cRenderer& renderer = cRenderer::getInstance();
-	float w = (float)renderer.getViewportWidth () / 2.0f;
-	float h = (float)renderer.getViewportHeight() / 2.0f;
+	wv::Context* ctx = wv::Application::getApplication()->context;
+	float w = (float)ctx->getWidth()  / 2.0f;
+	float h = (float)ctx->getHeight() / 2.0f;
 
 	return glm::ortho( -w, w, -h, h, -1000.0f, 1000.0f );
-	*/
-	return glm::mat4{ 1.0f };
 }
 
 glm::mat4 wv::ICamera::getViewMatrix( void )

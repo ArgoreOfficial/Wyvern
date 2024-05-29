@@ -2,10 +2,67 @@
 
 #include <stdio.h>
 
-void glfwKeyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
+#include <wv/Application/Application.h>
+#include <wv/Events/IInputListener.h>
+#include <wv/Events/IMouseListener.h>
+
+#include <wv/Math/Vector2.h>
+
+// TODO: change events to iListeners, separate classes?
+// iInputEventListener, iMouseEventListener, iWindowEventListener, iEventListener 
+// iEventInvoker
+
+void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
+	/// TODO: move to application?
 	if ( _key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS )
 		glfwSetWindowShouldClose( _window, true );
+
+	wv::InputEvent inputEvent;
+	inputEvent.buttondown = _action == GLFW_PRESS;
+	inputEvent.buttonup = _action == GLFW_RELEASE;
+	inputEvent.repeat = _action == GLFW_REPEAT;
+	inputEvent.key = _key;
+	inputEvent.scancode = _scancode;
+	inputEvent.mods = _mods;
+
+	wv::IInputListener::invoke( inputEvent );
+}
+
+void mouseCallback( GLFWwindow* window, double xpos, double ypos )
+{
+	wv::MouseEvent mouseEvent;
+
+	mouseEvent.position = wv::Vector2i{ (int)xpos, (int)ypos };
+	
+	wv::IMouseListener::invoke( mouseEvent );
+}
+
+void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
+{
+	wv::MouseEvent mouseEvent;
+
+	double xpos, ypos;
+	glfwGetCursorPos( _window, &xpos, &ypos );
+	mouseEvent.position = { (int)xpos, (int)ypos };
+
+	switch ( _button )
+	{
+	case GLFW_MOUSE_BUTTON_LEFT:   mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
+	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
+	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
+	}
+
+	mouseEvent.buttondown = _action == GLFW_PRESS;
+	mouseEvent.buttonup = _action == GLFW_RELEASE;
+
+	wv::IMouseListener::invoke( mouseEvent );
+}
+
+void onResizeCallback( GLFWwindow* window, int _width, int _height )
+{
+	/// TODO: onresize
+	// wv::cApplication::getInstance().onResize( _width, _height );
 }
 
 void glfwErrorCallback(int _err, const char* _msg)
@@ -75,7 +132,12 @@ wv::Context::Context( ContextDesc* _desc ):
 	printf( "  %s\n", glfwGetVersionString() );
 
 	m_windowContext = glfwCreateWindow(_desc->width, _desc->height, _desc->name, NULL, NULL);
-	glfwSetKeyCallback( m_windowContext, glfwKeyCallback );
+	
+	glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
+	glfwSetKeyCallback( m_windowContext, keyCallback );
+
+	glfwSetCursorPosCallback( m_windowContext, mouseCallback );
+	glfwSetMouseButtonCallback( m_windowContext, mouseButtonCallback );
 
 	if ( !m_windowContext )
 	{
@@ -103,6 +165,11 @@ void wv::Context::pollEvents()
 {
 	// process input
 	glfwPollEvents();
+}
+
+void wv::Context::swapBuffers()
+{
+	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
 	float t = m_time;
@@ -110,9 +177,8 @@ void wv::Context::pollEvents()
 	m_frameTime = m_time - t;
 }
 
-void wv::Context::swapBuffers()
+void wv::Context::onResize( int _width, int _height )
 {
-	glfwSwapBuffers( m_windowContext );
 }
 
 bool wv::Context::isAlive()

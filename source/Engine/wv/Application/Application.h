@@ -6,6 +6,7 @@ namespace wv
 	class GraphicsDevice;
 	class Primitive;
 	class Pipeline;
+	class ICamera;
 
 	struct ApplicationDesc
 	{
@@ -37,6 +38,8 @@ namespace wv
 
 		Context* context       = nullptr;
 		GraphicsDevice* device = nullptr;
+
+		ICamera* currentCamera = nullptr;
 
 	private:
 

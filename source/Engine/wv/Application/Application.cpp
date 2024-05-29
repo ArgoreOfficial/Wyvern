@@ -16,6 +16,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <wv/Camera/cFreeflightCamera.h>
+
 wv::Application::Application( ApplicationDesc* _desc )
 {
 	wv::ContextDesc ctxDesc;
@@ -45,6 +47,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	device->setRenderTarget( &target );
 
 	s_instance = this;
+	currentCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	currentCamera->onCreate();
+	currentCamera->getTransform().setPosition( { 0.0f, 0.0f, 4.0f } );
 }
 
 wv::Application* wv::Application::getApplication()
@@ -53,7 +58,7 @@ wv::Application* wv::Application::getApplication()
 }
 
 #ifdef EMSCRIPTEN
-void emscriptenMainLoop() { appInstance->tick(); }
+void emscriptenMainLoop() { wv::Application::getApplication()->tick(); }
 #endif
 
 
@@ -74,19 +79,9 @@ void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 	// camera transorm
 	wv::UniformBlock& block = _uniformBlocks[ "UbInstanceData" ];
 
-	glm::mat4x4 projection{ 1.0f };
-	glm::mat4x4 view{ 1.0f };
-
-	float sw = (float)ctx->getWidth();
-	float sh = (float)ctx->getHeight();
-
-	projection = glm::perspectiveFov( 1.0472f /*60 deg*/, sw, sh, 0.1f, 100.0f);
-
-	view = glm::translate( view, { 0.0f, 0.0f, -4.0f } );
-
-	app->m_rot += 0.016f;
-	view = glm::rotate( view, app->m_rot, { 0, 1, 0 } );
-
+	glm::mat4x4 projection = app->currentCamera->getProjectionMatrix();
+	glm::mat4x4 view = app->currentCamera->getViewMatrix();
+	
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
 }
@@ -188,8 +183,12 @@ void wv::Application::tick()
 {
 	context->pollEvents();
 
+	double dt = context->getDeltaTime();
+
 	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	device->clearRenderTarget( clearColor );
+
+	currentCamera->update( dt );
 
 	/// TODO: move to GraphicsDevice
 	if ( m_pipeline->pipelineCallback )
