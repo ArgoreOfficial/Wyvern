@@ -8,23 +8,24 @@
 $projname = "Wyvern"
 
 $includes = @(
-    "src\",
+    "source\Engine",
     "libs\glad\include\",
     "libs\glm\"
 )
 
 $folders = @(
-    "src",
+    "source",
     "libs\glad\src"
 )
 
+# real/path@virtual/path
 $embeds = @(
-    "res/frag.glsl",
-    "res/vert.glsl",
-    "res/psq.wpr"
+    "game/res/frag.glsl@res/frag.glsl",
+    "game/res/vert.glsl@res/vert.glsl",
+    "game/res/psq.wpr@res/psq.wpr"
 )
 
-$objdir = ".\obj\"
+$objdir = "build\wasm\"
 $linkflags = "-sUSE_GLFW=3 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1"
 
 # END CONFIG
