@@ -158,9 +158,8 @@ void wv::GraphicsDevice::draw( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->handle );
 
-	// block.second.set<float3>( "u_Color", { 1.0f, 1.0f, 1.0f } );
-
-	m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
+	if( m_activePipeline->instanceCallback )
+		m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
 
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{

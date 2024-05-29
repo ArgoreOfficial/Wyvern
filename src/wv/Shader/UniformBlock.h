@@ -35,8 +35,9 @@ namespace wv
 
 		UniformBlock() { }
 		
-		template<typename T>
-		void set( std::string _name, T _data );
+		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
+		template<typename T> void set( const std::string& _name, T* _data );
+
 
 	private:
 
@@ -53,12 +54,10 @@ namespace wv
 
 	typedef std::unordered_map<std::string, wv::UniformBlock> UniformBlockMap;
 
-
-
 	template<typename T>
-	inline void UniformBlock::set( std::string _name, T _data )
+	inline void UniformBlock::set( const std::string& _name, T* _data )
 	{
 		unsigned int offset = m_uniforms[ _name ].offset;
-		memcpy( m_buffer + offset, &_data, sizeof( T ) );
+		memcpy( m_buffer + offset, _data, sizeof( T ) );
 	}
 }

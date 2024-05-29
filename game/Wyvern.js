@@ -39,7 +39,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: C:\Users\piostb\AppData\Local\Temp\tmpqvrkd849.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmp48vc_zq0.js
 
   if (!Module.expectedDataFileDownloads) {
     Module.expectedDataFileDownloads = 0;
@@ -216,25 +216,25 @@ Module['FS_createPath']("/", "res", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/res/frag.glsl", "start": 0, "end": 196}, {"filename": "/res/psq.wpr", "start": 196, "end": 700}, {"filename": "/res/vert.glsl", "start": 700, "end": 838}], "remote_package_size": 838});
+    loadPackage({"files": [{"filename": "/res/frag.glsl", "start": 0, "end": 195}, {"filename": "/res/psq.wpr", "start": 195, "end": 699}, {"filename": "/res/vert.glsl", "start": 699, "end": 901}], "remote_package_size": 901});
 
   })();
 
-// end include: C:\Users\piostb\AppData\Local\Temp\tmpqvrkd849.js
-// include: C:\Users\piostb\AppData\Local\Temp\tmpkejjqp4z.js
+// end include: C:\Users\piostb\AppData\Local\Temp\tmp48vc_zq0.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmp3oqo3jq8.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: C:\Users\piostb\AppData\Local\Temp\tmpkejjqp4z.js
-// include: C:\Users\piostb\AppData\Local\Temp\tmprfvmqi4x.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmp3oqo3jq8.js
+// include: C:\Users\piostb\AppData\Local\Temp\tmp1n3voxlx.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach(function(task) {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: C:\Users\piostb\AppData\Local\Temp\tmprfvmqi4x.js
+  // end include: C:\Users\piostb\AppData\Local\Temp\tmp1n3voxlx.js
 
 
 // Sometimes an existing Module object exists with properties

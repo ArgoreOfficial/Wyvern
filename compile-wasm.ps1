@@ -9,7 +9,8 @@ $projname = "Wyvern"
 
 $includes = @(
     "src\",
-    "libs\glad\include\"
+    "libs\glad\include\",
+    "libs\glm\"
 )
 
 $folders = @(

@@ -66,6 +66,8 @@ wv::Context::Context( ContextDesc* _desc ):
 		return;
 	}
 	glfwMakeContextCurrent( m_windowContext );
+
+	glfwSwapInterval( 1 );
 }
 
 void wv::Context::terminate()

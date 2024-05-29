@@ -12,6 +12,10 @@
 #include <fstream>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 {
 	wv::ContextDesc ctxDesc;
@@ -45,19 +49,51 @@ void mainLoop()
 {
 	ctx->pollEvents();
 
-	//const float clearColor[ 4 ] = { 0.8f, 0.8f, 0.8f, 1.0f };
 	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	device->clearRenderTarget( clearColor );
 
+	/// TODO: move to GraphicsDevice
+	if ( pipeline->pipelineCallback )
+		pipeline->pipelineCallback( pipeline->uniformBlocks );
+
 	device->draw( primitive );
-	
+
 	ctx->swapBuffers();
 }
+
+float t = 0.0f;
+float pt = 0.0f;
+float s = 1.0f / 1000000000.0f;
 
 // called the first time device->draw() is called that frame
 void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 {
+	wv::UniformBlock& block = _uniformBlocks[ "UbInstanceData" ];
+
+	glm::mat4x4 projection{ 1.0f };
+	projection = glm::perspectiveFov( 60.0f, 800.0f, 600.0f, 0.1f, 100.0f );
+
+	glm::mat4x4 view{ 1.0f };
+	view = glm::translate( view, { 0.0f, 0.0f, -0.1f } );
+	view = glm::rotate( view, 3.1415f, { 0.0f, 0.0f, 1.0f } );
+
+	glm::mat4x4 model{1.0f};
+	t += 0.016f;
+
+	glm::vec3 pos{ 0.0f, 0.0f, 1.0f };
 	
+	if ( t > 2.0f )
+	{
+		pos.z = pt;
+		s *= 1.03f;
+		pt -= 0.0005f + s;
+	}
+
+	model = glm::translate( model, pos );
+
+	block.set( "u_Projection", projection );
+	block.set( "u_View", view );
+	block.set( "u_Model", model );
 }
 
 // called every time device->draw() is called 
@@ -87,23 +123,29 @@ int main()
 		};
 
 		/// TODO: change to UniformDesc?
-		const char* uniforms[] = {
+		const char* ubInputUniforms[] = {
 			"u_Color",
 			"u_Alpha"
 		};
 
-		wv::UniformBlockDesc ubDesc;
-		ubDesc.name = "UbInput";
-		ubDesc.uniforms = uniforms;
-		ubDesc.numUniforms = 2;
+		const char* ubInstanceDataUniforms[] = {
+			"u_Projection",
+			"u_View",
+			"u_Model",
+		};
+		
+		wv::UniformBlockDesc uniformBlocks[] = {
+			{ "UbInput",        ubInputUniforms,        2 },
+			{ "UbInstanceData", ubInstanceDataUniforms, 3 }
+		};
 
 		wv::PipelineDesc pipelineDesc;
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		pipelineDesc.layout; /// TODO: fix
 		pipelineDesc.shaders = shaders;
-		pipelineDesc.uniformBlocks = &ubDesc;
-		pipelineDesc.numUniformBlocks = 1;
+		pipelineDesc.uniformBlocks = uniformBlocks;
+		pipelineDesc.numUniformBlocks = 2;
 		pipelineDesc.numShaders = 2;
 		pipelineDesc.instanceCallback = instanceCB;
 		pipelineDesc.pipelineCallback = pipelineCB;
@@ -151,14 +193,7 @@ int main()
 #else
 	while ( ctx->isAlive() )
 	{
-		ctx->pollEvents();
-		
-		const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		device->clearRenderTarget( clearColor );
-
-		device->draw( primitive );
-
-		ctx->swapBuffers();
+		mainLoop();
 	}
 #endif
 
