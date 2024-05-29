@@ -8,6 +8,9 @@ namespace wv
 	namespace Math
 	{
 
+	#define WV_CONSTF_PI 3.141592653f
+	#define WV_CONST_PI  3.141592653
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		template < typename T > T clamp( const T& _value, const T& _min, const T& _max );
@@ -18,6 +21,9 @@ namespace wv
 		template < typename T > T abs  ( const T& _value );
 		template < typename T > T min  ( const T& _a, const T& _b );
 		template < typename T > T max  ( const T& _a, const T& _b );
+
+		inline float degToRad( const float& _degrees )   { return _degrees * ( WV_CONSTF_PI / 180.0f ); }
+		inline double degToRad( const double& _degrees ) { return _degrees * ( WV_CONST_PI / 180.0 ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

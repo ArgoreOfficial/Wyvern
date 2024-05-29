@@ -1,4 +1,4 @@
-#include "iCamera.h"
+#include "ICamera.h"
 
 #include <wv/Application/Application.h>
 #include <wv/Device/Context.h>

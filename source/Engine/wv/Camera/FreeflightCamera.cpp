@@ -1,4 +1,4 @@
-#include "cFreeflightCamera.h"
+#include "FreeflightCamera.h"
 
 #include <wv/Device/Context.h>
 #include <wv/Application/Application.h>

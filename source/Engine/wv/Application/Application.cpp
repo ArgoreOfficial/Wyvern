@@ -16,7 +16,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <wv/Camera/cFreeflightCamera.h>
+#include <wv/Camera/FreeflightCamera.h>
+#include <wv/Camera/OrbitCamera.h>
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
@@ -47,9 +48,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	device->setRenderTarget( &target );
 
 	s_instance = this;
-	currentCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	//currentCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	currentCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	currentCamera->onCreate();
-	currentCamera->getTransform().setPosition( { 0.0f, 0.0f, 4.0f } );
 }
 
 wv::Application* wv::Application::getApplication()

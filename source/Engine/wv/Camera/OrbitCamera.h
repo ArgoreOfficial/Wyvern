@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Camera/iCamera.h>
+#include <wv/Camera/ICamera.h>
 
 #include <wv/Events/IMouseListener.h>
 #include <wv/Events/IInputListener.h>
@@ -16,13 +16,13 @@
 namespace wv
 {
 	
-	class FreeflightCamera : public ICamera, public IMouseListener, public IInputListener
+	class OrbitCamera : public ICamera, public IMouseListener, public IInputListener
 	{
 	public:
 
-		FreeflightCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
+		OrbitCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
 
-		~FreeflightCamera( void );
+		~OrbitCamera( void );
 
 		void onCreate() override;
 		void onMouseEvent( MouseEvent _event ) override;
@@ -31,16 +31,12 @@ namespace wv
 	
 	private:
 
-		wv::Vector3f m_move;
 		wv::Vector2f m_rotate;
-		wv::Vector3f m_velocity;
 
 		wv::Vector2i m_old_mouse_pos;
-		bool m_freecam_enabled = false;
+		bool m_input_enabled = false;
 
-		float m_speed = 50.0f;
-		float m_speed_normal = 50.0f;
-		
+		float r = 0.0f;
 	};
 
 }
