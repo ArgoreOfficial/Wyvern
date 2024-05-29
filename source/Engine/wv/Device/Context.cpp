@@ -64,6 +64,10 @@ wv::Context::Context( ContextDesc* _desc ):
 
 	}
 
+	/// TEMPORARY---
+	glfwWindowHint( GLFW_SAMPLES, 4 );
+	/// ---TEMPORARY
+
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, _desc->graphicsApiVersion.minor );
 

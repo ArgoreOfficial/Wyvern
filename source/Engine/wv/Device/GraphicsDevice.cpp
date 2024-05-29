@@ -32,6 +32,9 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	printf( "Intialized Graphics Device\n" );
 	printf( "  %s\n", glGetString( GL_VERSION ) ); 
 
+	/// TEMPORARY---
+	glEnable( GL_MULTISAMPLE );
+	/// ---TEMPORARY
 }
 
 void wv::GraphicsDevice::terminate()
