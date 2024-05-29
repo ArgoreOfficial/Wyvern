@@ -57,7 +57,7 @@ function compileDir($f, $emc, $ext, $incl)
         $cmd = $emc + " " + $fullpath + $incl + " -c -o " + $fobjdir + $outname
         $objfile = $fobjdir + $outname + " "
         $links += $objfile
-        Write-Host( $cmd )
+        Write-Host( $outname )
         Invoke-Expression $cmd
     }
 
@@ -77,8 +77,10 @@ Write-Host( "Compiling..." )
 $linkfiles = ""
 foreach( $folder in $folders )
 {
-    $linkfiles += compileDir $folder "em++" *.cpp $additionalincludes
-    $linkfiles += compileDir $folder "emcc" *.c $additionalincludes
+    $linkcpp = compileDir $folder "em++" *.cpp $additionalincludes
+    $linkc   = compileDir $folder "emcc" *.c $additionalincludes
+
+    $linkfiles += $linkcpp + $linkc
 }
 
 # create embed/preload flags
@@ -89,7 +91,7 @@ foreach( $embed in $embeds )
 }
 
 If(!(test-path -PathType container "game")) { New-Item -ItemType Directory -Path "game" }
-$linkcmd = "em++ " + $linkfiles + " -o game/" + $projname + ".html " + $linkflags + $embedfiles
+$linkcmd = "em++ " + $linkfiles + " -o game/" + $projname + ".js " + $linkflags + $embedfiles
 
 Write-Host( "Linking..." )
 
