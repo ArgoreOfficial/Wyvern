@@ -42,17 +42,30 @@ wv::Context::Context( ContextDesc* _desc ):
 		return;
 	}
 
-	/// TODO: make configurable
-#ifdef EMSCRIPTEN
-	glfwWindowHint( GLFW_CLIENT_API, GLFW_OPENGL_ES_API );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE );
-#else
+	switch ( _desc->graphicsApi )
+	{
+
+	case WV_GRAPHICS_API_OPENGL:
+	{
+		int mj = _desc->graphicsApiVersion.major;
+		int mn = _desc->graphicsApiVersion.minor;
+
+		if( mj < 3 || ( mj == 3 && mn < 2 ) ) // below 3.2 
+			glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE );
+		else
+			glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	} break; // OpenGL 1.0 - 4.6
+
+	case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+	{
+		glfwWindowHint( GLFW_CLIENT_API, GLFW_OPENGL_ES_API );
+		glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE );
+	} break; // OpenGL ES 1 & 2
+
+	}
+
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, _desc->graphicsApiVersion.minor );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-#endif
 
 	printf( "Initialized Context Device\n" );
 	printf( "  %s\n", glfwGetVersionString() );

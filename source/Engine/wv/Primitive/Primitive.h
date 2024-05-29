@@ -7,10 +7,10 @@ namespace wv
 
 	struct InputLayoutElement
 	{
-		unsigned int   num;
+		unsigned int num;
 		DataType type;
-		bool     normalized;
-		unsigned int   stride;
+		bool normalized;
+		unsigned int stride;
 	};
 
 	struct InputLayout

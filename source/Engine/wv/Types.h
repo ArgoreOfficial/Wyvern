@@ -24,7 +24,8 @@ namespace wv
 	enum GraphicsAPI
 	{
 		WV_GRAPHICS_API_OPENGL,
-		WV_GRAPHICS_API_OPENGL_ES
+		WV_GRAPHICS_API_OPENGL_ES1,
+		WV_GRAPHICS_API_OPENGL_ES2
 	};
 
 	struct GenericVersion

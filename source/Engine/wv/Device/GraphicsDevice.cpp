@@ -14,13 +14,15 @@
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
-#ifdef EMSCRIPTEN
-	int initRes = gladLoadGLES2Loader( _desc->loadProc );
-	_desc->graphicsApi = WV_GRAPHICS_API_OPENGL_ES; // only option
-#else
-	int initRes = gladLoadGL();
-#endif
-	
+
+	int initRes = 0;
+	switch ( _desc->graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL:     initRes = gladLoadGLLoader( _desc->loadProc ); break;
+	case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;
+	case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
+	}
+
 	if( !initRes )
 	{
 		fprintf( stderr, "Failed to initialize Graphics Device\n" );
@@ -28,12 +30,8 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	}
 	
 	printf( "Intialized Graphics Device\n" );
+	printf( "  %s\n", glGetString( GL_VERSION ) ); 
 
-	switch ( _desc->graphicsApi )
-	{
-	case WV_GRAPHICS_API_OPENGL:    printf( "  OpenGL %s\n", glGetString( GL_VERSION ) ); break;
-	case WV_GRAPHICS_API_OPENGL_ES: printf( "  %s\n", glGetString( GL_VERSION ) ); break;
-	}
 }
 
 void wv::GraphicsDevice::terminate()

@@ -22,15 +22,22 @@ void initalize( wv::Context** _ctxOut, wv::GraphicsDevice** _deviceOut )
 	ctxDesc.name = "Wyvern Renderer";
 	ctxDesc.width = 800;
 	ctxDesc.height = 600;
+	
+#ifdef EMSCRIPTEN
+	/// force to OpenGL ES 2 3.0
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
+	ctxDesc.graphicsApiVersion.major = 3;
+	ctxDesc.graphicsApiVersion.minor = 0;
+#else
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
-
+#endif
 	wv::Context* ctx = new wv::Context( &ctxDesc );
 
 	wv::GraphicsDeviceDesc deviceDesc;
 	deviceDesc.loadProc = ctx->getLoadProc();
-	deviceDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL; // must be same as context
+	deviceDesc.graphicsApi = ctxDesc.graphicsApi; // must be same as context
 
 	wv::GraphicsDevice* device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
 
@@ -151,23 +158,14 @@ int main()
 
 	
 	{
-		wv::InputLayoutElement layoutPosition;
-		layoutPosition.num = 3;
-		layoutPosition.type = wv::WV_FLOAT;
-		layoutPosition.normalized = false;
-		layoutPosition.stride = sizeof( float ) * 3;
-
+		wv::InputLayoutElement layoutPosition{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 };
+		
 		wv::InputLayout layout;
 		layout.elements = &layoutPosition;
 		layout.numElements = 1;
 
-		float vertices[] = {
-				-0.5f, -0.5f, 0.0f,
-				 0.5f, -0.5f, 0.0f,
-				 0.0f,  0.5f, 0.0f
-		};
-
-		std::ifstream in( "./res/psq.wpr", std::ios::binary );
+		/// TODO: change to proper asset loader
+		std::ifstream in( "res/psq.wpr", std::ios::binary );
 		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
 		wv::PrimitiveDesc prDesc;
@@ -175,9 +173,7 @@ int main()
 		prDesc.layout = &layout;
 		prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
 		prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
-		// prDesc.vertexBuffer = vertices;
-		// prDesc.vertexBufferSize = sizeof( vertices );
-		prDesc.numVertices = 3 * 16;
+		prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
 
 		primitive = device->createPrimitive( &prDesc );
 	}
