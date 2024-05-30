@@ -124,8 +124,8 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 {
 	Primitive* primitive = new Primitive();
 	{
-		glGenVertexArrays( 1, &primitive->handle );
-		glBindVertexArray( primitive->handle );
+		glGenVertexArrays( 1, &primitive->vboHandle );
+		glBindVertexArray( primitive->vboHandle );
 
 		// create vertex buffer object
 		unsigned int vbo;
@@ -140,6 +140,28 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 
 		// buffer data
 		glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
+
+
+
+		if ( _desc->indexBufferSize > 0 )
+		{
+			// create element buffer object
+			primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
+
+			wv::Handle ebo;
+			glGenBuffers( 1, &ebo );
+			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
+			glBufferData( GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
+
+			primitive->eboHandle = ebo;
+			primitive->numIndices = _desc->numIndices;
+		}
+		else
+		{
+			primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
+		}
+
+
 
 		int offset = 0;
 		int stride = 0;
@@ -177,7 +199,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 		glBindVertexArray( 0 );
 
-		primitive->count = _desc->numVertices; /// TODO: allow indices
+		primitive->numVertices = _desc->numVertices; /// TODO: allow indices
 	}
 
     return primitive;
@@ -216,21 +238,28 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 
 void wv::GraphicsDevice::draw( Primitive* _primitive )
 {
-	glBindVertexArray( _primitive->handle );
+	glBindVertexArray( _primitive->vboHandle );
 
 	if( m_activePipeline->instanceCallback )
 		m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
 
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{
-		/// TODO: allow for multiple blocks
 		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, block.second.m_bindingIndex );
 		glBindBuffer( GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
 		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
 
+	// m_activePipeline->mode
+
 	/// TODO: change GL_TRIANGLES
-	glDrawArrays( GL_TRIANGLES, 0, _primitive->count );
+	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
+	{
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _primitive->eboHandle );
+		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
+	}
+	else
+		glDrawArrays( GL_TRIANGLES, 0, _primitive->numVertices );
 }
 
 wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )

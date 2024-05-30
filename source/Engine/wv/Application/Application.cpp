@@ -35,9 +35,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
 #else
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
-	ctxDesc.graphicsApiVersion.major = 3;
-	ctxDesc.graphicsApiVersion.minor = 0;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+	ctxDesc.graphicsApiVersion.major = 4;
+	ctxDesc.graphicsApiVersion.minor = 6;
 #endif
 	context = new wv::Context( &ctxDesc );
 
@@ -154,22 +154,35 @@ void wv::Application::run()
 		// std::ifstream in( "res/psq.wpr", std::ios::binary );
 		// std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
+		//  position               texcoord
 		float vertices[] = {
-			-0.5f, 0.0f, 0.0f,  0.0f, 0.0f, // bottom left
-			 0.0f, 0.8f, 0.0f,  0.5f, 1.0f, // top
-			 0.5f, 0.0f, 0.0f,  1.0f, 0.0f
+			-0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
+			-0.5f,  0.5f, 0.0f,    0.0f, 1.0f, 
+			 0.5f,  0.5f, 0.0f,    1.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f,    1.0f, 0.0f
+		};
+
+		unsigned int indices[] = {
+			0,1,2,
+			0,2,3
 		};
 
 		wv::PrimitiveDesc prDesc;
-		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
-		prDesc.layout = &layout;
-		//prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
-		//prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
-		//prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
+		{
+			prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
+			prDesc.layout = &layout;
+			//prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
+			//prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
+			//prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
 
-		prDesc.vertexBuffer = vertices;
-		prDesc.vertexBufferSize = sizeof( vertices );
-		prDesc.numVertices = 3; /// TODO: don't hardcode
+			prDesc.vertexBuffer = vertices;
+			prDesc.vertexBufferSize = sizeof( vertices );
+			prDesc.numVertices = 4; /// TODO: don't hardcode
+		
+			prDesc.indexBuffer = indices;
+			prDesc.indexBufferSize = sizeof( indices );
+			prDesc.numIndices = 6;
+		}
 
 		m_primitive = device->createPrimitive( &prDesc );
 	}

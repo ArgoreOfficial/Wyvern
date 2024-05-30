@@ -21,30 +21,39 @@ namespace wv
 	
 	////////////////////////////////////////////
 
-	enum PrimitiveType
+	enum PrimitiveBufferMode
 	{
 		WV_PRIMITIVE_TYPE_STATIC
 	};
 
+	enum PrimitiveDrawType
+	{
+		WV_PRIMITIVE_DRAW_TYPE_VERTICES,
+		WV_PRIMITIVE_DRAW_TYPE_INDICES
+	};
+
 	struct PrimitiveDesc
 	{
-		PrimitiveType type;
-		InputLayout* layout;
+		PrimitiveBufferMode type;
+		InputLayout* layout = nullptr;
 
-		void* vertexBuffer;
-		unsigned int vertexBufferSize;
-		unsigned int numVertices;
+		void* vertexBuffer = nullptr;
+		unsigned int vertexBufferSize = 0;
+		unsigned int numVertices = 0;
 
-		void* indexBuffer;
-		unsigned int indexBufferSize;
-		unsigned int numIndices;
+		void* indexBuffer = nullptr;
+		unsigned int indexBufferSize = 0;
+		unsigned int numIndices = 0;
 	};
 
 	class Primitive
 	{
 	public:
-		wv::Handle handle;
-		PrimitiveType type;
-		uint32_t count;
+		wv::Handle vboHandle = 0;
+		wv::Handle eboHandle = 0;
+		PrimitiveBufferMode mode;
+		PrimitiveDrawType drawType;
+		uint32_t numVertices = 0;
+		uint32_t numIndices = 0;
 	};
 }
