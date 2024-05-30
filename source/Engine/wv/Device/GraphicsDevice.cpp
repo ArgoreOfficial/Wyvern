@@ -57,9 +57,9 @@ void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
 	glViewport( 0, 0, _target->width, _target->height );
 }
 
-void wv::GraphicsDevice::clearRenderTarget( const float _color[ 4 ] )
+void wv::GraphicsDevice::clearRenderTarget( const wv::Color& _color )
 {
-	glClearColor( _color[ 0 ], _color[ 1 ], _color[ 2 ], _color[ 3 ] );
+	glClearColor( _color.r, _color.g, _color.b, _color.a );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
@@ -234,6 +234,12 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	stbi_image_free( data );
 
 	return texture;
+}
+
+void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
+{
+	glBindTexture( GL_TEXTURE_2D, _texture->handle );
+	glActiveTexture( GL_TEXTURE0 + _slot );
 }
 
 void wv::GraphicsDevice::draw( Primitive* _primitive )

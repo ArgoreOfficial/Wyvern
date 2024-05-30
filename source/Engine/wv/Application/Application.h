@@ -52,6 +52,7 @@ namespace wv
 		Primitive* m_primitive = nullptr;
 		Pipeline*  m_pipeline  = nullptr;
 		Texture*   m_texture   = nullptr;
+		Texture*   m_texture2  = nullptr;
 		/// ---TEMPORARY
 
 		Context* context       = nullptr;

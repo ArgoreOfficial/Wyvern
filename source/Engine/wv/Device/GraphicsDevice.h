@@ -3,6 +3,8 @@
 #include <wv/Shader/Shader.h>
 #include <wv/Shader/ShaderProgram.h>
 
+#include <wv/Misc/Color.h>
+
 namespace wv
 {
 	struct PipelineDesc;
@@ -51,15 +53,15 @@ namespace wv
 		void onResize( int _width, int _height );
 
 		void setRenderTarget( DummyRenderTarget* _target );
-		void clearRenderTarget( const float _color[4] );
+		void clearRenderTarget( const wv::Color& _color );
 
 		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
 		void setActivePipeline( Pipeline* _pipeline );
 
 		Primitive* createPrimitive( PrimitiveDesc* _desc );
-
 		Texture* createTexture( TextureDesc* _desc );
+		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
 		void draw( Primitive* _primitive );
 

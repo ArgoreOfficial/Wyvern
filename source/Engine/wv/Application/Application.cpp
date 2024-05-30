@@ -205,6 +205,8 @@ void wv::Application::run()
 	TextureDesc texDesc;
 	texDesc.filepath = "res/jonas.png";
 	m_texture = device->createTexture( &texDesc );
+	texDesc.filepath = "res/jonas2.png";
+	m_texture2 = device->createTexture( &texDesc );
 
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
@@ -229,10 +231,10 @@ void wv::Application::tick()
 
 	double dt = context->getDeltaTime();
 
-	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	device->clearRenderTarget( clearColor );
+	device->clearRenderTarget( wv::Colors::Black );
 
-	glBindTexture( GL_TEXTURE_2D, m_texture->handle );
+	device->bindTextureToSlot( m_texture, 0 );
+	device->bindTextureToSlot( m_texture2, 1 );
 
 	currentCamera->update( dt );
 
