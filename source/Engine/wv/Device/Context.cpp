@@ -12,6 +12,8 @@
 // iInputEventListener, iMouseEventListener, iWindowEventListener, iEventListener 
 // iEventInvoker
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
 	/// TODO: move to application?
@@ -29,6 +31,8 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	wv::IInputListener::invoke( inputEvent );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
 	wv::MouseEvent mouseEvent;
@@ -37,6 +41,8 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	
 	wv::IMouseListener::invoke( mouseEvent );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
@@ -59,10 +65,14 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 	wv::IMouseListener::invoke( mouseEvent );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::Application::getApplication()->onResize( _width, _height );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void glfwErrorCallback(int _err, const char* _msg)
 {
@@ -86,6 +96,8 @@ void glfwErrorCallback(int _err, const char* _msg)
 
 	fprintf( stderr, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Context::Context( ContextDesc* _desc ):
 	m_windowContext{ nullptr }
@@ -150,21 +162,29 @@ wv::Context::Context( ContextDesc* _desc ):
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Context::terminate()
 {
 	glfwTerminate();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDriverLoadProc wv::Context::getLoadProc()
 {
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Context::pollEvents()
 {
 	// process input
 	glfwPollEvents();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Context::swapBuffers()
 {
@@ -176,16 +196,22 @@ void wv::Context::swapBuffers()
 	m_frameTime = m_time - t;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Context::onResize( int _width, int _height )
 {
 	m_width  = _width;
 	m_height = _height;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Context::isAlive()
 {
 	return !glfwWindowShouldClose( m_windowContext );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 float wv::Context::getAspect()
 {
@@ -194,6 +220,8 @@ float wv::Context::getAspect()
 
 	return (float)m_width / (float)m_height;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Context::setMouseLock( bool _lock )
 {

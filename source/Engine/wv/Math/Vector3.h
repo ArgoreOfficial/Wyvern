@@ -10,7 +10,9 @@ namespace wv
 	template< typename T >
 	class Vector3
 	{
+
 	public:
+
 		T x, y, z;
 
 		Vector3( void )                                  : x(  0 ), y(  0 ), z(  0 ) { }

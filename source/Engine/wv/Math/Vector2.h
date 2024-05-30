@@ -8,7 +8,9 @@ namespace wv
 	template< typename T >
 	class Vector2
 	{
+
 	public:
+
 		T x, y;
 
 		Vector2( void ) : x( 0 ), y( 0 ){}
