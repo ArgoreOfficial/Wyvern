@@ -27,7 +27,7 @@ namespace wv
 		void onCreate() override;
 		void onMouseEvent( MouseEvent _event ) override;
 		void onInputEvent( InputEvent _event ) override;
-		void update    ( double _delta_time ) override;
+		void update( double _delta_time ) override;
 	
 		void resetVelocity() { m_velocity = { 0.0f, 0.0f, 0.0f }; }
 

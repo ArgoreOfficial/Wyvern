@@ -22,7 +22,8 @@ $folders = @(
 $embeds = @(
     "game/res/frag.glsl@res/frag.glsl",
     "game/res/vert.glsl@res/vert.glsl",
-    "game/res/psq.wpr@res/psq.wpr"
+    "game/res/psq.wpr@res/psq.wpr",
+    "game/res/jonas.png@res/jonas.png"
 )
 
 $objdir = "build\wasm\"

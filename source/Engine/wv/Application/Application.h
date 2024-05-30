@@ -12,6 +12,7 @@ namespace wv
 	class Primitive;
 	class Pipeline;
 	class ICamera;
+	class Texture;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,15 +50,15 @@ namespace wv
 
 		/// TEMPORARY---
 		Primitive* m_primitive = nullptr;
-		Pipeline* m_pipeline = nullptr;
-		float m_rot = 0.0f;
+		Pipeline*  m_pipeline  = nullptr;
+		Texture*   m_texture   = nullptr;
 		/// ---TEMPORARY
 
 		Context* context       = nullptr;
 		GraphicsDevice* device = nullptr;
 
-		ICamera* currentCamera = nullptr;
-		ICamera* orbitCamera = nullptr;
+		ICamera* currentCamera    = nullptr;
+		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
 
 	private:

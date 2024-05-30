@@ -1,7 +1,11 @@
 #include "GraphicsDevice.h"
 
+#include <wv/Assets/Texture.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <wv/Auxiliary/stb_image.h>
 
 #include <glad/glad.h>
 #include <stdio.h>
@@ -137,6 +141,14 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 		// buffer data
 		glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
 
+		int offset = 0;
+		int stride = 0;
+		for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
+		{
+			InputLayoutElement& element = _desc->layout->elements[ i ];
+			stride += element.size;
+		}
+
 		for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
 		{
 			InputLayoutElement& element = _desc->layout->elements[ i ];
@@ -156,8 +168,10 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 		#endif
 			}
 
-			glVertexAttribPointer( i, element.num, type, element.normalized, element.stride, (void*)0 );
+			glVertexAttribPointer( i, element.num, type, element.normalized, stride, (void*)offset );
 			glEnableVertexAttribArray( i );
+
+			offset += element.size;
 		}
 
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
@@ -167,6 +181,37 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 	}
 
     return primitive;
+}
+
+wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
+{
+	/// TODO: move to asset loading  class thingymabob
+
+	Texture* texture = new Texture();
+
+	glGenTextures( 1, &texture->handle );
+	glBindTexture( GL_TEXTURE_2D, texture->handle );
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+	stbi_set_flip_vertically_on_load( 1 );
+	int width, height, numChannels;
+	unsigned char* data = stbi_load( _desc->filepath, &width, &height, &numChannels, 0 );
+	if ( data )
+	{
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		glGenerateMipmap( GL_TEXTURE_2D );
+	}
+	else
+	{
+		printf( "Failed to load texture\n" );
+	}
+	stbi_image_free( data );
+
+	return texture;
 }
 
 void wv::GraphicsDevice::draw( Primitive* _primitive )

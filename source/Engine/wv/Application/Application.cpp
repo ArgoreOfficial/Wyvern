@@ -3,8 +3,11 @@
 #include <stdio.h>
 
 #include <wv/Device/GraphicsDevice.h>
+#include <glad/glad.h>
 #include <wv/Device/Context.h>
 
+
+#include <wv/Assets/Texture.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
 
@@ -32,9 +35,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
 #else
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
-	ctxDesc.graphicsApiVersion.major = 4;
-	ctxDesc.graphicsApiVersion.minor = 6;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
+	ctxDesc.graphicsApiVersion.major = 3;
+	ctxDesc.graphicsApiVersion.minor = 0;
 #endif
 	context = new wv::Context( &ctxDesc );
 
@@ -82,6 +85,7 @@ void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 	
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
+
 }
 
 // called every time device->draw() is called 
@@ -137,22 +141,35 @@ void wv::Application::run()
 
 
 	{
-		wv::InputLayoutElement layoutPosition{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 };
+		wv::InputLayoutElement elements[] = {
+			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
+			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
+		};
 
 		wv::InputLayout layout;
-		layout.elements = &layoutPosition;
-		layout.numElements = 1;
+		layout.elements = elements;
+		layout.numElements = 2;
 
 		/// TODO: change to proper asset loader
-		std::ifstream in( "res/psq.wpr", std::ios::binary );
-		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
+		// std::ifstream in( "res/psq.wpr", std::ios::binary );
+		// std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
+
+		float vertices[] = {
+			-0.5f, 0.0f, 0.0f,  0.0f, 0.0f, // bottom left
+			 0.0f, 0.8f, 0.0f,  0.5f, 1.0f, // top
+			 0.5f, 0.0f, 0.0f,  1.0f, 0.0f
+		};
 
 		wv::PrimitiveDesc prDesc;
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
-		prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
-		prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
-		prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
+		//prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
+		//prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
+		//prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
+
+		prDesc.vertexBuffer = vertices;
+		prDesc.vertexBufferSize = sizeof( vertices );
+		prDesc.numVertices = 3; /// TODO: don't hardcode
 
 		m_primitive = device->createPrimitive( &prDesc );
 	}
@@ -172,13 +189,16 @@ void wv::Application::run()
 
 	currentCamera = orbitCamera;
 
+	TextureDesc texDesc;
+	texDesc.filepath = "res/jonas.png";
+	m_texture = device->createTexture( &texDesc );
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
 #else
 	while ( context->isAlive() )
 		tick();
 #endif
-
 }
 
 void wv::Application::terminate()
@@ -198,6 +218,8 @@ void wv::Application::tick()
 
 	const float clearColor[ 4 ] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	device->clearRenderTarget( clearColor );
+
+	glBindTexture( GL_TEXTURE_2D, m_texture->handle );
 
 	currentCamera->update( dt );
 

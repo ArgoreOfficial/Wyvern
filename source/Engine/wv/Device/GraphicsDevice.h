@@ -7,10 +7,16 @@ namespace wv
 {
 	struct PipelineDesc;
 	class Pipeline;
+
 	struct PrimitiveDesc;
 	class Primitive;
 	
+	struct TextureDesc;
+	class Texture;
+
 	struct UniformBlockDesc;
+
+
 
 	struct GraphicsDeviceDesc
 	{
@@ -47,11 +53,13 @@ namespace wv
 		void setRenderTarget( DummyRenderTarget* _target );
 		void clearRenderTarget( const float _color[4] );
 
-		wv::Pipeline* createPipeline( PipelineDesc* _desc );
+		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
 		void setActivePipeline( Pipeline* _pipeline );
 
 		Primitive* createPrimitive( PrimitiveDesc* _desc );
+
+		Texture* createTexture( TextureDesc* _desc );
 
 		void draw( Primitive* _primitive );
 

@@ -10,7 +10,7 @@ namespace wv
 		unsigned int num;
 		DataType type;
 		bool normalized;
-		unsigned int stride;
+		unsigned int size;
 	};
 
 	struct InputLayout
