@@ -27,18 +27,18 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
 	wv::Context* ctx = wv::Application::getApplication()->context;
 	
-	if ( (_event.buttondown || _event.buttonup) && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
+	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 	{
-		ctx->setMouseLock( _event.buttondown );
+		m_freecam_enabled = !m_freecam_enabled;
+		ctx->setMouseLock( m_freecam_enabled );
+
 		m_old_mouse_pos = _event.position;
-		m_freecam_enabled = _event.buttondown;
 
 		// reset input
 		m_rotate = { 0.0f, 0.0f };
 		m_move = { 0.0f, 0.0f, 0.0f };
 		m_speed = m_speed_normal;
 
-		return;
 	}
 
 	if ( !m_freecam_enabled )

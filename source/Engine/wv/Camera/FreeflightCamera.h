@@ -29,6 +29,8 @@ namespace wv
 		void onInputEvent( InputEvent _event ) override;
 		void update    ( double _delta_time ) override;
 	
+		void resetVelocity() { m_velocity = { 0.0f, 0.0f, 0.0f }; }
+
 	private:
 
 		wv::Vector3f m_move;
@@ -38,8 +40,8 @@ namespace wv
 		wv::Vector2i m_old_mouse_pos;
 		bool m_freecam_enabled = false;
 
-		float m_speed = 50.0f;
-		float m_speed_normal = 50.0f;
+		float m_speed = 70.0f;
+		float m_speed_normal = 70.0f;
 		
 	};
 

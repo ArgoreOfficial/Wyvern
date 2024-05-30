@@ -48,9 +48,6 @@ wv::Application::Application( ApplicationDesc* _desc )
 	device->setRenderTarget( &target );
 
 	s_instance = this;
-	//currentCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	currentCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	currentCamera->onCreate();
 }
 
 wv::Application* wv::Application::getApplication()
@@ -162,6 +159,19 @@ void wv::Application::run()
 
 	device->setActivePipeline( m_pipeline );
 
+	// Subscribe to mouse event
+	subscribeMouseEvents();
+
+	// cameras have to be made after the event is subscribed to
+	// to get the correct order
+	/// TODO: event priority
+	orbitCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	freeflightCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	orbitCamera->onCreate();
+	freeflightCamera->onCreate();
+
+	currentCamera = orbitCamera;
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
 #else
@@ -208,4 +218,24 @@ void wv::Application::onResize( int _width, int _height )
 	// recreate render target
 	wv::DummyRenderTarget target{ 0, _width, _height }; /// temporary object until actual render targets exist
 	device->setRenderTarget( &target );
+}
+
+void wv::Application::onMouseEvent( MouseEvent _event )
+{
+	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
+		return;
+
+	if ( !_event.buttondown )
+		return;
+
+	if( currentCamera == orbitCamera )
+	{
+		currentCamera = freeflightCamera;
+		freeflightCamera->getTransform().position = orbitCamera->getTransform().position;
+		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
+
+		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
+	}	
+	else
+		currentCamera = orbitCamera;
 }

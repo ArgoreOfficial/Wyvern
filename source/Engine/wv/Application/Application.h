@@ -1,12 +1,19 @@
 #pragma once
 
+#include <wv/Events/IMouseListener.h>
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Context;
 	class GraphicsDevice;
 	class Primitive;
 	class Pipeline;
 	class ICamera;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct ApplicationDesc
 	{
@@ -20,9 +27,13 @@ namespace wv
 		bool showDebugConsole = true;
 	};
 
-	class Application
+///////////////////////////////////////////////////////////////////////////////////////
+
+	class Application : IMouseListener
 	{
+
 	public:
+
 		Application( ApplicationDesc* _desc );
 		static Application* getApplication();
 
@@ -31,6 +42,10 @@ namespace wv
 		void tick();
 
 		void onResize( int _width, int _height );
+
+		void onMouseEvent( MouseEvent _event ) override;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 		/// TEMPORARY---
 		Primitive* m_primitive = nullptr;
@@ -42,6 +57,8 @@ namespace wv
 		GraphicsDevice* device = nullptr;
 
 		ICamera* currentCamera = nullptr;
+		ICamera* orbitCamera = nullptr;
+		ICamera* freeflightCamera = nullptr;
 
 	private:
 
