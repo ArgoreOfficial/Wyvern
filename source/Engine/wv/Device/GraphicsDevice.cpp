@@ -4,6 +4,8 @@
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
 
+#include <wv/RenderTarget/RenderTarget.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 
@@ -37,7 +39,14 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	printf( "  %s\n", glGetString( GL_VERSION ) ); 
 
 	/// TEMPORARY---
-	glEnable( GL_MULTISAMPLE );
+	/// TODO: add to pipeline configuration
+	//glEnable( GL_MULTISAMPLE );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	glEnable( GL_CULL_FACE );
+	glFrontFace( GL_CW );
+	glCullFace( GL_BACK );
 	/// ---TEMPORARY
 }
 
@@ -51,10 +60,62 @@ void wv::GraphicsDevice::onResize( int _width, int _height )
 	// glViewport( 0, 0, _width, _height );
 }
 
-void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
+wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
-	glBindFramebuffer( GL_FRAMEBUFFER, _target->framebuffer ); /// TEMPORARY
-	glViewport( 0, 0, _target->width, _target->height );
+	RenderTarget* target = new RenderTarget();
+
+	glGenFramebuffers( 1, &target->fbHandle );
+	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
+
+	glGenTextures( 1, &target->texHandle );
+	glBindTexture( GL_TEXTURE_2D, target->texHandle );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, _desc->width, _desc->height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 ); // empty texture
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+	glGenRenderbuffers( 1, &target->rbHandle );
+	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
+	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
+	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
+
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target->texHandle, 0 );
+	GLenum drawBuffers[ 1 ] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers( 1, drawBuffers );
+
+	if ( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
+	{
+		printf( "Failed to create RenderTarget\n" );
+
+		destroyRenderTarget( &target );
+		delete target;
+		return nullptr;
+	}
+
+	target->width = _desc->width;
+	target->height = _desc->height;
+
+	return target;
+}
+
+void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
+{
+	RenderTarget* rt = *_renderTarget;
+	glDeleteFramebuffers( 1, &rt->fbHandle );
+	glDeleteRenderbuffers( 1, &rt->rbHandle );
+	glDeleteTextures( 1, &rt->texHandle );
+}
+
+void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
+{
+	unsigned int handle = 0;
+	if ( _target )
+		handle = _target->fbHandle;
+	
+	glBindFramebuffer( GL_FRAMEBUFFER, handle );
+	if( _target )
+		glViewport( 0, 0, _target->width, _target->height );
+	else
+		glViewport( 0, 0, 900, 600 );
 }
 
 void wv::GraphicsDevice::clearRenderTarget( const wv::Color& _color )
@@ -116,8 +177,14 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
-	glUseProgram( _pipeline->program );
-	m_activePipeline = _pipeline;
+	if ( m_activePipeline != _pipeline )
+	{
+		glUseProgram( _pipeline->program );
+		m_activePipeline = _pipeline;
+	}
+
+	if ( m_activePipeline->pipelineCallback )
+		m_activePipeline->pipelineCallback( m_activePipeline->uniformBlocks );
 }
 
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
@@ -238,8 +305,8 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 
 void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
-	glBindTexture( GL_TEXTURE_2D, _texture->handle );
 	glActiveTexture( GL_TEXTURE0 + _slot );
+	glBindTexture( GL_TEXTURE_2D, _texture->handle );
 }
 
 void wv::GraphicsDevice::draw( Primitive* _primitive )

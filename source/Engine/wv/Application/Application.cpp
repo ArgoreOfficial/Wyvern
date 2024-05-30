@@ -10,6 +10,7 @@
 #include <wv/Assets/Texture.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Primitive.h>
+#include <wv/RenderTarget/RenderTarget.h>
 
 #include <math.h>
 #include <fstream>
@@ -47,9 +48,13 @@ wv::Application::Application( ApplicationDesc* _desc )
 
 	device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
 
-	wv::DummyRenderTarget target{ 0, _desc->windowWidth, _desc->windowHeight }; /// temporary object until actual render targets exist
-	device->setRenderTarget( &target );
-
+	m_defaultRenderTarget = new RenderTarget();
+	m_defaultRenderTarget->width = _desc->windowWidth;
+	m_defaultRenderTarget->height = _desc->windowHeight;
+	m_defaultRenderTarget->fbHandle = 0;
+	
+	device->setRenderTarget( m_defaultRenderTarget );
+	
 	s_instance = this;
 }
 
@@ -86,6 +91,8 @@ void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
 
+	// bind texture to slot 0
+	app->device->bindTextureToSlot( app->m_texture, 0 );
 }
 
 // called every time device->draw() is called 
@@ -154,6 +161,51 @@ void wv::Application::run()
 		// std::ifstream in( "res/psq.wpr", std::ios::binary );
 		// std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
+		float skyboxVertices[] = {
+	// positions          
+	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
+	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
+	 1.0f, -1.0f, -1.0f,     0.0f, 0.0f,
+	 1.0f, -1.0f, -1.0f,     0.0f, 0.0f,
+	 1.0f,  1.0f, -1.0f,     0.0f, 1.0f,
+	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
+
+	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
+	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
+	-1.0f,  1.0f, -1.0f,     0.0f, 0.0f,
+	-1.0f,  1.0f, -1.0f,     0.0f, 0.0f,
+	-1.0f,  1.0f,  1.0f,     0.0f, 1.0f,
+	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
+
+	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f,     1.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f,  1.0f, -1.0f,     0.0f, 1.0f,
+	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
+
+	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
+	-1.0f,  1.0f,  1.0f,     1.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f, -1.0f,  1.0f,     0.0f, 1.0f,
+	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
+
+	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
+	 1.0f,  1.0f, -1.0f,     1.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
+	-1.0f,  1.0f,  1.0f,     0.0f, 1.0f,
+	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
+
+	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
+	-1.0f, -1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
+	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
+	-1.0f, -1.0f,  1.0f,     0.0f, 0.0f,
+	 1.0f, -1.0f,  1.0f,	 0.0f, 1.0f,
+		};
+
 		//  position               texcoord
 		float vertices[] = {
 			-0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
@@ -175,22 +227,21 @@ void wv::Application::run()
 			//prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
 			//prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
 
-			prDesc.vertexBuffer = vertices;
-			prDesc.vertexBufferSize = sizeof( vertices );
-			prDesc.numVertices = 4; /// TODO: don't hardcode
+			prDesc.vertexBuffer = skyboxVertices;
+			prDesc.vertexBufferSize = sizeof( skyboxVertices );
+			prDesc.numVertices = 36; /// TODO: don't hardcode
 		
-			prDesc.indexBuffer = indices;
-			prDesc.indexBufferSize = sizeof( indices );
-			prDesc.numIndices = 6;
+			//prDesc.indexBuffer = indices;
+			//prDesc.indexBufferSize = sizeof( indices );
+			//prDesc.numIndices = 6;
 		}
 
 		m_primitive = device->createPrimitive( &prDesc );
 	}
 
-	device->setActivePipeline( m_pipeline );
-
 	// Subscribe to mouse event
 	subscribeMouseEvents();
+	subscribeInputEvent();
 
 	// cameras have to be made after the event is subscribed to
 	// to get the correct order
@@ -203,10 +254,8 @@ void wv::Application::run()
 	currentCamera = orbitCamera;
 
 	TextureDesc texDesc;
-	texDesc.filepath = "res/jonas.png";
+	texDesc.filepath = "res/throbber.gif";
 	m_texture = device->createTexture( &texDesc );
-	texDesc.filepath = "res/jonas2.png";
-	m_texture2 = device->createTexture( &texDesc );
 
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
@@ -231,17 +280,12 @@ void wv::Application::tick()
 
 	double dt = context->getDeltaTime();
 
-	device->clearRenderTarget( wv::Colors::Black );
-
-	device->bindTextureToSlot( m_texture, 0 );
-	device->bindTextureToSlot( m_texture2, 1 );
-
 	currentCamera->update( dt );
-
-	/// TODO: move to GraphicsDevice
-	if ( m_pipeline->pipelineCallback )
-		m_pipeline->pipelineCallback( m_pipeline->uniformBlocks );
-
+	
+	
+	device->setActivePipeline( m_pipeline );
+	device->clearRenderTarget( wv::Colors::Black );
+	
 	device->draw( m_primitive );
 
 	context->swapBuffers();
@@ -253,8 +297,9 @@ void wv::Application::onResize( int _width, int _height )
 	device->onResize( _width, _height );
 
 	// recreate render target
-	wv::DummyRenderTarget target{ 0, _width, _height }; /// temporary object until actual render targets exist
-	device->setRenderTarget( &target );
+	m_defaultRenderTarget->width = _width;
+	m_defaultRenderTarget->height = _height;
+	device->setRenderTarget( m_defaultRenderTarget );
 }
 
 void wv::Application::onMouseEvent( MouseEvent _event )
@@ -272,7 +317,13 @@ void wv::Application::onMouseEvent( MouseEvent _event )
 		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
 
 		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
-	}	
-	else
-		currentCamera = orbitCamera;
+	}
+}
+
+void wv::Application::onInputEvent( InputEvent _event )
+{
+	if ( !_event.repeat )
+		if ( _event.key == GLFW_KEY_F )
+			if ( currentCamera != orbitCamera )
+				currentCamera = orbitCamera; // lol
 }

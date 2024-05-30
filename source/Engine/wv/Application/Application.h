@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Events/IMouseListener.h>
+#include <wv/Events/IInputListener.h>
 
 namespace wv
 {
@@ -13,6 +14,7 @@ namespace wv
 	class Pipeline;
 	class ICamera;
 	class Texture;
+	class RenderTarget;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +32,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Application : IMouseListener
+	class Application : IMouseListener, IInputListener
 	{
 
 	public:
@@ -45,6 +47,7 @@ namespace wv
 		void onResize( int _width, int _height );
 
 		void onMouseEvent( MouseEvent _event ) override;
+		void onInputEvent( InputEvent _event ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +55,6 @@ namespace wv
 		Primitive* m_primitive = nullptr;
 		Pipeline*  m_pipeline  = nullptr;
 		Texture*   m_texture   = nullptr;
-		Texture*   m_texture2  = nullptr;
 		/// ---TEMPORARY
 
 		Context* context       = nullptr;
@@ -61,6 +63,13 @@ namespace wv
 		ICamera* currentCamera    = nullptr;
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
+
+		/*
+		 * Special render target with handle 0
+		 * targetting the default context
+		 * backbuffer.
+		 */
+		RenderTarget* m_defaultRenderTarget = nullptr;
 
 	private:
 

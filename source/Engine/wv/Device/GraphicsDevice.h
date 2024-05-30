@@ -18,23 +18,13 @@ namespace wv
 
 	struct UniformBlockDesc;
 
-
+	struct RenderTargetDesc;
+	class RenderTarget;
 
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
 		GraphicsAPI graphicsApi;
-	};
-
-	/// <summary>
-	/// TEMPORARY
-	/// TODO: ADD RENDER TARGET
-	/// </summary>
-	struct DummyRenderTarget
-	{
-		int framebuffer;
-		int width;
-		int height;
 	};
 
 	class GraphicsDevice /// TODO: make IGraphicsDevice?
@@ -52,7 +42,10 @@ namespace wv
 
 		void onResize( int _width, int _height );
 
-		void setRenderTarget( DummyRenderTarget* _target );
+		RenderTarget* createRenderTarget( RenderTargetDesc* _desc );
+		void destroyRenderTarget( RenderTarget** _renderTarget );
+
+		void setRenderTarget( RenderTarget* _target );
 		void clearRenderTarget( const wv::Color& _color );
 
 		Pipeline* createPipeline( PipelineDesc* _desc );

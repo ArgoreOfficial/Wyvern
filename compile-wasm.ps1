@@ -20,10 +20,10 @@ $folders = @(
 
 # real/path@virtual/path
 $embeds = @(
-    "game/res/frag.glsl@res/frag.glsl",
-    "game/res/vert.glsl@res/vert.glsl",
-    "game/res/psq.wpr@res/psq.wpr",
-    "game/res/jonas.png@res/jonas.png"
+    "res/frag.glsl",
+    "res/vert.glsl",
+    "res/psq.wpr",
+    "res/throbber.gif"
 )
 
 $objdir = "build\wasm\"
@@ -88,7 +88,7 @@ foreach( $folder in $folders )
 $embedfiles = ""
 foreach( $embed in $embeds )
 {
-    $embedfiles += " --preload-file " + $embed
+    $embedfiles += " --preload-file " + "game/" + $embed + "@" + $embed
 }
 
 If(!(test-path -PathType container "game")) { New-Item -ItemType Directory -Path "game" }
