@@ -61,8 +61,7 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
-	/// TODO: onresize
-	// wv::cApplication::getInstance().onResize( _width, _height );
+	wv::Application::getApplication()->onResize( _width, _height );
 }
 
 void glfwErrorCallback(int _err, const char* _msg)
@@ -179,6 +178,8 @@ void wv::Context::swapBuffers()
 
 void wv::Context::onResize( int _width, int _height )
 {
+	m_width  = _width;
+	m_height = _height;
 }
 
 bool wv::Context::isAlive()

@@ -199,3 +199,13 @@ void wv::Application::tick()
 
 	context->swapBuffers();
 }
+
+void wv::Application::onResize( int _width, int _height )
+{
+	context->onResize( _width, _height );
+	device->onResize( _width, _height );
+
+	// recreate render target
+	wv::DummyRenderTarget target{ 0, _width, _height }; /// temporary object until actual render targets exist
+	device->setRenderTarget( &target );
+}

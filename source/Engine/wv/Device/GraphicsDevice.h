@@ -42,6 +42,8 @@ namespace wv
 
 		void terminate();
 
+		void onResize( int _width, int _height );
+
 		void setRenderTarget( DummyRenderTarget* _target );
 		void clearRenderTarget( const float _color[4] );
 

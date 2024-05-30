@@ -30,6 +30,8 @@ namespace wv
 		void terminate();
 		void tick();
 
+		void onResize( int _width, int _height );
+
 		/// TEMPORARY---
 		Primitive* m_primitive = nullptr;
 		Pipeline* m_pipeline = nullptr;

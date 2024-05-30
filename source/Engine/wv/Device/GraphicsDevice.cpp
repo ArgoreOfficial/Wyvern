@@ -42,6 +42,11 @@ void wv::GraphicsDevice::terminate()
 	
 }
 
+void wv::GraphicsDevice::onResize( int _width, int _height )
+{
+	// glViewport( 0, 0, _width, _height );
+}
+
 void wv::GraphicsDevice::setRenderTarget( DummyRenderTarget* _target )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, _target->framebuffer ); /// TEMPORARY
