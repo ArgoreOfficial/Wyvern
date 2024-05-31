@@ -286,6 +286,15 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 	return primitive;
 }
 
+void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
+{
+	Primitive* pr = *_primitive;
+	glDeleteBuffers( 1, &pr->eboHandle );
+	glDeleteBuffers( 1, &pr->vboHandle );
+	delete pr;
+	*_primitive = nullptr;
+}
+
 wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 {
 	Texture* texture = new Texture();
@@ -357,6 +366,13 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		glGenerateMipmap( GL_TEXTURE_2D );
 
 	return texture;
+}
+
+void wv::GraphicsDevice::destroyTexture( Texture** _texture )
+{
+	glDeleteTextures( 1, &( *_texture )->handle );
+	delete *_texture;
+	*_texture = nullptr;
 }
 
 void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )

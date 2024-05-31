@@ -59,9 +59,9 @@ namespace wv
 		/// ---TEMPORARY
 
 		// deferred rendering
-		Primitive* m_screenQuad = nullptr;
-		Pipeline* m_deferredPipeline = nullptr;
-		RenderTarget* m_gbuffer = nullptr;
+		Primitive*    m_screenQuad       = nullptr;
+		Pipeline*     m_deferredPipeline = nullptr;
+		RenderTarget* m_gbuffer          = nullptr;
 
 		// engine
 		Context*        context = nullptr;

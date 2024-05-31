@@ -50,10 +50,14 @@ namespace wv
 
 		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
-		void setActivePipeline( Pipeline* _pipeline );
-
+		
 		Primitive* createPrimitive( PrimitiveDesc* _desc );
+		void destroyPrimitive( Primitive** _primitive );
+
 		Texture* createTexture( TextureDesc* _desc );
+		void destroyTexture( Texture** _texture );
+
+		void setActivePipeline( Pipeline* _pipeline );
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
 		void draw( Primitive* _primitive );

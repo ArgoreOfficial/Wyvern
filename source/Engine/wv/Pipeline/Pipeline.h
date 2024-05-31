@@ -20,8 +20,8 @@ namespace wv
 
 	struct PipelineDesc
 	{
-		PipelineType type;
-		PipelineTopology topology;
+		PipelineType type = WV_PIPELINE_GRAPHICS;
+		PipelineTopology topology = WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		
 		ShaderSource* shaders = nullptr;
 		unsigned int numShaders = 0;

@@ -240,34 +240,59 @@ void wv::Application::run()
 
 void wv::Application::terminate()
 {
+	currentCamera = nullptr;
+	
+	delete orbitCamera;
+	delete freeflightCamera;
+	orbitCamera = nullptr;
+	freeflightCamera = nullptr;
+
+	device->destroyPrimitive( &m_primitive );
+	device->destroyPipeline( &m_pipeline );
+	device->destroyTexture( &m_texture );
+
+	device->destroyPrimitive( &m_screenQuad );
+	device->destroyPipeline( &m_deferredPipeline );
+	device->destroyRenderTarget( &m_gbuffer );
+
 	context->terminate();
 	device->terminate();
 
 	delete context;
 	delete device;
+	delete memoryDevice;
 }
 
 void wv::Application::tick()
 {
-	context->pollEvents();
 	double dt = context->getDeltaTime();
+	
+	/// ------------------ update ------------------ 
+
+	context->pollEvents();
 	
 	std::string fps = std::to_string( ( 1.0 / dt ) );
 	context->setTitle( fps.c_str() );
 
 	currentCamera->update( dt );
 
+	/// ------------------ render ------------------ 
+
 	device->setRenderTarget( m_gbuffer );
 
+	// cube
 	device->setActivePipeline( m_pipeline );
 	device->clearRenderTarget( wv::Colors::White );
 	device->draw( m_primitive );
 	
+	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
 	
+	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
 		device->bindTextureToSlot( m_gbuffer->textures[ i ], i );
 
+	// render screen quad with deferred shader
 	device->setActivePipeline( m_deferredPipeline );
 	device->draw( m_screenQuad );
 

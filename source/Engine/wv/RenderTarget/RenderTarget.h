@@ -12,7 +12,7 @@ namespace wv
 		int height = 0;
 		
 		wv::TextureDesc* textureDescs;
-		int numTextures;
+		int numTextures = 0;
 	};
 
 	class RenderTarget
