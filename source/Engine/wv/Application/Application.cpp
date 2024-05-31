@@ -17,15 +17,9 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
-
-#include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
@@ -61,29 +55,6 @@ wv::Application::Application( ApplicationDesc* _desc )
 	
 	s_instance = this;
 
-
-
-
-
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL( context->m_windowContext, true );
-#ifdef EMSCRIPTEN
-	ImGui_ImplOpenGL3_Init( "#version 100" );
-#else
-	ImGui_ImplOpenGL3_Init( "#version 460" );
-#endif
-
 }
 
 wv::Application* wv::Application::getApplication()
@@ -94,7 +65,6 @@ wv::Application* wv::Application::getApplication()
 #ifdef EMSCRIPTEN
 void emscriptenMainLoop() { wv::Application::getApplication()->tick(); }
 #endif
-
 
 /// TEMPORARY---
 // called the first time device->draw() is called that frame
@@ -133,10 +103,6 @@ void instanceCB( wv::UniformBlockMap& _uniformBlocks )
 	wv::UniformBlock& instanceBlock = _uniformBlocks[ "UbInstanceData" ];
 
 	glm::mat4x4 model{ 1.0f };
-	float t0 = sin( app->m_throb )        * 0.2f + 1.0f;
-	float t1 = sin( app->m_throb + 1.3f ) * 0.2f + 1.0f;
-	float t2 = sin( app->m_throb + 0.3f ) * 0.2f + 1.0f;
-	model = glm::scale( model, { t0,t1,t2 } );
 	instanceBlock.set( "u_Model", model );
 }
 /// ---TEMPORARY
@@ -212,21 +178,17 @@ void wv::Application::run()
 		std::ifstream in( "res/cube.wpr", std::ios::binary );
 		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
-		int numIndices = *reinterpret_cast<int*>( buf.data() );
-		int numVertices = *reinterpret_cast<int*>( buf.data() + sizeof( int ) );
-		int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
-		int indsSize = numIndices * sizeof( unsigned int );
-
-		char* indexBuffer = buf.data() + ( sizeof( int ) * 2 );
-		char* vertexBuffer = indexBuffer + indsSize;
-
-		printf( "numVertices :%i\n", numVertices );
-		printf( "numIndices  :%i\n", numIndices );
-		printf( "vertsSize   :%i\n", vertsSize );
-		printf( "indsSize    :%i\n", indsSize );
 
 		wv::PrimitiveDesc prDesc;
 		{
+			int numIndices  = *reinterpret_cast<int*>( buf.data() );
+			int numVertices = *reinterpret_cast<int*>( buf.data() + sizeof( int ) );
+			int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
+			int indsSize  = numIndices * sizeof( unsigned int );
+
+			char* indexBuffer  = buf.data() + ( sizeof( int ) * 2 );
+			char* vertexBuffer = indexBuffer + indsSize;
+
 			prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 			prDesc.layout = &layout;
 
@@ -279,40 +241,15 @@ void wv::Application::terminate()
 
 void wv::Application::tick()
 {
-	///imgui
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-	const ImGuiIO& io = ImGui::GetIO();
-	IMouseListener::setEnabled( !io.WantCaptureMouse || !ImGui::IsWindowFocused( ImGuiFocusedFlags_AnyWindow ) );
-	///
-	
-
-	
 	context->pollEvents();
 	double dt = context->getDeltaTime();
-	m_throb += dt * m_throb_magnitude * m_throb_magnitude;
-
+	
 	currentCamera->update( dt );
 
 	device->setActivePipeline( m_pipeline );
 	device->clearRenderTarget( wv::Colors::White );
 	
 	device->draw( m_primitive );
-
-
-	
-	///imgui
-	ImGui::SetNextWindowSize( { 250,250 } );
-	if ( ImGui::Begin( "Good Morning!", 0, ImGuiWindowFlags_NoResize ) )
-	{
-		ImGui::SliderFloat( "throbber", &m_throb_magnitude, 0.0f, 3.0f );
-	}
-	ImGui::End();
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-	///
 
 	context->swapBuffers();
 }

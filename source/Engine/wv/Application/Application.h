@@ -55,8 +55,6 @@ namespace wv
 		Primitive* m_primitive = nullptr; // cube
 		Pipeline*  m_pipeline  = nullptr; // cube shader
 		Texture*   m_texture   = nullptr; // cube texture
-		float m_throb_magnitude = 0.0f;
-		float m_throb = 0.0f;
 		/// ---TEMPORARY
 
 		// deferred rendering

@@ -11,20 +11,20 @@ $includes = @(
     "source\Engine",
     "libs\glad\include\",
     "libs\glm\",
-    "libs\imgui"
+    # "libs\imgui"
 )
 
 $folders = @(
     "source",
     "libs\glad\src",
-    "libs\imgui"
+    # "libs\imgui"
 )
 
 # real/path@virtual/path
 $embeds = @(
     "res/frag.glsl",
     "res/vert.glsl",
-    "res/psq.wpr",
+    "res/cube.wpr",
     "res/throbber.gif"
 )
 
