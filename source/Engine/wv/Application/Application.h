@@ -55,6 +55,8 @@ namespace wv
 		Primitive* m_primitive = nullptr;
 		Pipeline*  m_pipeline  = nullptr;
 		Texture*   m_texture   = nullptr;
+		float m_throb_magnitude = 0.0f;
+		float m_throb = 0.0f;
 		/// ---TEMPORARY
 
 		Context* context       = nullptr;

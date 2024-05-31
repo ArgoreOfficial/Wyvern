@@ -2,6 +2,9 @@
 
 void wv::IMouseListener::invoke( MouseEvent _event )
 {
+	if ( !m_enabled )
+		return;
+
 	for ( int i = 0; i < m_hooks.size(); i++ )
 		m_hooks[ i ]->onMouseEvent( _event );
 }

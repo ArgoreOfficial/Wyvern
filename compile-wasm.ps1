@@ -10,12 +10,14 @@ $projname = "Wyvern"
 $includes = @(
     "source\Engine",
     "libs\glad\include\",
-    "libs\glm\"
+    "libs\glm\",
+    "libs\imgui"
 )
 
 $folders = @(
     "source",
-    "libs\glad\src"
+    "libs\glad\src",
+    "libs\imgui"
 )
 
 # real/path@virtual/path

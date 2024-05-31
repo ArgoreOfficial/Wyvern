@@ -23,6 +23,7 @@ namespace wv
 
 	public:
 		static void invoke( InputEvent _event );
+		static void setEnabled( bool _enabled ) { m_enabled = _enabled; }
 
 	protected:
 
@@ -32,8 +33,8 @@ namespace wv
 
 	private:
 
-		inline static std::vector<IInputListener*> m_hooks;
-
+		static inline std::vector<IInputListener*> m_hooks;
+		static inline bool m_enabled = true;
 	};
 }
 

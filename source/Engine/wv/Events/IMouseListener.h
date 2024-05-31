@@ -36,6 +36,7 @@ namespace wv
 	public:
 
 		static void invoke( MouseEvent _event );
+		static void setEnabled( bool _enabled ) { m_enabled = _enabled; }
 
 	protected:
 
@@ -46,6 +47,6 @@ namespace wv
 	private:
 
 		inline static std::vector<IMouseListener*> m_hooks;
-
+		inline static bool m_enabled = true;
 	};
 }
