@@ -22,16 +22,15 @@ namespace wv
 	{
 		PipelineType type;
 		PipelineTopology topology;
-		int layout;
+		
+		ShaderSource* shaders = nullptr;
+		unsigned int numShaders = 0;
 
-		ShaderSource* shaders;
-		unsigned int numShaders;
+		UniformBlockDesc* uniformBlocks = nullptr;
+		unsigned int numUniformBlocks = 0;
 
-		UniformBlockDesc* uniformBlocks;
-		unsigned int numUniformBlocks;
-
-		PipelineUniformCallback pipelineCallback;
-		PipelineUniformCallback instanceCallback;
+		PipelineUniformCallback pipelineCallback = nullptr;
+		PipelineUniformCallback instanceCallback = nullptr;
 	};
 
 

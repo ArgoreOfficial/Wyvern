@@ -1,14 +1,18 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Assets/Texture.h>
 
 namespace wv
 {
+	
 	struct RenderTargetDesc
 	{
 		int width = 0;
 		int height = 0;
-		// format
+		
+		wv::TextureDesc* textureDescs;
+		int numTextures;
 	};
 
 	class RenderTarget
@@ -18,8 +22,9 @@ namespace wv
 		wv::Handle rbHandle = 0;
 
 		/// TODOM: support multiple textures?
-		wv::Handle texHandle = 0;
-		
+		wv::Texture** textures = 0;
+		int numTextures;
+
 		int width = 0;
 		int height = 0;
 	};

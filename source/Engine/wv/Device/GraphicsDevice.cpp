@@ -57,7 +57,7 @@ void wv::GraphicsDevice::terminate()
 
 void wv::GraphicsDevice::onResize( int _width, int _height )
 {
-	// glViewport( 0, 0, _width, _height );
+	
 }
 
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
@@ -67,24 +67,46 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	glGenFramebuffers( 1, &target->fbHandle );
 	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
 
-	glGenTextures( 1, &target->texHandle );
-	glBindTexture( GL_TEXTURE_2D, target->texHandle );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, _desc->width, _desc->height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 ); // empty texture
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	target->numTextures = _desc->numTextures;
+	GLenum* drawBuffers = new GLenum[ _desc->numTextures ];
+	target->textures = new Texture*[ _desc->numTextures ];
+	for ( int i = 0; i < _desc->numTextures; i++ )
+	{
+		target->textures[ i ] = temporaryCreateTexture( &_desc->textureDescs[i], _desc->width, _desc->height );
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->handle, 0);
+	
+		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
+	}
 
 	glGenRenderbuffers( 1, &target->rbHandle );
 	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
 	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
 	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
 
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target->texHandle, 0 );
-	GLenum drawBuffers[ 1 ] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers( 1, drawBuffers );
+	glDrawBuffers( _desc->numTextures, drawBuffers );
+	delete[] drawBuffers;
 
-	if ( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
+	int errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
+
+		const char* err = "";
+		switch ( errcode )
+		{
+		case GL_FRAMEBUFFER_UNDEFINED:                     err = "GL_FRAMEBUFFER_UNDEFINED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         err = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: err = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"; break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:                   err = "GL_FRAMEBUFFER_UNSUPPORTED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        err = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      err = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"; break;
+		case GL_INVALID_ENUM:                              err = "GL_INVALID_ENUM "; break;
+		case GL_INVALID_OPERATION:                         err = "GL_INVALID_OPERATION "; break;
+		}
+
 		printf( "Failed to create RenderTarget\n" );
+		printf( "  %s\n", err );
 
 		destroyRenderTarget( &target );
 		delete target;
@@ -94,6 +116,10 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	target->width = _desc->width;
 	target->height = _desc->height;
 
+	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
 	return target;
 }
 
@@ -102,7 +128,8 @@ void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 	RenderTarget* rt = *_renderTarget;
 	glDeleteFramebuffers( 1, &rt->fbHandle );
 	glDeleteRenderbuffers( 1, &rt->rbHandle );
-	glDeleteTextures( 1, &rt->texHandle );
+	/// TODO: delete textures
+	// glDeleteTextures( 1, &rt->texHandle );
 }
 
 void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
@@ -299,6 +326,63 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		printf( "Failed to load texture\n" );
 	}
 	stbi_image_free( data );
+
+	return texture;
+}
+
+wv::Texture* wv::GraphicsDevice::temporaryCreateTexture( TextureDesc* _desc, int _width, int _height )
+{
+
+	Texture* texture = new Texture();
+
+	GLenum internalFormat = GL_RED;
+	GLenum format = GL_RED;
+	
+	switch ( _desc->channels )
+	{
+	case wv::WV_TEXTURE_CHANNELS_R:
+		format = GL_RED;
+		switch ( _desc->format )
+		{
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RED;   break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_R32F; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_R32I; break;
+		}
+		break;
+	case wv::WV_TEXTURE_CHANNELS_RG:
+		format = GL_RG;
+		switch ( _desc->format )
+		{
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG;   break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RG32F; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RG32I; break;
+		}
+		break;
+	case wv::WV_TEXTURE_CHANNELS_RGB:
+		format = GL_RGB;
+		switch ( _desc->format )
+		{
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB;   break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; break;
+		}
+		break;
+	case wv::WV_TEXTURE_CHANNELS_RGBA:
+		format = GL_RGBA;
+		switch ( _desc->format )
+		{
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA;   break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; break;
+		}
+		break;
+	}
+
+	glGenTextures( 1, &texture->handle );
+	glBindTexture( GL_TEXTURE_2D, texture->handle );
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, format, GL_UNSIGNED_BYTE, 0 ); // empty texture
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
 	return texture;
 }

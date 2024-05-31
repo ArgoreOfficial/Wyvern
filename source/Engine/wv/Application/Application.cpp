@@ -51,10 +51,13 @@ wv::Application::Application( ApplicationDesc* _desc )
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
 	
-	device->setRenderTarget( m_defaultRenderTarget );
-	
 	s_instance = this;
 
+	createDeferredPipeline();
+	createScreeQuad();
+	createGBuffer();
+
+	device->setRenderTarget( m_defaultRenderTarget );
 }
 
 wv::Application* wv::Application::getApplication()
@@ -137,7 +140,6 @@ void wv::Application::run()
 		wv::PipelineDesc pipelineDesc;
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
-		pipelineDesc.layout; /// TODO: fix
 		pipelineDesc.shaders = shaders;
 		pipelineDesc.uniformBlocks = uniformBlocks;
 		pipelineDesc.numUniformBlocks = 2;
@@ -159,6 +161,7 @@ void wv::Application::run()
 		layout.elements = elements;
 		layout.numElements = 2;
 
+		// custom mesh export
 		/*
 		// data
 		int pnumIndices = 0;
@@ -177,7 +180,6 @@ void wv::Application::run()
 		/// TODO: change to proper asset loader
 		std::ifstream in( "res/cube.wpr", std::ios::binary );
 		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
-
 
 		wv::PrimitiveDesc prDesc;
 		{
@@ -246,10 +248,19 @@ void wv::Application::tick()
 	
 	currentCamera->update( dt );
 
+	device->setRenderTarget( m_gbuffer );
+
 	device->setActivePipeline( m_pipeline );
 	device->clearRenderTarget( wv::Colors::White );
-	
 	device->draw( m_primitive );
+	
+	device->setRenderTarget( m_defaultRenderTarget );
+	
+	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
+		device->bindTextureToSlot( m_gbuffer->textures[ i ], i );
+
+	device->setActivePipeline( m_deferredPipeline );
+	device->draw( m_screenQuad );
 
 	context->swapBuffers();
 }
@@ -289,4 +300,75 @@ void wv::Application::onInputEvent( InputEvent _event )
 		if ( _event.key == GLFW_KEY_F )
 			if ( currentCamera != orbitCamera )
 				currentCamera = orbitCamera; // lol
+}
+
+void wv::Application::createDeferredPipeline()
+{
+	wv::ShaderSource shaders[] = {
+		{ wv::WV_SHADER_TYPE_VERTEX,   "res/deferred_vs.glsl" },
+		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/deferred_fs.glsl" }
+	};
+
+	wv::PipelineDesc pipelineDesc;
+	pipelineDesc.type     = wv::WV_PIPELINE_GRAPHICS;
+	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
+	pipelineDesc.shaders    = shaders;
+	pipelineDesc.numShaders = 2;
+	
+	m_deferredPipeline = device->createPipeline( &pipelineDesc );
+}
+
+void wv::Application::createScreeQuad()
+{
+	wv::InputLayoutElement elements[] = {
+		{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
+		{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
+	};
+
+	wv::InputLayout layout;
+	layout.elements = elements;
+	layout.numElements = 2;
+
+	float vertices[] = { 
+		-1.0f, -1.0f, 0.5f,       0.0f, 0.0f,
+		-1.0f,  3.0f, 0.5f,       0.0f, 2.0f,
+		 3.0f, -1.0f, 0.5f,       2.0f, 0.0f
+	};
+
+	wv::PrimitiveDesc prDesc;
+	{
+		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
+		prDesc.layout = &layout;
+
+		prDesc.vertexBuffer     = vertices;
+		prDesc.vertexBufferSize = sizeof( vertices );
+		prDesc.numVertices      = 3;
+	}
+
+	m_screenQuad = device->createPrimitive( &prDesc );
+}
+
+void wv::Application::createGBuffer()
+{
+	RenderTargetDesc rtDesc;
+	rtDesc.width = context->getWidth();
+	rtDesc.height = context->getHeight();
+
+	/*
+	struct TextureDesc
+	{
+		const char* filepath;
+		TextureChannels channels;
+		TextureFormat format;
+	};
+	*/
+
+	TextureDesc texDescs[] = {
+		{ "", wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
+		{ "", wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE }
+	};
+	rtDesc.textureDescs = texDescs;
+	rtDesc.numTextures = 2;
+
+	m_gbuffer = device->createRenderTarget( &rtDesc );
 }

@@ -59,13 +59,12 @@ namespace wv
 
 		// deferred rendering
 		Primitive* m_screenQuad = nullptr;
-
 		Pipeline* m_deferredPipeline = nullptr;
 		RenderTarget* m_gbuffer = nullptr;
 
 		// engine
-		Context* context       = nullptr;
-		GraphicsDevice* device = nullptr;
+		Context*        context = nullptr;
+		GraphicsDevice* device  = nullptr;
 
 		// camera 
 		/// TODOM: move?
@@ -81,6 +80,10 @@ namespace wv
 		RenderTarget* m_defaultRenderTarget = nullptr;
 
 	private:
+
+		void createDeferredPipeline();
+		void createScreeQuad();
+		void createGBuffer();
 
 		/*
 		 * technically not a singleton but getting a reference 
