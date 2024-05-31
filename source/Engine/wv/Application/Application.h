@@ -52,16 +52,25 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		/// TEMPORARY---
-		Primitive* m_primitive = nullptr;
-		Pipeline*  m_pipeline  = nullptr;
-		Texture*   m_texture   = nullptr;
+		Primitive* m_primitive = nullptr; // cube
+		Pipeline*  m_pipeline  = nullptr; // cube shader
+		Texture*   m_texture   = nullptr; // cube texture
 		float m_throb_magnitude = 0.0f;
 		float m_throb = 0.0f;
 		/// ---TEMPORARY
 
+		// deferred rendering
+		Primitive* m_screenQuad = nullptr;
+
+		Pipeline* m_deferredPipeline = nullptr;
+		RenderTarget* m_gbuffer = nullptr;
+
+		// engine
 		Context* context       = nullptr;
 		GraphicsDevice* device = nullptr;
 
+		// camera 
+		/// TODOM: move?
 		ICamera* currentCamera    = nullptr;
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;

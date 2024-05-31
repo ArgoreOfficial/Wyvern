@@ -193,83 +193,50 @@ void wv::Application::run()
 		layout.elements = elements;
 		layout.numElements = 2;
 
+		/*
+		// data
+		int pnumIndices = 0;
+		int pnumVertices = 36;
+
+		std::ofstream cubefile( "res/cube.wpr" );
+		// header
+		cubefile.write( (char*)&pnumIndices, sizeof( int ) );
+		cubefile.write( (char*)&pnumVertices, sizeof( int ) );
+		// data
+		cubefile.write( (char*)indices, sizeof( indices ) );
+		cubefile.write( (char*)skyboxVertices, sizeof( skyboxVertices ) );
+		cubefile.close();
+		*/
+		
 		/// TODO: change to proper asset loader
-		// std::ifstream in( "res/psq.wpr", std::ios::binary );
-		// std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
+		std::ifstream in( "res/cube.wpr", std::ios::binary );
+		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
-		float skyboxVertices[] = {
-	// positions          
-	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
-	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
-	 1.0f, -1.0f, -1.0f,     0.0f, 0.0f,
-	 1.0f, -1.0f, -1.0f,     0.0f, 0.0f,
-	 1.0f,  1.0f, -1.0f,     0.0f, 1.0f,
-	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
+		int numIndices = *reinterpret_cast<int*>( buf.data() );
+		int numVertices = *reinterpret_cast<int*>( buf.data() + sizeof( int ) );
+		int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
+		int indsSize = numIndices * sizeof( unsigned int );
 
-	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
-	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
-	-1.0f,  1.0f, -1.0f,     0.0f, 0.0f,
-	-1.0f,  1.0f, -1.0f,     0.0f, 0.0f,
-	-1.0f,  1.0f,  1.0f,     0.0f, 1.0f,
-	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
+		char* indexBuffer = buf.data() + ( sizeof( int ) * 2 );
+		char* vertexBuffer = indexBuffer + indsSize;
 
-	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
-	 1.0f, -1.0f,  1.0f,     1.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f,  1.0f, -1.0f,     0.0f, 1.0f,
-	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
-
-	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
-	-1.0f,  1.0f,  1.0f,     1.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f, -1.0f,  1.0f,     0.0f, 1.0f,
-	-1.0f, -1.0f,  1.0f,     1.0f, 1.0f,
-
-	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
-	 1.0f,  1.0f, -1.0f,     1.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f,  1.0f,  1.0f,     0.0f, 0.0f,
-	-1.0f,  1.0f,  1.0f,     0.0f, 1.0f,
-	-1.0f,  1.0f, -1.0f,     1.0f, 1.0f,
-
-	-1.0f, -1.0f, -1.0f,     1.0f, 0.0f,
-	-1.0f, -1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
-	 1.0f, -1.0f, -1.0f,     1.0f, 1.0f,
-	-1.0f, -1.0f,  1.0f,     0.0f, 0.0f,
-	 1.0f, -1.0f,  1.0f,	 0.0f, 1.0f,
-		};
-
-		//  position               texcoord
-		float vertices[] = {
-			-0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
-			-0.5f,  0.5f, 0.0f,    0.0f, 1.0f, 
-			 0.5f,  0.5f, 0.0f,    1.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f,    1.0f, 0.0f
-		};
-
-		unsigned int indices[] = {
-			0,1,2,
-			0,2,3
-		};
+		printf( "numVertices :%i\n", numVertices );
+		printf( "numIndices  :%i\n", numIndices );
+		printf( "vertsSize   :%i\n", vertsSize );
+		printf( "indsSize    :%i\n", indsSize );
 
 		wv::PrimitiveDesc prDesc;
 		{
 			prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 			prDesc.layout = &layout;
-			//prDesc.vertexBuffer = reinterpret_cast<void*>( buf.data() );
-			//prDesc.vertexBufferSize = static_cast<unsigned int>( buf.size() );
-			//prDesc.numVertices = 3 * 16; /// TODO: don't hardcode
 
-			prDesc.vertexBuffer = skyboxVertices;
-			prDesc.vertexBufferSize = sizeof( skyboxVertices );
-			prDesc.numVertices = 36; /// TODO: don't hardcode
-		
-			//prDesc.indexBuffer = indices;
-			//prDesc.indexBufferSize = sizeof( indices );
-			//prDesc.numIndices = 6;
+			prDesc.vertexBuffer = vertexBuffer;
+			prDesc.vertexBufferSize = vertsSize;
+			prDesc.numVertices = numVertices; /// TODO: don't hardcode
+
+			prDesc.indexBuffer = 0;
+			prDesc.indexBufferSize = 0;
+			prDesc.numIndices = 0;
 		}
 
 		m_primitive = device->createPrimitive( &prDesc );
