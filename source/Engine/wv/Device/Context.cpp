@@ -157,7 +157,7 @@ wv::Context::Context( ContextDesc* _desc ):
 	}
 	glfwMakeContextCurrent( m_windowContext );
 
-	glfwSwapInterval( 1 );
+	glfwSwapInterval( 0 );
 
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 }
@@ -226,4 +226,9 @@ float wv::Context::getAspect()
 void wv::Context::setMouseLock( bool _lock )
 {
 	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
+}
+
+void wv::Context::setTitle( const char* _title )
+{
+	glfwSetWindowTitle( m_windowContext, _title );
 }

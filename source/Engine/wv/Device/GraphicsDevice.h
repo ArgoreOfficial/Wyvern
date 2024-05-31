@@ -54,7 +54,6 @@ namespace wv
 
 		Primitive* createPrimitive( PrimitiveDesc* _desc );
 		Texture* createTexture( TextureDesc* _desc );
-		Texture* temporaryCreateTexture( TextureDesc* _desc, int _width, int _height);
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
 		void draw( Primitive* _primitive );

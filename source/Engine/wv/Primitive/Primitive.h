@@ -34,7 +34,7 @@ namespace wv
 
 	struct PrimitiveDesc
 	{
-		PrimitiveBufferMode type;
+		PrimitiveBufferMode type = WV_PRIMITIVE_TYPE_STATIC;
 		InputLayout* layout = nullptr;
 
 		void* vertexBuffer = nullptr;
@@ -51,8 +51,8 @@ namespace wv
 	public:
 		wv::Handle vboHandle = 0;
 		wv::Handle eboHandle = 0;
-		PrimitiveBufferMode mode;
-		PrimitiveDrawType drawType;
+		PrimitiveBufferMode mode = WV_PRIMITIVE_TYPE_STATIC;
+		PrimitiveDrawType drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
 		uint32_t numVertices = 0;
 		uint32_t numIndices = 0;
 	};

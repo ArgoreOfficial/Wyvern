@@ -23,7 +23,7 @@ namespace wv
 
 		/// TODOM: support multiple textures?
 		wv::Texture** textures = 0;
-		int numTextures;
+		int numTextures = 0;
 
 		int width = 0;
 		int height = 0;

@@ -21,6 +21,8 @@
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
 
+#include <wv/Memory/MemoryDevice.h>
+
 wv::Application::Application( ApplicationDesc* _desc )
 {
 	wv::ContextDesc ctxDesc;
@@ -58,6 +60,8 @@ wv::Application::Application( ApplicationDesc* _desc )
 	createGBuffer();
 
 	device->setRenderTarget( m_defaultRenderTarget );
+
+	memoryDevice = new MemoryDevice();
 }
 
 wv::Application* wv::Application::getApplication()
@@ -220,9 +224,11 @@ void wv::Application::run()
 
 	currentCamera = orbitCamera;
 
+	TextureMemory texMem = memoryDevice->loadTextureData( "res/throbber.gif" );
 	TextureDesc texDesc;
-	texDesc.filepath = "res/throbber.gif";
+	texDesc.memory = &texMem;
 	m_texture = device->createTexture( &texDesc );
+	memoryDevice->unloadTextureData( &texMem );
 
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
@@ -246,6 +252,9 @@ void wv::Application::tick()
 	context->pollEvents();
 	double dt = context->getDeltaTime();
 	
+	std::string fps = std::to_string( ( 1.0 / dt ) );
+	context->setTitle( fps.c_str() );
+
 	currentCamera->update( dt );
 
 	device->setRenderTarget( m_gbuffer );
@@ -354,18 +363,9 @@ void wv::Application::createGBuffer()
 	rtDesc.width = context->getWidth();
 	rtDesc.height = context->getHeight();
 
-	/*
-	struct TextureDesc
-	{
-		const char* filepath;
-		TextureChannels channels;
-		TextureFormat format;
-	};
-	*/
-
 	TextureDesc texDescs[] = {
-		{ "", wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
-		{ "", wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE }
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE }
 	};
 	rtDesc.textureDescs = texDescs;
 	rtDesc.numTextures = 2;

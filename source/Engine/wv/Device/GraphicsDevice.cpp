@@ -6,9 +6,6 @@
 
 #include <wv/RenderTarget/RenderTarget.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <wv/Auxiliary/stb_image.h>
-
 #include <glad/glad.h>
 #include <stdio.h>
 
@@ -16,6 +13,8 @@
 #include <fstream>
 
 #include <vector>
+
+#include <wv/Memory/MemoryDevice.h>
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
@@ -29,14 +28,14 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
 	}
 
-	if( !initRes )
+	if ( !initRes )
 	{
 		fprintf( stderr, "Failed to initialize Graphics Device\n" );
 		return;
 	}
-	
+
 	printf( "Intialized Graphics Device\n" );
-	printf( "  %s\n", glGetString( GL_VERSION ) ); 
+	printf( "  %s\n", glGetString( GL_VERSION ) );
 
 	/// TEMPORARY---
 	/// TODO: add to pipeline configuration
@@ -52,12 +51,12 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 void wv::GraphicsDevice::terminate()
 {
-	
+
 }
 
 void wv::GraphicsDevice::onResize( int _width, int _height )
 {
-	
+
 }
 
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
@@ -69,12 +68,15 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 
 	target->numTextures = _desc->numTextures;
 	GLenum* drawBuffers = new GLenum[ _desc->numTextures ];
-	target->textures = new Texture*[ _desc->numTextures ];
+	target->textures = new Texture * [ _desc->numTextures ];
 	for ( int i = 0; i < _desc->numTextures; i++ )
 	{
-		target->textures[ i ] = temporaryCreateTexture( &_desc->textureDescs[i], _desc->width, _desc->height );
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->handle, 0);
-	
+		_desc->textureDescs[ i ].width = _desc->width;
+		_desc->textureDescs[ i ].height = _desc->height;
+
+		target->textures[ i ] = createTexture( &_desc->textureDescs[ i ] );
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->handle, 0 );
+
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
@@ -89,24 +91,7 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	int errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
-
-		const char* err = "";
-		switch ( errcode )
-		{
-		case GL_FRAMEBUFFER_UNDEFINED:                     err = "GL_FRAMEBUFFER_UNDEFINED"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         err = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: err = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"; break;
-		case GL_FRAMEBUFFER_UNSUPPORTED:                   err = "GL_FRAMEBUFFER_UNSUPPORTED"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        err = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"; break;
-		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      err = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"; break;
-		case GL_INVALID_ENUM:                              err = "GL_INVALID_ENUM "; break;
-		case GL_INVALID_OPERATION:                         err = "GL_INVALID_OPERATION "; break;
-		}
-
 		printf( "Failed to create RenderTarget\n" );
-		printf( "  %s\n", err );
 
 		destroyRenderTarget( &target );
 		delete target;
@@ -126,10 +111,12 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
 	RenderTarget* rt = *_renderTarget;
+
 	glDeleteFramebuffers( 1, &rt->fbHandle );
 	glDeleteRenderbuffers( 1, &rt->rbHandle );
-	/// TODO: delete textures
-	// glDeleteTextures( 1, &rt->texHandle );
+
+	for ( int i = 0; i < rt->numTextures; i++ )
+		glDeleteTextures( 1, &rt->textures[ i ]->handle );
 }
 
 void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
@@ -137,9 +124,9 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 	unsigned int handle = 0;
 	if ( _target )
 		handle = _target->fbHandle;
-	
+
 	glBindFramebuffer( GL_FRAMEBUFFER, handle );
-	if( _target )
+	if ( _target )
 		glViewport( 0, 0, _target->width, _target->height );
 	else
 		glViewport( 0, 0, 900, 600 );
@@ -157,7 +144,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 	switch ( _desc->type )
 	{
-	case WV_PIPELINE_GRAPHICS: 
+	case WV_PIPELINE_GRAPHICS:
 	{
 		std::vector<wv::Handle> shaders;
 
@@ -165,7 +152,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
 		{
 			wv::Handle shader = createShader( &_desc->shaders[ i ] );
-			if( shader != 0 )
+			if ( shader != 0 )
 				shaders.push_back( shader );
 		}
 
@@ -184,7 +171,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
-		
+
 		pipeline->instanceCallback = _desc->instanceCallback;
 		pipeline->pipelineCallback = _desc->pipelineCallback;
 
@@ -198,7 +185,7 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 {
 	glDeleteProgram( ( *_pipeline )->program );
 
-	delete *_pipeline;
+	delete* _pipeline;
 	*_pipeline = nullptr;
 }
 
@@ -279,12 +266,12 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 			case WV_INT:            type = GL_INT; break;
 			case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT; break;
 			case WV_FLOAT:          type = GL_FLOAT; break;
-		#ifndef EMSCRIPTEN
+			#ifndef EMSCRIPTEN
 			case WV_DOUBLE:         type = GL_DOUBLE; break;
-		#endif
+			#endif
 			}
 
-			glVertexAttribPointer( i, element.num, type, element.normalized, stride, (void*)offset );
+			glVertexAttribPointer( i, element.num, type, element.normalized, stride, reinterpret_cast<void*>( offset ) );
 			glEnableVertexAttribArray( i );
 
 			offset += element.size;
@@ -296,48 +283,25 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 		primitive->numVertices = _desc->numVertices; /// TODO: allow indices
 	}
 
-    return primitive;
+	return primitive;
 }
 
 wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 {
-	/// TODO: move to asset loading  class thingymabob
-
-	Texture* texture = new Texture();
-
-	glGenTextures( 1, &texture->handle );
-	glBindTexture( GL_TEXTURE_2D, texture->handle );
-
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-	stbi_set_flip_vertically_on_load( 1 );
-	int width, height, numChannels;
-	unsigned char* data = stbi_load( _desc->filepath, &width, &height, &numChannels, 0 );
-	if ( data )
-	{
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		glGenerateMipmap( GL_TEXTURE_2D );
-	}
-	else
-	{
-		printf( "Failed to load texture\n" );
-	}
-	stbi_image_free( data );
-
-	return texture;
-}
-
-wv::Texture* wv::GraphicsDevice::temporaryCreateTexture( TextureDesc* _desc, int _width, int _height )
-{
-
 	Texture* texture = new Texture();
 
 	GLenum internalFormat = GL_RED;
 	GLenum format = GL_RED;
-	
+
+	char* data = nullptr;
+	if ( _desc->memory )
+	{
+		data = _desc->memory->data;
+		_desc->width = _desc->memory->width;
+		_desc->height = _desc->memory->height;
+		_desc->channels = static_cast<wv::TextureChannels>( _desc->memory->numChannels );
+	}
+
 	switch ( _desc->channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:
@@ -380,9 +344,16 @@ wv::Texture* wv::GraphicsDevice::temporaryCreateTexture( TextureDesc* _desc, int
 
 	glGenTextures( 1, &texture->handle );
 	glBindTexture( GL_TEXTURE_2D, texture->handle );
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, format, GL_UNSIGNED_BYTE, 0 ); // empty texture
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, GL_UNSIGNED_BYTE, data );
+
+	glGenerateMipmap( GL_TEXTURE_2D );
 
 	return texture;
 }
@@ -397,7 +368,7 @@ void wv::GraphicsDevice::draw( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->vboHandle );
 
-	if( m_activePipeline->instanceCallback )
+	if ( m_activePipeline->instanceCallback )
 		m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
 
 	for ( auto& block : m_activePipeline->uniformBlocks )
@@ -458,7 +429,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 
 	wv::Handle shader;
 	shader = glCreateShader( type );
-	glShaderSource( shader, 1, &source, NULL);
+	glShaderSource( shader, 1, &source, NULL );
 	glCompileShader( shader );
 
 	glGetShaderiv( shader, GL_COMPILE_STATUS, &success );
@@ -468,7 +439,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 		printf( "Shader compilation failed in '%s'\n %s \n", _desc->filePath, infoLog );
 	}
 
-    return shader;
+	return shader;
 }
 
 wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
@@ -480,8 +451,8 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 	program = glCreateProgram();
 
 	for ( int i = 0; i < _desc->numShaders; i++ )
-		glAttachShader( program, _desc->shaders[i] );
-	
+		glAttachShader( program, _desc->shaders[ i ] );
+
 	glLinkProgram( program );
 
 	glGetProgramiv( program, GL_LINK_STATUS, &success );
@@ -516,7 +487,7 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	std::vector<unsigned int> indices( _desc->numUniforms );
 	std::vector<int> offsets( _desc->numUniforms );
 
-	glGetUniformIndices(   _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
+	glGetUniformIndices( _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
 	glGetActiveUniformsiv( _pipeline->program, _desc->numUniforms, indices.data(), GL_UNIFORM_OFFSET, offsets.data() );
 
 	for ( int o = 0; o < _desc->numUniforms; o++ )

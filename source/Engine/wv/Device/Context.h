@@ -51,6 +51,7 @@ namespace wv
 		float  getAspect();
 
 		void setMouseLock( bool _lock );
+		void setTitle( const char* _title );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

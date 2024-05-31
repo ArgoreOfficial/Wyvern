@@ -15,6 +15,7 @@ namespace wv
 	class ICamera;
 	class Texture;
 	class RenderTarget;
+	class MemoryDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,6 +66,7 @@ namespace wv
 		// engine
 		Context*        context = nullptr;
 		GraphicsDevice* device  = nullptr;
+		MemoryDevice*   memoryDevice = nullptr;
 
 		// camera 
 		/// TODOM: move?

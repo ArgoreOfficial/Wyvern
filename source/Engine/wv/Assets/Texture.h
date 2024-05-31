@@ -4,9 +4,11 @@
 
 namespace wv
 {
+	struct TextureMemory;
+
 	enum TextureChannels
 	{
-		WV_TEXTURE_CHANNELS_R,
+		WV_TEXTURE_CHANNELS_R = 1,
 		WV_TEXTURE_CHANNELS_RG,
 		WV_TEXTURE_CHANNELS_RGB,
 		WV_TEXTURE_CHANNELS_RGBA
@@ -21,9 +23,12 @@ namespace wv
 
 	struct TextureDesc
 	{
-		const char* filepath;
-		TextureChannels channels;
-		TextureFormat format;
+		TextureChannels channels = WV_TEXTURE_CHANNELS_RGB;
+		TextureFormat format = WV_TEXTURE_FORMAT_BYTE;
+		int width = 0;
+		int height = 0;
+		TextureMemory* memory = nullptr;
+		bool generateMipMaps = false;
 	};
 
 	class Texture
