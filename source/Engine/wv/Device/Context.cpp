@@ -162,6 +162,24 @@ wv::Context::Context( ContextDesc* _desc ):
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 }
 
+wv::ContextDesc wv::Context::contextPreset_OpenGL()
+{
+	ContextDesc desc;
+	desc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+	desc.graphicsApiVersion.major = 4;
+	desc.graphicsApiVersion.minor = 6;
+    return desc;
+}
+
+wv::ContextDesc wv::Context::contextPreset_OpenGLES2()
+{
+	ContextDesc desc;
+	desc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
+	desc.graphicsApiVersion.major = 3;
+	desc.graphicsApiVersion.minor = 0;
+	return desc;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Context::terminate()

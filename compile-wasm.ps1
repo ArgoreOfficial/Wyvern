@@ -10,19 +10,21 @@ $projname = "Wyvern"
 $includes = @(
     "source\Engine",
     "libs\glad\include\",
-    "libs\glm\",
+    "libs\glm\"
     # "libs\imgui"
 )
 
 $folders = @(
     "source",
-    "libs\glad\src",
+    "libs\glad\src"
     # "libs\imgui"
 )
 
 # real/path@virtual/path
 $embeds = @(
     "res/frag.glsl",
+    "res/deferred_fs.glsl",
+    "res/deferred_vs.glsl",
     "res/vert.glsl",
     "res/cube.wpr",
     "res/throbber.gif"

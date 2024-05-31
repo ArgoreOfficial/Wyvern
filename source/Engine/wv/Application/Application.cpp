@@ -25,21 +25,15 @@
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
-	wv::ContextDesc ctxDesc;
+#ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
+	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGLES2(); 
+#else
+	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGL();
+#endif
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
 	ctxDesc.height = _desc->windowHeight;
 
-#ifdef EMSCRIPTEN
-	/// force to OpenGL ES 2 3.0
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
-	ctxDesc.graphicsApiVersion.major = 3;
-	ctxDesc.graphicsApiVersion.minor = 0;
-#else
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
-	ctxDesc.graphicsApiVersion.major = 4;
-	ctxDesc.graphicsApiVersion.minor = 6;
-#endif
 	context = new wv::Context( &ctxDesc );
 
 	wv::GraphicsDeviceDesc deviceDesc;
@@ -229,7 +223,7 @@ void wv::Application::run()
 	texDesc.memory = &texMem;
 	m_texture = device->createTexture( &texDesc );
 	memoryDevice->unloadTextureData( &texMem );
-
+	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
 #else
@@ -271,7 +265,7 @@ void wv::Application::tick()
 
 	context->pollEvents();
 	
-	std::string fps = std::to_string( ( 1.0 / dt ) );
+	std::string fps = "FPS: " + std::to_string(( 1.0 / dt ));
 	context->setTitle( fps.c_str() );
 
 	currentCamera->update( dt );
@@ -350,6 +344,14 @@ void wv::Application::createDeferredPipeline()
 	pipelineDesc.numShaders = 2;
 	
 	m_deferredPipeline = device->createPipeline( &pipelineDesc );
+
+	unsigned int texALoc = glGetUniformLocation( m_deferredPipeline->program, "u_TextureA" );
+	unsigned int texBLoc = glGetUniformLocation( m_deferredPipeline->program, "u_TextureB" );
+
+	glUseProgram( m_deferredPipeline->program );
+	glUniform1i( texALoc, 0 );
+	glUniform1i( texBLoc, 1 );
+	glUseProgram( 0 );
 }
 
 void wv::Application::createScreeQuad()

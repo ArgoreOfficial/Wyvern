@@ -16,8 +16,8 @@ layout(binding = 0) uniform sampler2D u_Texture;
 
 in vec2 TexCoord;
 
-out vec4 FragColorA;
-out vec4 FragColorB;
+layout(location = 0) out vec4 FragColorA;
+layout(location = 1) out vec4 FragColorB;
 
 void main()
 {

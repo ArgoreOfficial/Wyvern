@@ -33,6 +33,9 @@ namespace wv
 
 		Context( ContextDesc* _desc );
 
+		static ContextDesc contextPreset_OpenGL();
+		static ContextDesc contextPreset_OpenGLES2();
+
 		void terminate();
 
 		GraphicsDriverLoadProc getLoadProc();
