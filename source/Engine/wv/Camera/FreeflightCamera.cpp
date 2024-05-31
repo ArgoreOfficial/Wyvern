@@ -25,7 +25,7 @@ void wv::FreeflightCamera::onCreate()
 
 void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
-	wv::Context* ctx = wv::Application::getApplication()->context;
+	wv::Context* ctx = wv::Application::get()->context;
 	
 	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 	{

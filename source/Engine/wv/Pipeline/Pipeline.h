@@ -29,6 +29,9 @@ namespace wv
 		UniformBlockDesc* uniformBlocks = nullptr;
 		unsigned int numUniformBlocks = 0;
 
+		Uniform* textureUniforms = nullptr;
+		unsigned int numTextureUniforms = 0;
+
 		PipelineUniformCallback pipelineCallback = nullptr;
 		PipelineUniformCallback instanceCallback = nullptr;
 	};

@@ -69,7 +69,7 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
-	wv::Application::getApplication()->onResize( _width, _height );
+	wv::Application::get()->onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +162,8 @@ wv::Context::Context( ContextDesc* _desc ):
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::ContextDesc wv::Context::contextPreset_OpenGL()
 {
 	ContextDesc desc;
@@ -170,6 +172,8 @@ wv::ContextDesc wv::Context::contextPreset_OpenGL()
 	desc.graphicsApiVersion.minor = 6;
     return desc;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ContextDesc wv::Context::contextPreset_OpenGLES2()
 {

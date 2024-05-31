@@ -26,9 +26,9 @@
 wv::Application::Application( ApplicationDesc* _desc )
 {
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
-	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGLES2(); 
-#else
 	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGL();
+#else
+	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGLES2(); 
 #endif
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
@@ -39,6 +39,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	wv::GraphicsDeviceDesc deviceDesc;
 	deviceDesc.loadProc = context->getLoadProc();
 	deviceDesc.graphicsApi = ctxDesc.graphicsApi; // must be same as context
+	deviceDesc.graphicsApiVersion = ctxDesc.graphicsApiVersion; // must be same as context
 
 	device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
 
@@ -58,20 +59,20 @@ wv::Application::Application( ApplicationDesc* _desc )
 	memoryDevice = new MemoryDevice();
 }
 
-wv::Application* wv::Application::getApplication()
+wv::Application* wv::Application::get()
 {
 	return s_instance;
 }
 
 #ifdef EMSCRIPTEN
-void emscriptenMainLoop() { wv::Application::getApplication()->tick(); }
+void emscriptenMainLoop() { wv::Application::get()->tick(); }
 #endif
 
 /// TEMPORARY---
 // called the first time device->draw() is called that frame
 void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 {
-	wv::Application* app = wv::Application::getApplication();
+	wv::Application* app = wv::Application::get();
 	wv::Context* ctx = app->context;
 
 	// material properties
@@ -97,7 +98,7 @@ void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
 // called every time device->draw() is called 
 void instanceCB( wv::UniformBlockMap& _uniformBlocks )
 {
-	wv::Application* app = wv::Application::getApplication();
+	wv::Application* app = wv::Application::get();
 	wv::Context* ctx = app->context;
 
 	// model transform
@@ -194,11 +195,11 @@ void wv::Application::run()
 
 			prDesc.vertexBuffer = vertexBuffer;
 			prDesc.vertexBufferSize = vertsSize;
-			prDesc.numVertices = numVertices; /// TODO: don't hardcode
+			prDesc.numVertices = numVertices;
 
-			prDesc.indexBuffer = 0;
+			prDesc.indexBuffer     = nullptr;
 			prDesc.indexBufferSize = 0;
-			prDesc.numIndices = 0;
+			prDesc.numIndices      = 0;
 		}
 
 		m_primitive = device->createPrimitive( &prDesc );
@@ -261,16 +262,29 @@ void wv::Application::tick()
 {
 	double dt = context->getDeltaTime();
 	
-	/// ------------------ update ------------------ 
+	/// ------------------ update ------------------ ///
 
 	context->pollEvents();
 	
-	std::string fps = "FPS: " + std::to_string(( 1.0 / dt ));
-	context->setTitle( fps.c_str() );
+	float fps = 1.0f / dt;
+	if ( fps > m_maxFps )
+		m_maxFps = fps;
+
+	m_fpsCache[ m_fpsCacheCounter ] = fps;
+	m_fpsCacheCounter++;
+	if ( m_fpsCacheCounter > FPS_CACHE_NUM ) m_fpsCacheCounter = 0;
+
+	float averageFps = 0.0f;
+	for ( int i = 0; i < FPS_CACHE_NUM; i++ )
+		averageFps += m_fpsCache[ i ];
+	averageFps /= (float)FPS_CACHE_NUM;
+
+	std::string title = "FPS: " + std::to_string( fps ) + "   Average: " + std::to_string( averageFps ) + "   MAX: " + std::to_string(m_maxFps);
+	context->setTitle( title.c_str() );
 
 	currentCamera->update( dt );
 
-	/// ------------------ render ------------------ 
+	/// ------------------ render ------------------ ///
 
 	device->setRenderTarget( m_gbuffer );
 
@@ -337,21 +351,20 @@ void wv::Application::createDeferredPipeline()
 		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/deferred_fs.glsl" }
 	};
 
+	wv::Uniform textureUniforms[] = {
+		{ 0, 0, "u_TextureA" },
+		{ 1, 0, "u_TextureB" },
+	};
+
 	wv::PipelineDesc pipelineDesc;
 	pipelineDesc.type     = wv::WV_PIPELINE_GRAPHICS;
 	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 	pipelineDesc.shaders    = shaders;
 	pipelineDesc.numShaders = 2;
-	
+	pipelineDesc.textureUniforms    = textureUniforms;
+	pipelineDesc.numTextureUniforms = 2;
+
 	m_deferredPipeline = device->createPipeline( &pipelineDesc );
-
-	unsigned int texALoc = glGetUniformLocation( m_deferredPipeline->program, "u_TextureA" );
-	unsigned int texBLoc = glGetUniformLocation( m_deferredPipeline->program, "u_TextureB" );
-
-	glUseProgram( m_deferredPipeline->program );
-	glUniform1i( texALoc, 0 );
-	glUniform1i( texBLoc, 1 );
-	glUseProgram( 0 );
 }
 
 void wv::Application::createScreeQuad()

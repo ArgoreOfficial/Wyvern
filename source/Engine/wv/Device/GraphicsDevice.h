@@ -25,6 +25,7 @@ namespace wv
 	{
 		GraphicsDriverLoadProc loadProc;
 		GraphicsAPI graphicsApi;
+		GenericVersion graphicsApiVersion;
 	};
 
 	class GraphicsDevice /// TODO: make IGraphicsDevice?
@@ -71,7 +72,11 @@ namespace wv
 
 		GraphicsDevice( GraphicsDeviceDesc* _desc );
 
+		GraphicsAPI    m_graphicsApi;
+		GenericVersion m_graphicsApiVersion;
+
 		wv::Pipeline* m_activePipeline = nullptr;
 		int m_numTotalUniformBlocks = 0;
+
 	};
 }

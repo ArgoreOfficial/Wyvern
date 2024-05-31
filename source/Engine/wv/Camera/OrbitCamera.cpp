@@ -23,7 +23,7 @@ void wv::OrbitCamera::onCreate()
 
 void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
 {
-	wv::Context* ctx = wv::Application::getApplication()->context;
+	wv::Context* ctx = wv::Application::get()->context;
 	
 	if ( (_event.buttondown || _event.buttonup) && _event.button == MouseEvent::WV_MOUSE_BUTTON_LEFT )
 	{
@@ -48,29 +48,9 @@ void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
 
 void wv::OrbitCamera::onInputEvent( InputEvent _event )
 {
-	return;
 
 	/// scroll?
 
-	int button_delta = _event.buttondown ? 1 : -1;
-
-	if ( !m_input_enabled )
-		return;
-
-	if ( !_event.repeat )
-	{
-		switch ( _event.key )
-		{
-		//case GLFW_KEY_W: m_move.z += -button_delta; break;
-		//case GLFW_KEY_S: m_move.z +=  button_delta; break;
-		//case GLFW_KEY_A: m_move.x += -button_delta; break;
-		//case GLFW_KEY_D: m_move.x +=  button_delta; break;
-		//case GLFW_KEY_E: m_move.y +=  button_delta; break; // up
-		//case GLFW_KEY_Q: m_move.y += -button_delta; break; // down
-		//
-		//case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 200.0f; break;
-		}
-	}
 }
 
 void wv::OrbitCamera::update( double _delta_time )

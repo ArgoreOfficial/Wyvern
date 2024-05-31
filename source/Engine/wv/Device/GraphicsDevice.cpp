@@ -20,6 +20,9 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 
+	m_graphicsApi = _desc->graphicsApi;
+	m_graphicsApiVersion = _desc->graphicsApiVersion;
+
 	int initRes = 0;
 	switch ( _desc->graphicsApi )
 	{
@@ -171,6 +174,17 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
+
+		// required for OpenGL < 4.2
+		// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
+		for ( unsigned int i = 0; i < _desc->numTextureUniforms; i++ )
+		{
+			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->textureUniforms[ i ].name.c_str() );
+			
+			glUseProgram( pipeline->program );
+			glUniform1i( loc, _desc->textureUniforms[ i ].index );
+			glUseProgram( 0 );
+		}
 
 		pipeline->instanceCallback = _desc->instanceCallback;
 		pipeline->pipelineCallback = _desc->pipelineCallback;
@@ -377,8 +391,16 @@ void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 
 void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
-	glActiveTexture( GL_TEXTURE0 + _slot );
-	glBindTexture( GL_TEXTURE_2D, _texture->handle );
+	/// TODO: some cleaner way of checking version/supported features
+	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
+	{
+		glBindTextureUnit( _slot, _texture->handle );
+	}
+	else 
+	{
+		glActiveTexture( GL_TEXTURE0 + _slot );
+		glBindTexture( GL_TEXTURE_2D, _texture->handle );
+	}
 }
 
 void wv::GraphicsDevice::draw( Primitive* _primitive )
@@ -512,7 +534,7 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 		Uniform u;
 		u.index = indices[ o ];
 		u.offset = offsets[ o ];
-		u.name = _desc->uniforms[ o ]; // remove?
+		u.name = _desc->uniforms[ o ];
 
 		block.m_uniforms[ u.name ] = u;
 	}

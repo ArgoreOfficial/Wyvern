@@ -39,7 +39,7 @@ namespace wv
 	public:
 
 		Application( ApplicationDesc* _desc );
-		static Application* getApplication();
+		static Application* get();
 
 		void run();
 		void terminate();
@@ -87,6 +87,11 @@ namespace wv
 		void createScreeQuad();
 		void createGBuffer();
 
+		float m_maxFps = 0.0f;
+		
+	#define FPS_CACHE_NUM 128
+		float m_fpsCache[ FPS_CACHE_NUM ] = { 0.0f };
+		int m_fpsCacheCounter = 0;
 		/*
 		 * technically not a singleton but getting a reference 
 		 * to the application can sometimes be very useful.

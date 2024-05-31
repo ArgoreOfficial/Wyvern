@@ -28,10 +28,14 @@ namespace wv
 		WV_GRAPHICS_API_OPENGL_ES2
 	};
 
-	struct GenericVersion
+	union GenericVersion
 	{
-		int minor;
-		int major;
+		struct
+		{
+			unsigned short minor;
+			unsigned short major;
+		};
+		int i;
 	};
 
 	/// TEMPORARY
