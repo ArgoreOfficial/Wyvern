@@ -352,8 +352,9 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	
 	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, GL_UNSIGNED_BYTE, data );
-
-	glGenerateMipmap( GL_TEXTURE_2D );
+	
+	if( _desc->generateMipMaps )
+		glGenerateMipmap( GL_TEXTURE_2D );
 
 	return texture;
 }
