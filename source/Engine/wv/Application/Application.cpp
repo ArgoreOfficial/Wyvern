@@ -16,12 +16,14 @@
 #include <fstream>
 #include <vector>
 
-#include <glm/glm.hpp>
+#include <wv/Scene/Mesh.h>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
 
 #include <wv/Memory/MemoryDevice.h>
+
+#include <wv/Assets/Materials/UnlitMaterial.h>
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
@@ -57,6 +59,18 @@ wv::Application::Application( ApplicationDesc* _desc )
 	device->setRenderTarget( m_defaultRenderTarget );
 
 	memoryDevice = new MemoryDevice();
+
+	/// TODO: not this
+	UnlitMaterial* mat = new UnlitMaterial();
+	mat->create( device );
+
+	m_mesh = new Mesh( 1, "cube_mesh" );
+	m_mesh->loadFromFile( "res/cube.wpr" );
+	m_mesh->m_material = mat;
+
+	m_skyBox = new Mesh( 1, "cube_mesh" );
+	m_skyBox->loadFromFile( "res/cube.wpr" );
+	m_skyBox->m_material = mat;
 }
 
 wv::Application* wv::Application::get()
@@ -68,143 +82,10 @@ wv::Application* wv::Application::get()
 void emscriptenMainLoop() { wv::Application::get()->tick(); }
 #endif
 
-/// TEMPORARY---
-// called the first time device->draw() is called that frame
-void pipelineCB( wv::UniformBlockMap& _uniformBlocks )
-{
-	wv::Application* app = wv::Application::get();
-	wv::Context* ctx = app->context;
-
-	// material properties
-	wv::UniformBlock& fragBlock = _uniformBlocks[ "UbInput" ];
-	const wv::float3 psqYellow = { 0.9921568627f, 0.8156862745f, 0.03921568627f };
-
-	fragBlock.set<wv::float3>( "u_Color", psqYellow );
-	fragBlock.set<float>( "u_Alpha", 1.0f );
-
-	// camera transorm
-	wv::UniformBlock& block = _uniformBlocks[ "UbInstanceData" ];
-
-	glm::mat4x4 projection = app->currentCamera->getProjectionMatrix();
-	glm::mat4x4 view = app->currentCamera->getViewMatrix();
-	
-	block.set( "u_Projection", projection );
-	block.set( "u_View", view );
-
-	// bind texture to slot 0
-	app->device->bindTextureToSlot( app->m_texture, 0 );
-}
-
-// called every time device->draw() is called 
-void instanceCB( wv::UniformBlockMap& _uniformBlocks )
-{
-	wv::Application* app = wv::Application::get();
-	wv::Context* ctx = app->context;
-
-	// model transform
-	wv::UniformBlock& instanceBlock = _uniformBlocks[ "UbInstanceData" ];
-
-	glm::mat4x4 model{ 1.0f };
-	instanceBlock.set( "u_Model", model );
-}
-/// ---TEMPORARY
-
 
 void wv::Application::run()
 {
-	/// TODO: not this
-	{
-		wv::ShaderSource shaders[] = {
-			{ wv::WV_SHADER_TYPE_VERTEX,   "res/vert.glsl" },
-			{ wv::WV_SHADER_TYPE_FRAGMENT, "res/frag.glsl" }
-		};
-
-		/// TODO: change to UniformDesc?
-		const char* ubInputUniforms[] = {
-			"u_Color",
-			"u_Alpha"
-		};
-
-		const char* ubInstanceDataUniforms[] = {
-			"u_Projection",
-			"u_View",
-			"u_Model",
-		};
-
-		wv::UniformBlockDesc uniformBlocks[] = {
-			{ "UbInput",        ubInputUniforms,        2 },
-			{ "UbInstanceData", ubInstanceDataUniforms, 3 }
-		};
-
-		wv::PipelineDesc pipelineDesc;
-		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
-		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
-		pipelineDesc.shaders = shaders;
-		pipelineDesc.uniformBlocks = uniformBlocks;
-		pipelineDesc.numUniformBlocks = 2;
-		pipelineDesc.numShaders = 2;
-		pipelineDesc.instanceCallback = instanceCB;
-		pipelineDesc.pipelineCallback = pipelineCB;
-
-		m_pipeline = device->createPipeline( &pipelineDesc );
-	}
-
-
-	{
-		wv::InputLayoutElement elements[] = {
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
-			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
-		};
-
-		wv::InputLayout layout;
-		layout.elements = elements;
-		layout.numElements = 2;
-
-		// custom mesh export
-		/*
-		// data
-		int pnumIndices = 0;
-		int pnumVertices = 36;
-
-		std::ofstream cubefile( "res/cube.wpr" );
-		// header
-		cubefile.write( (char*)&pnumIndices, sizeof( int ) );
-		cubefile.write( (char*)&pnumVertices, sizeof( int ) );
-		// data
-		cubefile.write( (char*)indices, sizeof( indices ) );
-		cubefile.write( (char*)skyboxVertices, sizeof( skyboxVertices ) );
-		cubefile.close();
-		*/
-		
-		/// TODO: change to proper asset loader
-		std::ifstream in( "res/cube.wpr", std::ios::binary );
-		std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
-
-		wv::PrimitiveDesc prDesc;
-		{
-			int numIndices  = *reinterpret_cast<int*>( buf.data() );
-			int numVertices = *reinterpret_cast<int*>( buf.data() + sizeof( int ) );
-			int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
-			int indsSize  = numIndices * sizeof( unsigned int );
-
-			char* indexBuffer  = buf.data() + ( sizeof( int ) * 2 );
-			char* vertexBuffer = indexBuffer + indsSize;
-
-			prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
-			prDesc.layout = &layout;
-
-			prDesc.vertexBuffer = vertexBuffer;
-			prDesc.vertexBufferSize = vertsSize;
-			prDesc.numVertices = numVertices;
-
-			prDesc.indexBuffer     = nullptr;
-			prDesc.indexBufferSize = 0;
-			prDesc.numIndices      = 0;
-		}
-
-		m_primitive = device->createPrimitive( &prDesc );
-	}
-
+	
 	// Subscribe to mouse event
 	subscribeMouseEvents();
 	subscribeInputEvent();
@@ -219,12 +100,6 @@ void wv::Application::run()
 
 	currentCamera = orbitCamera;
 
-	TextureMemory texMem = memoryDevice->loadTextureData( "res/throbber.gif" );
-	TextureDesc texDesc;
-	texDesc.memory = &texMem;
-	m_texture = device->createTexture( &texDesc );
-	memoryDevice->unloadTextureData( &texMem );
-	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
 #else
@@ -242,9 +117,11 @@ void wv::Application::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	device->destroyPrimitive( &m_primitive );
-	device->destroyPipeline( &m_pipeline );
-	device->destroyTexture( &m_texture );
+	delete m_mesh;
+	m_mesh = nullptr;
+
+	delete m_skyBox;
+	m_skyBox = nullptr;
 
 	device->destroyPrimitive( &m_screenQuad );
 	device->destroyPipeline( &m_deferredPipeline );
@@ -252,7 +129,7 @@ void wv::Application::terminate()
 
 	context->terminate();
 	device->terminate();
-
+	
 	delete context;
 	delete device;
 	delete memoryDevice;
@@ -266,36 +143,48 @@ void wv::Application::tick()
 
 	context->pollEvents();
 	
-	float fps = 1.0f / dt;
-	if ( fps > m_maxFps )
-		m_maxFps = fps;
+	// refresh fps display
+	{
+		float fps = 1.0f / dt;
+		if ( fps > m_maxFps )
+			m_maxFps = fps;
 
-	m_fpsCache[ m_fpsCacheCounter ] = fps;
-	m_fpsCacheCounter++;
-	if ( m_fpsCacheCounter > FPS_CACHE_NUM ) m_fpsCacheCounter = 0;
+		m_fpsCache[ m_fpsCacheCounter ] = fps;
+		m_fpsCacheCounter++;
+		if ( m_fpsCacheCounter > (int)fps )
+		{
+			m_fpsCacheCounter = 0;
+			for ( int i = 0; i < (int)fps; i++ )
+				m_averageFps += m_fpsCache[ i ];
+			m_averageFps /= fps;
 
-	float averageFps = 0.0f;
-	for ( int i = 0; i < FPS_CACHE_NUM; i++ )
-		averageFps += m_fpsCache[ i ];
-	averageFps /= (float)FPS_CACHE_NUM;
+		}
 
-	std::string title = "FPS: " + std::to_string( fps ) + "   Average: " + std::to_string( averageFps ) + "   MAX: " + std::to_string(m_maxFps);
-	context->setTitle( title.c_str() );
+		std::string title = "FPS: " + std::to_string( (int)fps ) + "   Average: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+		context->setTitle( title.c_str() );
+	}
 
 	currentCamera->update( dt );
 
+	m_mesh->update( dt );
+	m_skyBox->m_transform.setPosition( currentCamera->getTransform().position );
+	m_skyBox->update( dt );
+
 	/// ------------------ render ------------------ ///
-
-	device->setRenderTarget( m_gbuffer );
-
-	// cube
-	device->setActivePipeline( m_pipeline );
-	device->clearRenderTarget( wv::Colors::White );
-	device->draw( m_primitive );
 	
+	device->setRenderTarget( m_gbuffer );
+	device->clearRenderTarget( wv::Colors::Black );
+
+	glDepthMask( GL_FALSE );
+	m_skyBox->draw( context, device );
+	glDepthMask( GL_TRUE );
+	m_mesh->draw( context, device );
+
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
 	
+	device->clearRenderTarget( wv::Colors::Black );
+
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
 		device->bindTextureToSlot( m_gbuffer->textures[ i ], i );

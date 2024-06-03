@@ -46,9 +46,11 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-	glEnable( GL_CULL_FACE );
-	glFrontFace( GL_CW );
-	glCullFace( GL_BACK );
+	glEnable( GL_DEPTH_TEST );
+	glDepthFunc( GL_LESS );
+	//glEnable( GL_CULL_FACE );
+	//glFrontFace( GL_CW );
+	//glCullFace( GL_BACK );
 	/// ---TEMPORARY
 }
 
@@ -186,9 +188,6 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 			glUseProgram( 0 );
 		}
 
-		pipeline->instanceCallback = _desc->instanceCallback;
-		pipeline->pipelineCallback = _desc->pipelineCallback;
-
 	} break;
 	}
 
@@ -210,9 +209,6 @@ void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 		glUseProgram( _pipeline->program );
 		m_activePipeline = _pipeline;
 	}
-
-	if ( m_activePipeline->pipelineCallback )
-		m_activePipeline->pipelineCallback( m_activePipeline->uniformBlocks );
 }
 
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
@@ -273,14 +269,14 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
 			GLenum type = GL_FLOAT;
 			switch ( _desc->layout->elements[ i ].type )
 			{
-			case WV_BYTE:           type = GL_BYTE; break;
-			case WV_UNSIGNED_BYTE:  type = GL_UNSIGNED_BYTE; break;
-			case WV_SHORT:          type = GL_SHORT; break;
+			case WV_BYTE:           type = GL_BYTE;           break;
+			case WV_UNSIGNED_BYTE:  type = GL_UNSIGNED_BYTE;  break;
+			case WV_SHORT:          type = GL_SHORT;          break;
 			case WV_UNSIGNED_SHORT: type = GL_UNSIGNED_SHORT; break;
-			case WV_INT:            type = GL_INT; break;
-			case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT; break;
-			case WV_FLOAT:          type = GL_FLOAT; break;
-			#ifndef EMSCRIPTEN
+			case WV_INT:            type = GL_INT;            break;
+			case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT;   break;
+			case WV_FLOAT:          type = GL_FLOAT;          break;
+			#ifndef EMSCRIPTEN // WebGL does not support GL_DOUBLE
 			case WV_DOUBLE:         type = GL_DOUBLE; break;
 			#endif
 			}
@@ -406,9 +402,6 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 void wv::GraphicsDevice::draw( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->vboHandle );
-
-	if ( m_activePipeline->instanceCallback )
-		m_activePipeline->instanceCallback( m_activePipeline->uniformBlocks );
 
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{

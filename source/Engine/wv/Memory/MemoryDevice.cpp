@@ -3,9 +3,23 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 
+#include <fstream>
+#include <vector>
+
 wv::Memory wv::MemoryDevice::loadFromFile( const char* _path )
 {
-	return {};
+	Memory mem;
+	
+	std::ifstream in( _path, std::ios::binary );
+	std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
+
+	mem.data = new char[ buf.size() ];
+	mem.size = buf.size();
+
+	memcpy( mem.data, buf.data(), buf.size() );
+
+	numLoadedFiles++;
+	return mem;
 }
 
 wv::TextureMemory wv::MemoryDevice::loadTextureData( const char* _path )

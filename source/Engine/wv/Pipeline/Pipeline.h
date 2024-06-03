@@ -31,9 +31,6 @@ namespace wv
 
 		Uniform* textureUniforms = nullptr;
 		unsigned int numTextureUniforms = 0;
-
-		PipelineUniformCallback pipelineCallback = nullptr;
-		PipelineUniformCallback instanceCallback = nullptr;
 	};
 
 
@@ -44,9 +41,6 @@ namespace wv
 		wv::Handle program = 0;
 		uint32_t mode = 0;
 		UniformBlockMap uniformBlocks;
-
-		PipelineUniformCallback pipelineCallback = nullptr;
-		PipelineUniformCallback instanceCallback = nullptr;
 	private:
 
 	};

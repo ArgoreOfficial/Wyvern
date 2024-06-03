@@ -24,7 +24,7 @@ namespace wv
 	{
 		const char* name;
 
-		const char** uniforms;
+		const char** uniforms; /// TODO: change to UniformDesc?
 		int numUniforms;
 	};
 

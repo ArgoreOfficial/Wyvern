@@ -13,9 +13,10 @@ namespace wv
 	class Primitive;
 	class Pipeline;
 	class ICamera;
-	class Texture;
 	class RenderTarget;
 	class MemoryDevice;
+	class RootNode;
+	class Mesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,9 +54,8 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		/// TEMPORARY---
-		Primitive* m_primitive = nullptr; // cube
-		Pipeline*  m_pipeline  = nullptr; // cube shader
-		Texture*   m_texture   = nullptr; // cube texture
+		Mesh* m_mesh;
+		Mesh* m_skyBox;
 		/// ---TEMPORARY
 
 		// deferred rendering
@@ -89,9 +89,13 @@ namespace wv
 
 		float m_maxFps = 0.0f;
 		
-	#define FPS_CACHE_NUM 128
+	#define FPS_CACHE_NUM 4000
 		float m_fpsCache[ FPS_CACHE_NUM ] = { 0.0f };
 		int m_fpsCacheCounter = 0;
+		float m_averageFps = 0.0f;
+
+		RootNode* m_scene;
+
 		/*
 		 * technically not a singleton but getting a reference 
 		 * to the application can sometimes be very useful.
