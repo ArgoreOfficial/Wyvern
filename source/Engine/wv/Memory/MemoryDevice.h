@@ -1,10 +1,14 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace wv
 {
+	class Mesh;
+
 	struct Memory
 	{
-		char* data = nullptr;
+		uint8_t* data = nullptr;
 		unsigned int size = 0;
 	};
 
@@ -19,11 +23,14 @@ namespace wv
 	{
 	public:
 		Memory loadFromFile( const char* _path );
+		void freeMemory( Memory* _memory );
+
 		TextureMemory loadTextureData( const char* _path );
 		void unloadTextureData( TextureMemory* _memory );
 
-	private:
+		Mesh* loadModel( const char* _path, bool _binary = false );
 
+	private:
 		int numLoadedFiles = 0;
 
 	};

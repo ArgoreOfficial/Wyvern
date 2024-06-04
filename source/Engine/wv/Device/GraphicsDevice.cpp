@@ -413,13 +413,11 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
 		drawPrimitive( _mesh->primitives[ i ] );
 	
-	glBindVertexArray( 0 );
+	// glBindVertexArray( 0 );
 }
 
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
-	glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride ); /// TODO: stride
-
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{
 		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, block.second.m_bindingIndex );
@@ -436,7 +434,10 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
 	}
 	else
+	{
+		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
 		glDrawArrays( GL_TRIANGLES, 0, _primitive->numVertices );
+	}
 }
 
 wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )

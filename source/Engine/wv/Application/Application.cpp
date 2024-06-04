@@ -71,6 +71,8 @@ wv::Application::Application( ApplicationDesc* _desc )
 	m_skyBox = new Model( 1, "cube_mesh" );
 	m_skyBox->loadFromFile( "res/cube.wpr" );
 	m_skyBox->m_material = mat;
+
+	memoryDevice->loadModel( "res/cube.glb" );
 }
 
 wv::Application* wv::Application::get()
