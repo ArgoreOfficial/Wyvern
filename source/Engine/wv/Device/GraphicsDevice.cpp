@@ -1,9 +1,10 @@
 #include "GraphicsDevice.h"
 
 #include <wv/Assets/Texture.h>
+#include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
+#include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
-
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <glad/glad.h>
@@ -13,8 +14,6 @@
 #include <fstream>
 
 #include <vector>
-
-#include <wv/Memory/MemoryDevice.h>
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
@@ -202,6 +201,17 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 	*_pipeline = nullptr;
 }
 
+wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
+{
+	Mesh* mesh = new Mesh();
+	glGenVertexArrays( 1, &mesh->vaoHandle );
+	return mesh;
+}
+
+void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
+{
+}
+
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
 	if ( m_activePipeline != _pipeline )
@@ -211,87 +221,84 @@ void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 	}
 }
 
-wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
+wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
 	Primitive* primitive = new Primitive();
+	glBindVertexArray( _mesh->vaoHandle );
+	
+	// create vertex buffer object
+	glGenBuffers( 1, &primitive->vboHandle );
+	glBindBuffer( GL_ARRAY_BUFFER, primitive->vboHandle );
+
+	GLenum usage = GL_NONE;
+	switch ( _desc->type ) /// TODO: more primitive types
 	{
-		glGenVertexArrays( 1, &primitive->vboHandle );
-		glBindVertexArray( primitive->vboHandle );
-
-		// create vertex buffer object
-		unsigned int vbo;
-		glGenBuffers( 1, &vbo );
-		glBindBuffer( GL_ARRAY_BUFFER, vbo );
-
-		GLenum usage = GL_NONE;
-		switch ( _desc->type )
-		{
-		case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
-		}
-
-		// buffer data
-		glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
-
-
-
-		if ( _desc->indexBufferSize > 0 )
-		{
-			// create element buffer object
-			primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
-
-			wv::Handle ebo;
-			glGenBuffers( 1, &ebo );
-			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
-			glBufferData( GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
-
-			primitive->eboHandle = ebo;
-			primitive->numIndices = _desc->numIndices;
-		}
-		else
-		{
-			primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
-		}
-
-
-
-		int offset = 0;
-		int stride = 0;
-		for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
-		{
-			InputLayoutElement& element = _desc->layout->elements[ i ];
-			stride += element.size;
-		}
-
-		for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
-		{
-			InputLayoutElement& element = _desc->layout->elements[ i ];
-
-			GLenum type = GL_FLOAT;
-			switch ( _desc->layout->elements[ i ].type )
-			{
-			case WV_BYTE:           type = GL_BYTE;           break;
-			case WV_UNSIGNED_BYTE:  type = GL_UNSIGNED_BYTE;  break;
-			case WV_SHORT:          type = GL_SHORT;          break;
-			case WV_UNSIGNED_SHORT: type = GL_UNSIGNED_SHORT; break;
-			case WV_INT:            type = GL_INT;            break;
-			case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT;   break;
-			case WV_FLOAT:          type = GL_FLOAT;          break;
-			#ifndef EMSCRIPTEN // WebGL does not support GL_DOUBLE
-			case WV_DOUBLE:         type = GL_DOUBLE; break;
-			#endif
-			}
-
-			glVertexAttribPointer( i, element.num, type, element.normalized, stride, reinterpret_cast<void*>( offset ) );
-			glEnableVertexAttribArray( i );
-
-			offset += element.size;
-		}
-
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
-		glBindVertexArray( 0 );
-
-		primitive->numVertices = _desc->numVertices; /// TODO: allow indices
+	case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
 	}
+
+	// buffer data
+	glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
+
+
+	if ( _desc->indexBufferSize > 0 )
+	{
+		// create element buffer object
+		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
+
+		wv::Handle ebo;
+		glGenBuffers( 1, &ebo );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
+		glBufferData( GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
+
+		primitive->eboHandle = ebo;
+		primitive->numIndices = _desc->numIndices;
+	}
+	else
+	{
+		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
+	}
+
+
+
+	int offset = 0;
+	int stride = 0;
+	for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
+	{
+		InputLayoutElement& element = _desc->layout->elements[ i ];
+		stride += element.size;
+	}
+
+	for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
+	{
+		InputLayoutElement& element = _desc->layout->elements[ i ];
+
+		GLenum type = GL_FLOAT;
+		switch ( _desc->layout->elements[ i ].type )
+		{
+		case WV_BYTE:           type = GL_BYTE;           break;
+		case WV_UNSIGNED_BYTE:  type = GL_UNSIGNED_BYTE;  break;
+		case WV_SHORT:          type = GL_SHORT;          break;
+		case WV_UNSIGNED_SHORT: type = GL_UNSIGNED_SHORT; break;
+		case WV_INT:            type = GL_INT;            break;
+		case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT;   break;
+		case WV_FLOAT:          type = GL_FLOAT;          break;
+		#ifndef EMSCRIPTEN // WebGL does not support GL_DOUBLE
+		case WV_DOUBLE:         type = GL_DOUBLE; break;
+		#endif
+		}
+
+		glVertexAttribPointer( i, element.num, type, element.normalized, stride, reinterpret_cast<void*>( offset ) );
+		glEnableVertexAttribArray( i );
+
+		offset += element.size;
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	primitive->numVertices = _desc->numVertices; 
+	primitive->stride = stride;
+	_mesh->primitives.push_back( primitive );
 
 	return primitive;
 }
@@ -312,7 +319,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	GLenum internalFormat = GL_RED;
 	GLenum format = GL_RED;
 
-	char* data = nullptr;
+	unsigned char* data = nullptr;
 	if ( _desc->memory )
 	{
 		data = _desc->memory->data;
@@ -399,9 +406,19 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 	}
 }
 
-void wv::GraphicsDevice::draw( Primitive* _primitive )
+void wv::GraphicsDevice::draw( Mesh* _mesh )
 {
-	glBindVertexArray( _primitive->vboHandle );
+	glBindVertexArray( _mesh->vaoHandle );
+
+	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
+		drawPrimitive( _mesh->primitives[ i ] );
+	
+	glBindVertexArray( 0 );
+}
+
+void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
+{
+	glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride ); /// TODO: stride
 
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{

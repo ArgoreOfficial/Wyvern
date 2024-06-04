@@ -10,13 +10,13 @@ namespace wv
 
 	class Context;
 	class GraphicsDevice;
-	class Primitive;
+	class Mesh;
 	class Pipeline;
 	class ICamera;
 	class RenderTarget;
 	class MemoryDevice;
 	class RootNode;
-	class Mesh;
+	class Model;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,12 +54,12 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		/// TEMPORARY---
-		Mesh* m_mesh;
-		Mesh* m_skyBox;
+		Model* m_mesh;
+		Model* m_skyBox;
 		/// ---TEMPORARY
 
 		// deferred rendering
-		Primitive*    m_screenQuad       = nullptr;
+		Mesh*         m_screenQuad       = nullptr;
 		Pipeline*     m_deferredPipeline = nullptr;
 		RenderTarget* m_gbuffer          = nullptr;
 

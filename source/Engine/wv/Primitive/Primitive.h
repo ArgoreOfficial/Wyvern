@@ -55,5 +55,6 @@ namespace wv
 		PrimitiveDrawType drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
 		uint32_t numVertices = 0;
 		uint32_t numIndices = 0;
+		uint32_t stride = 0;
 	};
 }

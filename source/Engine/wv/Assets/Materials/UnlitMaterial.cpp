@@ -6,7 +6,7 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
-#include <wv/Scene/Mesh.h>
+#include <wv/Scene/Model.h>
 
 #include <glm/glm.hpp>
 
@@ -85,6 +85,6 @@ void wv::UnlitMaterial::instanceCallback( Node* _instance )
 	// model transform
 	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];
 
-	Mesh* mesh = reinterpret_cast<Mesh*>( _instance );
+	Model* mesh = reinterpret_cast<Model*>( _instance );
 	instanceBlock.set( "u_Model", mesh->m_transform.getMatrix() );
 }

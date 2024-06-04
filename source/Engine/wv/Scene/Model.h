@@ -5,15 +5,15 @@
 
 namespace wv
 {
-	class Primitive;
+	class Mesh;
 	class Pipeline;
 	class IMaterial;
 	
-	class Mesh : public Node
+	class Model : public Node
 	{
 	public:
-		 Mesh( const uint64_t& _uuid, const std::string& _name );
-		~Mesh();
+		 Model( const uint64_t& _uuid, const std::string& _name );
+		~Model();
 
 		void loadFromFile( const std::string& _path );
 		virtual void update( double _deltaTime ) override;
@@ -21,6 +21,6 @@ namespace wv
 
 		IMaterial* m_material; /// TODO: change to index?
 	private:
-		Primitive* m_primitive;
+		Mesh* m_mesh; /// TODO: allow for multiple meshes
 	};
 }

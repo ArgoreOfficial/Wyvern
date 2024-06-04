@@ -21,6 +21,9 @@ namespace wv
 	struct RenderTargetDesc;
 	class RenderTarget;
 
+	struct MeshDesc;
+	class Mesh;
+
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
@@ -52,7 +55,10 @@ namespace wv
 		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
 		
-		Primitive* createPrimitive( PrimitiveDesc* _desc );
+		Mesh* createMesh( MeshDesc* _desc );
+		void destroyMesh( Mesh** _mesh );
+
+		Primitive* createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh );
 		void destroyPrimitive( Primitive** _primitive );
 
 		Texture* createTexture( TextureDesc* _desc );
@@ -61,9 +67,12 @@ namespace wv
 		void setActivePipeline( Pipeline* _pipeline );
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
-		void draw( Primitive* _primitive );
+		void draw( Mesh* _mesh );
 
 	private:
+
+		void drawPrimitive( Primitive* _primitive );
+
 		/// TODO: change wv::Handle to wv::Shader and wv::ShaderProgram?
 		wv::Handle createShader( ShaderSource* _desc );
 		wv::Handle createProgram( ShaderProgramDesc* _desc );

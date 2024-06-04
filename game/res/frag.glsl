@@ -17,5 +17,5 @@ layout(location = 1) out vec4 FragColorB;
 void main()
 {
     FragColorA = texture( u_Texture, TexCoord );
-    FragColorB = vec4( 1.0 );
+    FragColorB = vec4( TexCoord.x, TexCoord.y, 0.0, 1.0 );
 }

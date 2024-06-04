@@ -9,14 +9,14 @@
 
 #include <wv/Assets/Texture.h>
 #include <wv/Pipeline/Pipeline.h>
-#include <wv/Primitive/Primitive.h>
+#include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <math.h>
 #include <fstream>
 #include <vector>
 
-#include <wv/Scene/Mesh.h>
+#include <wv/Scene/Model.h>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
@@ -64,11 +64,11 @@ wv::Application::Application( ApplicationDesc* _desc )
 	UnlitMaterial* mat = new UnlitMaterial();
 	mat->create( device );
 
-	m_mesh = new Mesh( 1, "cube_mesh" );
+	m_mesh = new Model( 1, "cube_mesh" );
 	m_mesh->loadFromFile( "res/cube.wpr" );
 	m_mesh->m_material = mat;
 
-	m_skyBox = new Mesh( 1, "cube_mesh" );
+	m_skyBox = new Model( 1, "cube_mesh" );
 	m_skyBox->loadFromFile( "res/cube.wpr" );
 	m_skyBox->m_material = mat;
 }
@@ -123,7 +123,7 @@ void wv::Application::terminate()
 	delete m_skyBox;
 	m_skyBox = nullptr;
 
-	device->destroyPrimitive( &m_screenQuad );
+	device->destroyMesh( &m_screenQuad );
 	device->destroyPipeline( &m_deferredPipeline );
 	device->destroyRenderTarget( &m_gbuffer );
 
@@ -283,7 +283,9 @@ void wv::Application::createScreeQuad()
 		prDesc.numVertices      = 3;
 	}
 
-	m_screenQuad = device->createPrimitive( &prDesc );
+	MeshDesc meshDesc;
+	m_screenQuad = device->createMesh( &meshDesc );
+	device->createPrimitive( &prDesc, m_screenQuad );
 }
 
 void wv::Application::createGBuffer()
