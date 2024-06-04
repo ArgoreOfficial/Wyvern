@@ -7,6 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 
+#include <wv/Auxiliary/json.hpp>
+
 #include <fstream>
 #include <vector>
 
@@ -66,6 +68,26 @@ wv::Mesh* wv::MemoryDevice::loadModel( const char* _path, bool _binary )
 {
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
+
+	Memory gltf = loadFromFile( "res/meshes/cube.gltf" );
+	std::string source{ (char*)gltf.data, gltf.size };
+
+	nlohmann::json json = nlohmann::json::parse( source );
+
+	std::vector<Memory> buffers;
+	for ( auto& buffer : json["buffers"] )
+	{
+		std::string path = "res/meshes/" + (std::string)buffer[ "uri" ];
+		buffers.push_back( loadFromFile( path.c_str() ) );
+	}
+
+	for ( auto& scene : json["scenes"] )
+	{
+		for ( int node : scene[ "nodes" ] )
+		{
+			
+		}
+	}
 
     return nullptr;
 }
