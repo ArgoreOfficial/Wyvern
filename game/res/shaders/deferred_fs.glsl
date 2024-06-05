@@ -4,8 +4,10 @@ precision mediump float;
 
 /// TODO: reflect to CPU so binding=0 doesn't need to be used
 #if GL_ES 
-uniform sampler2D u_TextureA;
-uniform sampler2D u_TextureB;
+uniform sampler2D u_Albedo;
+uniform sampler2D u_Normal;
+uniform sampler2D u_Position;
+uniform sampler2D u_RoughnessMetallic;
 #else
 layout(binding = 0) uniform sampler2D u_Albedo;
 layout(binding = 1) uniform sampler2D u_Normal;
@@ -27,9 +29,8 @@ void main()
     vec3 normal = texture( u_Normal, TexCoord ).xyz;
     float shading = 1.0;
 
-    if( normal != vec3(0.0) )
-        shading = max( 0.5, dot( normal, LIGHT_DIR ) );
+    if( normal != vec3( 0 ) )
+        shading = max( 0.0, dot( normal, LIGHT_DIR ) );
 
-
-    FragColor = texture( u_Albedo, TexCoord ) * shading;
+    FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
 }

@@ -68,9 +68,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	unlitSkybox->create( device, "res/shaders/skybox_vs.glsl" );
 	m_skybox->primitives[ 0 ]->material = unlitSkybox;
 
-	PhongMaterial* phong = new PhongMaterial();
-	phong->create( device );
-	m_cube->primitives[ 0 ]->material = phong;
+	//PhongMaterial* phong = new PhongMaterial();
+	//phong->create( device );
+	//m_cube->primitives[ 0 ]->material = phong;
 
 	device->setClearColor( wv::Colors::Black );
 }
@@ -168,19 +168,18 @@ void wv::Application::tick()
 	/// ------------------ render ------------------ ///
 	
 	device->setRenderTarget( m_gbuffer );
-	device->clearRenderTarget( true, true );
+	device->clearRenderTarget( false, true );
 
 	/// TODO: remove raw gl calls
 	glDepthMask( GL_FALSE );
-	//m_skyBox->draw( context, device );
 	device->draw( m_skybox );
 	glDepthMask( GL_TRUE );
-	
+
 	device->draw( m_cube );
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
-	device->clearRenderTarget( true, true );
+	device->clearRenderTarget( false, true );
 
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
@@ -297,10 +296,10 @@ void wv::Application::createGBuffer()
 	rtDesc.height = context->getHeight();
 
 	TextureDesc texDescs[] = {
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_BYTE },
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RG, wv::WV_TEXTURE_FORMAT_INT }
 	};
 	rtDesc.textureDescs = texDescs;
 	rtDesc.numTextures = 4;

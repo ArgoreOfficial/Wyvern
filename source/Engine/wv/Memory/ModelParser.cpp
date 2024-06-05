@@ -1,6 +1,7 @@
 #include "ModelParser.h"
 
 #include <wv/Application/Application.h>
+#include <wv/Assets/Materials/PhongMaterial.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 
@@ -21,12 +22,24 @@ struct Vertex
 	wv::Vector2f texCoord0;
 };
 
+std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
+{
+	aiString path;
+	_material->GetTexture( _type, 0, &path );
+
+	std::string fullPath( path.C_Str() );
+	fullPath = _rootDir + "/" + fullPath;
+	return fullPath;
+}
+
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh )
 {
-	
+	wv::GraphicsDevice* device = wv::Application::get()->device;
+
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-
+	wv::IMaterial* material;
+	
 	// process vertices
 	for ( int i = 0; i < _assimp_mesh->mNumVertices; i++ )
 	{
@@ -75,19 +88,32 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 			indices.push_back( face.mIndices[ j ] );
 	}
 
-	/// TODO: process material
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
-		aiMaterial* assimp_material = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
+		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
+		wv::PhongMaterialDesc phongDesc;
+		std::string albedoPath;
+
+		/// TODO: generalize for any type of shader, material, or set of textures
+
 		//mesh->material = getMaterial( "res/materials/mesh" );
 		//
-		//std::string albedo_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE, _directory );
+
+		if ( assimpMaterial->GetTextureCount( aiTextureType_DIFFUSE ) )
+		{
+			albedoPath = getAssimpMaterialTexturePath( assimpMaterial, aiTextureType_DIFFUSE, "res/textures" );
+			phongDesc.albedoTexturePath = albedoPath.c_str();
+		}
 		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
 		//std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
 		//
 		//mesh->material->addTexture( "uAlbedo", albedo_path.c_str() );
 		//mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
 		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
+
+		material = new wv::PhongMaterial( phongDesc );
+		material->create( device );
+
 	}
 
 	std::vector<wv::InputLayoutElement> elements = {
@@ -113,8 +139,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.indexBufferSize = indices.size() * sizeof( unsigned int );
 	prDesc.numIndices      = indices.size();
 
-	wv::GraphicsDevice* device = wv::Application::get()->device;
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
+	primitive->material = material;
 }
 
 void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )

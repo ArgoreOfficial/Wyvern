@@ -31,6 +31,7 @@ void wv::UnlitMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 		};
 
 		wv::PipelineDesc pipelineDesc;
+		pipelineDesc.name = "Unlit";
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		pipelineDesc.shaders = shaders;

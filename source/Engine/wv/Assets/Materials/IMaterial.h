@@ -1,4 +1,5 @@
 #pragma once
+
 #include <wv/Decl.h>
 
 namespace wv 

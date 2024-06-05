@@ -148,6 +148,15 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 {
 	wv::Pipeline* pipeline = new wv::Pipeline();
 
+	if ( _desc->name )
+	{
+		if ( m_pipelines.contains( _desc->name ) )
+		{
+			printf( "[WARN] Pipeline called '%s' already. A new one will not be created.\n", _desc->name );
+			return m_pipelines[ _desc->name ];
+		}
+	}
+
 	switch ( _desc->type )
 	{
 	case WV_PIPELINE_GRAPHICS:
@@ -192,6 +201,10 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 	}
 
 	glUseProgram( 0 );
+
+	if ( _desc->name )
+		m_pipelines[ _desc->name ] = pipeline;
+	
 	return pipeline;
 }
 
@@ -201,6 +214,17 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 
 	delete* _pipeline;
 	*_pipeline = nullptr;
+}
+
+wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
+{
+	if ( !m_pipelines.contains( _name ) )
+	{
+		printf( "[ERR] No pipeline called '%s' exists", _name );
+		return nullptr;
+	}
+
+	return m_pipelines[ _name ];
 }
 
 wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
@@ -333,36 +357,36 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RED;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RED;   break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RED;  break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_R32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_R32I; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_R32I; format = GL_RED_INTEGER; break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RG:
 		format = GL_RG;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG;   break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG;    break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RG32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RG32I; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RG32I; format = GL_RG_INTEGER; break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB;   break;
-		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB;    break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB16F; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; format = GL_RGB_INTEGER; break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGBA:
 		format = GL_RGBA;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA;   break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA;    break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; break;
+		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; format = GL_RGBA_INTEGER; break;
 		}
 		break;
 	}
@@ -376,7 +400,14 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, GL_UNSIGNED_BYTE, data );
+	GLenum type = GL_UNSIGNED_BYTE;
+	switch ( _desc->format )
+	{
+	case wv::WV_TEXTURE_FORMAT_FLOAT: type = GL_FLOAT; break;
+	case wv::WV_TEXTURE_FORMAT_INT:   type = GL_INT; break;
+	}
+
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
 	
 	if( _desc->generateMipMaps )
 		glGenerateMipmap( GL_TEXTURE_2D );

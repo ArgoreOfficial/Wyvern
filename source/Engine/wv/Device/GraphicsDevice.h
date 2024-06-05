@@ -5,6 +5,8 @@
 
 #include <wv/Misc/Color.h>
 
+#include <unordered_map>
+
 namespace wv
 {
 	struct PipelineDesc;
@@ -55,7 +57,8 @@ namespace wv
 
 		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
-		
+		Pipeline* getPipeline( const char* _name );
+
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
 
@@ -87,6 +90,8 @@ namespace wv
 
 		wv::Pipeline* m_activePipeline = nullptr;
 		int m_numTotalUniformBlocks = 0;
+
+		std::unordered_map<const char*, wv::Pipeline*> m_pipelines;
 
 	};
 }

@@ -30,13 +30,20 @@ void wv::PhongMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 			{ "UbInstanceData", ubInstanceDataUniforms, 3 }
 		};
 
+		std::vector<wv::Uniform> textureUniforms = {
+			{ 0, 0, "u_Albedo" }
+		};
+
 		wv::PipelineDesc pipelineDesc;
+		pipelineDesc.name = "Phong";
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
-		pipelineDesc.shaders = shaders;
-		pipelineDesc.uniformBlocks = uniformBlocks;
-		pipelineDesc.numUniformBlocks = 1;
+		pipelineDesc.shaders    = shaders;
 		pipelineDesc.numShaders = 2;
+		pipelineDesc.uniformBlocks    = uniformBlocks;
+		pipelineDesc.numUniformBlocks = 1;
+		pipelineDesc.textureUniforms    = textureUniforms.data();
+		pipelineDesc.numTextureUniforms = textureUniforms.size();
 
 		m_pipeline = _device->createPipeline( &pipelineDesc );
 	}
@@ -45,7 +52,7 @@ void wv::PhongMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 	/// TODO: get from some texture manager
 	{
 		wv::Application* app = wv::Application::get();
-		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/throbber.gif" );
+		TextureMemory texMem = app->memoryDevice->loadTextureData( desc.albedoTexturePath );
 		TextureDesc texDesc;
 		texDesc.memory = &texMem;
 		m_albedoTexture = _device->createTexture( &texDesc );

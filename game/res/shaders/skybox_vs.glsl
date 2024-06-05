@@ -25,7 +25,7 @@ out vec3 Pos;
 
 void main()
 {
-    gl_Position = u_Projection * mat4x4( mat3x3( u_View ) ) * u_Model * vec4( a_Pos, 1.0 );
+    gl_Position = u_Projection * mat4x4( mat3x3( u_View ) )* u_Model * vec4( a_Pos, 1.0 );
     TexCoord = a_TexCoord0;
     Normal = vec3( 0.0 );
     Pos = a_Pos;
