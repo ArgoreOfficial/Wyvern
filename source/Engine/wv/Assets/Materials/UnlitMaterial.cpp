@@ -10,14 +10,14 @@
 
 #include <glm/glm.hpp>
 
-void wv::UnlitMaterial::create( GraphicsDevice* _device )
+void wv::UnlitMaterial::create( GraphicsDevice* _device, const char* _vs, const char* _fs )
 {	
 	// create pipeline
 	/// TODO: get from some pipeline manager
 	{
 		wv::ShaderSource shaders[] = {
-				{ wv::WV_SHADER_TYPE_VERTEX,   "res/vert.glsl" },
-				{ wv::WV_SHADER_TYPE_FRAGMENT, "res/frag.glsl" }
+				{ wv::WV_SHADER_TYPE_VERTEX,   _vs ? _vs : "res/shaders/unlit_vs.glsl" },
+				{ wv::WV_SHADER_TYPE_FRAGMENT, _fs ? _fs : "res/shaders/unlit_fs.glsl" }
 		};
 
 		const char* ubInstanceDataUniforms[] = {
@@ -45,7 +45,7 @@ void wv::UnlitMaterial::create( GraphicsDevice* _device )
 	/// TODO: get from some texture manager
 	{
 		wv::Application* app = wv::Application::get();
-		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/throbber.gif" );
+		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/skybox-mountain.png" );
 		TextureDesc texDesc;
 		texDesc.memory = &texMem;
 		m_albedoTexture = _device->createTexture( &texDesc );

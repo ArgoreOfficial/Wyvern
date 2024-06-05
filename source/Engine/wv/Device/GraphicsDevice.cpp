@@ -134,10 +134,14 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 		glViewport( 0, 0, 900, 600 );
 }
 
-void wv::GraphicsDevice::clearRenderTarget( const wv::Color& _color )
+void wv::GraphicsDevice::setClearColor( const wv::Color& _color )
 {
 	glClearColor( _color.r, _color.g, _color.b, _color.a );
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}
+
+void wv::GraphicsDevice::clearRenderTarget( bool _color, bool _depth )
+{
+	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 }
 
 wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )

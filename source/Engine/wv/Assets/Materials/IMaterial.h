@@ -12,7 +12,7 @@ namespace wv
 		WV_DECLARE_INTERFACE( IMaterial )
 
 	public:
-		virtual void create( GraphicsDevice* _device ) = 0;
+		virtual void create( GraphicsDevice* _device, const char* _vs = nullptr, const char* _fs = nullptr ) = 0;
 		virtual void destroy( GraphicsDevice* _device ) = 0;
 
 		void setAsActive( GraphicsDevice* _device );

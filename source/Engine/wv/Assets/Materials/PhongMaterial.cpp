@@ -10,14 +10,14 @@
 
 #include <glm/glm.hpp>
 
-void wv::PhongMaterial::create( GraphicsDevice* _device )
+void wv::PhongMaterial::create( GraphicsDevice* _device, const char* _vs, const char* _fs )
 {	
 	// create pipeline
 	/// TODO: get from some pipeline manager
 	{
 		wv::ShaderSource shaders[] = {
-				{ wv::WV_SHADER_TYPE_VERTEX,   "res/phong_vs.glsl" },
-				{ wv::WV_SHADER_TYPE_FRAGMENT, "res/phong_fs.glsl" }
+				{ wv::WV_SHADER_TYPE_VERTEX,   _vs ? _vs : "res/shaders/phong_vs.glsl" },
+				{ wv::WV_SHADER_TYPE_FRAGMENT, _fs ? _fs : "res/shaders/phong_fs.glsl" }
 		};
 
 		const char* ubInstanceDataUniforms[] = {
@@ -45,7 +45,7 @@ void wv::PhongMaterial::create( GraphicsDevice* _device )
 	/// TODO: get from some texture manager
 	{
 		wv::Application* app = wv::Application::get();
-		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/throbber.gif" );
+		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/throbber.gif" );
 		TextureDesc texDesc;
 		texDesc.memory = &texMem;
 		m_albedoTexture = _device->createTexture( &texDesc );

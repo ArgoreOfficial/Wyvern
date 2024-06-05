@@ -5,6 +5,6 @@
 
 void wv::IMaterial::setAsActive( GraphicsDevice* _device )
 {
-	materialCallback();
 	_device->setActivePipeline( m_pipeline );
+	materialCallback();
 }

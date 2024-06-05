@@ -59,21 +59,20 @@ wv::Application::Application( ApplicationDesc* _desc )
 
 	memoryDevice = new MemoryDevice();
 
-	/// TODO: not this
-	UnlitMaterial* mat = new UnlitMaterial();
-	mat->create( device );
-
-	
-	m_skyBox = new Model( 1, "skybox" );
-	m_skyBox->loadFromFile( "res/skybox.wpr" );
-	m_skyBox->m_material = mat;
-
 	wv::assimp::Parser parser;
-	m_cube = parser.load( "res/meshes/monke.glb" );
-	
+	m_cube   = parser.load( "res/meshes/monke.glb" );
+	m_skybox = parser.load( "res/meshes/skybox.glb" );
+
+	/// TODO: not this
+	UnlitMaterial* unlitSkybox = new UnlitMaterial();
+	unlitSkybox->create( device, "res/shaders/skybox_vs.glsl" );
+	m_skybox->primitives[ 0 ]->material = unlitSkybox;
+
 	PhongMaterial* phong = new PhongMaterial();
 	phong->create( device );
 	m_cube->primitives[ 0 ]->material = phong;
+
+	device->setClearColor( wv::Colors::Black );
 }
 
 wv::Application* wv::Application::get()
@@ -120,9 +119,6 @@ void wv::Application::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	delete m_skyBox;
-	m_skyBox = nullptr;
-
 	device->destroyMesh( &m_screenQuad );
 	device->destroyPipeline( &m_deferredPipeline );
 	device->destroyRenderTarget( &m_gbuffer );
@@ -166,25 +162,25 @@ void wv::Application::tick()
 
 	currentCamera->update( dt );
 
-	m_skyBox->m_transform.setPosition( currentCamera->getTransform().position );
-	m_skyBox->update( dt );
+	//m_skybox->m_transform.setPosition( currentCamera->getTransform().position );
+	//m_skybox->update( dt );
 
 	/// ------------------ render ------------------ ///
 	
 	device->setRenderTarget( m_gbuffer );
-	device->clearRenderTarget( wv::Colors::Black );
+	device->clearRenderTarget( true, true );
 
 	/// TODO: remove raw gl calls
-	//glDepthMask( GL_FALSE );
+	glDepthMask( GL_FALSE );
 	//m_skyBox->draw( context, device );
-	//glDepthMask( GL_TRUE );
+	device->draw( m_skybox );
+	glDepthMask( GL_TRUE );
 	
 	device->draw( m_cube );
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
-	
-	device->clearRenderTarget( wv::Colors::Black );
+	device->clearRenderTarget( true, true );
 
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
@@ -206,6 +202,9 @@ void wv::Application::onResize( int _width, int _height )
 	m_defaultRenderTarget->width = _width;
 	m_defaultRenderTarget->height = _height;
 	device->setRenderTarget( m_defaultRenderTarget );
+
+	device->destroyRenderTarget( &m_gbuffer );
+	createGBuffer();
 }
 
 void wv::Application::onMouseEvent( MouseEvent _event )
@@ -237,8 +236,8 @@ void wv::Application::onInputEvent( InputEvent _event )
 void wv::Application::createDeferredPipeline()
 {
 	wv::ShaderSource shaders[] = {
-		{ wv::WV_SHADER_TYPE_VERTEX,   "res/deferred_vs.glsl" },
-		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/deferred_fs.glsl" }
+		{ wv::WV_SHADER_TYPE_VERTEX,   "res/shaders/deferred_vs.glsl" },
+		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/shaders/deferred_fs.glsl" }
 	};
 
 	wv::Uniform textureUniforms[] = {

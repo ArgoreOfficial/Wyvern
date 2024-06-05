@@ -50,7 +50,8 @@ namespace wv
 		void destroyRenderTarget( RenderTarget** _renderTarget );
 
 		void setRenderTarget( RenderTarget* _target );
-		void clearRenderTarget( const wv::Color& _color );
+		void setClearColor( const wv::Color& _color );
+		void clearRenderTarget( bool _color, bool _depth );
 
 		Pipeline* createPipeline( PipelineDesc* _desc );
 		void destroyPipeline( Pipeline** _pipeline );
