@@ -1,6 +1,9 @@
-# THIS WILL LIKELY NOT BUILD FOR YOU
-To save time and let me focus on just the rendering part, I compiled assimp statically onto my D drive.  
-The goal is to have a custom model loader, preferably USD (Univeral Scene Description) and glTF. For now this will have to do.
+# ASSIMP 
+I don't like DLLs so ASSIMP has been statically linked, currently hardcoded in the Premake build script  
+to get working, extract the `assimp-static.7z` somewhere  
+then change the ASSIMP_STATIC_ROOT variable in `tools/premake/premake5.lua` to point to that folder
+
+this dependency will be removed sometime in the future, replaced with a custom model parser
 
 ## Random links
 ### editor stuff 

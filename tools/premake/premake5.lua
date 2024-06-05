@@ -1,6 +1,9 @@
 
--- TODO: change to config file
+------------------ Config ------------------
 PROJECT_NAME = "Wyvern"
+ASSIMP_STATIC_ROOT = "D:/SDK/assimp-static/"
+--------------------------------------------
+
 
 workspace (PROJECT_NAME)
 	configurations { "Debug", "Release" }
@@ -40,7 +43,7 @@ project (PROJECT_NAME)
 		"../../libs/glm/", 
 		"../../libs/imgui/", 
 		"../../libs/imgui/examples",
-		"D:/SDK/assimp-static/include"
+		ASSIMP_STATIC_ROOT .. "include"
 	}
 
 	files { 
@@ -48,7 +51,7 @@ project (PROJECT_NAME)
 		"../../source/**.cpp" 
 	}
 	
-	libdirs { "D:/SDK/assimp-static/lib" }
+	libdirs { ASSIMP_STATIC_ROOT .. "lib" }
 
 	links { "GLFW", "GLM", "GLAD", "ImGui" }
 
