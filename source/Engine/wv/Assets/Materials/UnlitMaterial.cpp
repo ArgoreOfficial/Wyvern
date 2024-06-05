@@ -46,7 +46,7 @@ void wv::UnlitMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 	/// TODO: get from some texture manager
 	{
 		wv::Application* app = wv::Application::get();
-		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/skybox-mountain.png" );
+		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/skybox.png" );
 		TextureDesc texDesc;
 		texDesc.memory = &texMem;
 		m_albedoTexture = _device->createTexture( &texDesc );
