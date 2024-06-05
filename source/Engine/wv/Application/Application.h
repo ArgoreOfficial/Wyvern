@@ -17,6 +17,8 @@ namespace wv
 	class MemoryDevice;
 	class RootNode;
 	class Model;
+	class IMaterial;
+	class PhongMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,8 +56,8 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		/// TEMPORARY---
-		Model* m_mesh;
 		Model* m_skyBox;
+		Mesh* m_cube;
 		/// ---TEMPORARY
 
 		// deferred rendering

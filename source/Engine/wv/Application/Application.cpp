@@ -1,36 +1,35 @@
 #include "Application.h"
 
-#include <stdio.h>
-
-#include <wv/Device/GraphicsDevice.h>
 #include <glad/glad.h>
-#include <wv/Device/Context.h>
 
-
+#include <wv/Assets/Materials/UnlitMaterial.h>
+#include <wv/Assets/Materials/PhongMaterial.h>
 #include <wv/Assets/Texture.h>
+
+#include <wv/Camera/FreeflightCamera.h>
+#include <wv/Camera/OrbitCamera.h>
+#include <wv/Device/Context.h>
+#include <wv/Device/GraphicsDevice.h>
+#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/ModelParser.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
+#include <wv/Scene/Model.h>
 
+
+#include <stdio.h>
 #include <math.h>
 #include <fstream>
 #include <vector>
 
-#include <wv/Scene/Model.h>
-
-#include <wv/Camera/FreeflightCamera.h>
-#include <wv/Camera/OrbitCamera.h>
-
-#include <wv/Memory/MemoryDevice.h>
-
-#include <wv/Assets/Materials/UnlitMaterial.h>
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
-	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGL();
-#else
 	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGLES2(); 
+#else
+	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGL();
 #endif
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
@@ -64,15 +63,17 @@ wv::Application::Application( ApplicationDesc* _desc )
 	UnlitMaterial* mat = new UnlitMaterial();
 	mat->create( device );
 
-	m_mesh = new Model( 1, "cube_mesh" );
-	m_mesh->loadFromFile( "res/cube.wpr" );
-	m_mesh->m_material = mat;
-
-	m_skyBox = new Model( 1, "cube_mesh" );
-	m_skyBox->loadFromFile( "res/cube.wpr" );
+	
+	m_skyBox = new Model( 1, "skybox" );
+	m_skyBox->loadFromFile( "res/skybox.wpr" );
 	m_skyBox->m_material = mat;
 
-	memoryDevice->loadModel( "res/cube.glb" );
+	wv::assimp::Parser parser;
+	m_cube = parser.load( "res/meshes/monke.glb" );
+	
+	PhongMaterial* phong = new PhongMaterial();
+	phong->create( device );
+	m_cube->primitives[ 0 ]->material = phong;
 }
 
 wv::Application* wv::Application::get()
@@ -118,9 +119,6 @@ void wv::Application::terminate()
 	delete freeflightCamera;
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
-
-	delete m_mesh;
-	m_mesh = nullptr;
 
 	delete m_skyBox;
 	m_skyBox = nullptr;
@@ -168,7 +166,6 @@ void wv::Application::tick()
 
 	currentCamera->update( dt );
 
-	m_mesh->update( dt );
 	m_skyBox->m_transform.setPosition( currentCamera->getTransform().position );
 	m_skyBox->update( dt );
 
@@ -177,10 +174,12 @@ void wv::Application::tick()
 	device->setRenderTarget( m_gbuffer );
 	device->clearRenderTarget( wv::Colors::Black );
 
-	glDepthMask( GL_FALSE );
-	m_skyBox->draw( context, device );
-	glDepthMask( GL_TRUE );
-	m_mesh->draw( context, device );
+	/// TODO: remove raw gl calls
+	//glDepthMask( GL_FALSE );
+	//m_skyBox->draw( context, device );
+	//glDepthMask( GL_TRUE );
+	
+	device->draw( m_cube );
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
@@ -243,8 +242,10 @@ void wv::Application::createDeferredPipeline()
 	};
 
 	wv::Uniform textureUniforms[] = {
-		{ 0, 0, "u_TextureA" },
-		{ 1, 0, "u_TextureB" },
+		{ 0, 0, "u_Albedo" },
+		{ 1, 0, "u_Normal" },
+		{ 2, 0, "u_Position" },
+		{ 3, 0, "u_RoughnessMetallic" }
 	};
 
 	wv::PipelineDesc pipelineDesc;
@@ -270,9 +271,9 @@ void wv::Application::createScreeQuad()
 	layout.numElements = 2;
 
 	float vertices[] = { 
-		-1.0f, -1.0f, 0.5f,       0.0f, 0.0f,
+		 3.0f, -1.0f, 0.5f,       2.0f, 0.0f,
 		-1.0f,  3.0f, 0.5f,       0.0f, 2.0f,
-		 3.0f, -1.0f, 0.5f,       2.0f, 0.0f
+		-1.0f, -1.0f, 0.5f,       0.0f, 0.0f,
 	};
 
 	wv::PrimitiveDesc prDesc;
@@ -298,10 +299,12 @@ void wv::Application::createGBuffer()
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE }
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
 	};
 	rtDesc.textureDescs = texDescs;
-	rtDesc.numTextures = 2;
+	rtDesc.numTextures = 4;
 
 	m_gbuffer = device->createRenderTarget( &rtDesc );
 }

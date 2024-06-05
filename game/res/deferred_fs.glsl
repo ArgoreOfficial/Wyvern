@@ -7,13 +7,16 @@ precision mediump float;
 uniform sampler2D u_TextureA;
 uniform sampler2D u_TextureB;
 #else
-layout(binding = 0) uniform sampler2D u_TextureA;
-layout(binding = 1) uniform sampler2D u_TextureB;
+layout(binding = 0) uniform sampler2D u_Albedo;
+layout(binding = 1) uniform sampler2D u_Normal;
+layout(binding = 2) uniform sampler2D u_Position;
+layout(binding = 3) uniform sampler2D u_RoughnessMetallic;
 #endif
 
 in vec2 TexCoord;
-
 out vec4 FragColor;
+
+const vec3 LIGHT_DIR = normalize( vec3( 1,1,1 ) );
 
 void main()
 {
@@ -21,5 +24,8 @@ void main()
     float x = TexCoord.x * over;
     float y = TexCoord.y * over;
 
-    FragColor = texture( u_TextureA, TexCoord ) * texture( u_TextureB, TexCoord );
+    vec3 normal = texture( u_Normal, TexCoord ).xyz;
+    float shading = dot( normal, LIGHT_DIR );
+
+    FragColor = texture( u_Albedo, TexCoord ) * shading;
 }

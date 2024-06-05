@@ -47,9 +47,7 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
-	//glEnable( GL_CULL_FACE );
-	//glFrontFace( GL_CW );
-	//glCullFace( GL_BACK );
+	glEnable( GL_CULL_FACE );
 	/// ---TEMPORARY
 }
 
@@ -172,7 +170,6 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
 			glDeleteShader( shaders[ i ] );
 
-
 		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
 
@@ -190,6 +187,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 	} break;
 	}
 
+	glUseProgram( 0 );
 	return pipeline;
 }
 
@@ -214,11 +212,8 @@ void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
-	if ( m_activePipeline != _pipeline )
-	{
-		glUseProgram( _pipeline->program );
-		m_activePipeline = _pipeline;
-	}
+	glUseProgram( _pipeline->program );
+	m_activePipeline = _pipeline;
 }
 
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
@@ -418,14 +413,18 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
+	if ( _primitive->material )
+	{
+		_primitive->material->materialCallback();
+		setActivePipeline( _primitive->material->m_pipeline );
+	}
+	
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{
 		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, block.second.m_bindingIndex );
 		glBindBuffer( GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
 		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
-
-	// m_activePipeline->mode
 
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )

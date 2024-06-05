@@ -19,7 +19,7 @@ namespace wv
 
 		virtual void materialCallback() { }
 		virtual void instanceCallback( Node* _instance ) { }
-    protected:
         Pipeline* m_pipeline = nullptr;
+    protected:
     };
 }

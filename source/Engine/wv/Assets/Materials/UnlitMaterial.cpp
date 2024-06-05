@@ -69,9 +69,11 @@ void wv::UnlitMaterial::materialCallback()
 
 	glm::mat4x4 projection = app->currentCamera->getProjectionMatrix();
 	glm::mat4x4 view       = app->currentCamera->getViewMatrix();
+	glm::mat4x4 model{1.0f};
 
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
+	block.set( "u_Model", model );
 
 	// bind texture to slot 0
 	app->device->bindTextureToSlot( m_albedoTexture, 0 );
