@@ -2,6 +2,7 @@
 
 #include <wv/Primitive/Primitive.h>
 #include <wv/Types.h>
+#include <wv/Assets/Materials/IMaterial.h>
 
 #include <vector>
 

@@ -39,7 +39,8 @@ project (PROJECT_NAME)
 		"../../libs/glfw/include/", 
 		"../../libs/glm/", 
 		"../../libs/imgui/", 
-		"../../libs/imgui/examples" 
+		"../../libs/imgui/examples",
+		"D:/SDK/assimp-static/include"
 	}
 
 	files { 
@@ -47,8 +48,15 @@ project (PROJECT_NAME)
 		"../../source/**.cpp" 
 	}
 	
+	libdirs { "D:/SDK/assimp-static/lib" }
 
 	links { "GLFW", "GLM", "GLAD", "ImGui" }
+
+	filter { "configurations:Debug" }
+		links { "assimp-vc143-mtd.lib", "zlibstaticd.lib" }
+
+	filter { "configurations:Release" }
+		links { "assimp-vc143-mt.lib", "zlibstatic.lib" }
 
 	filter "system:linux"
 		links { "dl", "pthread" }
