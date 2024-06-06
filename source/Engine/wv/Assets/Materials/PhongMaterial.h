@@ -9,7 +9,7 @@ namespace wv
 
 	struct PhongMaterialDesc
 	{
-		const char* albedoTexturePath = "res/textures/throbber.gif";
+		const char* albedoTexturePath = "res/textures/uv.png";
 	};
 
 	class PhongMaterial : public IMaterial

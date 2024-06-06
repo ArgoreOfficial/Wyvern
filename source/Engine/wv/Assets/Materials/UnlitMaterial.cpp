@@ -2,7 +2,7 @@
 
 #include <wv/Application/Application.h>
 #include <wv/Assets/Texture.h>
-#include <wv/Camera/iCamera.h>
+#include <wv/Camera/ICamera.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
@@ -30,15 +30,21 @@ void wv::UnlitMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 			{ "UbInstanceData", ubInstanceDataUniforms, 3 }
 		};
 
+		std::vector<wv::Uniform> textureUniforms = {
+			{ 0, 0, "u_Albedo" }
+		};
+
 		wv::PipelineDesc pipelineDesc;
 		pipelineDesc.name = "Unlit";
 		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		pipelineDesc.shaders = shaders;
+		pipelineDesc.numShaders = 2;
 		pipelineDesc.uniformBlocks = uniformBlocks;
 		pipelineDesc.numUniformBlocks = 1;
-		pipelineDesc.numShaders = 2;
-		
+		pipelineDesc.textureUniforms = textureUniforms.data();
+		pipelineDesc.numTextureUniforms = (unsigned int)textureUniforms.size();
+
 		m_pipeline = _device->createPipeline( &pipelineDesc );
 	}
 
@@ -46,9 +52,11 @@ void wv::UnlitMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 	/// TODO: get from some texture manager
 	{
 		wv::Application* app = wv::Application::get();
-		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/skybox.png" );
+		TextureMemory texMem = app->memoryDevice->loadTextureData( "res/textures/autumn_field_puresky.png" );
 		TextureDesc texDesc;
 		texDesc.memory = &texMem;
+		//texDesc.generateMipMaps = true;
+
 		m_albedoTexture = _device->createTexture( &texDesc );
 		app->memoryDevice->unloadTextureData( &texMem );
 	}

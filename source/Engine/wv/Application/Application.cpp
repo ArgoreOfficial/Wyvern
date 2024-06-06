@@ -54,14 +54,14 @@ wv::Application::Application( ApplicationDesc* _desc )
 	createDeferredPipeline();
 	createScreeQuad();
 	createGBuffer();
-
+	
 	device->setRenderTarget( m_defaultRenderTarget );
-
+	
 	memoryDevice = new MemoryDevice();
 
 	wv::assimp::Parser parser;
-	m_cube   = parser.load( "res/meshes/monke.glb" );
-	m_skybox = parser.load( "res/meshes/skybox.glb" );
+	m_monke  = parser.load( "res/meshes/monke.glb" );
+	m_skybox = parser.load( "res/meshes/skysphere.glb" );
 
 	/// TODO: not this
 	UnlitMaterial* unlitSkybox = new UnlitMaterial();
@@ -70,9 +70,10 @@ wv::Application::Application( ApplicationDesc* _desc )
 
 	//PhongMaterial* phong = new PhongMaterial();
 	//phong->create( device );
-	//m_cube->primitives[ 0 ]->material = phong;
+	//m_monke->primitives[ 0 ]->material = phong;
 
 	device->setClearColor( wv::Colors::Black );
+
 }
 
 wv::Application* wv::Application::get()
@@ -141,7 +142,7 @@ void wv::Application::tick()
 	
 	// refresh fps display
 	{
-		float fps = 1.0f / dt;
+		float fps = 1.0f / static_cast<float>( dt );
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
@@ -168,18 +169,20 @@ void wv::Application::tick()
 	/// ------------------ render ------------------ ///
 	
 	device->setRenderTarget( m_gbuffer );
-	device->clearRenderTarget( false, true );
+	device->clearRenderTarget( true, true );
+
+	device->draw( m_monke );
 
 	/// TODO: remove raw gl calls
 	glDepthMask( GL_FALSE );
+	glDepthFunc( GL_LEQUAL );
 	device->draw( m_skybox );
+	glDepthFunc( GL_LESS );
 	glDepthMask( GL_TRUE );
-
-	device->draw( m_cube );
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
-	device->clearRenderTarget( false, true );
+	device->clearRenderTarget( true, true );
 
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
@@ -273,6 +276,9 @@ void wv::Application::createScreeQuad()
 		-1.0f,  3.0f, 0.5f,       0.0f, 2.0f,
 		-1.0f, -1.0f, 0.5f,       0.0f, 0.0f,
 	};
+	unsigned int indices[] = {
+		0, 1, 2
+	};
 
 	wv::PrimitiveDesc prDesc;
 	{
@@ -282,6 +288,10 @@ void wv::Application::createScreeQuad()
 		prDesc.vertexBuffer     = vertices;
 		prDesc.vertexBufferSize = sizeof( vertices );
 		prDesc.numVertices      = 3;
+
+		prDesc.indexBuffer     = indices;
+		prDesc.indexBufferSize = sizeof( indices );
+		prDesc.numIndices      = 3;
 	}
 
 	MeshDesc meshDesc;
@@ -296,13 +306,15 @@ void wv::Application::createGBuffer()
 	rtDesc.height = context->getHeight();
 
 	TextureDesc texDescs[] = {
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_BYTE },
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
-		{ wv::WV_TEXTURE_CHANNELS_RG, wv::WV_TEXTURE_FORMAT_INT }
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
+	#ifndef EMSCRIPTEN /// temporary solution
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RG, wv::WV_TEXTURE_FORMAT_FLOAT }
+	#endif
 	};
 	rtDesc.textureDescs = texDescs;
-	rtDesc.numTextures = 4;
+	rtDesc.numTextures = 3;
 
 	m_gbuffer = device->createRenderTarget( &rtDesc );
 }

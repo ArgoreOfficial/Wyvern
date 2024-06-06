@@ -2,7 +2,7 @@
 
 #include <wv/Application/Application.h>
 #include <wv/Assets/Texture.h>
-#include <wv/Camera/iCamera.h>
+#include <wv/Camera/ICamera.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
@@ -43,8 +43,8 @@ void wv::PhongMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 		pipelineDesc.uniformBlocks    = uniformBlocks;
 		pipelineDesc.numUniformBlocks = 1;
 		pipelineDesc.textureUniforms    = textureUniforms.data();
-		pipelineDesc.numTextureUniforms = textureUniforms.size();
-
+		pipelineDesc.numTextureUniforms = (unsigned int)textureUniforms.size();
+		
 		m_pipeline = _device->createPipeline( &pipelineDesc );
 	}
 

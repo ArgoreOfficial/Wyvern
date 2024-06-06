@@ -20,7 +20,7 @@ wv::Memory wv::MemoryDevice::loadFromFile( const char* _path )
 	std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
 	mem.data = new unsigned char[ buf.size() ];
-	mem.size = buf.size();
+	mem.size = static_cast<unsigned int>( buf.size() );
 
 	memcpy( mem.data, buf.data(), buf.size() );
 

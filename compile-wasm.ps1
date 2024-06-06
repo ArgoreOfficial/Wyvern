@@ -20,18 +20,25 @@ $folders = @(
     # "libs\imgui"
 )
 
-# real/path@virtual/path
+
 $embeds = @(
-    "res/frag.glsl",
-    "res/deferred_fs.glsl",
-    "res/deferred_vs.glsl",
-    "res/vert.glsl",
-    "res/cube.wpr",
-    "res/throbber.gif"
+    "res/shaders/deferred_fs.glsl",
+    "res/shaders/deferred_vs.glsl",
+    "res/shaders/phong_fs.glsl",
+    "res/shaders/phong_vs.glsl",
+    "res/shaders/unlit_fs.glsl",
+    "res/shaders/unlit_vs.glsl",
+    "res/shaders/skybox_vs.glsl",
+    
+    "res/textures/autumn_field_puresky.png",
+    "res/textures/uv.png",
+
+    "res/meshes/monke.glb.wpr",
+    "res/meshes/skysphere.glb.wpr"
 )
 
 $objdir = "build\wasm\"
-$linkflags = "-sUSE_GLFW=3 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1"
+$linkflags = "-sUSE_GLFW=3 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -sALLOW_MEMORY_GROWTH"
 
 # END CONFIG
 

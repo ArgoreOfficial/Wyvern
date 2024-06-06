@@ -32,6 +32,9 @@ namespace wv
 
 		Uniform* textureUniforms = nullptr;
 		unsigned int numTextureUniforms = 0;
+
+		Uniform* attributes = nullptr;
+		unsigned int numAttributes = 0;
 	};
 
 

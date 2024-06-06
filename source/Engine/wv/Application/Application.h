@@ -57,7 +57,7 @@ namespace wv
 
 		/// TEMPORARY---
 		Mesh* m_skybox;
-		Mesh* m_cube;
+		Mesh* m_monke;
 		/// ---TEMPORARY
 
 		// deferred rendering

@@ -1,6 +1,7 @@
 #include "GraphicsDevice.h"
 
 #include <wv/Assets/Texture.h>
+#include <wv/Decl.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
@@ -14,6 +15,7 @@
 #include <fstream>
 
 #include <vector>
+
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
@@ -42,12 +44,12 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	/// TEMPORARY---
 	/// TODO: add to pipeline configuration
 	//glEnable( GL_MULTISAMPLE );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	//glEnable( GL_BLEND );
+	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
-	glEnable( GL_CULL_FACE );
+	//glEnable( GL_CULL_FACE );
 	/// ---TEMPORARY
 }
 
@@ -64,7 +66,7 @@ void wv::GraphicsDevice::onResize( int _width, int _height )
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
 	RenderTarget* target = new RenderTarget();
-
+	
 	glGenFramebuffers( 1, &target->fbHandle );
 	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
 
@@ -86,14 +88,30 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
 	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
 	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
-
+	
 	glDrawBuffers( _desc->numTextures, drawBuffers );
 	delete[] drawBuffers;
 
 	int errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
+		const char* err = "";
+		switch ( errcode )
+		{
+		case GL_FRAMEBUFFER_UNDEFINED:                     err = "GL_FRAMEBUFFER_UNDEFINED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         err = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: err = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        err = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"; break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:                   err = "GL_FRAMEBUFFER_UNSUPPORTED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        err = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      err = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"; break;
+		case GL_INVALID_ENUM:                              err = "GL_INVALID_ENUM "; break;
+		case GL_INVALID_OPERATION:                         err = "GL_INVALID_OPERATION "; break;
+		}
+
 		printf( "Failed to create RenderTarget\n" );
+		printf( "  %s\n", err );
 
 		destroyRenderTarget( &target );
 		delete target;
@@ -150,7 +168,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 	if ( _desc->name )
 	{
-		if ( m_pipelines.contains( _desc->name ) )
+		if ( m_pipelines.count( _desc->name ) )
 		{
 			printf( "[WARN] Pipeline called '%s' already. A new one will not be created.\n", _desc->name );
 			return m_pipelines[ _desc->name ];
@@ -182,9 +200,11 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		// clean up shaders
 		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
 			glDeleteShader( shaders[ i ] );
-
+		
 		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
+
+		glUseProgram( pipeline->program );
 
 		// required for OpenGL < 4.2
 		// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
@@ -192,10 +212,16 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		{
 			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->textureUniforms[ i ].name.c_str() );
 			
-			glUseProgram( pipeline->program );
 			glUniform1i( loc, _desc->textureUniforms[ i ].index );
-			glUseProgram( 0 );
 		}
+
+		for ( unsigned int i = 0; i < _desc->numAttributes; i++ )
+		{
+			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->attributes[ i ].name.c_str() );
+
+			glUniform1i( loc, _desc->attributes[ i ].index );
+		}
+		glUseProgram( 0 );
 
 	} break;
 	}
@@ -218,7 +244,7 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 
 wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
-	if ( !m_pipelines.contains( _name ) )
+	if ( !m_pipelines.count( _name ) )
 	{
 		printf( "[ERR] No pipeline called '%s' exists", _name );
 		return nullptr;
@@ -310,7 +336,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* 
 		#endif
 		}
 
-		glVertexAttribPointer( i, element.num, type, element.normalized, stride, reinterpret_cast<void*>( offset ) );
+		glVertexAttribPointer( i, element.num, type, element.normalized, stride, VPTRi32( offset ) );
 		glEnableVertexAttribArray( i );
 
 		offset += element.size;
@@ -397,8 +423,12 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	GLenum filter = GL_NEAREST;
+	if ( _desc->memory )
+		filter = GL_LINEAR;
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
 	
 	GLenum type = GL_UNSIGNED_BYTE;
 	switch ( _desc->format )
@@ -409,9 +439,20 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 
 	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
 	
+
 	if( _desc->generateMipMaps )
 		glGenerateMipmap( GL_TEXTURE_2D );
 
+	GLenum err;
+	while ( ( err = glGetError() ) != GL_NO_ERROR )
+	{
+		switch ( err )
+		{
+		case GL_INVALID_ENUM: printf( "GL_INVALID_ENUM" ); break;
+		case GL_INVALID_VALUE: printf( "GL_INVALID_VALUE" ); break;
+		case GL_INVALID_OPERATION: printf( "GL_INVALID_OPERATION" ); break;
+		}
+	}
 	return texture;
 }
 
@@ -468,9 +509,14 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
 	}
 	else
-	{
+	{ 
+	#ifndef EMSCRIPTEN
+		/// this does not work on WebGL
 		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
 		glDrawArrays( GL_TRIANGLES, 0, _primitive->numVertices );
+	#else
+		printf( "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
+	#endif
 	}
 }
 
@@ -554,23 +600,23 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	UniformBlock block;
 
 	block.m_bindingIndex = m_numTotalUniformBlocks;
-
-	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name );
+	
+	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name );;
 	glGetActiveUniformBlockiv( _pipeline->program, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
 
 	block.m_buffer = new char[ block.m_bufferSize ];
 	memset( block.m_buffer, 0, block.m_bufferSize );
-
+	;
 	glGenBuffers( 1, &block.m_bufferHandle );
 	glBindBuffer( GL_UNIFORM_BUFFER, block.m_bufferHandle );
 	glBufferData( GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
-
+	
 	glBindBufferBase( GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
 
 	std::vector<unsigned int> indices( _desc->numUniforms );
 	std::vector<int> offsets( _desc->numUniforms );
-
+	
 	glGetUniformIndices( _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
 	glGetActiveUniformsiv( _pipeline->program, _desc->numUniforms, indices.data(), GL_UNIFORM_OFFSET, offsets.data() );
 

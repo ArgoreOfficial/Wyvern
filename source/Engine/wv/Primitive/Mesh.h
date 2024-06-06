@@ -4,6 +4,7 @@
 #include <wv/Types.h>
 #include <wv/Assets/Materials/IMaterial.h>
 
+#include <string>
 #include <vector>
 
 namespace wv
@@ -17,6 +18,7 @@ namespace wv
 	class Mesh
 	{
 	public:
+		std::string name;
 		wv::Handle vaoHandle;
 		std::vector<Primitive*> primitives;
 	};

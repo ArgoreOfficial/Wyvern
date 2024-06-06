@@ -18,7 +18,7 @@ layout(binding = 3) uniform sampler2D u_RoughnessMetallic;
 in vec2 TexCoord;
 out vec4 FragColor;
 
-const vec3 LIGHT_DIR = normalize( vec3( -0.5,1,0.9 ) );
+const vec3 LIGHT_DIR = normalize( vec3( 1,1,-1 ) );
 
 void main()
 {
@@ -30,7 +30,10 @@ void main()
     float shading = 1.0;
 
     if( normal != vec3( 0 ) )
-        shading = max( 0.0, dot( normal, LIGHT_DIR ) );
+    {
+        float shadingDot = dot( normal, LIGHT_DIR );
+        shading = max( 0.2, shadingDot * 0.5 + 0.5 );
+    }
 
     FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
 }
