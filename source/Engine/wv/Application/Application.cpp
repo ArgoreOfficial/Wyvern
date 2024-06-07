@@ -17,6 +17,7 @@
 #include <wv/RenderTarget/RenderTarget.h>
 #include <wv/Scene/Model.h>
 
+#include <wv/Auxiliary/fkYAML/node.hpp>
 
 #include <stdio.h>
 #include <math.h>
@@ -58,6 +59,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	device->setRenderTarget( m_defaultRenderTarget );
 	
 	memoryDevice = new MemoryDevice();
+	memoryDevice->loadShaderPipeline( "res/shaders/phong.wshader" );
 
 	wv::assimp::Parser parser;
 	m_monke  = parser.load( "res/meshes/monke.glb" );
@@ -68,12 +70,11 @@ wv::Application::Application( ApplicationDesc* _desc )
 	unlitSkybox->create( device, "res/shaders/skybox_vs.glsl" );
 	m_skybox->primitives[ 0 ]->material = unlitSkybox;
 
-	//PhongMaterial* phong = new PhongMaterial();
-	//phong->create( device );
-	//m_monke->primitives[ 0 ]->material = phong;
+	PhongMaterial* phong = new PhongMaterial();
+	phong->create( device );
+	m_monke->primitives[ 0 ]->material = phong;
 
 	device->setClearColor( wv::Colors::Black );
-
 }
 
 wv::Application* wv::Application::get()
@@ -165,9 +166,6 @@ void wv::Application::tick()
 
 	currentCamera->update( dt );
 
-	//m_skybox->m_transform.setPosition( currentCamera->getTransform().position );
-	//m_skybox->update( dt );
-
 	/// ------------------ render ------------------ ///
 	
 	device->setRenderTarget( m_gbuffer );
@@ -239,27 +237,8 @@ void wv::Application::onInputEvent( InputEvent _event )
 
 void wv::Application::createDeferredPipeline()
 {
-	wv::ShaderSource shaders[] = {
-		{ wv::WV_SHADER_TYPE_VERTEX,   "res/shaders/deferred_vs.glsl" },
-		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/shaders/deferred_fs.glsl" }
-	};
-
-	wv::Uniform textureUniforms[] = {
-		{ 0, 0, "u_Albedo" },
-		{ 1, 0, "u_Normal" },
-		{ 2, 0, "u_Position" },
-		{ 3, 0, "u_RoughnessMetallic" }
-	};
-
-	wv::PipelineDesc pipelineDesc;
-	pipelineDesc.type     = wv::WV_PIPELINE_GRAPHICS;
-	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
-	pipelineDesc.shaders    = shaders;
-	pipelineDesc.numShaders = 2;
-	pipelineDesc.textureUniforms    = textureUniforms;
-	pipelineDesc.numTextureUniforms = 2;
-
-	m_deferredPipeline = device->createPipeline( &pipelineDesc );
+	MemoryDevice md;
+	m_deferredPipeline = md.loadShaderPipeline( "res/shaders/deferred.wshader" );
 }
 
 void wv::Application::createScreeQuad()

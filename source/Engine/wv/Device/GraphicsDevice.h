@@ -91,7 +91,7 @@ namespace wv
 		wv::Pipeline* m_activePipeline = nullptr;
 		int m_numTotalUniformBlocks = 0;
 
-		std::unordered_map<const char*, wv::Pipeline*> m_pipelines;
+		std::unordered_map<std::string, wv::Pipeline*> m_pipelines;
 
 	};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <string>
 
 namespace wv
 {
@@ -13,7 +14,7 @@ namespace wv
 	struct ShaderSource
 	{
 		ShaderType type;
-		const char* filePath;
+		std::string path;
 	};
 
 	struct ShaderDesc

@@ -166,13 +166,10 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 {
 	wv::Pipeline* pipeline = new wv::Pipeline();
 
-	if ( _desc->name )
+	if ( _desc->name != "" )
 	{
 		if ( m_pipelines.count( _desc->name ) )
-		{
-			printf( "[WARN] Pipeline called '%s' already. A new one will not be created.\n", _desc->name );
 			return m_pipelines[ _desc->name ];
-		}
 	}
 
 	switch ( _desc->type )
@@ -228,7 +225,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 	glUseProgram( 0 );
 
-	if ( _desc->name )
+	if ( _desc->name != "" )
 		m_pipelines[ _desc->name ] = pipeline;
 	
 	return pipeline;
@@ -246,7 +243,7 @@ wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
 	{
-		printf( "[ERR] No pipeline called '%s' exists", _name );
+		//printf( "[ERR] No pipeline called '%s' exists", _name );
 		return nullptr;
 	}
 
@@ -527,7 +524,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 
 
 	/// TODO: change to proper asset loader
-	std::ifstream fs( _desc->filePath );
+	std::ifstream fs( _desc->path );
 
 	if ( !fs.is_open() )
 	{
@@ -566,7 +563,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	if ( !success )
 	{
 		glGetShaderInfoLog( shader, 512, NULL, infoLog );
-		printf( "Shader compilation failed in '%s'\n %s \n", _desc->filePath, infoLog );
+		printf( "Shader compilation failed in '%s'\n %s \n", _desc->path.c_str(), infoLog);
 	}
 
 	return shader;
@@ -601,7 +598,7 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 
 	block.m_bindingIndex = m_numTotalUniformBlocks;
 	
-	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name );;
+	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name.c_str() );;
 	glGetActiveUniformBlockiv( _pipeline->program, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
 
 	block.m_buffer = new char[ block.m_bufferSize ];
@@ -614,18 +611,22 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	
 	glBindBufferBase( GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
 
-	std::vector<unsigned int> indices( _desc->numUniforms );
-	std::vector<int> offsets( _desc->numUniforms );
+	std::vector<unsigned int> indices( _desc->uniforms.size() );
+	std::vector<int> offsets( _desc->uniforms.size() );
 	
-	glGetUniformIndices( _pipeline->program, _desc->numUniforms, _desc->uniforms, indices.data() );
-	glGetActiveUniformsiv( _pipeline->program, _desc->numUniforms, indices.data(), GL_UNIFORM_OFFSET, offsets.data() );
+	std::vector<const char*> uniformNames;
+	for ( size_t i = 0; i < _desc->uniforms.size(); i++ )
+		uniformNames.push_back( _desc->uniforms[ i ].name.c_str() ); // lifetime issues?
+	
+	glGetUniformIndices( _pipeline->program, _desc->uniforms.size(), uniformNames.data(), indices.data());
+	glGetActiveUniformsiv( _pipeline->program, _desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
 
-	for ( int o = 0; o < _desc->numUniforms; o++ )
+	for ( int o = 0; o < _desc->uniforms.size(); o++ )
 	{
 		Uniform u;
 		u.index = indices[ o ];
 		u.offset = offsets[ o ];
-		u.name = _desc->uniforms[ o ];
+		u.name = _desc->uniforms[ o ].name;
 
 		block.m_uniforms[ u.name ] = u;
 	}

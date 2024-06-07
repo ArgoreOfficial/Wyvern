@@ -3,22 +3,30 @@
 #include <wv/Application/Application.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
+#include <wv/Shader/UniformBlock.h>
+#include <wv/Pipeline/Pipeline.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 
 #include <wv/Auxiliary/json.hpp>
+#include <wv/Auxiliary/fkYAML/node.hpp>
 
 #include <fstream>
 #include <vector>
 
 wv::Memory wv::MemoryDevice::loadFromFile( const char* _path )
 {
-	Memory mem;
-	
 	std::ifstream in( _path, std::ios::binary );
+	if ( !in.is_open() )
+	{
+		printf( "Couldn't open file '%s'\n", _path );
+		return {};
+	}
+
 	std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
+	Memory mem;
 	mem.data = new unsigned char[ buf.size() ];
 	mem.size = static_cast<unsigned int>( buf.size() );
 
@@ -36,6 +44,14 @@ void wv::MemoryDevice::freeMemory( Memory* _memory )
 	delete _memory->data;
 	*_memory = {};
 	numLoadedFiles--;
+}
+
+std::string wv::MemoryDevice::loadString( const char* _path )
+{
+	Memory mem = loadFromFile( _path );
+	std::string str( (const char*)mem.data, mem.size );
+	freeMemory( &mem );
+    return str;
 }
 
 wv::TextureMemory wv::MemoryDevice::loadTextureData( const char* _path )
@@ -91,4 +107,67 @@ wv::Mesh* wv::MemoryDevice::loadModel( const char* _path, bool _binary )
 	}
 
     return nullptr;
+}
+
+wv::Pipeline* wv::MemoryDevice::loadShaderPipeline( const std::string& _path )
+{
+	wv::Application* app = wv::Application::get();
+	wv::GraphicsDevice* device = app->device;
+
+	std::string yaml = loadString( _path.c_str() );
+	fkyaml::node root = fkyaml::node::deserialize( yaml );
+
+	std::string source = root[ "source" ].get_value<std::string>();
+	wv::Pipeline* pipeline = device->getPipeline( source.c_str() );
+	if ( pipeline )
+		return pipeline;
+
+	wv::ShaderSource shaders[] = {
+		{ wv::WV_SHADER_TYPE_VERTEX,   "res/shaders/" + source + "_vs.glsl" },
+		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" }
+	};
+	
+	std::vector<UniformBlockDesc> blocks;
+	int blockCounter = 0;
+	for ( auto& block : root[ "blocks" ] )
+	{
+		UniformBlockDesc blockDesc{};
+
+		blockDesc.name = block[ "block" ].get_value<std::string>();
+		
+		for ( auto& uniform : block[ "uniforms" ] )
+		{
+			Uniform u{ (unsigned int)blockCounter, 0, uniform[ "uniform" ].get_value<std::string>() };
+			blockDesc.uniforms.push_back( u );
+		}
+
+		blockCounter++;
+		blocks.push_back( blockDesc );
+	}
+
+	std::vector<Uniform> textureUniforms;;
+	int textureCounter = 0;
+	for ( auto& texture : root[ "textures" ] )
+	{
+		wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
+		textureUniforms.push_back( u );
+		textureCounter++;
+	}
+
+	wv::PipelineDesc pipelineDesc;
+	pipelineDesc.name = source.c_str();
+	pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
+	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
+	pipelineDesc.shaders = shaders;
+	pipelineDesc.numShaders = 2;
+	pipelineDesc.uniformBlocks = blocks.data();
+	pipelineDesc.numUniformBlocks = blocks.size();
+	pipelineDesc.textureUniforms = textureUniforms.data();
+	pipelineDesc.numTextureUniforms = (unsigned int)textureUniforms.size();
+
+	printf( "Loaded shader '%s'\n", _path.c_str() );
+	pipeline = device->createPipeline( &pipelineDesc );
+
+
+    return pipeline;
 }

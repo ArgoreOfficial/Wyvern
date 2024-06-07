@@ -20,7 +20,7 @@ namespace wv
 
 	struct PipelineDesc
 	{
-		const char* name = nullptr;
+		std::string name;
 		PipelineType type = WV_PIPELINE_GRAPHICS;
 		PipelineTopology topology = WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		

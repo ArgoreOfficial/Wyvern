@@ -15,37 +15,8 @@ void wv::PhongMaterial::create( GraphicsDevice* _device, const char* _vs, const 
 	// create pipeline
 	/// TODO: get from some pipeline manager
 	{
-		wv::ShaderSource shaders[] = {
-				{ wv::WV_SHADER_TYPE_VERTEX,   _vs ? _vs : "res/shaders/phong_vs.glsl" },
-				{ wv::WV_SHADER_TYPE_FRAGMENT, _fs ? _fs : "res/shaders/phong_fs.glsl" }
-		};
-
-		const char* ubInstanceDataUniforms[] = {
-			"u_Projection",
-			"u_View",
-			"u_Model",
-		};
-
-		wv::UniformBlockDesc uniformBlocks[] = {
-			{ "UbInstanceData", ubInstanceDataUniforms, 3 }
-		};
-
-		std::vector<wv::Uniform> textureUniforms = {
-			{ 0, 0, "u_Albedo" }
-		};
-
-		wv::PipelineDesc pipelineDesc;
-		pipelineDesc.name = "Phong";
-		pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
-		pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
-		pipelineDesc.shaders    = shaders;
-		pipelineDesc.numShaders = 2;
-		pipelineDesc.uniformBlocks    = uniformBlocks;
-		pipelineDesc.numUniformBlocks = 1;
-		pipelineDesc.textureUniforms    = textureUniforms.data();
-		pipelineDesc.numTextureUniforms = (unsigned int)textureUniforms.size();
-		
-		m_pipeline = _device->createPipeline( &pipelineDesc );
+		wv::MemoryDevice mdevice;
+		m_pipeline = mdevice.loadShaderPipeline( "res/shaders/phong.wshader" );
 	}
 
 	// create albedo texture

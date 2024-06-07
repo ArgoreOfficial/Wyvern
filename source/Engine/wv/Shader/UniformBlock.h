@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 #include <wv/Types.h>
@@ -22,10 +23,8 @@ namespace wv
 
 	struct UniformBlockDesc
 	{
-		const char* name;
-
-		const char** uniforms; /// TODO: change to UniformDesc?
-		int numUniforms;
+		std::string name;
+		std::vector<Uniform> uniforms;
 	};
 
 	class UniformBlock
@@ -57,6 +56,11 @@ namespace wv
 	template<typename T>
 	inline void UniformBlock::set( const std::string& _name, T* _data )
 	{
+		if ( m_uniforms.count( _name ) == 0 )
+		{
+			printf( "Uniform %s does not exist\n", _name.c_str() );
+			return;
+		}
 		unsigned int offset = m_uniforms[ _name ].offset;
 		memcpy( m_buffer + offset, _data, sizeof( T ) );
 	}

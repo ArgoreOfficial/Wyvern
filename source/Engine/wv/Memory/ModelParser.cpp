@@ -118,8 +118,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		//mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
 		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
 
-		material = new wv::PhongMaterial( phongDesc );
-		material->create( device );
+		//material = new wv::PhongMaterial( phongDesc );
+		//material->create( device );
 
 	}
 
@@ -147,7 +147,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.numIndices      = (unsigned int)indices.size();
 
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
-	primitive->material = material;
+	//primitive->material = material;
 
 
 	std::ofstream wprfile( _mesh->name + ".wpr", std::ios::binary );

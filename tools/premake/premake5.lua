@@ -48,7 +48,8 @@ project (PROJECT_NAME)
 
 	files { 
 		"../../source/**.h", 
-		"../../source/**.cpp" 
+		"../../source/**.hpp", 
+		"../../source/**.cpp"
 	}
 	
 	libdirs { ASSIMP_STATIC_ROOT .. "lib" }

@@ -22,7 +22,8 @@ void main()
 {
     vec3 normalColor = (Normal / 2.0) + vec3( 0.5 );
     
-    o_Albedo = texture( u_Albedo, TexCoord );
+    o_Albedo = vec4(normalColor, 1.0); 
+    //o_Albedo = texture( u_Albedo, TexCoord );
     o_Normal = vec4( Normal, 1.0 );
     o_Position = vec4( Pos, 1.0 );
     o_RoughnessMetallic = vec4( 1.0 );

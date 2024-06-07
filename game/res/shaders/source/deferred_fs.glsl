@@ -29,10 +29,10 @@ void main()
     vec3 normal = texture( u_Normal, TexCoord ).xyz;
     float shading = 1.0;
 
-    if( normal != vec3( 0 ) )
+    if( length( normal ) > 0.1 )
     {
         float shadingDot = dot( normal, LIGHT_DIR );
-        shading = max( 0.2, shadingDot * 0.5 + 0.5 );
+        shading = max( 0.0, shadingDot * 0.5 + 0.5 );
     }
 
     FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
