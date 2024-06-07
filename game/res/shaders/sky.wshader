@@ -1,7 +1,6 @@
 source: "source/sky"
 blocks:
-  - 
-    block: "UbInstanceData"
+  - block: "UbInstanceData"
     uniforms:
       - { uniform: "u_Projection", type: float, size: 16 }
       - { uniform: "u_View", type: float, size: 16 }
