@@ -175,9 +175,16 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
 
 wv::Mesh* wv::assimp::Parser::load( const char* _path )
 {
+
 #ifndef LOAD_WPR
+	MemoryDevice md;
+	Memory* meshMem = md.loadMemory( _path );
+	
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile( _path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
+	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
+
+	md.unloadMemory( meshMem );
+
 
 	// TODO: change to wv::assert
 	if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
@@ -222,18 +229,18 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	*/
 
 	
-	MemoryDevice mdevice;
+	MemoryDevice md;
 	std::string path = std::string( _path ) + ".wpr";
-	Memory mem = mdevice.loadMemory( path.c_str() );
+	Memory* mem = md.loadMemory( path.c_str() );
 	
 	wv::PrimitiveDesc prDesc;
 	{
-		int numIndices = *reinterpret_cast<int*>( mem.data );
-		int numVertices = *reinterpret_cast<int*>( mem.data + sizeof( int ) );
+		int numIndices  = *reinterpret_cast<int*>( mem->data );
+		int numVertices = *reinterpret_cast<int*>( mem->data + sizeof( int ) );
 		int vertsSize = numVertices * sizeof( Vertex ); // 5 floats per vertex
-		int indsSize = numIndices * sizeof( unsigned int );
+		int indsSize  = numIndices * sizeof( unsigned int );
 
-		uint8_t* indexBuffer = mem.data + ( sizeof( int ) * 2 );
+		uint8_t* indexBuffer = mem->data + ( sizeof( int ) * 2 );
 		uint8_t* vertexBuffer = indexBuffer + indsSize;
 
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
@@ -248,16 +255,11 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		prDesc.numIndices = numIndices;
 	}
 
-
 	Application* app = Application::get();
-	
 	Mesh* mesh = app->device->createMesh( nullptr );
-	
 	Primitive* prm = app->device->createPrimitive( &prDesc, mesh );
-	prm->material = new PhongMaterial();
-	prm->material->create( app->device );
-
-	mdevice.unloadMemory( &mem );
+	
+	md.unloadMemory( mem );
 #endif
 	return mesh;
 }

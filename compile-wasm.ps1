@@ -22,19 +22,25 @@ $folders = @(
 
 
 $embeds = @(
-    "res/shaders/deferred_fs.glsl",
-    "res/shaders/deferred_vs.glsl",
-    "res/shaders/phong_fs.glsl",
-    "res/shaders/phong_vs.glsl",
-    "res/shaders/unlit_fs.glsl",
-    "res/shaders/unlit_vs.glsl",
-    "res/shaders/skybox_vs.glsl",
-    
-    "res/textures/autumn_field_puresky.png",
-    "res/textures/uv.png",
+    'res/shaders/deferred.wshader',
+    'res/shaders/sky.wshader',
+    'res/shaders/phong.wshader',
 
-    "res/meshes/monke.glb.wpr",
-    "res/meshes/skysphere.glb.wpr"
+    'res/shaders/source/deferred_vs.glsl',
+    'res/shaders/source/deferred_fs.glsl',
+    'res/shaders/source/sky_vs.glsl',
+    'res/shaders/source/sky_fs.glsl',
+    'res/shaders/source/phong_vs.glsl',
+    'res/shaders/source/phong_fs.glsl',
+
+    'res/meshes/monke.glb.wpr',
+    'res/meshes/skysphere.glb.wpr',
+    
+    'res/materials/defaultSky.wmat',
+    'res/materials/phong.wmat',
+    
+    'res/textures/autumn_field_puresky.png',
+    'res/textures/uv.png'
 )
 
 $objdir = "build\wasm\"

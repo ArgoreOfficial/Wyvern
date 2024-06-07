@@ -46,6 +46,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	memcpy( mem->data, buf.data(), buf.size() );
 
 	m_loadedMemory.push_back( mem );
+	printf( "Loaded '%s' @ %i bytes\n", _path, mem->size );
 	return mem;
 }
 
@@ -75,6 +76,10 @@ void wv::MemoryDevice::unloadMemory( Memory* _memory )
 std::string wv::MemoryDevice::loadString( const char* _path )
 {
 	Memory* mem = loadMemory( _path );
+
+	if ( !mem->data )
+		return "";
+
 	std::string str( (const char*)mem->data, mem->size );
 	unloadMemory( mem );
     return str;
@@ -96,8 +101,8 @@ wv::TextureMemory* wv::MemoryDevice::loadTextureData( const char* _path )
 		return {}; // empty memory object
 	}
 	
-	printf( "Loaded texture '%s' (%ix%i @ %ibpp)\n", _path, mem->width, mem->height, mem->numChannels * 8 );
 	mem->size = mem->height * mem->numChannels * mem->width * mem->numChannels;
 	m_loadedMemory.push_back( mem );
+	printf( "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
 	return mem;
 }

@@ -363,7 +363,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 {
 	Texture* texture = new Texture();
 
-	GLenum internalFormat = GL_RED;
+	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
 	unsigned char* data = nullptr;
@@ -381,7 +381,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RED;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RED;  break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_R8;  break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_R32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_R32I; format = GL_RED_INTEGER; break;
 		}
@@ -390,7 +390,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RG;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG;    break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG8;    break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RG32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RG32I; format = GL_RG_INTEGER; break;
 		}
@@ -399,8 +399,8 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RGB;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB;    break;
-		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB16F; break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;    break;
+		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; format = GL_RGB_INTEGER; break;
 		}
 		break;
@@ -408,7 +408,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RGBA;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA;    break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA8;    break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; format = GL_RGBA_INTEGER; break;
 		}
@@ -520,28 +520,22 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	int  success;
 	char infoLog[ 512 ];
 
-
-	/// TODO: change to proper asset loader
-	std::ifstream fs( _desc->path );
-
-	if ( !fs.is_open() )
+	MemoryDevice md;
+	std::string source = md.loadString( _desc->path.c_str() );
+	if ( source == "" )
 	{
 		printf( "Could not find shader source\n" );
 		return 0;
 	}
 
-	std::stringstream buffer;
-	buffer << fs.rdbuf();
-	std::string source_str = buffer.str();
-
 	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
 	// therefore #if GL_ES cannot be used in the shader itself
 #ifdef EMSCRIPTEN
-	source_str = "#version 300 es\n" + source_str;
+	source = "#version 300 es\n" + source;
 #else
-	source_str = "#version 460 core\n" + source_str;
+	source = "#version 460 core\n" + source;
 #endif
-	const char* source = source_str.c_str();
+	const char* sourcePtr = source.c_str();
 
 	GLenum type = GL_NONE;
 	{
@@ -554,7 +548,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 
 	wv::Handle shader;
 	shader = glCreateShader( type );
-	glShaderSource( shader, 1, &source, NULL );
+	glShaderSource( shader, 1, &sourcePtr, NULL );
 	glCompileShader( shader );
 
 	glGetShaderiv( shader, GL_COMPILE_STATUS, &success );

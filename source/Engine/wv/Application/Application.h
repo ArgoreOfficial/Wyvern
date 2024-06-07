@@ -18,7 +18,6 @@ namespace wv
 	class RootNode;
 	class Model;
 	class Material;
-	class PhongMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +91,7 @@ namespace wv
 
 		float m_maxFps = 0.0f;
 		
-	#define FPS_CACHE_NUM 4000
+	#define FPS_CACHE_NUM 1000
 		float m_fpsCache[ FPS_CACHE_NUM ] = { 0.0f };
 		int m_fpsCacheCounter = 0;
 		float m_averageFps = 0.0f;

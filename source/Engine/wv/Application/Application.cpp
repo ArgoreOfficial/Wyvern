@@ -102,6 +102,10 @@ void wv::Application::onResize( int _width, int _height )
 	device->setRenderTarget( m_defaultRenderTarget );
 
 	device->destroyRenderTarget( &m_gbuffer );
+	
+	if ( _width == 0 || _height == 0 )
+		return;
+	
 	createGBuffer();
 }
 
@@ -207,19 +211,18 @@ void wv::Application::tick()
 	// refresh fps display
 	{
 		float fps = 1.0f / static_cast<float>( dt );
-		int n = FPS_CACHE_NUM < (int)fps ? FPS_CACHE_NUM : (int)fps;
-
+		
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
 		m_fpsCache[ m_fpsCacheCounter ] = fps;
 		m_fpsCacheCounter++;
-		if ( m_fpsCacheCounter > n )
+		if ( m_fpsCacheCounter > FPS_CACHE_NUM )
 		{
 			m_fpsCacheCounter = 0;
-			for ( int i = 0; i < n; i++ )
+			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
 				m_averageFps += m_fpsCache[ i ];
-			m_averageFps /= (float)n;
+			m_averageFps /= (float)FPS_CACHE_NUM;
 
 		}
 
@@ -231,6 +234,10 @@ void wv::Application::tick()
 
 	/// ------------------ render ------------------ ///
 	
+	
+	if ( !m_gbuffer || m_defaultRenderTarget->width == 0 || m_defaultRenderTarget->height == 0 )
+		return;
+
 	device->setRenderTarget( m_gbuffer );
 	device->clearRenderTarget( true, true );
 
@@ -309,14 +316,19 @@ void wv::Application::createGBuffer()
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
-	#ifndef EMSCRIPTEN /// temporary solution
+	#ifdef EMSCRIPTEN
+		// WebGL doesn't seem to support FLOAT R, RG, or RGB
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
+		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
+	#else
 		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
 		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RG, wv::WV_TEXTURE_FORMAT_FLOAT }
+		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_FLOAT }
 	#endif
 	};
 	rtDesc.textureDescs = texDescs;
-	rtDesc.numTextures = 3;
+	rtDesc.numTextures = 4;
 
 	m_gbuffer = device->createRenderTarget( &rtDesc );
 }

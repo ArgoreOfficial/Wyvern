@@ -62,7 +62,6 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 	pipelineDesc.uniformBlocks = blocks;
 	pipelineDesc.textureUniforms = textureUniforms;
 
-	printf( "Loaded shader '%s'\n", _path.c_str() );
 	pipeline = device->createPipeline( &pipelineDesc );
 
 	return pipeline;
