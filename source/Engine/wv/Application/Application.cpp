@@ -56,9 +56,6 @@ wv::Application::Application( ApplicationDesc* _desc )
 	
 	device->setRenderTarget( m_defaultRenderTarget );
 	
-	memoryDevice = new MemoryDevice();
-	memoryDevice->loadShaderPipeline( "res/shaders/phong.wshader" );
-
 	wv::assimp::Parser parser;
 	m_monke  = parser.load( "res/meshes/monke.glb" );
 	m_skybox = parser.load( "res/meshes/skysphere.glb" );
@@ -235,8 +232,7 @@ void wv::Application::onInputEvent( InputEvent _event )
 
 void wv::Application::createDeferredPipeline()
 {
-	MemoryDevice md;
-	m_deferredPipeline = md.loadShaderPipeline( "res/shaders/deferred.wshader" );
+	m_deferredPipeline = Pipeline::loadFromFile( "res/shaders/deferred.wshader" );
 }
 
 void wv::Application::createScreeQuad()

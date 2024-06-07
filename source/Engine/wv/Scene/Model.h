@@ -17,7 +17,7 @@ namespace wv
 		 Model( const uint64_t& _uuid, const std::string& _name );
 		~Model();
 
-		void loadFromFile( const std::string& _path );
+		void loadMemory( const std::string& _path );
 		virtual void update( double _deltaTime ) override;
 		virtual void draw  ( Context* _context, GraphicsDevice* _device ) override;
 

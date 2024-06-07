@@ -224,7 +224,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	
 	MemoryDevice mdevice;
 	std::string path = std::string( _path ) + ".wpr";
-	Memory mem = mdevice.loadFromFile( path.c_str() );
+	Memory mem = mdevice.loadMemory( path.c_str() );
 	
 	wv::PrimitiveDesc prDesc;
 	{
@@ -257,7 +257,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	prm->material = new PhongMaterial();
 	prm->material->create( app->device );
 
-	mdevice.freeMemory( &mem );
+	mdevice.unloadMemory( &mem );
 #endif
 	return mesh;
 }

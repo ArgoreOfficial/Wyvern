@@ -19,7 +19,7 @@ wv::Model::~Model()
 
 }
 
-void wv::Model::loadFromFile( const std::string& _path )
+void wv::Model::loadMemory( const std::string& _path )
 {
 	wv::Application* app = wv::Application::get();
 
@@ -52,16 +52,16 @@ void wv::Model::loadFromFile( const std::string& _path )
 	*/
 
 	
-	Memory mem = app->memoryDevice->loadFromFile( _path.c_str() );
+	Memory* mem = app->memoryDevice->loadMemory( _path.c_str() );
 
 	wv::PrimitiveDesc prDesc;
 	{
-		int numIndices = *reinterpret_cast<int*>( mem.data );
-		int numVertices = *reinterpret_cast<int*>( mem.data + sizeof( int ) );
+		int numIndices = *reinterpret_cast<int*>( mem->data );
+		int numVertices = *reinterpret_cast<int*>( mem->data + sizeof( int ) );
 		int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
 		int indsSize = numIndices * sizeof( unsigned int );
 
-		unsigned char* indexBuffer = mem.data + ( sizeof( int ) * 2 );
+		unsigned char* indexBuffer = mem->data + ( sizeof( int ) * 2 );
 		unsigned char* vertexBuffer = indexBuffer + indsSize;
 
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
@@ -77,6 +77,7 @@ void wv::Model::loadFromFile( const std::string& _path )
 	}
 
 	app->device->createPrimitive( &prDesc, m_mesh );
+	app->memoryDevice->unloadMemory( mem );
 }
 
 void wv::Model::update( double _deltaTime )

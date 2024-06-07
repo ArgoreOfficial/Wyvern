@@ -21,20 +21,21 @@ void wv::Material::load( const char* _path )
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 	std::string shader = root[ "shader" ].get_value<std::string>();
 
-	m_pipeline = mdevice.loadShaderPipeline( "res/shaders/" + shader + ".wshader" );
+	m_pipeline = Pipeline::loadFromFile( "res/shaders/" + shader + ".wshader" );
 
 	for ( auto& textureFile : root[ "textures" ] )
 	{
 		std::string texturePath = "res/textures/" + textureFile[ 1 ].get_value<std::string>();
-		TextureMemory texMem = mdevice.loadTextureData( texturePath.c_str() );
-		TextureDesc texDesc; texDesc.memory = &texMem;
+		TextureMemory* texMem = mdevice.loadTextureData( texturePath.c_str() );
+		TextureDesc texDesc; 
+		texDesc.memory = texMem;
 		//texDesc.generateMipMaps = true;
 		
 		Texture* tex = device->createTexture(&texDesc);
 		if ( tex )
 			m_textures.push_back( tex );
 		
-		mdevice.unloadTextureData( &texMem );
+		mdevice.unloadMemory( texMem );
 	}
 }
 

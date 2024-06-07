@@ -37,6 +37,9 @@ namespace wv
 		wv::Handle program = 0;
 		uint32_t mode = 0;
 		UniformBlockMap uniformBlocks;
+		
+		static Pipeline* loadFromFile( const std::string& _path );
+
 	private:
 
 	};
