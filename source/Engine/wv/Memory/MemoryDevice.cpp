@@ -14,6 +14,8 @@
 #include <fstream>
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::MemoryDevice::~MemoryDevice()
 {
 	if ( m_loadedMemory.size() > 0 )
@@ -23,6 +25,8 @@ wv::MemoryDevice::~MemoryDevice()
 			unloadMemory( m_loadedMemory.front() );
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 {
@@ -45,6 +49,8 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	return mem;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::MemoryDevice::unloadMemory( Memory* _memory )
 {
 	if ( !_memory->data )
@@ -64,6 +70,8 @@ void wv::MemoryDevice::unloadMemory( Memory* _memory )
 	delete _memory;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 std::string wv::MemoryDevice::loadString( const char* _path )
 {
 	Memory* mem = loadMemory( _path );
@@ -71,6 +79,8 @@ std::string wv::MemoryDevice::loadString( const char* _path )
 	unloadMemory( mem );
     return str;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::TextureMemory* wv::MemoryDevice::loadTextureData( const char* _path )
 {

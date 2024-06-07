@@ -44,14 +44,13 @@ namespace wv
 		Application( ApplicationDesc* _desc );
 		static Application* get();
 
+		void onResize( int _width, int _height );
+		void onMouseEvent( MouseEvent _event ) override;
+		void onInputEvent( InputEvent _event ) override;
+
 		void run();
 		void terminate();
 		void tick();
-
-		void onResize( int _width, int _height );
-
-		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( InputEvent _event ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +67,6 @@ namespace wv
 		// engine
 		Context*        context = nullptr;
 		GraphicsDevice* device  = nullptr;
-		MemoryDevice*   memoryDevice = nullptr;
 
 		// camera 
 		/// TODOM: move?
@@ -83,11 +81,14 @@ namespace wv
 		 */
 		RenderTarget* m_defaultRenderTarget = nullptr;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
 
-		void createDeferredPipeline();
 		void createScreeQuad();
 		void createGBuffer();
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 		float m_maxFps = 0.0f;
 		
@@ -106,5 +107,7 @@ namespace wv
 		 * are to be supported
 		 */
 		static inline Application* s_instance = nullptr; 
+
 	};
+
 }

@@ -51,8 +51,8 @@ void wv::Model::loadMemory( const std::string& _path )
 	cubefile.close();
 	*/
 
-	
-	Memory* mem = app->memoryDevice->loadMemory( _path.c_str() );
+	MemoryDevice md;
+	Memory* mem = md.loadMemory( _path.c_str() );
 
 	wv::PrimitiveDesc prDesc;
 	{
@@ -61,8 +61,8 @@ void wv::Model::loadMemory( const std::string& _path )
 		int vertsSize = numVertices * sizeof( float ) * 5; // 5 floats per vertex
 		int indsSize = numIndices * sizeof( unsigned int );
 
-		unsigned char* indexBuffer = mem->data + ( sizeof( int ) * 2 );
-		unsigned char* vertexBuffer = indexBuffer + indsSize;
+		uint8_t* indexBuffer = mem->data + ( sizeof( int ) * 2 );
+		uint8_t* vertexBuffer = indexBuffer + indsSize;
 
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
@@ -77,7 +77,7 @@ void wv::Model::loadMemory( const std::string& _path )
 	}
 
 	app->device->createPrimitive( &prDesc, m_mesh );
-	app->memoryDevice->unloadMemory( mem );
+	md.unloadMemory( mem );
 }
 
 void wv::Model::update( double _deltaTime )

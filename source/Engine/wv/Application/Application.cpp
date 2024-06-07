@@ -22,6 +22,7 @@
 #include <fstream>
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
@@ -50,48 +51,112 @@ wv::Application::Application( ApplicationDesc* _desc )
 	
 	s_instance = this;
 
-	createDeferredPipeline();
-	createScreeQuad();
-	createGBuffer();
+	/* 
+	 * create deferred rendering objects
+	 * this should be configurable
+	 */
+	{ 
+		m_deferredPipeline = Pipeline::loadFromFile( "res/shaders/deferred.wshader" );
+		createScreeQuad();
+		createGBuffer();
+	}
 	
 	device->setRenderTarget( m_defaultRenderTarget );
 	
-	wv::assimp::Parser parser;
-	m_monke  = parser.load( "res/meshes/monke.glb" );
-	m_skybox = parser.load( "res/meshes/skysphere.glb" );
+	/// TODO: move to prefab or model file
+	{
+		wv::assimp::Parser parser;
+		m_monke = parser.load( "res/meshes/monke.glb" );
+		m_skybox = parser.load( "res/meshes/skysphere.glb" );
 
-	/// TODO: not this
-	Material* skyMaterial = new Material();
-	skyMaterial->load( "res/materials/defaultSky.wmat" );
-	m_skybox->primitives[ 0 ]->material = skyMaterial;
+		Material* skyMaterial = new Material(); // memory leak
+		skyMaterial->load( "res/materials/defaultSky.wmat" );
+		m_skybox->primitives[ 0 ]->material = skyMaterial;
 
-	Material* phongMaterial = new Material();
-	phongMaterial->load( "res/materials/phong.wmat" );
-	m_monke->primitives[ 0 ]->material = phongMaterial;
+		Material* phongMaterial = new Material(); // memory leak
+		phongMaterial->load( "res/materials/phong.wmat" );
+		m_monke->primitives[ 0 ]->material = phongMaterial;
+	}
 
 	device->setClearColor( wv::Colors::Black );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::get()
 {
 	return s_instance;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::onResize( int _width, int _height )
+{
+	context->onResize( _width, _height );
+	device->onResize( _width, _height );
+
+	// recreate render target
+	m_defaultRenderTarget->width = _width;
+	m_defaultRenderTarget->height = _height;
+	device->setRenderTarget( m_defaultRenderTarget );
+
+	device->destroyRenderTarget( &m_gbuffer );
+	createGBuffer();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::onMouseEvent( MouseEvent _event )
+{
+	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
+		return;
+
+	if ( !_event.buttondown )
+		return;
+
+	if ( currentCamera == orbitCamera )
+	{
+		currentCamera = freeflightCamera;
+		freeflightCamera->getTransform().position = orbitCamera->getTransform().position;
+		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
+
+		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::onInputEvent( InputEvent _event )
+{
+	if ( !_event.repeat )
+		if ( _event.key == GLFW_KEY_F )
+			if ( currentCamera != orbitCamera )
+				currentCamera = orbitCamera; // lol
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef EMSCRIPTEN
 void emscriptenMainLoop() { wv::Application::get()->tick(); }
 #endif
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::run()
 {
 	
-	// Subscribe to mouse event
+	// Subscribe to user input event
 	subscribeMouseEvents();
 	subscribeInputEvent();
 
-	// cameras have to be made after the event is subscribed to
-	// to get the correct order
-	/// TODO: event priority
+	/*
+	 * Cameras have to be made after the event is subscribed to
+	 * to get the correct event callback order
+	 * 
+	 * This is because events are called in the order that they 
+	 * were subscribed in
+	 */
 	orbitCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onCreate();
@@ -100,12 +165,14 @@ void wv::Application::run()
 	currentCamera = orbitCamera;
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop( &emscriptenMainLoop, 0, 1 );
+	emscripten_set_main_loop( []{ wv::Application::get()->tick(); }, 0, 1);
 #else
 	while ( context->isAlive() )
 		tick();
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::terminate()
 {
@@ -125,8 +192,9 @@ void wv::Application::terminate()
 	
 	delete context;
 	delete device;
-	delete memoryDevice;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::tick()
 {
@@ -190,50 +258,7 @@ void wv::Application::tick()
 	context->swapBuffers();
 }
 
-void wv::Application::onResize( int _width, int _height )
-{
-	context->onResize( _width, _height );
-	device->onResize( _width, _height );
-
-	// recreate render target
-	m_defaultRenderTarget->width = _width;
-	m_defaultRenderTarget->height = _height;
-	device->setRenderTarget( m_defaultRenderTarget );
-
-	device->destroyRenderTarget( &m_gbuffer );
-	createGBuffer();
-}
-
-void wv::Application::onMouseEvent( MouseEvent _event )
-{
-	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
-		return;
-
-	if ( !_event.buttondown )
-		return;
-
-	if( currentCamera == orbitCamera )
-	{
-		currentCamera = freeflightCamera;
-		freeflightCamera->getTransform().position = orbitCamera->getTransform().position;
-		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
-
-		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
-	}
-}
-
-void wv::Application::onInputEvent( InputEvent _event )
-{
-	if ( !_event.repeat )
-		if ( _event.key == GLFW_KEY_F )
-			if ( currentCamera != orbitCamera )
-				currentCamera = orbitCamera; // lol
-}
-
-void wv::Application::createDeferredPipeline()
-{
-	m_deferredPipeline = Pipeline::loadFromFile( "res/shaders/deferred.wshader" );
-}
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::createScreeQuad()
 {
@@ -273,6 +298,8 @@ void wv::Application::createScreeQuad()
 	m_screenQuad = device->createMesh( &meshDesc );
 	device->createPrimitive( &prDesc, m_screenQuad );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::createGBuffer()
 {
