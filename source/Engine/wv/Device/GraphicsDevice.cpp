@@ -49,7 +49,7 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
-	//glEnable( GL_CULL_FACE );
+	glEnable( GL_CULL_FACE );
 	/// ---TEMPORARY
 }
 

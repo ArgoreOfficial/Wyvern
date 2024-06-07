@@ -143,21 +143,23 @@ void wv::Application::tick()
 	// refresh fps display
 	{
 		float fps = 1.0f / static_cast<float>( dt );
+		int n = FPS_CACHE_NUM < fps ? FPS_CACHE_NUM : fps;
+
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
 		m_fpsCache[ m_fpsCacheCounter ] = fps;
 		m_fpsCacheCounter++;
-		if ( m_fpsCacheCounter > (int)fps )
+		if ( m_fpsCacheCounter > n )
 		{
 			m_fpsCacheCounter = 0;
-			for ( int i = 0; i < (int)fps; i++ )
+			for ( int i = 0; i < n; i++ )
 				m_averageFps += m_fpsCache[ i ];
-			m_averageFps /= fps;
+			m_averageFps /= (float)n;
 
 		}
 
-		std::string title = "FPS: " + std::to_string( (int)fps ) + "   Average: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+		std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 		context->setTitle( title.c_str() );
 	}
 

@@ -48,11 +48,12 @@ wv::TextureMemory wv::MemoryDevice::loadTextureData( const char* _path )
 
 	if ( !mem.data )
 	{
-		printf( "Failed to load texture %s\n", _path );
+		//printf( "Failed to load texture %s\n", _path );
 		unloadTextureData( &mem );
 		return {}; // empty memory object
 	}
 	
+	printf( "Loaded texture '%s' (%ix%i @ %ibpp)\n", _path, mem.width, mem.height, mem.numChannels * 8 );
 	mem.size = mem.height * mem.numChannels * mem.width * mem.numChannels;
 	return mem;
 }
