@@ -213,7 +213,7 @@ void wv::Context::swapBuffers()
 	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
-	float t = m_time;
+	float t = static_cast<float>( m_time );
 	m_time = glfwGetTime();
 	m_frameTime = m_time - t;
 }

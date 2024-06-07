@@ -179,7 +179,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		std::vector<wv::Handle> shaders;
 
 		// create shaders
-		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
+		for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
 		{
 			wv::Handle shader = createShader( &_desc->shaders[ i ] );
 			if ( shader != 0 )
@@ -190,34 +190,34 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 		{
 			wv::ShaderProgramDesc programDesc;
 			programDesc.shaders = shaders.data();
-			programDesc.numShaders = _desc->numShaders;
+			programDesc.numShaders = (unsigned int)_desc->shaders.size();
 			pipeline->program = createProgram( &programDesc );
 		}
 
 		// clean up shaders
-		for ( unsigned int i = 0; i < _desc->numShaders; i++ )
+		for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
 			glDeleteShader( shaders[ i ] );
 		
-		for ( unsigned int i = 0; i < _desc->numUniformBlocks; i++ )
+		for ( int i = 0; i < (int)_desc->uniformBlocks.size(); i++ )
 			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
 
 		glUseProgram( pipeline->program );
 
 		// required for OpenGL < 4.2
 		// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
-		for ( unsigned int i = 0; i < _desc->numTextureUniforms; i++ )
+		for ( int i = 0; i < (int)_desc->textureUniforms.size(); i++ )
 		{
 			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->textureUniforms[ i ].name.c_str() );
 			
 			glUniform1i( loc, _desc->textureUniforms[ i ].index );
 		}
 
-		for ( unsigned int i = 0; i < _desc->numAttributes; i++ )
-		{
-			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->attributes[ i ].name.c_str() );
-
-			glUniform1i( loc, _desc->attributes[ i ].index );
-		}
+		//for ( unsigned int i = 0; i < _desc->numAttributes; i++ )
+		//{
+		//	unsigned int loc = glGetUniformLocation( pipeline->program, _desc->attributes[ i ].name.c_str() );
+		//
+		//	glUniform1i( loc, _desc->attributes[ i ].index );
+		//}
 		glUseProgram( 0 );
 
 	} break;
@@ -618,8 +618,8 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 	for ( size_t i = 0; i < _desc->uniforms.size(); i++ )
 		uniformNames.push_back( _desc->uniforms[ i ].name.c_str() ); // lifetime issues?
 	
-	glGetUniformIndices( _pipeline->program, _desc->uniforms.size(), uniformNames.data(), indices.data());
-	glGetActiveUniformsiv( _pipeline->program, _desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
+	glGetUniformIndices( _pipeline->program, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data());
+	glGetActiveUniformsiv( _pipeline->program, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
 
 	for ( int o = 0; o < _desc->uniforms.size(); o++ )
 	{

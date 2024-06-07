@@ -24,6 +24,8 @@ namespace wv
 	class MemoryDevice
 	{
 	public:
+		~MemoryDevice();
+
 		Memory loadFromFile( const char* _path );
 		void freeMemory( Memory* _memory );
 
@@ -36,7 +38,7 @@ namespace wv
 
 		Pipeline* loadShaderPipeline( const std::string& _path );
 	private:
-		int numLoadedFiles = 0;
+		int m_numLoadedFiles = 0;
 
 	};
 }

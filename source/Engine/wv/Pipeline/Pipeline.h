@@ -24,17 +24,9 @@ namespace wv
 		PipelineType type = WV_PIPELINE_GRAPHICS;
 		PipelineTopology topology = WV_PIPELINE_TOPOLOGY_TRIANGLES;
 		
-		ShaderSource* shaders = nullptr;
-		unsigned int numShaders = 0;
-
-		UniformBlockDesc* uniformBlocks = nullptr;
-		unsigned int numUniformBlocks = 0;
-
-		Uniform* textureUniforms = nullptr;
-		unsigned int numTextureUniforms = 0;
-
-		Uniform* attributes = nullptr;
-		unsigned int numAttributes = 0;
+		std::vector<ShaderSource> shaders{};
+		std::vector<UniformBlockDesc> uniformBlocks{};
+		std::vector<Uniform> textureUniforms{};
 	};
 
 

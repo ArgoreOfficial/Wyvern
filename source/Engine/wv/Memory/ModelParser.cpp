@@ -45,7 +45,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	wv::IMaterial* material;
+	wv::IMaterial* material = nullptr;
 	
 	// process vertices
 	for ( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )

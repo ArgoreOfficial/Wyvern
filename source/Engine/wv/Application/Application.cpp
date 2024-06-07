@@ -144,7 +144,7 @@ void wv::Application::tick()
 	// refresh fps display
 	{
 		float fps = 1.0f / static_cast<float>( dt );
-		int n = FPS_CACHE_NUM < fps ? FPS_CACHE_NUM : fps;
+		int n = FPS_CACHE_NUM < (int)fps ? FPS_CACHE_NUM : (int)fps;
 
 		if ( fps > m_maxFps )
 			m_maxFps = fps;

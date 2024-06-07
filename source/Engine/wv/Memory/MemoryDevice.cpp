@@ -15,6 +15,12 @@
 #include <fstream>
 #include <vector>
 
+wv::MemoryDevice::~MemoryDevice()
+{
+	if ( m_numLoadedFiles > 0 )
+		printf( "Non-Empty MemoryDevice destroyed. This may cause memory leaks\n" );
+}
+
 wv::Memory wv::MemoryDevice::loadFromFile( const char* _path )
 {
 	std::ifstream in( _path, std::ios::binary );
@@ -32,7 +38,7 @@ wv::Memory wv::MemoryDevice::loadFromFile( const char* _path )
 
 	memcpy( mem.data, buf.data(), buf.size() );
 
-	numLoadedFiles++;
+	m_numLoadedFiles++;
 	return mem;
 }
 
@@ -43,7 +49,7 @@ void wv::MemoryDevice::freeMemory( Memory* _memory )
 
 	delete _memory->data;
 	*_memory = {};
-	numLoadedFiles--;
+	m_numLoadedFiles--;
 }
 
 std::string wv::MemoryDevice::loadString( const char* _path )
@@ -58,7 +64,7 @@ wv::TextureMemory wv::MemoryDevice::loadTextureData( const char* _path )
 {
 	TextureMemory mem;
 
-	numLoadedFiles++;
+	m_numLoadedFiles++;
 	stbi_set_flip_vertically_on_load( 0 );
 	mem.data = reinterpret_cast<uint8_t*>( stbi_load( _path, &mem.width, &mem.height, &mem.numChannels, 0 ) );
 
@@ -78,7 +84,7 @@ void wv::MemoryDevice::unloadTextureData( TextureMemory* _memory )
 {
 	stbi_image_free( _memory->data );
 	*_memory = {};
-	numLoadedFiles--;
+	m_numLoadedFiles--;
 }
 
 wv::Mesh* wv::MemoryDevice::loadModel( const char* _path, bool _binary )
@@ -122,7 +128,7 @@ wv::Pipeline* wv::MemoryDevice::loadShaderPipeline( const std::string& _path )
 	if ( pipeline )
 		return pipeline;
 
-	wv::ShaderSource shaders[] = {
+	std::vector<wv::ShaderSource> shaders = {
 		{ wv::WV_SHADER_TYPE_VERTEX,   "res/shaders/" + source + "_vs.glsl" },
 		{ wv::WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" }
 	};
@@ -146,7 +152,7 @@ wv::Pipeline* wv::MemoryDevice::loadShaderPipeline( const std::string& _path )
 	}
 
 	std::vector<Uniform> textureUniforms;;
-	int textureCounter = 0;
+	unsigned int textureCounter = 0;
 	for ( auto& texture : root[ "textures" ] )
 	{
 		wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
@@ -159,15 +165,11 @@ wv::Pipeline* wv::MemoryDevice::loadShaderPipeline( const std::string& _path )
 	pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 	pipelineDesc.shaders = shaders;
-	pipelineDesc.numShaders = 2;
-	pipelineDesc.uniformBlocks = blocks.data();
-	pipelineDesc.numUniformBlocks = blocks.size();
-	pipelineDesc.textureUniforms = textureUniforms.data();
-	pipelineDesc.numTextureUniforms = (unsigned int)textureUniforms.size();
+	pipelineDesc.uniformBlocks = blocks;
+	pipelineDesc.textureUniforms = textureUniforms;
 
 	printf( "Loaded shader '%s'\n", _path.c_str() );
 	pipeline = device->createPipeline( &pipelineDesc );
-
 
     return pipeline;
 }
