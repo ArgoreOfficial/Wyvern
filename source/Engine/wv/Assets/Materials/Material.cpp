@@ -17,20 +17,11 @@ void wv::Material::load( const char* _path )
 	wv::GraphicsDevice* device = app->device;
 
 	wv::MemoryDevice mdevice;
-
 	std::string yaml = mdevice.loadString( _path );
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 	std::string shader = root[ "shader" ].get_value<std::string>();
 
 	m_pipeline = mdevice.loadShaderPipeline( "res/shaders/" + shader + ".wshader" );
-
-	/*
-	root[ "baseUniforms" ][ "projection" ]
-	root[ "baseUniforms" ][ "view" ]
-	root[ "baseUniforms" ][ "model" ]
-
-	remove?
-	*/
 
 	for ( auto& textureFile : root[ "textures" ] )
 	{
