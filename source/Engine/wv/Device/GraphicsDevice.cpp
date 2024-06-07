@@ -1,6 +1,7 @@
 #include "GraphicsDevice.h"
 
 #include <wv/Assets/Texture.h>
+#include <wv/Assets/Materials/Material.h>
 #include <wv/Decl.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
@@ -487,10 +488,7 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 	if ( _primitive->material )
-	{
-		_primitive->material->materialCallback();
-		setActivePipeline( _primitive->material->m_pipeline );
-	}
+		_primitive->material->setAsActive( this );
 	
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{

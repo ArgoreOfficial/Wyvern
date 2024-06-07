@@ -1,11 +1,10 @@
 #include "Model.h"
 #include <wv/Application/Application.h>
-#include <wv/Assets/Materials/IMaterial.h>
 #include <wv/Device/Context.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Memory/MemoryDevice.h>
-
+#include <wv/Assets/Materials/Material.h>
 #include <fstream>
 
 wv::Model::Model( const uint64_t& _uuid, const std::string& _name ) : Node{ _uuid, _name }

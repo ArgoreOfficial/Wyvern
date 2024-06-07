@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <wv/Assets/Materials/UnlitMaterial.h>
-#include <wv/Assets/Materials/PhongMaterial.h>
 #include <wv/Assets/Texture.h>
 
 #include <wv/Camera/FreeflightCamera.h>
@@ -17,7 +15,7 @@
 #include <wv/RenderTarget/RenderTarget.h>
 #include <wv/Scene/Model.h>
 
-#include <wv/Auxiliary/fkYAML/node.hpp>
+#include <wv/Assets/Materials/Material.h>
 
 #include <stdio.h>
 #include <math.h>
@@ -66,13 +64,13 @@ wv::Application::Application( ApplicationDesc* _desc )
 	m_skybox = parser.load( "res/meshes/skysphere.glb" );
 
 	/// TODO: not this
-	UnlitMaterial* unlitSkybox = new UnlitMaterial();
-	unlitSkybox->create( device, "res/shaders/skybox_vs.glsl" );
-	m_skybox->primitives[ 0 ]->material = unlitSkybox;
+	Material* skyMaterial = new Material();
+	skyMaterial->load( "res/materials/defaultSky.wmat" );
+	m_skybox->primitives[ 0 ]->material = skyMaterial;
 
-	PhongMaterial* phong = new PhongMaterial();
-	phong->create( device );
-	m_monke->primitives[ 0 ]->material = phong;
+	Material* phongMaterial = new Material();
+	phongMaterial->load( "res/materials/phong.wmat" );
+	m_monke->primitives[ 0 ]->material = phongMaterial;
 
 	device->setClearColor( wv::Colors::Black );
 }

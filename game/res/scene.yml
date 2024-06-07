@@ -1,0 +1,25 @@
+name: "Monkey Scene"
+sky: defaultSkybox
+root: 
+  refID: 0x0
+  baseID: 0x0
+  children:
+    -
+      refID: 0xfae1b102
+      baseID: 0x32b9da15
+      name: "Monkey Model"
+      children":
+        -
+          refID: 0xe937630e
+          baseID: 0x32b9da15
+          name: "Monkey Model"
+          comment: "placeholder until hat model is done -p"
+          transform:
+            pos: [ 0, 0.5, 0 ]
+            rot: [ 45, 0, 0 ]
+    -
+      refID: 0x7d339284
+      baseID: 0xf3bb87ad
+      name: "Baseplate"
+      transform:
+        scale": [ 30, 30, 30 ]

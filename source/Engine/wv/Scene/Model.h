@@ -9,7 +9,7 @@ namespace wv
 {
 	class Mesh;
 	class Pipeline;
-	class IMaterial;
+	class Material;
 	
 	class Model : public Node
 	{
@@ -21,7 +21,7 @@ namespace wv
 		virtual void update( double _deltaTime ) override;
 		virtual void draw  ( Context* _context, GraphicsDevice* _device ) override;
 
-		IMaterial* m_material; /// TODO: change to index?
+		Material* m_material; /// TODO: change to index?
 	private:
 		Mesh* m_mesh; /// TODO: allow for multiple meshes
 	};

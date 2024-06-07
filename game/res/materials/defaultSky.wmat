@@ -1,0 +1,7 @@
+shader: "sky"
+baseUniforms:
+  projection: true
+  view: true
+  model: true
+textures:
+  - [ "u_Albedo", "autumn_field_puresky.png" ]

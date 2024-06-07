@@ -1,8 +1,8 @@
 #include "ModelParser.h"
 
 #include <wv/Application/Application.h>
-#include <wv/Assets/Materials/PhongMaterial.h>
-#include <wv/Assets/Materials/UnlitMaterial.h>
+#include <wv/Assets/Materials/Material.h>
+
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 
@@ -45,7 +45,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	wv::IMaterial* material = nullptr;
 	
 	// process vertices
 	for ( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )
@@ -98,19 +97,16 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		wv::PhongMaterialDesc phongDesc;
-		std::string albedoPath;
-
+		
 		/// TODO: generalize for any type of shader, material, or set of textures
 
 		//mesh->material = getMaterial( "res/materials/mesh" );
 		//
 
-		if ( assimpMaterial->GetTextureCount( aiTextureType_DIFFUSE ) )
-		{
-			albedoPath = getAssimpMaterialTexturePath( assimpMaterial, aiTextureType_DIFFUSE, "res/textures" );
-			phongDesc.albedoTexturePath = albedoPath.c_str();
-		}
+		//if ( assimpMaterial->GetTextureCount( aiTextureType_DIFFUSE ) )
+		//{
+		//	albedoPath = getAssimpMaterialTexturePath( assimpMaterial, aiTextureType_DIFFUSE, "res/textures" );
+		//}
 		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
 		//std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
 		//

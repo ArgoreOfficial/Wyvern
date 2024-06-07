@@ -17,7 +17,7 @@ namespace wv
 	class MemoryDevice;
 	class RootNode;
 	class Model;
-	class IMaterial;
+	class Material;
 	class PhongMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////

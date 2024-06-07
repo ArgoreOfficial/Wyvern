@@ -70,7 +70,7 @@ wv::TextureMemory wv::MemoryDevice::loadTextureData( const char* _path )
 
 	if ( !mem.data )
 	{
-		//printf( "Failed to load texture %s\n", _path );
+		printf( "Failed to load texture %s\n", _path );
 		unloadTextureData( &mem );
 		return {}; // empty memory object
 	}
