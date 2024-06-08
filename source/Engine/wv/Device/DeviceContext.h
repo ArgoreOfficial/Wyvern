@@ -1,11 +1,6 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <wv/Types.h>
-
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,16 +45,18 @@ namespace wv
 
 		virtual void onResize( int _width, int _height );
 
-		virtual bool isAlive() = 0;
 		virtual void setMouseLock( bool _lock ) = 0;
 		virtual void setTitle( const char* _title ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		int    getWidth()     { return m_width; }
-		int    getHeight()    { return m_height; }
-		double getTime()      { return m_time; };
+		int    getWidth    () { return m_width; }
+		int    getHeight   () { return m_height; }
+		double getTime     () { return m_time; };
 		double getDeltaTime() { return m_deltaTime; }
+		bool   isAlive     () { return m_alive; };
+
+		void close() { m_alive = false; }
 
 		inline float getAspect()
 		{
@@ -79,6 +76,8 @@ namespace wv
 
 		double m_time = 0.0f;
 		double m_deltaTime = 0.016f;
+
+		bool m_alive = true;
 
 	};
 

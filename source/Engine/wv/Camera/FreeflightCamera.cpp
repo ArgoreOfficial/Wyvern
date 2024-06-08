@@ -6,6 +6,8 @@
 //#include <cm/Core/cWindow.h>
 //#include <wv/Core/cApplication.h>
 
+#include <SDL2/SDL_keycode.h> /// TODO: remove
+
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ICamera( _type, _fov, _near, _far )
 {
@@ -32,23 +34,16 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 		m_freecam_enabled = !m_freecam_enabled;
 		ctx->setMouseLock( m_freecam_enabled );
 
-		m_old_mouse_pos = _event.position;
-
 		// reset input
 		m_rotate = { 0.0f, 0.0f };
 		m_move = { 0.0f, 0.0f, 0.0f };
 		m_speed = m_speed_normal;
-
 	}
 
 	if ( !m_freecam_enabled )
 		return;
 
-	int delta_x = _event.position.x - m_old_mouse_pos.x;
-	int delta_y = _event.position.y - m_old_mouse_pos.y;
-	m_old_mouse_pos = _event.position;
-
-	m_rotate = wv::Vector2f( (float)delta_x, (float)delta_y );
+	m_rotate = { (float)_event.delta.x, (float)_event.delta.y };
 }
 
 void wv::FreeflightCamera::onInputEvent( InputEvent _event )
@@ -60,16 +55,17 @@ void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 
 	if ( !_event.repeat )
 	{
+			/// TODO: change to WV_KEY
 		switch ( _event.key )
-		{
-		case GLFW_KEY_W: m_move.z += -button_delta; break;
-		case GLFW_KEY_S: m_move.z +=  button_delta; break;
-		case GLFW_KEY_A: m_move.x += -button_delta; break;
-		case GLFW_KEY_D: m_move.x +=  button_delta; break;
-		case GLFW_KEY_E: m_move.y +=  button_delta; break; // up
-		case GLFW_KEY_Q: m_move.y += -button_delta; break; // down
+		{ 
+		case 'W': m_move.z += -button_delta; break;
+		case 'S': m_move.z += button_delta; break;
+		case 'A': m_move.x += -button_delta; break;
+		case 'D': m_move.x += button_delta; break;
+		case 'E': m_move.y += button_delta; break; // up
+		case 'Q': m_move.y += -button_delta; break; // down
 
-		case GLFW_KEY_LEFT_SHIFT:   m_speed += button_delta * 200.0f; break;
+		case SDL_Scancode::SDL_SCANCODE_LSHIFT: m_speed += button_delta * 200.0f; break;
 		}
 	}
 }

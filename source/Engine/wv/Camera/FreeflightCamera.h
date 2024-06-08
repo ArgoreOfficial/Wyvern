@@ -37,7 +37,6 @@ namespace wv
 		wv::Vector2f m_rotate;
 		wv::Vector3f m_velocity;
 
-		wv::Vector2i m_old_mouse_pos;
 		bool m_freecam_enabled = false;
 
 		float m_speed = 70.0f;

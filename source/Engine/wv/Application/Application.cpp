@@ -22,19 +22,22 @@
 #include <fstream>
 #include <vector>
 
+
+#include <SDL2/SDL_keycode.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
 	wv::ContextDesc ctxDesc;
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
+	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
 #else
 	wv::ContextDesc ctxDesc;
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
+	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
@@ -122,6 +125,8 @@ void wv::Application::onResize( int _width, int _height )
 
 void wv::Application::onMouseEvent( MouseEvent _event )
 {
+	m_mousePosition = _event.position;
+
 	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 		return;
 
@@ -143,7 +148,7 @@ void wv::Application::onMouseEvent( MouseEvent _event )
 void wv::Application::onInputEvent( InputEvent _event )
 {
 	if ( !_event.repeat )
-		if ( _event.key == GLFW_KEY_F )
+		if ( _event.key == 'F' )
 			if ( currentCamera != orbitCamera )
 				currentCamera = orbitCamera; // lol
 }
@@ -218,6 +223,7 @@ void wv::Application::tick()
 	context->pollEvents();
 	
 	// refresh fps display
+	
 	{
 		float fps = 1.0f / static_cast<float>( dt );
 		

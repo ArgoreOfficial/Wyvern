@@ -10,7 +10,8 @@ namespace wv
 	struct MouseEvent
 	{
 		Vector2i position = {0,0};
-		
+		Vector2i delta = {0,0};
+
 		enum MouseButton
 		{
 			WV_MOUSE_BUTTON_NONE = 0,

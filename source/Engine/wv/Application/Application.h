@@ -2,6 +2,7 @@
 
 #include <wv/Events/IMouseListener.h>
 #include <wv/Events/IInputListener.h>
+#include <wv/Math/Vector2.h>
 
 namespace wv
 {
@@ -46,6 +47,8 @@ namespace wv
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
 		void onInputEvent( InputEvent _event ) override;
+
+		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
 		void run();
 		void terminate();
@@ -107,6 +110,7 @@ namespace wv
 		 */
 		static inline Application* s_instance = nullptr; 
 
+		wv::Vector2i m_mousePosition;
 	};
 
 }

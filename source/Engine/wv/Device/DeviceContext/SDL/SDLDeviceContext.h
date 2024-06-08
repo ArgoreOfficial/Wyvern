@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 #include <wv/Types.h>
 
 #include <wv/Device/DeviceContext.h>
@@ -9,6 +9,7 @@
 #include <emscripten.h>
 #endif
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -16,7 +17,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class GLFWDeviceContext : public DeviceContext
+	class SDLDeviceContext : public DeviceContext
 	{
 
 	public:
@@ -37,9 +38,14 @@ namespace wv
 
 	protected:
 		friend class DeviceContext;
-		GLFWDeviceContext( ContextDesc* _desc );
+		SDLDeviceContext( ContextDesc* _desc );
 		
-		GLFWwindow* m_windowContext;
+		SDL_Window* m_windowContext = nullptr;
 
+		uint64_t m_performanceCounter = 0;
+
+		// #ifdef WV_OPENGL_SUPPORTED
+		SDL_GLContext m_glContext = nullptr;
+		// #endif
 	};
 }

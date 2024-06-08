@@ -1,14 +1,17 @@
 
-if is_mode("Debug") then
-    set_symbols "debug"
-    set_optimize "none"
-elseif is_mode("Release") then
-    set_symbols "debug"
-    set_optimize "faster"
-elseif is_mode("Package") then
-    set_symbols "none"
-    set_optimize "fastest"
+function glfw_supported()
+    return is_plat( "windows" ) or 
+           is_plat( "macosx" ) or
+           is_plat( "linux" )
 end
+
+
+
+if is_mode("Debug") then
+end
+
+set_symbols "debug"
+set_optimize "none"
 
 
 -- configuration defines
@@ -26,7 +29,9 @@ if is_plat("wasm") then add_defines("WV_PLATFORM_WINDOWS") end
 -- dependencies
 
 add_requires( "glm" )
+add_requires( "libsdl" )
 
-if not is_plat( "wasm" ) then
+if glfw_supported() then 
     add_requires( "glfw" )
+    add_defines( "WV_GLFW_SUPPORTED" )
 end

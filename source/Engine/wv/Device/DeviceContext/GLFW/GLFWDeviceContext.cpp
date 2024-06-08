@@ -19,7 +19,7 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	/// TODO: move to application?
 	if ( _key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS )
 		glfwSetWindowShouldClose( _window, true );
-
+	
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;
@@ -38,6 +38,9 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	wv::MouseEvent mouseEvent;
 
 	mouseEvent.position = wv::Vector2i{ (int)xpos, (int)ypos };
+
+	wv::Vector2i oldPos = wv::Application::get()->getMousePosition();
+	mouseEvent.delta = wv::Vector2i{ (int)xpos - oldPos.x, (int)ypos - oldPos.y };
 	
 	wv::IMouseListener::invoke( mouseEvent );
 }
@@ -58,7 +61,7 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
 	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
 	}
-
+	
 	mouseEvent.buttondown = _action == GLFW_PRESS;
 	mouseEvent.buttonup = _action == GLFW_RELEASE;
 
@@ -181,6 +184,8 @@ void wv::GLFWDeviceContext::pollEvents()
 {
 	// process input
 	glfwPollEvents();
+
+	m_alive = !glfwWindowShouldClose( m_windowContext );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -200,13 +205,6 @@ void wv::GLFWDeviceContext::swapBuffers()
 void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
 	DeviceContext::onResize( _width, _height );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool wv::GLFWDeviceContext::isAlive()
-{
-	return !glfwWindowShouldClose( m_windowContext );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
