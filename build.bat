@@ -1,3 +1,1 @@
-cd tools
-cd premake
-premake5.exe vs2022
+xmake project -k vsxmake -y -v -m "Debug,Release,Package" ./build
