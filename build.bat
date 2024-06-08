@@ -1,1 +1,1 @@
-xmake project -k vsxmake -y -v -m "Debug,Release,Package" ./build
+xmake project -k vsxmake -y -m "Debug,Release,Package" ./build
