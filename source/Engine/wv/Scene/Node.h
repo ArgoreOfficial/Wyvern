@@ -7,7 +7,7 @@
 
 namespace wv
 {
-	class Context;
+	class DeviceContext;
 	class GraphicsDevice;
 
 	class Node
@@ -26,7 +26,7 @@ namespace wv
 				m_children[ i ]->update( _deltaTime );
 		}
 
-		virtual void draw( Context* _context, GraphicsDevice* _device ) 
+		virtual void draw( DeviceContext* _context, GraphicsDevice* _device ) 
 		{
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->draw( _context, _device );

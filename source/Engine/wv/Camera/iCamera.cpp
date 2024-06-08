@@ -1,7 +1,7 @@
 #include "ICamera.h"
 
 #include <wv/Application/Application.h>
-#include <wv/Device/Context.h>
+#include <wv/Device/DeviceContext.h>
 
 wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
@@ -25,13 +25,13 @@ glm::mat4x4 wv::ICamera::getProjectionMatrix( void )
 
 glm::mat4x4 wv::ICamera::getPerspectiveMatrix( void )
 {
-	wv::Context* ctx = wv::Application::get()->context;
+	wv::DeviceContext* ctx = wv::Application::get()->context;
 	return glm::perspective( glm::radians( fov ), ctx->getAspect(), m_near, m_far);
 }
 
 glm::mat4x4 wv::ICamera::getOrthographicMatrix( void )
 {
-	wv::Context* ctx = wv::Application::get()->context;
+	wv::DeviceContext* ctx = wv::Application::get()->context;
 	float w = (float)ctx->getWidth()  / 2.0f;
 	float h = (float)ctx->getHeight() / 2.0f;
 

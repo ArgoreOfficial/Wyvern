@@ -6,7 +6,7 @@
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
-#include <wv/Device/Context.h>
+#include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Memory/ModelParser.h>
@@ -27,15 +27,24 @@
 wv::Application::Application( ApplicationDesc* _desc )
 {
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
-	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGLES2(); 
+	wv::ContextDesc ctxDesc;
+	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
+	ctxDesc.graphicsApiVersion.major = 3;
+	ctxDesc.graphicsApiVersion.minor = 0;
 #else
-	wv::ContextDesc ctxDesc = Context::contextPreset_OpenGL();
+	wv::ContextDesc ctxDesc;
+	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+	ctxDesc.graphicsApiVersion.major = 4;
+	ctxDesc.graphicsApiVersion.minor = 6;
 #endif
+
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
 	ctxDesc.height = _desc->windowHeight;
 
-	context = new wv::Context( &ctxDesc );
+	context = wv::DeviceContext::getDeviceContext( &ctxDesc );
 
 	wv::GraphicsDeviceDesc deviceDesc;
 	deviceDesc.loadProc = context->getLoadProc();

@@ -60,7 +60,7 @@ void wv::Material::setAsActive( GraphicsDevice* _device )
 void wv::Material::materialCallback()
 {
 	wv::Application* app = wv::Application::get();
-	wv::Context* ctx = app->context;
+	wv::DeviceContext* ctx = app->context;
 
 	// camera transorm
 	wv::UniformBlock& block = m_pipeline->uniformBlocks[ "UbInstanceData" ];
@@ -81,7 +81,7 @@ void wv::Material::materialCallback()
 void wv::Material::instanceCallback( Node* _instance )
 {
 	wv::Application* app = wv::Application::get();
-	wv::Context* ctx = app->context;
+	wv::DeviceContext* ctx = app->context;
 
 	// model transform
 	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];

@@ -1,6 +1,6 @@
 #include "Model.h"
 #include <wv/Application/Application.h>
-#include <wv/Device/Context.h>
+#include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Memory/MemoryDevice.h>
@@ -85,7 +85,7 @@ void wv::Model::update( double _deltaTime )
 	Node::update( _deltaTime ); // update children
 }
 
-void wv::Model::draw( Context* _context, GraphicsDevice* _device )
+void wv::Model::draw( DeviceContext* _context, GraphicsDevice* _device )
 {
 	m_material->setAsActive( _device ); /// TODO: somewhere else
 

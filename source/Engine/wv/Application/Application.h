@@ -8,7 +8,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Context;
+	class DeviceContext;
 	class GraphicsDevice;
 	class Mesh;
 	class Pipeline;
@@ -64,7 +64,7 @@ namespace wv
 		RenderTarget* m_gbuffer          = nullptr;
 
 		// engine
-		Context*        context = nullptr;
+		DeviceContext*  context = nullptr;
 		GraphicsDevice* device  = nullptr;
 
 		// camera 

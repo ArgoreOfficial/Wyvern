@@ -1,4 +1,4 @@
-#include "Context.h"
+#include "GLFWDeviceContext.h"
 
 #include <stdio.h>
 
@@ -99,8 +99,7 @@ void glfwErrorCallback(int _err, const char* _msg)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Context::Context( ContextDesc* _desc ):
-	m_windowContext{ nullptr }
+wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc ) : m_windowContext{ nullptr }
 {
 	glfwSetErrorCallback( glfwErrorCallback );
 	
@@ -146,7 +145,7 @@ wv::Context::Context( ContextDesc* _desc ):
 	
 	glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
 	glfwSetKeyCallback( m_windowContext, keyCallback );
-
+	
 	glfwSetCursorPosCallback( m_windowContext, mouseCallback );
 	glfwSetMouseButtonCallback( m_windowContext, mouseButtonCallback );
 
@@ -164,43 +163,21 @@ wv::Context::Context( ContextDesc* _desc ):
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ContextDesc wv::Context::contextPreset_OpenGL()
-{
-	ContextDesc desc;
-	desc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
-	desc.graphicsApiVersion.major = 4;
-	desc.graphicsApiVersion.minor = 6;
-    return desc;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::ContextDesc wv::Context::contextPreset_OpenGLES2()
-{
-	ContextDesc desc;
-	desc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
-	desc.graphicsApiVersion.major = 3;
-	desc.graphicsApiVersion.minor = 0;
-	return desc;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Context::terminate()
+void wv::GLFWDeviceContext::terminate()
 {
 	glfwTerminate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GraphicsDriverLoadProc wv::Context::getLoadProc()
+wv::GraphicsDriverLoadProc wv::GLFWDeviceContext::getLoadProc()
 {
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Context::pollEvents()
+void wv::GLFWDeviceContext::pollEvents()
 {
 	// process input
 	glfwPollEvents();
@@ -208,49 +185,38 @@ void wv::Context::pollEvents()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Context::swapBuffers()
+void wv::GLFWDeviceContext::swapBuffers()
 {
 	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
 	float t = static_cast<float>( m_time );
 	m_time = glfwGetTime();
-	m_frameTime = m_time - t;
+	m_deltaTime = m_time - t;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Context::onResize( int _width, int _height )
+void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
-	m_width  = _width;
-	m_height = _height;
+	DeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::Context::isAlive()
+bool wv::GLFWDeviceContext::isAlive()
 {
 	return !glfwWindowShouldClose( m_windowContext );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-float wv::Context::getAspect()
-{
-	if ( m_width == 0 || m_height == 0 )
-		return 1.0f;
-
-	return (float)m_width / (float)m_height;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Context::setMouseLock( bool _lock )
+void wv::GLFWDeviceContext::setMouseLock( bool _lock )
 {
 	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
 }
 
-void wv::Context::setTitle( const char* _title )
+void wv::GLFWDeviceContext::setTitle( const char* _title )
 {
 	glfwSetWindowTitle( m_windowContext, _title );
 }

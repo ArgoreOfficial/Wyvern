@@ -1,6 +1,6 @@
 #include "FreeflightCamera.h"
 
-#include <wv/Device/Context.h>
+#include <wv/Device/DeviceContext.h>
 #include <wv/Application/Application.h>
 
 //#include <cm/Core/cWindow.h>
@@ -25,7 +25,7 @@ void wv::FreeflightCamera::onCreate()
 
 void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
-	wv::Context* ctx = wv::Application::get()->context;
+	wv::DeviceContext* ctx = wv::Application::get()->context;
 	
 	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 	{
