@@ -3,9 +3,6 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Application/Application.h>
 
-//#include <cm/Core/cWindow.h>
-//#include <wv/Core/cApplication.h>
-
 #include <SDL2/SDL_keycode.h> /// TODO: remove
 
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :

@@ -24,6 +24,7 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 	m_graphicsApi = _desc->graphicsApi;
 	m_graphicsApiVersion = _desc->graphicsApiVersion;
+	printf( "Creating...\n" );
 
 	int initRes = 0;
 	switch ( _desc->graphicsApi )
@@ -32,6 +33,8 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;
 	case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
 	}
+
+	printf( "Created!\n" );
 
 	if ( !initRes )
 	{

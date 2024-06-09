@@ -17,6 +17,49 @@ A static build of [Assimp]() is provided
 
 this dependency will be removed sometime in the future, but for now this works
 
+## Building WASM
+Wyvern supports WASM through SDL and OpenGL ES. Building is done using xmake like normal, but requires a few extra steps.  
+Emscripten installation guide can be found [here]()
+
+### msys2 & mingw64
+in the msys2 terminal, make sure mingw64 is properly installed
+```
+pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
+```
+<br>
+
+start mingw64 terminal as administrator
+
+```
+pacman -Sy mingw-w64-x86_64-xmake
+```
+```
+xmake l detect.sdks.find_emsdk
+```
+```
+xrepo install -v -p wasm libsdl
+```
+<br>
+
+in Wyvern root start cmd, then activate emsdk and build xmake like normal
+
+```
+emsdk activate
+```
+```
+xmake f -p wasm 
+```
+```
+xmake --rebuild
+```
+<br>
+
+there should now be an html file in `game/`
+
+```
+emrun game/Wyvern.html
+```
+
 ## Random links
 don't mind these
 ### editor stuff 

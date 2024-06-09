@@ -1,5 +1,13 @@
 
--- custom glad installation with OpenGL, GLES1 and GLES2
+--[[
+
+    Custom GLAD Installation:
+        OpenGL
+        OpenGL ES1
+        OpenGL ES2
+
+]]--
+
 target "GLAD" 
     set_group( "Dependencies" )
     

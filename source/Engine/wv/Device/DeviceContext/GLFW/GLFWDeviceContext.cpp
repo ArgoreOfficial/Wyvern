@@ -13,7 +13,7 @@
 // iEventInvoker
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_GLFW_SUPPORTED
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
 	/// TODO: move to application?
@@ -30,9 +30,9 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 
 	wv::IInputListener::invoke( inputEvent );
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_GLFW_SUPPORTED
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
 	wv::MouseEvent mouseEvent;
@@ -44,9 +44,9 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	
 	wv::IMouseListener::invoke( mouseEvent );
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_GLFW_SUPPORTED
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
 	wv::MouseEvent mouseEvent;
@@ -67,16 +67,16 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 	wv::IMouseListener::invoke( mouseEvent );
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_GLFW_SUPPORTED
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::Application::get()->onResize( _width, _height );
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_GLFW_SUPPORTED
 void glfwErrorCallback(int _err, const char* _msg)
 {
 	const char* errmsg;
@@ -99,11 +99,12 @@ void glfwErrorCallback(int _err, const char* _msg)
 
 	fprintf( stderr, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc ) : m_windowContext{ nullptr }
+wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwSetErrorCallback( glfwErrorCallback );
 	
 	if ( !glfwInit() )
@@ -162,42 +163,53 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc ) : m_windowContext
 	glfwSwapInterval( 0 );
 
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::terminate()
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwTerminate();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDriverLoadProc wv::GLFWDeviceContext::getLoadProc()
 {
+#ifdef WV_GLFW_SUPPORTED
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::pollEvents()
 {
+#ifdef WV_GLFW_SUPPORTED
 	// process input
 	glfwPollEvents();
 
 	m_alive = !glfwWindowShouldClose( m_windowContext );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::swapBuffers()
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
 	float t = static_cast<float>( m_time );
 	m_time = glfwGetTime();
 	m_deltaTime = m_time - t;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -211,10 +223,14 @@ void wv::GLFWDeviceContext::onResize( int _width, int _height )
 
 void wv::GLFWDeviceContext::setMouseLock( bool _lock )
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
+#endif
 }
 
 void wv::GLFWDeviceContext::setTitle( const char* _title )
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwSetWindowTitle( m_windowContext, _title );
+#endif
 }

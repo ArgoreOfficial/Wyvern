@@ -1,13 +1,12 @@
 #pragma once
 
+#ifdef WV_GLFW_SUPPORTED
 #include <GLFW/glfw3.h>
+#endif
+
 #include <wv/Types.h>
 
 #include <wv/Device/DeviceContext.h>
-
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +38,8 @@ namespace wv
 		friend class DeviceContext;
 		GLFWDeviceContext( ContextDesc* _desc );
 		
-		GLFWwindow* m_windowContext;
-
+	#ifdef WV_GLFW_SUPPORTED
+		GLFWwindow* m_windowContext = nullptr;
+	#endif
 	};
 }

@@ -8,6 +8,12 @@
 
 #include <wv/Math/Vector2.h>
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <GLES2/gl2.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
@@ -97,7 +103,7 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	case WV_GRAPHICS_API_OPENGL:
 	{
 		SDL_GL_LoadLibrary( NULL );
-
+		
 		SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, _desc->graphicsApiVersion.major );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, _desc->graphicsApiVersion.minor );
@@ -108,14 +114,37 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 
 	case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
 	{
-		
+		SDL_GL_LoadLibrary( NULL );
+
+		SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, _desc->graphicsApiVersion.major );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, _desc->graphicsApiVersion.minor );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES );
+
+		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
 	} break; // OpenGL ES 1 & 2
 
 	}
 
+#ifdef EMSCRIPTEN
+	EmscriptenWebGLContextAttributes attrs;
+	attrs.antialias = true;
+	attrs.majorVersion = 3;
+	attrs.minorVersion = 0;
+	attrs.alpha = true;
+	attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_DEFAULT;
+
+	// The following lines must be done in exact order, or it will break!
+	emscripten_webgl_init_context_attributes( &attrs ); // you MUST init the attributes before creating the context
+	attrs.majorVersion = 3; // you MUST set the version AFTER the above line
+	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context( "#canvas", &attrs );
+	emscripten_webgl_make_context_current( webgl_context );
+#endif
+
 	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 	m_glContext = SDL_GL_CreateContext( m_windowContext );
-
+	
 	SDL_version version;
 	SDL_GetVersion( &version );
 	printf( "Initialized Context Device\n" );

@@ -22,8 +22,11 @@
 #include <fstream>
 #include <vector>
 
-
 #include <SDL2/SDL_keycode.h>
+
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
