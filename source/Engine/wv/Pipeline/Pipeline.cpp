@@ -8,7 +8,6 @@
 
 wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 {
-
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
 
@@ -55,7 +54,7 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 	}
 
 	wv::PipelineDesc pipelineDesc;
-	pipelineDesc.name = source.c_str();
+	pipelineDesc.name = source;
 	pipelineDesc.type = wv::WV_PIPELINE_GRAPHICS;
 	pipelineDesc.topology = wv::WV_PIPELINE_TOPOLOGY_TRIANGLES;
 	pipelineDesc.shaders = shaders;

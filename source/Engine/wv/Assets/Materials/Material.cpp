@@ -15,9 +15,14 @@ void wv::Material::load( const char* _path )
 {
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
-
 	wv::MemoryDevice mdevice;
-	std::string yaml = mdevice.loadString( _path );
+	
+	std::string path = std::string{ "res/materials/" } + _path + ".wmat";
+	std::string yaml = mdevice.loadString( path.c_str() );
+
+	if ( yaml == "" )
+		return;
+
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 	std::string shader = root[ "shader" ].get_value<std::string>();
 

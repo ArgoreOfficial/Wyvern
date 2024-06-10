@@ -11,6 +11,8 @@ namespace wv
 
 	class DeviceContext;
 	class GraphicsDevice;
+	class AudioDevice;
+
 	class Mesh;
 	class Pipeline;
 	class ICamera;
@@ -67,6 +69,7 @@ namespace wv
 		// engine
 		DeviceContext*  context = nullptr;
 		GraphicsDevice* device  = nullptr;
+		AudioDevice*    audio   = nullptr;
 
 		// camera 
 		ICamera* currentCamera    = nullptr;

@@ -79,7 +79,7 @@ std::string wv::MemoryDevice::loadString( const char* _path )
 {
 	Memory* mem = loadMemory( _path );
 
-	if ( !mem->data )
+	if ( !mem )
 		return "";
 
 	std::string str( (const char*)mem->data, mem->size );

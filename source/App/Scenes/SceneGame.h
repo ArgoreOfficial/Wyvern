@@ -3,6 +3,7 @@
 #include <wv/Scene/Scene.h>
 
 namespace wv { class Mesh; }
+namespace wv { class Audio; }
 
 class SceneGame : public wv::Scene
 {
@@ -23,5 +24,7 @@ private:
 
 	wv::Mesh* m_skybox;
 	wv::Mesh* m_player;
+
+	wv::Audio* m_startupSound = nullptr;
 
 };

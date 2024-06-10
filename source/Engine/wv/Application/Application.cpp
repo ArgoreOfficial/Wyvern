@@ -2,35 +2,38 @@
 
 #include <glad/glad.h>
 
+#include <wv/Assets/Materials/Material.h>
 #include <wv/Assets/Texture.h>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
+
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
+#include <wv/Device/AudioDevice.h>
+
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Memory/ModelParser.h>
+
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
+
 #include <wv/Scene/Model.h>
-
-#include <wv/Assets/Materials/Material.h>
-
 #include <wv/State/State.h>
+
+#include <wv/Debug/Print.h>
 
 #include <stdio.h>
 #include <math.h>
 #include <fstream>
 #include <vector>
-
 #include <SDL2/SDL_keycode.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
 
-#include <wv/Debug/Print.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,6 +91,11 @@ wv::Application::Application( ApplicationDesc* _desc )
 	
 	device->setRenderTarget( m_defaultRenderTarget );
 	device->setClearColor( wv::Colors::Black );
+
+	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
+	audio = new AudioDevice( nullptr );
+
+
 
 	m_applicationState = _desc->applicationState;
 }
