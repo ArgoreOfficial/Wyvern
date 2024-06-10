@@ -33,6 +33,7 @@ WASM_PRELOAD_FILES = {
     "res/textures/autumn_field_puresky.png"
 }
 
+
 set_project( PROJECT_NAME )
 set_version( "0.0.1" )
 
@@ -40,7 +41,9 @@ set_symbols "debug"
 set_optimize "none"
 
 set_languages( "c17", "cxx20" )
-set_allowedplats( "windows", "wasm" )
-set_allowedarchs( "windows|x64", "windows|x86", "wasm|wasm32" )
+set_allowedarchs( "x64", "x86", "wasm32" )
+
+includes( "platform/platforms.lua" )
+load_platform()
 
 includes( "source" )

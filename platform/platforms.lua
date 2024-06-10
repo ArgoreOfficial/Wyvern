@@ -1,14 +1,28 @@
+includes "platform_3ds.lua"
 includes "platform_windows.lua"
 includes "platform_wasm.lua"
 
+local PLATFORMS = {
+    { plat="windows", arch={ "x64", "x86" }, load=load_platform_windows, target=target_platform_windows},
+    { plat="wasm",    arch={ "wasm32" },     load=load_platform_wasm,    target=target_platform_wasm}
+}
+
 function load_platform()
-    if     is_plat( "windows" ) then load_platform_windows()
-    elseif is_plat( "wasm" )    then load_platform_wasm() 
+    for i=1,#PLATFORMS do 
+        if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
+            PLATFORMS[i].load()
+            printf( "Loading %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
+        end
     end
 end
 
 function target_platform()
-    if is_plat( "windows" ) then on_load(target_platform_windows) end
+    for i=1,#PLATFORMS do 
+        if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
+            on_load(PLATFORMS[i].target)
+            printf( "Targetting %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
+        end
+    end
 end
 
 function init_platform( target )

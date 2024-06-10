@@ -4,7 +4,8 @@
 
 ]]--
 
-includes( "../platform/platforms.lua" )
+-- load platform dependencies and other specifics
+
 includes( "../libs/glad" )
 
 -- configure modes
@@ -21,9 +22,6 @@ elseif is_mode("Package") then
     set_symbols "none"
     set_optimize "fastest"
 end
-
--- load platform dependencies and other specifics
-load_platform()
 
 -- create project
 target( PROJECT_NAME )

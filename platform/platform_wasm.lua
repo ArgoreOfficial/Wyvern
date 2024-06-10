@@ -12,6 +12,7 @@ function load_platform_wasm()
 end
 
 function target_platform_wasm( target )
+    print( "target WASM" )
     -- add supports
     target:add( "deps", "GLAD" )
     import(".platform.support.glm"   )(target)
