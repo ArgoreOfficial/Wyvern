@@ -30,13 +30,15 @@
 #include <emscripten.h>
 #endif
 
+#include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
 	if ( !_desc->applicationState )
 	{
-		printf( "! NO APPLICATION STATE WAS PROVIDED !\n" );
+		Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
 		return;
 	}
 
@@ -193,7 +195,7 @@ void wv::Application::run()
 		tick();
 #endif
 
-	printf( "Quitting..." );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting..." );
 
 	if ( m_applicationState )
 	{

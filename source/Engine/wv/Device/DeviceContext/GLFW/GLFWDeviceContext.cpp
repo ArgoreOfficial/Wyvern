@@ -12,6 +12,8 @@
 // iInputEventListener, iMouseEventListener, iWindowEventListener, iEventListener 
 // iEventInvoker
 
+#include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 #ifdef WV_GLFW_SUPPORTED
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
@@ -79,7 +81,7 @@ void onResizeCallback( GLFWwindow* window, int _width, int _height )
 #ifdef WV_GLFW_SUPPORTED
 void glfwErrorCallback(int _err, const char* _msg)
 {
-	const char* errmsg;
+	const char* errmsg = "";
 
 	switch( _err )
 	{
@@ -97,7 +99,7 @@ void glfwErrorCallback(int _err, const char* _msg)
 		
 	}
 
-	fprintf( stderr, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
+	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
 }
 #endif
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +111,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 	
 	if ( !glfwInit() )
 	{
-		fprintf( stderr, "Failed to initialize Device Context\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Device Context\n" );
 		return;
 	}
 
@@ -142,8 +144,8 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, _desc->graphicsApiVersion.minor );
 
-	printf( "Initialized Context Device\n" );
-	printf( "  %s\n", glfwGetVersionString() );
+	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
+	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glfwGetVersionString() );
 
 	m_windowContext = glfwCreateWindow(_desc->width, _desc->height, _desc->name, NULL, NULL);
 	
@@ -155,7 +157,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 
 	if ( !m_windowContext )
 	{
-		fprintf( stderr, "Failed to create Context\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
 		return;
 	}
 	glfwMakeContextCurrent( m_windowContext );

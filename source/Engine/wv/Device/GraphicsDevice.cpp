@@ -17,6 +17,7 @@
 
 #include <vector>
 
+#include <wv/Debug/Print.h>
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
@@ -24,7 +25,6 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 	m_graphicsApi = _desc->graphicsApi;
 	m_graphicsApiVersion = _desc->graphicsApiVersion;
-	printf( "Creating...\n" );
 
 	int initRes = 0;
 	switch ( _desc->graphicsApi )
@@ -34,16 +34,14 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
 	}
 
-	printf( "Created!\n" );
-
 	if ( !initRes )
 	{
-		fprintf( stderr, "Failed to initialize Graphics Device\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Graphics Device\n" );
 		return;
 	}
 
-	printf( "Intialized Graphics Device\n" );
-	printf( "  %s\n", glGetString( GL_VERSION ) );
+	Debug::Print( Debug::WV_PRINT_INFO, "Intialized Graphics Device\n" );
+	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glGetString( GL_VERSION ) );
 
 	/// TEMPORARY---
 	/// TODO: add to pipeline configuration
@@ -114,8 +112,8 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 		case GL_INVALID_OPERATION:                         err = "GL_INVALID_OPERATION "; break;
 		}
 
-		printf( "Failed to create RenderTarget\n" );
-		printf( "  %s\n", err );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create RenderTarget\n" );
+		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", err );
 
 		destroyRenderTarget( &target );
 		delete target;
@@ -216,12 +214,6 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 			glUniform1i( loc, _desc->textureUniforms[ i ].index );
 		}
 
-		//for ( unsigned int i = 0; i < _desc->numAttributes; i++ )
-		//{
-		//	unsigned int loc = glGetUniformLocation( pipeline->program, _desc->attributes[ i ].name.c_str() );
-		//
-		//	glUniform1i( loc, _desc->attributes[ i ].index );
-		//}
 		glUseProgram( 0 );
 
 	} break;
@@ -232,6 +224,8 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 	if ( _desc->name != "" )
 		m_pipelines[ _desc->name ] = pipeline;
 	
+	Debug::Print( Debug::WV_PRINT_INFO, "Created pipeline '%s'\n", _desc->name.c_str() );
+
 	return pipeline;
 }
 
@@ -247,7 +241,7 @@ wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
 	{
-		//printf( "[ERR] No pipeline called '%s' exists", _name );
+		// Debug::Print( Debug::WV_PRINT_WARN, "No pipeline called '%s' exists\n", _name );
 		return nullptr;
 	}
 
@@ -447,11 +441,12 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	GLenum err;
 	while ( ( err = glGetError() ) != GL_NO_ERROR )
 	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create Texture:\n" );
 		switch ( err )
 		{
-		case GL_INVALID_ENUM: printf( "GL_INVALID_ENUM" ); break;
-		case GL_INVALID_VALUE: printf( "GL_INVALID_VALUE" ); break;
-		case GL_INVALID_OPERATION: printf( "GL_INVALID_OPERATION" ); break;
+		case GL_INVALID_ENUM:      Debug::Print( "  GL_INVALID_ENUM" ); break;
+		case GL_INVALID_VALUE:     Debug::Print( "  GL_INVALID_VALUE" ); break;
+		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION" ); break;
 		}
 	}
 	return texture;
@@ -516,7 +511,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
 		glDrawArrays( GL_TRIANGLES, 0, _primitive->numVertices );
 	#else
-		printf( "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
 	}
 }
@@ -530,7 +525,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	std::string source = md.loadString( _desc->path.c_str() );
 	if ( source == "" )
 	{
-		printf( "Could not find shader source\n" );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Could not find shader source\n" );
 		return 0;
 	}
 
@@ -561,7 +556,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	if ( !success )
 	{
 		glGetShaderInfoLog( shader, 512, NULL, infoLog );
-		printf( "Shader compilation failed in '%s'\n %s \n", _desc->path.c_str(), infoLog);
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _desc->path.c_str(), infoLog);
 	}
 
 	return shader;
@@ -584,7 +579,7 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 	if ( !success )
 	{
 		glGetProgramInfoLog( program, 512, NULL, infoLog );
-		printf( "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n %s \n", infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create program\n %s \n", infoLog );
 	}
 
 	return program;
@@ -601,7 +596,7 @@ void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDe
 
 	block.m_buffer = new char[ block.m_bufferSize ];
 	memset( block.m_buffer, 0, block.m_bufferSize );
-	;
+	
 	glGenBuffers( 1, &block.m_bufferHandle );
 	glBindBuffer( GL_UNIFORM_BUFFER, block.m_bufferHandle );
 	glBufferData( GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );

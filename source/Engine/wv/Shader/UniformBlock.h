@@ -1,10 +1,13 @@
 #pragma once
 
+#include <wv/Debug/Print.h>
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 #include <wv/Types.h>
+
 
 namespace wv
 {
@@ -58,7 +61,7 @@ namespace wv
 	{
 		if ( m_uniforms.count( _name ) == 0 )
 		{
-			printf( "Uniform %s does not exist\n", _name.c_str() );
+			Debug::Print( Debug::WV_PRINT_WARN, "Uniform %s does not exist\n", _name.c_str() );
 			return;
 		}
 		unsigned int offset = m_uniforms[ _name ].offset;

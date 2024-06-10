@@ -32,7 +32,6 @@ void SceneGame::onLoad()
 	wv::Material* phongMaterial = new wv::Material(); // memory leak
 	phongMaterial->load( "res/materials/phong.wmat" );
 	if( m_player ) m_player->primitives[ 0 ]->material = phongMaterial;
-
 }
 
 void SceneGame::onUnload()

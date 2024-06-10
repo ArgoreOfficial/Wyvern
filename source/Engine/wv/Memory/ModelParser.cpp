@@ -19,6 +19,8 @@
 #include <assimp/postprocess.h>
 #endif
 
+#include <wv/Debug/Print.h>
+
 struct Vertex
 {
 	wv::Vector3f position;
@@ -192,7 +194,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	// TODO: change to wv::assert
 	if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
-		printf( "ERROR::ASSIMP::%s\n", importer.GetErrorString() );
+		Debug::Print( Debug::WV_PRINT_ERROR, "ASSIMP::%s\n", importer.GetErrorString() );
 		return nullptr;
 	}
 

@@ -14,6 +14,8 @@
 #include <GLES2/gl2.h>
 #endif
 
+#include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
@@ -93,7 +95,7 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
-		fprintf( stderr, "Failed to initialize Device Context\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Device Context\n" );
 		return;
 	}
 
@@ -147,8 +149,8 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	
 	SDL_version version;
 	SDL_GetVersion( &version );
-	printf( "Initialized Context Device\n" );
-	printf( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
+	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
+	Debug::Print( Debug::WV_PRINT_INFO, "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
 
 	//glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
@@ -159,7 +161,7 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 
 	if ( !m_windowContext )
 	{
-		fprintf( stderr, "Failed to create Context\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
 		return;
 	}
 	// glfwMakeContextCurrent( m_windowContext );

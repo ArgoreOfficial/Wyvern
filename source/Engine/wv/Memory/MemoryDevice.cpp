@@ -14,13 +14,15 @@
 #include <fstream>
 #include <vector>
 
+#include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::MemoryDevice::~MemoryDevice()
 {
 	if ( m_loadedMemory.size() > 0 )
 	{
-		printf( "Non-Empty MemoryDevice destroyed. This may cause memory leaks\n" );
+		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty MemoryDevice destroyed. This may cause memory leaks\n" );
 		while ( m_loadedMemory.size() > 0 )
 			unloadMemory( m_loadedMemory.front() );
 	}
@@ -33,7 +35,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	std::ifstream in( _path, std::ios::binary );
 	if ( !in.is_open() )
 	{
-		printf( "Failed to load '%s'\n", _path );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load '%s'\n", _path );
 		return {};
 	}
 
@@ -46,7 +48,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	memcpy( mem->data, buf.data(), buf.size() );
 
 	m_loadedMemory.push_back( mem );
-	printf( "Loaded '%s' @ %i bytes\n", _path, mem->size );
+	Debug::Print( Debug::WV_PRINT_INFO, "Loaded '%s' @ %i bytes\n", _path, mem->size );
 	return mem;
 }
 
@@ -96,13 +98,13 @@ wv::TextureMemory* wv::MemoryDevice::loadTextureData( const char* _path )
 
 	if ( !mem->data )
 	{
-		printf( "Failed to load texture %s\n", _path );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", _path );
 		unloadMemory( mem );
 		return {}; // empty memory object
 	}
 	
 	mem->size = mem->height * mem->numChannels * mem->width * mem->numChannels;
 	m_loadedMemory.push_back( mem );
-	printf( "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
+	Debug::Print( Debug::WV_PRINT_INFO, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
 	return mem;
 }
