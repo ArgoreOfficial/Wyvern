@@ -1,4 +1,3 @@
-
 --[[
 
     Copyright (C) 2023-2024 Argore 
@@ -6,9 +5,9 @@
 ]]--
 
 PROJECT_NAME = "Wyvern"
-ASSIMP_STATIC_ROOT = "D:/SDK/assimp-static/"
 
 -- files need to be added to this for Emscripten to preload them into the WASM build
+-- TODO: move or remove
 WASM_PRELOAD_FILES = {
     "res/shaders/deferred.wshader",
     "res/shaders/phong.wshader",
