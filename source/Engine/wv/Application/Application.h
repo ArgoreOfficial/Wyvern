@@ -19,6 +19,7 @@ namespace wv
 	class RootNode;
 	class Model;
 	class Material;
+	class State;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,8 @@ namespace wv
 		int windowHeight = 600;
 
 		bool showDebugConsole = true;
+
+		State* applicationState = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -56,11 +59,6 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		/// TEMPORARY---
-		Mesh* m_skybox;
-		Mesh* m_monke;
-		/// ---TEMPORARY
-
 		// deferred rendering
 		Mesh*         m_screenQuad       = nullptr;
 		Pipeline*     m_deferredPipeline = nullptr;
@@ -71,8 +69,8 @@ namespace wv
 		GraphicsDevice* device  = nullptr;
 
 		// camera 
-		/// TODOM: move?
 		ICamera* currentCamera    = nullptr;
+		/// TODOM: move?
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
 
@@ -82,6 +80,8 @@ namespace wv
 		 * backbuffer.
 		 */
 		RenderTarget* m_defaultRenderTarget = nullptr;
+
+		State* m_applicationState = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

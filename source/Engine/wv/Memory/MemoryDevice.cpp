@@ -33,7 +33,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	std::ifstream in( _path, std::ios::binary );
 	if ( !in.is_open() )
 	{
-		printf( "Couldn't open file '%s'\n", _path );
+		printf( "Failed to load '%s'\n", _path );
 		return {};
 	}
 

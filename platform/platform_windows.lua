@@ -7,8 +7,8 @@ function target_platform_windows( target )
     local root = "$(projectdir)\\"
     
     -- icon resource
-    target:add( "files", root .. "resources/resource.rc" )
-    target:add( "filegroups", "Resources", { rootdir = root .. "resources" } )
+    target:add( "files", "$(projectdir)\\resources/resource.rc" )
+    target:add( "filegroups", "Resources", { rootdir = "$(projectdir)" } )
     
     -- add supports
     target:add( "deps", "GLAD" )

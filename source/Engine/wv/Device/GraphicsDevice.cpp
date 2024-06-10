@@ -480,6 +480,9 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 
 void wv::GraphicsDevice::draw( Mesh* _mesh )
 {
+	if ( !_mesh )
+		return;
+
 	glBindVertexArray( _mesh->vaoHandle );
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )

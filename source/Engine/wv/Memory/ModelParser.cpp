@@ -180,6 +180,9 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	MemoryDevice md;
 	Memory* meshMem = md.loadMemory( _path );
 	
+	if ( !meshMem )
+		return nullptr;
+
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
 

@@ -17,6 +17,8 @@
 
 #include <wv/Assets/Materials/Material.h>
 
+#include <wv/State/State.h>
+
 #include <stdio.h>
 #include <math.h>
 #include <fstream>
@@ -32,6 +34,12 @@
 
 wv::Application::Application( ApplicationDesc* _desc )
 {
+	if ( !_desc->applicationState )
+	{
+		printf( "! NO APPLICATION STATE WAS PROVIDED !\n" );
+		return;
+	}
+
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
 	wv::ContextDesc ctxDesc;
 	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
@@ -77,23 +85,9 @@ wv::Application::Application( ApplicationDesc* _desc )
 	}
 	
 	device->setRenderTarget( m_defaultRenderTarget );
-	
-	/// TODO: move to prefab or model file
-	{
-		wv::assimp::Parser parser;
-		m_monke = parser.load( "res/meshes/monke.glb" );
-		m_skybox = parser.load( "res/meshes/skysphere.glb" );
-
-		Material* skyMaterial = new Material(); // memory leak
-		skyMaterial->load( "res/materials/defaultSky.wmat" );
-		m_skybox->primitives[ 0 ]->material = skyMaterial;
-
-		Material* phongMaterial = new Material(); // memory leak
-		phongMaterial->load( "res/materials/phong.wmat" );
-		m_monke->primitives[ 0 ]->material = phongMaterial;
-	}
-
 	device->setClearColor( wv::Colors::Black );
+
+	m_applicationState = _desc->applicationState;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -185,12 +179,27 @@ void wv::Application::run()
 
 	currentCamera = orbitCamera;
 
+	if ( m_applicationState )
+	{
+		m_applicationState->onLoad(); /// TODO: multithread
+		// while m_applicationState->isLoading() { doloadingstuff }
+		m_applicationState->onCreate();
+	}
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::Application::get()->tick(); }, 0, 1);
 #else
 	while ( context->isAlive() )
 		tick();
 #endif
+
+	printf( "Quitting..." );
+
+	if ( m_applicationState )
+	{
+		m_applicationState->onDestroy();
+		m_applicationState->onUnload();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -259,14 +268,8 @@ void wv::Application::tick()
 	device->setRenderTarget( m_gbuffer );
 	device->clearRenderTarget( true, true );
 
-	device->draw( m_monke );
-
-	/// TODO: remove raw gl calls
-	glDepthMask( GL_FALSE );
-	glDepthFunc( GL_LEQUAL );
-	device->draw( m_skybox );
-	glDepthFunc( GL_LESS );
-	glDepthMask( GL_TRUE );
+	if( m_applicationState )
+		m_applicationState->draw();
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );

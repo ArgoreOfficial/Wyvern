@@ -11,7 +11,7 @@ function load_platform()
     for i=1,#PLATFORMS do 
         if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
             PLATFORMS[i].load()
-            printf( "Loading %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
+            -- printf( "Loading %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
         end
     end
 end
@@ -20,7 +20,7 @@ function target_platform()
     for i=1,#PLATFORMS do 
         if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
             on_load(PLATFORMS[i].target)
-            printf( "Targetting %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
+            -- printf( "Targetting %s:%s\n", PLATFORMS[i].plat, table.concat(PLATFORMS[i].arch, ",") )
         end
     end
 end

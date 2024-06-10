@@ -32,11 +32,12 @@ target( PROJECT_NAME )
     set_runtimes( "MD" )
 
     add_headerfiles( 
-        "Engine/**.h", 
-        "Engine/**.hpp" 
+        "**.h", 
+        "**.hpp" 
     )
-    add_files( "Engine/**.cpp" )
+    add_files( "**.cpp" )
     add_includedirs( "Engine" )
+    add_includedirs( "./" )
 
     target_platform()
 target_end()
