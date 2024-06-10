@@ -17,10 +17,12 @@ elseif is_mode("Release") then
     add_defines("WV_RELEASE")
     set_symbols "debug"
     set_optimize "fast"
+    set_strip "debug"
 elseif is_mode("Package") then 
     add_defines("WV_PACKAGE")
     set_symbols "none"
     set_optimize "fastest"
+    set_strip "all"
 end
 
 add_requires("miniaudio") -- TODO: move
@@ -29,6 +31,10 @@ add_requires("miniaudio") -- TODO: move
 target( PROJECT_NAME )
     set_kind "binary"
     
+    if not is_mode("Package") then
+        set_basename(PROJECT_NAME .. "_$(mode)_$(arch)")
+    end
+
     set_targetdir "../game"
     set_objectdir "../build/obj"
     set_runtimes( "MD" )
