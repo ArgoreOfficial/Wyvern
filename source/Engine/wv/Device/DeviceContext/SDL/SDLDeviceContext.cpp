@@ -217,8 +217,13 @@ void wv::SDLDeviceContext::swapBuffers()
 	
 	m_time = SDL_GetTicks64() / 1000.0;
 
-	uint64_t last = m_performanceCounter;
+	double last = m_performanceCounter;
+	
+	uint64_t freq = SDL_GetPerformanceFrequency();
 	m_performanceCounter = static_cast<double>( SDL_GetPerformanceCounter() );
+
+	if ( last == 0 )
+		return;
 
 	m_deltaTime = (double)( ( m_performanceCounter - last ) / (double)SDL_GetPerformanceFrequency() );
 }
