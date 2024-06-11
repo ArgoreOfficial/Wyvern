@@ -26,7 +26,9 @@ void SceneGame::onLoad()
 	wv::Application* app = wv::Application::get();
 	
 	wv::assimp::Parser parser;
-	m_player = parser.load( "res/meshes/xwing.dae" );
+	m_xwing = parser.load( "res/meshes/xwing.dae" );
+	m_starDestroyer = parser.load( "res/meshes/star-destroyer.dae" );
+
 	m_skybox = parser.load( "res/meshes/skysphere.dae" );
 
 	wv::Material* skyMaterial = new wv::Material(); // memory leak
@@ -35,6 +37,13 @@ void SceneGame::onLoad()
 
 	m_startupSound = app->audio->loadAudio2D( "psx.flac" );
 	
+	m_playerShip = new PlayerShip( m_xwing );
+	m_playerShip->onCreate();
+
+	m_dummy = new EnemyShip( m_xwing );
+	m_playerShip->onCreate();
+
+	m_dummy->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
 }
 
 void SceneGame::onUnload()
@@ -42,7 +51,7 @@ void SceneGame::onUnload()
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
 
-	device->destroyMesh( &m_player );
+	device->destroyMesh( &m_xwing );
 	device->destroyMesh( &m_skybox );
 }
 
@@ -66,6 +75,9 @@ void SceneGame::update( double _deltaTime )
 		m_hasPlayedStartup = true;
 	}
 
+	m_playerShip->update( _deltaTime );
+	m_dummy->setTarget( m_playerShip->getTransform().position );
+	m_dummy->update( _deltaTime );
 }
 
 void SceneGame::draw()
@@ -80,5 +92,10 @@ void SceneGame::draw()
 	glDepthFunc( GL_LESS );
 	glDepthMask( GL_TRUE );
 
-	device->draw( m_player );
+	m_playerShip->draw( device );
+	m_dummy->draw( device );
+	
+	m_xwing->transform = {};
+	device->draw( m_xwing );
+	device->draw( m_starDestroyer );
 }

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <wv/Scene/Scene.h>
+#include <App/Ship/Ship.h>
+#include <App/Ship/PlayerShip.h>
+#include <App/Ship/EnemyShip.h>
 
 namespace wv { class Mesh; }
 namespace wv { class Audio; }
@@ -22,10 +25,16 @@ public:
 
 private:
 
-	wv::Mesh* m_skybox;
-	wv::Mesh* m_player;
+	wv::Mesh* m_skybox = nullptr;
+
+	// meshes //
+	wv::Mesh* m_xwing = nullptr;
+	wv::Mesh* m_starDestroyer  = nullptr;
+
+	PlayerShip* m_playerShip = nullptr;
+	EnemyShip* m_dummy = nullptr;
 
 	wv::Audio* m_startupSound = nullptr;
-	bool m_hasPlayedStartup = false;
+	bool m_hasPlayedStartup = true;
 
 };
