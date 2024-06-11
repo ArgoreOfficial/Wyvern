@@ -17,12 +17,12 @@ namespace wv
     {
 	public:
 
-		void setPosition( wv::Vector3<T> _position ) { position = _position; }
-		void setRotation( wv::Vector3<T> _rotation ) { rotation = _rotation; }
-		void setScale   ( wv::Vector3<T> _scale )    { scale = _scale; }
+		inline void setPosition( wv::Vector3<T> _position ) { position = _position; }
+		inline void setRotation( wv::Vector3<T> _rotation ) { rotation = _rotation; }
+		inline void setScale   ( wv::Vector3<T> _scale )    { scale = _scale; }
 		
-		void translate( wv::Vector3<T> _translation ) { position += _translation; }
-		void rotate   ( wv::Vector3<T> _rotation )    { rotation += _rotation; }
+		inline void translate( wv::Vector3<T> _translation ) { position += _translation; }
+		inline void rotate   ( wv::Vector3<T> _rotation )    { rotation += _rotation; }
 		
 		inline glm::mat<4, 4, T> getMatrix( void )
 		{
@@ -31,11 +31,16 @@ namespace wv
 			model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
 			model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
 			
-			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } );
-			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } );
-			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } );
+			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
+			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
+			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
 			
 			return model;
+		}
+
+		inline Vector3<T> forward()
+		{
+			return rotation.eulerToDirection();
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////

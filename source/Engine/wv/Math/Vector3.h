@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <wv/Math/Math.h>
 
 namespace wv
 {
@@ -41,6 +42,20 @@ namespace wv
 			if( _magnitude != 1.0f )
 				*this *= _magnitude;
 		}
+
+		static inline Vector3<T> eulerToDirection( Vector3<T> _vec )
+		{
+			T pitch = wv::Math::degToRad( _vec.x );
+			T yaw   = wv::Math::degToRad( _vec.y );
+			
+			return {
+				 std::cos( pitch ) * std::sin( yaw ),
+				-std::sin( pitch ),
+				 std::cos( pitch ) * std::cos( yaw )
+			};
+		}
+
+		inline Vector3<T> eulerToDirection() { return Vector3<T>::eulerToDirection( *this ); }
 
 		Vector3<T>& operator = ( const Vector3<T>& _other );
 		Vector3<T>& operator +=( const Vector3<T>& _other );
