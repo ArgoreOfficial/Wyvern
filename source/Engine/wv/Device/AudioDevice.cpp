@@ -60,7 +60,7 @@ wv::Audio* wv::AudioDevice::loadAudio2D( const char* _path )
 	if ( res != MA_SUCCESS )
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to init Audio '%s'\n", _path );
 	else
-		Debug::Print( Debug::WV_PRINT_INFO, "Created Audio '%s'\n", _path );
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Created Audio '%s'\n", _path );
 
 	return audio;
 }

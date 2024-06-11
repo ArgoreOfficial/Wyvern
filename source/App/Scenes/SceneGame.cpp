@@ -27,7 +27,7 @@ void SceneGame::onLoad()
 	
 	wv::assimp::Parser parser;
 	m_player = parser.load( "res/meshes/xwing.dae" );
-	m_skybox = parser.load( "res/meshes/skysphere.glb" );
+	m_skybox = parser.load( "res/meshes/skysphere.dae" );
 
 	wv::Material* skyMaterial = new wv::Material(); // memory leak
 	skyMaterial->loadFromFile( "sky_space" );

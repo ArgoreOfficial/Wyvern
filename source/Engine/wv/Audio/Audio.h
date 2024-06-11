@@ -15,7 +15,7 @@ namespace wv
 			if ( res != MA_SUCCESS )
 				Debug::Print( Debug::WV_PRINT_ERROR, "Audio failed to start\n" );
 			else
-				Debug::Print( Debug::WV_PRINT_INFO, "Played sound\n" );
+				Debug::Print( Debug::WV_PRINT_DEBUG, "Played sound\n" );
 
 		}
 

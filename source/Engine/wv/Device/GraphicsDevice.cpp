@@ -503,7 +503,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
 	{
-		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
+		//glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _primitive->eboHandle );
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
 	}

@@ -10,7 +10,7 @@
 #include <fstream>
 
 #ifdef EMSCRIPTEN
-#define LOAD_WPR
+//#define LOAD_WPR
 #endif
 
 #ifndef LOAD_WPR
@@ -124,7 +124,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		printf( " Model Material :: %s\n", assimpMaterial->GetName().C_Str() );
 		
 		wv::Material* material = new wv::Material();
 		wv::MemoryDevice md;
