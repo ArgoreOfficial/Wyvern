@@ -50,6 +50,7 @@ namespace wv
 	class Primitive
 	{
 	public:
+		wv::Handle vaoHandle = 0;
 		wv::Handle vboHandle = 0;
 		wv::Handle eboHandle = 0;
 		PrimitiveBufferMode mode = WV_PRIMITIVE_TYPE_STATIC;

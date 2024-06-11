@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 #include <wv/Auxiliary/fkYAML/node.hpp>
 
-void wv::Material::load( const char* _path )
+bool wv::Material::load( const char* _path )
 {
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
@@ -21,7 +21,7 @@ void wv::Material::load( const char* _path )
 	std::string yaml = mdevice.loadString( path.c_str() );
 
 	if ( yaml == "" )
-		return;
+		return false;
 
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 	std::string shader = root[ "shader" ].get_value<std::string>();
@@ -42,6 +42,8 @@ void wv::Material::load( const char* _path )
 		
 		mdevice.unloadMemory( texMem );
 	}
+
+	return true;
 }
 
 void wv::Material::destroy()

@@ -251,7 +251,7 @@ wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
 {
 	Mesh* mesh = new Mesh();
-	glGenVertexArrays( 1, &mesh->vaoHandle );
+	// glGenVertexArrays( 1, &mesh->vaoHandle );
 	return mesh;
 }
 
@@ -268,7 +268,8 @@ void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
 	Primitive* primitive = new Primitive();
-	glBindVertexArray( _mesh->vaoHandle );
+	glGenVertexArrays( 1, &primitive->vaoHandle );
+	glBindVertexArray( primitive->vaoHandle );
 	
 	// create vertex buffer object
 	glGenBuffers( 1, &primitive->vboHandle );
@@ -478,7 +479,6 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 	if ( !_mesh )
 		return;
 
-	glBindVertexArray( _mesh->vaoHandle );
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
 		drawPrimitive( _mesh->primitives[ i ] );
@@ -490,6 +490,8 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 	if ( _primitive->material )
 		_primitive->material->setAsActive( this );
+
+	glBindVertexArray( _primitive->vaoHandle );
 	
 	for ( auto& block : m_activePipeline->uniformBlocks )
 	{
@@ -501,6 +503,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
 	{
+		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _primitive->eboHandle );
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
 	}

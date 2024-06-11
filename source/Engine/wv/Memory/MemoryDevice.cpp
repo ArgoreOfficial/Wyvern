@@ -56,7 +56,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 
 void wv::MemoryDevice::unloadMemory( Memory* _memory )
 {
-	if ( !_memory->data )
+	if ( !_memory )
 		return;
 	
 	for ( int i = 0; i < (int)m_loadedMemory.size(); i++ )

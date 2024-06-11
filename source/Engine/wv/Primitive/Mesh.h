@@ -13,12 +13,10 @@ namespace wv
 
 	};
 
-
 	class Mesh
 	{
 	public:
 		std::string name;
-		wv::Handle vaoHandle;
 		std::vector<Primitive*> primitives;
 	};
 }

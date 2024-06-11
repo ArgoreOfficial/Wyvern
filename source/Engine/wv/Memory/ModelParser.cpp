@@ -78,12 +78,12 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 			v.tangent.z = _assimp_mesh->mTangents[ i ].z;
 		}
 
-		aiVector3D* texcoord = _assimp_mesh->mTextureCoords[ 0 ];
-		if ( texcoord )
+		if ( _assimp_mesh->HasTextureCoords( 0 ) )
+		{
+			aiVector3D* texcoord = _assimp_mesh->mTextureCoords[ 0 ];
 			v.texCoord0 = { texcoord[ i ].x, texcoord[ i ].y };
-		else
-			v.texCoord0 = { 0.0f, 0.0f };
-
+			
+		}
 		vertices.push_back( v );
 	}
 
@@ -94,31 +94,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 
 		for ( unsigned int j = 0; j < face.mNumIndices; j++ )
 			indices.push_back( face.mIndices[ j ] );
-	}
-
-	if ( _assimp_mesh->mMaterialIndex >= 0 )
-	{
-		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		
-		/// TODO: generalize for any type of shader, material, or set of textures
-
-		//mesh->material = getMaterial( "res/materials/mesh" );
-		//
-
-		//if ( assimpMaterial->GetTextureCount( aiTextureType_DIFFUSE ) )
-		//{
-		//	albedoPath = getAssimpMaterialTexturePath( assimpMaterial, aiTextureType_DIFFUSE, "res/textures" );
-		//}
-		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
-		//std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
-		//
-		//mesh->material->addTexture( "uAlbedo", albedo_path.c_str() );
-		//mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
-		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
-
-		//material = new wv::PhongMaterial( phongDesc );
-		//material->create( device );
-
 	}
 
 	std::vector<wv::InputLayoutElement> elements = {
@@ -145,7 +120,55 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.numIndices      = (unsigned int)indices.size();
 
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
-	//primitive->material = material;
+	
+	if ( _assimp_mesh->mMaterialIndex >= 0 )
+	{
+		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
+		printf( " Model Material :: %s\n", assimpMaterial->GetName().C_Str() );
+		
+		wv::Material* material = new wv::Material();
+		bool res = material->load( assimpMaterial->GetName().C_Str() );
+		if ( !res )
+		{
+			std::string matFilePath = std::string( "res/materials/" ) + assimpMaterial->GetName().C_Str() + ".wmat";
+			std::ofstream matFile( matFilePath );
+			
+			std::string matsrc =
+				"shader: \"unlit\"\n"
+				"textures:\n";
+
+			for ( int i = 0; i < aiTextureType_UNKNOWN; i++ )
+			{
+				if ( assimpMaterial->GetTextureCount( (aiTextureType)i ) )
+				{
+					aiString path;
+					assimpMaterial->GetTexture( (aiTextureType)i, 0, &path );
+					
+					switch ( i )
+					{
+					case aiTextureType_DIFFUSE: matsrc += std::string( " - [\"u_Albedo\", \"" ) + path.C_Str() + "\"]";
+					}
+				}
+			}
+
+			matFile << matsrc;
+			matFile.close();
+
+			material->load( assimpMaterial->GetName().C_Str() );
+		}
+
+		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
+		//std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
+		//
+		//mesh->material->addTexture( "uAlbedo", albedo_path.c_str() );
+		//mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
+		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
+		//
+		//material = new wv::PhongMaterial( phongDesc );
+		//material->create( device );
+
+		primitive->material = material;
+	}
 
 
 	std::ofstream wprfile( _mesh->name + ".wpr", std::ios::binary );
@@ -186,8 +209,8 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		return nullptr;
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
-
+	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+	
 	md.unloadMemory( meshMem );
 
 

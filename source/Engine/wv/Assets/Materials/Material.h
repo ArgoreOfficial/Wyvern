@@ -12,7 +12,7 @@ namespace wv
 	class Material
 	{
 	public:
-		virtual void load( const char* _path );
+		virtual bool load( const char* _path );
 		virtual void destroy();
 
 		void setAsActive( GraphicsDevice* _device );
