@@ -20,7 +20,7 @@ namespace wv
 	{
 	public:
 
-		FreeflightCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 100.0f );
+		FreeflightCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
 		~FreeflightCamera( void );
 
