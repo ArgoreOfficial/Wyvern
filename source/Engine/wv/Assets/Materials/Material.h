@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 namespace wv
 {
@@ -12,7 +13,8 @@ namespace wv
 	class Material
 	{
 	public:
-		virtual bool load( const char* _path );
+		virtual bool loadFromFile( const char* _path );
+		virtual bool loadFromSource( const std::string& _source );
 		virtual void destroy();
 
 		void setAsActive( GraphicsDevice* _device );

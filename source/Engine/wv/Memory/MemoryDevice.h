@@ -43,6 +43,8 @@ namespace wv
 
 		TextureMemory* loadTextureData( const char* _path );
 		
+		bool fileExists( const char* _path );
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:

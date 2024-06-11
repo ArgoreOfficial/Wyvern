@@ -127,12 +127,11 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		printf( " Model Material :: %s\n", assimpMaterial->GetName().C_Str() );
 		
 		wv::Material* material = new wv::Material();
-		bool res = material->load( assimpMaterial->GetName().C_Str() );
-		if ( !res )
+		wv::MemoryDevice md;
+		if ( md.fileExists( assimpMaterial->GetName().C_Str() ) )
+			 material->loadFromFile( assimpMaterial->GetName().C_Str() );
+		else
 		{
-			std::string matFilePath = std::string( "res/materials/" ) + assimpMaterial->GetName().C_Str() + ".wmat";
-			std::ofstream matFile( matFilePath );
-			
 			std::string matsrc =
 				"shader: \"unlit\"\n"
 				"textures:\n";
@@ -151,10 +150,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 				}
 			}
 
-			matFile << matsrc;
-			matFile.close();
-
-			material->load( assimpMaterial->GetName().C_Str() );
+			material->loadFromSource( matsrc.c_str() );
 		}
 
 		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );

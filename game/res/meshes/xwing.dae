@@ -1,0 +1,2038 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 4.1.1 commit date:2024-04-15, commit time:15:11, hash:e1743a0317bc</authoring_tool>
+    </contributor>
+    <created>2024-06-11T16:18:49</created>
+    <modified>2024-06-11T16:18:49</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="Xwing_Tex00013-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00013_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00013_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00013_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00013_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00013_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00014-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00014_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00014_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00014_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00014_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00014_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00015-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00015_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00015_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00015_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00015_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00015_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00016-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00016_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00016_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00016_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00016_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00016_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00017-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00017_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00017_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00017_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00017_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00017_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00018-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00018_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00018_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00018_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00018_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00018_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00024-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00024_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00024_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00024_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00024_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00024_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00019-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00019_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00019_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00019_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00019_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00019_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00020-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00020_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00020_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00020_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00020_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00020_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00021-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00021_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00021_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00021_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00021_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00021_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00022-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00022_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00022_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00022_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00022_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00022_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00023-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00023_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00023_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00023_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00023_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00023_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00025-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00025_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00025_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00025_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00025_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00025_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00026-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00026_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00026_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00026_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00026_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00026_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00027-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00027_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00027_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00027_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00027_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00027_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00028-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00028_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00028_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00028_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00028_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00028_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00029-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00029_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00029_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00029_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00029_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00029_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00030-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00030_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00030_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00030_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00030_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00030_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00031-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00031_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00031_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00031_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00031_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00031_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00032-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00032_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00032_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00032_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00032_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00032_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00033-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00033_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00033_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00033_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00033_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00033_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00000-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00000_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00000_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00000_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00000_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00000_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00001-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00001_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00001_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00001_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00001_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00001_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00002-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00002_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00002_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00002_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00002_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00002_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00003-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00003_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00003_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00003_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00003_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00003_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00004-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00004_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00004_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00004_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00004_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00004_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Xwing_Tex00008-effect">
+      <profile_COMMON>
+        <newparam sid="Xwing_Tex00008_png-surface">
+          <surface type="2D">
+            <init_from>Xwing_Tex00008_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Xwing_Tex00008_png-sampler">
+          <sampler2D>
+            <source>Xwing_Tex00008_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Xwing_Tex00008_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.5</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images>
+    <image id="Xwing_Tex00000_png" name="Xwing_Tex00000_png">
+      <init_from>Xwing_Tex00000.png</init_from>
+    </image>
+    <image id="Xwing_Tex00001_png" name="Xwing_Tex00001_png">
+      <init_from>Xwing_Tex00001.png</init_from>
+    </image>
+    <image id="Xwing_Tex00002_png" name="Xwing_Tex00002_png">
+      <init_from>Xwing_Tex00002.png</init_from>
+    </image>
+    <image id="Xwing_Tex00003_png" name="Xwing_Tex00003_png">
+      <init_from>Xwing_Tex00003.png</init_from>
+    </image>
+    <image id="Xwing_Tex00004_png" name="Xwing_Tex00004_png">
+      <init_from>Xwing_Tex00004.png</init_from>
+    </image>
+    <image id="Xwing_Tex00008_png" name="Xwing_Tex00008_png">
+      <init_from>Xwing_Tex00008.png</init_from>
+    </image>
+    <image id="Xwing_Tex00013_png" name="Xwing_Tex00013_png">
+      <init_from>Xwing_Tex00013.png</init_from>
+    </image>
+    <image id="Xwing_Tex00014_png" name="Xwing_Tex00014_png">
+      <init_from>Xwing_Tex00014.png</init_from>
+    </image>
+    <image id="Xwing_Tex00015_png" name="Xwing_Tex00015_png">
+      <init_from>Xwing_Tex00015.png</init_from>
+    </image>
+    <image id="Xwing_Tex00016_png" name="Xwing_Tex00016_png">
+      <init_from>Xwing_Tex00016.png</init_from>
+    </image>
+    <image id="Xwing_Tex00017_png" name="Xwing_Tex00017_png">
+      <init_from>Xwing_Tex00017.png</init_from>
+    </image>
+    <image id="Xwing_Tex00018_png" name="Xwing_Tex00018_png">
+      <init_from>Xwing_Tex00018.png</init_from>
+    </image>
+    <image id="Xwing_Tex00019_png" name="Xwing_Tex00019_png">
+      <init_from>Xwing_Tex00019.png</init_from>
+    </image>
+    <image id="Xwing_Tex00020_png" name="Xwing_Tex00020_png">
+      <init_from>Xwing_Tex00020.png</init_from>
+    </image>
+    <image id="Xwing_Tex00021_png" name="Xwing_Tex00021_png">
+      <init_from>Xwing_Tex00021.png</init_from>
+    </image>
+    <image id="Xwing_Tex00022_png" name="Xwing_Tex00022_png">
+      <init_from>Xwing_Tex00022.png</init_from>
+    </image>
+    <image id="Xwing_Tex00023_png" name="Xwing_Tex00023_png">
+      <init_from>Xwing_Tex00023.png</init_from>
+    </image>
+    <image id="Xwing_Tex00024_png" name="Xwing_Tex00024_png">
+      <init_from>Xwing_Tex00024.png</init_from>
+    </image>
+    <image id="Xwing_Tex00025_png" name="Xwing_Tex00025_png">
+      <init_from>Xwing_Tex00025.png</init_from>
+    </image>
+    <image id="Xwing_Tex00026_png" name="Xwing_Tex00026_png">
+      <init_from>Xwing_Tex00026.png</init_from>
+    </image>
+    <image id="Xwing_Tex00027_png" name="Xwing_Tex00027_png">
+      <init_from>Xwing_Tex00027.png</init_from>
+    </image>
+    <image id="Xwing_Tex00028_png" name="Xwing_Tex00028_png">
+      <init_from>Xwing_Tex00028.png</init_from>
+    </image>
+    <image id="Xwing_Tex00029_png" name="Xwing_Tex00029_png">
+      <init_from>Xwing_Tex00029.png</init_from>
+    </image>
+    <image id="Xwing_Tex00030_png" name="Xwing_Tex00030_png">
+      <init_from>Xwing_Tex00030.png</init_from>
+    </image>
+    <image id="Xwing_Tex00031_png" name="Xwing_Tex00031_png">
+      <init_from>Xwing_Tex00031.png</init_from>
+    </image>
+    <image id="Xwing_Tex00032_png" name="Xwing_Tex00032_png">
+      <init_from>Xwing_Tex00032.png</init_from>
+    </image>
+    <image id="Xwing_Tex00033_png" name="Xwing_Tex00033_png">
+      <init_from>Xwing_Tex00033.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="Xwing_Tex00013-material" name="Xwing_Tex00013">
+      <instance_effect url="#Xwing_Tex00013-effect"/>
+    </material>
+    <material id="Xwing_Tex00014-material" name="Xwing_Tex00014">
+      <instance_effect url="#Xwing_Tex00014-effect"/>
+    </material>
+    <material id="Xwing_Tex00015-material" name="Xwing_Tex00015">
+      <instance_effect url="#Xwing_Tex00015-effect"/>
+    </material>
+    <material id="Xwing_Tex00016-material" name="Xwing_Tex00016">
+      <instance_effect url="#Xwing_Tex00016-effect"/>
+    </material>
+    <material id="Xwing_Tex00017-material" name="Xwing_Tex00017">
+      <instance_effect url="#Xwing_Tex00017-effect"/>
+    </material>
+    <material id="Xwing_Tex00018-material" name="Xwing_Tex00018">
+      <instance_effect url="#Xwing_Tex00018-effect"/>
+    </material>
+    <material id="Xwing_Tex00024-material" name="Xwing_Tex00024">
+      <instance_effect url="#Xwing_Tex00024-effect"/>
+    </material>
+    <material id="Xwing_Tex00019-material" name="Xwing_Tex00019">
+      <instance_effect url="#Xwing_Tex00019-effect"/>
+    </material>
+    <material id="Xwing_Tex00020-material" name="Xwing_Tex00020">
+      <instance_effect url="#Xwing_Tex00020-effect"/>
+    </material>
+    <material id="Xwing_Tex00021-material" name="Xwing_Tex00021">
+      <instance_effect url="#Xwing_Tex00021-effect"/>
+    </material>
+    <material id="Xwing_Tex00022-material" name="Xwing_Tex00022">
+      <instance_effect url="#Xwing_Tex00022-effect"/>
+    </material>
+    <material id="Xwing_Tex00023-material" name="Xwing_Tex00023">
+      <instance_effect url="#Xwing_Tex00023-effect"/>
+    </material>
+    <material id="Xwing_Tex00025-material" name="Xwing_Tex00025">
+      <instance_effect url="#Xwing_Tex00025-effect"/>
+    </material>
+    <material id="Xwing_Tex00026-material" name="Xwing_Tex00026">
+      <instance_effect url="#Xwing_Tex00026-effect"/>
+    </material>
+    <material id="Xwing_Tex00027-material" name="Xwing_Tex00027">
+      <instance_effect url="#Xwing_Tex00027-effect"/>
+    </material>
+    <material id="Xwing_Tex00028-material" name="Xwing_Tex00028">
+      <instance_effect url="#Xwing_Tex00028-effect"/>
+    </material>
+    <material id="Xwing_Tex00029-material" name="Xwing_Tex00029">
+      <instance_effect url="#Xwing_Tex00029-effect"/>
+    </material>
+    <material id="Xwing_Tex00030-material" name="Xwing_Tex00030">
+      <instance_effect url="#Xwing_Tex00030-effect"/>
+    </material>
+    <material id="Xwing_Tex00031-material" name="Xwing_Tex00031">
+      <instance_effect url="#Xwing_Tex00031-effect"/>
+    </material>
+    <material id="Xwing_Tex00032-material" name="Xwing_Tex00032">
+      <instance_effect url="#Xwing_Tex00032-effect"/>
+    </material>
+    <material id="Xwing_Tex00033-material" name="Xwing_Tex00033">
+      <instance_effect url="#Xwing_Tex00033-effect"/>
+    </material>
+    <material id="Xwing_Tex00000-material" name="Xwing_Tex00000">
+      <instance_effect url="#Xwing_Tex00000-effect"/>
+    </material>
+    <material id="Xwing_Tex00001-material" name="Xwing_Tex00001">
+      <instance_effect url="#Xwing_Tex00001-effect"/>
+    </material>
+    <material id="Xwing_Tex00002-material" name="Xwing_Tex00002">
+      <instance_effect url="#Xwing_Tex00002-effect"/>
+    </material>
+    <material id="Xwing_Tex00003-material" name="Xwing_Tex00003">
+      <instance_effect url="#Xwing_Tex00003-effect"/>
+    </material>
+    <material id="Xwing_Tex00004-material" name="Xwing_Tex00004">
+      <instance_effect url="#Xwing_Tex00004-effect"/>
+    </material>
+    <material id="Xwing_Tex00008-material" name="Xwing_Tex00008">
+      <instance_effect url="#Xwing_Tex00008-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="RotaryWing_004-mesh" name="RotaryWing.004">
+      <mesh>
+        <source id="RotaryWing_004-mesh-positions">
+          <float_array id="RotaryWing_004-mesh-positions-array" count="147">1.384311 1.285234 4.597177 1.426051 0.378461 2.884111 1.426051 0.378461 4.597177 2.092708 0.550924 2.884111 2.092708 0.550924 4.597177 1.842662 1.097952 4.597177 0.96033 1.05536 4.597177 0.765362 0.377064 4.597177 0.765362 0.377064 2.884111 1.426051 0.378461 2.592026 1.384311 1.285234 2.592026 1.842662 1.097952 2.592026 2.092708 0.550924 2.592026 0.765362 0.377064 2.592026 0.96033 1.05536 2.592026 1.757935 0.832042 6.480065 1.073066 0.698918 6.480065 1.463859 0.516687 6.480065 1.548887 1.209174 6.480065 1.125615 1.126898 6.480065 1.548887 1.209174 4.584951 1.125615 1.126898 4.584951 1.757935 0.832042 4.584951 1.463859 0.516687 4.584951 1.073066 0.698918 4.584951 0.733968 0.492569 2.885463 0.78362 0.240657 5.646214 5.104493 1.092297 4.817255 5.073756 1.248241 2.885463 0.78362 0.240657 2.885463 5.104493 1.092297 2.885463 5.395831 1.052916 -1.821753 5.308344 1.50299 -1.821753 5.149918 1.472192 -1.821753 5.237405 1.022122 -1.821753 5.27617 1.326721 -2.494213 5.335825 1.214533 -2.494213 5.208839 1.218967 -2.494213 5.277454 1.363378 2.518666 5.165232 1.183788 2.518666 5.376873 1.176396 2.518666 5.109098 1.014219 2.518666 5.109098 1.014219 4.963974 5.031527 1.413283 4.963974 5.031527 1.413283 2.518666 5.508164 1.09179 2.518666 5.430591 1.490855 2.518666 5.430591 1.490855 4.963974 5.508164 1.09179 4.963974</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_004-mesh-positions-array" count="49" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_004-mesh-normals">
+          <float_array id="RotaryWing_004-mesh-normals-array" count="135">0.6286658 -0.2993907 0.7177357 0.3502573 -0.9366536 -4.99238e-6 0.1262004 -0.9832099 0.1318017 0.8813997 -0.2287038 -0.4133149 0.1066089 -0.9943011 0 -0.5267066 -0.3975111 0.7513756 0.6632924 0.6909528 0.28745 0.791698 -0.3360433 0.5101855 0.6393972 -0.6544895 0.4035031 0.8552056 0.2243853 -0.4671989 0.2802084 0.8129174 -0.5105376 1.27871e-5 -0.2258117 0.9741711 0 0 1 -0.7335563 -0.4486051 0.5105377 -0.515448 -0.7364442 0.4381363 -0.2500702 -0.4190951 0.8728254 0.3537305 -0.7822194 0.5128428 0.8506159 0.08131444 0.5194618 -0.7359609 0.4341906 0.5194614 -0.6403642 -0.565768 0.5194615 0.1335319 -0.6867972 -0.7144781 0.694446 -0.08523416 -0.7144789 0.2957187 0.6340909 -0.7144783 -0.5117209 0.47714 -0.7144783 -0.6119782 -0.3391225 -0.714478 -0.7835155 -0.5125896 -0.3512203 0.9193667 -0.1766644 -0.3515034 0.4831435 0.1110568 -0.8684692 -0.8066 -0.1564291 -0.5700232 -0.9430651 0.1508432 -0.2964369 0.8323749 0.4752104 -0.2851793 0.3984514 0.7460709 -0.5334929 0.4218915 0.6254875 0.656333 0.6489275 -0.5424761 0.5334912 0.6254858 -0.4218924 -0.6563341 -0.6254865 0.421893 0.656333 0.5424774 0.6489265 0.5334911 -0.421894 -0.6254858 -0.656333 0.7460699 -0.3984551 -0.5334916 0.7057459 -0.4047284 -0.5814789 -0.7018336 -0.4081939 -0.5837872 -0.002578556 0.8130359 -0.5822079 -0.06102955 -0.03275048 0.9975985 0.05853146 -0.03690248 0.9976034 0.002340078 0.06547307 0.9978517</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_004-mesh-normals-array" count="45" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_004-mesh-map-0">
+          <float_array id="RotaryWing_004-mesh-map-0-array" count="244">0.995215 0 0 0 0 0.986301 0.995215 0.986301 0 0.01149398 0.996183 0.01149398 0.996183 1 0 1 0.995868 1 0 1 0 0.01369899 0.995868 0.01369899 0.494737 0.977444 0.442105 0.007518947 0.789474 0.18797 0.994737 0.766917 0 1 0.131579 0.263158 0.442105 0.007518947 0.494737 0.977444 0.447368 0.007462978 0.505263 0.977612 1 0.768657 0.8 0.19403 0.136842 0.268657 0.00526297 1 0.505263 0.977612 0.447368 0.007462978 0.004544973 0.349558 0.990909 0.353982 0.5 0.004424989 0.190909 0.915929 0.8 0.920354 0.990909 0.353982 0.004544973 0.349558 0.997429 1 0 1 0 0.01030898 0.997429 0.01030898 0 0.01408499 0.996599 0.01408499 0.996599 1 0 1 0 0.00999999 0.996466 0.00999999 0.996466 1 0 1 1 1 1 0.01886796 0.004385948 0.01886796 0.004385948 1 1 1 1 0.01754397 0.004048943 0.01754397 0.004048943 1 1 1 1 0.01886796 0.004385948 0.01886796 0.004385948 1 1 1 1 0.01886796 0.004385948 0.01886796 0.004385948 1 1 1 1 0.02222198 0.005127966 0.02222198 0.005127966 1 0 0.006896972 0.995536 0.006896972 0.995536 0.696552 0 1 0 1 0 0.04761898 0.997093 0.428571 0.997093 1 0.002673983 0.984375 0.002673983 0 1 0 1 0.984375 0.008928954 0.947368 0.008928954 0 1 0 1 0.947368 1 0 1 0.947368 0.008928954 0.947368 0.008928954 0 0.003124952 0 1 0 1 0.981481 0.003124952 0.981481 0.008332967 0.816667 0.808333 1 1 0.191667 0.191667 0.008332967 0.816667 0.008263945 0.008332967 0.198347 0.191667 1 1 0.809917 0.5 0.08333295 0.07142895 1 1 1 1 0.925926 0.6 0.03703695 0.06666696 0.111111 0.4 1 1 0.04761898 0.002109944 0.238095 0.002109944 0.809524 1 1 1 0.08333295 0.003366947 0.333333 0.003366947 0.833333 1 1 0.996656 1 0 0.75 0 0.25 0.996656 0.08333295 0.004254996 0.006666958 0.017021 1 1 0.7 0.991489 0.006666958</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_004-mesh-map-0-array" count="122" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="RotaryWing_004-mesh-vertices">
+          <input semantic="POSITION" source="#RotaryWing_004-mesh-positions"/>
+        </vertices>
+        <polylist material="Xwing_Tex00013-material" count="3">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 4 </vcount>
+          <p>12 0 0 3 1 1 1 2 2 9 3 3 8 4 4 13 5 5 9 3 6 1 2 7 11 6 8 5 7 9 4 8 10 12 0 11</p>
+        </polylist>
+        <polylist material="Xwing_Tex00014-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>9 3 12 10 9 13 11 6 14 12 0 15 13 5 16 14 10 17 10 9 18 9 3 19</p>
+        </polylist>
+        <polylist material="Xwing_Tex00015-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>0 11 20 2 12 21 4 8 22 5 7 23 6 13 24 7 14 25 2 12 26 0 11 27</p>
+        </polylist>
+        <polylist material="Xwing_Tex00016-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 </vcount>
+          <p>15 15 28 16 16 29 17 17 30 18 18 31 19 19 32 16 16 33 15 15 34</p>
+        </polylist>
+        <polylist material="Xwing_Tex00017-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>10 9 35 0 11 36 5 7 37 11 6 38</p>
+        </polylist>
+        <polylist material="Xwing_Tex00018-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>0 11 39 10 9 40 14 10 41 6 13 42</p>
+        </polylist>
+        <polylist material="Xwing_Tex00024-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>6 13 43 14 10 44 13 5 45 7 14 46</p>
+        </polylist>
+        <polylist material="Xwing_Tex00019-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>15 15 47 17 17 48 23 20 49 22 21 50</p>
+        </polylist>
+        <polylist material="Xwing_Tex00020-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>18 18 51 15 15 52 22 21 53 20 22 54</p>
+        </polylist>
+        <polylist material="Xwing_Tex00021-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>19 19 55 18 18 56 20 22 57 21 23 58</p>
+        </polylist>
+        <polylist material="Xwing_Tex00022-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>16 16 59 19 19 60 21 23 61 24 24 62</p>
+        </polylist>
+        <polylist material="Xwing_Tex00023-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>17 17 63 16 16 64 24 24 65 23 20 66</p>
+        </polylist>
+        <polylist material="Xwing_Tex00025-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 67 30 26 68 27 27 69 26 28 70</p>
+        </polylist>
+        <polylist material="Xwing_Tex00026-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 71 25 29 72 28 30 73 30 26 74</p>
+        </polylist>
+        <polylist material="Xwing_Tex00027-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>45 31 75 46 32 76 47 33 77 48 34 78</p>
+        </polylist>
+        <polylist material="Xwing_Tex00028-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>46 32 79 44 35 80 43 36 81 47 33 82</p>
+        </polylist>
+        <polylist material="Xwing_Tex00029-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>48 34 83 42 37 84 41 38 85 45 31 86</p>
+        </polylist>
+        <polylist material="Xwing_Tex00030-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>41 38 87 42 37 88 43 36 89 44 35 90</p>
+        </polylist>
+        <polylist material="Xwing_Tex00031-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>45 31 91 41 38 92 44 35 93 46 32 94 47 33 95 43 36 96 42 37 97 48 34 98</p>
+        </polylist>
+        <polylist material="Xwing_Tex00032-material" count="5">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 4 4 4 </vcount>
+          <p>35 39 99 36 40 100 37 41 101 31 12 102 32 12 103 33 12 104 34 12 105 39 42 106 37 41 107 36 40 108 40 43 109 38 44 110 35 39 111 37 41 112 39 42 113 40 43 114 36 40 115 35 39 116 38 44 117</p>
+        </polylist>
+        <polylist material="Xwing_Tex00033-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_004-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_004-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_004-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>25 29 118 26 28 119 27 27 120 28 30 121</p>
+        </polylist>
+      </mesh>
+    </geometry>
+    <geometry id="RotaryWing_003-mesh" name="RotaryWing.003">
+      <mesh>
+        <source id="RotaryWing_003-mesh-positions">
+          <float_array id="RotaryWing_003-mesh-positions-array" count="147">1.230753 -0.928487 4.597177 1.710708 -0.806818 4.597177 2.034451 -0.299914 4.597177 2.034451 -0.299914 2.885917 1.398283 -0.03634798 2.885917 1.398283 -0.03634798 4.597177 0.842888 -0.641843 4.597177 0.744223 0.05698394 4.597177 0.744223 0.05698394 2.885917 1.398283 -0.03634798 2.592026 2.034451 -0.299914 2.592026 1.710708 -0.806818 2.592026 1.230753 -0.928487 2.592026 0.744223 0.05698394 2.592026 0.842888 -0.641843 2.592026 1.663811 -0.531704 6.480065 1.416488 -0.17849 6.480065 1.004136 -0.30456 6.480065 1.404313 -0.876073 6.480065 0.99661 -0.735689 6.480065 0.99661 -0.735689 4.584951 1.404313 -0.876073 4.584951 1.663811 -0.531704 4.584951 1.416488 -0.17849 4.584951 1.004136 -0.30456 4.584951 0.697058 -0.05302697 2.885463 4.88944 -1.405326 2.885463 4.941577 -1.255176 4.817255 0.781284 0.189523 5.646214 0.781284 0.189523 2.885463 4.941577 -1.255176 2.885463 5.235558 -1.256725 -1.821753 5.082963 -1.204182 -1.821753 4.93369 -1.637698 -1.821753 5.086291 -1.690241 -1.821753 5.078962 -1.511212 -2.494213 5.027278 -1.395135 -2.494213 5.153645 -1.408417 -2.494213 5.075128 -1.54769 2.518666 4.988993 -1.354229 2.518666 5.199602 -1.376365 2.518666 4.957003 -1.178499 2.518666 4.824649 -1.562883 2.518666 4.824649 -1.562883 4.963974 4.957003 -1.178499 4.963974 5.34139 -1.310854 2.518666 5.209036 -1.695238 2.518666 5.209036 -1.695238 4.963974 5.34139 -1.310854 4.963974</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_003-mesh-positions-array" count="49" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_003-mesh-normals">
+          <float_array id="RotaryWing_003-mesh-normals-array" count="138">0.03703373 0.999314 -4.99238e-6 0.2617893 0.9560831 0.1318017 -0.7255832 0.5501816 -0.4133151 -0.4662571 0.4669476 0.751375 0.664215 0.2089841 0.7177354 0.2841097 0.9587919 0 0.8307619 0.2226456 -0.5101603 0.7254005 0.5586482 0.4021273 0.5606655 -0.7765262 -0.2875087 0.03143727 0.223613 -0.9741709 -0.6639809 0.546333 -0.5105386 0.8156546 -0.3412231 0.4671985 -2.47766e-7 0 1 0.1643444 -0.8440031 0.5105387 -0.4057092 0.8007034 0.4407657 0.0847674 0.8542876 0.5128425 -0.7773151 0.3548815 0.5194616 0.4261131 0.2379118 0.8728263 0.8374546 0.1697894 0.5194628 0.4202638 -0.7440015 0.5194616 0.69955 -0.01229822 -0.7144778 0.2277529 0.6615505 -0.7144786 0.204427 -0.6691259 -0.7144789 -0.573107 -0.4013344 -0.7144783 -0.5587927 0.421037 -0.714478 -0.70461 0.6164779 -0.351397 -0.7769412 0.2671415 -0.5700857 0.4630499 -0.1772333 -0.8684315 0.9351049 0.04727792 -0.3512033 0.7583151 -0.5859982 -0.2855947 -0.9548992 -0.01817995 -0.2963733 0.6781143 0.3307383 0.6563332 0.2907445 -0.7942631 0.5334921 0.3307377 -0.6781146 -0.6563332 0.7181076 0.4468869 -0.5334919 -0.678114 -0.3307381 -0.6563336 0.4468874 -0.7181075 -0.5334916 -0.3307387 0.6781142 0.6563332 0.794263 0.2907454 0.5334919 -0.6757904 0.4529738 -0.5814827 0.7285971 0.3582383 -0.583791 -0.0541411 -0.8112343 -0.5822095 0 0 1 -0.05581438 0.04089474 0.9976034 0.06316614 0.02841508 0.9975985 -0.00689888 -0.06515008 0.9978517</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_003-mesh-normals-array" count="46" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_003-mesh-map-0">
+          <float_array id="RotaryWing_003-mesh-map-0-array" count="244">0 0 0 0.985714 0.995215 0.985714 0.995215 0 0.995215 0.01369899 0.995215 1 0 1 0 0.01369899 0.997067 0.990291 0.997067 0 0 0 0 0.990291 0.494737 0.969925 0.994737 0.759399 0.789474 0.180451 0.442105 0 0 0.992481 0.494737 0.969925 0.442105 0 0.131579 0.255639 0.447368 0 0.8 0.186567 1 0.761194 0.505263 0.970149 0.136842 0.261194 0.447368 0 0.505263 0.970149 0.00526297 0.992537 1 0.353383 0.5 0.003758966 0.00387597 0.357143 0.813953 0.921053 1 0.353383 0.00387597 0.357143 0.197674 0.924812 0.997429 0.989691 0.997429 0 0 0 0 0.989691 0 0 0 0.986111 0.996599 0.986111 0.996599 0 0 0 0 0.99 0.996466 0.99 0.996466 0 1 0.979592 0.004738986 0.979592 0.004738986 0 1 0 1 0.982456 0.004048943 0.982456 0.004048943 0 1 0 1 0.982456 0.004048943 0.982456 0.004048943 0 1 0 1 0.981132 0.004385948 0.981132 0.004385948 0 1 0 1 0.979592 0.004738986 0.979592 0.004738986 0 1 0 0.00446397 0.006896972 0.00446397 1 1 0.696552 1 0.006896972 0.002906978 1 1 1 1 0.428571 0.002906978 0.04761898 0.002673983 1 1 1 1 0.01587295 0.002673983 0.01587295 0.008928954 1 1 1 1 0.04999995 0.008928954 0.04999995 1 0.05263197 0.008928954 0.05263197 0.008928954 1 1 1 0.003154993 0.01886796 0.003154993 1 1 1 1 0.01886796 0.008332967 0.2 0.191667 1 1 0.816667 0.808333 0.008332967 0.816667 1 1 0.198347 0.191667 0.008263945 0.008332967 0.809917 0.5 1 1 0.08333295 0.07142895 0.08333295 1 0.111111 0.4 0.03703695 0.06666696 0.925926 0.6 1 1 1 1 0.07142895 0.003355979 0.285714 0.003355979 0.785714 1 1 1 0.08333295 0.003366947 0.25 0.003366947 0.75 0.996656 0.08333295 0.996656 1 0 0.833333 0 0.333333 0 0.006666958 0.987234 0.006666958 0.995745 0.7 0.012766 1</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_003-mesh-map-0-array" count="122" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="RotaryWing_003-mesh-vertices">
+          <input semantic="POSITION" source="#RotaryWing_003-mesh-positions"/>
+        </vertices>
+        <polylist material="Xwing_Tex00013-material" count="3">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 4 </vcount>
+          <p>8 0 0 4 1 1 9 2 2 13 3 3 10 4 4 9 2 5 4 1 6 3 5 7 11 6 8 10 4 9 2 7 10 1 8 11</p>
+        </polylist>
+        <polylist material="Xwing_Tex00014-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>9 2 12 10 4 13 11 6 14 12 9 15 13 3 16 9 2 17 12 9 18 14 10 19</p>
+        </polylist>
+        <polylist material="Xwing_Tex00015-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>0 11 20 1 8 21 2 7 22 5 12 23 6 13 24 0 11 25 5 12 26 7 14 27</p>
+        </polylist>
+        <polylist material="Xwing_Tex00016-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 </vcount>
+          <p>15 15 28 16 16 29 17 17 30 18 18 31 15 15 32 17 17 33 19 19 34</p>
+        </polylist>
+        <polylist material="Xwing_Tex00017-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>12 9 35 11 6 36 1 8 37 0 11 38</p>
+        </polylist>
+        <polylist material="Xwing_Tex00018-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>0 11 39 6 13 40 14 10 41 12 9 42</p>
+        </polylist>
+        <polylist material="Xwing_Tex00024-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>6 13 43 7 14 44 13 3 45 14 10 46</p>
+        </polylist>
+        <polylist material="Xwing_Tex00019-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>15 15 47 22 20 48 23 21 49 16 16 50</p>
+        </polylist>
+        <polylist material="Xwing_Tex00020-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>18 18 51 21 22 52 22 20 53 15 15 54</p>
+        </polylist>
+        <polylist material="Xwing_Tex00021-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>19 19 55 20 23 56 21 22 57 18 18 58</p>
+        </polylist>
+        <polylist material="Xwing_Tex00022-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>17 17 59 24 24 60 20 23 61 19 19 62</p>
+        </polylist>
+        <polylist material="Xwing_Tex00023-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>16 16 63 23 21 64 24 24 65 17 17 66</p>
+        </polylist>
+        <polylist material="Xwing_Tex00025-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 67 28 26 68 27 27 69 30 28 70</p>
+        </polylist>
+        <polylist material="Xwing_Tex00026-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 71 30 28 72 26 29 73 25 30 74</p>
+        </polylist>
+        <polylist material="Xwing_Tex00027-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>45 31 75 48 32 76 47 33 77 46 34 78</p>
+        </polylist>
+        <polylist material="Xwing_Tex00028-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>46 34 79 47 33 80 43 35 81 42 36 82</p>
+        </polylist>
+        <polylist material="Xwing_Tex00029-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>48 32 83 45 31 84 41 37 85 44 38 86</p>
+        </polylist>
+        <polylist material="Xwing_Tex00030-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>41 37 87 42 36 88 43 35 89 44 38 90</p>
+        </polylist>
+        <polylist material="Xwing_Tex00031-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>45 31 91 46 34 92 42 36 93 41 37 94 47 33 95 48 32 96 44 38 97 43 35 98</p>
+        </polylist>
+        <polylist material="Xwing_Tex00032-material" count="5">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 4 4 4 </vcount>
+          <p>35 39 99 36 40 100 37 41 101 31 42 102 32 42 103 33 42 104 34 42 105 39 43 106 40 44 107 37 41 108 36 40 109 38 45 110 39 43 111 36 40 112 35 39 113 40 44 114 38 45 115 35 39 116 37 41 117</p>
+        </polylist>
+        <polylist material="Xwing_Tex00033-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_003-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_003-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_003-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>25 30 118 26 29 119 27 27 120 28 26 121</p>
+        </polylist>
+      </mesh>
+    </geometry>
+    <geometry id="RotaryWing_002-mesh" name="RotaryWing.002">
+      <mesh>
+        <source id="RotaryWing_002-mesh-positions">
+          <float_array id="RotaryWing_002-mesh-positions-array" count="147">-1.204793 -0.902515 4.597177 -1.372324 -0.01037597 4.597177 -1.372324 -0.01037597 2.891315 -2.008492 -0.273942 4.597177 -2.008492 -0.273942 2.891315 -1.684749 -0.780846 4.597177 -0.816929 -0.615871 4.597177 -0.718264 0.08295595 4.597177 -0.718264 0.08295595 2.891315 -1.372324 -0.01037597 2.592026 -1.204793 -0.902515 2.592026 -1.684749 -0.780846 2.592026 -2.008492 -0.273942 2.592026 -0.718264 0.08295595 2.592026 -0.816929 -0.615871 2.592026 -1.637853 -0.505732 6.480065 -0.978177 -0.278588 6.480065 -1.390529 -0.152518 6.480065 -1.378353 -0.850101 6.480065 -0.970651 -0.709717 6.480065 -1.378353 -0.850101 4.584951 -0.970651 -0.709717 4.584951 -1.637853 -0.505732 4.584951 -1.390529 -0.152518 4.584951 -0.978177 -0.278588 4.584951 -0.671098 -0.02705496 2.885463 -0.755325 0.215495 5.646214 -4.915618 -1.229205 4.817255 -4.863479 -1.379354 2.885463 -0.755325 0.215495 2.885463 -4.915618 -1.229205 2.885463 -5.209598 -1.230752 -1.821753 -5.060331 -1.664269 -1.821753 -4.907732 -1.611726 -1.821753 -5.057003 -1.17821 -1.821753 -5.053003 -1.48524 -2.494213 -5.127687 -1.382445 -2.494213 -5.001319 -1.369163 -2.494213 -5.04917 -1.521718 2.518666 -4.963034 -1.328257 2.518666 -5.173644 -1.350393 2.518666 -4.931045 -1.152527 2.518666 -4.931045 -1.152527 4.963974 -4.798691 -1.536911 4.963974 -4.798691 -1.536911 2.518666 -5.315429 -1.284882 2.518666 -5.183078 -1.669266 2.518666 -5.183078 -1.669266 4.963974 -5.315429 -1.284882 4.963974</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_002-mesh-positions-array" count="49" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_002-mesh-normals">
+          <float_array id="RotaryWing_002-mesh-normals-array" count="138">-0.03703373 0.9993141 -5.01605e-6 0.466257 0.4669476 0.751375 -0.2548769 0.9308621 0.2617895 -0.2617772 0.9560864 0.1318017 -0.6642152 0.2089841 0.7177352 -0.2841096 0.9587919 0 -0.5606647 -0.7765268 0.2875086 -0.8307622 0.2226457 0.5101598 -0.7254799 0.5586141 0.4020314 -0.8156543 -0.3412236 -0.4671987 -0.1643443 -0.8440032 -0.5105386 -0.03143799 0.2236129 0.9741709 0 0 1 0.6639809 0.5463334 0.5105382 0.4056958 0.8007014 0.4407814 0.1893092 0.4498195 0.8728256 -0.4591522 0.725377 0.5128426 -0.8310204 -0.1989083 0.5194618 0.7892261 -0.3275386 0.5194621 0.5553921 0.6493839 0.5194615 -0.227817 0.6615285 -0.7144784 -0.6995526 -0.0121206 -0.7144783 -0.2046449 -0.6690597 -0.7144786 0.5731464 -0.4012781 -0.7144783 0.5588976 0.4208977 -0.7144779 0.7045808 0.6165617 -0.3513085 -0.9351525 0.04741525 -0.3510578 -0.4630426 -0.1772546 -0.8684311 0.7769032 0.2672427 -0.5700904 0.9547718 -0.01816248 -0.2967846 -0.7580564 -0.5863323 -0.285596 -0.2907488 -0.794263 -0.5334899 -0.3307396 -0.6781125 0.6563345 -0.7181045 0.4468904 0.5334932 -0.6781147 0.3307402 -0.6563318 0.6781138 -0.3307381 0.6563338 -0.4468874 -0.7181075 0.5334916 0.3307378 0.6781141 -0.6563336 -0.7942634 0.2907436 -0.5334923 -0.755186 0.3025884 -0.5814933 0.6381426 0.5019159 -0.5838274 0.1156371 -0.804791 -0.5821853 0 0 1 0.05581998 0.04088491 0.9976034 -0.06316256 0.02842319 0.9975984 0.006795704 -0.06516176 0.9978517</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_002-mesh-normals-array" count="46" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_002-mesh-map-0">
+          <float_array id="RotaryWing_002-mesh-map-0-array" count="244">0 0.01449298 0.995146 0.01449298 0.995146 1 0 1 0.995146 0 0 0 0 0.985915 0.995146 0.985915 0.997067 1 0 1 0 0.009709 0.997067 0.009709 0.5 0.969925 0.447368 0 0.794737 0.180451 1 0.759399 0.00526297 0.992481 0.136842 0.255639 0.447368 0 0.5 0.969925 0.442105 0 0.5 0.970149 0.994737 0.761194 0.794737 0.186567 0.131579 0.261194 0 0.992537 0.5 0.970149 0.442105 0 0.984536 0.651515 0.005154967 0.651515 0.494845 1 0.804124 0.085859 0.195876 0.085859 0.005154967 0.651515 0.984536 0.651515 0.997429 1 0 1 0 0.01030898 0.997429 0.01030898 0 0.01408499 0.996599 0.01408499 0.996599 1 0 1 0 0.00999999 0.996466 0.00999999 0.996466 1 0 1 1 1 1 0.02040797 0.004738986 0.02040797 0.004738986 1 1 1 1 0.01754397 0.004048943 0.01754397 0.004048943 1 1 1 1 0.01754397 0.004048943 0.01754397 0.004048943 1 1 1 1 0.01886796 0.004385948 0.01886796 0.004385948 1 1 1 1 0.02222198 0.005127966 0.02222198 0.005127966 1 0 0.006896972 0.995536 0.006896972 0.995536 0.696552 0 1 0.005796968 0.954545 0.002898991 0.04545497 1 0 1 0.545455 0.002673983 0.984375 0.002673983 0 1 0 1 0.984375 0.008928954 0.947368 0.008928954 0 1 0 1 0.947368 1 0 1 0.947368 0.008928954 0.947368 0.008928954 0 0.003412961 0 1 0 1 0.98 0.003412961 0.98 1 0.2 0.191667 0.008332967 0.008332967 0.816667 0.808333 1 0.198347 1 1 0.809917 0.809917 0.008263945 0.008263945 0.198347 0.5 1 1 0.08333295 0.07142895 0.08333295 0.06666696 0.111111 0.466667 1 1 0.925926 0.666667 0.03703695 1 0.04999995 0.002287983 0.25 0.002287983 0.8 1 1 0.996633 1 0 0.75 0 0.25 0.996633 0.08333295 1 0.08333295 0.003343999 0.333333 0.003343999 0.833333 1 1 0.004254996 0.006666958 0.017021 1 1 0.7 0.991489 0.006666958</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_002-mesh-map-0-array" count="122" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="RotaryWing_002-mesh-vertices">
+          <input semantic="POSITION" source="#RotaryWing_002-mesh-positions"/>
+        </vertices>
+        <polylist material="Xwing_Tex00013-material" count="3">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 4 </vcount>
+          <p>8 0 0 13 1 1 9 2 2 2 3 3 12 4 4 4 5 5 2 3 6 9 2 7 11 6 8 5 7 9 3 8 10 12 4 11</p>
+        </polylist>
+        <polylist material="Xwing_Tex00014-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>9 2 12 10 9 13 11 6 14 12 4 15 13 1 16 14 10 17 10 9 18 9 2 19</p>
+        </polylist>
+        <polylist material="Xwing_Tex00015-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>0 11 20 1 12 21 3 8 22 5 7 23 6 13 24 7 14 25 1 12 26 0 11 27</p>
+        </polylist>
+        <polylist material="Xwing_Tex00016-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 </vcount>
+          <p>15 15 28 16 16 29 17 17 30 18 18 31 19 19 32 16 16 33 15 15 34</p>
+        </polylist>
+        <polylist material="Xwing_Tex00017-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>10 9 35 0 11 36 5 7 37 11 6 38</p>
+        </polylist>
+        <polylist material="Xwing_Tex00018-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>0 11 39 10 9 40 14 10 41 6 13 42</p>
+        </polylist>
+        <polylist material="Xwing_Tex00024-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>6 13 43 14 10 44 13 1 45 7 14 46</p>
+        </polylist>
+        <polylist material="Xwing_Tex00019-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>15 15 47 17 17 48 23 20 49 22 21 50</p>
+        </polylist>
+        <polylist material="Xwing_Tex00020-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>18 18 51 15 15 52 22 21 53 20 22 54</p>
+        </polylist>
+        <polylist material="Xwing_Tex00021-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>19 19 55 18 18 56 20 22 57 21 23 58</p>
+        </polylist>
+        <polylist material="Xwing_Tex00022-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>16 16 59 19 19 60 21 23 61 24 24 62</p>
+        </polylist>
+        <polylist material="Xwing_Tex00023-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>17 17 63 16 16 64 24 24 65 23 20 66</p>
+        </polylist>
+        <polylist material="Xwing_Tex00025-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 67 30 26 68 27 27 69 26 28 70</p>
+        </polylist>
+        <polylist material="Xwing_Tex00026-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 71 25 29 72 28 30 73 30 26 74</p>
+        </polylist>
+        <polylist material="Xwing_Tex00027-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>45 31 75 46 32 76 47 33 77 48 34 78</p>
+        </polylist>
+        <polylist material="Xwing_Tex00028-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>46 32 79 44 35 80 43 36 81 47 33 82</p>
+        </polylist>
+        <polylist material="Xwing_Tex00029-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>48 34 83 42 37 84 41 38 85 45 31 86</p>
+        </polylist>
+        <polylist material="Xwing_Tex00030-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>41 38 87 42 37 88 43 36 89 44 35 90</p>
+        </polylist>
+        <polylist material="Xwing_Tex00031-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>45 31 91 41 38 92 44 35 93 46 32 94 47 33 95 43 36 96 42 37 97 48 34 98</p>
+        </polylist>
+        <polylist material="Xwing_Tex00032-material" count="5">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 4 4 4 </vcount>
+          <p>35 39 99 36 40 100 37 41 101 31 42 102 32 42 103 33 42 104 34 42 105 39 43 106 37 41 107 36 40 108 40 44 109 38 45 110 35 39 111 37 41 112 39 43 113 40 44 114 36 40 115 35 39 116 38 45 117</p>
+        </polylist>
+        <polylist material="Xwing_Tex00033-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_002-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_002-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>25 29 118 26 28 119 27 27 120 28 30 121</p>
+        </polylist>
+      </mesh>
+    </geometry>
+    <geometry id="RotaryWing_001-mesh" name="RotaryWing.001">
+      <mesh>
+        <source id="RotaryWing_001-mesh-positions">
+          <float_array id="RotaryWing_001-mesh-positions-array" count="147">-1.343264 1.265226 4.597177 -1.801616 1.077944 4.597177 -2.051662 0.530917 4.597177 -2.051662 0.530917 2.891414 -1.385003 0.358454 4.597177 -1.385003 0.358454 2.891414 -0.919282 1.035352 4.597177 -0.724318 0.357057 4.597177 -0.724318 0.357057 2.891414 -1.385003 0.358454 2.592026 -2.051662 0.530917 2.592026 -1.801616 1.077944 2.592026 -1.343264 1.265226 2.592026 -0.724318 0.357057 2.592026 -0.919282 1.035352 2.592026 -1.716888 0.812034 6.480065 -1.422813 0.496679 6.480065 -1.032021 0.67891 6.480065 -1.507841 1.189166 6.480065 -1.084567 1.106891 6.480065 -1.084567 1.106891 4.584951 -1.507841 1.189166 4.584951 -1.716888 0.812034 4.584951 -1.422813 0.496679 4.584951 -1.032021 0.67891 4.584951 -0.692922 0.472562 2.885463 -5.032709 1.228233 2.885463 -5.063446 1.072289 4.817255 -0.742574 0.22065 5.646214 -0.742574 0.22065 2.885463 -5.063446 1.072289 2.885463 -5.35478 1.032907 -1.821753 -5.196354 1.002114 -1.821753 -5.108872 1.452186 -1.821753 -5.267296 1.482979 -1.821753 -5.235125 1.306713 -2.494213 -5.167791 1.198958 -2.494213 -5.294776 1.194523 -2.494213 -5.236406 1.34337 2.518666 -5.124181 1.163779 2.518666 -5.335822 1.156388 2.518666 -5.06805 0.994211 2.518666 -4.990481 1.393275 2.518666 -4.990481 1.393275 4.963974 -5.06805 0.994211 4.963974 -5.467115 1.071782 2.518666 -5.389543 1.470845 2.518666 -5.389543 1.470845 4.963974 -5.467115 1.071782 4.963974</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_001-mesh-positions-array" count="49" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_001-mesh-normals">
+          <float_array id="RotaryWing_001-mesh-normals-array" count="138">-0.1239418 -0.9922896 0 -0.1261463 -0.9832236 0.1317516 0.795835 -0.4431343 -0.4126481 0.5264201 -0.3972968 0.7516896 -0.6283154 -0.299224 0.7181119 -0.3665466 -0.9303998 -5.8482e-6 -0.7915128 -0.3375213 -0.5094969 -0.6387245 -0.6554647 0.4029855 -0.6629643 0.690612 -0.2890217 -5.42086e-5 -0.2266991 -0.9739649 0.7331811 -0.449943 -0.5098989 -0.8556193 0.2236936 0.4667729 2.4367e-7 0 1 -0.2815917 0.8128401 0.5098991 0.5149319 -0.7373045 0.4372954 0.03553402 -0.8579226 0.5125489 0.8195891 -0.2425671 0.5190711 -0.3894013 -0.2947201 0.8726435 -0.8056398 -0.2854999 0.5190708 -0.5204814 0.6779839 0.5190731 -0.6944614 -0.08511185 -0.7144784 -0.1335862 -0.6867863 -0.7144784 -0.2957205 0.6340902 -0.7144782 0.5116744 0.4771882 -0.7144793 0.6119511 -0.3391727 -0.7144773 0.7842673 -0.5120563 -0.3503189 0.8065707 -0.1565568 -0.5700296 -0.4830808 0.1110281 -0.8685077 -0.9198343 -0.1757576 -0.3507336 -0.8328313 0.4749925 -0.2842081 0.9432864 0.149881 -0.2962203 -0.6251229 -0.4216475 0.656837 -0.3980521 0.7465059 0.5331825 -0.4216484 0.6251233 -0.656836 -0.6487189 -0.5430304 -0.5331808 0.6251216 0.421651 -0.6568359 -0.5430331 0.6487163 -0.5331812 0.4216499 -0.6251212 0.656837 -0.7465043 -0.3980547 0.5331827 -0.002233326 0.06547701 0.9978516 0.060961 -0.03272652 0.9976035 0.002251863 0.813198 -0.5819829 -0.01969915 0.5638232 0.8256605 -0.05894738 0.8110921 -0.5819407 -2.51721e-7 0 1 -0.05853927 -0.03689515 0.9976031</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_001-mesh-normals-array" count="46" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="RotaryWing_001-mesh-map-0">
+          <float_array id="RotaryWing_001-mesh-map-0-array" count="244">0 0 0 0.985507 0.995146 0.985507 0.995146 0 0.995146 0.01408499 0.995146 1 0 1 0 0.01408499 0.997067 0.990291 0.997067 0 0 0 0 0.990291 0.5 0.977444 1 0.766917 0.794737 0.18797 0.447368 0.007518947 0.00526297 1 0.5 0.977444 0.447368 0.007518947 0.136842 0.263158 0.442105 0.007462978 0.794737 0.19403 0.994737 0.768657 0.5 0.977612 0.131579 0.268657 0.442105 0.007462978 0.5 0.977612 0 1 0.489583 0.003483951 0.00347197 0.358885 0.190972 0.926829 0.972222 0.351916 0.489583 0.003483951 0.190972 0.926829 0.791667 0.926829 0.997429 0.989691 0.997429 0 0 0 0 0.989691 0 0 0 0.986111 0.996599 0.986111 0.996599 0 1 0.979592 0.004716992 0.979592 0.004716992 0 1 0 1 0.982456 0.004048943 0.982456 0.004048943 0 1 0 1 0.981132 0.004385948 0.981132 0.004385948 0 1 0 1 0.981132 0.004385948 0.981132 0.004385948 0 1 0 1 0.977778 0.005127966 0.977778 0.005127966 0 1 0 0 0 0 0.99 0.996466 0.99 0.996466 0 0.00446397 0.006896972 0.00446397 1 1 0.696552 1 0.006896972 0.002906978 1 1 0.619048 1 0.04761898 0.002906978 0.04761898 0.002673983 1 1 1 1 0.01587295 0.002673983 0.01587295 0.008928954 1 1 1 1 0.04999995 0.008928954 0.04999995 1 0.05263197 0.008928954 0.05263197 0.008928954 1 1 1 0.003154993 0.01886796 0.003154993 1 1 1 1 0.01886796 1 0.808333 0.808333 0.008332967 0.008332967 0.191667 0.191667 1 0.191667 0.008332967 0.008332967 0.816667 0.816667 1 1 0.191667 0.996633 0.08333295 0.996633 1 0 0.833333 0 0.333333 0.5 0.08333295 0.07142895 1 1 1 0.06666696 0.925926 0.666667 1 1 0.111111 0.466667 0.03703695 1 1 1 0.07142895 0.003355979 0.285714 0.003355979 0.785714 1 1 1 0.08333295 0.003343999 0.25 0.003343999 0.75 0 0.006666958 0.987234 0.006666958 0.995745 0.7 0.012766 1</float_array>
+          <technique_common>
+            <accessor source="#RotaryWing_001-mesh-map-0-array" count="122" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="RotaryWing_001-mesh-vertices">
+          <input semantic="POSITION" source="#RotaryWing_001-mesh-positions"/>
+        </vertices>
+        <polylist material="Xwing_Tex00013-material" count="3">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 4 </vcount>
+          <p>8 0 0 5 1 1 9 2 2 13 3 3 10 4 4 9 2 5 5 1 6 3 5 7 11 6 8 10 4 9 2 7 10 1 8 11</p>
+        </polylist>
+        <polylist material="Xwing_Tex00014-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>9 2 12 10 4 13 11 6 14 12 9 15 13 3 16 9 2 17 12 9 18 14 10 19</p>
+        </polylist>
+        <polylist material="Xwing_Tex00015-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>0 11 20 1 8 21 2 7 22 4 12 23 6 13 24 0 11 25 4 12 26 7 14 27</p>
+        </polylist>
+        <polylist material="Xwing_Tex00016-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 4 </vcount>
+          <p>15 15 28 16 16 29 17 17 30 18 18 31 15 15 32 17 17 33 19 19 34</p>
+        </polylist>
+        <polylist material="Xwing_Tex00017-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>12 9 35 11 6 36 1 8 37 0 11 38</p>
+        </polylist>
+        <polylist material="Xwing_Tex00018-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>0 11 39 6 13 40 14 10 41 12 9 42</p>
+        </polylist>
+        <polylist material="Xwing_Tex00019-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>15 15 43 22 20 44 23 21 45 16 16 46</p>
+        </polylist>
+        <polylist material="Xwing_Tex00020-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>18 18 47 21 22 48 22 20 49 15 15 50</p>
+        </polylist>
+        <polylist material="Xwing_Tex00021-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>19 19 51 20 23 52 21 22 53 18 18 54</p>
+        </polylist>
+        <polylist material="Xwing_Tex00022-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>17 17 55 24 24 56 20 23 57 19 19 58</p>
+        </polylist>
+        <polylist material="Xwing_Tex00023-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>16 16 59 23 21 60 24 24 61 17 17 62</p>
+        </polylist>
+        <polylist material="Xwing_Tex00024-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>6 13 63 7 14 64 13 3 65 14 10 66</p>
+        </polylist>
+        <polylist material="Xwing_Tex00025-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 67 28 26 68 27 27 69 30 28 70</p>
+        </polylist>
+        <polylist material="Xwing_Tex00026-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>29 25 71 30 28 72 26 29 73 25 30 74</p>
+        </polylist>
+        <polylist material="Xwing_Tex00027-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>45 31 75 48 32 76 47 33 77 46 34 78</p>
+        </polylist>
+        <polylist material="Xwing_Tex00028-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>46 34 79 47 33 80 43 35 81 42 36 82</p>
+        </polylist>
+        <polylist material="Xwing_Tex00029-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>48 32 83 45 31 84 41 37 85 44 38 86</p>
+        </polylist>
+        <polylist material="Xwing_Tex00030-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>41 37 87 42 36 88 43 35 89 44 38 90</p>
+        </polylist>
+        <polylist material="Xwing_Tex00031-material" count="2">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 4 </vcount>
+          <p>45 31 91 46 34 92 42 36 93 41 37 94 47 33 95 48 32 96 44 38 97 43 35 98</p>
+        </polylist>
+        <polylist material="Xwing_Tex00032-material" count="5">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 3 4 4 4 </vcount>
+          <p>38 39 99 39 40 100 36 41 101 35 42 102 35 42 103 36 41 104 37 43 105 31 44 106 32 44 107 33 44 108 34 44 109 39 40 110 40 45 111 37 43 112 36 41 113 40 45 114 38 39 115 35 42 116 37 43 117</p>
+        </polylist>
+        <polylist material="Xwing_Tex00033-material" count="1">
+          <input semantic="VERTEX" source="#RotaryWing_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#RotaryWing_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#RotaryWing_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>4 </vcount>
+          <p>25 30 118 26 29 119 27 27 120 28 26 121</p>
+        </polylist>
+      </mesh>
+    </geometry>
+    <geometry id="Fuselage_000-mesh" name="Fuselage.000">
+      <mesh>
+        <source id="Fuselage_000-mesh-positions">
+          <float_array id="Fuselage_000-mesh-positions-array" count="60">-0.809771 -0.96773 2.853673 -0.72627 -0.900484 5.879606 -0.96836 0.183364 5.879741 0.96836 0.183364 5.879741 0.72627 -0.900484 5.879606 0.809771 -0.96773 2.853673 -0.705806 0.942055 0.869918 0.705806 0.942055 0.869918 -0.608961 0.640793 -0.978001 -0.715251 -0.531977 1.050137 0.715251 -0.531977 1.050137 0.608961 0.640793 -0.978001 -0.377914 0.36105 -5.386644 -0.390601 -0.327549 -5.14456 0.390601 -0.327549 -5.14456 0.377914 0.36105 -5.386644 -0.2422209 -0.006112992 -6.480064 0.2422209 -0.006112992 -6.480064 0.72627 0.942055 5.879606 -0.72627 0.942055 5.879606</float_array>
+          <technique_common>
+            <accessor source="#Fuselage_000-mesh-positions-array" count="20" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Fuselage_000-mesh-normals">
+          <float_array id="Fuselage_000-mesh-normals-array" count="60">0.1474004 -0.8264865 0.5433168 -0.4181061 -0.304201 -0.8559492 0.133444 -0.9725753 -0.1905 0.2538644 -0.6839022 0.6839817 -0.5261356 -0.6465129 -0.5524514 -0.3818956 -0.5818917 0.7180236 -0.05299556 -0.9195653 0.3893474 -0.2070094 -0.9593616 -0.1917615 0.06540894 -0.5878611 0.8063133 0.660286 0.5527603 0.5084081 -0.2426805 0.06158906 0.9681493 0.6319659 0.2540929 0.7321584 -0.6450002 0.563444 0.5162419 0.1693375 0.5875728 -0.7912542 -0.4624993 0.5330362 0.7084962 0.1454426 0.9816136 -0.1236177 -0.2470806 0.9341226 -0.2576162 -0.4775126 0.5008454 0.7218973 -0.9779313 -0.009260475 -0.2087219 0.7356581 0.2389311 0.6338132</float_array>
+          <technique_common>
+            <accessor source="#Fuselage_000-mesh-normals-array" count="20" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Fuselage_000-mesh-map-0">
+          <float_array id="Fuselage_000-mesh-map-0-array" count="216">0.004504978 0.933333 0.378378 0.01333296 0.004504978 0.06666696 0.373874 1 1 0.05333298 0.378378 0.01333296 0.17971 0.242424 1 1 1 0.01515197 0.002898991 0.333333 0.17971 0.772727 0.17971 0.242424 0.01612895 0.423729 0.887097 1 1 0.423729 0.145161 0.01694899 1 0.423729 0.887097 0.01694899 1 0.01515197 0.747774 0.924242 1 1 0.747774 0.924242 0.151335 0.242424 0.151335 0.772727 0.151335 0.772727 0.002967 0.333333 0.002967 0.666667 0.606383 0.779661 0.593085 0.01694899 0.75266 1 0.106383 0.661017 0.444149 0.169492 0.606383 0.779661 0.106383 0.661017 0 0.508475 0.08776599 0.322034 0.99734 0.40678 0.99734 0.966102 0.75266 1 0.99734 0.40678 0.75266 1 0.593085 0.01694899 0.99734 0.01694899 0.99734 0.40678 0.593085 0.01694899 0.448276 0.166667 0.111406 0.633333 0.61008 0.766667 0.596817 0.01666694 0.61008 0.766667 0.755968 1 0.09283798 0.283333 0.002652943 0.466667 0.111406 0.633333 0.596817 0.01666694 0.755968 1 1 0.433333 1 0.04999995 0.596817 0.01666694 1 0.433333 0.755968 1 1 0.983333 1 0.433333 0.04347795 0.006535947 1 1 0.978261 0.006535947 0.004504978 0.933333 0.373874 1 0.378378 0.01333296 0.373874 1 1 0.946667 1 0.05333298 0.17971 0.242424 0.17971 0.772727 1 1 0.002898991 0.333333 0.002898991 0.666667 0.17971 0.772727 0.01612895 0.423729 0.145161 1 0.887097 1 0.145161 0.01694899 0.01612895 0.423729 1 0.423729 1 0.01515197 0.747774 0.090909 0.747774 0.924242 0.747774 0.924242 0.747774 0.090909 0.151335 0.242424 0.151335 0.772727 0.151335 0.242424 0.002967 0.333333 0.606383 0.779661 0.444149 0.169492 0.593085 0.01694899 0.106383 0.661017 0.08776599 0.322034 0.444149 0.169492 0.448276 0.166667 0.09283798 0.283333 0.111406 0.633333 0.596817 0.01666694 0.448276 0.166667 0.61008 0.766667 0.04347795 0.006535947 0.021739 1 1 1</float_array>
+          <technique_common>
+            <accessor source="#Fuselage_000-mesh-map-0-array" count="108" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Fuselage_000-mesh-vertices">
+          <input semantic="POSITION" source="#Fuselage_000-mesh-positions"/>
+        </vertices>
+        <triangles material="Xwing_Tex00000-material" count="4">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>10 0 0 0 1 1 9 2 2 5 3 3 1 4 4 0 1 5 10 0 66 5 3 67 0 1 68 5 3 69 4 9 70 1 4 71</p>
+        </triangles>
+        <triangles material="Xwing_Tex00001-material" count="4">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>13 5 6 10 0 7 9 2 8 16 6 9 14 7 10 13 5 11 13 5 72 14 7 73 10 0 74 16 6 75 17 18 76 14 7 77</p>
+        </triangles>
+        <triangles material="Xwing_Tex00002-material" count="4">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>2 8 12 4 9 13 3 10 14 19 11 15 3 10 16 18 12 17 2 8 78 1 4 79 4 9 80 19 11 81 2 8 82 3 10 83</p>
+        </triangles>
+        <triangles material="Xwing_Tex00003-material" count="6">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>7 13 18 8 14 19 6 15 20 8 14 21 15 16 22 12 17 23 12 17 24 17 18 25 16 6 26 7 13 84 11 19 85 8 14 86 8 14 87 11 19 88 15 16 89 12 17 90 15 16 91 17 18 92</p>
+        </triangles>
+        <triangles material="Xwing_Tex00004-material" count="16">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>10 0 27 7 13 28 5 3 29 14 7 30 11 19 31 10 0 32 14 7 33 17 18 34 15 16 35 3 10 36 4 9 37 5 3 38 3 10 39 5 3 40 7 13 41 18 12 42 3 10 43 7 13 44 8 14 45 13 5 46 9 2 47 6 15 48 9 2 49 0 1 50 12 17 51 16 6 52 13 5 53 6 15 54 0 1 55 2 8 56 19 11 57 6 15 58 2 8 59 0 1 60 1 4 61 2 8 62 10 0 93 11 19 94 7 13 95 14 7 96 15 16 97 11 19 98 8 14 99 12 17 100 13 5 101 6 15 102 8 14 103 9 2 104</p>
+        </triangles>
+        <triangles material="Xwing_Tex00008-material" count="2">
+          <input semantic="VERTEX" source="#Fuselage_000-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Fuselage_000-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Fuselage_000-mesh-map-0" offset="2" set="0"/>
+          <p>6 15 63 18 12 64 7 13 65 6 15 105 19 11 106 18 12 107</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="RotaryWing_004" name="RotaryWing.004" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 7.54979e-8 -1 0 0 1 7.54979e-8 0 0 0 0 1</matrix>
+        <instance_geometry url="#RotaryWing_004-mesh" name="RotaryWing.004">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Xwing_Tex00013-material" target="#Xwing_Tex00013-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00014-material" target="#Xwing_Tex00014-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00015-material" target="#Xwing_Tex00015-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00016-material" target="#Xwing_Tex00016-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00017-material" target="#Xwing_Tex00017-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00018-material" target="#Xwing_Tex00018-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00024-material" target="#Xwing_Tex00024-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00019-material" target="#Xwing_Tex00019-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00020-material" target="#Xwing_Tex00020-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00021-material" target="#Xwing_Tex00021-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00022-material" target="#Xwing_Tex00022-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00023-material" target="#Xwing_Tex00023-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00025-material" target="#Xwing_Tex00025-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00026-material" target="#Xwing_Tex00026-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00027-material" target="#Xwing_Tex00027-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00028-material" target="#Xwing_Tex00028-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00029-material" target="#Xwing_Tex00029-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00030-material" target="#Xwing_Tex00030-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00031-material" target="#Xwing_Tex00031-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00032-material" target="#Xwing_Tex00032-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00033-material" target="#Xwing_Tex00033-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="RotaryWing_003" name="RotaryWing.003" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 7.54979e-8 -1 0 0 1 7.54979e-8 0 0 0 0 1</matrix>
+        <instance_geometry url="#RotaryWing_003-mesh" name="RotaryWing.003">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Xwing_Tex00013-material" target="#Xwing_Tex00013-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00014-material" target="#Xwing_Tex00014-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00015-material" target="#Xwing_Tex00015-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00016-material" target="#Xwing_Tex00016-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00017-material" target="#Xwing_Tex00017-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00018-material" target="#Xwing_Tex00018-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00024-material" target="#Xwing_Tex00024-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00019-material" target="#Xwing_Tex00019-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00020-material" target="#Xwing_Tex00020-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00021-material" target="#Xwing_Tex00021-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00022-material" target="#Xwing_Tex00022-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00023-material" target="#Xwing_Tex00023-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00025-material" target="#Xwing_Tex00025-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00026-material" target="#Xwing_Tex00026-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00027-material" target="#Xwing_Tex00027-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00028-material" target="#Xwing_Tex00028-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00029-material" target="#Xwing_Tex00029-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00030-material" target="#Xwing_Tex00030-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00031-material" target="#Xwing_Tex00031-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00032-material" target="#Xwing_Tex00032-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00033-material" target="#Xwing_Tex00033-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="RotaryWing_002" name="RotaryWing.002" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 7.54979e-8 -1 0 0 1 7.54979e-8 0 0 0 0 1</matrix>
+        <instance_geometry url="#RotaryWing_002-mesh" name="RotaryWing.002">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Xwing_Tex00013-material" target="#Xwing_Tex00013-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00014-material" target="#Xwing_Tex00014-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00015-material" target="#Xwing_Tex00015-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00016-material" target="#Xwing_Tex00016-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00017-material" target="#Xwing_Tex00017-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00018-material" target="#Xwing_Tex00018-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00024-material" target="#Xwing_Tex00024-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00019-material" target="#Xwing_Tex00019-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00020-material" target="#Xwing_Tex00020-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00021-material" target="#Xwing_Tex00021-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00022-material" target="#Xwing_Tex00022-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00023-material" target="#Xwing_Tex00023-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00025-material" target="#Xwing_Tex00025-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00026-material" target="#Xwing_Tex00026-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00027-material" target="#Xwing_Tex00027-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00028-material" target="#Xwing_Tex00028-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00029-material" target="#Xwing_Tex00029-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00030-material" target="#Xwing_Tex00030-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00031-material" target="#Xwing_Tex00031-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00032-material" target="#Xwing_Tex00032-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00033-material" target="#Xwing_Tex00033-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="RotaryWing_001" name="RotaryWing.001" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 7.54979e-8 -1 0 0 1 7.54979e-8 0 0 0 0 1</matrix>
+        <instance_geometry url="#RotaryWing_001-mesh" name="RotaryWing.001">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Xwing_Tex00013-material" target="#Xwing_Tex00013-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00014-material" target="#Xwing_Tex00014-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00015-material" target="#Xwing_Tex00015-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00016-material" target="#Xwing_Tex00016-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00017-material" target="#Xwing_Tex00017-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00018-material" target="#Xwing_Tex00018-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00019-material" target="#Xwing_Tex00019-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00020-material" target="#Xwing_Tex00020-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00021-material" target="#Xwing_Tex00021-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00022-material" target="#Xwing_Tex00022-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00023-material" target="#Xwing_Tex00023-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00024-material" target="#Xwing_Tex00024-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00025-material" target="#Xwing_Tex00025-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00026-material" target="#Xwing_Tex00026-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00027-material" target="#Xwing_Tex00027-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00028-material" target="#Xwing_Tex00028-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00029-material" target="#Xwing_Tex00029-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00030-material" target="#Xwing_Tex00030-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00031-material" target="#Xwing_Tex00031-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00032-material" target="#Xwing_Tex00032-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00033-material" target="#Xwing_Tex00033-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="Fuselage_000" name="Fuselage.000" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 7.54979e-8 -1 0 0 1 7.54979e-8 0 0 0 0 1</matrix>
+        <instance_geometry url="#Fuselage_000-mesh" name="Fuselage.000">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Xwing_Tex00000-material" target="#Xwing_Tex00000-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00001-material" target="#Xwing_Tex00001-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00002-material" target="#Xwing_Tex00002-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00003-material" target="#Xwing_Tex00003-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00004-material" target="#Xwing_Tex00004-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Xwing_Tex00008-material" target="#Xwing_Tex00008-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>
