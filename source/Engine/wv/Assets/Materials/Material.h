@@ -7,7 +7,7 @@ namespace wv
 {
 	class Pipeline;
 	class GraphicsDevice;
-	class Node;
+	class Mesh;
 	class Texture;
 
 	class Material
@@ -20,7 +20,7 @@ namespace wv
 		void setAsActive( GraphicsDevice* _device );
 
 		virtual void materialCallback();
-		virtual void instanceCallback( Node* _instance );
+		virtual void instanceCallback( Mesh* _instance );
 
 	protected:
 		Pipeline* m_pipeline = nullptr;

@@ -4,11 +4,13 @@
 #include <wv/Assets/Texture.h>
 #include <wv/Camera/ICamera.h>
 #include <wv/Device/GraphicsDevice.h>
+#include <wv/Math/Transform.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
-#include <wv/Scene/Model.h>
+#include <wv/Primitive/Mesh.h>
 
 #include <glm/glm.hpp>
+
 #include <wv/Auxiliary/fkYAML/node.hpp>
 
 bool wv::Material::loadFromFile( const char* _path )
@@ -106,7 +108,7 @@ void wv::Material::materialCallback()
 		app->device->bindTextureToSlot( m_textures[ i ], i );
 }
 
-void wv::Material::instanceCallback( Node* _instance )
+void wv::Material::instanceCallback( Mesh* _instance )
 {
 	wv::Application* app = wv::Application::get();
 	wv::DeviceContext* ctx = app->context;
@@ -114,6 +116,5 @@ void wv::Material::instanceCallback( Node* _instance )
 	// model transform
 	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];
 
-	Model* mesh = reinterpret_cast<Model*>( _instance );
-	instanceBlock.set( "u_Model", mesh->m_transform.getMatrix() );
+	instanceBlock.set( "u_Model", _instance->transform.getMatrix() );
 }

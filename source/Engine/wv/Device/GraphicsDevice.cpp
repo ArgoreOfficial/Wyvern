@@ -481,16 +481,19 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
+	{
+		if ( _mesh->primitives[ i ]->material )
+		{
+			_mesh->primitives[ i ]->material->setAsActive( this );
+			_mesh->primitives[ i ]->material->instanceCallback( _mesh );
+		}
+
 		drawPrimitive( _mesh->primitives[ i ] );
-	
-	// glBindVertexArray( 0 );
+	}
 }
 
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
-	if ( _primitive->material )
-		_primitive->material->setAsActive( this );
-
 	glBindVertexArray( _primitive->vaoHandle );
 	
 	for ( auto& block : m_activePipeline->uniformBlocks )
