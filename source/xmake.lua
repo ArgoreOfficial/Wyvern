@@ -25,7 +25,7 @@ elseif is_mode("Package") then
     set_strip "all"
 end
 
-add_requires("miniaudio") -- TODO: move
+-- add_requires("miniaudio") -- TODO: move
 
 -- create project
 target( PROJECT_NAME )
@@ -39,7 +39,7 @@ target( PROJECT_NAME )
     set_objectdir "../build/obj"
     set_runtimes( "MD" )
 
-    add_packages("miniaudio") -- TODO: move
+    -- add_packages("miniaudio") -- TODO: move
 
     add_headerfiles( 
         "**.h", 

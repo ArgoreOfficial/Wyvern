@@ -27,10 +27,14 @@ WASM_PRELOAD_FILES = {
     "res/meshes/monke.glb.wpr",
 
     "res/materials/phong.wmat",
-    "res/materials/defaultSky.wmat",
+    "res/materials/sky_space.wmat",
 
     "res/textures/uv.png",
-    "res/textures/autumn_field_puresky.png"
+    "res/textures/autumn_field_puresky.png",
+    "res/textures/space2.png",
+
+    "res/audio/psx.wav",
+    "res/audio/psx.flac"
 }
 
 

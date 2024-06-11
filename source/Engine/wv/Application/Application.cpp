@@ -240,6 +240,13 @@ void wv::Application::tick()
 {
 	double dt = context->getDeltaTime();
 	
+#ifdef WV_PLATFORM_WASM
+	// user needs to interact with tab before 
+	// audio device can be initalized
+	if ( !audio->isEnabled() )
+		audio->initialize();
+#endif
+
 	/// ------------------ update ------------------ ///
 
 	context->pollEvents();
@@ -266,6 +273,8 @@ void wv::Application::tick()
 		std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 		context->setTitle( title.c_str() );
 	}
+
+	m_applicationState->update( dt );
 
 	currentCamera->update( dt );
 

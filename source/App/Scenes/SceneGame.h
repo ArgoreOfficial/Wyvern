@@ -26,5 +26,6 @@ private:
 	wv::Mesh* m_player;
 
 	wv::Audio* m_startupSound = nullptr;
+	bool m_hasPlayedStartup = false;
 
 };

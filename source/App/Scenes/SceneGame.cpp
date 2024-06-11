@@ -37,7 +37,8 @@ void SceneGame::onLoad()
 	phongMaterial->load( "phong" );
 	if( m_player ) m_player->primitives[ 0 ]->material = phongMaterial;
 
-	m_startupSound = app->audio->loadAudio2D( "sample.mp3" );
+	m_startupSound = app->audio->loadAudio2D( "psx.flac" );
+	
 }
 
 void SceneGame::onUnload()
@@ -51,20 +52,23 @@ void SceneGame::onUnload()
 
 void SceneGame::onCreate()
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
-
-	m_startupSound->play();
+	
 }
 
 void SceneGame::onDestroy()
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
+	
 }
 
 void SceneGame::update( double _deltaTime )
 {
+	wv::Application* app = wv::Application::get();
+	
+	if ( !m_hasPlayedStartup && app->audio->isUnlocked() && !m_startupSound->isPlaying() )
+	{
+		m_startupSound->play();
+		m_hasPlayedStartup = true;
+	}
 
 }
 

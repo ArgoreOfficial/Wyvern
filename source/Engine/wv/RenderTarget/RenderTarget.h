@@ -21,7 +21,6 @@ namespace wv
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 
-		/// TODOM: support multiple textures?
 		wv::Texture** textures = 0;
 		int numTextures = 0;
 
