@@ -22,8 +22,12 @@ namespace wv
 		template < typename T > T min  ( const T& _a, const T& _b );
 		template < typename T > T max  ( const T& _a, const T& _b );
 
-		inline float degToRad( const float& _degrees )   { return _degrees * ( WV_CONSTF_PI / 180.0f ); }
-		inline double degToRad( const double& _degrees ) { return _degrees * ( WV_CONST_PI / 180.0 ); }
+		inline float  degToRad( const float&  _degrees ) { return _degrees * ( WV_CONSTF_PI / 180.0f ); }
+		inline double degToRad( const double& _degrees ) { return _degrees * ( WV_CONST_PI  / 180.0 ); }
+
+		inline float  radToDeg( const float&  _radians ) { return _radians * ( 180.0f / WV_CONSTF_PI ); }
+		inline double radToDeg( const double& _radians ) { return _radians * ( 180.0  / WV_CONST_PI ); }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -55,7 +55,17 @@ namespace wv
 			};
 		}
 
+		static inline Vector3<T> directionToEuler( Vector3<T> _vec )
+		{
+			return {
+				wv::Math::radToDeg( std::asin( -_vec.y ) ),         // pitch
+				wv::Math::radToDeg( std::atan2( _vec.x, _vec.z ) ), // yaw
+				0
+			};
+		}
+
 		inline Vector3<T> eulerToDirection() { return Vector3<T>::eulerToDirection( *this ); }
+		inline Vector3<T> directionToEuler() { return Vector3<T>::directionToEuler( *this ); }
 
 		Vector3<T>& operator = ( const Vector3<T>& _other );
 		Vector3<T>& operator +=( const Vector3<T>& _other );
