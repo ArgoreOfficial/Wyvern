@@ -1,0 +1,3 @@
+shader: "unlit"
+textures:
+  - [ "u_Albedo", "menu_select_starwars.png" ]

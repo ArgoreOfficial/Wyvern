@@ -21,15 +21,6 @@
 
 #include <wv/Debug/Print.h>
 
-struct Vertex
-{
-	wv::Vector3f position;
-	wv::Vector3f normal;
-	wv::Vector3f tangent;
-	wv::Vector4f color;
-	wv::Vector2f texCoord0;
-};
-
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
 {
@@ -45,13 +36,13 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 {
 	wv::GraphicsDevice* device = wv::Application::get()->device;
 
-	std::vector<Vertex> vertices;
+	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	
 	// process vertices
 	for ( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )
 	{
-		Vertex v;
+		wv::Vertex v;
 		v.position.x = _assimp_mesh->mVertices[ i ].x;
 		v.position.y = _assimp_mesh->mVertices[ i ].y;
 		v.position.z = _assimp_mesh->mVertices[ i ].z;
@@ -113,7 +104,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.layout = &layout;
 
 	prDesc.vertexBuffer     = vertices.data();
-	prDesc.vertexBufferSize = (unsigned int)(vertices.size() * sizeof( Vertex ));
+	prDesc.vertexBufferSize = (unsigned int)(vertices.size() * sizeof( wv::Vertex ));
 	prDesc.numVertices      = (unsigned int)vertices.size();
 
 	prDesc.indexBuffer     = indices.data();

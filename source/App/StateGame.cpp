@@ -2,10 +2,11 @@
 
 #include <wv/Scene/Scene.h>
 #include <App/Scenes/SceneGame.h>
+#include <App/Scenes/SceneMenu.h>
 
 StateGame::StateGame()
 {
-	m_currentScene = new SceneGame();
+	m_currentScene = new SceneMenu();
 }
 
 StateGame::~StateGame()
