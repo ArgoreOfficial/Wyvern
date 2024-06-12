@@ -11,6 +11,7 @@ PlayerShip::PlayerShip( wv::Mesh* _mesh ) :
 {
 	m_camera = new wv::ICamera( wv::ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	m_maxSpeed = 100.0f;
+	m_throttle = 0.0f;
 }
 
 PlayerShip::~PlayerShip()
@@ -37,11 +38,25 @@ void PlayerShip::onMouseEvent( wv::MouseEvent _event )
 
 void PlayerShip::onInputEvent( wv::InputEvent _event )
 {
-
+	if ( !_event.repeat )
+	{
+		float p = (int)_event.buttondown - (int)_event.buttonup;
+		switch ( _event.key )
+		{
+		case 'W': m_throttleInput += p; break;
+		case 'S': m_throttleInput -= p; break;
+		}
+	}
 }
 
 void PlayerShip::update( double _deltaTime )
 {
+	m_throttle += (float)m_throttleInput * _deltaTime;
+	m_throttle = wv::Math::clamp( m_throttle, 0.0f, 1.0f );
+	//printf( "In %i   Throttle: %f\n", m_throttleInput, m_throttle );
+
+	
+
 	m_targetRotation -= wv::Vector3f{ m_aimInput.y, m_aimInput.x, 0.0f } * 0.1f;
 	m_targetRotation.x = wv::Math::clamp( m_targetRotation.x, -70.0f, 70.0f );
 	m_aimInput = {};

@@ -5,6 +5,7 @@
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Device/AudioDevice.h>
+#include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
 #include <wv/Primitive/Mesh.h>
@@ -41,9 +42,10 @@ void SceneGame::onLoad()
 	m_playerShip->onCreate();
 
 	m_dummy = new EnemyShip( m_xwing );
-	m_playerShip->onCreate();
+	m_dummy->onCreate();
 
-	m_dummy->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
+	m_dummy->getTransform().setPosition( { 0.0f, 0.0f, -260.0f } );
+	m_dummy->getTransform().setRotation( { 0.0f, 90.0f, 0.0f } );
 }
 
 void SceneGame::onUnload()
@@ -76,7 +78,13 @@ void SceneGame::update( double _deltaTime )
 	}
 
 	m_playerShip->update( _deltaTime );
-	m_dummy->setTarget( m_playerShip->getTransform().position );
+	wv::Vector3f target{
+		std::sin( (float)app->context->getTime() ),
+		0.0f,
+		std::cos( (float)app->context->getTime() )
+	};
+
+	m_dummy->setTarget( m_dummy->getTransform().position + target );
 	m_dummy->update( _deltaTime );
 }
 

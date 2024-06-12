@@ -25,5 +25,7 @@ protected:
 	float m_maxSpeed = 10.0f;
 	float m_health   = 100.0f;
 
+	float radius = 1.0f;
+
 	wv::Mesh* m_mesh;
 };

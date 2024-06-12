@@ -23,6 +23,7 @@ private:
 
 	wv::ICamera* m_camera;
 	wv::Vector2f m_aimInput;
+	int m_throttleInput = 0;
 
 	wv::Vector3f m_targetRotation;
 	wv::Vector3f m_cameraRotation;
