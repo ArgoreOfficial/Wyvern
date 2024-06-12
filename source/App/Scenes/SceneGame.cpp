@@ -3,12 +3,14 @@
 #include <wv/Application/Application.h>
 #include <wv/Audio/Audio.h>
 #include <wv/Assets/Materials/Material.h>
-#include <wv/Debug/Print.h>
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
 #include <wv/Primitive/Mesh.h>
+
+#include <wv/Debug/Print.h>
+#include <wv/Debug/Draw.h>
 
 #include <glad/glad.h>
 
@@ -71,6 +73,8 @@ void SceneGame::update( double _deltaTime )
 {
 	wv::Application* app = wv::Application::get();
 	
+	wv::Debug::Draw::AddSphere( { 0.0f,0.0f,0.0f }, 10.0f );
+
 	if ( !m_hasPlayedStartup && app->audio->isUnlocked() && !m_startupSound->isPlaying() )
 	{
 		m_startupSound->play();

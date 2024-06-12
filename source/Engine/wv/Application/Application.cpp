@@ -23,6 +23,7 @@
 #include <wv/State/State.h>
 
 #include <wv/Debug/Print.h>
+#include <wv/Debug/Draw.h>
 
 #include <stdio.h>
 #include <math.h>
@@ -95,7 +96,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 	audio = new AudioDevice( nullptr );
 
-
+	Debug::Draw::Internal::initDebugDraw( device );
 
 	m_applicationState = _desc->applicationState;
 }
@@ -290,6 +291,8 @@ void wv::Application::tick()
 	if( m_applicationState )
 		m_applicationState->draw();
 
+	Debug::Draw::Internal::drawDebug( device );
+
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
 	device->clearRenderTarget( true, true );
@@ -362,9 +365,9 @@ void wv::Application::createGBuffer()
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
 	#else
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_FLOAT }
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_INT }
 	#endif
 	};
 	rtDesc.textureDescs = texDescs;

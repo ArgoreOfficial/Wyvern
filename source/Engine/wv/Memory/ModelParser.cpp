@@ -84,6 +84,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 			v.texCoord0 = { texcoord[ i ].x, texcoord[ i ].y };
 			
 		}
+
 		vertices.push_back( v );
 	}
 
@@ -204,7 +205,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		return nullptr;
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
 	
 	md.unloadMemory( meshMem );
 

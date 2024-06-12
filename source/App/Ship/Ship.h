@@ -27,5 +27,5 @@ protected:
 
 	float radius = 1.0f;
 
-	wv::Mesh* m_mesh;
+	wv::Mesh* m_mesh = nullptr;
 };

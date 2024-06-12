@@ -13,6 +13,7 @@ if is_mode("Debug") then
     add_defines("WV_DEBUG")
     set_symbols "debug"
     set_optimize "none"
+    set_strip "none"
 elseif is_mode("Release") then 
     add_defines("WV_RELEASE")
     set_symbols "debug"

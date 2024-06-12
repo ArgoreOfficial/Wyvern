@@ -261,6 +261,12 @@ void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
+	if ( _pipeline == m_activePipeline )
+		return;
+	if ( m_activePipeline && _pipeline->program == m_activePipeline->program )
+		return;
+
+
 	glUseProgram( _pipeline->program );
 	m_activePipeline = _pipeline;
 }
@@ -505,11 +511,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
-	{
-		//glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _primitive->eboHandle );
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
-	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
