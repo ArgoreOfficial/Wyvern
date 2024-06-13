@@ -484,6 +484,8 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	return texture;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
@@ -492,6 +494,8 @@ void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 	delete *_texture;
 	*_texture = nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
@@ -506,6 +510,8 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 		glBindTexture( GL_TEXTURE_2D, _texture->handle );
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::draw( Mesh* _mesh )
 {
@@ -524,6 +530,8 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 		drawPrimitive( _mesh->primitives[ i ] );
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
@@ -550,6 +558,8 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 	#endif
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 {
@@ -597,6 +607,8 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	return shader;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 {
 	int  success;
@@ -619,6 +631,8 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 
 	return program;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
 {

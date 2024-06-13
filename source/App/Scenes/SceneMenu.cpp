@@ -33,6 +33,8 @@ void SceneMenu::onLoad()
 
 	app->context->setMouseLock( false );
 	app->currentCamera = m_camera;
+
+	m_selected = 0;
 }
 
 void SceneMenu::onUnload()
@@ -43,13 +45,14 @@ void SceneMenu::onUnload()
 void SceneMenu::onCreate()
 {
 	wv::Application* app = wv::Application::get();
-
-	addSprite( "menu/mat_menu_title",    106,  14, 429, 21 );
-	addSprite( "menu/mat_menu_cubes",    130, 158, 309, 21 );
-	addSprite( "menu/mat_menu_textures", 130, 206, 381, 21 );
-	addSprite( "menu/mat_menu_starwars", 130, 254, 213, 21 );
-	addSprite( "menu/mat_menu_credits",  130, 302, 165, 21 );
-	addSprite( "menu/mat_menu_madeby",   130, 446, 333, 21 );
+	int w = 640 / 2;
+	int h = 480 / 2;
+	addSprite( "menu/mat_menu_title",    106-w,  14-h, 429, 21 );
+	addSprite( "menu/mat_menu_cubes",    130-w, 158-h, 309, 21 );
+	addSprite( "menu/mat_menu_textures", 130-w, 206-h, 381, 21 );
+	addSprite( "menu/mat_menu_starwars", 130-w, 254-h, 213, 21 );
+	addSprite( "menu/mat_menu_credits",  130-w, 302-h, 165, 21 );
+	addSprite( "menu/mat_menu_madeby",   130-w, 446-h, 333, 21 );
 
 	m_camera = new wv::ICamera( wv::ICamera::WV_CAMERA_TYPE_ORTHOGRAPHIC );
 }
