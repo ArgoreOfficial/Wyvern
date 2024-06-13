@@ -17,7 +17,15 @@ PlayerShip::PlayerShip( wv::Mesh* _mesh ) :
 
 PlayerShip::~PlayerShip()
 {
+	wv::Application* app = wv::Application::get();
 
+	m_engineSound->stop();
+
+	app->audio->unloadAudio( m_engineSound );
+	delete m_camera;
+
+	unsubscribeInputEvent();
+	unsubscribeMouseEvents();
 }
 
 void PlayerShip::onCreate()

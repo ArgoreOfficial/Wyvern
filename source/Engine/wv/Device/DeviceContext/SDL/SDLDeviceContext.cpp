@@ -20,10 +20,6 @@
 
 void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
 {
-	/// TODO: move to application?
-	if ( _event->keysym.sym == SDL_KeyCode::SDLK_ESCAPE && _event->type == SDL_KEYDOWN )
-		_device->close();
-
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _event->type == SDL_KEYDOWN;
 	inputEvent.buttonup = _event->type == SDL_KEYUP;

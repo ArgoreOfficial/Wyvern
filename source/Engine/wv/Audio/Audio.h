@@ -22,6 +22,8 @@ namespace wv
 
 		}
 
+		inline void stop() { ma_sound_stop( &sound ); }
+
 		inline bool isPlaying() { return ma_sound_is_playing( &sound ); }
 	};
 }

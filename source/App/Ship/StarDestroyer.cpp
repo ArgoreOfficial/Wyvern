@@ -16,7 +16,11 @@ StarDestroyer::StarDestroyer( wv::Mesh* _mesh ) :
 
 StarDestroyer::~StarDestroyer()
 {
+	wv::Application* app = wv::Application::get();
 
+	m_exitHyperspaceSound->stop();
+
+	app->audio->unloadAudio( m_exitHyperspaceSound );
 }
 
 void StarDestroyer::onCreate()

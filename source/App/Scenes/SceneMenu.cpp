@@ -27,12 +27,17 @@ SceneMenu::~SceneMenu()
 
 void SceneMenu::onLoad()
 {
+	subscribeInputEvent();
 
+	wv::Application* app = wv::Application::get();
+
+	app->context->setMouseLock( false );
+	app->currentCamera = m_camera;
 }
 
 void SceneMenu::onUnload()
 {
-
+	unsubscribeInputEvent();
 }
 
 void SceneMenu::onCreate()
@@ -47,9 +52,6 @@ void SceneMenu::onCreate()
 	addSprite( "menu/mat_menu_madeby",   130, 446, 333, 21 );
 
 	m_camera = new wv::ICamera( wv::ICamera::WV_CAMERA_TYPE_ORTHOGRAPHIC );
-	app->currentCamera = m_camera;
-
-	subscribeInputEvent();
 }
 
 void SceneMenu::onDestroy()
@@ -59,10 +61,7 @@ void SceneMenu::onDestroy()
 
 void SceneMenu::onInputEvent( wv::InputEvent _event )
 {
-	if ( m_switching )
-		return;
-
-	if ( _event.repeat )
+	if ( m_switching || _event.repeat )
 		return;
 
 	if ( _event.buttondown)
@@ -72,6 +71,8 @@ void SceneMenu::onInputEvent( wv::InputEvent _event )
 		case SDLK_DOWN: m_selected++; break;
 		case SDLK_UP:   m_selected--; break;
 		case SDLK_RETURN: m_switching = true; break;
+
+		case SDLK_ESCAPE: wv::Application::get()->quit(); break;
 		}
 		m_selected = wv::Math::clamp( m_selected, 0, 3 );
 	}

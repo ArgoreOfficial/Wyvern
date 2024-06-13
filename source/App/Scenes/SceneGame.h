@@ -5,10 +5,13 @@
 #include <App/Ship/EnemyShip.h>
 #include <App/Ship/StarDestroyer.h>
 
+#include <wv/Events/IInputListener.h>
+
 namespace wv { class Mesh; }
 namespace wv { class Audio; }
+namespace wv { class Material; }
 
-class SceneGame : public wv::Scene
+class SceneGame : public wv::Scene, public wv::IInputListener
 {
 public:
 	 SceneGame();
@@ -20,8 +23,10 @@ public:
 	void onCreate() override;
 	void onDestroy() override;
 
+	void onInputEvent( wv::InputEvent _event ) override;
+
 	void update( double _deltaTime ) override;
-	void draw() override;
+	void draw( wv::GraphicsDevice* _device ) override;
 
 private:
 
@@ -37,4 +42,6 @@ private:
 	wv::Audio* m_backgroundMusic = nullptr;
 
 	std::vector<StarDestroyer*> m_starDestroyers;
+
+	wv::Material* m_skyMaterial;
 };

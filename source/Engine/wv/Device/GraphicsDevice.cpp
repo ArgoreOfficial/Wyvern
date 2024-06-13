@@ -235,6 +235,21 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 {
+	
+	std::string key = "";
+	for ( auto& p : m_pipelines )
+	{
+		if ( p.second == *_pipeline )
+		{
+			key = p.first;
+			break;
+		}
+	}
+	if( key != "" )
+		m_pipelines.erase( key );
+
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture '%s'\n", key.c_str() );
+
 	glDeleteProgram( ( *_pipeline )->program );
 
 	delete* _pipeline;
@@ -244,23 +259,27 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
-	{
-		// Debug::Print( Debug::WV_PRINT_WARN, "No pipeline called '%s' exists\n", _name );
 		return nullptr;
-	}
-
+	
 	return m_pipelines[ _name ];
 }
 
 wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
 {
 	Mesh* mesh = new Mesh();
-	// glGenVertexArrays( 1, &mesh->vaoHandle );
+	/// TODO: remove?
 	return mesh;
 }
 
 void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 {
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh\n" );
+
+	Mesh* mesh = *_mesh;
+	for ( int i = 0; i < mesh->primitives.size(); i++ )
+		destroyPrimitive( &mesh->primitives[ i ] );
+	mesh->primitives.clear();
+	*_mesh = nullptr;
 }
 
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
@@ -363,6 +382,7 @@ void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
 	Primitive* pr = *_primitive;
 	glDeleteBuffers( 1, &pr->eboHandle );
 	glDeleteBuffers( 1, &pr->vboHandle );
+	glDeleteVertexArrays( 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
 }
@@ -466,6 +486,8 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 
 void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 {
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
+
 	glDeleteTextures( 1, &( *_texture )->handle );
 	delete *_texture;
 	*_texture = nullptr;

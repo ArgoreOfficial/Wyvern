@@ -78,7 +78,7 @@ void wv::Material::destroy()
 		device->destroyTexture( &m_textures[ i ] );
 	m_textures.clear();
 
-	/// TODO: unload pipeline?
+	device->destroyPipeline( &m_pipeline );
 }
 
 void wv::Material::setAsActive( GraphicsDevice* _device )

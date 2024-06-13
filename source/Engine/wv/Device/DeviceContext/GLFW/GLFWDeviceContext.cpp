@@ -18,10 +18,6 @@
 #ifdef WV_GLFW_SUPPORTED
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
-	/// TODO: move to application?
-	if ( _key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS )
-		glfwSetWindowShouldClose( _window, true );
-	
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;

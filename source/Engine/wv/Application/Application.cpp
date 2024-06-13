@@ -299,6 +299,11 @@ void wv::Application::tick()
 	context->swapBuffers();
 }
 
+void wv::Application::quit()
+{
+	context->close();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::createScreeQuad()

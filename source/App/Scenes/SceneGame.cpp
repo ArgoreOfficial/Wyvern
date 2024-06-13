@@ -8,6 +8,7 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
 #include <wv/Primitive/Mesh.h>
+#include <wv/State/State.h>
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
@@ -15,6 +16,8 @@
 #include <ctime>
 
 #include <glad/glad.h>
+
+#include <SDL2/SDL_keycode.h>
 
 SceneGame::SceneGame()
 {
@@ -39,16 +42,13 @@ void SceneGame::onLoad()
 
 	m_skybox = parser.load( "res/meshes/skysphere.dae" );
 
-	wv::Material* skyMaterial = new wv::Material(); // memory leak
-	skyMaterial->loadFromFile( "sky_space" );
-	if( m_skybox ) m_skybox->primitives[ 0 ]->material = skyMaterial;
-
-
+	m_skyMaterial = new wv::Material();
+	m_skyMaterial->loadFromFile( "sky_space" );
+	if( m_skybox ) 
+		m_skybox->primitives[ 0 ]->material = m_skyMaterial;
 
 	m_backgroundMusic = app->audio->loadAudio2D( "Rebel_Attack_Theme.flac" );
 	m_backgroundMusic->play( 0.6f, true );
-
-
 
 	m_playerShip = new PlayerShip( m_xwingMesh );
 	m_playerShip->onCreate();
@@ -83,16 +83,28 @@ void SceneGame::onLoad()
 		m_starDestroyers.push_back( starDestroyer );
 	}
 
-
+	subscribeInputEvent();
 }
 
 void SceneGame::onUnload()
 {
+	unsubscribeInputEvent();
+	
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
 
+	delete m_playerShip;
+	delete m_dummy;
+
+	for ( int i = 0; i < (int)m_starDestroyers.size(); i++ )
+		delete m_starDestroyers[ i ];
+	m_starDestroyers.clear();
+
 	device->destroyMesh( &m_xwingMesh );
 	device->destroyMesh( &m_skybox );
+	device->destroyMesh( &m_starDestroyerMesh );
+
+	m_backgroundMusic->stop();
 }
 
 void SceneGame::onCreate()
@@ -103,6 +115,12 @@ void SceneGame::onCreate()
 void SceneGame::onDestroy()
 {
 	
+}
+
+void SceneGame::onInputEvent( wv::InputEvent _event )
+{
+	if ( _event.buttondown && _event.key == SDLK_ESCAPE )
+		wv::Application::get()->m_applicationState->switchToScene( "SceneMenu" );
 }
 
 void SceneGame::update( double _deltaTime )
@@ -125,22 +143,19 @@ void SceneGame::update( double _deltaTime )
 	m_playerShip->update( _deltaTime );
 }
 
-void SceneGame::draw()
+void SceneGame::draw( wv::GraphicsDevice* _device )
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
-
 	/// TODO: remove raw gl calls
 	glDepthMask( GL_FALSE );
 	glDepthFunc( GL_LEQUAL );
-	device->draw( m_skybox );
+	_device->draw( m_skybox );
 	glDepthFunc( GL_LESS );
 	glDepthMask( GL_TRUE );
 
-	m_playerShip->draw( device );
+	m_playerShip->draw( _device );
 	
-	m_dummy->draw( device );
+	m_dummy->draw( _device );
 
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
-		m_starDestroyers[ i ]->draw(device);
+		m_starDestroyers[ i ]->draw( _device );
 }
