@@ -47,6 +47,7 @@ namespace wv
 		void terminate();
 
 		void onResize( int _width, int _height );
+		void setViewport( int _width, int _height );
 
 		RenderTarget* createRenderTarget( RenderTargetDesc* _desc );
 		void destroyRenderTarget( RenderTarget** _renderTarget );

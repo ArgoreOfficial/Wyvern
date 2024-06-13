@@ -35,6 +35,9 @@ namespace wv
 			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
 			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
 			
+			if ( parent != nullptr )
+				model = parent->getMatrix() * model;
+			
 			return model;
 		}
 
@@ -44,7 +47,7 @@ namespace wv
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////
-		
+		Transform<T>* parent = nullptr;
 		Vector3<T> position{ 0, 0, 0 };
 		Vector3<T> rotation{ 0, 0, 0 };
 		Vector3<T> scale   { 1, 1, 1 };

@@ -62,7 +62,11 @@ void wv::GraphicsDevice::terminate()
 
 void wv::GraphicsDevice::onResize( int _width, int _height )
 {
+}
 
+void wv::GraphicsDevice::setViewport( int _width, int _height )
+{
+	glViewport( 0, 0, _width, _height );
 }
 
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
@@ -151,7 +155,7 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 	if ( _target )
 		glViewport( 0, 0, _target->width, _target->height );
 	else
-		glViewport( 0, 0, 900, 600 );
+		glViewport( 0, 0, 640, 480 );
 }
 
 void wv::GraphicsDevice::setClearColor( const wv::Color& _color )

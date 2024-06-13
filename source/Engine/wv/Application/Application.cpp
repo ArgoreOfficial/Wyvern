@@ -63,6 +63,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
 	ctxDesc.height = _desc->windowHeight;
+	ctxDesc.allowResize = _desc->allowResize;
 
 	context = wv::DeviceContext::getDeviceContext( &ctxDesc );
 
@@ -134,31 +135,21 @@ void wv::Application::onResize( int _width, int _height )
 void wv::Application::onMouseEvent( MouseEvent _event )
 {
 	m_mousePosition = _event.position;
-
-	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
-		return;
-
-	if ( !_event.buttondown )
-		return;
-
-	if ( currentCamera == orbitCamera )
-	{
-		currentCamera = freeflightCamera;
-		freeflightCamera->getTransform().position = orbitCamera->getTransform().position;
-		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
-
-		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::onInputEvent( InputEvent _event )
 {
-	if ( !_event.repeat )
-		if ( _event.key == 'F' )
-			if ( currentCamera != orbitCamera )
-				currentCamera = orbitCamera; // lol
+	
+}
+
+void wv::Application::setSize( int _width, int _height, bool _notify )
+{
+	context->setSize( _width, _height );
+	
+	if( _notify )
+		onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -354,8 +345,11 @@ void wv::Application::createScreeQuad()
 void wv::Application::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
-	rtDesc.width = context->getWidth();
-	rtDesc.height = context->getHeight();
+	//rtDesc.width  = context->getWidth();
+	//rtDesc.height = context->getHeight();
+	
+	rtDesc.width  = 640;
+	rtDesc.height = 480;
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },

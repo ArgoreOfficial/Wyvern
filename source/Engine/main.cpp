@@ -8,8 +8,8 @@ int main()
 	appDesc.title = "Wyvern";
 	appDesc.vsync = true;
 	appDesc.fullscreen = false;
-	appDesc.windowWidth = 900;
-	appDesc.windowHeight = 600;
+	appDesc.windowWidth = 640 * 2;
+	appDesc.windowHeight = 480 * 2;
 	appDesc.showDebugConsole = true;
 	appDesc.applicationState = new StateGame();
 

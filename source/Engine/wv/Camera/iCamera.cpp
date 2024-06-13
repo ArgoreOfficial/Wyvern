@@ -49,8 +49,8 @@ glm::mat4 wv::ICamera::getViewMatrix( void )
 	direction.x = cos( yaw ) * cos( pitch );
 	direction.y = sin( pitch );
 	direction.z = sin( yaw ) * cos( pitch );
-
-	return glm::lookAt( pos, pos + glm::normalize( direction ), glm::vec3( 0.0, 1.0, 0.0 ) );
+	
+	return glm::inverse( m_transform.getMatrix() ); 
 }
 
 wv::Vector3f wv::ICamera::getViewDirection()

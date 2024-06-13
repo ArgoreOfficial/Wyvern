@@ -33,6 +33,7 @@ namespace wv
 		bool fullscreen = false;
 		int windowWidth = 800;
 		int windowHeight = 600;
+		bool allowResize = false;
 
 		bool showDebugConsole = true;
 
@@ -52,6 +53,8 @@ namespace wv
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
 		void onInputEvent( InputEvent _event ) override;
+
+		void setSize( int _width, int _height, bool _notify = true );
 
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 

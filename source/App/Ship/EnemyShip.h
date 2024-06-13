@@ -17,11 +17,4 @@ public:
 private:
 	wv::Vector3f m_target;
 
-	wv::Vector3f m_targetRotation;
-	wv::Vector3f m_cameraRotation;
-
-	bool m_chasing = true;
-	bool m_switching = false;
-
-	float m_chase_timer = 0.0f;
 };

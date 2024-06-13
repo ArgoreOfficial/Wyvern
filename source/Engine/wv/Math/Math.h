@@ -13,14 +13,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		template < typename T > T clamp( const T& _value, const T& _min, const T& _max );
-		template < typename T > T pow2 ( const T& _value );
-		template < typename T > T pow3 ( const T& _value );
-		template < typename T > T pow4 ( const T& _value );
-		template < typename T > T pow5 ( const T& _value );
-		template < typename T > T abs  ( const T& _value );
-		template < typename T > T min  ( const T& _a, const T& _b );
-		template < typename T > T max  ( const T& _a, const T& _b );
+		template <typename T> T clamp( const T& _value, const T& _min, const T& _max );
+		template <typename T> T pow2 ( const T& _value );
+		template <typename T> T pow3 ( const T& _value );
+		template <typename T> T pow4 ( const T& _value );
+		template <typename T> T pow5 ( const T& _value );
+		template <typename T> T abs  ( const T& _value );
+		template <typename T> T min  ( const T& _a, const T& _b );
+		template <typename T> T max  ( const T& _a, const T& _b );
+		template <typename T> T lerp ( const T& _a, const T& _b, const T& _t );
 
 		inline float  degToRad( const float&  _degrees ) { return _degrees * ( WV_CONSTF_PI / 180.0f ); }
 		inline double degToRad( const double& _degrees ) { return _degrees * ( WV_CONST_PI  / 180.0 ); }
@@ -70,6 +71,12 @@ namespace wv
 		template< typename T > T max( const T& _a, const T& _b )
 		{
 			return _a > _b ? _a : _b;
+		}
+
+		template<typename T>
+		T lerp( const T& _a, const T& _b, const T& _t )
+		{
+			return _a + _t * ( _b - _a );
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////

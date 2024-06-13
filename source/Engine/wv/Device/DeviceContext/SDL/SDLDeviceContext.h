@@ -30,6 +30,7 @@ namespace wv
 		void swapBuffers() override;
 
 		void onResize( int _width, int _height ) override;
+		void setSize( int _width, int _height ) override;
 
 		void setMouseLock( bool _lock ) override;
 		void setTitle( const char* _title ) override;

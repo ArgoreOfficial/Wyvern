@@ -143,6 +143,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, _desc->graphicsApiVersion.minor );
+	glfwWindowHint( GLFW_RESIZABLE, _desc->allowResize );
 
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glfwGetVersionString() );
@@ -219,6 +220,13 @@ void wv::GLFWDeviceContext::swapBuffers()
 void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
 	DeviceContext::onResize( _width, _height );
+}
+
+void wv::GLFWDeviceContext::setSize( int _width, int _height )
+{
+	DeviceContext::setSize( _width, _height );
+
+	glfwSetWindowSize( m_windowContext, _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

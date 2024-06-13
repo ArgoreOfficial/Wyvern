@@ -7,6 +7,7 @@
 #include <wv/Events/IInputListener.h>
 
 namespace wv { class ICamera; }
+namespace wv { class Audio; }
 
 class PlayerShip : public Ship, public wv::IMouseListener, public wv::IInputListener
 {
@@ -23,8 +24,12 @@ private:
 
 	wv::ICamera* m_camera;
 	wv::Vector2f m_aimInput;
+	
+	bool m_usingKeyboard = false;
+	bool m_invertPitch = true;
 	int m_throttleInput = 0;
 
-	wv::Vector3f m_targetRotation;
+	wv::Audio* m_engineSound = nullptr;
+
 	wv::Vector3f m_cameraRotation;
 };
