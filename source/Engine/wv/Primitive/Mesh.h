@@ -1,8 +1,9 @@
 #pragma once
 
+#include <wv/Math/Transform.h>
+#include <wv/Math/Triangle.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/Types.h>
-#include <wv/Math/Transform.h>
 
 #include <string>
 #include <vector>
@@ -20,5 +21,7 @@ namespace wv
 		std::string name;
 		Transformf transform;
 		std::vector<Primitive*> primitives;
+		std::vector<Triangle3f> triangles;
+
 	};
 }

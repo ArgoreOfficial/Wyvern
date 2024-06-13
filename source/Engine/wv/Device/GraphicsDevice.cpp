@@ -372,6 +372,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* 
 
 	primitive->numVertices = _desc->numVertices; 
 	primitive->stride = stride;
+	
 	_mesh->primitives.push_back( primitive );
 
 	return primitive;

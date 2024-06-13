@@ -20,7 +20,7 @@ namespace wv
 		Vector3( const T& _t )                           : x( _t ), y( _t ), z( _t ) { }
 		Vector3( const T& _x, const T& _y, const T& _z ) : x( _x ), y( _y ), z( _z ) { }
 
-		T length( void )                      const { return std::sqrt( x * x + y * y + z * z ); }
+		T length( void )                     const { return std::sqrt( x * x + y * y + z * z ); }
 		T dot   ( const Vector3<T>& _other ) const { return x * _other.x + y * _other.y + z * _other.z; }
 
 		Vector3<T> cross( const Vector3<T>& _other ) const
@@ -70,19 +70,21 @@ namespace wv
 		Vector3<T>& operator = ( const Vector3<T>& _other );
 		Vector3<T>& operator +=( const Vector3<T>& _other );
 		Vector3<T>& operator -=( const Vector3<T>& _other );
-		Vector3<T>  operator + ( const Vector3<T>& _other );
-		Vector3<T>  operator - ( const Vector3<T>& _other );
-		Vector3<T>  operator - ( void );
-		Vector3<T>  operator * ( const T& _scalar );
+		Vector3<T>  operator + ( const Vector3<T>& _other ) const;
+		Vector3<T>  operator - ( const Vector3<T>& _other ) const;
+		Vector3<T>  operator - ( void ) const;
+		Vector3<T>  operator * ( const T& _scalar ) const;
 		Vector3<T>& operator *=( const T& _scalar );
-		Vector3<T>  operator / ( const T& _scalar );
+		Vector3<T>  operator / ( const T& _scalar ) const;
 		Vector3<T>& operator /=( const T& _scalar );
+
+		auto operator<=>( const Vector3<T>& ) const = default;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	typedef Vector3< float > Vector3f;
-	typedef Vector3< double > Vector3d;
+	typedef Vector3<float> Vector3f;
+	typedef Vector3<double> Vector3d;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -114,25 +116,25 @@ namespace wv
 	}
 
 	template< typename T >
-	inline Vector3<T> Vector3<T>::operator+( const Vector3<T>& _other )
+	inline Vector3<T> Vector3<T>::operator+( const Vector3<T>& _other ) const
 	{
 		return Vector3<T>( x + _other.x, y + _other.y, z + _other.z );
 	}
 
 	template<typename T>
-	inline Vector3<T> Vector3<T>::operator-( const Vector3<T>& _other )
+	inline Vector3<T> Vector3<T>::operator-( const Vector3<T>& _other ) const
 	{
 		return Vector3<T>( x - _other.x, y - _other.y, z - _other.z );
 	}
 
 	template<typename T>
-	inline Vector3<T> Vector3<T>::operator-( void )
+	inline Vector3<T> Vector3<T>::operator-( void ) const
 	{
 		return Vector3<T>( -x, -y, -z );
 	}
 
 	template< typename T >
-	inline Vector3<T> wv::Vector3<T>::operator*( const T& _scalar )
+	inline Vector3<T> wv::Vector3<T>::operator*( const T& _scalar ) const
 	{
 		return Vector3<T>( x * _scalar, y * _scalar, z * _scalar );
 	}
@@ -147,7 +149,7 @@ namespace wv
 	}
 
 	template< typename T >
-	inline Vector3<T> wv::Vector3<T>::operator/( const T& _scalar )
+	inline Vector3<T> wv::Vector3<T>::operator/( const T& _scalar ) const
 	{
 		return Vector3<T>( x / _scalar, y / _scalar, z / _scalar );
 	}

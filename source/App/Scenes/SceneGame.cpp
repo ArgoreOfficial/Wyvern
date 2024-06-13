@@ -13,15 +13,15 @@
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
 
+#include <wv/Math/Ray.h>
+
 #include <ctime>
-
 #include <glad/glad.h>
-
 #include <SDL2/SDL_keycode.h>
 
 SceneGame::SceneGame()
 {
-
+	
 }
 
 SceneGame::~SceneGame()
@@ -52,7 +52,8 @@ void SceneGame::onLoad()
 
 	m_playerShip = new PlayerShip( m_xwingMesh );
 	m_playerShip->onCreate();
-	m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -110.0f } );
+	// m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -110.0f } );
+	m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -1.0f } );
 	m_playerShip->getTransform().setRotation( { 0.0f, 180.0f, 0.0f } );
 	m_playerShip->setTargetRotation( m_playerShip->getTransform().rotation );
 
@@ -127,11 +128,11 @@ void SceneGame::update( double _deltaTime )
 {
 	wv::Application* app = wv::Application::get();
 
-	
+	float t = (float)app->context->getTime();
 	wv::Vector3f target{
-		std::sin( (float)app->context->getTime() ),
+		std::sin( t ),
 		0.0f,
-		std::cos( (float)app->context->getTime() )
+		std::cos( t )
 	};
 
 	m_dummy->setTarget( m_dummy->getTransform().position + target );
@@ -140,6 +141,29 @@ void SceneGame::update( double _deltaTime )
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 		m_starDestroyers[ i ]->update(_deltaTime);
 	
+
+	m_xwingMesh->transform = {};
+	{
+		wv::Vector3f p = m_playerShip->getTransform().position;
+		wv::Vector3f f = m_playerShip->getTransform().forward() * -0.2f;
+		wv::Ray ray{ p, f };
+
+		wv::Debug::Draw::AddSphere( p,     0.02f );
+		wv::Debug::Draw::AddSphere( p + f, 0.02f );
+
+		wv::RayIntersection result = ray.intersect( m_xwingMesh );
+		if ( result.hit )
+		{
+			glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
+		
+			//hit = hit * glm::inverse( m_xwingMesh->transform.getMatrix() );
+
+			wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.04f );
+		}
+	}
+	m_xwingMesh->transform.rotation.y = 0.0f;
+
+
 	m_playerShip->update( _deltaTime );
 }
 
@@ -158,4 +182,9 @@ void SceneGame::draw( wv::GraphicsDevice* _device )
 
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 		m_starDestroyers[ i ]->draw( _device );
+
+	m_xwingMesh->transform = {};
+	m_xwingMesh->transform.rotation.y = 45.0f;
+	_device->draw( m_xwingMesh );	
+	m_xwingMesh->transform.rotation.y = 0.0f;
 }

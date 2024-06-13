@@ -2,11 +2,12 @@
 
 #include <wv/Application/Application.h>
 #include <wv/Assets/Materials/Material.h>
-
+#include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
-
+#include <wv/Math/Triangle.h>
 #include <wv/Memory/MemoryDevice.h>
+
 #include <fstream>
 
 #ifdef EMSCRIPTEN
@@ -18,8 +19,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #endif
-
-#include <wv/Debug/Print.h>
 
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
@@ -84,6 +83,16 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	{
 		aiFace face = _assimp_mesh->mFaces[ i ];
 
+		if ( face.mNumIndices == 3 )
+		{
+			wv::Triangle3f triangle{
+				vertices[ face.mIndices[ 0 ] ].position,
+				vertices[ face.mIndices[ 1 ] ].position,
+				vertices[ face.mIndices[ 2 ] ].position
+			};
+			_mesh->triangles.push_back( triangle );
+		}
+		
 		for ( unsigned int j = 0; j < face.mNumIndices; j++ )
 			indices.push_back( face.mIndices[ j ] );
 	}
