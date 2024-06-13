@@ -280,7 +280,7 @@ void wv::Application::tick()
 	device->clearRenderTarget( true, true );
 
 	if( m_applicationState )
-		m_applicationState->draw();
+		m_applicationState->draw( device );
 
 	Debug::Draw::Internal::drawDebug( device );
 

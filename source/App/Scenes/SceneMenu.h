@@ -9,13 +9,7 @@
 namespace wv { class Mesh; }
 namespace wv { class Material; }
 namespace wv { class ICamera; }
-
-struct MenuSprite
-{
-	wv::Material* material;
-	wv::Vector3f position;
-	wv::Vector3f size;
-};
+namespace wv { class Sprite; }
 
 class SceneMenu : public wv::Scene, public wv::IInputListener
 {
@@ -32,14 +26,13 @@ public:
 	void onInputEvent( wv::InputEvent _event ) override;
 
 	void update( double _deltaTime ) override;
-	void draw() override;
+	void draw( wv::GraphicsDevice* _device ) override;
 
 private:
 
 	void addSprite( const char* _material, int _x, int _y, int _w, int _h );
 
-	wv::Mesh* m_quad;
-	std::vector<MenuSprite> m_sprites;
+	std::vector<wv::Sprite*> m_sprites;
 	wv::ICamera* m_camera;
 
 

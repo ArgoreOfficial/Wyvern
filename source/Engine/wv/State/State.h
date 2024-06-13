@@ -2,11 +2,10 @@
 
 #include <wv/Decl.h>
 #include <wv/Debug/Print.h>
+#include <wv/Scene/Scene.h>
 
 #include <string>
 #include <unordered_map>
-
-#include <wv/Scene/Scene.h>
 
 namespace wv
 {
@@ -58,7 +57,7 @@ namespace wv
 				m_nextScene = nullptr;
 			}
 		}
-		virtual void draw() = 0;
+		virtual void draw( GraphicsDevice* _device ) = 0;
 
 		inline void switchToScene( const std::string& _name )
 		{

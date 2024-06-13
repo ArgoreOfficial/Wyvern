@@ -17,7 +17,7 @@ public:
 	void onDestroy() override;
 
 	void update( double _deltaTime ) override;
-	void draw() override;
+	void draw( wv::GraphicsDevice* _device ) override;
 
 private:
 

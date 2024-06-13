@@ -3,10 +3,11 @@
 #include <wv/Scene/Scene.h>
 #include <App/Scenes/SceneGame.h>
 #include <App/Scenes/SceneMenu.h>
+#include <App/Scenes/SceneTexture.h>
 
 StateGame::StateGame()
 {
-	m_currentScene = new SceneMenu();
+	
 }
 
 StateGame::~StateGame()
@@ -48,8 +49,8 @@ void StateGame::update( double _deltaTime )
 	State::update( _deltaTime );
 }
 
-void StateGame::draw()
+void StateGame::draw( wv::GraphicsDevice* _device )
 {
 	if( m_currentScene )
-		m_currentScene->draw();
+		m_currentScene->draw( _device );
 }
