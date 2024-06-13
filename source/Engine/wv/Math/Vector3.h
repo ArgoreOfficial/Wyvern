@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <wv/Math/Math.h>
+#include <compare>
 
 namespace wv
 {
@@ -41,6 +42,13 @@ namespace wv
 
 			if( _magnitude != 1.0f )
 				*this *= _magnitude;
+		}
+
+		Vector3<T> normalized()
+		{
+			Vector3 vec = *this;
+			vec.normalize();
+			return vec;
 		}
 
 		static inline Vector3<T> eulerToDirection( Vector3<T> _vec )

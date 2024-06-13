@@ -221,8 +221,9 @@ void wv::GLFWDeviceContext::onResize( int _width, int _height )
 void wv::GLFWDeviceContext::setSize( int _width, int _height )
 {
 	DeviceContext::setSize( _width, _height );
-
+#ifdef WV_GLFW_SUPPORTED
 	glfwSetWindowSize( m_windowContext, _width, _height );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

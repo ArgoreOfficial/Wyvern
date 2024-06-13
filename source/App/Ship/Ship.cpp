@@ -16,6 +16,8 @@ Ship::~Ship()
 
 void Ship::update( double _deltaTime )
 {
+	m_previousTransform = m_transform;
+
 	wv::Vector3f rel = m_targetRotation - m_transform.rotation;
 
 	m_transform.rotate( rel * (float)_deltaTime * 4.0f );
@@ -24,12 +26,13 @@ void Ship::update( double _deltaTime )
 	roll = wv::Math::clamp( roll, -80.0f, 80.0f );
 
 	wv::Vector3f forward = m_transform.forward();
+	
 	m_transform.position -= forward * m_throttle * m_maxSpeed * _deltaTime;
 }
 
 void Ship::draw( wv::GraphicsDevice* _device )
 {
-	if ( !m_mesh )
+	if ( !m_mesh || m_dead )
 		return;
 
 	m_mesh->transform.parent = &m_transform;

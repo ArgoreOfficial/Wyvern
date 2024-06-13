@@ -22,6 +22,9 @@ public:
 
 private:
 
+	bool m_playedDeathSound = false;
+	float m_deathTimeout = 2.0f;
+
 	wv::ICamera* m_camera;
 	wv::Vector2f m_aimInput;
 	
@@ -30,6 +33,7 @@ private:
 	int m_throttleInput = 0;
 
 	wv::Audio* m_engineSound = nullptr;
+	wv::Audio* m_deathSound = nullptr;
 
 	wv::Vector3f m_cameraRotation;
 };

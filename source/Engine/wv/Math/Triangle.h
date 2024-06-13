@@ -20,6 +20,8 @@ namespace wv
 		Vector3<T> edge1() const { return v1 - v0; }
 		Vector3<T> edge2() const { return v2 - v0; }
 
+		Vector3<T> getNormal() const{ return edge1().cross( edge2() ).normalized(); }
+
 		Vector3<T> barycentricToCartesian( const T& _u, const T& _v ) const;
 	};
 

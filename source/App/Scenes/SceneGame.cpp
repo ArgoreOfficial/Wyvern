@@ -52,8 +52,7 @@ void SceneGame::onLoad()
 
 	m_playerShip = new PlayerShip( m_xwingMesh );
 	m_playerShip->onCreate();
-	// m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -110.0f } );
-	m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -1.0f } );
+	m_playerShip->getTransform().setPosition( { 6.0f, 6.5f, -110.0f } );
 	m_playerShip->getTransform().setRotation( { 0.0f, 180.0f, 0.0f } );
 	m_playerShip->setTargetRotation( m_playerShip->getTransform().rotation );
 
@@ -62,8 +61,8 @@ void SceneGame::onLoad()
 	m_dummy->getTransform().setPosition( { 0.0f, 0.0f, -2.6f } );
 	m_dummy->getTransform().setRotation( { 0.0f, 90.0f, 0.0f } );
 
-	// std::srand( std::time( nullptr ) );
-	std::srand( 1 );
+	std::srand( std::time( nullptr ) );
+	//std::srand( 1 );
 
 	for ( int i = 0; i < 4; i++ )
 	{
@@ -124,6 +123,13 @@ void SceneGame::onInputEvent( wv::InputEvent _event )
 		wv::Application::get()->m_applicationState->switchToScene( "SceneMenu" );
 }
 
+wv::Vector3f trmt( wv::Vector3f _vec, glm::mat4x4 _mat )
+{
+	glm::vec4 tvec{ _vec.x, _vec.y, _vec.z, 1.0f };
+	tvec = _mat * tvec;
+	return { tvec.x, tvec.y, tvec.z };
+}
+
 void SceneGame::update( double _deltaTime )
 {
 	wv::Application* app = wv::Application::get();
@@ -141,36 +147,53 @@ void SceneGame::update( double _deltaTime )
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 		m_starDestroyers[ i ]->update(_deltaTime);
 
-	wv::Vector3f p = m_playerShip->getTransform().position;
-	wv::Vector3f f = m_playerShip->getTransform().forward();
-	wv::Ray ray{ 
-		p + f *  0.05, 
-		p + f * -0.05 
-	};
+	m_playerShip->update( _deltaTime );
 	
-
-	//wv::Debug::Draw::AddSphere( ray.start, 0.03f );
-	//wv::Debug::Draw::AddSphere( ray.end, 0.03f );
-
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 	{
+		wv::Vector3f vel = m_starDestroyers[ i ]->getLastVelocity() - m_playerShip->getLastVelocity();
+
 		if ( m_starDestroyers[ i ]->m_arrived )
 		{
-			m_starDestroyerMesh->transform.parent = &m_starDestroyers[ i ]->getTransform();
-			wv::RayIntersection result = ray.intersect( m_starDestroyerMesh );
-
-			if ( result.hit )
+			bool hit = true;
+			int maxIterations = 10, iteration = 0;
+			while ( hit && iteration < maxIterations )
 			{
-				//glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
-				//hit = glm::inverse( m_xwingMesh->transform.getMatrix() ) * hit;
-				//wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.04f );
-		
-				app->m_applicationState->switchToScene( "SceneMenu" );
+				iteration++;
+				wv::Ray ray{
+					m_playerShip->getPreviousTransform().position - vel,
+					m_playerShip->getTransform().position
+				};
+
+
+				m_starDestroyerMesh->transform.parent = &m_starDestroyers[ i ]->getTransform();
+				wv::RayIntersection result = ray.intersect( m_starDestroyerMesh );
+
+				hit = result.hit;
+				if ( result.hit )
+				{
+					glm::mat4x4 mat = m_starDestroyerMesh->transform.getMatrix();
+				
+					wv::Vector3f point = trmt( result.point, mat );
+					wv::Vector3f projPoint = trmt( result.planeProjectedPoint, mat );
+				
+					wv::Vector3f o = m_playerShip->getTransform().position;
+					wv::Vector3f n = projPoint - result.triangle.getNormal() * -vel.length();
+
+					if ( o == n )
+						hit = false;
+
+					m_playerShip->getPreviousTransform().position = o;
+					m_playerShip->getTransform().position = n;
+
+					printf( "%f\n", vel.length() );
+
+					if ( vel.length() > 0.02 )
+						m_playerShip->kill();
+				}
 			}
 		}
 	}
-
-	m_playerShip->update( _deltaTime );
 }
 
 void SceneGame::draw( wv::GraphicsDevice* _device )

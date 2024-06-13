@@ -9,7 +9,7 @@ namespace wv
 		namespace Float
 		{
 			constexpr float PI = 3.141592f;
-			constexpr float EPSILON = 0.000001f;
+			constexpr float EPSILON = 0.00000001f;
 		}
 
 		namespace Double

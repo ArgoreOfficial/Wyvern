@@ -12,7 +12,12 @@ namespace wv
 	{
 		bool hit = false;
 		Vector3f point;
-		Vector3f tuvValue;
+		Vector3f planeProjectedPoint;
+		
+		float depth;
+		float planeProjectedDepth;
+		
+		Triangle3f triangle;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +63,8 @@ namespace wv
 		float det = edge1.dot( pvec );
 
 		#ifndef TEST_CULL
-		if ( det < wv::Const::Float::EPSILON )
-			return {};
+		//if ( det < wv::Const::Float::EPSILON )
+		//	return {};
 
 		Vector3f tvec = start - _t->v0;
 
@@ -98,11 +103,70 @@ namespace wv
 		#endif
 
 		RayIntersection result;
-		result.tuvValue = { t, u, v };
+		result.depth = t;
 		result.hit = true;
 		result.point = _t->barycentricToCartesian( u, v );
+		result.triangle = *_t;
 
+		Vector3f n = _t->getNormal();
+		Vector3f pto = end - result.point;
+		result.planeProjectedPoint = end - n * (pto.x * n.x + pto.y * n.y + pto.z * n.z);
+		result.planeProjectedDepth = pto.x * n.x + 
+			                         pto.y * n.y + 
+			                         pto.z * n.z;
+		
 		return result;
+	}
+
+	static RayIntersection intersects2( Ray _r, Triangle3f _t )
+	{
+		constexpr float epsilon = std::numeric_limits<float>::epsilon();
+
+		Vector3f edge1 = _t.v1 - _t.v0;
+		Vector3f edge2 = _t.v2 - _t.v0;
+		Vector3f ray_vector = _r.end - _r.start;
+		Vector3f ray_origin = _r.start;
+
+		Vector3f ray_cross_e2 = ray_vector.cross( edge2 );
+		float det = edge1.dot( ray_cross_e2 );
+
+		if ( det > -epsilon && det < epsilon )
+			return {};    // This ray is parallel to this triangle.
+		
+		float inv_det = 1.0 / det;
+		Vector3f s = ray_origin - _t.v0;
+		float u = inv_det * s.dot( ray_cross_e2 );
+
+		if ( u < 0 || u > 1 )
+			return {};
+		
+		Vector3f s_cross_e1 = s.cross( edge1 );
+		float v = inv_det * ray_vector.dot( s_cross_e1 );
+
+		if ( v < 0 || u + v > 1 )
+			return {};
+
+		// At this stage we can compute t to find out where the intersection point is on the line.
+		float t = inv_det * edge2.dot( s_cross_e1 );
+
+		if ( t > epsilon ) // ray intersection
+		{
+			RayIntersection result;
+			result.hit = true;
+
+			result.depth = t;
+			result.point = ray_origin + ray_vector * t;
+			result.triangle = _t;
+
+			Vector3f n = _t.getNormal();
+			Vector3f pto = _r.end - result.point;
+			result.planeProjectedPoint = _r.end - n * ( pto.x * n.x + pto.y * n.y + pto.z * n.z );
+			result.planeProjectedDepth = pto.x * n.x + pto.y * n.y + pto.z * n.z;
+
+			return result;
+		}
+		else // This means that there is a line intersection but not a ray intersection.
+			return {};
 	}
 
 	template<>
@@ -122,19 +186,16 @@ namespace wv
 
 		float rayLen = ray.length();
 		RayIntersection finalResult;
+		
 		for ( int i = 0; i < _t->triangles.size(); i++ )
 		{
-			wv::RayIntersection result = ray.intersect( &_t->triangles[ i ] );
+			wv::RayIntersection result = ray.intersect( &_t->triangles[ i ] );// intersects2( ray, _t->triangles[ i ] );
 			if ( result.hit )
 			{
-				//glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
-				//hit = _t->transform.getMatrix() * hit;
-				//wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.03f );
-
-				if ( result.tuvValue.x < 0.0 || result.tuvValue.x > rayLen )
+				if ( result.depth < 0.0 || result.depth > rayLen )
 					continue;
-
-				if ( !finalResult.hit || result.tuvValue.x < finalResult.tuvValue.x )
+				
+				if ( !finalResult.hit || result.depth < finalResult.depth )
 					finalResult = result;
 			}
 		}

@@ -6,6 +6,7 @@
 #include <wv/Camera/ICamera.h>
 #include <wv/Math/Math.h>
 #include <wv/Device/AudioDevice.h>
+#include <wv/State/State.h>
 
 PlayerShip::PlayerShip( wv::Mesh* _mesh ) :
 	Ship{ _mesh }
@@ -42,6 +43,7 @@ void PlayerShip::onCreate()
 	m_camera->getTransform().parent = &m_transform;
 
 	m_engineSound = app->audio->loadAudio2D( "x-wing-engine.flac" );
+	m_deathSound = app->audio->loadAudio2D( "explosion.wav" );
 	m_engineSound->play( 0.4f, true );
 }
 
@@ -74,7 +76,24 @@ void PlayerShip::onInputEvent( wv::InputEvent _event )
 
 void PlayerShip::update( double _deltaTime )
 {
+	
 	wv::Application* app = wv::Application::get();
+	
+	if ( m_dead )
+	{
+		if ( !m_playedDeathSound )
+		{
+			m_playedDeathSound = true;
+			m_deathSound->play();
+		}
+
+		m_deathTimeout -= _deltaTime;
+		if( m_deathTimeout <= 0.0f )
+			app->m_applicationState->switchToScene( "SceneMenu" );
+
+		return;
+	}
+	
 	app->audio->setListenerPosition( m_transform.position );
 	app->audio->setListenerDirection( -m_transform.rotation.eulerToDirection() );
 
