@@ -157,7 +157,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		primitive->material = material;
 	}
 
-
+	/*
 	std::ofstream wprfile( _mesh->name + ".wpr", std::ios::binary );
 	wprfile.write( (char*)&prDesc.numIndices, sizeof( unsigned int ) );
 	wprfile.write( (char*)&prDesc.numVertices, sizeof( unsigned int ) );
@@ -165,6 +165,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	wprfile.write( (char*)indices.data(), prDesc.indexBufferSize );
 	wprfile.write( (char*)vertices.data(), prDesc.vertexBufferSize);
 	wprfile.close();
+	*/
 }
 
 void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )

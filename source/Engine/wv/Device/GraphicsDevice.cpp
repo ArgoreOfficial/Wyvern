@@ -481,6 +481,9 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION" ); break;
 		}
 	}
+
+	texture->width  = _desc->width;
+	texture->height = _desc->height;
 	return texture;
 }
 

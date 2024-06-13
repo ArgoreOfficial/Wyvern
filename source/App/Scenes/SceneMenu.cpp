@@ -87,7 +87,7 @@ void SceneMenu::update( double _deltaTime )
 	if ( m_blinkerTimer <= 0.0f )
 	{
 		m_blinker = !m_blinker;
-		m_blinkerTimer = 0.6f;
+		m_blinkerTimer = 0.1f;
 	}
 
 	if ( m_switching )
@@ -96,6 +96,7 @@ void SceneMenu::update( double _deltaTime )
 		{
 			switch ( m_selected )
 			{
+			case 1: wv::Application::get()->m_applicationState->switchToScene( "SceneTexture" ); break;
 			case 2: wv::Application::get()->m_applicationState->switchToScene( "SceneGame" ); break;
 			}
 			m_switching = false;

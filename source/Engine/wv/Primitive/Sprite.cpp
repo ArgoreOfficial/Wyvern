@@ -3,6 +3,7 @@
 #include <wv/Application/Application.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
+#include <wv/Assets/Materials/Material.h>
 
 wv::Sprite::~Sprite()
 {
@@ -15,6 +16,7 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 	sprite->m_material = _desc->material;
 	sprite->m_transform.setPosition( _desc->position );
 	sprite->m_transform.setScale( _desc->size );
+	sprite->m_mesh = _desc->mesh;
 
 	if ( !Internal::S_SPRITE_QUAD )
 		createQuad();
@@ -27,9 +29,10 @@ void wv::Sprite::draw( GraphicsDevice* _device )
 	if ( !Internal::S_SPRITE_QUAD )
 		return;
 	
-	Internal::S_SPRITE_QUAD->transform = m_transform;
-	Internal::S_SPRITE_QUAD->primitives[ 0 ]->material = m_material;
-	_device->draw( Internal::S_SPRITE_QUAD );
+	Mesh* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
+	m->transform = m_transform;
+	m->primitives[ 0 ]->material = m_material;
+	_device->draw( m );
 }
 
 void wv::Sprite::createQuad()

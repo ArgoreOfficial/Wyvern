@@ -5,6 +5,7 @@
 
 namespace wv { class ICamera; }
 namespace wv { class Sprite; }
+namespace wv { class Mesh; }
 
 class SceneTexture : public wv::Scene, public wv::IInputListener
 {
@@ -25,7 +26,11 @@ public:
 
 private:
 
+	wv::Mesh* createQuad( int _numFrames );
+
 	wv::Sprite* m_sprite;
 	wv::ICamera* m_camera;
 
+	float m_timer = 0.0f;
+	int m_frame = 0;
 };
