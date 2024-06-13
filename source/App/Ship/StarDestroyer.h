@@ -15,8 +15,8 @@ public:
 	void draw( wv::GraphicsDevice* _device ) override;
 	void exitHyperspace( float _timer = 0.0f );
 
-private:
 	bool m_arrived = false;
+private:
 	float m_arrivedTimer = 0.0f;
 
 	float m_warpTimer = 0.0f;

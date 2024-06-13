@@ -34,7 +34,6 @@ void Ship::draw( wv::GraphicsDevice* _device )
 
 	m_mesh->transform.parent = &m_transform;
 	m_mesh->transform.rotation.z = roll;
-	m_mesh->transform.setScale( { 0.01f } );
+
 	_device->draw( m_mesh );
-	m_mesh->transform.setScale( { 1.0f } );
 }

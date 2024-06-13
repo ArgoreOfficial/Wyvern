@@ -110,21 +110,28 @@ namespace wv
 	{
 		/// TODO: remove glm
 
-		glm::vec4 s = glm::vec4{ start.x, start.y, start.z, 1.0f }; // * _t->transform.getMatrix();
-		glm::vec4 e = glm::vec4{   end.x,   end.y,   end.z, 1.0f }; // * _t->transform.getMatrix();
-		
+		glm::vec4 s = glm::vec4{ start.x, start.y, start.z, 1.0f };
+		glm::vec4 e = glm::vec4{   end.x,   end.y,   end.z, 1.0f };
+		s = glm::inverse( _t->transform.getMatrix() ) * s;
+		e = glm::inverse( _t->transform.getMatrix() ) * e;
+
 		wv::Ray ray{
 			wv::Vector3f{ s.x, s.y, s.z },
 			wv::Vector3f{ e.x, e.y, e.z }
 		};
 
+		float rayLen = ray.length();
 		RayIntersection finalResult;
 		for ( int i = 0; i < _t->triangles.size(); i++ )
 		{
 			wv::RayIntersection result = ray.intersect( &_t->triangles[ i ] );
 			if ( result.hit )
 			{
-				if ( result.tuvValue.x < 0.0 )
+				//glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
+				//hit = _t->transform.getMatrix() * hit;
+				//wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.03f );
+
+				if ( result.tuvValue.x < 0.0 || result.tuvValue.x > rayLen )
 					continue;
 
 				if ( !finalResult.hit || result.tuvValue.x < finalResult.tuvValue.x )

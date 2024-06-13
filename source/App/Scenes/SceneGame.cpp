@@ -140,29 +140,35 @@ void SceneGame::update( double _deltaTime )
 
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 		m_starDestroyers[ i ]->update(_deltaTime);
+
+	wv::Vector3f p = m_playerShip->getTransform().position;
+	wv::Vector3f f = m_playerShip->getTransform().forward();
+	wv::Ray ray{ 
+		p + f *  0.05, 
+		p + f * -0.05 
+	};
 	
 
-	m_xwingMesh->transform = {};
+	//wv::Debug::Draw::AddSphere( ray.start, 0.03f );
+	//wv::Debug::Draw::AddSphere( ray.end, 0.03f );
+
+	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 	{
-		wv::Vector3f p = m_playerShip->getTransform().position;
-		wv::Vector3f f = m_playerShip->getTransform().forward() * -0.2f;
-		wv::Ray ray{ p, f };
-
-		wv::Debug::Draw::AddSphere( p,     0.02f );
-		wv::Debug::Draw::AddSphere( p + f, 0.02f );
-
-		wv::RayIntersection result = ray.intersect( m_xwingMesh );
-		if ( result.hit )
+		if ( m_starDestroyers[ i ]->m_arrived )
 		{
-			glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
-		
-			//hit = hit * glm::inverse( m_xwingMesh->transform.getMatrix() );
+			m_starDestroyerMesh->transform.parent = &m_starDestroyers[ i ]->getTransform();
+			wv::RayIntersection result = ray.intersect( m_starDestroyerMesh );
 
-			wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.04f );
+			if ( result.hit )
+			{
+				//glm::vec4 hit{ result.point.x, result.point.y, result.point.z, 1.0f };
+				//hit = glm::inverse( m_xwingMesh->transform.getMatrix() ) * hit;
+				//wv::Debug::Draw::AddSphere( wv::Vector3f{ hit.x, hit.y, hit.z }, 0.04f );
+		
+				app->m_applicationState->switchToScene( "SceneMenu" );
+			}
 		}
 	}
-	m_xwingMesh->transform.rotation.y = 0.0f;
-
 
 	m_playerShip->update( _deltaTime );
 }
@@ -183,8 +189,5 @@ void SceneGame::draw( wv::GraphicsDevice* _device )
 	for ( int i = 0; i < m_starDestroyers.size(); i++ )
 		m_starDestroyers[ i ]->draw( _device );
 
-	m_xwingMesh->transform = {};
-	m_xwingMesh->transform.rotation.y = 45.0f;
-	_device->draw( m_xwingMesh );	
-	m_xwingMesh->transform.rotation.y = 0.0f;
+	_device->draw( m_xwingMesh );
 }
