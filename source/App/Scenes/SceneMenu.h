@@ -38,9 +38,14 @@ private:
 
 	void addSprite( const char* _material, int _x, int _y, int _w, int _h );
 
-	int m_selected;
-
 	wv::Mesh* m_quad;
 	std::vector<MenuSprite> m_sprites;
 	wv::ICamera* m_camera;
+
+
+	int m_selected = 0;
+	bool m_blinker = false;
+	float m_blinkerTimer = 0.0f;
+	bool m_switching = false;
+	int m_switchCooldown = 1;
 };

@@ -16,32 +16,36 @@ StateGame::~StateGame()
 
 void StateGame::onLoad()
 {
-	if ( m_currentScene )
-		m_currentScene->onLoad();
+	// State::onLoad();
+
+	switchToScene( "SceneMenu" );
 }
 
 void StateGame::onUnload()
 {
-	if ( m_currentScene )
-		m_currentScene->onUnload();
+	// State::onUnload();
 }
 
 void StateGame::onCreate()
 {
-	if ( m_currentScene )
-		m_currentScene->onCreate();
+	addScene<SceneMenu>( "SceneMenu" );
+	addScene<SceneGame>( "SceneGame" );
+	addScene<SceneTexture>( "SceneTexture" );
+
+	State::onCreate();
 }
 
 void StateGame::onDestroy()
 {
-	if ( m_currentScene )
-		m_currentScene->onDestroy();
+	State::onDestroy();
 }
 
 void StateGame::update( double _deltaTime )
 {
 	if ( m_currentScene )
 		m_currentScene->update( _deltaTime );
+
+	State::update( _deltaTime );
 }
 
 void StateGame::draw()

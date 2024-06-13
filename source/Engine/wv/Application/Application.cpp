@@ -183,9 +183,9 @@ void wv::Application::run()
 
 	if ( m_applicationState )
 	{
+		m_applicationState->onCreate();
 		m_applicationState->onLoad(); /// TODO: multithread
 		// while m_applicationState->isLoading() { doloadingstuff }
-		m_applicationState->onCreate();
 	}
 
 #ifdef EMSCRIPTEN
@@ -199,8 +199,8 @@ void wv::Application::run()
 
 	if ( m_applicationState )
 	{
-		m_applicationState->onDestroy();
 		m_applicationState->onUnload();
+		m_applicationState->onDestroy();
 	}
 }
 
