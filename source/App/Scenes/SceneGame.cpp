@@ -52,14 +52,17 @@ void SceneGame::onLoad()
 
 	m_playerShip = new PlayerShip( m_xwingMesh );
 	m_playerShip->onCreate();
-	m_playerShip->getTransform().setPosition( { 0.0f, 3.0f, 30.0f } );
+	m_playerShip->getTransform().setPosition( { 5.0f, 6.5f, -110.0f } );
+	m_playerShip->getTransform().setRotation( { 0.0f, 180.0f, 0.0f } );
+	m_playerShip->setTargetRotation( m_playerShip->getTransform().rotation );
 
 	m_dummy = new EnemyShip( m_xwingMesh );
 	m_dummy->onCreate();
 	m_dummy->getTransform().setPosition( { 0.0f, 0.0f, -2.6f } );
 	m_dummy->getTransform().setRotation( { 0.0f, 90.0f, 0.0f } );
 
-	std::srand( std::time( nullptr ) );
+	// std::srand( std::time( nullptr ) );
+	std::srand( 1 );
 
 	for ( int i = 0; i < 4; i++ )
 	{

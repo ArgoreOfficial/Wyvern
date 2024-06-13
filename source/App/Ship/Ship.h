@@ -16,8 +16,9 @@ public:
 	virtual void draw( wv::GraphicsDevice* _device );
 
 	wv::Transformf& getTransform() { return m_transform; }
-	
+
 	void setMaxSpeed( float _speed ) { m_maxSpeed = _speed; }
+	void setTargetRotation( const wv::Vector3f& _target ) { m_targetRotation = _target; }
 
 protected:
 
