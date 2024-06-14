@@ -1,8 +1,25 @@
 # The Wyvern Game Engine
-<sup>Copyright (C) 2023-2024 Argore</sup>
+<sup>Copyright © 2023-2024 Argore</sup>
+
+## Features
+Wyvern is far from a feature-usable engine, so don't expect much at the moment.
+* Configurable Core Pipeline
+  * Currently this entails choosing between SDL or GLFW, and OpenGL or OpenGL ES (and WebGL through Emscripten).  
+    More options will come in the future as I continue to add better cross-platform support
+* 
+## Planned Features
+* Linux and MACOS support (untested)
+* Direct3D and Vulkan Backend
+* (Homebrew) Console support, such as Xbox/Xbox 360, PlayStation®3, etc.
+  * a large portion of the configurable pipeline in Wyvern is to allow for easy implementation of more involved platforms, although this is not a priority
+* Proper Editor (Likely using wxWidgets or Qt), and through that:
+  * and through that, SceneGraphs, Prefabs, runtime Materials, and so on.
+* Built-in Physics engine, likely Bullet, PhysX, or Havok. Potentially a custom one but unlikely 
+* More versatile materials and graphics
+  * Currently only basic shading exists and Material variables have to be made in C++ 
 
 ## Building
-Wyvern uses the free and open-source build system [xmake](https://github.com/xmake-io/xmake).  
+Wyvern uses the free and open-source build tool [xmake](https://github.com/xmake-io/xmake).  
 
 ### Visual Studio Setup
 1. Follow the [xmake installation guide](https://xmake.io/#/guide/installation)  
@@ -13,7 +30,7 @@ Wyvern uses the free and open-source build system [xmake](https://github.com/xma
 A static build of [Assimp]() is provided
 
 1. extract `assimp-static.7z` somewhere
-2. change ASSIMP_STATIC_ROOT in `xmake.lua` to point to that folder (default `D:/SDK/assimp-static/`)
+2. change ASSIMP_STATIC_ROOT in `platform\support\assimp.lua` to point to that folder (default `D:/SDK/assimp-static/`)
 
 this dependency will be removed sometime in the future, but for now this works
 
