@@ -2,8 +2,6 @@
 
 #include <wv/Scene/Scene.h>
 #include <App/Scenes/SceneGame.h>
-#include <App/Scenes/SceneMenu.h>
-#include <App/Scenes/SceneTexture.h>
 
 StateGame::StateGame()
 {
@@ -19,7 +17,7 @@ void StateGame::onLoad()
 {
 	// State::onLoad();
 
-	switchToScene( "SceneMenu" );
+	switchToScene( "DefaultScene" );
 }
 
 void StateGame::onUnload()
@@ -29,9 +27,7 @@ void StateGame::onUnload()
 
 void StateGame::onCreate()
 {
-	addScene<SceneMenu>( "SceneMenu" );
-	addScene<SceneGame>( "SceneGame" );
-	addScene<SceneTexture>( "SceneTexture" );
+	addScene<DefaultScene>( "DefaultScene" );
 
 	State::onCreate();
 }

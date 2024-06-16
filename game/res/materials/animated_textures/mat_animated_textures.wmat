@@ -1,3 +1,0 @@
-shader: "sprite"
-textures:
-  - [ "u_Albedo", "friday.png" ]

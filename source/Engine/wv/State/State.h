@@ -23,6 +23,8 @@ namespace wv
 		
 		*/
 
+		/// TODO: fix load order. Needs to be decided before multithreaded loading
+
 		virtual void onLoad()   = 0;
 		virtual void onUnload() = 0;
 
@@ -57,6 +59,7 @@ namespace wv
 				m_nextScene = nullptr;
 			}
 		}
+
 		virtual void draw( GraphicsDevice* _device ) = 0;
 
 		inline void switchToScene( const std::string& _name )

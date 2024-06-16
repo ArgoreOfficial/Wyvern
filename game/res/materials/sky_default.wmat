@@ -1,3 +1,0 @@
-shader: "sky"
-textures:
-  - [ "u_Albedo", "autumn_field_puresky.png" ]

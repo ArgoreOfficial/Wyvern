@@ -9,7 +9,7 @@ wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_near{ _near },
 	m_far{ _far }
 {
-
+	
 }
 
 glm::mat4x4 wv::ICamera::getProjectionMatrix( void )
