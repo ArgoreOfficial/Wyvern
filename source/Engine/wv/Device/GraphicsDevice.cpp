@@ -97,7 +97,7 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	
 	glDrawBuffers( _desc->numTextures, drawBuffers );
 	delete[] drawBuffers;
-
+#ifndef WV_PACKAGE
 	int errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
@@ -123,7 +123,7 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 		delete target;
 		return nullptr;
 	}
-
+#endif
 	target->width = _desc->width;
 	target->height = _desc->height;
 

@@ -54,7 +54,7 @@ namespace wv
 				
 				m_nextScene->onLoad();
 
-				printf( "Switched Scene\n" );
+				Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 				m_currentScene = m_nextScene;
 				m_nextScene = nullptr;
 			}
@@ -70,7 +70,7 @@ namespace wv
 				return;
 			}
 
-			printf( "Switching to scene '%s'\n", _name.c_str() );
+			Debug::Print( Debug::WV_PRINT_DEBUG, "Switching to scene '%s'\n", _name.c_str() );
 			m_nextScene = m_scenes[ _name ];
 		}
 

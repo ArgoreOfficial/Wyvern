@@ -44,7 +44,7 @@ void DefaultScene::onUnload()
 	wv::GraphicsDevice* device = app->device;
 
 	device->destroyMesh( &m_skybox );
-	// destroy material
+	m_skyMaterial->destroy();
 }
 
 void DefaultScene::onCreate()
