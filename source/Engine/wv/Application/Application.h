@@ -118,6 +118,7 @@ namespace wv
 		static inline Application* s_instance = nullptr; 
 
 		wv::Vector2i m_mousePosition;
+
 	};
 
 }

@@ -5,8 +5,13 @@
 
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct MouseEvent
 	{
 		Vector2i position = {0,0};
@@ -28,7 +33,10 @@ namespace wv
 			WV_MOUSE_BUTTON_ACTION_DOWN,
 			WV_MOUSE_BUTTON_ACTION_UP
 		} action;
+
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	class IMouseListener
 	{
@@ -39,15 +47,21 @@ namespace wv
 		static void invoke( MouseEvent _event );
 		static void setEnabled( bool _enabled ) { m_enabled = _enabled; }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	protected:
 
 		void subscribeMouseEvents  ( void );
 		void unsubscribeMouseEvents( void );
 		virtual void onMouseEvent( MouseEvent _event ) = 0;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
 
 		inline static std::vector<IMouseListener*> m_hooks;
 		inline static bool m_enabled = true;
+
 	};
+
 }

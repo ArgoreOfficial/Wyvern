@@ -5,6 +5,8 @@
 #include <wv/Primitive/Mesh.h>
 #include <wv/Memory/ModelParser.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Debug::Draw::Internal::initDebugDraw( GraphicsDevice* _device )
 {
 	wv::assimp::Parser parser;
@@ -21,6 +23,8 @@ void wv::Debug::Draw::Internal::initDebugDraw( GraphicsDevice* _device )
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Debug::Draw::Internal::drawDebug( GraphicsDevice* _device )
 {
 	for ( int i = 0; i < spheres.size(); i++ )
@@ -34,10 +38,14 @@ void wv::Debug::Draw::Internal::drawDebug( GraphicsDevice* _device )
 	spheres.clear();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Debug::Draw::AddSphere( Vector3f _position, float _radius )
 {
 	Internal::spheres.push_back( { _position, _radius } );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Debug::Draw::AddCube( Transformf _transform )
 {

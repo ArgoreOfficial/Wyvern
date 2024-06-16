@@ -156,13 +156,6 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
-
-	//glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
-	//glfwSetKeyCallback( m_windowContext, keyCallback );
-	//
-	//glfwSetCursorPosCallback( m_windowContext, mouseCallback );
-	//glfwSetMouseButtonCallback( m_windowContext, mouseButtonCallback );
-
 	if ( !m_windowContext )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
@@ -239,6 +232,8 @@ void wv::SDLDeviceContext::onResize( int _width, int _height )
 	DeviceContext::onResize( _width, _height );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::SDLDeviceContext::setSize( int _width, int _height )
 {
 	DeviceContext::setSize( _width, _height );
@@ -252,6 +247,8 @@ void wv::SDLDeviceContext::setMouseLock( bool _lock )
 {
 	SDL_SetRelativeMouseMode( (SDL_bool)_lock );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setTitle( const char* _title )
 {

@@ -13,6 +13,8 @@ namespace wv
 
 		T x, y;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 		Vector2( void ) : x( 0 ), y( 0 ){}
 		Vector2( const T& _t ) : x( _t ), y( _t ){}
 		Vector2( const T& _x, const T& _y ) : x( _x ), y( _y ){}

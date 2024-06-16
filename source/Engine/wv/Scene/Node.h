@@ -1,18 +1,28 @@
 #pragma once
 
+#include <wv/Math/Transform.h>
+
 #include <stdint.h>
 #include <vector>
 #include <string>
-#include <wv/Math/Transform.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class DeviceContext;
 	class GraphicsDevice;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Node
 	{
+
 	public:
+
 		 Node( const uint64_t& _uuid, const std::string& _name );
 		~Node();
 
@@ -35,6 +45,8 @@ namespace wv
 		Transformf m_transform;
 		Transformf m_worldTransform;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	protected:
 
 		uint64_t    m_uuid;
@@ -44,6 +56,7 @@ namespace wv
 		std::vector<Node*> m_children{};
 
 	};
+
 }
 
 // REFLECTNODE( INode )

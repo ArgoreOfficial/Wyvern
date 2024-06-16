@@ -4,22 +4,30 @@
 #include <wv/Application/Application.h>
 #include <wv/Math/Math.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::OrbitCamera::OrbitCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ICamera( _type, _fov, _near, _far )
 {
 	m_transform.setRotation( { -15.0f, 225.0f, 0.0f } );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::OrbitCamera::~OrbitCamera( void )
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OrbitCamera::onCreate()
 {
 	subscribeMouseEvents();
 	subscribeInputEvent();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
 {
@@ -46,12 +54,16 @@ void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
 	m_rotate = wv::Vector2f( (float)delta_x, (float)delta_y );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::OrbitCamera::onInputEvent( InputEvent _event )
 {
 
 	/// scroll?
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OrbitCamera::update( double _delta_time )
 {

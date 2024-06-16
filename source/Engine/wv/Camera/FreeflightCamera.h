@@ -13,11 +13,16 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class FreeflightCamera : public ICamera, public IMouseListener, public IInputListener
 	{
+
 	public:
 
 		FreeflightCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
@@ -30,6 +35,8 @@ namespace wv
 		void update( double _delta_time ) override;
 	
 		void resetVelocity() { m_velocity = { 0.0f, 0.0f, 0.0f }; }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 

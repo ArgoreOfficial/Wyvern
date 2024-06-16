@@ -5,9 +5,14 @@
 
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct Audio
 	{
 		ma_sound sound;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 		inline void play( float _volume = 1.0f, bool _loop = false )
 		{
@@ -25,5 +30,7 @@ namespace wv
 		inline void stop() { ma_sound_stop( &sound ); }
 
 		inline bool isPlaying() { return ma_sound_is_playing( &sound ); }
+
 	};
+
 }

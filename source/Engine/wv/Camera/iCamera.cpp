@@ -3,6 +3,8 @@
 #include <wv/Application/Application.h>
 #include <wv/Device/DeviceContext.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
 	fov{ _fov },
@@ -11,6 +13,8 @@ wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 {
 	
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 glm::mat4x4 wv::ICamera::getProjectionMatrix( void )
 {
@@ -23,11 +27,15 @@ glm::mat4x4 wv::ICamera::getProjectionMatrix( void )
 	return glm::mat4x4( 1.0f );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 glm::mat4x4 wv::ICamera::getPerspectiveMatrix( void )
 {
 	wv::DeviceContext* ctx = wv::Application::get()->context;
 	return glm::perspective( glm::radians( fov ), ctx->getAspect(), m_near, m_far);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 glm::mat4x4 wv::ICamera::getOrthographicMatrix( void )
 {
@@ -37,6 +45,8 @@ glm::mat4x4 wv::ICamera::getOrthographicMatrix( void )
 
 	return glm::ortho( -w, w, -h, h, -1000.0f, 1000.0f );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 glm::mat4 wv::ICamera::getViewMatrix( void )
 {
@@ -52,6 +62,8 @@ glm::mat4 wv::ICamera::getViewMatrix( void )
 	
 	return glm::inverse( m_transform.getMatrix() ); 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Vector3f wv::ICamera::getViewDirection()
 {

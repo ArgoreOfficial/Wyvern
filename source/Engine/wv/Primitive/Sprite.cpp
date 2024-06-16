@@ -5,10 +5,14 @@
 #include <wv/Primitive/Mesh.h>
 #include <wv/Assets/Materials/Material.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Sprite::~Sprite()
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 {
@@ -24,6 +28,8 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
     return sprite;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Sprite::draw( GraphicsDevice* _device )
 {
 	if ( !Internal::S_SPRITE_QUAD )
@@ -34,6 +40,8 @@ void wv::Sprite::draw( GraphicsDevice* _device )
 	m->primitives[ 0 ]->material = m_material;
 	_device->draw( m );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Sprite::createQuad()
 {

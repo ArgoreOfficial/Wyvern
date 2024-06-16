@@ -1,30 +1,33 @@
 #pragma once
+
 #include <wv/Types.h>
 #include <wv/Shader/Shader.h>
 #include <wv/Shader/ShaderProgram.h>
-
 #include <wv/Misc/Color.h>
 
 #include <unordered_map>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct PipelineDesc;
-	class Pipeline;
-
 	struct PrimitiveDesc;
-	class Primitive;
-	
 	struct TextureDesc;
-	class Texture;
-
 	struct UniformBlockDesc;
-
 	struct RenderTargetDesc;
-	class RenderTarget;
-
 	struct MeshDesc;
+
+	class Pipeline;
+	class Primitive;
+	class Texture;
+	class RenderTarget;
 	class Mesh;
+	
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct GraphicsDeviceDesc
 	{
@@ -33,13 +36,15 @@ namespace wv
 		GenericVersion graphicsApiVersion;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class GraphicsDevice /// TODO: make IGraphicsDevice?
 	{
 	public:
 
 		static inline GraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc )
 		{
-			/// TODO: different platforms
+			/// TODO: different backends
 
 			return new GraphicsDevice( _desc );
 		}
@@ -73,6 +78,8 @@ namespace wv
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
 		void draw( Mesh* _mesh );
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 

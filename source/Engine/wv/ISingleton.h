@@ -2,12 +2,15 @@
 
 #include <wv/Decl.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 template<class T>
 class iSingleton
 {
 WV_DECLARE_INTERFACE( iSingleton<T> )
 
 public:
+
 	virtual void create() = 0;
 	
 	static void destroy()
@@ -24,6 +27,10 @@ public:
 		return *m_instance; 
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 protected:
+
 	inline static T* m_instance;
+
 };

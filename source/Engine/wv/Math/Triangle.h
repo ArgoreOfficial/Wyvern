@@ -2,11 +2,17 @@
 
 #include <wv/Math/Vector3.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	template<typename T>
 	class Triangle
 	{
+
 	public:
 
 		Vector3<T> v0, v1, v2;
@@ -23,10 +29,15 @@ namespace wv
 		Vector3<T> getNormal() const{ return edge1().cross( edge2() ).normalized(); }
 
 		Vector3<T> barycentricToCartesian( const T& _u, const T& _v ) const;
+
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	typedef Triangle<float> Triangle3f;
 	typedef Triangle<double> Triangle3d;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
 	inline Vector3<T> Triangle<T>::barycentricToCartesian( const T& _u, const T& _v ) const
@@ -35,4 +46,5 @@ namespace wv
 		return v0 + edge1() * _u + 
 			        edge2() * _v;
 	}
+
 }

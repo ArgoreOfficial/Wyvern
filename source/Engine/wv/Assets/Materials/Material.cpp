@@ -13,6 +13,8 @@
 
 #include <wv/Auxiliary/fkYAML/node.hpp>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Material::loadFromFile( const char* _path )
 {
 	wv::MemoryDevice mdevice;
@@ -25,6 +27,8 @@ bool wv::Material::loadFromFile( const char* _path )
 
 	return loadFromSource( yaml );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Material::loadFromSource( const std::string& _source )
 {
@@ -69,6 +73,8 @@ bool wv::Material::loadFromSource( const std::string& _source )
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Material::destroy()
 {
 	wv::GraphicsDevice* device = wv::Application::get()->device;
@@ -81,11 +87,15 @@ void wv::Material::destroy()
 	device->destroyPipeline( &m_pipeline );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Material::setAsActive( GraphicsDevice* _device )
 {
 	_device->setActivePipeline( m_pipeline );
 	materialCallback();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Material::materialCallback()
 {
@@ -107,6 +117,8 @@ void wv::Material::materialCallback()
 	for ( int i = 0; i < (int)m_textures.size(); i++ )
 		app->device->bindTextureToSlot( m_textures[ i ], i );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Material::instanceCallback( Mesh* _instance )
 {

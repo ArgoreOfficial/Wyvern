@@ -8,8 +8,12 @@ namespace wv
 	template< typename T >
 	class Vector4
 	{
+
 	public:
+
 		T x, y, z, w;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 		Vector4( void )                                               : x{  0 }, y{  0 }, z{  0 }, w{  0 } { }
 		Vector4( const T& _t )                                        : x{ _t }, y{ _t }, z{ _t }, w{ _t } { }
@@ -22,6 +26,7 @@ namespace wv
 		Vector4<T>& operator *=( const float& _scalar );
 		Vector4<T>  operator / ( const float& _scalar );
 		Vector4<T>& operator /=( const float& _scalar );
+
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

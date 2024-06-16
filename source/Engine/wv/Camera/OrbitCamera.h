@@ -13,9 +13,13 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class OrbitCamera : public ICamera, public IMouseListener, public IInputListener
 	{
 	public:
@@ -28,7 +32,9 @@ namespace wv
 		void onMouseEvent( MouseEvent _event ) override;
 		void onInputEvent( InputEvent _event ) override;
 		void update    ( double _delta_time ) override;
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
 
 		wv::Vector2f m_rotate;
@@ -37,6 +43,7 @@ namespace wv
 		bool m_input_enabled = false;
 
 		float r = 0.0f;
+
 	};
 
 }

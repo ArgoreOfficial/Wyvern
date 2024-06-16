@@ -17,6 +17,8 @@ namespace wv
 
 		T x, y, z;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 		Vector3( void )                                  : x(  0 ), y(  0 ), z(  0 ) { }
 		Vector3( const T& _t )                           : x( _t ), y( _t ), z( _t ) { }
 		Vector3( const T& _x, const T& _y, const T& _z ) : x( _x ), y( _y ), z( _z ) { }

@@ -15,6 +15,7 @@ namespace wv
 	template<typename T>
     class Transform
     {
+
 	public:
 
 		inline void setPosition( wv::Vector3<T> _position ) { position = _position; }
@@ -47,6 +48,7 @@ namespace wv
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
 		Transform<T>* parent = nullptr;
 		Vector3<T> position{ 0, 0, 0 };
 		Vector3<T> rotation{ 0, 0, 0 };

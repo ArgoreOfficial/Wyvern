@@ -5,22 +5,30 @@
 
 #include <SDL2/SDL_keycode.h> /// TODO: remove
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ICamera( _type, _fov, _near, _far )
 {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::FreeflightCamera::~FreeflightCamera( void )
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::FreeflightCamera::onCreate()
 {
 	subscribeMouseEvents();
 	subscribeInputEvent();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
@@ -42,6 +50,8 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 
 	m_rotate = { (float)_event.delta.x, (float)_event.delta.y };
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 {
@@ -66,6 +76,8 @@ void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::FreeflightCamera::update( double _delta_time )
 {

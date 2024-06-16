@@ -5,15 +5,24 @@
 #include <string>
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Mesh;
 	class Pipeline;
 	class Material;
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Model : public Node
 	{
+
 	public:
+
 		 Model( const uint64_t& _uuid, const std::string& _name );
 		~Model();
 
@@ -22,7 +31,13 @@ namespace wv
 		virtual void draw  ( DeviceContext* _context, GraphicsDevice* _device ) override;
 
 		Material* m_material; /// TODO: change to index?
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
+
 		Mesh* m_mesh; /// TODO: allow for multiple meshes
+
 	};
+
 }

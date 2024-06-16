@@ -4,14 +4,21 @@
 
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Mesh;
 	class Material;
 	class GraphicsDevice;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	namespace Internal
 	{
 		static Mesh* S_SPRITE_QUAD = nullptr;
 	}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct SpriteDesc
 	{
@@ -21,9 +28,13 @@ namespace wv
 		Vector3f size{ 64.0f, 64.0f, 1.0f };
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Sprite
 	{
+
 	public:
+
 		~Sprite();
 
 		static Sprite* create( SpriteDesc* _desc );
@@ -32,7 +43,10 @@ namespace wv
 		void draw( GraphicsDevice* _device );
 		Material* getMaterial() { return m_material; }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
+
 		Sprite() { };
 
 		static void createQuad();
@@ -40,5 +54,7 @@ namespace wv
 		Material* m_material = nullptr;
 		Transformf m_transform;
 		Mesh* m_mesh = nullptr;
+
 	};
+
 }

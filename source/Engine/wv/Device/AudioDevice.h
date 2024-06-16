@@ -3,21 +3,31 @@
 #include <wv/Audio/Audio.h>
 #include <wv/Math/Vector3.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
 
-	struct AudioDeviceDesc
-	{
+///////////////////////////////////////////////////////////////////////////////////////
 
-	};
 
 	namespace InternalAudio
 	{
 		void onNotif( const ma_device_notification* pNotification );
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+	struct AudioDeviceDesc
+	{
+
+	};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class AudioDevice
 	{
+
 	public:
 		
 		AudioDevice( AudioDeviceDesc* _desc );
@@ -34,6 +44,8 @@ namespace wv
 		void setListenerPosition( Vector3f _position );
 		void setListenerDirection( Vector3f _direction );
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	private:
 
 		friend void InternalAudio::onNotif( const ma_device_notification* pNotification );
@@ -43,4 +55,5 @@ namespace wv
 		bool m_unlocked = false;
 
 	};
+
 }

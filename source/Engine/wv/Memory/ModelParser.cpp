@@ -20,6 +20,8 @@
 #include <assimp/postprocess.h>
 #endif
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
 {
@@ -30,6 +32,8 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 	fullPath = _rootDir + "/" + fullPath;
 	return fullPath;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh )
 {
@@ -177,6 +181,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	*/
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
 {
 	// std::string dir = _mesh->path.substr( 0, _mesh->path.find_last_of( '/' ) );
@@ -194,6 +200,8 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
 
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Mesh* wv::assimp::Parser::load( const char* _path )
 {

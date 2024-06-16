@@ -8,14 +8,20 @@
 
 #include <wv/Types.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	enum UniformBlockSubmitMode
 	{
 		WV_UNIFORM_BLOCK_SUBMIT_IMMEDIATE,
 		WV_UNIFORM_BLOCK_SUBMIT_DEFERRED
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct Uniform
 	{
@@ -24,15 +30,21 @@ namespace wv
 		std::string name;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct UniformBlockDesc
 	{
 		std::string name;
 		std::vector<Uniform> uniforms;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class UniformBlock
 	{
+
 	public:
+
 		friend class GraphicsDevice;
 
 		UniformBlock() { }
@@ -40,6 +52,7 @@ namespace wv
 		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
 		template<typename T> void set( const std::string& _name, T* _data );
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 
@@ -54,7 +67,11 @@ namespace wv
 
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	typedef std::unordered_map<std::string, wv::UniformBlock> UniformBlockMap;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
 	inline void UniformBlock::set( const std::string& _name, T* _data )
@@ -67,4 +84,5 @@ namespace wv
 		unsigned int offset = m_uniforms[ _name ].offset;
 		memcpy( m_buffer + offset, _data, sizeof( T ) );
 	}
+
 }

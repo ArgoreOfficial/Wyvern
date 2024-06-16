@@ -1,16 +1,22 @@
 #include "Model.h"
+
 #include <wv/Application/Application.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Assets/Materials/Material.h>
+
 #include <fstream>
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Model::Model( const uint64_t& _uuid, const std::string& _name ) : Node{ _uuid, _name }
 {
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Model::~Model()
 {
@@ -18,6 +24,8 @@ wv::Model::~Model()
 	// wv::Application::get()->device->destroyPrimitive( &m_primitive ); // ew
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Model::loadMemory( const std::string& _path )
 {
@@ -80,10 +88,14 @@ void wv::Model::loadMemory( const std::string& _path )
 	md.unloadMemory( mem );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Model::update( double _deltaTime )
 {
 	Node::update( _deltaTime ); // update children
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Model::draw( DeviceContext* _context, GraphicsDevice* _device )
 {

@@ -3,16 +3,25 @@
 #include <vector>
 #include <string>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Pipeline;
 	class GraphicsDevice;
 	class Mesh;
 	class Texture;
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class Material
 	{
+
 	public:
+
 		bool loadFromFile( const char* _path );
 		bool loadFromSource( const std::string& _source );
 		virtual void destroy();
@@ -22,8 +31,13 @@ namespace wv
 		virtual void materialCallback();
 		virtual void instanceCallback( Mesh* _instance );
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	protected:
+
 		Pipeline* m_pipeline = nullptr;
 		std::vector<Texture*> m_textures;
+
 	};
+
 }

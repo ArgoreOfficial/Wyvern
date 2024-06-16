@@ -2,6 +2,8 @@
 #include <wv/Application/Application.h>
 #include <App/StateGame.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
 	wv::ApplicationDesc appDesc;

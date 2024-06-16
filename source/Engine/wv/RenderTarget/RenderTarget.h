@@ -3,9 +3,13 @@
 #include <wv/Types.h>
 #include <wv/Assets/Texture.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct RenderTargetDesc
 	{
 		int width = 0;
@@ -15,9 +19,13 @@ namespace wv
 		int numTextures = 0;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class RenderTarget
 	{
+
 	public:
+
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 
@@ -26,5 +34,7 @@ namespace wv
 
 		int width = 0;
 		int height = 0;
+
 	};
+
 }

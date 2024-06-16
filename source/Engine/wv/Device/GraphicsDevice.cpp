@@ -2,6 +2,7 @@
 
 #include <wv/Assets/Texture.h>
 #include <wv/Assets/Materials/Material.h>
+#include <wv/Debug/Print.h>
 #include <wv/Decl.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
@@ -11,13 +12,11 @@
 
 #include <glad/glad.h>
 #include <stdio.h>
-
 #include <sstream>
 #include <fstream>
-
 #include <vector>
 
-#include <wv/Debug/Print.h>
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 {
@@ -55,19 +54,27 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 	/// ---TEMPORARY
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::terminate()
 {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::onResize( int _width, int _height )
 {
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::setViewport( int _width, int _height )
 {
 	glViewport( 0, 0, _width, _height );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
@@ -134,6 +141,8 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 	return target;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
 	RenderTarget* rt = *_renderTarget;
@@ -144,6 +153,8 @@ void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 	for ( int i = 0; i < rt->numTextures; i++ )
 		glDeleteTextures( 1, &rt->textures[ i ]->handle );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 {
@@ -158,15 +169,21 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 		glViewport( 0, 0, 640, 480 );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::setClearColor( const wv::Color& _color )
 {
 	glClearColor( _color.r, _color.g, _color.b, _color.a );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
 	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 {
@@ -233,6 +250,8 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 	return pipeline;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 {
 	
@@ -256,6 +275,8 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 	*_pipeline = nullptr;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
@@ -264,12 +285,16 @@ wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 	return m_pipelines[ _name ];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
 {
 	Mesh* mesh = new Mesh();
 	/// TODO: remove?
 	return mesh;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 {
@@ -282,6 +307,8 @@ void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 	*_mesh = nullptr;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
 	if ( _pipeline == m_activePipeline )
@@ -293,6 +320,8 @@ void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 	glUseProgram( _pipeline->program );
 	m_activePipeline = _pipeline;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
@@ -378,6 +407,8 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* 
 	return primitive;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
 	Primitive* pr = *_primitive;
@@ -387,6 +418,8 @@ void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
 	delete pr;
 	*_primitive = nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 {
@@ -521,7 +554,6 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 {
 	if ( !_mesh )
 		return;
-
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
 	{

@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
 
@@ -33,7 +35,9 @@ namespace wv
 
 	class MemoryDevice
 	{
+
 	public:
+
 		~MemoryDevice();
 
 		Memory* loadMemory( const char* _path );
@@ -52,4 +56,5 @@ namespace wv
 		std::vector<Memory*> m_loadedMemory;
 
 	};
+
 }

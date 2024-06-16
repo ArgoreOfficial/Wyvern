@@ -6,6 +6,8 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Shader/Shader.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 {
 	wv::Application* app = wv::Application::get();
