@@ -35,6 +35,8 @@ namespace wv
 	{
 	public:
 		wv::Handle handle;
+		int width;
+		int height;
 
 	};
 }

@@ -46,11 +46,14 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 
 	std::vector<Uniform> textureUniforms;;
 	unsigned int textureCounter = 0;
-	for ( auto& texture : root[ "textures" ] )
+	if ( root[ "textures" ].is_sequence() )
 	{
-		wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
-		textureUniforms.push_back( u );
-		textureCounter++;
+		for ( auto& texture : root[ "textures" ] )
+		{
+			wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
+			textureUniforms.push_back( u );
+			textureCounter++;
+		}
 	}
 
 	wv::PipelineDesc pipelineDesc;

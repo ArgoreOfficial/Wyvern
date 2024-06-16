@@ -23,6 +23,7 @@
 #include <wv/State/State.h>
 
 #include <wv/Debug/Print.h>
+#include <wv/Debug/Draw.h>
 
 #include <stdio.h>
 #include <math.h>
@@ -62,6 +63,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.name = _desc->title;
 	ctxDesc.width = _desc->windowWidth;
 	ctxDesc.height = _desc->windowHeight;
+	ctxDesc.allowResize = _desc->allowResize;
 
 	context = wv::DeviceContext::getDeviceContext( &ctxDesc );
 
@@ -95,7 +97,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 	audio = new AudioDevice( nullptr );
 
-
+	Debug::Draw::Internal::initDebugDraw( device );
 
 	m_applicationState = _desc->applicationState;
 }
@@ -133,31 +135,21 @@ void wv::Application::onResize( int _width, int _height )
 void wv::Application::onMouseEvent( MouseEvent _event )
 {
 	m_mousePosition = _event.position;
-
-	if ( _event.button != MouseEvent::WV_MOUSE_BUTTON_RIGHT )
-		return;
-
-	if ( !_event.buttondown )
-		return;
-
-	if ( currentCamera == orbitCamera )
-	{
-		currentCamera = freeflightCamera;
-		freeflightCamera->getTransform().position = orbitCamera->getTransform().position;
-		freeflightCamera->getTransform().rotation = orbitCamera->getTransform().rotation;
-
-		( (FreeflightCamera*)freeflightCamera )->resetVelocity();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::onInputEvent( InputEvent _event )
 {
-	if ( !_event.repeat )
-		if ( _event.key == 'F' )
-			if ( currentCamera != orbitCamera )
-				currentCamera = orbitCamera; // lol
+	
+}
+
+void wv::Application::setSize( int _width, int _height, bool _notify )
+{
+	context->setSize( _width, _height );
+	
+	if( _notify )
+		onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -191,9 +183,9 @@ void wv::Application::run()
 
 	if ( m_applicationState )
 	{
+		m_applicationState->onCreate();
 		m_applicationState->onLoad(); /// TODO: multithread
 		// while m_applicationState->isLoading() { doloadingstuff }
-		m_applicationState->onCreate();
 	}
 
 #ifdef EMSCRIPTEN
@@ -207,8 +199,8 @@ void wv::Application::run()
 
 	if ( m_applicationState )
 	{
-		m_applicationState->onDestroy();
 		m_applicationState->onUnload();
+		m_applicationState->onDestroy();
 	}
 }
 
@@ -288,7 +280,9 @@ void wv::Application::tick()
 	device->clearRenderTarget( true, true );
 
 	if( m_applicationState )
-		m_applicationState->draw();
+		m_applicationState->draw( device );
+
+	Debug::Draw::Internal::drawDebug( device );
 
 	// normal back buffer
 	device->setRenderTarget( m_defaultRenderTarget );
@@ -303,6 +297,11 @@ void wv::Application::tick()
 	device->draw( m_screenQuad );
 
 	context->swapBuffers();
+}
+
+void wv::Application::quit()
+{
+	context->close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -351,8 +350,11 @@ void wv::Application::createScreeQuad()
 void wv::Application::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
-	rtDesc.width = context->getWidth();
-	rtDesc.height = context->getHeight();
+	//rtDesc.width  = context->getWidth();
+	//rtDesc.height = context->getHeight();
+	
+	rtDesc.width  = 640;
+	rtDesc.height = 480;
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
@@ -362,9 +364,9 @@ void wv::Application::createGBuffer()
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
 	#else
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_FLOAT }
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_INT },
+		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_INT }
 	#endif
 	};
 	rtDesc.textureDescs = texDescs;

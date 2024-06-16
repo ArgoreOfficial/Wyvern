@@ -48,7 +48,7 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	memcpy( mem->data, buf.data(), buf.size() );
 
 	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_INFO, "Loaded '%s' @ %i bytes\n", _path, mem->size );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path, mem->size );
 	return mem;
 }
 
@@ -105,6 +105,12 @@ wv::TextureMemory* wv::MemoryDevice::loadTextureData( const char* _path )
 	
 	mem->size = mem->height * mem->numChannels * mem->width * mem->numChannels;
 	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_INFO, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
 	return mem;
+}
+
+bool wv::MemoryDevice::fileExists( const char* _path )
+{
+	std::ifstream f( _path );
+	return f.good();
 }

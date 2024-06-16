@@ -62,7 +62,11 @@ void wv::GraphicsDevice::terminate()
 
 void wv::GraphicsDevice::onResize( int _width, int _height )
 {
+}
 
+void wv::GraphicsDevice::setViewport( int _width, int _height )
+{
+	glViewport( 0, 0, _width, _height );
 }
 
 wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
@@ -151,7 +155,7 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 	if ( _target )
 		glViewport( 0, 0, _target->width, _target->height );
 	else
-		glViewport( 0, 0, 900, 600 );
+		glViewport( 0, 0, 640, 480 );
 }
 
 void wv::GraphicsDevice::setClearColor( const wv::Color& _color )
@@ -231,6 +235,21 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 {
+	
+	std::string key = "";
+	for ( auto& p : m_pipelines )
+	{
+		if ( p.second == *_pipeline )
+		{
+			key = p.first;
+			break;
+		}
+	}
+	if( key != "" )
+		m_pipelines.erase( key );
+
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture '%s'\n", key.c_str() );
+
 	glDeleteProgram( ( *_pipeline )->program );
 
 	delete* _pipeline;
@@ -240,27 +259,37 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
-	{
-		// Debug::Print( Debug::WV_PRINT_WARN, "No pipeline called '%s' exists\n", _name );
 		return nullptr;
-	}
-
+	
 	return m_pipelines[ _name ];
 }
 
 wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
 {
 	Mesh* mesh = new Mesh();
-	// glGenVertexArrays( 1, &mesh->vaoHandle );
+	/// TODO: remove?
 	return mesh;
 }
 
 void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 {
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh\n" );
+
+	Mesh* mesh = *_mesh;
+	for ( int i = 0; i < mesh->primitives.size(); i++ )
+		destroyPrimitive( &mesh->primitives[ i ] );
+	mesh->primitives.clear();
+	*_mesh = nullptr;
 }
 
 void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
+	if ( _pipeline == m_activePipeline )
+		return;
+	if ( m_activePipeline && _pipeline->program == m_activePipeline->program )
+		return;
+
+
 	glUseProgram( _pipeline->program );
 	m_activePipeline = _pipeline;
 }
@@ -343,6 +372,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* 
 
 	primitive->numVertices = _desc->numVertices; 
 	primitive->stride = stride;
+	
 	_mesh->primitives.push_back( primitive );
 
 	return primitive;
@@ -353,6 +383,7 @@ void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
 	Primitive* pr = *_primitive;
 	glDeleteBuffers( 1, &pr->eboHandle );
 	glDeleteBuffers( 1, &pr->vboHandle );
+	glDeleteVertexArrays( 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
 }
@@ -395,9 +426,10 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
+		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;    break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;   break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; format = GL_RGB_INTEGER; break;
 		}
@@ -450,15 +482,24 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION" ); break;
 		}
 	}
+
+	texture->width  = _desc->width;
+	texture->height = _desc->height;
 	return texture;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 {
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
+
 	glDeleteTextures( 1, &( *_texture )->handle );
 	delete *_texture;
 	*_texture = nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
@@ -474,6 +515,8 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::GraphicsDevice::draw( Mesh* _mesh )
 {
 	if ( !_mesh )
@@ -481,16 +524,21 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
+	{
+		if ( _mesh->primitives[ i ]->material )
+		{
+			_mesh->primitives[ i ]->material->setAsActive( this );
+			_mesh->primitives[ i ]->material->instanceCallback( _mesh );
+		}
+
 		drawPrimitive( _mesh->primitives[ i ] );
-	
-	// glBindVertexArray( 0 );
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
-	if ( _primitive->material )
-		_primitive->material->setAsActive( this );
-
 	glBindVertexArray( _primitive->vaoHandle );
 	
 	for ( auto& block : m_activePipeline->uniformBlocks )
@@ -502,11 +550,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
-	{
-		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _primitive->eboHandle );
 		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
-	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
@@ -518,6 +562,8 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 	#endif
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 {
@@ -565,6 +611,8 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 	return shader;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 {
 	int  success;
@@ -587,6 +635,8 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 
 	return program;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
 {

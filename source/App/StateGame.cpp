@@ -5,7 +5,7 @@
 
 StateGame::StateGame()
 {
-	m_currentScene = new SceneGame();
+	
 }
 
 StateGame::~StateGame()
@@ -15,36 +15,38 @@ StateGame::~StateGame()
 
 void StateGame::onLoad()
 {
-	if ( m_currentScene )
-		m_currentScene->onLoad();
+	// State::onLoad();
+
+	switchToScene( "DefaultScene" );
 }
 
 void StateGame::onUnload()
 {
-	if ( m_currentScene )
-		m_currentScene->onUnload();
+	// State::onUnload();
 }
 
 void StateGame::onCreate()
 {
-	if ( m_currentScene )
-		m_currentScene->onCreate();
+	addScene<DefaultScene>( "DefaultScene" );
+
+	State::onCreate();
 }
 
 void StateGame::onDestroy()
 {
-	if ( m_currentScene )
-		m_currentScene->onDestroy();
+	State::onDestroy();
 }
 
 void StateGame::update( double _deltaTime )
 {
 	if ( m_currentScene )
 		m_currentScene->update( _deltaTime );
+
+	State::update( _deltaTime );
 }
 
-void StateGame::draw()
+void StateGame::draw( wv::GraphicsDevice* _device )
 {
 	if( m_currentScene )
-		m_currentScene->draw();
+		m_currentScene->draw( _device );
 }

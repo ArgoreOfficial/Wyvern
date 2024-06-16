@@ -1,10 +1,22 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Math/Vector2.h>
+#include <wv/Math/Vector3.h>
+#include <wv/Math/Vector4.h>
 
 namespace wv
 {
 	class Material;
+
+	struct Vertex
+	{
+		wv::Vector3f position;
+		wv::Vector3f normal;
+		wv::Vector3f tangent;
+		wv::Vector4f color;
+		wv::Vector2f texCoord0;
+	};
 
 	struct InputLayoutElement
 	{

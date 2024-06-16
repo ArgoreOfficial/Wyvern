@@ -1,0 +1,10 @@
+source: "source/sprite"
+blocks:
+  - block: "UbInstanceData"
+    uniforms:
+      - { uniform: "u_Projection", type: float, size: 16 }
+      - { uniform: "u_View", type: float, size: 16 }
+      - { uniform: "u_Model", type: float, size: 16 }
+      - { uniform: "u_UVOffset", type: float, size: 2 }
+textures:
+  - "u_Albedo"

@@ -4,6 +4,8 @@
 
 namespace wv
 {
+	class GraphicsDevice;
+
 	class Scene
 	{
 	WV_DECLARE_INTERFACE( Scene )
@@ -17,7 +19,7 @@ namespace wv
 		virtual void onDestroy() = 0;
 
 		virtual void update( double _deltaTime ) = 0;
-		virtual void draw() = 0;
+		virtual void draw( GraphicsDevice* _device ) = 0;
 
 	protected:
 

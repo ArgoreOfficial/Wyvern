@@ -1,15 +1,16 @@
 #pragma once
 
 #include <wv/Scene/Scene.h>
+#include <wv/Events/IInputListener.h>
 
 namespace wv { class Mesh; }
-namespace wv { class Audio; }
+namespace wv { class Material; }
 
-class SceneGame : public wv::Scene
+class DefaultScene : public wv::Scene, public wv::IInputListener
 {
 public:
-	 SceneGame();
-	~SceneGame();
+	 DefaultScene();
+	~DefaultScene();
 
 	void onLoad() override;
 	void onUnload() override;
@@ -17,15 +18,13 @@ public:
 	void onCreate() override;
 	void onDestroy() override;
 
+	void onInputEvent( wv::InputEvent _event ) override;
+
 	void update( double _deltaTime ) override;
-	void draw() override;
+	void draw( wv::GraphicsDevice* _device ) override;
 
 private:
 
-	wv::Mesh* m_skybox;
-	wv::Mesh* m_player;
-
-	wv::Audio* m_startupSound = nullptr;
-	bool m_hasPlayedStartup = false;
-
+	wv::Mesh* m_skybox = nullptr;
+	wv::Material* m_skyMaterial = nullptr;
 };

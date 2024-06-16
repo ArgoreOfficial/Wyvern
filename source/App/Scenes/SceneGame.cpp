@@ -1,88 +1,80 @@
 #include "SceneGame.h"
 
 #include <wv/Application/Application.h>
-#include <wv/Audio/Audio.h>
 #include <wv/Assets/Materials/Material.h>
-#include <wv/Debug/Print.h>
-#include <wv/Device/AudioDevice.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
 #include <wv/Primitive/Mesh.h>
 
 #include <glad/glad.h>
+#include <SDL2/SDL_keycode.h>
 
-SceneGame::SceneGame()
+DefaultScene::DefaultScene()
+{
+	
+}
+
+DefaultScene::~DefaultScene()
 {
 
 }
 
-SceneGame::~SceneGame()
-{
-
-}
-
-void SceneGame::onLoad()
+void DefaultScene::onLoad()
 {
 	wv::Application* app = wv::Application::get();
 	
 	wv::assimp::Parser parser;
-	m_player = parser.load( "res/meshes/monke.glb" );
-	m_skybox = parser.load( "res/meshes/skysphere.glb" );
+	m_skybox = parser.load( "res/meshes/skysphere.dae" );
+	m_skybox->transform.rotation.x = -90.0f;
 
-	wv::Material* skyMaterial = new wv::Material(); // memory leak
-	skyMaterial->load( "sky_space" );
-	if( m_skybox ) m_skybox->primitives[ 0 ]->material = skyMaterial;
+	m_skyMaterial = new wv::Material();
+	m_skyMaterial->loadFromFile( "sky" );
 
-	wv::Material* phongMaterial = new wv::Material(); // memory leak
-	phongMaterial->load( "phong" );
-	if( m_player ) m_player->primitives[ 0 ]->material = phongMaterial;
+	if( m_skybox ) 
+		m_skybox->primitives[ 0 ]->material = m_skyMaterial;
 
-	m_startupSound = app->audio->loadAudio2D( "psx.flac" );
-	
+	subscribeInputEvent();
 }
 
-void SceneGame::onUnload()
+void DefaultScene::onUnload()
 {
+	unsubscribeInputEvent();
+	
 	wv::Application* app = wv::Application::get();
 	wv::GraphicsDevice* device = app->device;
 
-	device->destroyMesh( &m_player );
 	device->destroyMesh( &m_skybox );
+	// destroy material
 }
 
-void SceneGame::onCreate()
+void DefaultScene::onCreate()
 {
 	
 }
 
-void SceneGame::onDestroy()
+void DefaultScene::onDestroy()
 {
 	
 }
 
-void SceneGame::update( double _deltaTime )
+void DefaultScene::onInputEvent( wv::InputEvent _event )
+{
+	if ( _event.buttondown && _event.key == SDLK_ESCAPE )
+		wv::Application::get()->quit();
+}
+
+void DefaultScene::update( double _deltaTime )
 {
 	wv::Application* app = wv::Application::get();
-	
-	if ( !m_hasPlayedStartup && app->audio->isUnlocked() && !m_startupSound->isPlaying() )
-	{
-		m_startupSound->play();
-		m_hasPlayedStartup = true;
-	}
 
 }
 
-void SceneGame::draw()
+void DefaultScene::draw( wv::GraphicsDevice* _device )
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
-
 	/// TODO: remove raw gl calls
 	glDepthMask( GL_FALSE );
 	glDepthFunc( GL_LEQUAL );
-	device->draw( m_skybox );
+	_device->draw( m_skybox );
 	glDepthFunc( GL_LESS );
 	glDepthMask( GL_TRUE );
-
-	device->draw( m_player );
 }

@@ -8,10 +8,11 @@ int main()
 	appDesc.title = "Wyvern";
 	appDesc.vsync = true;
 	appDesc.fullscreen = false;
-	appDesc.windowWidth = 900;
-	appDesc.windowHeight = 600;
+	appDesc.windowWidth  = 640;
+	appDesc.windowHeight = 480;
 	appDesc.showDebugConsole = true;
 	appDesc.applicationState = new StateGame();
+	appDesc.allowResize = false;
 
 	wv::Application* app = new wv::Application( &appDesc );
 	app->run();

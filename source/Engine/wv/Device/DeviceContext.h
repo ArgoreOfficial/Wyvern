@@ -19,9 +19,10 @@ namespace wv
 
 	struct ContextDesc
 	{
-		const char* name;
-		int height;
-		int width;
+		const char* name = "";
+		int height = 480;
+		int width = 640;
+		bool allowResize = false;
 
 		wv::DeviceContextAPI deviceApi;
 		wv::GraphicsAPI graphicsApi;
@@ -43,7 +44,8 @@ namespace wv
 		virtual void pollEvents () = 0;
 		virtual void swapBuffers() = 0;
 
-		virtual void onResize( int _width, int _height );
+		virtual void onResize( int _width, int _height ) { setSize( _width, _height ); }
+		virtual void setSize( int _width, int _height );
 
 		virtual void setMouseLock( bool _lock ) = 0;
 		virtual void setTitle( const char* _title ) = 0;

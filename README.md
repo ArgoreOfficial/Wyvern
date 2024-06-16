@@ -39,7 +39,7 @@ Wyvern supports WASM through SDL and OpenGL ES. Building is done using xmake lik
 Emscripten installation guide can be found [here]()
 
 ### msys2 & mingw64
-### Installing LIBSDL
+### Installing Dependencies
 1. **In the msys2 terminal, make sure mingw64 is properly installed**
 ```
 pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
@@ -84,6 +84,9 @@ where `<path/to/Git/cmd>` is the path to your Git installation
 
 ```
 xrepo install -v -p wasm libsdl
+```
+```
+xrepo install -v -p wasm assimp
 ```
 
 <br>

@@ -1,3 +1,0 @@
-shader: "sky"
-textures:
-  - [ "u_Albedo", "space2.png" ]

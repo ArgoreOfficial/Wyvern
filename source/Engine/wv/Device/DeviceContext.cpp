@@ -18,8 +18,8 @@ wv::DeviceContext* wv::DeviceContext::getDeviceContext( ContextDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::DeviceContext::onResize( int _width, int _height )
+void wv::DeviceContext::setSize( int _width, int _height )
 {
-	m_width  = _width;
+	m_width = _width;
 	m_height = _height;
 }

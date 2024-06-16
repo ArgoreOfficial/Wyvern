@@ -20,10 +20,6 @@
 
 void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
 {
-	/// TODO: move to application?
-	if ( _event->keysym.sym == SDL_KeyCode::SDLK_ESCAPE && _event->type == SDL_KEYDOWN )
-		_device->close();
-
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _event->type == SDL_KEYDOWN;
 	inputEvent.buttonup = _event->type == SDL_KEYUP;
@@ -99,6 +95,8 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 		return;
 	}
 
+	uint32_t flags = 0;
+
 	switch ( _desc->graphicsApi )
 	{
 
@@ -112,6 +110,8 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
+
+		flags |= SDL_WINDOW_OPENGL;
 	} break; // OpenGL 1.0 - 4.6
 
 	case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
@@ -125,6 +125,8 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
+
+		flags |= SDL_WINDOW_OPENGL;
 	} break; // OpenGL ES 1 & 2
 
 	}
@@ -143,8 +145,10 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context( "#canvas", &attrs );
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
+	
+	if ( _desc->allowResize ) flags |= SDL_WINDOW_RESIZABLE;
 
-	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
+	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, flags );
 	m_glContext = SDL_GL_CreateContext( m_windowContext );
 	
 	SDL_version version;
@@ -217,8 +221,13 @@ void wv::SDLDeviceContext::swapBuffers()
 	
 	m_time = SDL_GetTicks64() / 1000.0;
 
-	uint64_t last = m_performanceCounter;
+	double last = m_performanceCounter;
+	
+	uint64_t freq = SDL_GetPerformanceFrequency();
 	m_performanceCounter = static_cast<double>( SDL_GetPerformanceCounter() );
+
+	if ( last == 0 )
+		return;
 
 	m_deltaTime = (double)( ( m_performanceCounter - last ) / (double)SDL_GetPerformanceFrequency() );
 }
@@ -228,6 +237,13 @@ void wv::SDLDeviceContext::swapBuffers()
 void wv::SDLDeviceContext::onResize( int _width, int _height )
 {
 	DeviceContext::onResize( _width, _height );
+}
+
+void wv::SDLDeviceContext::setSize( int _width, int _height )
+{
+	DeviceContext::setSize( _width, _height );
+
+	SDL_SetWindowSize( m_windowContext, _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -18,10 +18,6 @@
 #ifdef WV_GLFW_SUPPORTED
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
-	/// TODO: move to application?
-	if ( _key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS )
-		glfwSetWindowShouldClose( _window, true );
-	
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;
@@ -143,6 +139,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, _desc->graphicsApiVersion.major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, _desc->graphicsApiVersion.minor );
+	glfwWindowHint( GLFW_RESIZABLE, _desc->allowResize );
 
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glfwGetVersionString() );
@@ -219,6 +216,14 @@ void wv::GLFWDeviceContext::swapBuffers()
 void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
 	DeviceContext::onResize( _width, _height );
+}
+
+void wv::GLFWDeviceContext::setSize( int _width, int _height )
+{
+	DeviceContext::setSize( _width, _height );
+#ifdef WV_GLFW_SUPPORTED
+	glfwSetWindowSize( m_windowContext, _width, _height );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

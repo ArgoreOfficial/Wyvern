@@ -89,7 +89,7 @@ void wv::Model::draw( DeviceContext* _context, GraphicsDevice* _device )
 {
 	m_material->setAsActive( _device ); /// TODO: somewhere else
 
-	m_material->instanceCallback( this );
+	m_material->instanceCallback( m_mesh );
 	_device->draw( m_mesh );
 
 	Node::draw( _context, _device ); // draw chldren

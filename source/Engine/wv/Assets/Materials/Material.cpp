@@ -4,17 +4,17 @@
 #include <wv/Assets/Texture.h>
 #include <wv/Camera/ICamera.h>
 #include <wv/Device/GraphicsDevice.h>
+#include <wv/Math/Transform.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Pipeline/Pipeline.h>
-#include <wv/Scene/Model.h>
+#include <wv/Primitive/Mesh.h>
 
 #include <glm/glm.hpp>
+
 #include <wv/Auxiliary/fkYAML/node.hpp>
 
-bool wv::Material::load( const char* _path )
+bool wv::Material::loadFromFile( const char* _path )
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
 	wv::MemoryDevice mdevice;
 	
 	std::string path = std::string{ "res/materials/" } + _path + ".wmat";
@@ -23,23 +23,46 @@ bool wv::Material::load( const char* _path )
 	if ( yaml == "" )
 		return false;
 
-	fkyaml::node root = fkyaml::node::deserialize( yaml );
+	return loadFromSource( yaml );
+}
+
+bool wv::Material::loadFromSource( const std::string& _source )
+{
+	wv::Application* app = wv::Application::get();
+	wv::GraphicsDevice* device = app->device;
+	wv::MemoryDevice mdevice;
+
+	fkyaml::node root = fkyaml::node::deserialize( _source );
 	std::string shader = root[ "shader" ].get_value<std::string>();
 
 	m_pipeline = Pipeline::loadFromFile( "res/shaders/" + shader + ".wshader" );
 
-	for ( auto& textureFile : root[ "textures" ] )
+	if ( root[ "textures" ].is_sequence() )
 	{
-		std::string texturePath = "res/textures/" + textureFile[ 1 ].get_value<std::string>();
-		TextureMemory* texMem = mdevice.loadTextureData( texturePath.c_str() );
-		TextureDesc texDesc; 
+		for ( auto& textureFile : root[ "textures" ] )
+		{
+			std::string texturePath = "res/textures/" + textureFile[ 1 ].get_value<std::string>();
+			TextureMemory* texMem = mdevice.loadTextureData( texturePath.c_str() );
+			TextureDesc texDesc;
+			texDesc.memory = texMem;
+			//texDesc.generateMipMaps = true;
+
+			Texture* tex = device->createTexture( &texDesc );
+			if ( tex )
+				m_textures.push_back( tex );
+
+			mdevice.unloadMemory( texMem );
+		}
+	}
+	else
+	{
+		TextureMemory* texMem = mdevice.loadTextureData( "res/textures/uv.png" );
+		TextureDesc texDesc;
 		texDesc.memory = texMem;
-		//texDesc.generateMipMaps = true;
-		
-		Texture* tex = device->createTexture(&texDesc);
+		Texture* tex = device->createTexture( &texDesc );
 		if ( tex )
 			m_textures.push_back( tex );
-		
+
 		mdevice.unloadMemory( texMem );
 	}
 
@@ -55,7 +78,7 @@ void wv::Material::destroy()
 		device->destroyTexture( &m_textures[ i ] );
 	m_textures.clear();
 
-	/// TODO: unload pipeline?
+	device->destroyPipeline( &m_pipeline );
 }
 
 void wv::Material::setAsActive( GraphicsDevice* _device )
@@ -85,7 +108,7 @@ void wv::Material::materialCallback()
 		app->device->bindTextureToSlot( m_textures[ i ], i );
 }
 
-void wv::Material::instanceCallback( Node* _instance )
+void wv::Material::instanceCallback( Mesh* _instance )
 {
 	wv::Application* app = wv::Application::get();
 	wv::DeviceContext* ctx = app->context;
@@ -93,6 +116,5 @@ void wv::Material::instanceCallback( Node* _instance )
 	// model transform
 	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];
 
-	Model* mesh = reinterpret_cast<Model*>( _instance );
-	instanceBlock.set( "u_Model", mesh->m_transform.getMatrix() );
+	instanceBlock.set( "u_Model", _instance->transform.getMatrix() );
 }

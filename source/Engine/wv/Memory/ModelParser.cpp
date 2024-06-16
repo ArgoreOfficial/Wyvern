@@ -2,15 +2,16 @@
 
 #include <wv/Application/Application.h>
 #include <wv/Assets/Materials/Material.h>
-
+#include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
-
+#include <wv/Math/Triangle.h>
 #include <wv/Memory/MemoryDevice.h>
+
 #include <fstream>
 
 #ifdef EMSCRIPTEN
-#define LOAD_WPR
+//#define LOAD_WPR
 #endif
 
 #ifndef LOAD_WPR
@@ -18,17 +19,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #endif
-
-#include <wv/Debug/Print.h>
-
-struct Vertex
-{
-	wv::Vector3f position;
-	wv::Vector3f normal;
-	wv::Vector3f tangent;
-	wv::Vector4f color;
-	wv::Vector2f texCoord0;
-};
 
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
@@ -45,13 +35,13 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 {
 	wv::GraphicsDevice* device = wv::Application::get()->device;
 
-	std::vector<Vertex> vertices;
+	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	
 	// process vertices
 	for ( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )
 	{
-		Vertex v;
+		wv::Vertex v;
 		v.position.x = _assimp_mesh->mVertices[ i ].x;
 		v.position.y = _assimp_mesh->mVertices[ i ].y;
 		v.position.z = _assimp_mesh->mVertices[ i ].z;
@@ -84,6 +74,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 			v.texCoord0 = { texcoord[ i ].x, texcoord[ i ].y };
 			
 		}
+
 		vertices.push_back( v );
 	}
 
@@ -92,6 +83,16 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	{
 		aiFace face = _assimp_mesh->mFaces[ i ];
 
+		if ( face.mNumIndices == 3 )
+		{
+			wv::Triangle3f triangle{
+				vertices[ face.mIndices[ 0 ] ].position,
+				vertices[ face.mIndices[ 1 ] ].position,
+				vertices[ face.mIndices[ 2 ] ].position
+			};
+			_mesh->triangles.push_back( triangle );
+		}
+		
 		for ( unsigned int j = 0; j < face.mNumIndices; j++ )
 			indices.push_back( face.mIndices[ j ] );
 	}
@@ -112,7 +113,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.layout = &layout;
 
 	prDesc.vertexBuffer     = vertices.data();
-	prDesc.vertexBufferSize = (unsigned int)(vertices.size() * sizeof( Vertex ));
+	prDesc.vertexBufferSize = (unsigned int)(vertices.size() * sizeof( wv::Vertex ));
 	prDesc.numVertices      = (unsigned int)vertices.size();
 
 	prDesc.indexBuffer     = indices.data();
@@ -124,15 +125,13 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
-		printf( " Model Material :: %s\n", assimpMaterial->GetName().C_Str() );
 		
 		wv::Material* material = new wv::Material();
-		bool res = material->load( assimpMaterial->GetName().C_Str() );
-		if ( !res )
+		wv::MemoryDevice md;
+		if ( md.fileExists( assimpMaterial->GetName().C_Str() ) )
+			 material->loadFromFile( assimpMaterial->GetName().C_Str() );
+		else
 		{
-			std::string matFilePath = std::string( "res/materials/" ) + assimpMaterial->GetName().C_Str() + ".wmat";
-			std::ofstream matFile( matFilePath );
-			
 			std::string matsrc =
 				"shader: \"unlit\"\n"
 				"textures:\n";
@@ -151,10 +150,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 				}
 			}
 
-			matFile << matsrc;
-			matFile.close();
-
-			material->load( assimpMaterial->GetName().C_Str() );
+			material->loadFromSource( matsrc.c_str() );
 		}
 
 		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
@@ -170,7 +166,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		primitive->material = material;
 	}
 
-
+	/*
 	std::ofstream wprfile( _mesh->name + ".wpr", std::ios::binary );
 	wprfile.write( (char*)&prDesc.numIndices, sizeof( unsigned int ) );
 	wprfile.write( (char*)&prDesc.numVertices, sizeof( unsigned int ) );
@@ -178,6 +174,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	wprfile.write( (char*)indices.data(), prDesc.indexBufferSize );
 	wprfile.write( (char*)vertices.data(), prDesc.vertexBufferSize);
 	wprfile.close();
+	*/
 }
 
 void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
@@ -209,7 +206,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		return nullptr;
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
 	
 	md.unloadMemory( meshMem );
 

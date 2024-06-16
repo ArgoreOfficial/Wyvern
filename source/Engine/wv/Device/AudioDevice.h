@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Audio/Audio.h>
+#include <wv/Math/Vector3.h>
 
 namespace wv
 {
@@ -29,6 +30,10 @@ namespace wv
 
 		bool isEnabled() { return m_enabled; }
 		bool isUnlocked() { return m_unlocked; }
+
+		void setListenerPosition( Vector3f _position );
+		void setListenerDirection( Vector3f _direction );
+
 	private:
 
 		friend void InternalAudio::onNotif( const ma_device_notification* pNotification );
