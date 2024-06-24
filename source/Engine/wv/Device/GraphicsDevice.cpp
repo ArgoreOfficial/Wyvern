@@ -425,8 +425,8 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 {
 	Texture* texture = new Texture();
 
-	GLenum internalFormat = GL_R8;
-	GLenum format = GL_RED;
+	GLenum internalFormat = GL_NONE;
+	GLenum format = GL_NONE;
 
 	unsigned char* data = nullptr;
 	if ( _desc->memory )
@@ -484,10 +484,13 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-	GLenum filter = GL_NEAREST;
-	if ( _desc->memory )
-		filter = GL_LINEAR;
-
+	GLenum filter = GL_NONE;
+	switch ( _desc->filtering )
+	{
+	case WV_TEXTURE_FILTER_NEAREST: filter = GL_NEAREST; break;
+	case WV_TEXTURE_FILTER_LINEAR:  filter = GL_LINEAR; break;
+	}
+	
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
 	

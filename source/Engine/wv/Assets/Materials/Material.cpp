@@ -50,6 +50,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 			TextureDesc texDesc;
 			texDesc.memory = texMem;
 			//texDesc.generateMipMaps = true;
+			texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
 
 			Texture* tex = device->createTexture( &texDesc );
 			if ( tex )
@@ -63,6 +64,8 @@ bool wv::Material::loadFromSource( const std::string& _source )
 		TextureMemory* texMem = mdevice.loadTextureData( "res/textures/uv.png" );
 		TextureDesc texDesc;
 		texDesc.memory = texMem;
+		texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
+
 		Texture* tex = device->createTexture( &texDesc );
 		if ( tex )
 			m_textures.push_back( tex );

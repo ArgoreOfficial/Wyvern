@@ -26,10 +26,17 @@ namespace wv
 		WV_TEXTURE_FORMAT_FLOAT
 	};
 
+	enum TextureFiltering
+	{
+		WV_TEXTURE_FILTER_NEAREST,
+		WV_TEXTURE_FILTER_LINEAR,
+	};
+
 	struct TextureDesc
 	{
 		TextureChannels channels = WV_TEXTURE_CHANNELS_RGB;
 		TextureFormat format = WV_TEXTURE_FORMAT_BYTE;
+		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
 		int width = 0;
 		int height = 0;
 		TextureMemory* memory = nullptr;
