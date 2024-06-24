@@ -61,7 +61,7 @@ void StateGame::update( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void StateGame::draw( wv::GraphicsDevice* _device )
+void StateGame::draw( wv::iGraphicsDevice* _device )
 {
 	if( m_currentScene )
 		m_currentScene->draw( _device );

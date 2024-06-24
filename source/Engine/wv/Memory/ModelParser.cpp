@@ -1,6 +1,6 @@
 #include "ModelParser.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
@@ -37,7 +37,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh )
 {
-	wv::GraphicsDevice* device = wv::Application::get()->device;
+	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -226,7 +226,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		return nullptr;
 	}
 
-	wv::GraphicsDevice* device = wv::Application::get()->device;
+	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
 	Mesh* mesh = device->createMesh( nullptr );
 	mesh->name = _path;
 	processAssimpNode( scene->mRootNode, scene, mesh );
@@ -288,7 +288,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		prDesc.numIndices = numIndices;
 	}
 
-	Application* app = Application::get();
+	cEngine* app = cEngine::get();
 	Mesh* mesh = app->device->createMesh( nullptr );
 	Primitive* prm = app->device->createPrimitive( &prDesc, mesh );
 	

@@ -67,7 +67,7 @@ namespace wv
 			}
 		}
 
-		virtual void draw( GraphicsDevice* _device ) = 0;
+		virtual void draw( iGraphicsDevice* _device ) = 0;
 
 		inline void switchToScene( const std::string& _name )
 		{

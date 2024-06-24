@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Events/IMouseListener.h>
-#include <wv/Events/IInputListener.h>
+#include <wv/Events/MouseListener.h>
+#include <wv/Events/InputListener.h>
 #include <wv/Math/Vector2.h>
 
 namespace wv
@@ -9,8 +9,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class DeviceContext;
-	class GraphicsDevice;
+	class iDeviceContext;
+	class iGraphicsDevice;
 	class AudioDevice;
 
 	class Mesh;
@@ -42,13 +42,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Application : IMouseListener, IInputListener
+	class cEngine : IMouseListener, IInputListener
 	{
 
 	public:
 
-		Application( ApplicationDesc* _desc );
-		static Application* get();
+		cEngine( ApplicationDesc* _desc );
+		static cEngine* get();
 
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
@@ -71,8 +71,8 @@ namespace wv
 		RenderTarget* m_gbuffer          = nullptr;
 
 		// engine
-		DeviceContext*  context = nullptr;
-		GraphicsDevice* device  = nullptr;
+		iDeviceContext*  context = nullptr;
+		iGraphicsDevice* device  = nullptr;
 		AudioDevice*    audio   = nullptr;
 
 		// camera 
@@ -115,7 +115,7 @@ namespace wv
 		 * this will have to change in case multiple applications 
 		 * are to be supported
 		 */
-		static inline Application* s_instance = nullptr; 
+		static inline cEngine* s_instance = nullptr; 
 
 		wv::Vector2i m_mousePosition;
 

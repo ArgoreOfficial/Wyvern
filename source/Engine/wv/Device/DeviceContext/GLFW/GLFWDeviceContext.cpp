@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 
-#include <wv/Application/Application.h>
-#include <wv/Events/IInputListener.h>
-#include <wv/Events/IMouseListener.h>
+#include <wv/Engine/Engine.h>
+#include <wv/Events/InputListener.h>
+#include <wv/Events/MouseListener.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -40,7 +40,7 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 
 	mouseEvent.position = wv::Vector2i{ (int)xpos, (int)ypos };
 
-	wv::Vector2i oldPos = wv::Application::get()->getMousePosition();
+	wv::Vector2i oldPos = wv::cEngine::get()->getMousePosition();
 	mouseEvent.delta = wv::Vector2i{ (int)xpos - oldPos.x, (int)ypos - oldPos.y };
 	
 	wv::IMouseListener::invoke( mouseEvent );
@@ -77,7 +77,7 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 #ifdef WV_GLFW_SUPPORTED
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
-	wv::Application::get()->onResize( _width, _height );
+	wv::cEngine::get()->onResize( _width, _height );
 }
 #endif
 
@@ -225,14 +225,14 @@ void wv::GLFWDeviceContext::swapBuffers()
 
 void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
-	DeviceContext::onResize( _width, _height );
+	iDeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::setSize( int _width, int _height )
 {
-	DeviceContext::setSize( _width, _height );
+	iDeviceContext::setSize( _width, _height );
 #ifdef WV_GLFW_SUPPORTED
 	glfwSetWindowSize( m_windowContext, _width, _height );
 #endif

@@ -1,6 +1,6 @@
 #include "SceneGame.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
@@ -27,7 +27,7 @@ DefaultScene::~DefaultScene()
 
 void DefaultScene::onLoad()
 {
-	wv::Application* app = wv::Application::get();
+	wv::cEngine* app = wv::cEngine::get();
 	
 	wv::assimp::Parser parser;
 	m_skybox = parser.load( "res/meshes/skysphere.dae" );
@@ -48,8 +48,8 @@ void DefaultScene::onUnload()
 {
 	unsubscribeInputEvent();
 	
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
+	wv::cEngine* app = wv::cEngine::get();
+	wv::iGraphicsDevice* device = app->device;
 
 	device->destroyMesh( &m_skybox );
 	m_skyMaterial->destroy();
@@ -74,20 +74,20 @@ void DefaultScene::onDestroy()
 void DefaultScene::onInputEvent( wv::InputEvent _event )
 {
 	if ( _event.buttondown && _event.key == SDLK_ESCAPE )
-		wv::Application::get()->quit();
+		wv::cEngine::get()->quit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void DefaultScene::update( double _deltaTime )
 {
-	wv::Application* app = wv::Application::get();
+	wv::cEngine* app = wv::cEngine::get();
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void DefaultScene::draw( wv::GraphicsDevice* _device )
+void DefaultScene::draw( wv::iGraphicsDevice* _device )
 {
 	/// TODO: remove raw gl calls
 	glDepthMask( GL_FALSE );

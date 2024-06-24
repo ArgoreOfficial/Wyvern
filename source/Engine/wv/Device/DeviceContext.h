@@ -31,12 +31,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class DeviceContext
+	class iDeviceContext
 	{
 
 	public:
 
-		static DeviceContext* getDeviceContext( ContextDesc* _desc );
+		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
 
 		virtual void terminate() = 0;
 		virtual GraphicsDriverLoadProc getLoadProc() = 0;

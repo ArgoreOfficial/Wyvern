@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 
-#include <wv/Application/Application.h>
-#include <wv/Events/IInputListener.h>
-#include <wv/Events/IMouseListener.h>
+#include <wv/Engine/Engine.h>
+#include <wv/Events/InputListener.h>
+#include <wv/Events/MouseListener.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -18,7 +18,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
+void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 {
 	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _event->type == SDL_KEYDOWN;
@@ -36,7 +36,7 @@ void keyCallback( wv::DeviceContext* _device, SDL_KeyboardEvent* _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void mouseCallback( wv::DeviceContext* _device, SDL_MouseMotionEvent* _event )
+void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
 	wv::MouseEvent mouseEvent;
 	
@@ -48,7 +48,7 @@ void mouseCallback( wv::DeviceContext* _device, SDL_MouseMotionEvent* _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void mouseButtonCallback( wv::DeviceContext* _device, SDL_MouseButtonEvent* _event )
+void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _event )
 {
 	wv::MouseEvent mouseEvent;
 
@@ -78,7 +78,7 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 		{
 			int w, h;
 			SDL_GetWindowSize( _window, &w, &h );
-			wv::Application::get()->onResize( w, h );
+			wv::cEngine::get()->onResize( w, h );
 		} break;
 	}
 }
@@ -229,14 +229,14 @@ void wv::SDLDeviceContext::swapBuffers()
 
 void wv::SDLDeviceContext::onResize( int _width, int _height )
 {
-	DeviceContext::onResize( _width, _height );
+	iDeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setSize( int _width, int _height )
 {
-	DeviceContext::setSize( _width, _height );
+	iDeviceContext::setSize( _width, _height );
 
 	SDL_SetWindowSize( m_windowContext, _width, _height );
 }

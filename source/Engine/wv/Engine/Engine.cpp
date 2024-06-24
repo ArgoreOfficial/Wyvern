@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "Engine.h"
 
 #include <glad/glad.h>
 
@@ -38,7 +38,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Application::Application( ApplicationDesc* _desc )
+wv::cEngine::cEngine( ApplicationDesc* _desc )
 {
 	if ( !_desc->applicationState )
 	{
@@ -65,14 +65,14 @@ wv::Application::Application( ApplicationDesc* _desc )
 	ctxDesc.height = _desc->windowHeight;
 	ctxDesc.allowResize = _desc->allowResize;
 
-	context = wv::DeviceContext::getDeviceContext( &ctxDesc );
+	context = wv::iDeviceContext::getDeviceContext( &ctxDesc );
 
 	wv::GraphicsDeviceDesc deviceDesc;
 	deviceDesc.loadProc = context->getLoadProc();
 	deviceDesc.graphicsApi = ctxDesc.graphicsApi; // must be same as context
 	deviceDesc.graphicsApiVersion = ctxDesc.graphicsApiVersion; // must be same as context
 
-	device = wv::GraphicsDevice::createGraphicsDevice( &deviceDesc );
+	device = wv::iGraphicsDevice::createGraphicsDevice( &deviceDesc );
 
 	m_defaultRenderTarget = new RenderTarget();
 	m_defaultRenderTarget->width = _desc->windowWidth;
@@ -92,7 +92,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 	}
 	
 	device->setRenderTarget( m_defaultRenderTarget );
-	device->setClearColor( wv::Colors::Black );
+	device->setClearColor( wv::Color::Black );
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 	audio = new AudioDevice( nullptr );
@@ -104,7 +104,7 @@ wv::Application::Application( ApplicationDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Application* wv::Application::get()
+wv::cEngine* wv::cEngine::get()
 {
 	return s_instance;
 }
@@ -112,7 +112,7 @@ wv::Application* wv::Application::get()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::onResize( int _width, int _height )
+void wv::cEngine::onResize( int _width, int _height )
 {
 	context->onResize( _width, _height );
 	device->onResize( _width, _height );
@@ -132,19 +132,19 @@ void wv::Application::onResize( int _width, int _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::onMouseEvent( MouseEvent _event )
+void wv::cEngine::onMouseEvent( MouseEvent _event )
 {
 	m_mousePosition = _event.position;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::onInputEvent( InputEvent _event )
+void wv::cEngine::onInputEvent( InputEvent _event )
 {
 	
 }
 
-void wv::Application::setSize( int _width, int _height, bool _notify )
+void wv::cEngine::setSize( int _width, int _height, bool _notify )
 {
 	context->setSize( _width, _height );
 	
@@ -155,12 +155,12 @@ void wv::Application::setSize( int _width, int _height, bool _notify )
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef EMSCRIPTEN
-void emscriptenMainLoop() { wv::Application::get()->tick(); }
+void emscriptenMainLoop() { wv::cEngine::get()->tick(); }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::run()
+void wv::cEngine::run()
 {
 	
 	// Subscribe to user input event
@@ -189,7 +189,7 @@ void wv::Application::run()
 	}
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop( []{ wv::Application::get()->tick(); }, 0, 1);
+	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
 	while ( context->isAlive() )
 		tick();
@@ -206,7 +206,7 @@ void wv::Application::run()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::terminate()
+void wv::cEngine::terminate()
 {
 	currentCamera = nullptr;
 	
@@ -228,7 +228,7 @@ void wv::Application::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::tick()
+void wv::cEngine::tick()
 {
 	double dt = context->getDeltaTime();
 	
@@ -299,14 +299,14 @@ void wv::Application::tick()
 	context->swapBuffers();
 }
 
-void wv::Application::quit()
+void wv::cEngine::quit()
 {
 	context->close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::createScreeQuad()
+void wv::cEngine::createScreeQuad()
 {
 	wv::InputLayoutElement elements[] = {
 		{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
@@ -347,7 +347,7 @@ void wv::Application::createScreeQuad()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Application::createGBuffer()
+void wv::cEngine::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
 	//rtDesc.width  = context->getWidth();

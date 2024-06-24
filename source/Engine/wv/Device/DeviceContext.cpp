@@ -5,7 +5,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::DeviceContext* wv::DeviceContext::getDeviceContext( ContextDesc* _desc )
+wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 {
 	switch ( _desc->deviceApi )
 	{
@@ -18,7 +18,7 @@ wv::DeviceContext* wv::DeviceContext::getDeviceContext( ContextDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::DeviceContext::setSize( int _width, int _height )
+void wv::iDeviceContext::setSize( int _width, int _height )
 {
 	m_width = _width;
 	m_height = _height;

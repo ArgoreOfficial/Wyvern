@@ -1,6 +1,6 @@
 #include "Model.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
@@ -21,7 +21,7 @@ wv::Model::Model( const uint64_t& _uuid, const std::string& _name ) : Node{ _uui
 wv::Model::~Model()
 {
 	/// TODO: better cleanup
-	// wv::Application::get()->device->destroyPrimitive( &m_primitive ); // ew
+	// wv::cEngine::get()->device->destroyPrimitive( &m_primitive ); // ew
 
 }
 
@@ -29,7 +29,7 @@ wv::Model::~Model()
 
 void wv::Model::loadMemory( const std::string& _path )
 {
-	wv::Application* app = wv::Application::get();
+	wv::cEngine* app = wv::cEngine::get();
 
 	MeshDesc meshDesc;
 	m_mesh = app->device->createMesh( &meshDesc );
@@ -97,7 +97,7 @@ void wv::Model::update( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Model::draw( DeviceContext* _context, GraphicsDevice* _device )
+void wv::Model::draw( iDeviceContext* _context, iGraphicsDevice* _device )
 {
 	m_material->setAsActive( _device ); /// TODO: somewhere else
 

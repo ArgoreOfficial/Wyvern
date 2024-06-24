@@ -1,5 +1,5 @@
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <App/StateGame.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ int main()
 	appDesc.applicationState = new StateGame();
 	appDesc.allowResize = false;
 
-	wv::Application* app = new wv::Application( &appDesc );
+	wv::cEngine* app = new wv::cEngine( &appDesc );
 	app->run();
 	app->terminate();
 }

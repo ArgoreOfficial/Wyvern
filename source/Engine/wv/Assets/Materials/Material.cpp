@@ -1,6 +1,6 @@
 #include "Material.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Assets/Texture.h>
 #include <wv/Camera/ICamera.h>
 #include <wv/Device/GraphicsDevice.h>
@@ -32,8 +32,8 @@ bool wv::Material::loadFromFile( const char* _path )
 
 bool wv::Material::loadFromSource( const std::string& _source )
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
+	wv::cEngine* app = wv::cEngine::get();
+	wv::iGraphicsDevice* device = app->device;
 	wv::MemoryDevice mdevice;
 
 	fkyaml::node root = fkyaml::node::deserialize( _source );
@@ -80,7 +80,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 
 void wv::Material::destroy()
 {
-	wv::GraphicsDevice* device = wv::Application::get()->device;
+	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
 
 	/// TODO: move to some resource/texture manager
 	for ( int i = 0; i < (int)m_textures.size(); i++ )
@@ -92,7 +92,7 @@ void wv::Material::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::setAsActive( GraphicsDevice* _device )
+void wv::Material::setAsActive( iGraphicsDevice* _device )
 {
 	_device->setActivePipeline( m_pipeline );
 	materialCallback();
@@ -102,8 +102,8 @@ void wv::Material::setAsActive( GraphicsDevice* _device )
 
 void wv::Material::materialCallback()
 {
-	wv::Application* app = wv::Application::get();
-	wv::DeviceContext* ctx = app->context;
+	wv::cEngine* app = wv::cEngine::get();
+	wv::iDeviceContext* ctx = app->context;
 
 	// camera transorm
 	wv::UniformBlock& block = m_pipeline->uniformBlocks[ "UbInstanceData" ];
@@ -125,8 +125,8 @@ void wv::Material::materialCallback()
 
 void wv::Material::instanceCallback( Mesh* _instance )
 {
-	wv::Application* app = wv::Application::get();
-	wv::DeviceContext* ctx = app->context;
+	wv::cEngine* app = wv::cEngine::get();
+	wv::iDeviceContext* ctx = app->context;
 
 	// model transform
 	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];

@@ -38,15 +38,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class GraphicsDevice /// TODO: make IGraphicsDevice?
+	class iGraphicsDevice
 	{
 	public:
 
-		static inline GraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc )
+		static inline iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc )
 		{
 			/// TODO: different backends
 
-			return new GraphicsDevice( _desc );
+			return new iGraphicsDevice( _desc );
 		}
 
 		void terminate();
@@ -58,7 +58,7 @@ namespace wv
 		void destroyRenderTarget( RenderTarget** _renderTarget );
 
 		void setRenderTarget( RenderTarget* _target );
-		void setClearColor( const wv::Color& _color );
+		void setClearColor( const wv::cColor& _color );
 		void clearRenderTarget( bool _color, bool _depth );
 
 		Pipeline* createPipeline( PipelineDesc* _desc );
@@ -91,7 +91,7 @@ namespace wv
 
 		void createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc );
 
-		GraphicsDevice( GraphicsDeviceDesc* _desc );
+		iGraphicsDevice( GraphicsDeviceDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;

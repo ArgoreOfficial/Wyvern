@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::initDebugDraw( GraphicsDevice* _device )
+void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _device )
 {
 	wv::assimp::Parser parser;
 	DEBUG_MATERIAL = new Material();
@@ -25,7 +25,7 @@ void wv::Debug::Draw::Internal::initDebugDraw( GraphicsDevice* _device )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::drawDebug( GraphicsDevice* _device )
+void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _device )
 {
 	for ( int i = 0; i < spheres.size(); i++ )
 	{

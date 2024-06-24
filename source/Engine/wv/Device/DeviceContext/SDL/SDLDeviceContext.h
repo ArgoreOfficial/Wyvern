@@ -17,7 +17,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class SDLDeviceContext : public DeviceContext
+	class SDLDeviceContext : public iDeviceContext
 	{
 
 	public:
@@ -38,7 +38,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
-		friend class DeviceContext;
+		friend class iDeviceContext;
 		SDLDeviceContext( ContextDesc* _desc );
 		
 		SDL_Window* m_windowContext = nullptr;

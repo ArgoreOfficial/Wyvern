@@ -45,7 +45,7 @@ namespace wv
 
 	public:
 
-		friend class GraphicsDevice;
+		friend class iGraphicsDevice;
 
 		UniformBlock() { }
 		

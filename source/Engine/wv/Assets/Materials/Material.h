@@ -11,7 +11,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Pipeline;
-	class GraphicsDevice;
+	class iGraphicsDevice;
 	class Mesh;
 	class Texture;
 
@@ -26,7 +26,7 @@ namespace wv
 		bool loadFromSource( const std::string& _source );
 		virtual void destroy();
 
-		void setAsActive( GraphicsDevice* _device );
+		void setAsActive( iGraphicsDevice* _device );
 
 		virtual void materialCallback();
 		virtual void instanceCallback( Mesh* _instance );

@@ -18,7 +18,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
+wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 
@@ -56,27 +56,27 @@ wv::GraphicsDevice::GraphicsDevice( GraphicsDeviceDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::terminate()
+void wv::iGraphicsDevice::terminate()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::onResize( int _width, int _height )
+void wv::iGraphicsDevice::onResize( int _width, int _height )
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::setViewport( int _width, int _height )
+void wv::iGraphicsDevice::setViewport( int _width, int _height )
 {
 	glViewport( 0, 0, _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
+wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
 	RenderTarget* target = new RenderTarget();
 	
@@ -143,7 +143,7 @@ wv::RenderTarget* wv::GraphicsDevice::createRenderTarget( RenderTargetDesc* _des
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
+void wv::iGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
 	RenderTarget* rt = *_renderTarget;
 
@@ -156,7 +156,7 @@ void wv::GraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
+void wv::iGraphicsDevice::setRenderTarget( RenderTarget* _target )
 {
 	unsigned int handle = 0;
 	if ( _target )
@@ -171,21 +171,21 @@ void wv::GraphicsDevice::setRenderTarget( RenderTarget* _target )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::setClearColor( const wv::Color& _color )
+void wv::iGraphicsDevice::setClearColor( const wv::cColor& _color )
 {
 	glClearColor( _color.r, _color.g, _color.b, _color.a );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::clearRenderTarget( bool _color, bool _depth )
+void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
 	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
+wv::Pipeline* wv::iGraphicsDevice::createPipeline( PipelineDesc* _desc )
 {
 	wv::Pipeline* pipeline = new wv::Pipeline();
 
@@ -252,7 +252,7 @@ wv::Pipeline* wv::GraphicsDevice::createPipeline( PipelineDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
+void wv::iGraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 {
 	
 	std::string key = "";
@@ -277,7 +277,7 @@ void wv::GraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
+wv::Pipeline* wv::iGraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
 		return nullptr;
@@ -287,7 +287,7 @@ wv::Pipeline* wv::GraphicsDevice::getPipeline( const char* _name )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
+wv::Mesh* wv::iGraphicsDevice::createMesh( MeshDesc* _desc )
 {
 	Mesh* mesh = new Mesh();
 	/// TODO: remove?
@@ -296,7 +296,7 @@ wv::Mesh* wv::GraphicsDevice::createMesh( MeshDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
+void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh\n" );
 
@@ -309,7 +309,7 @@ void wv::GraphicsDevice::destroyMesh( Mesh** _mesh )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
+void wv::iGraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 {
 	if ( _pipeline == m_activePipeline )
 		return;
@@ -323,7 +323,7 @@ void wv::GraphicsDevice::setActivePipeline( Pipeline* _pipeline )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
+wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
 	Primitive* primitive = new Primitive();
 	glGenVertexArrays( 1, &primitive->vaoHandle );
@@ -409,7 +409,7 @@ wv::Primitive* wv::GraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
+void wv::iGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
 	Primitive* pr = *_primitive;
 	glDeleteBuffers( 1, &pr->eboHandle );
@@ -421,7 +421,7 @@ void wv::GraphicsDevice::destroyPrimitive( Primitive** _primitive )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
+wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 {
 	Texture* texture = new Texture();
 
@@ -526,7 +526,7 @@ wv::Texture* wv::GraphicsDevice::createTexture( TextureDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::destroyTexture( Texture** _texture )
+void wv::iGraphicsDevice::destroyTexture( Texture** _texture )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
 
@@ -537,7 +537,7 @@ void wv::GraphicsDevice::destroyTexture( Texture** _texture )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
+void wv::iGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
@@ -553,7 +553,7 @@ void wv::GraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::draw( Mesh* _mesh )
+void wv::iGraphicsDevice::draw( Mesh* _mesh )
 {
 	if ( !_mesh )
 		return;
@@ -572,7 +572,7 @@ void wv::GraphicsDevice::draw( Mesh* _mesh )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
+void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->vaoHandle );
 	
@@ -600,7 +600,7 @@ void wv::GraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
+wv::Handle wv::iGraphicsDevice::createShader( ShaderSource* _desc )
 {
 	int  success;
 	char infoLog[ 512 ];
@@ -648,7 +648,7 @@ wv::Handle wv::GraphicsDevice::createShader( ShaderSource* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
+wv::Handle wv::iGraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 {
 	int  success;
 	char infoLog[ 512 ];
@@ -673,7 +673,7 @@ wv::Handle wv::GraphicsDevice::createProgram( ShaderProgramDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
+void wv::iGraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
 {
 	UniformBlock block;
 

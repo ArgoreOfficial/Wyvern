@@ -1,7 +1,7 @@
 #include "FreeflightCamera.h"
 
 #include <wv/Device/DeviceContext.h>
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 
 #include <SDL2/SDL_keycode.h> /// TODO: remove
 
@@ -32,7 +32,7 @@ void wv::FreeflightCamera::onCreate()
 
 void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
-	wv::DeviceContext* ctx = wv::Application::get()->context;
+	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 	
 	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 	{

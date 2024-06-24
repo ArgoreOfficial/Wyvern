@@ -14,7 +14,7 @@ namespace wv
 
 	class Mesh;
 	class Material;
-	class GraphicsDevice;
+	class iGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,8 +34,8 @@ namespace wv
 			static std::vector<Sphere> spheres;
 			static std::vector<Transformf> cubes;
 
-			void initDebugDraw( GraphicsDevice* _device );
-			void drawDebug( GraphicsDevice* _device );
+			void initDebugDraw( iGraphicsDevice* _device );
+			void drawDebug( iGraphicsDevice* _device );
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////

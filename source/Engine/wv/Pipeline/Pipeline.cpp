@@ -1,6 +1,6 @@
 #include "Pipeline.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Auxiliary/fkYAML/node.hpp>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
@@ -10,8 +10,8 @@
 
 wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 {
-	wv::Application* app = wv::Application::get();
-	wv::GraphicsDevice* device = app->device;
+	wv::cEngine* app = wv::cEngine::get();
+	wv::iGraphicsDevice* device = app->device;
 
 	MemoryDevice md;
 

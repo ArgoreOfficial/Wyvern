@@ -9,7 +9,7 @@ namespace wv
 
 	class Mesh;
 	class Material;
-	class GraphicsDevice;
+	class iGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ namespace wv
 		static Sprite* create( SpriteDesc* _desc );
 
 		Transformf& getTransform() { return m_transform; }
-		void draw( GraphicsDevice* _device );
+		void draw( iGraphicsDevice* _device );
 		Material* getMaterial() { return m_material; }
 
 ///////////////////////////////////////////////////////////////////////////////////////

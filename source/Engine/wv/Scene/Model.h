@@ -28,7 +28,7 @@ namespace wv
 
 		void loadMemory( const std::string& _path );
 		virtual void update( double _deltaTime ) override;
-		virtual void draw  ( DeviceContext* _context, GraphicsDevice* _device ) override;
+		virtual void draw  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
 		Material* m_material; /// TODO: change to index?
 

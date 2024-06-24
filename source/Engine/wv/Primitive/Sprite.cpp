@@ -1,6 +1,6 @@
 #include "Sprite.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Assets/Materials/Material.h>
@@ -30,7 +30,7 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Sprite::draw( GraphicsDevice* _device )
+void wv::Sprite::draw( iGraphicsDevice* _device )
 {
 	if ( !Internal::S_SPRITE_QUAD )
 		return;
@@ -45,7 +45,7 @@ void wv::Sprite::draw( GraphicsDevice* _device )
 
 void wv::Sprite::createQuad()
 {
-	wv::Application* app = wv::Application::get();
+	wv::cEngine* app = wv::cEngine::get();
 
 	Internal::S_SPRITE_QUAD = new wv::Mesh();
 	{

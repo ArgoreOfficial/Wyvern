@@ -1,6 +1,6 @@
 #include "AudioDevice.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Debug/Print.h>
 #include <string>
 
@@ -25,7 +25,7 @@ wv::AudioDevice::AudioDevice( AudioDeviceDesc* _desc )
 void wv::InternalAudio::onNotif( const ma_device_notification* pNotification )
 {
 	if ( pNotification->type == ma_device_notification_type::ma_device_notification_type_unlocked )
-		wv::Application::get()->audio->m_unlocked = true;
+		wv::cEngine::get()->audio->m_unlocked = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

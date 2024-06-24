@@ -27,7 +27,7 @@ public:
 	void onInputEvent( wv::InputEvent _event ) override;
 
 	void update( double _deltaTime ) override;
-	void draw( wv::GraphicsDevice* _device ) override;
+	void draw( wv::iGraphicsDevice* _device ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -13,8 +13,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class DeviceContext;
-	class GraphicsDevice;
+	class iDeviceContext;
+	class iGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace wv
 				m_children[ i ]->update( _deltaTime );
 		}
 
-		virtual void draw( DeviceContext* _context, GraphicsDevice* _device ) 
+		virtual void draw( iDeviceContext* _context, iGraphicsDevice* _device ) 
 		{
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->draw( _context, _device );

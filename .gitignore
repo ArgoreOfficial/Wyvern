@@ -7,3 +7,5 @@ obj
 .vscode
 .xmake
 vsxmake2022
+game/*.exe
+*.ilk
