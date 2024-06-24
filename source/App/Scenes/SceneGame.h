@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/Scene/Scene.h>
-#include <wv/Events/IInputListener.h>
+#include <wv/Events/InputListener.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

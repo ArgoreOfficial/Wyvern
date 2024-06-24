@@ -32,4 +32,17 @@ namespace wv
 		int numShaders;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+	class iGraphicsDevice;
+	
+	class cShader
+	{
+	public:
+		cShader( iGraphicsDevice* _graphicsDevice ) { }
+
+	private:
+	};
+
+
 }

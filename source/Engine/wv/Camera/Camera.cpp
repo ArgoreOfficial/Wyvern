@@ -1,6 +1,6 @@
-#include "ICamera.h"
+#include "Camera.h"
 
-#include <wv/Application/Application.h>
+#include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Camera/ICamera.h>
+#include <wv/Camera/Camera.h>
 
-#include <wv/Events/IMouseListener.h>
-#include <wv/Events/IInputListener.h>
+#include <wv/Events/MouseListener.h>
+#include <wv/Events/InputListener.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

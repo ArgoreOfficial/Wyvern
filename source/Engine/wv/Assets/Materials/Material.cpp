@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Assets/Texture.h>
-#include <wv/Camera/ICamera.h>
+#include <wv/Camera/Camera.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Math/Transform.h>
 #include <wv/Memory/MemoryDevice.h>
