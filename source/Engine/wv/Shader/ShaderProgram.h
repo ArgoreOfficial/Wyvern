@@ -2,6 +2,11 @@
 
 #include <wv/Types.h>
 
+#include <wv/Resource/Resource.h>
+
+#include <vector>
+#include <string>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -9,24 +14,26 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Shader;
-
+	class cShader;
+	
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct ShaderProgramDesc
+	class cShaderProgram : public iResource
 	{
-		wv::Handle* shaders;
-		int numShaders;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	class ShaderProgram
-	{
-
 	public:
+		cShaderProgram( const std::string& _name ) :
+			iResource{ _name, L"" }
+		{ }
 
-		wv::Handle handle;
+		void addShader( cShader* _shader ) { m_shaders.push_back( _shader ); }
+		
+		std::vector<cShader*> getShaders() { return m_shaders; }
+
+		void bindUniformToLoc( Uniform _uniform, int _loc );
+
+	private:
+
+		std::vector<cShader*> m_shaders;
 
 	};
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <string>
+#include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -10,7 +9,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum ShaderType
+	enum eShaderType
 	{
 		WV_SHADER_TYPE_VERTEX,
 		WV_SHADER_TYPE_FRAGMENT
@@ -18,30 +17,29 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct ShaderSource
-	{
-		ShaderType type;
-		std::string path;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct ShaderDesc
-	{
-		ShaderSource* shaders;
-		int numShaders;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 	class iGraphicsDevice;
 	
-	class cShader
+///////////////////////////////////////////////////////////////////////////////////////
+
+	class cShader : public iResource
 	{
 	public:
-		cShader( iGraphicsDevice* _graphicsDevice ) { }
+		friend class iGraphicsDevice;
+		
+		cShader( iGraphicsDevice* _pGraphicsDevice, eShaderType _type, const std::string& _name ) :
+			iResource{_name, L""},
+			m_type{_type},
+			m_pGraphicsDevice{_pGraphicsDevice}
+		{ }
+
+		void setSource( const std::string& _source ) { m_source = _source; }
+		std::string getSource( void ) { return m_source; }
 
 	private:
+		iGraphicsDevice* m_pGraphicsDevice;
+
+		eShaderType m_type;
+		std::string m_source;
 	};
 
 
