@@ -17,10 +17,10 @@
 
 bool wv::Material::loadFromFile( const char* _path )
 {
-	wv::MemoryDevice mdevice;
+	wv::cFileSystem mdevice;
 	
 	std::string path = std::string{ "res/materials/" } + _path + ".wmat";
-	std::string yaml = mdevice.loadString( path.c_str() );
+	std::string yaml = mdevice.loadString( path );
 
 	if ( yaml == "" )
 		return false;
@@ -34,7 +34,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->device;
-	wv::MemoryDevice mdevice;
+	wv::cFileSystem mdevice;
 
 	fkyaml::node root = fkyaml::node::deserialize( _source );
 	std::string shader = root[ "shader" ].get_value<std::string>();
@@ -46,7 +46,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 		for ( auto& textureFile : root[ "textures" ] )
 		{
 			std::string texturePath = "res/textures/" + textureFile[ 1 ].get_value<std::string>();
-			TextureMemory* texMem = mdevice.loadTextureData( texturePath.c_str() );
+			TextureMemory* texMem = mdevice.loadTextureData( texturePath );
 			TextureDesc texDesc;
 			texDesc.memory = texMem;
 			//texDesc.generateMipMaps = true;

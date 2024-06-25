@@ -13,9 +13,9 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->device;
 
-	MemoryDevice md;
+	cFileSystem md;
 
-	std::string yaml = md.loadString( _path.c_str() );
+	std::string yaml = md.loadString( _path );
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 
 	std::string source = root[ "source" ].get_value<std::string>();

@@ -131,7 +131,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 		
 		wv::Material* material = new wv::Material();
-		wv::MemoryDevice md;
+		wv::cFileSystem md;
 		if ( md.fileExists( assimpMaterial->GetName().C_Str() ) )
 			 material->loadFromFile( assimpMaterial->GetName().C_Str() );
 		else
@@ -207,7 +207,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 {
 
 #ifndef LOAD_WPR
-	MemoryDevice md;
+	cFileSystem md;
 	Memory* meshMem = md.loadMemory( _path );
 	
 	if ( !meshMem )
@@ -262,7 +262,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	*/
 
 	
-	MemoryDevice md;
+	cFileSystem md;
 	std::string path = std::string( _path ) + ".wpr";
 	Memory* mem = md.loadMemory( path.c_str() );
 	

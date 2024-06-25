@@ -605,8 +605,8 @@ wv::Handle wv::iGraphicsDevice::createShader( ShaderSource* _desc )
 	int  success;
 	char infoLog[ 512 ];
 
-	MemoryDevice md;
-	std::string source = md.loadString( _desc->path.c_str() );
+	cFileSystem md;
+	std::string source = md.loadString( _desc->path );
 	if ( source == "" )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Could not find shader source\n" );

@@ -33,21 +33,21 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class MemoryDevice
+	class cFileSystem
 	{
 
 	public:
 
-		~MemoryDevice();
+		~cFileSystem();
 
-		Memory* loadMemory( const char* _path );
+		Memory* loadMemory( const std::string& _path );
 		void unloadMemory( Memory* _memory );
 
-		std::string loadString( const char* _path );
+		std::string loadString( const std::string& _path );
 
-		TextureMemory* loadTextureData( const char* _path );
+		TextureMemory* loadTextureData( const std::string& _path );
 		
-		bool fileExists( const char* _path );
+		bool fileExists( const std::string& _path );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

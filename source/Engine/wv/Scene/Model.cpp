@@ -59,8 +59,8 @@ void wv::Model::loadMemory( const std::string& _path )
 	cubefile.close();
 	*/
 
-	MemoryDevice md;
-	Memory* mem = md.loadMemory( _path.c_str() );
+	cFileSystem md;
+	Memory* mem = md.loadMemory( _path );
 
 	wv::PrimitiveDesc prDesc;
 	{

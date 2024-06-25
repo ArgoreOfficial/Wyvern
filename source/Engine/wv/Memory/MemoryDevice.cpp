@@ -18,11 +18,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::MemoryDevice::~MemoryDevice()
+wv::cFileSystem::~cFileSystem()
 {
 	if ( m_loadedMemory.size() > 0 )
 	{
-		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty MemoryDevice destroyed. This may cause memory leaks\n" );
+		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty cFileSystem destroyed. This may cause memory leaks\n" );
 		while ( m_loadedMemory.size() > 0 )
 			unloadMemory( m_loadedMemory.front() );
 	}
@@ -30,12 +30,12 @@ wv::MemoryDevice::~MemoryDevice()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
+wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
 	std::ifstream in( _path, std::ios::binary );
 	if ( !in.is_open() )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load '%s'\n", _path );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load '%s'\n", _path.c_str() );
 		return {};
 	}
 
@@ -48,13 +48,13 @@ wv::Memory* wv::MemoryDevice::loadMemory( const char* _path )
 	memcpy( mem->data, buf.data(), buf.size() );
 
 	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path, mem->size );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path.c_str(), mem->size );
 	return mem;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::MemoryDevice::unloadMemory( Memory* _memory )
+void wv::cFileSystem::unloadMemory( Memory* _memory )
 {
 	if ( !_memory )
 		return;
@@ -75,7 +75,7 @@ void wv::MemoryDevice::unloadMemory( Memory* _memory )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string wv::MemoryDevice::loadString( const char* _path )
+std::string wv::cFileSystem::loadString( const std::string& _path )
 {
 	Memory* mem = loadMemory( _path );
 
@@ -89,27 +89,27 @@ std::string wv::MemoryDevice::loadString( const char* _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureMemory* wv::MemoryDevice::loadTextureData( const char* _path )
+wv::TextureMemory* wv::cFileSystem::loadTextureData( const std::string& _path )
 {
 	TextureMemory* mem = new TextureMemory();
 
 	stbi_set_flip_vertically_on_load( 0 );
-	mem->data = reinterpret_cast<uint8_t*>( stbi_load( _path, &mem->width, &mem->height, &mem->numChannels, 0 ) );
+	mem->data = reinterpret_cast<uint8_t*>( stbi_load( _path.c_str(), &mem->width, &mem->height, &mem->numChannels, 0) );
 
 	if ( !mem->data )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", _path );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", _path.c_str() );
 		unloadMemory( mem );
 		return {}; // empty memory object
 	}
 	
 	mem->size = mem->height * mem->numChannels * mem->width * mem->numChannels;
 	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path, mem->width, mem->height, mem->numChannels * 8, mem->size );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path.c_str(), mem->width, mem->height, mem->numChannels * 8, mem->size);
 	return mem;
 }
 
-bool wv::MemoryDevice::fileExists( const char* _path )
+bool wv::cFileSystem::fileExists( const std::string& _path )
 {
 	std::ifstream f( _path );
 	return f.good();
