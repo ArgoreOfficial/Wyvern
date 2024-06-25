@@ -6,7 +6,7 @@
 
 int main()
 {
-	wv::ApplicationDesc appDesc;
+	wv::EngineDesc appDesc;
 	appDesc.title = "Wyvern";
 	appDesc.vsync = true;
 	appDesc.fullscreen = false;

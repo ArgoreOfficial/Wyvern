@@ -25,7 +25,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct ApplicationDesc
+	struct EngineDesc
 	{
 		const char* title;
 		
@@ -47,7 +47,7 @@ namespace wv
 
 	public:
 
-		cEngine( ApplicationDesc* _desc );
+		cEngine( EngineDesc* _desc );
 		static cEngine* get();
 
 		void onResize( int _width, int _height );

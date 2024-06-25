@@ -38,7 +38,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cEngine::cEngine( ApplicationDesc* _desc )
+wv::cEngine::cEngine( EngineDesc* _desc )
 {
 	if ( !_desc->applicationState )
 	{
