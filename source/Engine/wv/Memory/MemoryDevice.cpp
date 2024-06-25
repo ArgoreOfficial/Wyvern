@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <wv/Debug/Print.h>
+#include <codecvt>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +92,7 @@ std::string wv::cFileSystem::loadString( const std::string& _path )
 
 wv::TextureMemory* wv::cFileSystem::loadTextureData( const std::string& _path )
 {
+	/// TODO: move stbi stuff?
 	TextureMemory* mem = new TextureMemory();
 
 	stbi_set_flip_vertically_on_load( 0 );
@@ -109,8 +111,35 @@ wv::TextureMemory* wv::cFileSystem::loadTextureData( const std::string& _path )
 	return mem;
 }
 
-bool wv::cFileSystem::fileExists( const std::string& _path )
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::cFileSystem::fileExists( const std::wstring& _path )
 {
 	std::ifstream f( _path );
 	return f.good();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::wstring wv::cFileSystem::getFullPath( const std::string& _fileName )
+{
+	std::wstring_convert<std::wstring> converter;
+	std::wstring wname = converter.from_bytes( _fileName ); // convert char string to wchar string
+
+	return getFullPath( wname );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::wstring wv::cFileSystem::getFullPath( const std::wstring& _fileName )
+{
+	for ( int i = 0; i < m_directories.size(); i++ )
+	{
+		std::wstring wpath = m_directories[ i ] + _fileName;
+
+		if ( fileExists( wpath ) )
+			return wpath;
+	}
+
+	return std::wstring();
 }

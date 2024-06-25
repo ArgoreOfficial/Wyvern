@@ -40,6 +40,8 @@ namespace wv
 
 		~cFileSystem();
 
+		void addDirectory( const std::wstring& _dir ) { m_directories.push_back( _dir ); }
+
 		Memory* loadMemory( const std::string& _path );
 		void unloadMemory( Memory* _memory );
 
@@ -47,14 +49,17 @@ namespace wv
 
 		TextureMemory* loadTextureData( const std::string& _path );
 		
-		bool fileExists( const std::string& _path );
+		bool fileExists( const std::wstring& _path );
+
+		std::wstring getFullPath( const std::string& _fileName );
+		std::wstring getFullPath( const std::wstring& _fileName );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 
 		std::vector<Memory*> m_loadedMemory;
-
+		std::vector<std::wstring> m_directories;
 	};
 
 }
