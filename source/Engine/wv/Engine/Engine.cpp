@@ -20,6 +20,7 @@
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <wv/Scene/Model.h>
+#include <wv/Shader/ShaderRegistry.h>
 #include <wv/State/State.h>
 
 #include <wv/Debug/Print.h>
@@ -45,6 +46,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
 		return;
 	}
+
+	s_instance = this;
 
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
 	wv::ContextDesc ctxDesc;
@@ -79,7 +82,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
 	
-	s_instance = this;
+
+	// create modules
+	m_pFileSystem = new cFileSystem();
+	m_pShaderRegistry = new cShaderRegistry( m_pFileSystem, device );
 
 	/* 
 	 * create deferred rendering objects

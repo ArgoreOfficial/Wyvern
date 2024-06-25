@@ -17,11 +17,13 @@ namespace wv
 	class Pipeline;
 	class ICamera;
 	class RenderTarget;
-	class MemoryDevice;
+	class cFileSystem;
 	class RootNode;
 	class Model;
 	class Material;
 	class State;
+
+	class cShaderRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -114,10 +116,17 @@ namespace wv
 		 * 
 		 * this will have to change in case multiple applications 
 		 * are to be supported
+		 * 
+		 * might remove
 		 */
 		static inline cEngine* s_instance = nullptr; 
 
 		wv::Vector2i m_mousePosition;
+
+		// modules
+		
+		cFileSystem* m_pFileSystem = nullptr;
+		cShaderRegistry* m_pShaderRegistry = nullptr;
 
 	};
 
