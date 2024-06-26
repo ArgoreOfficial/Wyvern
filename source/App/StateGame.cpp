@@ -31,6 +31,8 @@ void StateGame::onLoad()
 void StateGame::onUnload()
 {
 	// State::onUnload();
+	if ( m_currentScene )
+		m_currentScene->onUnload();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -31,11 +31,11 @@ namespace wv
 
 		void setHandle  ( const wv::Handle& _handle ) { m_handle = _handle; }
 		void setFullPath( const std::wstring& _path ) { m_path = _path; }
-
+		
 		wv::Handle   getHandle  ( void ) { return m_handle; }
 		unsigned int getNumUsers( void ) { return m_numUsers; }
 
-
+		std::string getName() { return m_name; }
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:

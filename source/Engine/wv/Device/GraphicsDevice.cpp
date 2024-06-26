@@ -184,10 +184,10 @@ void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type )
+wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type, const std::string& _name )
 {
 	
-	cShader* shader = new cShader( this, _type, "" );
+	cShader* shader = new cShader( this, _type, _name );
 
 	GLenum type = GL_NONE;
 	{
@@ -206,6 +206,14 @@ wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type )
 	
 	return shader;
 	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::destroyShader( cShader* _shader )
+{
+	glDeleteShader( _shader->getHandle() );
+	_shader->setHandle( 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +272,14 @@ wv::cShaderProgram* wv::iGraphicsDevice::createProgram()
 	program->setHandle( programHandle );
 
 	return program;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::destroyProgram( cShaderProgram* _program )
+{
+	glDeleteProgram( _program->getHandle() );
+	_program->setHandle( 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

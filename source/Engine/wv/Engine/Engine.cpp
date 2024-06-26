@@ -200,7 +200,7 @@ void wv::cEngine::run()
 		tick();
 #endif
 
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting..." );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 
 	if ( m_applicationState )
 	{
@@ -221,8 +221,13 @@ void wv::cEngine::terminate()
 	freeflightCamera = nullptr;
 
 	device->destroyMesh( &m_screenQuad );
-	//device->destroyPipeline( &m_deferredPipeline );
 	device->destroyRenderTarget( &m_gbuffer );
+	m_pShaderRegistry->unloadShaderProgram( m_deferredProgram );
+
+	// destroy modules
+	Debug::Draw::Internal::deinitDebugDraw( device );
+	delete m_pFileSystem;
+	delete m_pShaderRegistry;
 
 	context->terminate();
 	device->terminate();

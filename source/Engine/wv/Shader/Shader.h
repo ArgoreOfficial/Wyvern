@@ -32,6 +32,8 @@ namespace wv
 			m_pGraphicsDevice{_pGraphicsDevice}
 		{ }
 
+		~cShader();
+
 		void setSource( const std::string& _source ) { m_source = _source; }
 		std::string getSource( void ) { return m_source; }
 

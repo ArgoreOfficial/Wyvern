@@ -35,7 +35,7 @@ void DefaultScene::onLoad()
 
 	m_skyMaterial = new wv::Material();
 	m_skyMaterial->loadFromFile( "sky" );
-
+	// resource leak
 	if( m_skybox ) 
 		m_skybox->primitives[ 0 ]->material = m_skyMaterial;
 

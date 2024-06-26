@@ -16,23 +16,16 @@ namespace wv
 			m_pFileSystem{_fileSystem}
 		 { }
 
-		~iResourceRegistry(){ }
+		~iResourceRegistry();
 
-		iResource* getLoadedResource( const std::string& _name ) 
-		{ 
-			if ( m_resources.contains( _name ) )
-				return m_resources[ _name ];
+		iResource* getLoadedResource( const std::string& _name );
 
-			return nullptr; 
-		}
-
-		void addResource( const std::string& _name, iResource* _resource ) 
-		{ 
-			if ( !getLoadedResource( _name ) )
-				m_resources[ _name ] = _resource;
-		}
+		void addResource( const std::string& _name, iResource* _resource );
 
 	protected:
+
+		void findAndDestroyResource( iResource* _resource );
+		void destroyResource( const std::string& _name );
 
 		std::string m_name;
 

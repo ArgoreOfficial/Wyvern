@@ -26,7 +26,7 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 
 	std::string shaderSource = m_pFileSystem->loadString( _name );
 
-	shader = m_pGraphicsDevice->createShader( _type ); 
+	shader = m_pGraphicsDevice->createShader( _type, _name ); 
 	shader->setSource( shaderSource );
 	m_pGraphicsDevice->compileShader( shader );
 
@@ -86,4 +86,11 @@ wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::stri
 	m_pGraphicsDevice->linkProgram( program, blocks, textureUniforms );
 
 	return program;
+}
+
+void wv::cShaderRegistry::unloadShaderProgram( cShaderProgram* _program )
+{
+	std::vector<cShader*> shaders = _program->getShaders();
+	for ( int i = 0; i < shaders.size(); i++ )
+		findAndDestroyResource( shaders[ i ] );
 }

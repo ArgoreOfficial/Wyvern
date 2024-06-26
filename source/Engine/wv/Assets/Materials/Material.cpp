@@ -82,14 +82,15 @@ bool wv::Material::loadFromSource( const std::string& _source )
 
 void wv::Material::destroy()
 {
-	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
+	cEngine* app = cEngine::get();
+	iGraphicsDevice* device = cEngine::get()->device;
 
 	/// TODO: move to some resource/texture manager
 	for ( int i = 0; i < (int)m_textures.size(); i++ )
 		device->destroyTexture( &m_textures[ i ] );
 	m_textures.clear();
 
-	// device->destroyPipeline( &m_pipeline );
+	app->m_pShaderRegistry->unloadShaderProgram( m_program );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

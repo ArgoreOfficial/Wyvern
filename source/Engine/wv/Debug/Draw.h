@@ -35,6 +35,7 @@ namespace wv
 			static std::vector<Transformf> cubes;
 
 			void initDebugDraw( iGraphicsDevice* _device );
+			void deinitDebugDraw( iGraphicsDevice* _device );
 			void drawDebug( iGraphicsDevice* _device );
 		}
 

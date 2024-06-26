@@ -23,6 +23,14 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _device )
 	
 }
 
+void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _device )
+{
+	_device->destroyMesh( &CUBE_MESH );
+	_device->destroyMesh( &SPHERE_MESH );
+	DEBUG_MATERIAL->destroy();
+	delete DEBUG_MATERIAL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _device )

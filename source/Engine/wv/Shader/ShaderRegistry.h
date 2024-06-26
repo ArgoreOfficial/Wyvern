@@ -13,15 +13,18 @@ namespace wv
 	{
 	public:
 		cShaderRegistry( cFileSystem* _fileSystem, iGraphicsDevice* _graphicsDevice ) :
-			iResourceRegistry{"ShaderRegistry", _fileSystem} ,
+			iResourceRegistry{"ShaderRegistry", _fileSystem},
 			m_pGraphicsDevice{_graphicsDevice}
 		{ }
 
 		cShader* loadShader( eShaderType _type, const std::string& _name );
+		
 		cShaderProgram* loadProgramFromWShader( const std::string& _name );
-
+		void unloadShaderProgram( cShaderProgram* _program );
+		
 	private:
 
 		iGraphicsDevice* m_pGraphicsDevice;
+
 	};
 }

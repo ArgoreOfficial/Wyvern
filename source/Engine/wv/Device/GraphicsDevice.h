@@ -62,12 +62,15 @@ namespace wv
 		void setClearColor( const wv::cColor& _color );
 		void clearRenderTarget( bool _color, bool _depth );
 
-		cShader* createShader( eShaderType _type );
+		cShader* createShader( eShaderType _type, const std::string& _name );
+		void destroyShader( cShader* _shader );
 		void compileShader( cShader* _shader );
 
 		cShaderProgram* createProgram();
+		void destroyProgram( cShaderProgram* _program );
 		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
 		void useProgram( cShaderProgram* _program );
+
 
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
