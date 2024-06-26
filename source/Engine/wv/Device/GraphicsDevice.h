@@ -72,7 +72,6 @@ namespace wv
 		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
 		void useProgram( cShaderProgram* _program );
 
-
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
 
@@ -104,7 +103,12 @@ namespace wv
 
 		/// TODO: remove?
 		cShaderProgram* m_activeProgram = nullptr;
+		RenderTarget* m_activeRenderTarget = nullptr;
+
 		int m_numTotalUniformBlocks = 0;
+
+		std::vector<wv::Handle> m_boundTextureSlots;
+
 	};
 
 	template<typename ...Args>
