@@ -12,15 +12,15 @@ function load_platform_wasm()
 end
 
 function target_platform_wasm( target )
-    print( "target WASM" )
+    local root = "../"
     
     -- preload resource files
     target:add( "ldflags", "--embed-file game/res@/res" )
 
     -- add supports
     target:add( "deps", "GLAD" )
-    import(".platform.support.glm"   )(target)
-    import(".platform.support.libsdl")(target)
+    import(root .. "platform.support.glm"   )(target)
+    import(root .. "platform.support.libsdl")(target)
 
     target:add( "packages", "assimp" )
 end

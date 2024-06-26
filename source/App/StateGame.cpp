@@ -1,7 +1,7 @@
 #include "StateGame.h"
 
 #include <wv/Scene/Scene.h>
-#include <App/Scenes/SceneGame.h>
+#include <Scenes/SceneGame.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -6,8 +6,6 @@
 
 -- load platform dependencies and other specifics
 
-includes( "../libs/glad" )
-
 -- configure modes
 if is_mode("Debug") then
     add_defines("WV_DEBUG")
@@ -26,29 +24,25 @@ elseif is_mode("Package") then
     set_strip "all"
 end
 
--- add_requires("miniaudio") -- TODO: move
-
 -- create project
 target( PROJECT_NAME )
     set_kind "binary"
+    add_deps "Wyvern"
     
     if not is_mode("Package") then
         set_basename(PROJECT_NAME .. "_$(mode)_$(arch)")
     end
 
-    set_targetdir "../game"
-    set_objectdir "../build/obj"
-    set_runtimes( "MD" )
-
-    -- add_packages("miniaudio") -- TODO: move
+    set_targetdir "../../game"
+    set_objectdir "../../build/obj"
+    set_runtimes "MD"
 
     add_headerfiles( 
         "**.h", 
         "**.hpp" 
     )
     add_files( "**.cpp" )
-    add_includedirs( "Engine" )
-    add_includedirs( "./" )
+    add_includedirs( "../Engine", "./" )
 
     target_platform()
 target_end()
