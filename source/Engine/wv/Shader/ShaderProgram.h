@@ -4,6 +4,9 @@
 
 #include <wv/Resource/Resource.h>
 
+#include <wv/Shader/UniformBlock.h>
+#include <wv/Debug/Print.h>
+
 #include <vector>
 #include <string>
 
@@ -29,11 +32,32 @@ namespace wv
 		
 		std::vector<cShader*> getShaders() { return m_shaders; }
 
-		void bindUniformToLoc( Uniform _uniform, int _loc );
+		// void bindUniformToLoc( Uniform _uniform, int _loc );
+
+		UniformBlock* getUniformBlock( const std::string& _name )
+		{
+			if ( !m_uniformBlocks.contains( _name ) )
+				return nullptr;
+
+			return &m_uniformBlocks[ _name ];
+		}
+		/// TODO: not inline
+		void addUniformBlock( const std::string& _name, const UniformBlock& _block ) 
+		{
+			if ( !m_uniformBlocks.contains( _name ) )
+			{
+				Debug::Print( Debug::WV_PRINT_ERROR, "Uniform Block '%s' already exists\n", _name.c_str() );
+				return;
+			}
+
+			m_uniformBlocks[ _name ] = _block;
+		}
 
 	private:
 
 		std::vector<cShader*> m_shaders;
+
+		UniformBlockMap m_uniformBlocks;
 
 	};
 

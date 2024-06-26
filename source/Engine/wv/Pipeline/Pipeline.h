@@ -9,7 +9,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct ShaderSource;
+	struct ShaderSource { };
 
 	typedef void( *PipelineUniformCallback )( wv::UniformBlockMap& _uniformBlocks );
 
@@ -43,7 +43,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	/// TODO: make not public >:(((
-	class Pipeline
+	class deprecated_Pipeline
 	{
 
 	public:
@@ -51,7 +51,7 @@ namespace wv
 		uint32_t mode = 0;
 		UniformBlockMap uniformBlocks;
 		
-		static Pipeline* loadFromFile( const std::string& _path );
+		static deprecated_Pipeline* loadFromFile( const std::string& _path );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

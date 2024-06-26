@@ -15,7 +15,10 @@
 #include <vector>
 
 #include <wv/Debug/Print.h>
+
+#include <locale>
 #include <codecvt>
+#include <string>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,6 +116,12 @@ wv::TextureMemory* wv::cFileSystem::loadTextureData( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+bool wv::cFileSystem::fileExists( const std::string& _path )
+{
+	std::ifstream f( _path );
+	return f.good();
+}
+
 bool wv::cFileSystem::fileExists( const std::wstring& _path )
 {
 	std::ifstream f( _path );
@@ -123,7 +132,7 @@ bool wv::cFileSystem::fileExists( const std::wstring& _path )
 
 std::wstring wv::cFileSystem::getFullPath( const std::string& _fileName )
 {
-	std::wstring_convert<std::wstring> converter;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::wstring wname = converter.from_bytes( _fileName ); // convert char string to wchar string
 
 	return getFullPath( wname );

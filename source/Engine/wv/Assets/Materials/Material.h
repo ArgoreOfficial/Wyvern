@@ -10,7 +10,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Pipeline;
+	class cShaderProgram;
 	class iGraphicsDevice;
 	class Mesh;
 	class Texture;
@@ -35,7 +35,7 @@ namespace wv
 
 	protected:
 
-		Pipeline* m_pipeline = nullptr;
+		cShaderProgram* m_program = nullptr;
 		std::vector<Texture*> m_textures;
 
 	};

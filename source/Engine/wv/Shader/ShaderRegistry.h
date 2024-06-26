@@ -7,6 +7,7 @@
 namespace wv
 {
 	class iGraphicsDevice;
+	class cShaderProgram;
 
 	class cShaderRegistry : public iResourceRegistry
 	{
@@ -17,6 +18,7 @@ namespace wv
 		{ }
 
 		cShader* loadShader( eShaderType _type, const std::string& _name );
+		cShaderProgram* loadProgramFromWShader( const std::string& _name );
 
 	private:
 

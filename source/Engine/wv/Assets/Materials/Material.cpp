@@ -9,6 +9,8 @@
 #include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 
+#include <wv/Shader/ShaderRegistry.h>
+
 #include <glm/glm.hpp>
 
 #include <wv/Auxiliary/fkYAML/node.hpp>
@@ -39,8 +41,9 @@ bool wv::Material::loadFromSource( const std::string& _source )
 	fkyaml::node root = fkyaml::node::deserialize( _source );
 	std::string shader = root[ "shader" ].get_value<std::string>();
 
-	m_pipeline = Pipeline::loadFromFile( "res/shaders/" + shader + ".wshader" );
-
+	/// TODO: DO NOT PUBLIC JESUS
+	m_program = app->m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shader + ".wshader" );
+	
 	if ( root[ "textures" ].is_sequence() )
 	{
 		for ( auto& textureFile : root[ "textures" ] )
@@ -87,14 +90,15 @@ void wv::Material::destroy()
 		device->destroyTexture( &m_textures[ i ] );
 	m_textures.clear();
 
-	device->destroyPipeline( &m_pipeline );
+	// device->destroyPipeline( &m_pipeline );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Material::setAsActive( iGraphicsDevice* _device )
 {
-	_device->setActivePipeline( m_pipeline );
+	// _device->setActivePipeline( m_pipeline );
+	_device->useProgram( m_program );
 	materialCallback();
 }
 
@@ -106,7 +110,7 @@ void wv::Material::materialCallback()
 	wv::iDeviceContext* ctx = app->context;
 
 	// camera transorm
-	wv::UniformBlock& block = m_pipeline->uniformBlocks[ "UbInstanceData" ];
+	wv::UniformBlock& block = *m_program->getUniformBlock( "UbInstanceData" );
 
 	glm::mat4x4 projection = app->currentCamera->getProjectionMatrix();
 	glm::mat4x4 view = app->currentCamera->getViewMatrix();
@@ -129,7 +133,7 @@ void wv::Material::instanceCallback( Mesh* _instance )
 	wv::iDeviceContext* ctx = app->context;
 
 	// model transform
-	wv::UniformBlock& instanceBlock = m_pipeline->uniformBlocks[ "UbInstanceData" ];
+	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
 
 	instanceBlock.set( "u_Model", _instance->transform.getMatrix() );
 }

@@ -92,7 +92,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 * this should be configurable
 	 */
 	{ 
-		m_deferredPipeline = Pipeline::loadFromFile( "res/shaders/deferred.wshader" );
+		m_deferredProgram = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/deferred.wshader" );
 		createScreeQuad();
 		createGBuffer();
 	}
@@ -222,7 +222,7 @@ void wv::cEngine::terminate()
 	freeflightCamera = nullptr;
 
 	device->destroyMesh( &m_screenQuad );
-	device->destroyPipeline( &m_deferredPipeline );
+	//device->destroyPipeline( &m_deferredPipeline );
 	device->destroyRenderTarget( &m_gbuffer );
 
 	context->terminate();
@@ -299,7 +299,7 @@ void wv::cEngine::tick()
 		device->bindTextureToSlot( m_gbuffer->textures[ i ], i );
 
 	// render screen quad with deferred shader
-	device->setActivePipeline( m_deferredPipeline );
+	device->useProgram( m_deferredProgram );
 	device->draw( m_screenQuad );
 
 	context->swapBuffers();

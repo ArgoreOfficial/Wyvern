@@ -8,9 +8,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
+wv::deprecated_Pipeline* wv::deprecated_Pipeline::loadFromFile( const std::string& _path )
 {
-	wv::cEngine* app = wv::cEngine::get();
+	/*wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->device;
 
 	cFileSystem md;
@@ -19,7 +19,7 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 
 	std::string source = root[ "source" ].get_value<std::string>();
-	wv::Pipeline* pipeline = device->getPipeline( source.c_str() );
+	wv::deprecated_Pipeline* pipeline = device->getPipeline( source.c_str() );
 	if ( pipeline )
 		return pipeline;
 
@@ -68,5 +68,6 @@ wv::Pipeline* wv::Pipeline::loadFromFile( const std::string& _path )
 
 	pipeline = device->createPipeline( &pipelineDesc );
 
-	return pipeline;
+	return pipeline;*/
+	return nullptr;
 }

@@ -12,7 +12,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Mesh;
-	class Pipeline;
+	class deprecated_Pipeline;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +49,7 @@ namespace wv
 
 		TextureMemory* loadTextureData( const std::string& _path );
 		
+		bool fileExists( const std::string& _path );
 		bool fileExists( const std::wstring& _path );
 
 		std::wstring getFullPath( const std::string& _fileName );
@@ -59,7 +60,7 @@ namespace wv
 	private:
 
 		std::vector<Memory*> m_loadedMemory;
-		std::vector<std::wstring> m_directories;
+		std::vector<std::wstring> m_directories{ L"" };
 	};
 
 }

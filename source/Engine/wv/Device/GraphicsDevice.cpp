@@ -185,74 +185,14 @@ void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Pipeline* wv::iGraphicsDevice::createPipeline( PipelineDesc* _desc )
+wv::deprecated_Pipeline* wv::iGraphicsDevice::createPipeline( PipelineDesc* _desc )
 {
-	wv::Pipeline* pipeline = new wv::Pipeline();
-
-	if ( _desc->name != "" )
-	{
-		if ( m_pipelines.count( _desc->name ) )
-			return m_pipelines[ _desc->name ];
-	}
-
-	switch ( _desc->type )
-	{
-	case WV_PIPELINE_GRAPHICS:
-	{
-		std::vector<wv::Handle> shaders;
-
-		// create shaders
-		for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
-		{
-			wv::Handle shader = createShader( &_desc->shaders[ i ] );
-			if ( shader != 0 )
-				shaders.push_back( shader );
-		}
-
-		// create program
-		{
-			wv::ShaderProgramDesc programDesc;
-			programDesc.shaders = shaders.data();
-			programDesc.numShaders = (unsigned int)_desc->shaders.size();
-			pipeline->program = createProgram( &programDesc );
-		}
-
-		// clean up shaders
-		for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
-			glDeleteShader( shaders[ i ] );
-		
-		for ( int i = 0; i < (int)_desc->uniformBlocks.size(); i++ )
-			createUniformBlock( pipeline, &_desc->uniformBlocks[ i ] );
-
-		glUseProgram( pipeline->program );
-
-		// required for OpenGL < 4.2
-		// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
-		for ( int i = 0; i < (int)_desc->textureUniforms.size(); i++ )
-		{
-			unsigned int loc = glGetUniformLocation( pipeline->program, _desc->textureUniforms[ i ].name.c_str() );
-			
-			glUniform1i( loc, _desc->textureUniforms[ i ].index );
-		}
-
-		glUseProgram( 0 );
-
-	} break;
-	}
-
-	glUseProgram( 0 );
-
-	if ( _desc->name != "" )
-		m_pipelines[ _desc->name ] = pipeline;
-	
-	Debug::Print( Debug::WV_PRINT_INFO, "Created pipeline '%s'\n", _desc->name.c_str() );
-
-	return pipeline;
+	return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::destroyPipeline( Pipeline** _pipeline )
+void wv::iGraphicsDevice::destroyPipeline( deprecated_Pipeline** _pipeline )
 {
 	
 	std::string key = "";
@@ -277,12 +217,152 @@ void wv::iGraphicsDevice::destroyPipeline( Pipeline** _pipeline )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Pipeline* wv::iGraphicsDevice::getPipeline( const char* _name )
+wv::deprecated_Pipeline* wv::iGraphicsDevice::getPipeline( const char* _name )
 {
 	if ( !m_pipelines.count( _name ) )
 		return nullptr;
 	
 	return m_pipelines[ _name ];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type )
+{
+	
+	cShader* shader = new cShader( this, _type, "" );
+
+	GLenum type = GL_NONE;
+	{
+		switch ( _type )
+		{
+		case wv::WV_SHADER_TYPE_FRAGMENT: type = GL_FRAGMENT_SHADER; break;
+		case wv::WV_SHADER_TYPE_VERTEX: type = GL_VERTEX_SHADER; break;
+		}
+	}
+
+	wv::Handle handle = glCreateShader( type );
+	shader->setHandle( handle );
+	
+	return shader;
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::compileShader( cShader* _shader )
+{
+	if ( !_shader )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile null shader\n" );
+		return;
+	}
+	
+	if ( _shader->m_source == "" )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
+		return;
+	}
+
+	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
+	// therefore '#if GL_ES' cannot be used in the shader itself
+	/// TODO: move /// This will keep adding if compileShader is called more than once on the same shader
+#ifdef EMSCRIPTEN
+	_shader->m_source = "#version 300 es\n" + _shader->m_source;
+#else
+	_shader->m_source = "#version 460 core\n" + _shader->m_source;
+#endif
+	const char* sourcePtr = _shader->m_source.c_str();
+
+	wv::Handle shaderHandle = _shader->getHandle();
+	glShaderSource( shaderHandle, 1, &sourcePtr, NULL);
+	glCompileShader( shaderHandle );
+
+	int  success;
+	char infoLog[ 512 ];
+	glGetShaderiv( shaderHandle, GL_COMPILE_STATUS, &success );
+	if ( !success )
+	{
+		glGetShaderInfoLog( shaderHandle, 512, NULL, infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->m_name.c_str(), infoLog );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::cShaderProgram* wv::iGraphicsDevice::createProgram()
+{
+	wv::cShaderProgram* program = new cShaderProgram( "Program" ); /// move
+	wv::Handle programHandle = glCreateProgram();
+
+	program->setHandle( programHandle );
+
+	return program;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks, std::vector<Uniform> _textureUniforms )
+{
+	if ( !_program )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link null program\n" );
+		return;
+	}
+
+	wv::Handle programHandle = _program->getHandle();
+	if ( programHandle == 0 )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link program with null handle\n" );
+		return;
+	}
+
+	std::vector<cShader*> shaders = _program->getShaders();
+
+	glUseProgram( programHandle );
+
+	for ( int i = 0; i < shaders.size(); i++ )
+		glAttachShader( programHandle, shaders[ i ]->getHandle() );
+
+	glLinkProgram( programHandle );
+
+	int  success;
+	char infoLog[ 512 ];
+	glGetProgramiv( programHandle, GL_LINK_STATUS, &success );
+
+	if ( !success )
+	{
+		glGetProgramInfoLog( programHandle, 512, NULL, infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
+	}
+
+	// clean up shaders
+	//for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
+	//	glDeleteShader( shaders[ i ] );
+
+	/// TODO: move? I don't like having these vectors in linkProgram()
+	for ( int i = 0; i < (int)_uniformBlocks.size(); i++ )
+	{
+		UniformBlock block = createUniformBlock( _program, &_uniformBlocks[ i ] );
+		_program->addUniformBlock( _uniformBlocks[ i ].name, block );
+	}
+
+	// required for OpenGL < 4.2
+	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
+	for ( int i = 0; i < (int)_textureUniforms.size(); i++ )
+	{
+		unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
+		glUniform1i( loc, _textureUniforms[ i ].index );
+	}
+
+	glUseProgram( 0 );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::useProgram( cShaderProgram* _program )
+{
+	glUseProgram( _program ? _program->getHandle() : 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -305,20 +385,6 @@ void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 		destroyPrimitive( &mesh->primitives[ i ] );
 	mesh->primitives.clear();
 	*_mesh = nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::iGraphicsDevice::setActivePipeline( Pipeline* _pipeline )
-{
-	if ( _pipeline == m_activePipeline )
-		return;
-	if ( m_activePipeline && _pipeline->program == m_activePipeline->program )
-		return;
-
-
-	glUseProgram( _pipeline->program );
-	m_activePipeline = _pipeline;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -513,9 +579,9 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create Texture:\n" );
 		switch ( err )
 		{
-		case GL_INVALID_ENUM:      Debug::Print( "  GL_INVALID_ENUM" ); break;
-		case GL_INVALID_VALUE:     Debug::Print( "  GL_INVALID_VALUE" ); break;
-		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION" ); break;
+		case GL_INVALID_ENUM:      Debug::Print( "  GL_INVALID_ENUM\n" ); break;
+		case GL_INVALID_VALUE:     Debug::Print( "  GL_INVALID_VALUE\n" ); break;
+		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION\n" ); break;
 		}
 	}
 
@@ -600,87 +666,15 @@ void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Handle wv::iGraphicsDevice::createShader( ShaderSource* _desc )
-{
-	int  success;
-	char infoLog[ 512 ];
-
-	cFileSystem md;
-	std::string source = md.loadString( _desc->path );
-	if ( source == "" )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Could not find shader source\n" );
-		return 0;
-	}
-
-	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
-	// therefore #if GL_ES cannot be used in the shader itself
-#ifdef EMSCRIPTEN
-	source = "#version 300 es\n" + source;
-#else
-	source = "#version 460 core\n" + source;
-#endif
-	const char* sourcePtr = source.c_str();
-
-	GLenum type = GL_NONE;
-	{
-		switch ( _desc->type )
-		{
-		case wv::WV_SHADER_TYPE_FRAGMENT: type = GL_FRAGMENT_SHADER; break;
-		case wv::WV_SHADER_TYPE_VERTEX: type = GL_VERTEX_SHADER; break;
-		}
-	}
-
-	wv::Handle shader;
-	shader = glCreateShader( type );
-	glShaderSource( shader, 1, &sourcePtr, NULL );
-	glCompileShader( shader );
-
-	glGetShaderiv( shader, GL_COMPILE_STATUS, &success );
-	if ( !success )
-	{
-		glGetShaderInfoLog( shader, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _desc->path.c_str(), infoLog);
-	}
-
-	return shader;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Handle wv::iGraphicsDevice::createProgram( ShaderProgramDesc* _desc )
-{
-	int  success;
-	char infoLog[ 512 ];
-
-	wv::Handle program;
-	program = glCreateProgram();
-
-	for ( int i = 0; i < _desc->numShaders; i++ )
-		glAttachShader( program, _desc->shaders[ i ] );
-
-	glLinkProgram( program );
-
-	glGetProgramiv( program, GL_LINK_STATUS, &success );
-	if ( !success )
-	{
-		glGetProgramInfoLog( program, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create program\n %s \n", infoLog );
-	}
-
-	return program;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::iGraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc )
+wv::UniformBlock wv::iGraphicsDevice::createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc )
 {
 	UniformBlock block;
+	Handle programHandle = _program->getHandle();
 
 	block.m_bindingIndex = m_numTotalUniformBlocks;
 	
-	block.m_index = glGetUniformBlockIndex( _pipeline->program, _desc->name.c_str() );;
-	glGetActiveUniformBlockiv( _pipeline->program, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
+	block.m_index = glGetUniformBlockIndex( programHandle, _desc->name.c_str() );;
+	glGetActiveUniformBlockiv( programHandle, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
 
 	block.m_buffer = new char[ block.m_bufferSize ];
 	memset( block.m_buffer, 0, block.m_bufferSize );
@@ -699,8 +693,8 @@ void wv::iGraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockD
 	for ( size_t i = 0; i < _desc->uniforms.size(); i++ )
 		uniformNames.push_back( _desc->uniforms[ i ].name.c_str() ); // lifetime issues?
 	
-	glGetUniformIndices( _pipeline->program, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data());
-	glGetActiveUniformsiv( _pipeline->program, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
+	glGetUniformIndices( programHandle, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data() );
+	glGetActiveUniformsiv( programHandle, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
 
 	for ( int o = 0; o < _desc->uniforms.size(); o++ )
 	{
@@ -712,6 +706,7 @@ void wv::iGraphicsDevice::createUniformBlock( Pipeline* _pipeline, UniformBlockD
 		block.m_uniforms[ u.name ] = u;
 	}
 
-	_pipeline->uniformBlocks[ _desc->name ] = block;
 	m_numTotalUniformBlocks++;
+
+	return block;
 }

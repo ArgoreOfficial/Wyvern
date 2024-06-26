@@ -21,11 +21,13 @@ namespace wv
 	struct RenderTargetDesc;
 	struct MeshDesc;
 
-	class Pipeline;
+	class deprecated_Pipeline;
 	class Primitive;
 	class Texture;
 	class RenderTarget;
 	class Mesh;
+
+	class cShader;
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,9 +63,16 @@ namespace wv
 		void setClearColor( const wv::cColor& _color );
 		void clearRenderTarget( bool _color, bool _depth );
 
-		Pipeline* createPipeline( PipelineDesc* _desc );
-		void destroyPipeline( Pipeline** _pipeline );
-		Pipeline* getPipeline( const char* _name );
+		deprecated_Pipeline* createPipeline( PipelineDesc* _desc );
+		void destroyPipeline( deprecated_Pipeline** _pipeline );
+		deprecated_Pipeline* getPipeline( const char* _name );
+
+		cShader* createShader( eShaderType _type );
+		void compileShader( cShader* _shader );
+
+		cShaderProgram* createProgram();
+		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
+		void useProgram( cShaderProgram* _program );
 
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
@@ -74,7 +83,6 @@ namespace wv
 		Texture* createTexture( TextureDesc* _desc );
 		void destroyTexture( Texture** _texture );
 
-		void setActivePipeline( Pipeline* _pipeline );
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );
 
 		void draw( Mesh* _mesh );
@@ -84,22 +92,17 @@ namespace wv
 	private:
 
 		void drawPrimitive( Primitive* _primitive );
-
-		/// TODO: change wv::Handle to wv::Shader and wv::ShaderProgram?
-		wv::Handle createShader( ShaderSource* _desc );
-		wv::Handle createProgram( ShaderProgramDesc* _desc );
-
-		void createUniformBlock( Pipeline* _pipeline, UniformBlockDesc* _desc );
+		UniformBlock createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc );
 
 		iGraphicsDevice( GraphicsDeviceDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
-		wv::Pipeline* m_activePipeline = nullptr;
+		wv::deprecated_Pipeline* m_activePipeline = nullptr;
 		int m_numTotalUniformBlocks = 0;
 
-		std::unordered_map<std::string, wv::Pipeline*> m_pipelines;
+		std::unordered_map<std::string, wv::deprecated_Pipeline*> m_pipelines;
 
 	};
 }

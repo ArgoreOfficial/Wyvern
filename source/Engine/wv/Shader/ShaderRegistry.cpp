@@ -5,6 +5,9 @@
 #include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
 
+#include <wv/Auxiliary/fkYAML/node.hpp>
+#include <wv/Shader/ShaderProgram.h>
+
 wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::string& _name )
 {
 	cShader* shader = static_cast<cShader*>( getLoadedResource( _name ) );
@@ -17,7 +20,7 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 	std::wstring fullPath = m_pFileSystem->getFullPath( _name );
 	if ( fullPath == L"" ) // file doesn't exist
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Couldn't find file '%s'", _name.c_str() );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Couldn't find file '%s'\n", _name.c_str() );
 		return nullptr;
 	}
 
@@ -30,4 +33,57 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 	addResource( _name, shader );
 
     return shader;
+}
+
+wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::string& _name )
+{
+	std::string yaml = m_pFileSystem->loadString( _name );
+	fkyaml::node root = fkyaml::node::deserialize( yaml );
+
+	std::string source = root[ "source" ].get_value<std::string>();
+
+	/// TODO: program caching
+	//wv::deprecated_Pipeline* pipeline = device->getPipeline( source.c_str() );
+	//if ( pipeline )
+	//	return pipeline;
+
+	cShader* vs = loadShader( WV_SHADER_TYPE_VERTEX,   "res/shaders/" + source + "_vs.glsl" );
+	cShader* fs = loadShader( WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" );
+
+	std::vector<UniformBlockDesc> blocks;
+	int blockCounter = 0;
+	for ( auto& block : root[ "blocks" ] )
+	{
+		UniformBlockDesc blockDesc{};
+
+		blockDesc.name = block[ "block" ].get_value<std::string>();
+
+		for ( auto& uniform : block[ "uniforms" ] )
+		{
+			Uniform u{ (unsigned int)blockCounter, 0, uniform[ "uniform" ].get_value<std::string>() };
+			blockDesc.uniforms.push_back( u );
+		}
+
+		blockCounter++;
+		blocks.push_back( blockDesc );
+	}
+
+	std::vector<Uniform> textureUniforms;
+	unsigned int textureCounter = 0;
+	if ( root[ "textures" ].is_sequence() )
+	{
+		for ( auto& texture : root[ "textures" ] )
+		{
+			wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
+			textureUniforms.push_back( u );
+			textureCounter++;
+		}
+	}
+
+	cShaderProgram* program = m_pGraphicsDevice->createProgram();
+	program->addShader( vs );
+	program->addShader( fs );
+	m_pGraphicsDevice->linkProgram( program, blocks, textureUniforms );
+
+	return program;
 }

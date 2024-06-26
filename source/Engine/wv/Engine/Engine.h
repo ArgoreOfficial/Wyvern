@@ -14,7 +14,7 @@ namespace wv
 	class AudioDevice;
 
 	class Mesh;
-	class Pipeline;
+	class deprecated_Pipeline;
 	class ICamera;
 	class RenderTarget;
 	class cFileSystem;
@@ -24,6 +24,7 @@ namespace wv
 	class State;
 
 	class cShaderRegistry;
+	class cShaderProgram;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,9 +69,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		Mesh*         m_screenQuad       = nullptr;
-		Pipeline*     m_deferredPipeline = nullptr;
-		RenderTarget* m_gbuffer          = nullptr;
+		Mesh*           m_screenQuad      = nullptr;
+		cShaderProgram* m_deferredProgram = nullptr;
+		RenderTarget*   m_gbuffer         = nullptr;
 
 		// engine
 		iDeviceContext*  context = nullptr;
@@ -124,7 +125,7 @@ namespace wv
 		wv::Vector2i m_mousePosition;
 
 		// modules
-		
+	public:
 		cFileSystem* m_pFileSystem = nullptr;
 		cShaderRegistry* m_pShaderRegistry = nullptr;
 
