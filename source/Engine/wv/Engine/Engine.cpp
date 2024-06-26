@@ -40,11 +40,11 @@
 
 wv::cEngine::cEngine( EngineDesc* _desc )
 {
-	//if ( !_desc->applicationState )
-	//{
-	//	Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
-	//	return;
-	//}
+	if ( !_desc->applicationState )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
+		return;
+	}
 
 	s_instance = this;
 
@@ -58,6 +58,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_defaultRenderTarget->width  = _desc->windowWidth;
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
+
+	m_applicationState = _desc->applicationState;
 
 	/* 
 	 * create deferred rendering objects

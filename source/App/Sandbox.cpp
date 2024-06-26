@@ -8,6 +8,8 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
 
+#include <StateGame.h>
+
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
@@ -53,6 +55,10 @@ bool cSandbox::create( void )
 	// create modules
 	engineDesc.systems.pFileSystem = new wv::cFileSystem();
 	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
+
+	/// ---TEMPORARY
+	engineDesc.applicationState = new StateGame();
+	/// TEMPORARY---
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
