@@ -85,14 +85,21 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ nullptr }
+wv::SDLDeviceContext::SDLDeviceContext() : m_windowContext{ nullptr }
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 {
 	// glfwSetErrorCallback( glfwErrorCallback );
-	
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+
+	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Device Context\n" );
-		return;
+		return false;
 	}
 
 	uint32_t flags = 0;
@@ -103,7 +110,7 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	case WV_GRAPHICS_API_OPENGL:
 	{
 		SDL_GL_LoadLibrary( NULL );
-		
+
 		SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, _desc->graphicsApiVersion.major );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, _desc->graphicsApiVersion.minor );
@@ -145,12 +152,12 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context( "#canvas", &attrs );
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
-	
+
 	if ( _desc->allowResize ) flags |= SDL_WINDOW_RESIZABLE;
 
 	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, flags );
 	m_glContext = SDL_GL_CreateContext( m_windowContext );
-	
+
 	SDL_version version;
 	SDL_GetVersion( &version );
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
@@ -159,11 +166,12 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	if ( !m_windowContext )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
-		return;
+		return false;
 	}
-	// glfwMakeContextCurrent( m_windowContext );
-
+	
 	SDL_GetWindowSize( m_windowContext, &m_width, &m_height );
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -173,6 +181,7 @@ void wv::SDLDeviceContext::setSwapInterval( int _interval )
 	if ( SDL_GL_SetSwapInterval( _interval ) < 0 )
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to set VSync mode" );
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

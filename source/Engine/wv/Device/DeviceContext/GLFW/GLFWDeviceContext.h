@@ -39,8 +39,10 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		GLFWDeviceContext( ContextDesc* _desc );
+		GLFWDeviceContext();
 		
+		bool initialize( ContextDesc* _desc ) override;
+
 	#ifdef WV_GLFW_SUPPORTED
 		GLFWwindow* m_windowContext = nullptr;
 	#endif

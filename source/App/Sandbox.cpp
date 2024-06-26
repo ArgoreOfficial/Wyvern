@@ -39,6 +39,9 @@ bool cSandbox::create( void )
 	ctxDesc.allowResize = false;
 
 	wv::iDeviceContext* deviceContext = wv::iDeviceContext::getDeviceContext( &ctxDesc );
+	if ( !deviceContext )
+		return false;
+
 	deviceContext->setSwapInterval( 0 ); // enable vsync
 
 	// create graphics device
@@ -47,6 +50,8 @@ bool cSandbox::create( void )
 	deviceDesc.pContext = deviceContext;
 	
 	wv::iGraphicsDevice* graphicsDevice = wv::iGraphicsDevice::createGraphicsDevice( &deviceDesc );
+	if ( !graphicsDevice )
+		return false;
 
 	engineDesc.device.pContext = deviceContext;
 	engineDesc.device.pGraphics = graphicsDevice;

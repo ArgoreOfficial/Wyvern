@@ -110,15 +110,22 @@ void glfwErrorCallback(int _err, const char* _msg)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
+wv::GLFWDeviceContext::GLFWDeviceContext()
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 {
 #ifdef WV_GLFW_SUPPORTED
 	glfwSetErrorCallback( glfwErrorCallback );
-	
+
 	if ( !glfwInit() )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Device Context\n" );
-		return;
+		return false;
 	}
 
 	switch ( _desc->graphicsApi )
@@ -129,7 +136,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 		int mj = _desc->graphicsApiVersion.major;
 		int mn = _desc->graphicsApiVersion.minor;
 
-		if( mj < 3 || ( mj == 3 && mn < 2 ) ) // below 3.2 
+		if ( mj < 3 || ( mj == 3 && mn < 2 ) ) // below 3.2 
 			glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE );
 		else
 			glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -154,22 +161,26 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Context Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glfwGetVersionString() );
 
-	m_windowContext = glfwCreateWindow(_desc->width, _desc->height, _desc->name, NULL, NULL);
-	
+	m_windowContext = glfwCreateWindow( _desc->width, _desc->height, _desc->name, NULL, NULL );
+
 	glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
 	glfwSetKeyCallback( m_windowContext, keyCallback );
-	
+
 	glfwSetCursorPosCallback( m_windowContext, mouseCallback );
 	glfwSetMouseButtonCallback( m_windowContext, mouseButtonCallback );
 
 	if ( !m_windowContext )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
-		return;
+		return false;
 	}
 	glfwMakeContextCurrent( m_windowContext );
 
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
+    return true;
+#else
+	Debug::Print( Debug::WV_PRINT_FATAL, "GLFW is not supported\n" );
+	return false;
 #endif
 }
 

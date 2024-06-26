@@ -47,8 +47,14 @@ namespace wv
 		static inline iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc )
 		{
 			/// TODO: different backends
+			iGraphicsDevice* device = new iGraphicsDevice();
+			if ( !device->initialize( _desc ) )
+			{
+				delete device;
+				return nullptr;
+			}
 
-			return new iGraphicsDevice( _desc );
+			return device;
 		}
 
 		void terminate();
@@ -89,6 +95,9 @@ namespace wv
 
 	private:
 
+		iGraphicsDevice();
+		bool initialize( GraphicsDeviceDesc* _desc );
+
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
@@ -96,7 +105,6 @@ namespace wv
 		void drawPrimitive( Primitive* _primitive );
 		UniformBlock createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc );
 
-		iGraphicsDevice( GraphicsDeviceDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;

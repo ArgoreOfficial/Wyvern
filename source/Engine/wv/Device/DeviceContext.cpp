@@ -11,12 +11,18 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 
 	switch ( _desc->deviceApi )
 	{
-	case WV_DEVICE_CONTEXT_API_GLFW: context = new GLFWDeviceContext( _desc ); break;
-	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext ( _desc ); break;
+	case WV_DEVICE_CONTEXT_API_GLFW: context = new GLFWDeviceContext(); break;
+	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext (); break;
 	}
 
 	if ( context )
 	{
+		if ( !context->initialize( _desc ) )
+		{
+			delete context;
+			return nullptr;
+		}
+
 		context->m_deviceApi = _desc->deviceApi;
 		context->m_graphicsApi = _desc->graphicsApi;
 		context->m_graphicsApiVersion = _desc->graphicsApiVersion;
@@ -32,3 +38,4 @@ void wv::iDeviceContext::setSize( int _width, int _height )
 	m_width = _width;
 	m_height = _height;
 }
+

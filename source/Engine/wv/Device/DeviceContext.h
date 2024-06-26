@@ -86,6 +86,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
+		virtual bool initialize( ContextDesc* _desc ) = 0;
 
 		DeviceContextAPI m_deviceApi;
 		GraphicsAPI      m_graphicsApi;

@@ -19,7 +19,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
+wv::iGraphicsDevice::iGraphicsDevice()
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 
@@ -37,27 +43,22 @@ wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
 	if ( !initRes )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Graphics Device\n" );
-		return;
+		return false;
 	}
 
 	Debug::Print( Debug::WV_PRINT_INFO, "Intialized Graphics Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glGetString( GL_VERSION ) );
 
-	/// TEMPORARY---
-	/// TODO: add to pipeline configuration
+	/// TODO: make configurable
 	//glEnable( GL_MULTISAMPLE );
 	//glEnable( GL_BLEND );
 	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
 	glEnable( GL_CULL_FACE );
-	/// ---TEMPORARY
 
 	m_boundTextureSlots.assign( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, 0 );
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::terminate()
 {

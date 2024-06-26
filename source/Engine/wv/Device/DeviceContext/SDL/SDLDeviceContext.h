@@ -41,8 +41,10 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		SDLDeviceContext( ContextDesc* _desc );
+		SDLDeviceContext();
 		
+		bool initialize( ContextDesc* _desc ) override;
+
 		SDL_Window* m_windowContext = nullptr;
 
 		uint64_t m_performanceCounter = 0;
