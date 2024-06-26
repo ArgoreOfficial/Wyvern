@@ -1,22 +1,17 @@
 
-#include <wv/Engine/Engine.h>
-#include <StateGame.h>
+#include "Sandbox.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
-	wv::EngineDesc appDesc;
-	appDesc.title = "Wyvern";
-	appDesc.vsync = true;
-	appDesc.fullscreen = false;
-	appDesc.windowWidth  = 640;
-	appDesc.windowHeight = 480;
-	appDesc.showDebugConsole = true;
-	appDesc.applicationState = new StateGame();
-	appDesc.allowResize = false;
+	cSandbox* sandbox = new cSandbox();
 
-	wv::cEngine* app = new wv::cEngine( &appDesc );
-	app->run();
-	app->terminate();
+	if ( sandbox->create() )
+	{
+		sandbox->run();
+		sandbox->destroy();
+	}
+
+	return 0;
 }

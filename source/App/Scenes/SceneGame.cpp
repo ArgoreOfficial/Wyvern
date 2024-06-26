@@ -49,7 +49,7 @@ void DefaultScene::onUnload()
 	unsubscribeInputEvent();
 	
 	wv::cEngine* app = wv::cEngine::get();
-	wv::iGraphicsDevice* device = app->device;
+	wv::iGraphicsDevice* device = app->graphics;
 
 	device->destroyMesh( &m_skybox );
 	m_skyMaterial->destroy();

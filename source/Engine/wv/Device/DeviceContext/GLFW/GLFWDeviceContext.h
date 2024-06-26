@@ -33,6 +33,8 @@ namespace wv
 		void setMouseLock( bool _lock ) override;
 		void setTitle( const char* _title ) override;
 
+		void setSwapInterval( int _interval ) override;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
@@ -42,5 +44,6 @@ namespace wv
 	#ifdef WV_GLFW_SUPPORTED
 		GLFWwindow* m_windowContext = nullptr;
 	#endif
+
 	};
 }

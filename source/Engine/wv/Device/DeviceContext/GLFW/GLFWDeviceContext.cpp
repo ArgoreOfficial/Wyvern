@@ -169,10 +169,13 @@ wv::GLFWDeviceContext::GLFWDeviceContext( ContextDesc* _desc )
 	}
 	glfwMakeContextCurrent( m_windowContext );
 
-	glfwSwapInterval( 0 );
-
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
 #endif
+}
+
+void wv::GLFWDeviceContext::setSwapInterval( int _interval )
+{
+	glfwSwapInterval( _interval );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

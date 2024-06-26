@@ -21,7 +21,7 @@ wv::Model::Model( const uint64_t& _uuid, const std::string& _name ) : Node{ _uui
 wv::Model::~Model()
 {
 	/// TODO: better cleanup
-	// wv::cEngine::get()->device->destroyPrimitive( &m_primitive ); // ew
+	// wv::cEngine::get()->graphics->destroyPrimitive( &m_primitive ); // ew
 
 }
 
@@ -32,7 +32,7 @@ void wv::Model::loadMemory( const std::string& _path )
 	wv::cEngine* app = wv::cEngine::get();
 
 	MeshDesc meshDesc;
-	m_mesh = app->device->createMesh( &meshDesc );
+	m_mesh = app->graphics->createMesh( &meshDesc );
 
 	wv::InputLayoutElement elements[] = {
 			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
@@ -84,7 +84,7 @@ void wv::Model::loadMemory( const std::string& _path )
 		prDesc.numIndices = 0;
 	}
 
-	app->device->createPrimitive( &prDesc, m_mesh );
+	app->graphics->createPrimitive( &prDesc, m_mesh );
 	md.unloadMemory( mem );
 }
 

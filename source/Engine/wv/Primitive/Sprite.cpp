@@ -83,6 +83,6 @@ void wv::Sprite::createQuad()
 		prDesc.indexBufferSize = (unsigned int)( indices.size() * sizeof( unsigned int ) );
 		prDesc.numIndices = (unsigned int)indices.size();
 
-		app->device->createPrimitive( &prDesc, Internal::S_SPRITE_QUAD );
+		app->graphics->createPrimitive( &prDesc, Internal::S_SPRITE_QUAD );
 	}
 }

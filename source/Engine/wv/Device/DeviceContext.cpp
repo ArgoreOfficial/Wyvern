@@ -7,13 +7,22 @@
 
 wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 {
+	iDeviceContext* context = nullptr;
+
 	switch ( _desc->deviceApi )
 	{
-	case WV_DEVICE_CONTEXT_API_GLFW: return new GLFWDeviceContext( _desc );
-	case WV_DEVICE_CONTEXT_API_SDL:  return new SDLDeviceContext( _desc );
+	case WV_DEVICE_CONTEXT_API_GLFW: context = new GLFWDeviceContext( _desc ); break;
+	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext ( _desc ); break;
 	}
 
-	return nullptr;
+	if ( context )
+	{
+		context->m_deviceApi = _desc->deviceApi;
+		context->m_graphicsApi = _desc->graphicsApi;
+		context->m_graphicsApiVersion = _desc->graphicsApiVersion;
+	}
+
+	return context;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

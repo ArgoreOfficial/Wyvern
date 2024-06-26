@@ -163,9 +163,15 @@ wv::SDLDeviceContext::SDLDeviceContext( ContextDesc* _desc ) : m_windowContext{ 
 	}
 	// glfwMakeContextCurrent( m_windowContext );
 
-	SDL_GL_SetSwapInterval( 0 );
-
 	SDL_GetWindowSize( m_windowContext, &m_width, &m_height );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::SDLDeviceContext::setSwapInterval( int _interval )
+{
+	if ( SDL_GL_SetSwapInterval( _interval ) < 0 )
+		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to set VSync mode" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

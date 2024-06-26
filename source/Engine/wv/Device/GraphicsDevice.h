@@ -21,6 +21,8 @@ namespace wv
 	struct RenderTargetDesc;
 	struct MeshDesc;
 
+	struct iDeviceContext;
+
 	class Primitive;
 	class Texture;
 	class RenderTarget;
@@ -33,8 +35,7 @@ namespace wv
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
-		GraphicsAPI graphicsApi;
-		GenericVersion graphicsApiVersion;
+		iDeviceContext* pContext;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

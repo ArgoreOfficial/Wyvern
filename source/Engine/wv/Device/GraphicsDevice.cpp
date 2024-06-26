@@ -9,6 +9,8 @@
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
+#include <wv/Device/DeviceContext.h>
+
 #include <glad/glad.h>
 #include <stdio.h>
 #include <sstream>
@@ -21,11 +23,11 @@ wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 
-	m_graphicsApi = _desc->graphicsApi;
-	m_graphicsApiVersion = _desc->graphicsApiVersion;
+	m_graphicsApi = _desc->pContext->getGraphicsAPI();
+	m_graphicsApiVersion = _desc->pContext->getGraphicsVersion();
 
 	int initRes = 0;
-	switch ( _desc->graphicsApi )
+	switch ( m_graphicsApi )
 	{
 	case WV_GRAPHICS_API_OPENGL:     initRes = gladLoadGLLoader( _desc->loadProc ); break;
 	case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;

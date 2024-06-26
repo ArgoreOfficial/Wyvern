@@ -31,13 +31,23 @@ namespace wv
 	{
 		const char* title;
 		
-		bool vsync = true;
-		bool fullscreen = false;
-		int windowWidth = 800;
+		int windowWidth  = 800;
 		int windowHeight = 600;
-		bool allowResize = false;
 
 		bool showDebugConsole = true;
+
+		struct
+		{
+			iDeviceContext*  pContext;
+			iGraphicsDevice* pGraphics;
+			AudioDevice*     pAudio;
+		} device;
+
+		struct
+		{
+			cFileSystem* pFileSystem;
+			cShaderRegistry* pShaderRegistry;
+		} systems;
 
 		State* applicationState = nullptr;
 	};
@@ -74,7 +84,7 @@ namespace wv
 
 		// engine
 		iDeviceContext*  context = nullptr;
-		iGraphicsDevice* device  = nullptr;
+		iGraphicsDevice* graphics  = nullptr;
 		AudioDevice*    audio   = nullptr;
 
 		// camera 

@@ -37,7 +37,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh )
 {
-	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
+	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -166,7 +166,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
 		//
 		//material = new wv::PhongMaterial( phongDesc );
-		//material->create( device );
+		//material->create( graphics );
 
 		primitive->material = material;
 	}
@@ -227,7 +227,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 		return nullptr;
 	}
 
-	wv::iGraphicsDevice* device = wv::cEngine::get()->device;
+	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 	Mesh* mesh = device->createMesh( nullptr );
 	mesh->name = _path;
 	processAssimpNode( scene->mRootNode, scene, mesh );
@@ -290,8 +290,8 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	}
 
 	cEngine* app = cEngine::get();
-	Mesh* mesh = app->device->createMesh( nullptr );
-	Primitive* prm = app->device->createPrimitive( &prDesc, mesh );
+	Mesh* mesh = app->graphics->createMesh( nullptr );
+	Primitive* prm = app->graphics->createPrimitive( &prDesc, mesh );
 	
 	md.unloadMemory( mem );
 #endif
