@@ -65,7 +65,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 */
 	{ 
 		m_deferredProgram = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/deferred.wshader" );
-		createScreeQuad();
+		createScreenQuad();
 		createGBuffer();
 	}
 	
@@ -288,7 +288,7 @@ void wv::cEngine::quit()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::createScreeQuad()
+void wv::cEngine::createScreenQuad()
 {
 	wv::InputLayoutElement elements[] = {
 		{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },

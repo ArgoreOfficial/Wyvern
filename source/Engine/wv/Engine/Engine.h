@@ -106,7 +106,7 @@ namespace wv
 
 	private:
 
-		void createScreeQuad();
+		void createScreenQuad();
 		void createGBuffer();
 
 ///////////////////////////////////////////////////////////////////////////////////////
