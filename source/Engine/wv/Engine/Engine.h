@@ -31,13 +31,23 @@ namespace wv
 	{
 		const char* title;
 		
-		bool vsync = true;
-		bool fullscreen = false;
-		int windowWidth = 800;
+		int windowWidth  = 800;
 		int windowHeight = 600;
-		bool allowResize = false;
 
 		bool showDebugConsole = true;
+
+		struct
+		{
+			iDeviceContext*  pContext;
+			iGraphicsDevice* pGraphics;
+			AudioDevice*     pAudio;
+		} device;
+
+		struct
+		{
+			cFileSystem* pFileSystem;
+			cShaderRegistry* pShaderRegistry;
+		} systems;
 
 		State* applicationState = nullptr;
 	};
@@ -74,7 +84,7 @@ namespace wv
 
 		// engine
 		iDeviceContext*  context = nullptr;
-		iGraphicsDevice* device  = nullptr;
+		iGraphicsDevice* graphics  = nullptr;
 		AudioDevice*    audio   = nullptr;
 
 		// camera 
@@ -96,17 +106,17 @@ namespace wv
 
 	private:
 
-		void createScreeQuad();
+		void createScreenQuad();
 		void createGBuffer();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		float m_maxFps = 0.0f;
 		
 	#define FPS_CACHE_NUM 200
-		float m_fpsCache[ FPS_CACHE_NUM ] = { 0.0f };
-		int m_fpsCacheCounter = 0;
-		float m_averageFps = 0.0f;
+		unsigned int m_fpsCacheCounter = 0;
+		double m_fpsCache[ FPS_CACHE_NUM ] = { 0.0 };
+		double m_averageFps = 0.0;
+		double m_maxFps = 0.0;
 
 		RootNode* m_scene;
 

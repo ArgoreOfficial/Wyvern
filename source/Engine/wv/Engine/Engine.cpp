@@ -48,43 +48,18 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	s_instance = this;
 
-#ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
-	wv::ContextDesc ctxDesc;
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
-	ctxDesc.graphicsApiVersion.major = 3;
-	ctxDesc.graphicsApiVersion.minor = 0;
-#else
-	wv::ContextDesc ctxDesc;
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
-	ctxDesc.graphicsApiVersion.major = 4;
-	ctxDesc.graphicsApiVersion.minor = 6;
-#endif
+	context  = _desc->device.pContext;
+	graphics = _desc->device.pGraphics;
 
-	ctxDesc.name = _desc->title;
-	ctxDesc.width = _desc->windowWidth;
-	ctxDesc.height = _desc->windowHeight;
-	ctxDesc.allowResize = _desc->allowResize;
-
-	context = wv::iDeviceContext::getDeviceContext( &ctxDesc );
-
-	wv::GraphicsDeviceDesc deviceDesc;
-	deviceDesc.loadProc = context->getLoadProc();
-	deviceDesc.graphicsApi = ctxDesc.graphicsApi; // must be same as context
-	deviceDesc.graphicsApiVersion = ctxDesc.graphicsApiVersion; // must be same as context
-
-	device = wv::iGraphicsDevice::createGraphicsDevice( &deviceDesc );
+	m_pFileSystem     = _desc->systems.pFileSystem;
+	m_pShaderRegistry = _desc->systems.pShaderRegistry;
 
 	m_defaultRenderTarget = new RenderTarget();
-	m_defaultRenderTarget->width = _desc->windowWidth;
+	m_defaultRenderTarget->width  = _desc->windowWidth;
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
-	
 
-	// create modules
-	m_pFileSystem = new cFileSystem();
-	m_pShaderRegistry = new cShaderRegistry( m_pFileSystem, device );
+	m_applicationState = _desc->applicationState;
 
 	/* 
 	 * create deferred rendering objects
@@ -92,19 +67,17 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 */
 	{ 
 		m_deferredProgram = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/deferred.wshader" );
-		createScreeQuad();
+		createScreenQuad();
 		createGBuffer();
 	}
 	
-	device->setRenderTarget( m_defaultRenderTarget );
-	device->setClearColor( wv::Color::Black );
+	graphics->setRenderTarget( m_defaultRenderTarget );
+	graphics->setClearColor( wv::Color::Black );
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
-	audio = new AudioDevice( nullptr );
+	
 
-	Debug::Draw::Internal::initDebugDraw( device );
-
-	m_applicationState = _desc->applicationState;
+	Debug::Draw::Internal::initDebugDraw( graphics );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -120,14 +93,14 @@ wv::cEngine* wv::cEngine::get()
 void wv::cEngine::onResize( int _width, int _height )
 {
 	context->onResize( _width, _height );
-	device->onResize( _width, _height );
+	graphics->onResize( _width, _height );
 
 	// recreate render target
 	m_defaultRenderTarget->width = _width;
 	m_defaultRenderTarget->height = _height;
-	device->setRenderTarget( m_defaultRenderTarget );
+	graphics->setRenderTarget( m_defaultRenderTarget );
 
-	device->destroyRenderTarget( &m_gbuffer );
+	graphics->destroyRenderTarget( &m_gbuffer );
 	
 	if ( _width == 0 || _height == 0 )
 		return;
@@ -220,20 +193,20 @@ void wv::cEngine::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	device->destroyMesh( &m_screenQuad );
-	device->destroyRenderTarget( &m_gbuffer );
+	graphics->destroyMesh( &m_screenQuad );
+	graphics->destroyRenderTarget( &m_gbuffer );
 	m_pShaderRegistry->unloadShaderProgram( m_deferredProgram );
 
 	// destroy modules
-	Debug::Draw::Internal::deinitDebugDraw( device );
+	Debug::Draw::Internal::deinitDebugDraw( graphics );
 	delete m_pFileSystem;
 	delete m_pShaderRegistry;
 
 	context->terminate();
-	device->terminate();
+	graphics->terminate();
 	
 	delete context;
-	delete device;
+	delete graphics;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -254,29 +227,29 @@ void wv::cEngine::tick()
 	context->pollEvents();
 	
 	// refresh fps display
-	
 	{
-		float fps = 1.0f / static_cast<float>( dt );
+		double fps = 1.0 / dt;
 		
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
 		m_fpsCache[ m_fpsCacheCounter ] = fps;
 		m_fpsCacheCounter++;
-		if ( m_fpsCacheCounter > FPS_CACHE_NUM )
+		if ( m_fpsCacheCounter >= FPS_CACHE_NUM )
 		{
 			m_fpsCacheCounter = 0;
 			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
 				m_averageFps += m_fpsCache[ i ];
-			m_averageFps /= (float)FPS_CACHE_NUM;
+			m_averageFps /= (double)FPS_CACHE_NUM;
 
+			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+			context->setTitle( title.c_str() );
 		}
 
-		std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
-		context->setTitle( title.c_str() );
 	}
 
-	m_applicationState->update( dt );
+	if( m_applicationState )
+		m_applicationState->update( dt );
 
 	currentCamera->update( dt );
 
@@ -286,25 +259,25 @@ void wv::cEngine::tick()
 	if ( !m_gbuffer || m_defaultRenderTarget->width == 0 || m_defaultRenderTarget->height == 0 )
 		return;
 
-	device->setRenderTarget( m_gbuffer );
-	device->clearRenderTarget( true, true );
+	graphics->setRenderTarget( m_gbuffer );
+	graphics->clearRenderTarget( true, true );
 
 	if( m_applicationState )
-		m_applicationState->draw( device );
+		m_applicationState->draw( graphics );
 
-	Debug::Draw::Internal::drawDebug( device );
+	Debug::Draw::Internal::drawDebug( graphics );
 
 	// normal back buffer
-	device->setRenderTarget( m_defaultRenderTarget );
-	device->clearRenderTarget( true, true );
+	graphics->setRenderTarget( m_defaultRenderTarget );
+	graphics->clearRenderTarget( true, true );
 
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
-		device->bindTextureToSlot( m_gbuffer->textures[ i ], i );
+		graphics->bindTextureToSlot( m_gbuffer->textures[ i ], i );
 
 	// render screen quad with deferred shader
-	device->useProgram( m_deferredProgram );
-	device->draw( m_screenQuad );
+	graphics->useProgram( m_deferredProgram );
+	graphics->draw( m_screenQuad );
 
 	context->swapBuffers();
 }
@@ -316,7 +289,7 @@ void wv::cEngine::quit()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::createScreeQuad()
+void wv::cEngine::createScreenQuad()
 {
 	wv::InputLayoutElement elements[] = {
 		{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
@@ -351,8 +324,8 @@ void wv::cEngine::createScreeQuad()
 	}
 
 	MeshDesc meshDesc;
-	m_screenQuad = device->createMesh( &meshDesc );
-	device->createPrimitive( &prDesc, m_screenQuad );
+	m_screenQuad = graphics->createMesh( &meshDesc );
+	graphics->createPrimitive( &prDesc, m_screenQuad );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -382,5 +355,5 @@ void wv::cEngine::createGBuffer()
 	rtDesc.textureDescs = texDescs;
 	rtDesc.numTextures = 4;
 
-	m_gbuffer = device->createRenderTarget( &rtDesc );
+	m_gbuffer = graphics->createRenderTarget( &rtDesc );
 }

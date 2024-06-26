@@ -4,7 +4,7 @@
 
 ]]--
 
-PROJECT_NAME = "Wyvern"
+PROJECT_NAME = "Sandbox"
 
 set_project( PROJECT_NAME )
 set_version( "0.0.1" )
@@ -18,4 +18,5 @@ set_allowedarchs( "x64", "x86", "wasm32" )
 includes( "platform/platforms.lua" )
 load_platform()
 
-includes( "source" )
+includes( "source/Engine" )
+includes( "source/App" )

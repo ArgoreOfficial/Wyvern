@@ -30,22 +30,24 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 	shader->setSource( shaderSource );
 	m_pGraphicsDevice->compileShader( shader );
 
-	addResource( _name, shader );
+	addResource( shader );
 
     return shader;
 }
 
 wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::string& _name )
 {
+	cShaderProgram* program = static_cast<cShaderProgram*>( getLoadedResource( _name ) );
+	if ( program )
+	{
+		program->incrNumUsers();
+		return program;
+	}
+
 	std::string yaml = m_pFileSystem->loadString( _name );
 	fkyaml::node root = fkyaml::node::deserialize( yaml );
 
 	std::string source = root[ "source" ].get_value<std::string>();
-
-	/// TODO: program caching
-	//wv::deprecated_Pipeline* pipeline = device->getPipeline( source.c_str() );
-	//if ( pipeline )
-	//	return pipeline;
 
 	cShader* vs = loadShader( WV_SHADER_TYPE_VERTEX,   "res/shaders/" + source + "_vs.glsl" );
 	cShader* fs = loadShader( WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" );
@@ -80,17 +82,21 @@ wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::stri
 		}
 	}
 
-	cShaderProgram* program = m_pGraphicsDevice->createProgram();
+	program = m_pGraphicsDevice->createProgram( _name );
 	program->addShader( vs );
 	program->addShader( fs );
 	m_pGraphicsDevice->linkProgram( program, blocks, textureUniforms );
 
+	addResource( program );
+	
 	return program;
 }
 
 void wv::cShaderRegistry::unloadShaderProgram( cShaderProgram* _program )
 {
 	std::vector<cShader*> shaders = _program->getShaders();
+	findAndUnloadResource( _program );
+
 	for ( int i = 0; i < shaders.size(); i++ )
-		findAndDestroyResource( shaders[ i ] );
+		findAndUnloadResource( shaders[ i ] );
 }

@@ -34,7 +34,7 @@ bool wv::Material::loadFromFile( const char* _path )
 bool wv::Material::loadFromSource( const std::string& _source )
 {
 	wv::cEngine* app = wv::cEngine::get();
-	wv::iGraphicsDevice* device = app->device;
+	wv::iGraphicsDevice* device = app->graphics;
 	wv::cFileSystem mdevice;
 
 	fkyaml::node root = fkyaml::node::deserialize( _source );
@@ -83,7 +83,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 void wv::Material::destroy()
 {
 	cEngine* app = cEngine::get();
-	iGraphicsDevice* device = cEngine::get()->device;
+	iGraphicsDevice* device = cEngine::get()->graphics;
 
 	/// TODO: move to some resource/texture manager
 	for ( int i = 0; i < (int)m_textures.size(); i++ )
@@ -122,7 +122,7 @@ void wv::Material::materialCallback()
 
 	// bind textures
 	for ( int i = 0; i < (int)m_textures.size(); i++ )
-		app->device->bindTextureToSlot( m_textures[ i ], i );
+		app->graphics->bindTextureToSlot( m_textures[ i ], i );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,8 @@ namespace wv
 	struct RenderTargetDesc;
 	struct MeshDesc;
 
+	struct iDeviceContext;
+
 	class Primitive;
 	class Texture;
 	class RenderTarget;
@@ -33,8 +35,7 @@ namespace wv
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
-		GraphicsAPI graphicsApi;
-		GenericVersion graphicsApiVersion;
+		iDeviceContext* pContext;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +47,14 @@ namespace wv
 		static inline iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc )
 		{
 			/// TODO: different backends
+			iGraphicsDevice* device = new iGraphicsDevice();
+			if ( !device->initialize( _desc ) )
+			{
+				delete device;
+				return nullptr;
+			}
 
-			return new iGraphicsDevice( _desc );
+			return device;
 		}
 
 		void terminate();
@@ -66,11 +73,10 @@ namespace wv
 		void destroyShader( cShader* _shader );
 		void compileShader( cShader* _shader );
 
-		cShaderProgram* createProgram();
+		cShaderProgram* createProgram( const std::string& _name );
 		void destroyProgram( cShaderProgram* _program );
 		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
 		void useProgram( cShaderProgram* _program );
-
 
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
@@ -89,6 +95,9 @@ namespace wv
 
 	private:
 
+		iGraphicsDevice();
+		bool initialize( GraphicsDeviceDesc* _desc );
+
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
@@ -96,14 +105,18 @@ namespace wv
 		void drawPrimitive( Primitive* _primitive );
 		UniformBlock createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc );
 
-		iGraphicsDevice( GraphicsDeviceDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
 		/// TODO: remove?
 		cShaderProgram* m_activeProgram = nullptr;
+		RenderTarget* m_activeRenderTarget = nullptr;
+
 		int m_numTotalUniformBlocks = 0;
+
+		std::vector<wv::Handle> m_boundTextureSlots;
+
 	};
 
 	template<typename ...Args>

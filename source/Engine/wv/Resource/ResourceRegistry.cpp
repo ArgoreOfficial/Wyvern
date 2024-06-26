@@ -13,13 +13,13 @@ wv::iResourceRegistry::~iResourceRegistry()
 
 	for ( auto& res : m_resources )
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "  '%s'\n", res.second->getName().c_str() );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "  '%s'\n", res.first.c_str() );
 		markedForDelete.push_back( res.second->getName() );
 	}
 
 	for ( int i = 0; i < markedForDelete.size(); i++ )
 	{
-		destroyResource( markedForDelete[ i ] );
+		unloadResource( markedForDelete[ i ] );
 
 		wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Force unloaded '%s'\n", markedForDelete[ i ].c_str());
 	}
@@ -33,18 +33,19 @@ wv::iResource* wv::iResourceRegistry::getLoadedResource( const std::string& _nam
 	return nullptr;
 }
 
-void wv::iResourceRegistry::addResource( const std::string& _name, iResource* _resource )
+void wv::iResourceRegistry::addResource( iResource* _resource )
 {
-	if ( getLoadedResource( _name ) )
+	std::string name = _resource->getName();
+	if ( getLoadedResource( name ) )
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource of name '%s' already exists\n", _name.c_str() );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource of name '%s' already exists\n", name.c_str() );
 		return;
 	}
 	
-	m_resources[ _name ] = _resource;
+	m_resources[ name ] = _resource;
 }
 
-void wv::iResourceRegistry::findAndDestroyResource( iResource* _resource )
+void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )
 {
 	if ( !_resource )
 	{
@@ -53,10 +54,10 @@ void wv::iResourceRegistry::findAndDestroyResource( iResource* _resource )
 	}
 
 	std::string key = _resource->getName();
-	destroyResource( key );
+	unloadResource( key );
 }
 
-void wv::iResourceRegistry::destroyResource( const std::string& _name )
+void wv::iResourceRegistry::unloadResource( const std::string& _name )
 {
 	if ( !m_resources.contains( _name ) )
 	{

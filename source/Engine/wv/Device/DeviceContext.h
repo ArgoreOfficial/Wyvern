@@ -17,6 +17,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	enum eVSyncMode
+	{
+		WV_VSYNC_OFF,
+		WV_VSYNC_ON,
+		WV_VSYNC_ADAPTIVE
+	};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	struct ContextDesc
 	{
 		const char* name = "";
@@ -24,9 +33,9 @@ namespace wv
 		int width = 640;
 		bool allowResize = false;
 
-		wv::DeviceContextAPI deviceApi;
-		wv::GraphicsAPI graphicsApi;
-		wv::GenericVersion graphicsApiVersion;
+		DeviceContextAPI deviceApi;
+		GraphicsAPI graphicsApi;
+		GenericVersion graphicsApiVersion;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +59,12 @@ namespace wv
 		virtual void setMouseLock( bool _lock ) = 0;
 		virtual void setTitle( const char* _title ) = 0;
 
+		virtual void setSwapInterval( int _interval ) = 0;
+
+		DeviceContextAPI getContextAPI     ( void ) { return m_deviceApi; }
+		GraphicsAPI      getGraphicsAPI    ( void ) { return m_graphicsApi; }
+		GenericVersion   getGraphicsVersion( void ) { return m_graphicsApiVersion; }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 		
 		int    getWidth    () { return m_width; }
@@ -71,6 +86,11 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
+		virtual bool initialize( ContextDesc* _desc ) = 0;
+
+		DeviceContextAPI m_deviceApi;
+		GraphicsAPI      m_graphicsApi;
+		GenericVersion   m_graphicsApiVersion;
 
 		int m_width = 0;
 		int m_height = 0;

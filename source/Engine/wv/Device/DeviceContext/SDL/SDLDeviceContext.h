@@ -35,18 +35,23 @@ namespace wv
 		void setMouseLock( bool _lock ) override;
 		void setTitle( const char* _title ) override;
 
+		void setSwapInterval( int _interval ) override;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 		friend class iDeviceContext;
-		SDLDeviceContext( ContextDesc* _desc );
+		SDLDeviceContext();
 		
+		bool initialize( ContextDesc* _desc ) override;
+
 		SDL_Window* m_windowContext = nullptr;
 
 		uint64_t m_performanceCounter = 0;
 
 		// #ifdef WV_OPENGL_SUPPORTED
 		SDL_GLContext m_glContext = nullptr;
+
 		// #endif
 	};
 }

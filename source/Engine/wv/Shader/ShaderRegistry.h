@@ -26,5 +26,7 @@ namespace wv
 
 		iGraphicsDevice* m_pGraphicsDevice;
 
+		std::unordered_map<std::string, cShaderProgram*> m_programs;
+
 	};
 }

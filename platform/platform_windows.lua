@@ -4,7 +4,7 @@ function load_platform_windows()
 end
 
 function target_platform_windows( target )
-    local root = "$(projectdir)\\"
+    local root = "../"
     
     -- icon resource
     target:add( "files", "$(projectdir)\\resources/resource.rc" )
@@ -12,8 +12,8 @@ function target_platform_windows( target )
     
     -- add supports
     target:add( "deps", "GLAD" )
-    import(".platform.support.glm"   )(target)
-    import(".platform.support.glfw"  )(target)
-    import(".platform.support.assimp")(target)
-    import(".platform.support.libsdl")(target) 
+    import(root.."platform.support.glm"   )(target)
+    import(root.."platform.support.glfw"  )(target)
+    import(root.."platform.support.assimp")(target)
+    import(root.."platform.support.libsdl")(target) 
 end

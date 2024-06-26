@@ -20,12 +20,12 @@ namespace wv
 
 		iResource* getLoadedResource( const std::string& _name );
 
-		void addResource( const std::string& _name, iResource* _resource );
+		void addResource( iResource* _resource );
 
 	protected:
 
-		void findAndDestroyResource( iResource* _resource );
-		void destroyResource( const std::string& _name );
+		void findAndUnloadResource( iResource* _resource );
+		void unloadResource( const std::string& _name );
 
 		std::string m_name;
 

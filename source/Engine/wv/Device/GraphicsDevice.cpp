@@ -9,6 +9,8 @@
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
+#include <wv/Device/DeviceContext.h>
+
 #include <glad/glad.h>
 #include <stdio.h>
 #include <sstream>
@@ -17,15 +19,21 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
+wv::iGraphicsDevice::iGraphicsDevice()
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 {
 	/// TODO: make configurable
 
-	m_graphicsApi = _desc->graphicsApi;
-	m_graphicsApiVersion = _desc->graphicsApiVersion;
+	m_graphicsApi = _desc->pContext->getGraphicsAPI();
+	m_graphicsApiVersion = _desc->pContext->getGraphicsVersion();
 
 	int initRes = 0;
-	switch ( _desc->graphicsApi )
+	switch ( m_graphicsApi )
 	{
 	case WV_GRAPHICS_API_OPENGL:     initRes = gladLoadGLLoader( _desc->loadProc ); break;
 	case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;
@@ -35,25 +43,22 @@ wv::iGraphicsDevice::iGraphicsDevice( GraphicsDeviceDesc* _desc )
 	if ( !initRes )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Graphics Device\n" );
-		return;
+		return false;
 	}
 
 	Debug::Print( Debug::WV_PRINT_INFO, "Intialized Graphics Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glGetString( GL_VERSION ) );
 
-	/// TEMPORARY---
-	/// TODO: add to pipeline configuration
+	/// TODO: make configurable
 	//glEnable( GL_MULTISAMPLE );
 	//glEnable( GL_BLEND );
 	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LESS );
 	glEnable( GL_CULL_FACE );
-	/// ---TEMPORARY
-}
 
-///////////////////////////////////////////////////////////////////////////////////////
+	m_boundTextureSlots.assign( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, 0 );
+}
 
 void wv::iGraphicsDevice::terminate()
 {
@@ -64,6 +69,7 @@ void wv::iGraphicsDevice::terminate()
 
 void wv::iGraphicsDevice::onResize( int _width, int _height )
 {
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -157,15 +163,16 @@ void wv::iGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 
 void wv::iGraphicsDevice::setRenderTarget( RenderTarget* _target )
 {
-	unsigned int handle = 0;
-	if ( _target )
-		handle = _target->fbHandle;
+	if ( m_activeRenderTarget == _target )
+		return;
 
+	unsigned int handle = _target ? _target->fbHandle : 0;
+	
 	glBindFramebuffer( GL_FRAMEBUFFER, handle );
 	if ( _target )
 		glViewport( 0, 0, _target->width, _target->height );
-	else
-		glViewport( 0, 0, 640, 480 );
+	
+	m_activeRenderTarget = _target;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -262,9 +269,9 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShaderProgram* wv::iGraphicsDevice::createProgram()
+wv::cShaderProgram* wv::iGraphicsDevice::createProgram( const std::string& _name )
 {
-	wv::cShaderProgram* program = new cShaderProgram( "Program" ); /// move
+	wv::cShaderProgram* program = new cShaderProgram( _name );
 	wv::Handle programHandle = glCreateProgram();
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create program\n" );
@@ -354,6 +361,9 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 
 void wv::iGraphicsDevice::useProgram( cShaderProgram* _program )
 {
+	if ( m_activeProgram == _program )
+		return;
+
 	glUseProgram( _program ? _program->getHandle() : 0 );
 	m_activeProgram = _program;
 }
@@ -594,6 +604,9 @@ void wv::iGraphicsDevice::destroyTexture( Texture** _texture )
 
 void wv::iGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
+	if ( m_boundTextureSlots[ _slot ] == _texture->handle )
+		return;
+
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
@@ -604,6 +617,8 @@ void wv::iGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _sl
 		glActiveTexture( GL_TEXTURE0 + _slot );
 		glBindTexture( GL_TEXTURE_2D, _texture->handle );
 	}
+
+	m_boundTextureSlots[ _slot ] = _texture->handle;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

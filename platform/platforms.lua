@@ -16,7 +16,7 @@ function load_platform()
     end
 end
 
-function target_platform()
+function target_platform(_root)
     for i=1,#PLATFORMS do 
         if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
             on_load(PLATFORMS[i].target)
