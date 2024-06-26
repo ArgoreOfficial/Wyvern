@@ -66,7 +66,7 @@ namespace wv
 		void destroyShader( cShader* _shader );
 		void compileShader( cShader* _shader );
 
-		cShaderProgram* createProgram();
+		cShaderProgram* createProgram( const std::string& _name );
 		void destroyProgram( cShaderProgram* _program );
 		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
 		void useProgram( cShaderProgram* _program );

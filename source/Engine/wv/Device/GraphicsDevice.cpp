@@ -262,9 +262,9 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShaderProgram* wv::iGraphicsDevice::createProgram()
+wv::cShaderProgram* wv::iGraphicsDevice::createProgram( const std::string& _name )
 {
-	wv::cShaderProgram* program = new cShaderProgram( "Program" ); /// move
+	wv::cShaderProgram* program = new cShaderProgram( _name );
 	wv::Handle programHandle = glCreateProgram();
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create program\n" );
