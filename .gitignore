@@ -9,3 +9,6 @@ obj
 vsxmake2022
 game/*.exe
 *.ilk
+game/*.html
+game/*.js
+game/*.wasm

@@ -3,6 +3,8 @@
 #include <wv/Debug/Print.h>
 #include <wv/Resource/Resource.h>
 
+#include <vector>
+
 wv::iResourceRegistry::~iResourceRegistry()
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "%s has %i unloaded resources\n", m_name.c_str(), (int)m_resources.size() );
