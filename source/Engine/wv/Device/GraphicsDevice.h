@@ -63,10 +63,6 @@ namespace wv
 		void setClearColor( const wv::cColor& _color );
 		void clearRenderTarget( bool _color, bool _depth );
 
-		deprecated_Pipeline* createPipeline( PipelineDesc* _desc );
-		void destroyPipeline( deprecated_Pipeline** _pipeline );
-		deprecated_Pipeline* getPipeline( const char* _name );
-
 		cShader* createShader( eShaderType _type );
 		void compileShader( cShader* _shader );
 
@@ -91,6 +87,10 @@ namespace wv
 
 	private:
 
+		template<typename... Args>
+		bool assertGLError( const std::string _msg, Args..._args );
+		bool getError( std::string* _out );
+
 		void drawPrimitive( Primitive* _primitive );
 		UniformBlock createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc );
 
@@ -99,10 +99,21 @@ namespace wv
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
-		wv::deprecated_Pipeline* m_activePipeline = nullptr;
+		/// TODO: remove?
+		cShaderProgram* m_activeProgram = nullptr;
 		int m_numTotalUniformBlocks = 0;
-
-		std::unordered_map<std::string, wv::deprecated_Pipeline*> m_pipelines;
-
 	};
+
+	template<typename ...Args>
+	inline bool iGraphicsDevice::assertGLError( const std::string _msg, Args ..._args )
+	{
+		std::string error;
+		if ( !getError( &error ) )
+			return false;
+		
+		Debug::Print( Debug::WV_PRINT_ERROR, _msg.c_str(), _args... );
+		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", error.c_str() );
+
+		return false;
+	}
 }

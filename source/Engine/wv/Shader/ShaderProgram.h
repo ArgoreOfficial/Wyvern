@@ -41,10 +41,13 @@ namespace wv
 
 			return &m_uniformBlocks[ _name ];
 		}
+		
+		UniformBlockMap* getUniformBlockMap() { return &m_uniformBlocks; }
+
 		/// TODO: not inline
 		void addUniformBlock( const std::string& _name, const UniformBlock& _block ) 
 		{
-			if ( !m_uniformBlocks.contains( _name ) )
+			if ( m_uniformBlocks.contains( _name ) )
 			{
 				Debug::Print( Debug::WV_PRINT_ERROR, "Uniform Block '%s' already exists\n", _name.c_str() );
 				return;

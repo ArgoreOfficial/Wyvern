@@ -185,48 +185,6 @@ void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::deprecated_Pipeline* wv::iGraphicsDevice::createPipeline( PipelineDesc* _desc )
-{
-	return nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::iGraphicsDevice::destroyPipeline( deprecated_Pipeline** _pipeline )
-{
-	
-	std::string key = "";
-	for ( auto& p : m_pipelines )
-	{
-		if ( p.second == *_pipeline )
-		{
-			key = p.first;
-			break;
-		}
-	}
-	if( key != "" )
-		m_pipelines.erase( key );
-
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture '%s'\n", key.c_str() );
-
-	glDeleteProgram( ( *_pipeline )->program );
-
-	delete* _pipeline;
-	*_pipeline = nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::deprecated_Pipeline* wv::iGraphicsDevice::getPipeline( const char* _name )
-{
-	if ( !m_pipelines.count( _name ) )
-		return nullptr;
-	
-	return m_pipelines[ _name ];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type )
 {
 	
@@ -242,6 +200,9 @@ wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type )
 	}
 
 	wv::Handle handle = glCreateShader( type );
+#ifdef WV_DEBUG
+	assertGLError( "Failed to create shader\n" );
+#endif
 	shader->setHandle( handle );
 	
 	return shader;
@@ -276,8 +237,12 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 	wv::Handle shaderHandle = _shader->getHandle();
 	glShaderSource( shaderHandle, 1, &sourcePtr, NULL);
-	glCompileShader( shaderHandle );
+#ifdef WV_DEBUG
+	assertGLError( "Failed to add shader source to program\n" );
+#endif
 
+	glCompileShader( shaderHandle );
+	
 	int  success;
 	char infoLog[ 512 ];
 	glGetShaderiv( shaderHandle, GL_COMPILE_STATUS, &success );
@@ -294,7 +259,9 @@ wv::cShaderProgram* wv::iGraphicsDevice::createProgram()
 {
 	wv::cShaderProgram* program = new cShaderProgram( "Program" ); /// move
 	wv::Handle programHandle = glCreateProgram();
-
+#ifdef WV_DEBUG
+	assertGLError( "Failed to create program\n" );
+#endif
 	program->setHandle( programHandle );
 
 	return program;
@@ -319,17 +286,21 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 
 	std::vector<cShader*> shaders = _program->getShaders();
 
-	glUseProgram( programHandle );
-
 	for ( int i = 0; i < shaders.size(); i++ )
+	{
 		glAttachShader( programHandle, shaders[ i ]->getHandle() );
-
+	#ifdef WV_DEBUG
+		assertGLError( "attach\n" );
+	#endif
+	}
 	glLinkProgram( programHandle );
+#ifdef WV_DEBUG
+	assertGLError( "link\n" );
+#endif
 
 	int  success;
 	char infoLog[ 512 ];
 	glGetProgramiv( programHandle, GL_LINK_STATUS, &success );
-
 	if ( !success )
 	{
 		glGetProgramInfoLog( programHandle, 512, NULL, infoLog );
@@ -347,15 +318,21 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 		_program->addUniformBlock( _uniformBlocks[ i ].name, block );
 	}
 
+	glUseProgram( programHandle );
+
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
 	for ( int i = 0; i < (int)_textureUniforms.size(); i++ )
 	{
 		unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
 		glUniform1i( loc, _textureUniforms[ i ].index );
+	#ifdef WV_DEBUG
+		assertGLError( "Failed to bind texture loc\n" );
+	#endif
 	}
 
 	glUseProgram( 0 );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -363,6 +340,7 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 void wv::iGraphicsDevice::useProgram( cShaderProgram* _program )
 {
 	glUseProgram( _program ? _program->getHandle() : 0 );
+	m_activeProgram = _program;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -491,8 +469,8 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 {
 	Texture* texture = new Texture();
 
-	GLenum internalFormat = GL_NONE;
-	GLenum format = GL_NONE;
+	GLenum internalFormat = GL_R8;
+	GLenum format = GL_RED;
 
 	unsigned char* data = nullptr;
 	if ( _desc->memory )
@@ -537,7 +515,7 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 		format = GL_RGBA;
 		switch ( _desc->format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA8;    break;
+		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA8;   break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
 		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; format = GL_RGBA_INTEGER; break;
 		}
@@ -545,12 +523,16 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 	}
 
 	glGenTextures( 1, &texture->handle );
+#ifdef WV_DEBUG
+	assertGLError( "Failed to gen texture\n" );
+#endif
+	
 	glBindTexture( GL_TEXTURE_2D, texture->handle );
-
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-	GLenum filter = GL_NONE;
+#ifdef WV_DEBUG
+	assertGLError( "Failed to bind texture\n" );
+#endif
+	
+	GLenum filter = GL_NEAREST;
 	switch ( _desc->filtering )
 	{
 	case WV_TEXTURE_FILTER_NEAREST: filter = GL_NEAREST; break;
@@ -559,6 +541,8 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 	
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	
 	GLenum type = GL_UNSIGNED_BYTE;
 	switch ( _desc->format )
@@ -567,23 +551,13 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 	case wv::WV_TEXTURE_FORMAT_INT:   type = GL_INT; break;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
-	
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );	
+#ifdef WV_DEBUG
+	assertGLError( "Failed to create Texture\n" );
+#endif
 
 	if( _desc->generateMipMaps )
 		glGenerateMipmap( GL_TEXTURE_2D );
-
-	GLenum err;
-	while ( ( err = glGetError() ) != GL_NO_ERROR )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create Texture:\n" );
-		switch ( err )
-		{
-		case GL_INVALID_ENUM:      Debug::Print( "  GL_INVALID_ENUM\n" ); break;
-		case GL_INVALID_VALUE:     Debug::Print( "  GL_INVALID_VALUE\n" ); break;
-		case GL_INVALID_OPERATION: Debug::Print( "  GL_INVALID_OPERATION\n" ); break;
-		}
-	}
 
 	texture->width  = _desc->width;
 	texture->height = _desc->height;
@@ -638,13 +612,40 @@ void wv::iGraphicsDevice::draw( Mesh* _mesh )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+bool wv::iGraphicsDevice::getError( std::string* _out )
+{
+	bool hasError = false;
+
+	GLenum err;
+	while ( ( err = glGetError() ) != GL_NO_ERROR ) // is while needed here?
+	{
+		hasError = true;
+		switch ( err )
+		{
+		case GL_INVALID_ENUM:      *_out = "GL_INVALID_ENUM";      break;
+		case GL_INVALID_VALUE:     *_out = "GL_INVALID_VALUE";     break;
+		case GL_INVALID_OPERATION: *_out = "GL_INVALID_OPERATION"; break;
+		
+		case GL_STACK_OVERFLOW:  *_out = "GL_STACK_OVERFLOW";    break;
+		case GL_STACK_UNDERFLOW: *_out = "GL_STACK_UNDERFLOW";   break;
+		case GL_OUT_OF_MEMORY:   *_out = "GL_OUT_OF_MEMORY";     break;
+		case GL_CONTEXT_LOST:    *_out = "GL_OUT_OF_MEMORY";     break;
+
+		case GL_INVALID_FRAMEBUFFER_OPERATION: *_out = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+		}
+	}
+
+	return hasError;
+}
+
 void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 	glBindVertexArray( _primitive->vaoHandle );
 	
-	for ( auto& block : m_activePipeline->uniformBlocks )
+	UniformBlockMap* uniformBlocks = m_activeProgram->getUniformBlockMap();
+	for ( auto& block : *uniformBlocks )
 	{
-		glUniformBlockBinding( m_activePipeline->program, block.second.m_index, block.second.m_bindingIndex );
+		glUniformBlockBinding( m_activeProgram->getHandle(), block.second.m_index, block.second.m_bindingIndex);
 		glBindBuffer( GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
 		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
