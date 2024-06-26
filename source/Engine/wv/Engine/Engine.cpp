@@ -225,26 +225,25 @@ void wv::cEngine::tick()
 	context->pollEvents();
 	
 	// refresh fps display
-	
 	{
-		float fps = 1.0f / static_cast<float>( dt );
+		double fps = 1.0 / dt;
 		
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
 		m_fpsCache[ m_fpsCacheCounter ] = fps;
 		m_fpsCacheCounter++;
-		if ( m_fpsCacheCounter > FPS_CACHE_NUM )
+		if ( m_fpsCacheCounter >= FPS_CACHE_NUM )
 		{
 			m_fpsCacheCounter = 0;
 			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
 				m_averageFps += m_fpsCache[ i ];
-			m_averageFps /= (float)FPS_CACHE_NUM;
+			m_averageFps /= (double)FPS_CACHE_NUM;
 
+			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+			context->setTitle( title.c_str() );
 		}
 
-		std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
-		context->setTitle( title.c_str() );
 	}
 
 	if( m_applicationState )

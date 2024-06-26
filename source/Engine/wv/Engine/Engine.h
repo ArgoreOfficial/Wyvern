@@ -111,12 +111,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		float m_maxFps = 0.0f;
 		
 	#define FPS_CACHE_NUM 200
-		float m_fpsCache[ FPS_CACHE_NUM ] = { 0.0f };
-		int m_fpsCacheCounter = 0;
-		float m_averageFps = 0.0f;
+		unsigned int m_fpsCacheCounter = 0;
+		double m_fpsCache[ FPS_CACHE_NUM ] = { 0.0 };
+		double m_averageFps = 0.0;
+		double m_maxFps = 0.0;
 
 		RootNode* m_scene;
 
