@@ -1,9 +1,15 @@
 # The Wyvern Game Engine
 <sup>Copyright © 2023-2024 Argore</sup>
 
-|  Platform   | Windows | Emscripten |   Linux  |   macOS  | Consoles   |
-| :---------: | :-----: | :--------: | :------: | :------: | :--------: |
-| **Support** | Full    | Full       | Untested | Untested | Planned... |
+|                | SDL2 | GLFW | OpenGL | GLES |
+| :-----------:  | :-: | :-: | :-: | :-: |
+| **Windows**    | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Emscripten** | ✔️ | ❌ | ❌ | ✔️ |
+| **Linux**      | ❔ | ❔ | ❔ | ❔ |
+| **macOS**      | ❔ | ❔ | ❔ | ❔ |
+| **Consoles***  | ❌ | ❌ | ❌ | ❌ |
+
+<sup>*planned</sup>
 
 ## Features
 Wyvern is far from a feature-usable engine, so don't expect much at the moment.
