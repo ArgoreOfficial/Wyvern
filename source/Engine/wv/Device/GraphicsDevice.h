@@ -21,7 +21,6 @@ namespace wv
 	struct RenderTargetDesc;
 	struct MeshDesc;
 
-	class deprecated_Pipeline;
 	class Primitive;
 	class Texture;
 	class RenderTarget;

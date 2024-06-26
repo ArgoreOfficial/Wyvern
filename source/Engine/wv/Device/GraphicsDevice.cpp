@@ -5,7 +5,6 @@
 #include <wv/Debug/Print.h>
 #include <wv/Decl.h>
 #include <wv/Memory/MemoryDevice.h>
-#include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>

@@ -14,7 +14,6 @@ namespace wv
 	class AudioDevice;
 
 	class Mesh;
-	class deprecated_Pipeline;
 	class ICamera;
 	class RenderTarget;
 	class cFileSystem;

@@ -15,7 +15,6 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Memory/ModelParser.h>
 
-#include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 

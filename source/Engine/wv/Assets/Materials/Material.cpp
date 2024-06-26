@@ -6,7 +6,6 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Math/Transform.h>
 #include <wv/Memory/MemoryDevice.h>
-#include <wv/Pipeline/Pipeline.h>
 #include <wv/Primitive/Mesh.h>
 
 #include <wv/Shader/ShaderRegistry.h>
