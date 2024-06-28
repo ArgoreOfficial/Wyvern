@@ -13,7 +13,7 @@ set_symbols "debug"
 set_optimize "none"
 
 set_languages( "c17", "cxx20" )
-set_allowedarchs( "x64", "x86", "wasm32" )
+set_allowedarchs( "x64", "x86", "x86_64", "wasm32" )
 
 includes( "platform/platforms.lua" )
 load_platform()

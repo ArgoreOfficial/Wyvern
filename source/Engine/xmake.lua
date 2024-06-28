@@ -39,7 +39,7 @@ target "Wyvern"
     set_targetdir "../../build"
     
     set_objectdir "../../build/obj"
-    set_runtimes "MD" 
+    set_runtimes "MT" 
 
     add_headerfiles( 
         "**.h", 

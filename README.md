@@ -35,19 +35,22 @@ aka these are things that I _want_ to implement, not a timeline
 
 ## Building
 Wyvern uses the free and open-source build tool [xmake](https://github.com/xmake-io/xmake).  
+[xmake installation guide](https://xmake.io/#/guide/installation)  
 
-### Visual Studio Setup
-1. Follow the [xmake installation guide](https://xmake.io/#/guide/installation)  
-2. Run `build.bat`  
-3. The Visual Studio solution will be located in build/vsxmake...
+### Visual Studio Solution
+Run `build.bat`  
+The Visual Studio solution will be located in build/vsxmake...
 
-### Linking ASSIMP 
-A static build of [Assimp]() is provided
+### Command Line
+```
+xmake f -p <platform> -m <mode>
+```
+`<platform>` is windows, linux, or wasm  
+`<mode>` is Debug, Release, or Package
 
-1. extract `assimp-static.7z` somewhere
-2. change ASSIMP_STATIC_ROOT in `platform\support\assimp.lua` to point to that folder (default `D:/SDK/assimp-static/`)
-
-this dependency will be removed sometime in the future, but for now this works
+```
+xmake
+```
 
 ## Building WASM
 Wyvern supports WASM through SDL and OpenGL ES. Building is done using xmake like normal, but requires a few extra steps.  
@@ -113,7 +116,7 @@ in Wyvern root start cmd, then activate emsdk and build xmake like normal
 emsdk activate
 ```
 ```
-xmake f -p wasm 
+xmake f -p wasm -m Package
 ```
 ```
 xmake --rebuild

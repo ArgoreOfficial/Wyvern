@@ -1,6 +1,6 @@
 function load_platform_windows()
     add_defines("WV_PLATFORM_WINDOWS")
-    add_requires( "glm", "glfw", "libsdl" )
+    add_requires( "glm", "glfw", "libsdl", "assimp" )
 end
 
 function target_platform_windows( target )
