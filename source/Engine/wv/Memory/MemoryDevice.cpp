@@ -18,6 +18,7 @@
 #include <locale>
 #include <codecvt>
 #include <string>
+#include <filesystem>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -123,7 +124,8 @@ bool wv::cFileSystem::fileExists( const std::string& _path )
 
 bool wv::cFileSystem::fileExists( const std::wstring& _path )
 {
-	std::ifstream f( _path );
+	std::filesystem::path fpath( _path ); // might not be needed on windows?
+	std::ifstream f( fpath );
 	return f.good();
 }
 

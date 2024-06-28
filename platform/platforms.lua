@@ -5,7 +5,7 @@ includes "platform_linux.lua"
 
 local PLATFORMS = {
     { plat="windows", arch={ "x64", "x86" }, load=load_platform_windows, target=target_platform_windows },
-    { plat="linux",   arch={ "x64_86"     }, load=load_platform_linux,   target=target_platform_linux   },
+    { plat="linux",   arch={ "x86_64"     }, load=load_platform_linux,   target=target_platform_linux   },
     { plat="wasm",    arch={ "wasm32"     }, load=load_platform_wasm,    target=target_platform_wasm    }
 }
 
