@@ -11,7 +11,6 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, std::vector<wv::iResource*> _q
 
 		_worker->mutex.lock();
 		_worker->loadedResources.push_back( _queue[ i ] );
-		printf( "Loaded\n" );
 		_worker->mutex.unlock();
 	}
 

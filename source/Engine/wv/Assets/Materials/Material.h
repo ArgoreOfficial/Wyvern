@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include <wv/Resource/Resource.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -17,19 +19,25 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Material
+	class Material : public iResource
 	{
 
 	public:
 
+		Material( std::string _name ) : 
+			iResource{ _name, L"" }
+		{ }
+
 		bool loadFromFile( const char* _path );
 		bool loadFromSource( const std::string& _source );
-		virtual void destroy();
+		void destroy() override;
 
 		void setAsActive( iGraphicsDevice* _device );
 
 		virtual void materialCallback();
 		virtual void instanceCallback( Mesh* _instance );
+
+		bool tempIsCreated();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

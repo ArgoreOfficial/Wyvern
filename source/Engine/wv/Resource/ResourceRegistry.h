@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wv/Resource/cResourceLoader.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -11,9 +13,10 @@ namespace wv
 	class iResourceRegistry
 	{
 	public:
-		iResourceRegistry( const std::string& _name, cFileSystem* _fileSystem ):
+		iResourceRegistry( const std::string& _name, cFileSystem* _pFileSystem ):
 			m_name{_name},
-			m_pFileSystem{_fileSystem}
+			m_pFileSystem{ _pFileSystem },
+			m_resourceLoader{_pFileSystem}
 		 { }
 
 		~iResourceRegistry();
@@ -22,10 +25,15 @@ namespace wv
 
 		void addResource( iResource* _resource );
 
+		void update();
+		bool isLoading() { return m_resourceLoader.isLoading(); }
+
 	protected:
 
 		void findAndUnloadResource( iResource* _resource );
 		void unloadResource( const std::string& _name );
+
+		cResourceLoader m_resourceLoader;
 
 		std::string m_name;
 

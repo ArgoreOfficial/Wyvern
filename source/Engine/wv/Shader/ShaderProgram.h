@@ -18,19 +18,29 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cShader;
-	
+	class cShaderRegistry;
+	class iGraphicsDevice;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cShaderProgram : public iResource
 	{
 	public:
-		cShaderProgram( const std::string& _name ) :
-			iResource{ _name, L"" }
+		cShaderProgram( iGraphicsDevice* _pGraphicsDevice, cShaderRegistry* _pShaderRegistry, const std::string& _name ) :
+			iResource{ _name, L"" },
+			m_pGraphicsDevice{ _pGraphicsDevice },
+			m_pShaderRegistry{ _pShaderRegistry }
 		{ }
 
 		void addShader( cShader* _shader ) { m_shaders.push_back( _shader ); }
 		
 		std::vector<cShader*> getShaders() { return m_shaders; }
+
+		void load  ( cFileSystem* _pFileSystem ) override;
+		void unload( cFileSystem* _pFileSystem ) override;
+
+		void create () override;
+		void destroy() override;
 
 		// void bindUniformToLoc( Uniform _uniform, int _loc );
 
@@ -57,8 +67,13 @@ namespace wv
 		}
 
 	private:
+		iGraphicsDevice* m_pGraphicsDevice;
+		cShaderRegistry* m_pShaderRegistry;
 
 		std::vector<cShader*> m_shaders;
+
+		std::vector<UniformBlockDesc> m_uniformBlockDescs;
+		std::vector<Uniform> m_textureUniforms;
 
 		UniformBlockMap m_uniformBlocks;
 

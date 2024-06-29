@@ -9,6 +9,8 @@
 #include <glad/glad.h>
 #include <SDL2/SDL_keycode.h>
 
+#include <wv/Shader/ShaderRegistry.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DefaultScene::DefaultScene()
@@ -33,7 +35,7 @@ void DefaultScene::onLoad()
 	m_skybox = parser.load( "res/meshes/skysphere.dae" );
 	m_skybox->transform.rotation.x = -90.0f;
 
-	m_skyMaterial = new wv::Material();
+	m_skyMaterial = new wv::Material( "sky" );
 	m_skyMaterial->loadFromFile( "sky" );
 	// resource leak
 	if( m_skybox ) 
@@ -89,10 +91,13 @@ void DefaultScene::update( double _deltaTime )
 
 void DefaultScene::draw( wv::iGraphicsDevice* _device )
 {
-	/// TODO: remove raw gl calls
-	glDepthMask( GL_FALSE );
-	glDepthFunc( GL_LEQUAL );
-	_device->draw( m_skybox );
-	glDepthFunc( GL_LESS );
-	glDepthMask( GL_TRUE );
+	if ( m_skyMaterial->tempIsCreated() )
+	{
+		/// TODO: remove raw gl calls
+		glDepthMask( GL_FALSE );
+		glDepthFunc( GL_LEQUAL );
+		_device->draw( m_skybox );
+		glDepthFunc( GL_LESS );
+		glDepthMask( GL_TRUE );
+	}
 }

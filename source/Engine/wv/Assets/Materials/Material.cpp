@@ -137,3 +137,8 @@ void wv::Material::instanceCallback( Mesh* _instance )
 
 	instanceBlock.set( "u_Model", _instance->transform.getMatrix() );
 }
+
+bool wv::Material::tempIsCreated()
+{
+	return m_program->isCreated();
+}

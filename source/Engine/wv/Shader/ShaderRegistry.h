@@ -21,7 +21,7 @@ namespace wv
 		
 		cShaderProgram* loadProgramFromWShader( const std::string& _name );
 		void unloadShaderProgram( cShaderProgram* _program );
-		
+
 	private:
 
 		iGraphicsDevice* m_pGraphicsDevice;

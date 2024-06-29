@@ -248,6 +248,10 @@ void wv::cEngine::tick()
 
 	}
 
+
+	// update modules
+	m_pShaderRegistry->update();
+
 	if( m_applicationState )
 		m_applicationState->update( dt );
 

@@ -10,7 +10,7 @@
 void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _device )
 {
 	wv::assimp::Parser parser;
-	DEBUG_MATERIAL = new Material();
+	DEBUG_MATERIAL = new Material( "debug" );
 	DEBUG_MATERIAL->loadFromFile( "debug" );
 
 	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae" );

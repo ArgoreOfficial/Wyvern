@@ -130,9 +130,10 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 		
-		wv::Material* material = new wv::Material();
 		wv::cFileSystem md;
 		std::string matPath = assimpMaterial->GetName().C_Str();
+		wv::Material* material = new wv::Material( matPath );
+
 		if ( md.fileExists( matPath ) )
 			 material->loadFromFile( assimpMaterial->GetName().C_Str() );
 		else

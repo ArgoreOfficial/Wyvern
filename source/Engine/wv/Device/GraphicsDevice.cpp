@@ -191,28 +191,26 @@ void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShader* wv::iGraphicsDevice::createShader( eShaderType _type, const std::string& _name )
+bool wv::iGraphicsDevice::createShader( cShader* _shader, eShaderType _type )
 {
-	
-	cShader* shader = new cShader( this, _type, _name );
-
 	GLenum type = GL_NONE;
 	{
 		switch ( _type )
 		{
 		case wv::WV_SHADER_TYPE_FRAGMENT: type = GL_FRAGMENT_SHADER; break;
-		case wv::WV_SHADER_TYPE_VERTEX: type = GL_VERTEX_SHADER; break;
+		case wv::WV_SHADER_TYPE_VERTEX:   type = GL_VERTEX_SHADER; break;
 		}
 	}
 
 	wv::Handle handle = glCreateShader( type );
+
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create shader\n" );
 #endif
-	shader->setHandle( handle );
 	
-	return shader;
-	
+	_shader->setHandle( handle );
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -269,16 +267,13 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShaderProgram* wv::iGraphicsDevice::createProgram( const std::string& _name )
+void wv::iGraphicsDevice::createProgram( wv::cShaderProgram* _program, const std::string& _name )
 {
-	wv::cShaderProgram* program = new cShaderProgram( _name );
 	wv::Handle programHandle = glCreateProgram();
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create program\n" );
 #endif
-	program->setHandle( programHandle );
-
-	return program;
+	_program->setHandle( programHandle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
