@@ -9,6 +9,8 @@ namespace wv
 {
 	/// TODO: forward declare iFileSystem for resource loading
 
+	class cFileSystem;
+
 	class iResource
     {
 	public: 
@@ -19,12 +21,12 @@ namespace wv
 		{ }
 
 		/// TODO: impl? might place in iResourceRegistry
-		void load  ( void ) { }
-		void unload( void ) { }
-		void reload( void ) { }
+		virtual void load  ( cFileSystem* _pFileSystem ) { }
+		virtual void unload( cFileSystem* _pFileSystem ) { }
+		virtual void reload( void ) { }
 		
-		void create ( void ) { }
-		void destroy( void ) { }
+		virtual void create ( void ) { }
+		virtual void destroy( void ) { }
 
 		void incrNumUsers( void ) { m_numUsers++; }
 		void decrNumUsers( void ) { if( m_numUsers > 0) m_numUsers--; }
