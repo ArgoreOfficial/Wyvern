@@ -12,9 +12,9 @@ namespace wv
 	class cShaderRegistry : public iResourceRegistry
 	{
 	public:
-		cShaderRegistry( cFileSystem* _fileSystem, iGraphicsDevice* _graphicsDevice ) :
-			iResourceRegistry{"ShaderRegistry", _fileSystem},
-			m_pGraphicsDevice{_graphicsDevice}
+		cShaderRegistry( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) :
+			iResourceRegistry{ "ShaderRegistry", _pFileSystem, _pGraphicsDevice },
+			m_pGraphicsDevice{ _pGraphicsDevice }
 		{ }
 
 		cShader* loadShader( eShaderType _type, const std::string& _name );

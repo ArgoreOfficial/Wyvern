@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -8,8 +9,6 @@ namespace wv
 {
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-	struct TextureMemory;
 
 	enum TextureChannels
 	{
@@ -39,17 +38,40 @@ namespace wv
 		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
 		int width = 0;
 		int height = 0;
-		TextureMemory* memory = nullptr;
 		bool generateMipMaps = false;
 	};
 
-	class Texture
+	class Texture : public iResource
 	{
 	public:
-		wv::Handle handle;
-		int width;
-		int height;
+		
+		Texture( const std::string& _name = "", const std::wstring& _path = L"" ) :
+			iResource{ _name, _path } 
+		{ }
 
+		void load  ( cFileSystem* _pFileSystem ) override;
+		void unload( cFileSystem* _pFileSystem ) override;
+
+		void create ( iGraphicsDevice* _pGraphicsDevice ) override;
+		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
+
+		void setWidth ( int _width )  { m_width = _width; }
+		void setHeight( int _height ) { m_height = _height; }
+
+		int getWidth ( void ) { return m_width; }
+		int getHeight( void ) { return m_height; }
+		int getNumChannels( void ) { return m_numChannels; }
+
+		uint8_t*     getData    ( void ) { return m_pData; }
+		unsigned int getDataSize( void ) { return m_dataSize; }
+
+	private:
+		uint8_t* m_pData = nullptr;
+		unsigned int m_dataSize = 0;
+
+		int m_width  = 0;
+		int m_height = 0;
+		int m_numChannels = 0;
 	};
 
 }

@@ -30,7 +30,7 @@ namespace wv
 
 		bool loadFromFile( const char* _path );
 		bool loadFromSource( const std::string& _source );
-		void destroy() override;
+		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setAsActive( iGraphicsDevice* _device );
 

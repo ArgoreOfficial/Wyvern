@@ -47,32 +47,29 @@ bool wv::Material::loadFromSource( const std::string& _source )
 	{
 		for ( auto& textureFile : root[ "textures" ] )
 		{
-			std::string texturePath = "res/textures/" + textureFile[ 1 ].get_value<std::string>();
-			TextureMemory* texMem = mdevice.loadTextureData( texturePath );
+			std::string textureName = textureFile[ 1 ].get_value<std::string>();
+			
 			TextureDesc texDesc;
-			texDesc.memory = texMem;
-			//texDesc.generateMipMaps = true;
 			texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
+			//texDesc.generateMipMaps = true;
 
-			Texture* tex = device->createTexture( &texDesc );
-			if ( tex )
-				m_textures.push_back( tex );
+			Texture* tex = new Texture( textureName );
+			tex->load( app->m_pFileSystem );
 
-			mdevice.unloadMemory( texMem );
+			device->createTexture( tex, &texDesc );
+			m_textures.push_back( tex );
 		}
 	}
 	else
 	{
-		TextureMemory* texMem = mdevice.loadTextureData( "res/textures/uv.png" );
+		Texture* tex = new Texture( "DefaultUV", L"res/textures/uv.png" );
+		tex->load( app->m_pFileSystem );
+
 		TextureDesc texDesc;
-		texDesc.memory = texMem;
 		texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
 
-		Texture* tex = device->createTexture( &texDesc );
-		if ( tex )
-			m_textures.push_back( tex );
-
-		mdevice.unloadMemory( texMem );
+		device->createTexture( tex, &texDesc );
+		m_textures.push_back( tex );
 	}
 
 	return true;
@@ -80,7 +77,7 @@ bool wv::Material::loadFromSource( const std::string& _source )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::destroy()
+void wv::Material::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
 	cEngine* app = cEngine::get();
 	iGraphicsDevice* device = cEngine::get()->graphics;

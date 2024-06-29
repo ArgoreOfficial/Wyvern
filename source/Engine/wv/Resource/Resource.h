@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+
+#include <wv/Debug/Print.h>
 #include <wv/Types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +12,7 @@ namespace wv
 	/// TODO: forward declare iFileSystem for resource loading
 
 	class cFileSystem;
+	class iGraphicsDevice;
 
 	enum eResourceLoadState
 	{
@@ -30,12 +33,22 @@ namespace wv
 		{ }
 
 		/// TODO: impl? might place in iResourceRegistry
-		virtual void load  ( cFileSystem* _pFileSystem ) { m_loaded = true; }
-		virtual void unload( cFileSystem* _pFileSystem ) { m_loaded = false; }
+		virtual void load  ( cFileSystem* _pFileSystem ) 
+		{ 
+			m_loaded = true; 
+			wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Loaded '%s'\n", m_name.c_str() );
+		}
+		
+		virtual void unload( cFileSystem* _pFileSystem ) 
+		{ 
+			m_loaded = false; 
+			wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Unoaded '%s'\n", m_name.c_str() );
+		}
+
 		virtual void reload( void ) { }
 		
-		virtual void create ( void ) { m_created = true; }
-		virtual void destroy( void ) { m_created = false; }
+		virtual void create ( iGraphicsDevice* _pGraphicsDevice ) { m_created = true; }
+		virtual void destroy( iGraphicsDevice* _pGraphicsDevice ) { m_created = false; }
 
 		void incrNumUsers( void ) { m_numUsers++; }
 		void decrNumUsers( void ) { if( m_numUsers > 0) m_numUsers--; }

@@ -3,9 +3,6 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/MemoryDevice.h>
 
-/// TODO: BAD
-#include <Windows.h>
-
 wv::cShader::~cShader()
 {
 }
@@ -23,22 +20,25 @@ void wv::cShader::load( cFileSystem* _pFileSystem )
 	std::string shaderSource = _pFileSystem->loadString( m_name );
 	setSource( shaderSource );
 
-	Sleep( 400 );
-	// addResource( shader );
+	iResource::load( _pFileSystem );
 }
 
 void wv::cShader::unload( cFileSystem* _pFileSystem )
 {
-
+	iResource::unload( _pFileSystem );
 }
 
-void wv::cShader::create()
+void wv::cShader::create( iGraphicsDevice* _pGraphicsDevice )
 {
-	m_pGraphicsDevice->createShader( this, m_type );
-	m_pGraphicsDevice->compileShader( this );
+	_pGraphicsDevice->createShader( this, m_type );
+	_pGraphicsDevice->compileShader( this );
+
+	iResource::create( _pGraphicsDevice );
 }
 
-void wv::cShader::destroy()
+void wv::cShader::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
-	m_pGraphicsDevice->destroyShader( this );
+	_pGraphicsDevice->destroyShader( this );
+
+	iResource::destroy( _pGraphicsDevice );
 }

@@ -54,7 +54,7 @@ void DefaultScene::onUnload()
 	wv::iGraphicsDevice* device = app->graphics;
 
 	device->destroyMesh( &m_skybox );
-	m_skyMaterial->destroy();
+	m_skyMaterial->destroy( device );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,6 @@ void DefaultScene::onInputEvent( wv::InputEvent _event )
 void DefaultScene::update( double _deltaTime )
 {
 	wv::cEngine* app = wv::cEngine::get();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

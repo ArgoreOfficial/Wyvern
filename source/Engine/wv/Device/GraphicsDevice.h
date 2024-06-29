@@ -84,7 +84,7 @@ namespace wv
 		Primitive* createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh );
 		void destroyPrimitive( Primitive** _primitive );
 
-		Texture* createTexture( TextureDesc* _desc );
+		void createTexture( Texture* _pTexture, TextureDesc* _desc );
 		void destroyTexture( Texture** _texture );
 
 		void bindTextureToSlot( Texture* _texture, unsigned int _slot );

@@ -96,8 +96,12 @@ wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _de
 		_desc->textureDescs[ i ].width = _desc->width;
 		_desc->textureDescs[ i ].height = _desc->height;
 
-		target->textures[ i ] = createTexture( &_desc->textureDescs[ i ] );
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->handle, 0 );
+		std::string texname = "buffer_tex" + std::to_string( i );
+
+		target->textures[ i ] = new Texture( texname );
+		createTexture( target->textures[i], &_desc->textureDescs[i] );
+
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
 
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
@@ -156,7 +160,10 @@ void wv::iGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 	glDeleteRenderbuffers( 1, &rt->rbHandle );
 
 	for ( int i = 0; i < rt->numTextures; i++ )
-		glDeleteTextures( 1, &rt->textures[ i ]->handle );
+	{
+		wv::Handle handle = rt->textures[ i ]->getHandle();
+		glDeleteTextures( 1, &handle );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +238,8 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 		return;
 	}
 	
-	if ( _shader->m_source == "" )
+	std::string source = _shader->getSource();
+	if ( source == "" )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
 		return;
@@ -241,11 +249,12 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 	// therefore '#if GL_ES' cannot be used in the shader itself
 	/// TODO: move /// This will keep adding if compileShader is called more than once on the same shader
 #ifdef EMSCRIPTEN
-	_shader->m_source = "#version 300 es\n" + _shader->m_source;
+	source = "#version 300 es\n" + source;
 #else
-	_shader->m_source = "#version 460 core\n" + _shader->m_source;
+	source = "#version 460 core\n" + source;
 #endif
-	const char* sourcePtr = _shader->m_source.c_str();
+	const char* sourcePtr = source.c_str();
+	_shader->setSource( source );
 
 	wv::Handle shaderHandle = _shader->getHandle();
 	glShaderSource( shaderHandle, 1, &sourcePtr, NULL);
@@ -261,7 +270,7 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 	if ( !success )
 	{
 		glGetShaderInfoLog( shaderHandle, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->m_name.c_str(), infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->getName().c_str(), infoLog);
 	}
 }
 
@@ -485,20 +494,18 @@ void wv::iGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
+void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc )
 {
-	Texture* texture = new Texture();
-
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
 	unsigned char* data = nullptr;
-	if ( _desc->memory )
+	if ( _pTexture->getData() )
 	{
-		data = _desc->memory->data;
-		_desc->width = _desc->memory->width;
-		_desc->height = _desc->memory->height;
-		_desc->channels = static_cast<wv::TextureChannels>( _desc->memory->numChannels );
+		data = _pTexture->getData();
+		_desc->width = _pTexture->getWidth();
+		_desc->height = _pTexture->getHeight();
+		_desc->channels = static_cast<wv::TextureChannels>( _pTexture->getNumChannels() );
 	}
 
 	switch ( _desc->channels )
@@ -542,12 +549,14 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 		break;
 	}
 
-	glGenTextures( 1, &texture->handle );
+	GLuint handle;
+	glGenTextures( 1, &handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to gen texture\n" );
 #endif
-	
-	glBindTexture( GL_TEXTURE_2D, texture->handle );
+	_pTexture->setHandle( handle );
+
+	glBindTexture( GL_TEXTURE_2D, handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to bind texture\n" );
 #endif
@@ -579,9 +588,8 @@ wv::Texture* wv::iGraphicsDevice::createTexture( TextureDesc* _desc )
 	if( _desc->generateMipMaps )
 		glGenerateMipmap( GL_TEXTURE_2D );
 
-	texture->width  = _desc->width;
-	texture->height = _desc->height;
-	return texture;
+	_pTexture->setWidth( _desc->width );
+	_pTexture->setHeight( _desc->height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -590,7 +598,8 @@ void wv::iGraphicsDevice::destroyTexture( Texture** _texture )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
 
-	glDeleteTextures( 1, &( *_texture )->handle );
+	wv::Handle handle = ( *_texture )->getHandle();
+	glDeleteTextures( 1, &handle );
 	delete *_texture;
 	*_texture = nullptr;
 }
@@ -599,21 +608,21 @@ void wv::iGraphicsDevice::destroyTexture( Texture** _texture )
 
 void wv::iGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
-	if ( m_boundTextureSlots[ _slot ] == _texture->handle )
+	if ( m_boundTextureSlots[ _slot ] == _texture->getHandle() )
 		return;
 
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		glBindTextureUnit( _slot, _texture->handle );
+		glBindTextureUnit( _slot, _texture->getHandle() );
 	}
 	else 
 	{
 		glActiveTexture( GL_TEXTURE0 + _slot );
-		glBindTexture( GL_TEXTURE_2D, _texture->handle );
+		glBindTexture( GL_TEXTURE_2D, _texture->getHandle() );
 	}
 
-	m_boundTextureSlots[ _slot ] = _texture->handle;
+	m_boundTextureSlots[ _slot ] = _texture->getHandle();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

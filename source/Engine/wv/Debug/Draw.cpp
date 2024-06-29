@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _device )
+void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice )
 {
 	wv::assimp::Parser parser;
 	DEBUG_MATERIAL = new Material( "debug" );
@@ -23,23 +23,23 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _device )
 	
 }
 
-void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _device )
+void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice )
 {
-	_device->destroyMesh( &CUBE_MESH );
-	_device->destroyMesh( &SPHERE_MESH );
-	DEBUG_MATERIAL->destroy();
+	_pGraphicsDevice->destroyMesh( &CUBE_MESH );
+	_pGraphicsDevice->destroyMesh( &SPHERE_MESH );
+	DEBUG_MATERIAL->destroy( _pGraphicsDevice );
 	delete DEBUG_MATERIAL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _device )
+void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 {
 	for ( int i = 0; i < spheres.size(); i++ )
 	{
 		SPHERE_MESH->transform.position = spheres[ i ].position;
 		SPHERE_MESH->transform.scale = wv::Vector3f{ spheres[ i ].radius };
-		_device->draw( SPHERE_MESH );
+		_pGraphicsDevice->draw( SPHERE_MESH );
 	}
 	
 	cubes.clear();

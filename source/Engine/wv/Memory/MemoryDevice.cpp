@@ -52,7 +52,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	memcpy( mem->data, buf.data(), buf.size() );
 
 	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path.c_str(), mem->size );
+	//Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path.c_str(), mem->size );
 	return mem;
 }
 
@@ -89,29 +89,6 @@ std::string wv::cFileSystem::loadString( const std::string& _path )
 	std::string str( (const char*)mem->data, mem->size );
 	unloadMemory( mem );
     return str;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::TextureMemory* wv::cFileSystem::loadTextureData( const std::string& _path )
-{
-	/// TODO: move stbi stuff?
-	TextureMemory* mem = new TextureMemory();
-
-	stbi_set_flip_vertically_on_load( 0 );
-	mem->data = reinterpret_cast<uint8_t*>( stbi_load( _path.c_str(), &mem->width, &mem->height, &mem->numChannels, 0) );
-
-	if ( !mem->data )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", _path.c_str() );
-		unloadMemory( mem );
-		return {}; // empty memory object
-	}
-	
-	mem->size = mem->height * mem->numChannels * mem->width * mem->numChannels;
-	m_loadedMemory.push_back( mem );
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' (%ix%i @ %ibpp) @ %i bytes\n", _path.c_str(), mem->width, mem->height, mem->numChannels * 8, mem->size);
-	return mem;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

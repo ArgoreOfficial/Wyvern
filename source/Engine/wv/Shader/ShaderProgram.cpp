@@ -54,21 +54,21 @@ void wv::cShaderProgram::unload( cFileSystem* _pFileSystem )
 	iResource::unload( _pFileSystem );
 }
 
-void wv::cShaderProgram::create()
+void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
 {
 	for ( size_t i = 0; i < m_shaders.size(); i++ )
 	{
 		if ( !m_shaders[ i ]->getHandle() )
-			m_shaders[ i ]->create();
+			m_shaders[ i ]->create( _pGraphicsDevice );
 	}
 
-	m_pGraphicsDevice->createProgram( this, m_name );
-	m_pGraphicsDevice->linkProgram( this, m_uniformBlockDescs, m_textureUniforms );
+	_pGraphicsDevice->createProgram( this, m_name );
+	_pGraphicsDevice->linkProgram( this, m_uniformBlockDescs, m_textureUniforms );
 
-	iResource::create();
+	iResource::create( _pGraphicsDevice );
 }
 
-void wv::cShaderProgram::destroy()
+void wv::cShaderProgram::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
-	iResource::destroy();
+	iResource::destroy( _pGraphicsDevice );
 }

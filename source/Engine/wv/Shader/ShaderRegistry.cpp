@@ -22,7 +22,7 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 		return shader;
 	}
 
-	shader = new cShader( m_pGraphicsDevice, _type, _name );
+	shader = new cShader( _type, _name );
 	shader->load( m_pFileSystem );
 	
 	addResource( shader );
@@ -39,9 +39,8 @@ wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::stri
 		return program;
 	}
 
-	program = new cShaderProgram( m_pGraphicsDevice, this, _name );
+	program = new cShaderProgram( this, _name );
 
-	
 	m_resourceLoader.addLoad( program );
 	m_resourceLoader.dispatchLoad();
 

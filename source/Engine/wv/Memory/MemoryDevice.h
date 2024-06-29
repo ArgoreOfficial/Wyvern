@@ -23,15 +23,6 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct TextureMemory : public Memory
-	{
-		int width = 0;
-		int height = 0;
-		int numChannels = 0;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 	class cFileSystem
 	{
 
@@ -46,8 +37,6 @@ namespace wv
 
 		std::string loadString( const std::string& _path );
 
-		TextureMemory* loadTextureData( const std::string& _path );
-		
 		bool fileExists( const std::string& _path );
 		bool fileExists( const std::wstring& _path );
 

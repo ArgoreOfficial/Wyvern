@@ -26,9 +26,8 @@ namespace wv
 	class cShaderProgram : public iResource
 	{
 	public:
-		cShaderProgram( iGraphicsDevice* _pGraphicsDevice, cShaderRegistry* _pShaderRegistry, const std::string& _name ) :
+		cShaderProgram( cShaderRegistry* _pShaderRegistry, const std::string& _name ) :
 			iResource{ _name, L"" },
-			m_pGraphicsDevice{ _pGraphicsDevice },
 			m_pShaderRegistry{ _pShaderRegistry }
 		{ }
 
@@ -39,8 +38,8 @@ namespace wv
 		void load  ( cFileSystem* _pFileSystem ) override;
 		void unload( cFileSystem* _pFileSystem ) override;
 
-		void create () override;
-		void destroy() override;
+		void create ( iGraphicsDevice* _pGraphicsDevice ) override;
+		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
 
 		// void bindUniformToLoc( Uniform _uniform, int _loc );
 
@@ -67,7 +66,6 @@ namespace wv
 		}
 
 	private:
-		iGraphicsDevice* m_pGraphicsDevice;
 		cShaderRegistry* m_pShaderRegistry;
 
 		std::vector<cShader*> m_shaders;

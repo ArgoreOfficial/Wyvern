@@ -58,7 +58,13 @@ bool cSandbox::create( void )
 	engineDesc.device.pAudio = new wv::AudioDevice( nullptr );
 
 	// create modules
-	engineDesc.systems.pFileSystem = new wv::cFileSystem();
+	wv::cFileSystem* fileSystem = new wv::cFileSystem();
+	fileSystem->addDirectory( L"res/" );
+	fileSystem->addDirectory( L"res/materials/" );
+	fileSystem->addDirectory( L"res/meshes/" );
+	fileSystem->addDirectory( L"res/shaders/" );
+	fileSystem->addDirectory( L"res/textures/" );
+	engineDesc.systems.pFileSystem = fileSystem;
 	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
 
 	/// ---TEMPORARY

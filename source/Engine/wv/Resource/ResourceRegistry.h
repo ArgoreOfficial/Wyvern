@@ -9,14 +9,15 @@ namespace wv
 {
 	class iResource;
 	class cFileSystem;
+	class iGraphicsDevice;
 
 	class iResourceRegistry
 	{
 	public:
-		iResourceRegistry( const std::string& _name, cFileSystem* _pFileSystem ):
+		iResourceRegistry( const std::string& _name, cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ):
 			m_name{_name},
 			m_pFileSystem{ _pFileSystem },
-			m_resourceLoader{_pFileSystem}
+			m_resourceLoader{_pFileSystem, _pGraphicsDevice }
 		 { }
 
 		~iResourceRegistry();

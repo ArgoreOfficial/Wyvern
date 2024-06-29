@@ -2,6 +2,7 @@
 
 #include <wv/Resource/Resource.h>
 #include <wv/Memory/MemoryDevice.h>
+#include <wv/Device/GraphicsDevice.h>
 
 void threadedLoad( wv::cFileSystem* _pFileSystem, std::vector<wv::iResource*> _queue, wv::sLoadWorker* _worker )
 {
@@ -44,7 +45,9 @@ void wv::cResourceLoader::update()
 			continue;
 		
 		for ( size_t i = 0; i < worker.loadedResources.size(); i++ )
-			worker.loadedResources[ i ]->create();
+		{
+			worker.loadedResources[ i ]->create( m_pGraphicsDevice );
+		}
 	
 		worker.loadedResources.clear();
 

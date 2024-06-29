@@ -25,27 +25,22 @@ namespace wv
 	class cShader : public iResource
 	{
 	public:
-		friend class iGraphicsDevice;
-		
-		cShader( iGraphicsDevice* _pGraphicsDevice, eShaderType _type, const std::string& _name, const std::wstring& _path = L"" ) :
+		cShader( eShaderType _type, const std::string& _name, const std::wstring& _path = L"" ) :
 			iResource{_name, _path},
-			m_type{_type},
-			m_pGraphicsDevice{_pGraphicsDevice} // remove?
+			m_type{_type}
 		{ }
 		~cShader();
 
 		void load  ( cFileSystem* _pFileSystem ) override;
 		void unload( cFileSystem* _pFileSystem ) override;
 
-		void create() override;
-		void destroy() override;
+		void create( iGraphicsDevice* _pGraphicsDevice ) override;
+		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setSource( const std::string& _source ) { m_source = _source; }
 		std::string getSource( void ) { return m_source; }
 
 	private:
-		iGraphicsDevice* m_pGraphicsDevice;
-		
 		eShaderType m_type;
 		std::string m_source;
 	};

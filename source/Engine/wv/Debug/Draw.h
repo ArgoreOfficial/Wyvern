@@ -34,9 +34,9 @@ namespace wv
 			static std::vector<Sphere> spheres;
 			static std::vector<Transformf> cubes;
 
-			void initDebugDraw( iGraphicsDevice* _device );
-			void deinitDebugDraw( iGraphicsDevice* _device );
-			void drawDebug( iGraphicsDevice* _device );
+			void initDebugDraw  ( iGraphicsDevice* _pGraphicsDevice );
+			void deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice );
+			void drawDebug      ( iGraphicsDevice* _pGraphicsDevice );
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////
