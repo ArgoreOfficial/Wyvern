@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <mutex>
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <Windows.h>
@@ -19,11 +20,11 @@ namespace wv::Debug
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		static const char* LEVEL_STR[] = {
-			"  ", // info
-			"D ", // debug
-			"* ", // warning
-			"! ", // error
-			"X "  // fatal
+			"          ", // info
+			"DEBUG",
+			" WARN",
+			"ERROR",
+			"FATAL" 
 		};
 
 		static int LEVEL_COL[] = {
@@ -37,6 +38,8 @@ namespace wv::Debug
 	#ifdef WV_PLATFORM_WINDOWS
 		static HANDLE hConsole = nullptr;
 	#endif
+
+		static std::mutex PRINT_MUTEX;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,11 +61,11 @@ namespace wv::Debug
 
 	enum PrintLevel
 	{
-		WV_PRINT_INFO = 0,
-		WV_PRINT_DEBUG,
-		WV_PRINT_WARN,
-		WV_PRINT_ERROR,
-		WV_PRINT_FATAL
+		WV_PRINT_INFO  = 0x0,
+		WV_PRINT_DEBUG = 0x1,
+		WV_PRINT_WARN  = 0x2,
+		WV_PRINT_ERROR = 0x3,
+		WV_PRINT_FATAL = 0x4
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -70,23 +73,37 @@ namespace wv::Debug
 	template<typename... Args>
     inline void Print( const char* _str, Args... _args )
     {
-		printf( Internal::LEVEL_STR[ 0 ] );
+		Internal::PRINT_MUTEX.lock();
+
+		printf( "%s", Internal::LEVEL_STR[ 0 ] );
 		printf( _str, _args... );
+		
+		Internal::PRINT_MUTEX.unlock();
     }
 
 	template<typename... Args>
 	inline void Print( PrintLevel _printLevel, const char* _str, Args... _args )
 	{
+		Internal::PRINT_MUTEX.lock();
+
 	#ifndef WV_DEBUG
 		if ( _printLevel == WV_PRINT_DEBUG )
 			return;
 	#endif
+		if ( _printLevel != WV_PRINT_INFO )
+		{
+			printf( "[ " );
+			Internal::SetPrintLevelColor( _printLevel );
+			printf( Internal::LEVEL_STR[ _printLevel ] );
+			Internal::SetPrintLevelColor( -1 );
+			printf( " ] " );
+		}
+		else
+			printf( Internal::LEVEL_STR[ _printLevel ] );
 
-		Internal::SetPrintLevelColor( _printLevel );
-		printf( Internal::LEVEL_STR[ _printLevel ] );
 		printf( _str, _args... );
-		Internal::SetPrintLevelColor( -1 );
 
+		Internal::PRINT_MUTEX.unlock();
 	}
 
 }
