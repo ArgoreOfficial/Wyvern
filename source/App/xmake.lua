@@ -35,7 +35,7 @@ target( PROJECT_NAME )
 
     set_targetdir "../../game"
     set_objectdir "../../build/obj"
-    set_runtimes "MT" -- 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease' in Sandbox.cpp.obj
+    set_runtimes "MT"
 
     add_headerfiles( 
         "**.h", 
