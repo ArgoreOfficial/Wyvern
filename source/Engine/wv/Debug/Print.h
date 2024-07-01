@@ -39,7 +39,7 @@ namespace wv::Debug
 		static HANDLE hConsole = nullptr;
 	#endif
 
-		static std::mutex PRINT_MUTEX;
+		static inline std::mutex PRINT_MUTEX{};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +88,10 @@ namespace wv::Debug
 
 	#ifndef WV_DEBUG
 		if ( _printLevel == WV_PRINT_DEBUG )
+		{
+			Internal::PRINT_MUTEX.unlock();
 			return;
+		}
 	#endif
 		if ( _printLevel != WV_PRINT_INFO )
 		{

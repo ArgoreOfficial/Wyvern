@@ -186,7 +186,9 @@ bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 
 void wv::GLFWDeviceContext::setSwapInterval( int _interval )
 {
+#ifdef WV_GLFW_SUPPORTED
 	glfwSwapInterval( _interval );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

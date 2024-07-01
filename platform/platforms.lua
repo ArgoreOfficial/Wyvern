@@ -3,6 +3,8 @@ includes "platform_windows.lua"
 includes "platform_wasm.lua"
 includes "platform_linux.lua"
 
+includes "toolchains/i686-w64-mingw32.lua"
+
 local PLATFORMS = {
     { plat="windows", arch={ "x64", "x86" }, load=load_platform_windows, target=target_platform_windows },
     { plat="linux",   arch={ "x86_64"     }, load=load_platform_linux,   target=target_platform_linux   },
@@ -10,6 +12,30 @@ local PLATFORMS = {
 }
 
 function load_platform()
+
+    -- x86 WinXP compiler
+    if is_arch( "x86" ) and is_mode( "Debug-WinXP" ) then
+        set_toolchains( "i686-w64-mingw32" )
+    end
+    
+    -- configure modes
+    if is_mode("Debug") or is_mode("Debug-WinXP") then
+        add_defines("WV_DEBUG")
+        set_symbols "debug"
+        set_optimize "none"
+        set_strip "none"
+    elseif is_mode("Release") then 
+        add_defines("WV_RELEASE")
+        set_symbols "debug"
+        set_optimize "fast"
+        set_strip "debug"
+    elseif is_mode("Package") then 
+        add_defines("WV_PACKAGE")
+        set_symbols "none"
+        set_optimize "fastest"
+        set_strip "all"
+    end
+
     for i=1,#PLATFORMS do 
         if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
             PLATFORMS[i].load()
@@ -27,6 +53,8 @@ function target_platform(_root)
     end
 end
 
+
+-- 3ds
 function init_platform( target )
     if target:is_arch( "3DS-ARM" ) then
         target:add( "files", "source/**.pica", {rule = "3ds.picasso"} )

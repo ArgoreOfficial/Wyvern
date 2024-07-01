@@ -17,6 +17,13 @@
 #include <fstream>
 #include <vector>
 
+#ifdef WV_DEBUG
+#define WV_ASSERT_GL( _func, ... ) if( _func != nullptr ) { _func( __VA_ARGS__ ); }                 else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
+#define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
+#else
+#define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iGraphicsDevice::iGraphicsDevice()
@@ -31,6 +38,8 @@ bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 
 	m_graphicsApi = _desc->pContext->getGraphicsAPI();
 	m_graphicsApiVersion = _desc->pContext->getGraphicsVersion();
+
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Graphics Device...\n" );
 
 	int initRes = 0;
 	switch ( m_graphicsApi )
@@ -53,11 +62,13 @@ bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	//glEnable( GL_MULTISAMPLE );
 	//glEnable( GL_BLEND );
 	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	glEnable( GL_DEPTH_TEST );
-	glDepthFunc( GL_LESS );
-	glEnable( GL_CULL_FACE );
+	WV_ASSERT_GL( glEnable, GL_DEPTH_TEST );
+	WV_ASSERT_GL( glDepthFunc, GL_LESS );
+	WV_ASSERT_GL( glEnable, GL_CULL_FACE );
 
 	m_boundTextureSlots.assign( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, 0 );
+
+	return true;
 }
 
 void wv::iGraphicsDevice::terminate()
@@ -76,7 +87,7 @@ void wv::iGraphicsDevice::onResize( int _width, int _height )
 
 void wv::iGraphicsDevice::setViewport( int _width, int _height )
 {
-	glViewport( 0, 0, _width, _height );
+	WV_ASSERT_GL( glViewport, 0, 0, _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -85,8 +96,8 @@ wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _de
 {
 	RenderTarget* target = new RenderTarget();
 	
-	glGenFramebuffers( 1, &target->fbHandle );
-	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
+	WV_ASSERT_GL( glGenFramebuffers, 1, &target->fbHandle );
+	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, target->fbHandle );
 
 	target->numTextures = _desc->numTextures;
 	GLenum* drawBuffers = new GLenum[ _desc->numTextures ];
@@ -101,20 +112,22 @@ wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _de
 		target->textures[ i ] = new Texture( texname );
 		createTexture( target->textures[i], &_desc->textureDescs[i] );
 
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
+		WV_ASSERT_GL( glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
 
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
-	glGenRenderbuffers( 1, &target->rbHandle );
-	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
-	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
+	WV_ASSERT_GL( glGenRenderbuffers, 1, &target->rbHandle );
+	WV_ASSERT_GL( glBindRenderbuffer, GL_RENDERBUFFER, target->rbHandle );
+	WV_ASSERT_GL( glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
+	WV_ASSERT_GL( glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
 	
-	glDrawBuffers( _desc->numTextures, drawBuffers );
+	WV_ASSERT_GL( glDrawBuffers, _desc->numTextures, drawBuffers );
 	delete[] drawBuffers;
-#ifndef WV_PACKAGE
-	int errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+#ifdef WV_DEBUG
+	int errcode = 0; 
+	WV_RETASSERT_GL( errcode, glCheckFramebufferStatus, GL_FRAMEBUFFER );
+	
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
 		const char* err = "";
@@ -143,9 +156,9 @@ wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _de
 	target->width = _desc->width;
 	target->height = _desc->height;
 
-	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	WV_ASSERT_GL( glBindRenderbuffer, GL_RENDERBUFFER, 0 );
+	WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, 0 );
+	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, 0 );
 
 	return target;
 }
@@ -156,13 +169,13 @@ void wv::iGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
 	RenderTarget* rt = *_renderTarget;
 
-	glDeleteFramebuffers( 1, &rt->fbHandle );
-	glDeleteRenderbuffers( 1, &rt->rbHandle );
+	WV_ASSERT_GL( glDeleteFramebuffers, 1, &rt->fbHandle );
+	WV_ASSERT_GL( glDeleteRenderbuffers, 1, &rt->rbHandle );
 
 	for ( int i = 0; i < rt->numTextures; i++ )
 	{
 		wv::Handle handle = rt->textures[ i ]->getHandle();
-		glDeleteTextures( 1, &handle );
+		WV_ASSERT_GL( glDeleteTextures, 1, &handle );
 	}
 }
 
@@ -175,9 +188,11 @@ void wv::iGraphicsDevice::setRenderTarget( RenderTarget* _target )
 
 	unsigned int handle = _target ? _target->fbHandle : 0;
 	
-	glBindFramebuffer( GL_FRAMEBUFFER, handle );
+	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, handle );
 	if ( _target )
-		glViewport( 0, 0, _target->width, _target->height );
+	{
+		WV_ASSERT_GL( glViewport, 0, 0, _target->width, _target->height );
+	}
 	
 	m_activeRenderTarget = _target;
 }
@@ -186,14 +201,14 @@ void wv::iGraphicsDevice::setRenderTarget( RenderTarget* _target )
 
 void wv::iGraphicsDevice::setClearColor( const wv::cColor& _color )
 {
-	glClearColor( _color.r, _color.g, _color.b, _color.a );
+	WV_ASSERT_GL( glClearColor, _color.r, _color.g, _color.b, _color.a );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
-	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
+	WV_ASSERT_GL( glClear, (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +224,8 @@ bool wv::iGraphicsDevice::createShader( cShader* _shader, eShaderType _type )
 		}
 	}
 
-	wv::Handle handle = glCreateShader( type );
+	wv::Handle handle{};
+	WV_RETASSERT_GL( handle, glCreateShader, type );
 
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create shader\n" );
@@ -224,7 +240,7 @@ bool wv::iGraphicsDevice::createShader( cShader* _shader, eShaderType _type )
 
 void wv::iGraphicsDevice::destroyShader( cShader* _shader )
 {
-	glDeleteShader( _shader->getHandle() );
+	WV_ASSERT_GL( glDeleteShader, _shader->getHandle() );
 	_shader->setHandle( 0 );
 }
 
@@ -257,19 +273,19 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 	_shader->setSource( source );
 
 	wv::Handle shaderHandle = _shader->getHandle();
-	glShaderSource( shaderHandle, 1, &sourcePtr, NULL);
+	WV_ASSERT_GL( glShaderSource, shaderHandle, 1, &sourcePtr, NULL);
 #ifdef WV_DEBUG
 	assertGLError( "Failed to add shader source to program\n" );
 #endif
 
-	glCompileShader( shaderHandle );
+	WV_ASSERT_GL( glCompileShader, shaderHandle );
 	
 	int  success;
 	char infoLog[ 512 ];
-	glGetShaderiv( shaderHandle, GL_COMPILE_STATUS, &success );
+	WV_ASSERT_GL( glGetShaderiv, shaderHandle, GL_COMPILE_STATUS, &success );
 	if ( !success )
 	{
-		glGetShaderInfoLog( shaderHandle, 512, NULL, infoLog );
+		WV_ASSERT_GL( glGetShaderInfoLog, shaderHandle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->getName().c_str(), infoLog);
 	}
 }
@@ -278,18 +294,19 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 void wv::iGraphicsDevice::createProgram( wv::cShaderProgram* _program, const std::string& _name )
 {
-	wv::Handle programHandle = glCreateProgram();
+	wv::Handle handle{};
+	WV_RETASSERT_GL( handle, glCreateProgram );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create program\n" );
 #endif
-	_program->setHandle( programHandle );
+	_program->setHandle( handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::destroyProgram( cShaderProgram* _program )
 {
-	glDeleteProgram( _program->getHandle() );
+	WV_ASSERT_GL( glDeleteProgram, _program->getHandle() );
 	_program->setHandle( 0 );
 }
 
@@ -314,22 +331,22 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 
 	for ( int i = 0; i < shaders.size(); i++ )
 	{
-		glAttachShader( programHandle, shaders[ i ]->getHandle() );
+		WV_ASSERT_GL( glAttachShader, programHandle, shaders[ i ]->getHandle() );
 	#ifdef WV_DEBUG
 		assertGLError( "attach\n" );
 	#endif
 	}
-	glLinkProgram( programHandle );
+	WV_ASSERT_GL( glLinkProgram, programHandle );
 #ifdef WV_DEBUG
 	assertGLError( "link\n" );
 #endif
 
 	int  success;
 	char infoLog[ 512 ];
-	glGetProgramiv( programHandle, GL_LINK_STATUS, &success );
+	WV_ASSERT_GL( glGetProgramiv, programHandle, GL_LINK_STATUS, &success );
 	if ( !success )
 	{
-		glGetProgramInfoLog( programHandle, 512, NULL, infoLog );
+		WV_ASSERT_GL( glGetProgramInfoLog, programHandle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
 
@@ -344,20 +361,20 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 		_program->addUniformBlock( _uniformBlocks[ i ].name, block );
 	}
 
-	glUseProgram( programHandle );
+	WV_ASSERT_GL( glUseProgram, programHandle );
 
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
 	for ( int i = 0; i < (int)_textureUniforms.size(); i++ )
 	{
 		unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
-		glUniform1i( loc, _textureUniforms[ i ].index );
+		WV_ASSERT_GL( glUniform1i, loc, _textureUniforms[ i ].index );
 	#ifdef WV_DEBUG
 		assertGLError( "Failed to bind texture loc\n" );
 	#endif
 	}
 
-	glUseProgram( 0 );
+	WV_ASSERT_GL( glUseProgram, 0 );
 
 }
 
@@ -368,7 +385,7 @@ void wv::iGraphicsDevice::useProgram( cShaderProgram* _program )
 	if ( m_activeProgram == _program )
 		return;
 
-	glUseProgram( _program ? _program->getHandle() : 0 );
+	WV_ASSERT_GL( glUseProgram, _program ? _program->getHandle() : 0 );
 	m_activeProgram = _program;
 }
 
@@ -399,12 +416,12 @@ void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
 	Primitive* primitive = new Primitive();
-	glGenVertexArrays( 1, &primitive->vaoHandle );
-	glBindVertexArray( primitive->vaoHandle );
+	WV_ASSERT_GL( glGenVertexArrays, 1, &primitive->vaoHandle );
+	WV_ASSERT_GL( glBindVertexArray, primitive->vaoHandle );
 	
 	// create vertex buffer object
-	glGenBuffers( 1, &primitive->vboHandle );
-	glBindBuffer( GL_ARRAY_BUFFER, primitive->vboHandle );
+	WV_ASSERT_GL( glGenBuffers, 1, &primitive->vboHandle );
+	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, primitive->vboHandle );
 
 	GLenum usage = GL_NONE;
 	switch ( _desc->type ) /// TODO: more primitive types
@@ -413,7 +430,7 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 	}
 
 	// buffer data
-	glBufferData( GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
+	WV_ASSERT_GL( glBufferData, GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
 
 
 	if ( _desc->indexBufferSize > 0 )
@@ -422,9 +439,9 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
 
 		wv::Handle ebo;
-		glGenBuffers( 1, &ebo );
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
-		glBufferData( GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
+		WV_ASSERT_GL( glGenBuffers, 1, &ebo );
+		WV_ASSERT_GL( glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, ebo );
+		WV_ASSERT_GL( glBufferData, GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
 
 		primitive->eboHandle = ebo;
 		primitive->numIndices = _desc->numIndices;
@@ -463,14 +480,14 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 		#endif
 		}
 
-		glVertexAttribPointer( i, element.num, type, element.normalized, stride, VPTRi32( offset ) );
-		glEnableVertexAttribArray( i );
+		WV_ASSERT_GL( glVertexAttribPointer, i, element.num, type, element.normalized, stride, VPTRi32( offset ) );
+		WV_ASSERT_GL( glEnableVertexAttribArray, i );
 
 		offset += element.size;
 	}
 
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindVertexArray( 0 );
+	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, 0 );
+	WV_ASSERT_GL( glBindVertexArray, 0 );
 
 	primitive->numVertices = _desc->numVertices; 
 	primitive->stride = stride;
@@ -485,9 +502,9 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 void wv::iGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
 	Primitive* pr = *_primitive;
-	glDeleteBuffers( 1, &pr->eboHandle );
-	glDeleteBuffers( 1, &pr->vboHandle );
-	glDeleteVertexArrays( 1, &pr->vaoHandle );
+	WV_ASSERT_GL( glDeleteBuffers, 1, &pr->eboHandle );
+	WV_ASSERT_GL( glDeleteBuffers, 1, &pr->vboHandle );
+	WV_ASSERT_GL( glDeleteVertexArrays, 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
 }
@@ -530,7 +547,7 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
-		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
+		WV_ASSERT_GL( glPixelStorei, GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
 		switch ( _desc->format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;   break;
@@ -550,13 +567,13 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 	}
 
 	GLuint handle;
-	glGenTextures( 1, &handle );
+	WV_ASSERT_GL( glGenTextures, 1, &handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to gen texture\n" );
 #endif
 	_pTexture->setHandle( handle );
 
-	glBindTexture( GL_TEXTURE_2D, handle );
+	WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to bind texture\n" );
 #endif
@@ -568,10 +585,10 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 	case WV_TEXTURE_FILTER_LINEAR:  filter = GL_LINEAR; break;
 	}
 	
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
+	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
+	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	
 	GLenum type = GL_UNSIGNED_BYTE;
 	switch ( _desc->format )
@@ -580,14 +597,15 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 	case wv::WV_TEXTURE_FORMAT_INT:   type = GL_INT; break;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );	
+	WV_ASSERT_GL( glTexImage2D, GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create Texture\n" );
 #endif
 
-	if( _desc->generateMipMaps )
-		glGenerateMipmap( GL_TEXTURE_2D );
-
+	if ( _desc->generateMipMaps )
+	{
+		WV_ASSERT_GL( glGenerateMipmap, GL_TEXTURE_2D );
+	}
 	_pTexture->setWidth( _desc->width );
 	_pTexture->setHeight( _desc->height );
 }
@@ -599,7 +617,7 @@ void wv::iGraphicsDevice::destroyTexture( Texture** _texture )
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
 
 	wv::Handle handle = ( *_texture )->getHandle();
-	glDeleteTextures( 1, &handle );
+	WV_ASSERT_GL( glDeleteTextures, 1, &handle );
 	delete *_texture;
 	*_texture = nullptr;
 }
@@ -614,12 +632,12 @@ void wv::iGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _sl
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		glBindTextureUnit( _slot, _texture->getHandle() );
+		WV_ASSERT_GL( glBindTextureUnit, _slot, _texture->getHandle() );
 	}
 	else 
 	{
-		glActiveTexture( GL_TEXTURE0 + _slot );
-		glBindTexture( GL_TEXTURE_2D, _texture->getHandle() );
+		WV_ASSERT_GL( glActiveTexture, GL_TEXTURE0 + _slot );
+		WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, _texture->getHandle() );
 	}
 
 	m_boundTextureSlots[ _slot ] = _texture->getHandle();
@@ -674,25 +692,27 @@ bool wv::iGraphicsDevice::getError( std::string* _out )
 
 void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
-	glBindVertexArray( _primitive->vaoHandle );
+	WV_ASSERT_GL( glBindVertexArray, _primitive->vaoHandle );
 	
 	UniformBlockMap* uniformBlocks = m_activeProgram->getUniformBlockMap();
 	for ( auto& block : *uniformBlocks )
 	{
-		glUniformBlockBinding( m_activeProgram->getHandle(), block.second.m_index, block.second.m_bindingIndex);
-		glBindBuffer( GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
-		glBufferData( GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
+		WV_ASSERT_GL( glUniformBlockBinding, m_activeProgram->getHandle(), block.second.m_index, block.second.m_bindingIndex);
+		WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
+		WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
 
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
-		glDrawElements( GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
+	{
+		WV_ASSERT_GL( glDrawElements, GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
+	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
 		/// this does not work on WebGL
-		glBindVertexBuffer( 0, _primitive->vboHandle, 0, _primitive->stride );
-		glDrawArrays( GL_TRIANGLES, 0, _primitive->numVertices );
+		WV_ASSERT_GL( glBindVertexBuffer, 0, _primitive->vboHandle, 0, _primitive->stride );
+		WV_ASSERT_GL( glDrawArrays, GL_TRIANGLES, 0, _primitive->numVertices );
 	#else
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
@@ -708,18 +728,19 @@ wv::UniformBlock wv::iGraphicsDevice::createUniformBlock( cShaderProgram* _progr
 
 	block.m_bindingIndex = m_numTotalUniformBlocks;
 	
-	block.m_index = glGetUniformBlockIndex( programHandle, _desc->name.c_str() );;
-	glGetActiveUniformBlockiv( programHandle, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
+	block.m_index = 0;
+	WV_RETASSERT_GL( block.m_index, glGetUniformBlockIndex, programHandle, _desc->name.c_str() );;
+	WV_ASSERT_GL( glGetActiveUniformBlockiv, programHandle, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
 
 	block.m_buffer = new char[ block.m_bufferSize ];
 	memset( block.m_buffer, 0, block.m_bufferSize );
 	
-	glGenBuffers( 1, &block.m_bufferHandle );
-	glBindBuffer( GL_UNIFORM_BUFFER, block.m_bufferHandle );
-	glBufferData( GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
-	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+	WV_ASSERT_GL( glGenBuffers, 1, &block.m_bufferHandle );
+	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.m_bufferHandle );
+	WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
+	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, 0 );
 	
-	glBindBufferBase( GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
+	WV_ASSERT_GL( glBindBufferBase, GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
 
 	std::vector<unsigned int> indices( _desc->uniforms.size() );
 	std::vector<int> offsets( _desc->uniforms.size() );
@@ -728,8 +749,8 @@ wv::UniformBlock wv::iGraphicsDevice::createUniformBlock( cShaderProgram* _progr
 	for ( size_t i = 0; i < _desc->uniforms.size(); i++ )
 		uniformNames.push_back( _desc->uniforms[ i ].name.c_str() ); // lifetime issues?
 	
-	glGetUniformIndices( programHandle, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data() );
-	glGetActiveUniformsiv( programHandle, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
+	WV_ASSERT_GL( glGetUniformIndices, programHandle, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data() );
+	WV_ASSERT_GL( glGetActiveUniformsiv, programHandle, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
 
 	for ( int o = 0; o < _desc->uniforms.size(); o++ )
 	{
