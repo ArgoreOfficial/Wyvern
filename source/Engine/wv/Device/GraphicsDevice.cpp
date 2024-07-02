@@ -18,7 +18,7 @@
 #include <vector>
 
 #ifdef WV_DEBUG
-#define WV_ASSERT_GL( _func, ... ) if( _func != nullptr ) { _func( __VA_ARGS__ ); }                 else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
+#define WV_ASSERT_GL( _func, ... )          if( _func != nullptr ) { _func( __VA_ARGS__ ); }        else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
 #define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
 #else
 #define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
@@ -38,8 +38,7 @@ bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	/// TODO: make configurable
 
 	m_graphicsApi = _desc->pContext->getGraphicsAPI();
-	m_graphicsApiVersion = _desc->pContext->getGraphicsVersion();
-
+	
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Graphics Device...\n" );
 
 	int initRes = 0;
@@ -66,6 +65,11 @@ bool wv::iGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	WV_ASSERT_GL( glEnable, GL_DEPTH_TEST );
 	WV_ASSERT_GL( glDepthFunc, GL_LESS );
 	WV_ASSERT_GL( glEnable, GL_CULL_FACE );
+
+
+	m_graphicsApiVersion.major = GLVersion.major;
+	m_graphicsApiVersion.minor = GLVersion.minor;
+	_desc->pContext->m_graphicsApiVersion = m_graphicsApiVersion;
 
 	m_boundTextureSlots.assign( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, 0 );
 

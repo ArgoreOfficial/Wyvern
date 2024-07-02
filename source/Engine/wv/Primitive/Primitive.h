@@ -5,6 +5,8 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
 
+#include <vector>
+
 namespace wv
 {
 
@@ -89,6 +91,8 @@ namespace wv
 		uint32_t stride = 0;
 		Material* material = nullptr;
 
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
 	};
 
 }

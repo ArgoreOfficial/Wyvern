@@ -125,7 +125,9 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.numIndices      = (unsigned int)indices.size();
 
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
-	
+	primitive->vertices = vertices;
+	primitive->indices = indices;
+
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
