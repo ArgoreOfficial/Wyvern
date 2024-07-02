@@ -1,5 +1,4 @@
 function load_platform_linux()
-    add_defines("WV_PLATFORM_LINUX")
     add_requires( "glm", "glfw", "libsdl", "assimp" )
 end
 

@@ -14,6 +14,8 @@ set_optimize "none"
 
 set_languages( "c17", "cxx20" )
 set_allowedarchs( "x64", "x86", "x86_64", "wasm32" )
+set_allowedmodes( "Debug","Release","Package" )
+set_allowedplats( "windows","linux","wasm" )
 
 includes( "platform/platforms.lua" )
 load_platform()

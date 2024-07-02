@@ -1,5 +1,4 @@
 function load_platform_wasm()
-    add_defines("WV_PLATFORM_WASM")
     add_defines("MA_NO_MP3") -- .mp3 audio file decoding seems to cause a stack overflow, so it has been disabled completely
     
     add_requires( "glm", "libsdl", "assimp" )
