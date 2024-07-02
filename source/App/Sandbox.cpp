@@ -42,7 +42,7 @@ bool cSandbox::create( void )
 	if ( !deviceContext )
 		return false;
 
-	// deviceContext->setSwapInterval( 0 ); // enable vsync
+	deviceContext->setSwapInterval( 0 ); // disable vsync
 
 	// create graphics device
 	wv::GraphicsDeviceDesc deviceDesc;

@@ -342,7 +342,7 @@ void wv::iGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<Uni
 	assertGLError( "link\n" );
 #endif
 
-	int  success;
+	int success = 0;
 	char infoLog[ 512 ];
 	WV_ASSERT_GL( glGetProgramiv, programHandle, GL_LINK_STATUS, &success );
 	if ( !success )
