@@ -43,10 +43,13 @@ namespace wv
 	{
 		struct
 		{
-			unsigned short minor;
 			unsigned short major;
+			unsigned short minor;
 		};
 		int i;
+
+		inline bool isAtleast( unsigned short _major, unsigned short _minor ) { return ( major >= _major ) && ( major > _major || minor >= _minor ); }
+
 	};
 
 }

@@ -22,6 +22,7 @@
 #define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "null function call: '%s'!\n", #_func ); }
 #else
 #define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
+#define WV_RETASSERT_GL( _ret, _func, ... ) _ret = _func( __VA_ARGS__ )
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
