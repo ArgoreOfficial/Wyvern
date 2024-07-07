@@ -34,6 +34,7 @@ public:
 private:
 
 	wv::Mesh* m_skybox = nullptr;
+	wv::Mesh* m_mesh = nullptr;
 	wv::Material* m_skyMaterial = nullptr;
 
 };

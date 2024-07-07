@@ -35,6 +35,8 @@ void DefaultScene::onLoad()
 	m_skybox = parser.load( "res/meshes/skysphere.dae" );
 	m_skybox->transform.rotation.x = -90.0f;
 
+	m_mesh = parser.load( "res/meshes/debug-cube.dae" );
+
 	m_skyMaterial = new wv::Material( "sky" );
 	m_skyMaterial->loadFromFile( "sky" );
 	// resource leak
@@ -54,6 +56,8 @@ void DefaultScene::onUnload()
 	wv::iGraphicsDevice* device = app->graphics;
 
 	device->destroyMesh( &m_skybox );
+	device->destroyMesh( &m_mesh );
+
 	m_skyMaterial->destroy( device );
 }
 
@@ -98,5 +102,7 @@ void DefaultScene::draw( wv::iGraphicsDevice* _device )
 		_device->draw( m_skybox );
 		glDepthFunc( GL_LESS );
 		glDepthMask( GL_TRUE );
+
+		_device->draw( m_mesh );
 	}
 }

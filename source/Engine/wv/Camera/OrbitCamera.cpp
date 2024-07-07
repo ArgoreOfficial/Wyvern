@@ -9,7 +9,7 @@
 wv::OrbitCamera::OrbitCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ICamera( _type, _fov, _near, _far )
 {
-	m_transform.setRotation( { -15.0f, 225.0f, 0.0f } );
+	m_transform.setRotation( { -15.0f, 0.0f, 0.0f } );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ void wv::OrbitCamera::onInputEvent( InputEvent _event )
 
 void wv::OrbitCamera::update( double _delta_time )
 {
-	m_transform.rotation.y += m_rotate.x * 0.4f;
+	m_transform.rotation.y -= m_rotate.x * 0.4f;
 	m_transform.rotation.x -= m_rotate.y * 0.4f;
 
 	if ( m_transform.rotation.x > 89.0f )
@@ -76,9 +76,9 @@ void wv::OrbitCamera::update( double _delta_time )
 		m_transform.rotation.x = -89.0f;
 
 	float d = cos( wv::Math::degToRad( -m_transform.rotation.x ) ) * 4.0f;
-	m_transform.position.x = sin( wv::Math::degToRad( -m_transform.rotation.y ) ) * d;
+	m_transform.position.x = sin( wv::Math::degToRad( m_transform.rotation.y ) ) * d;
 	m_transform.position.y = sin( wv::Math::degToRad( -m_transform.rotation.x ) ) * 4.0f;
-	m_transform.position.z = cos( wv::Math::degToRad( -m_transform.rotation.y ) ) * d;
+	m_transform.position.z = cos( wv::Math::degToRad( m_transform.rotation.y ) ) * d;
 	
 	m_rotate = { 0.0f, 0.0f };
 }
