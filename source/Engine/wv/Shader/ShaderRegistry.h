@@ -3,6 +3,7 @@
 #include <wv/Resource/ResourceRegistry.h>
 
 #include <wv/Shader/Shader.h>
+#include <vector>
 
 namespace wv
 {
@@ -20,6 +21,7 @@ namespace wv
 		cShader* loadShader( eShaderType _type, const std::string& _name );
 		
 		cShaderProgram* loadProgramFromWShader( const std::string& _name );
+		void batchLoadPrograms( const std::vector<std::string>& _names );
 		void unloadShaderProgram( cShaderProgram* _program );
 
 	private:

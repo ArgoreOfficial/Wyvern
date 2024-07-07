@@ -19,7 +19,7 @@ namespace wv
 	class cFileSystem;
 	class RootNode;
 	class Model;
-	class Material;
+	class iMaterial;
 	class State;
 
 	class cShaderRegistry;

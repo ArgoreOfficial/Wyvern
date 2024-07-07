@@ -5,6 +5,8 @@
 
 #include <wv/Resource/Resource.h>
 
+#include <wv/Auxiliary/fkYAML/node.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -13,38 +15,37 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cShaderProgram;
+	
 	class iGraphicsDevice;
 	class Mesh;
 	class Texture;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Material : public iResource
+	class iMaterial : public iResource
 	{
 
 	public:
 
-		Material( std::string _name ) : 
-			iResource{ _name, L"" }
+		iMaterial( std::string _name, cShaderProgram* _program ) :
+			iResource{ _name, L"" },
+			m_program{ _program }
 		{ }
-
-		bool loadFromFile( const char* _path );
-		bool loadFromSource( const std::string& _source );
-		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setAsActive( iGraphicsDevice* _device );
 
-		virtual void materialCallback();
-		virtual void instanceCallback( Mesh* _instance );
-
-		bool tempIsCreated();
+		virtual void setMaterialUniforms();
+		virtual void setInstanceUniforms( Mesh* _instance );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 
+		void setDefaultViewUniforms();
+		void setDefaultMeshUniforms( Mesh* _mesh );
+
 		cShaderProgram* m_program = nullptr;
-		std::vector<Texture*> m_textures;
+		//std::vector<Texture*> m_textures;
 
 	};
 

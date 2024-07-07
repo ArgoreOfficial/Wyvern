@@ -12,11 +12,9 @@
 
 #include <glm/glm.hpp>
 
-#include <wv/Auxiliary/fkYAML/node.hpp>
-
 ///////////////////////////////////////////////////////////////////////////////////////
-
-bool wv::Material::loadFromFile( const char* _path )
+/*
+bool wv::iMaterial::loadFromFile( const char* _path )
 {
 	wv::cFileSystem mdevice;
 	
@@ -31,77 +29,54 @@ bool wv::Material::loadFromFile( const char* _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::Material::loadFromSource( const std::string& _source )
+bool wv::iMaterial::loadFromSource( const std::string& _source )
 {
-	wv::cEngine* app = wv::cEngine::get();
-	wv::iGraphicsDevice* device = app->graphics;
-	wv::cFileSystem mdevice;
-
-	fkyaml::node root = fkyaml::node::deserialize( _source );
-	std::string shader = root[ "shader" ].get_value<std::string>();
-
-	/// TODO: DO NOT PUBLIC JESUS
-	m_program = app->m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shader + ".wshader" );
 	
-	if ( root[ "textures" ].is_sequence() )
-	{
-		for ( auto& textureFile : root[ "textures" ] )
-		{
-			std::string textureName = textureFile[ 1 ].get_value<std::string>();
-			
-			TextureDesc texDesc;
-			texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
-			//texDesc.generateMipMaps = true;
-
-			Texture* tex = new Texture( textureName );
-			tex->load( app->m_pFileSystem );
-
-			device->createTexture( tex, &texDesc );
-			m_textures.push_back( tex );
-		}
-	}
-	else
-	{
-		Texture* tex = new Texture( "DefaultUV", L"res/textures/uv.png" );
-		tex->load( app->m_pFileSystem );
-
-		TextureDesc texDesc;
-		texDesc.filtering = WV_TEXTURE_FILTER_LINEAR;
-
-		device->createTexture( tex, &texDesc );
-		m_textures.push_back( tex );
-	}
-
 	return true;
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::destroy( iGraphicsDevice* _pGraphicsDevice )
+/*
+void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
 	cEngine* app = cEngine::get();
 	iGraphicsDevice* device = cEngine::get()->graphics;
 
-	/// TODO: move to some resource/texture manager
-	for ( int i = 0; i < (int)m_textures.size(); i++ )
-		device->destroyTexture( &m_textures[ i ] );
-	m_textures.clear();
+	///// TODO: move to some resource/texture manager
+	//for ( int i = 0; i < (int)m_textures.size(); i++ )
+	//	device->destroyTexture( &m_textures[ i ] );
+	//m_textures.clear();
+	//
+	//app->m_pShaderRegistry->unloadShaderProgram( m_program );
 
-	app->m_pShaderRegistry->unloadShaderProgram( m_program );
+	iMaterial::destroy( _pGraphicsDevice );
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::setAsActive( iGraphicsDevice* _device )
+void wv::iMaterial::setAsActive( iGraphicsDevice* _device )
 {
 	// _device->setActivePipeline( m_pipeline );
 	_device->useProgram( m_program );
-	materialCallback();
+	setMaterialUniforms();
+}
+
+void wv::iMaterial::setMaterialUniforms()
+{
+	setDefaultViewUniforms(); // sets projection and view matrices
+}
+
+void wv::iMaterial::setInstanceUniforms( Mesh* _instance )
+{
+	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::materialCallback()
+void wv::iMaterial::setDefaultViewUniforms()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iDeviceContext* ctx = app->context;
@@ -118,24 +93,14 @@ void wv::Material::materialCallback()
 	block.set( "u_Model", model );
 
 	// bind textures
-	for ( int i = 0; i < (int)m_textures.size(); i++ )
-		app->graphics->bindTextureToSlot( m_textures[ i ], i );
+	//for ( int i = 0; i < (int)m_textures.size(); i++ )
+	//	app->graphics->bindTextureToSlot( m_textures[ i ], i );
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Material::instanceCallback( Mesh* _instance )
+void wv::iMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 {
-	wv::cEngine* app = wv::cEngine::get();
-	wv::iDeviceContext* ctx = app->context;
-
 	// model transform
 	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
 
-	instanceBlock.set( "u_Model", _instance->transform.getMatrix() );
-}
-
-bool wv::Material::tempIsCreated()
-{
-	return m_program->isCreated();
+	instanceBlock.set( "u_Model", _mesh->transform.getMatrix() );
 }

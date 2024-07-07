@@ -37,7 +37,7 @@ void DefaultScene::onLoad()
 
 	m_mesh = parser.load( "res/meshes/debug-cube.dae" );
 
-	m_skyMaterial = new wv::Material( "sky" );
+	m_skyMaterial = new wv::iMaterial( "sky" );
 	m_skyMaterial->loadFromFile( "sky" );
 	// resource leak
 	if( m_skybox ) 
