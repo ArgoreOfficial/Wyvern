@@ -2,6 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Assets/Materials/Material.h>
+#include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
@@ -35,7 +36,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 
@@ -134,46 +135,21 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		
 		wv::cFileSystem md;
 		std::string matPath = assimpMaterial->GetName().C_Str();
-		//wv::cMaterial* material = new wv::Material( matPath );
+		wv::cMaterial* material = nullptr;
 
+		/*
 		if( md.fileExists( matPath ) ) 
 		{
-			 //material->loadFromFile( assimpMaterial->GetName().C_Str() );
+			material = _pMaterialRegistry->loadMaterial( assimpMaterial->GetName().C_Str() );
 		}
 		else
 		{
-			std::string matsrc =
-				"shader: \"unlit\"\n"
-				"textures:\n";
-
-			for ( int i = 0; i < aiTextureType_UNKNOWN; i++ )
-			{
-				if ( assimpMaterial->GetTextureCount( (aiTextureType)i ) )
-				{
-					aiString path;
-					assimpMaterial->GetTexture( (aiTextureType)i, 0, &path );
-					
-					switch ( i )
-					{
-					case aiTextureType_DIFFUSE: matsrc += std::string( " - [\"u_Albedo\", \"" ) + path.C_Str() + "\"]";
-					}
-				}
-			}
-
-			//material->loadFromSource( matsrc.c_str() );
+			material = _pMaterialRegistry->loadMaterial( "phong" );
 		}
-
-		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
-		//std::string normal_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_NORMALS, _directory );
-		//
-		//mesh->material->addTexture( "uAlbedo", albedo_path.c_str() );
-		//mesh->material->addTexture( "uMetallicRoughness", mr_path.c_str() );
-		//mesh->material->addTexture( "uNormal", normal_path.c_str() );
-		//
-		//material = new wv::PhongMaterial( phongDesc );
-		//material->create( graphics );
-
-		//primitive->material = material;
+		*/
+		material = _pMaterialRegistry->loadMaterial( "phong" );
+		
+		primitive->material = material;
 	}
 
 	/*
@@ -189,7 +165,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 	// std::string dir = _mesh->path.substr( 0, _mesh->path.find_last_of( '/' ) );
 
@@ -197,19 +173,19 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh )
 	for ( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
 		aiMesh* mesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
-		processAssimpMesh( mesh, _scene, _mesh );
+		processAssimpMesh( mesh, _scene, _mesh, _pMaterialRegistry );
 	}
 
 	// then do the same for each of its children
 	for ( unsigned int i = 0; i < _node->mNumChildren; i++ )
-		processAssimpNode( _node->mChildren[ i ], _scene, _mesh );
+		processAssimpNode( _node->mChildren[ i ], _scene, _mesh, _pMaterialRegistry );
 
 }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Mesh* wv::assimp::Parser::load( const char* _path )
+wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 
 #ifndef LOAD_WPR
@@ -235,7 +211,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path )
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 	Mesh* mesh = device->createMesh( nullptr );
 	mesh->name = _path;
-	processAssimpNode( scene->mRootNode, scene, mesh );
+	processAssimpNode( scene->mRootNode, scene, mesh, _pMaterialRegistry );
 
 #endif
 

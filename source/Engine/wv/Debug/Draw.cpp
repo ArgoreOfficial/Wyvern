@@ -15,11 +15,11 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 
 	DEBUG_MATERIAL = _pMaterialRegistry->loadMaterial( "debug" );
 	
-	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae" );
+	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae", _pMaterialRegistry );
 	for ( int i = 0; i < CUBE_MESH->primitives.size(); i++ )
 		CUBE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
 	
-	SPHERE_MESH = parser.load( "res/meshes/debug-sphere.dae" );
+	SPHERE_MESH = parser.load( "res/meshes/debug-sphere.dae", _pMaterialRegistry );
 	for ( int i = 0; i < SPHERE_MESH->primitives.size(); i++ )
 		SPHERE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
 	

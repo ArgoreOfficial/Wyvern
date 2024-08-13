@@ -15,6 +15,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Mesh;
+	class cMaterialRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +31,7 @@ namespace wv
 
 			Parser() { }
 			
-			Mesh* load( const char* _path );
+			Mesh* load( const char* _path, cMaterialRegistry* _pMaterialRegistry );
 
 		};
 

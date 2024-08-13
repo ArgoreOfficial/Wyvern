@@ -27,7 +27,7 @@ namespace wv
         int i;
         float f;
         Texture* texture;
-        cColor rgba;
+        cColor* rgba;
     };
 
     struct sMaterialVariable

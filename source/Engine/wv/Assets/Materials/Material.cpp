@@ -91,16 +91,26 @@ void wv::cMaterial::setDefaultViewUniforms()
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
 	block.set( "u_Model", model );
-
-	// bind textures
-	//for ( int i = 0; i < (int)m_textures.size(); i++ )
-	//	app->graphics->bindTextureToSlot( m_textures[ i ], i );
 }
 
 void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 {
+	wv::cEngine* app = wv::cEngine::get();
+
 	// model transform
 	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
 
 	instanceBlock.set( "u_Model", _mesh->transform.getMatrix() );
+
+	// bind textures
+	int texSlot = 0;
+	for( int i = 0; i < ( int )m_variables.size(); i++ )
+	{
+		if( m_variables[ i ].type != WV_MATERIAL_VARIABLE_TEXTURE )
+			continue;
+
+		/// TODO: move and change to instance variables
+		app->graphics->bindTextureToSlot( m_variables[ i ].data.texture, texSlot );
+		texSlot++;
+	}
 }

@@ -26,15 +26,18 @@ namespace wv
 
 	public:
 
-		cMaterial( std::string _name, cShaderProgram* _program ) :
+		cMaterial( std::string _name, cShaderProgram* _program, std::vector<sMaterialVariable> _variables = {} ) :
 			iResource{ _name, L"" },
-			m_program{ _program }
+			m_program{ _program },
+			m_variables{ _variables }
 		{ }
 
 		void setAsActive( iGraphicsDevice* _device );
 
 		void setMaterialUniforms();
 		void setInstanceUniforms( Mesh* _instance );
+
+		cShaderProgram* getProgram() { return m_program; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -20,10 +20,11 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 	{
 		shader = new cShader( _type, _name );
 		shader->load( m_pFileSystem );
+
+		addResource( shader );
 	}
 
 	shader->incrNumUsers();
-	addResource( shader );
 
     return shader;
 }

@@ -16,12 +16,14 @@ namespace wv
 			m_pGraphicsDevice{ _pGraphicsDevice },
 			m_pShaderRegistry{ m_pShaderRegistry }
 		{
-			
+			// loadBaseMaterials();
 		}
 
 		cMaterial* loadMaterial( std::string _name );
 
 	private:
+
+		cMaterial* createMaterialFromSource( std::string _name, std::string _source );
 
 		void loadBaseMaterials();
 
