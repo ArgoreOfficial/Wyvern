@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 
-#include <wv/Resource/Resource.h>
+#include <wv/Assets/Materials/MaterialVariable.h>
 
-#include <wv/Auxiliary/fkYAML/node.hpp>
+#include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,24 +18,23 @@ namespace wv
 	
 	class iGraphicsDevice;
 	class Mesh;
-	class Texture;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iMaterial : public iResource
+	class cMaterial : public iResource
 	{
 
 	public:
 
-		iMaterial( std::string _name, cShaderProgram* _program ) :
+		cMaterial( std::string _name, cShaderProgram* _program ) :
 			iResource{ _name, L"" },
 			m_program{ _program }
 		{ }
 
 		void setAsActive( iGraphicsDevice* _device );
 
-		virtual void setMaterialUniforms();
-		virtual void setInstanceUniforms( Mesh* _instance );
+		void setMaterialUniforms();
+		void setInstanceUniforms( Mesh* _instance );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +45,7 @@ namespace wv
 
 		cShaderProgram* m_program = nullptr;
 		//std::vector<Texture*> m_textures;
+		std::vector<sMaterialVariable> m_variables;
 
 	};
 

@@ -134,10 +134,12 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		
 		wv::cFileSystem md;
 		std::string matPath = assimpMaterial->GetName().C_Str();
-		wv::Material* material = new wv::Material( matPath );
+		//wv::cMaterial* material = new wv::Material( matPath );
 
-		if ( md.fileExists( matPath ) )
-			 material->loadFromFile( assimpMaterial->GetName().C_Str() );
+		if( md.fileExists( matPath ) ) 
+		{
+			 //material->loadFromFile( assimpMaterial->GetName().C_Str() );
+		}
 		else
 		{
 			std::string matsrc =
@@ -158,7 +160,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 				}
 			}
 
-			material->loadFromSource( matsrc.c_str() );
+			//material->loadFromSource( matsrc.c_str() );
 		}
 
 		//std::string mr_path = getAssimpMaterialTexturePath( assimp_material, aiTextureType_DIFFUSE_ROUGHNESS, _directory );
@@ -171,7 +173,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		//material = new wv::PhongMaterial( phongDesc );
 		//material->create( graphics );
 
-		primitive->material = material;
+		//primitive->material = material;
 	}
 
 	/*

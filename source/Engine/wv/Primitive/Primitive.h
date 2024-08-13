@@ -12,7 +12,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Material;
+	class cMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ namespace wv
 		uint32_t numVertices = 0;
 		uint32_t numIndices = 0;
 		uint32_t stride = 0;
-		Material* material = nullptr;
+		cMaterial* material = nullptr;
 
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;

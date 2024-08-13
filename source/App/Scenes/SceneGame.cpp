@@ -37,11 +37,11 @@ void DefaultScene::onLoad()
 
 	m_mesh = parser.load( "res/meshes/debug-cube.dae" );
 
-	m_skyMaterial = new wv::iMaterial( "sky" );
-	m_skyMaterial->loadFromFile( "sky" );
+	//m_skyMaterial = new wv::cMaterial( "sky" );
+	//m_skyMaterial->loadFromFile( "sky" );
 	// resource leak
-	if( m_skybox ) 
-		m_skybox->primitives[ 0 ]->material = m_skyMaterial;
+	//if( m_skybox ) 
+	//	m_skybox->primitives[ 0 ]->material = m_skyMaterial;
 
 	subscribeInputEvent();
 }
@@ -94,15 +94,15 @@ void DefaultScene::update( double _deltaTime )
 
 void DefaultScene::draw( wv::iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial->tempIsCreated() )
-	{
-		/// TODO: remove raw gl calls
-		glDepthMask( GL_FALSE );
-		glDepthFunc( GL_LEQUAL );
-		_device->draw( m_skybox );
-		glDepthFunc( GL_LESS );
-		glDepthMask( GL_TRUE );
-
-		_device->draw( m_mesh );
-	}
+	//if ( m_skyMaterial->tempIsCreated() )
+	//{
+	//	/// TODO: remove raw gl calls
+	//	glDepthMask( GL_FALSE );
+	//	glDepthFunc( GL_LEQUAL );
+	//	_device->draw( m_skybox );
+	//	glDepthFunc( GL_LESS );
+	//	glDepthMask( GL_TRUE );
+	//
+	//	_device->draw( m_mesh );
+	//}
 }

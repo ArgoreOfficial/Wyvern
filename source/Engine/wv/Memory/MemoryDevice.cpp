@@ -8,7 +8,6 @@
 #include <wv/Auxiliary/stb_image.h>
 
 #include <wv/Auxiliary/json.hpp>
-#include <wv/Auxiliary/fkYAML/node.hpp>
 
 #include <fstream>
 #include <vector>

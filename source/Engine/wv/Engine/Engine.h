@@ -25,6 +25,8 @@ namespace wv
 	class cShaderRegistry;
 	class cShaderProgram;
 
+	class cMaterialRegistry;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct EngineDesc
@@ -137,6 +139,7 @@ namespace wv
 	public:
 		cFileSystem* m_pFileSystem = nullptr;
 		cShaderRegistry* m_pShaderRegistry = nullptr;
+		cMaterialRegistry* m_pMaterialRegistry = nullptr;
 
 	};
 

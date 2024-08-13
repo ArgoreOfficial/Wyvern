@@ -1,7 +1,10 @@
-source: "source/deferred"
-blocks:
-textures:
-  - "u_Albedo"
-  - "u_Normal"
-  - "u_Position"
-  - "u_RoughnessMetallic"
+{
+  "source":"source/deferred",
+  "blocks":[],
+  "textures":[
+    "u_Albedo", 
+    "u_Normal", 
+    "u_Position", 
+    "u_RoughnessMetallic"
+  ]
+}

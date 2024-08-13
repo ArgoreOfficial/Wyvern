@@ -6,7 +6,7 @@ namespace wv
 {
 	class iGraphicsDevice;
 	class cShaderRegistry;
-	class iMaterial;
+	class cMaterial;
 
 	class cMaterialRegistry : public iResourceRegistry
 	{
@@ -19,7 +19,7 @@ namespace wv
 			
 		}
 
-
+		cMaterial* loadMaterial( std::string _name );
 
 	private:
 
@@ -28,7 +28,7 @@ namespace wv
 		iGraphicsDevice* m_pGraphicsDevice;
 		cShaderRegistry* m_pShaderRegistry;
 
-		std::unordered_map<std::string, iMaterial*> m_materials;
+		std::unordered_map<std::string, cMaterial*> m_materials;
 
 	};
 }

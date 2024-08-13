@@ -660,7 +660,7 @@ void wv::iGraphicsDevice::draw( Mesh* _mesh )
 		if ( _mesh->primitives[ i ]->material )
 		{
 			_mesh->primitives[ i ]->material->setAsActive( this );
-			_mesh->primitives[ i ]->material->instanceCallback( _mesh );
+			_mesh->primitives[ i ]->material->setInstanceUniforms( _mesh );
 		}
 
 		drawPrimitive( _mesh->primitives[ i ] );

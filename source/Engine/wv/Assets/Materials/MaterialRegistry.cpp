@@ -4,7 +4,10 @@
 #include <wv/Shader/ShaderRegistry.h>
 #include <wv/Memory/MemoryDevice.h>
 
-#include <wv/Assets/Materials/DefaultLitMaterial.h>
+wv::cMaterial* wv::cMaterialRegistry::loadMaterial( std::string _name )
+{
+	return nullptr;
+}
 
 void wv::cMaterialRegistry::loadBaseMaterials()
 {
@@ -13,5 +16,5 @@ void wv::cMaterialRegistry::loadBaseMaterials()
 			"phong"
 		} );
 
-	addResource( new cPhongMaterial( m_pShaderRegistry->loadProgramFromWShader( "phong" ) ) );
+	// addResource( new cPhongMaterial( m_pShaderRegistry->loadProgramFromWShader( "phong" ) ) );
 }

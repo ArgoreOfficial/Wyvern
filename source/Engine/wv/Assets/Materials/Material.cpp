@@ -57,26 +57,26 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iMaterial::setAsActive( iGraphicsDevice* _device )
+void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
 	// _device->setActivePipeline( m_pipeline );
 	_device->useProgram( m_program );
 	setMaterialUniforms();
 }
 
-void wv::iMaterial::setMaterialUniforms()
+void wv::cMaterial::setMaterialUniforms()
 {
 	setDefaultViewUniforms(); // sets projection and view matrices
 }
 
-void wv::iMaterial::setInstanceUniforms( Mesh* _instance )
+void wv::cMaterial::setInstanceUniforms( Mesh* _instance )
 {
 	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iMaterial::setDefaultViewUniforms()
+void wv::cMaterial::setDefaultViewUniforms()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iDeviceContext* ctx = app->context;
@@ -97,7 +97,7 @@ void wv::iMaterial::setDefaultViewUniforms()
 	//	app->graphics->bindTextureToSlot( m_textures[ i ], i );
 }
 
-void wv::iMaterial::setDefaultMeshUniforms( Mesh* _mesh )
+void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 {
 	// model transform
 	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );

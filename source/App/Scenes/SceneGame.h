@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv { class Mesh; }
-namespace wv { class iMaterial; }
+namespace wv { class cMaterial; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,6 @@ private:
 
 	wv::Mesh* m_skybox = nullptr;
 	wv::Mesh* m_mesh = nullptr;
-	wv::iMaterial* m_skyMaterial = nullptr;
+	wv::cMaterial* m_skyMaterial = nullptr;
 
 };
