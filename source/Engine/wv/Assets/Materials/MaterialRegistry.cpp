@@ -35,6 +35,8 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	std::string shaderName = root.value( "shader", "phong" );
 	cShaderProgram* program = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shaderName + ".wshader" );
 
+	while ( !program->isLoaded() ) { }
+
 	std::vector<sMaterialVariable> variables;
 	for( auto& texture : root["textures"] )
 	{
@@ -52,16 +54,18 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 		textureVariable.name = uniformName;
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 		
-
 		Texture* texture = new Texture( textureName );
 		m_resourceLoader.addLoad( texture );
 		textureVariable.data.texture = texture;
-		m_resourceLoader.dispatchLoad();
+		
+		while ( !texture->isLoaded() ) { }
 
 		variables.push_back( textureVariable );
 	}
 
 	cMaterial* mat = new cMaterial( _name, program, variables );
+	mat->load( m_pFileSystem );
+	mat->create( m_pGraphicsDevice );
 
 	return mat;
 }

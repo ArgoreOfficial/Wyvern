@@ -20,6 +20,8 @@ void wv::cShader::load( cFileSystem* _pFileSystem )
 	std::string shaderSource = _pFileSystem->loadString( m_name );
 	setSource( shaderSource );
 
+	printf( "loaded %s\n", m_name.c_str() );
+
 	iResource::load( _pFileSystem );
 }
 

@@ -19,7 +19,8 @@ wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::stri
 	if ( shader == nullptr )
 	{
 		shader = new cShader( _type, _name );
-		shader->load( m_pFileSystem );
+		m_resourceLoader.addLoad( shader );
+		//shader->load( m_pFileSystem );
 
 		addResource( shader );
 	}
@@ -39,10 +40,7 @@ wv::cShaderProgram* wv::cShaderRegistry::loadProgramFromWShader( const std::stri
 	}
 
 	program = new cShaderProgram( this, _name );
-
 	m_resourceLoader.addLoad( program );
-	m_resourceLoader.dispatchLoad();
-
 	addResource( program );
 	
 	return program;
@@ -64,8 +62,6 @@ void wv::cShaderRegistry::batchLoadPrograms( const std::vector<std::string>& _na
 		m_resourceLoader.addLoad( program );
 		addResource( program );
 	}
-	
-	m_resourceLoader.dispatchLoad();
 }
 
 void wv::cShaderRegistry::unloadShaderProgram( cShaderProgram* _program )

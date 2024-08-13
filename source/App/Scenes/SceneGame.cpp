@@ -95,7 +95,7 @@ void DefaultScene::update( double _deltaTime )
 
 void DefaultScene::draw( wv::iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial->getProgram()->isCreated() )
+	if ( m_skyMaterial->isCreated() && m_skyMaterial->getProgram()->isCreated() )
 	{
 		/// TODO: remove raw gl calls
 		glDepthMask( GL_FALSE );

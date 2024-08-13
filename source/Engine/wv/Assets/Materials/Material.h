@@ -32,6 +32,12 @@ namespace wv
 			m_variables{ _variables }
 		{ }
 
+		void load( cFileSystem* _pFileSystem ) override;
+		void unload( cFileSystem* _pFileSystem ) override;
+
+		void create( iGraphicsDevice* _pGraphicsDevice ) override;
+		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
+
 		void setAsActive( iGraphicsDevice* _device );
 
 		void setMaterialUniforms();

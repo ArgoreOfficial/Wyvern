@@ -27,10 +27,13 @@ wv::iResourceRegistry::~iResourceRegistry()
 
 wv::iResource* wv::iResourceRegistry::getLoadedResource( const std::string& _name )
 {
+	wv::iResource* res = nullptr;
+	m_mutex.lock();
 	if ( m_resources.contains( _name ) )
-		return m_resources[ _name ];
-
-	return nullptr;
+		res = m_resources[ _name ];
+	m_mutex.unlock();
+	
+	return res;
 }
 
 void wv::iResourceRegistry::addResource( iResource* _resource )
@@ -41,13 +44,14 @@ void wv::iResourceRegistry::addResource( iResource* _resource )
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource of name '%s' already exists\n", name.c_str() );
 		return;
 	}
-	
+	m_mutex.lock();
 	m_resources[ name ] = _resource;
+	m_mutex.unlock();
 }
 
 void wv::iResourceRegistry::update()
 {
-	if ( m_resourceLoader.isLoading() )
+	//if ( m_resourceLoader.isWorking() )
 		m_resourceLoader.update();
 }
 
@@ -65,6 +69,7 @@ void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )
 
 void wv::iResourceRegistry::unloadResource( const std::string& _name )
 {
+	m_mutex.lock();
 	if ( !m_resources.contains( _name ) )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload shader '%s'. It does not exist\n", _name.c_str() );
@@ -78,4 +83,5 @@ void wv::iResourceRegistry::unloadResource( const std::string& _name )
 		delete m_resources[ _name ];
 		m_resources.erase( _name );
 	}
+	m_mutex.unlock();
 }

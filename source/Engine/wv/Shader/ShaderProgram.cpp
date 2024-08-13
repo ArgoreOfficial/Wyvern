@@ -18,6 +18,8 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	addShader( vs );
 	addShader( fs );
 
+	while ( !vs->isLoaded() || !fs->isLoaded() ) { }
+
 	int blockCounter = 0;
 	for ( auto& block : root[ "blocks" ] )
 	{

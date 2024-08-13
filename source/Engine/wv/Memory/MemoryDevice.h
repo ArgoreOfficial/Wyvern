@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,7 @@ namespace wv
 
 	private:
 
+		std::mutex m_mutex;
 		std::vector<Memory*> m_loadedMemory;
 		std::vector<std::wstring> m_directories{ L"" };
 	};

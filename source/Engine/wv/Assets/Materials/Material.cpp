@@ -9,32 +9,9 @@
 #include <wv/Primitive/Mesh.h>
 
 #include <wv/Shader/ShaderRegistry.h>
+#include <wv/Auxiliary/json.hpp>
 
 #include <glm/glm.hpp>
-
-///////////////////////////////////////////////////////////////////////////////////////
-/*
-bool wv::iMaterial::loadFromFile( const char* _path )
-{
-	wv::cFileSystem mdevice;
-	
-	std::string path = std::string{ "res/materials/" } + _path + ".wmat";
-	std::string yaml = mdevice.loadString( path );
-
-	if ( yaml == "" )
-		return false;
-
-	return loadFromSource( yaml );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool wv::iMaterial::loadFromSource( const std::string& _source )
-{
-	
-	return true;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +33,33 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cMaterial::load( cFileSystem* _pFileSystem )
+{
+
+	iResource::load( _pFileSystem );
+}
+
+void wv::cMaterial::unload( cFileSystem* _pFileSystem )
+{
+
+
+	iResource::unload( _pFileSystem );
+}
+
+void wv::cMaterial::create( iGraphicsDevice* _pGraphicsDevice )
+{
+
+
+	iResource::create( _pGraphicsDevice );
+}
+
+void wv::cMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
+{
+
+
+	iResource::destroy( _pGraphicsDevice );
+}
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {

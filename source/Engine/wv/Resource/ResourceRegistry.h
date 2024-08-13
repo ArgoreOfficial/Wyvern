@@ -4,6 +4,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 namespace wv
 {
@@ -27,7 +28,7 @@ namespace wv
 		void addResource( iResource* _resource );
 
 		void update();
-		bool isLoading() { return m_resourceLoader.isLoading(); }
+		bool isWorking() { return m_resourceLoader.isWorking(); }
 
 	protected:
 
@@ -40,6 +41,6 @@ namespace wv
 
 		cFileSystem* m_pFileSystem;
 		std::unordered_map<std::string, iResource*> m_resources;
-
+		std::mutex m_mutex;
 	};
 }

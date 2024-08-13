@@ -164,7 +164,7 @@ void wv::cEngine::run()
 	if ( m_applicationState )
 	{
 		m_applicationState->onCreate();
-		m_applicationState->onLoad(); /// TODO: multithread
+		m_applicationState->onLoad();
 		// while m_applicationState->isLoading() { doloadingstuff }
 	}
 
@@ -253,6 +253,7 @@ void wv::cEngine::tick()
 
 	// update modules
 	m_pShaderRegistry->update();
+	m_pMaterialRegistry->update();
 
 	if( m_applicationState )
 		m_applicationState->update( dt );

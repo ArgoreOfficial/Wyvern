@@ -45,7 +45,9 @@ void wv::Texture::unload( cFileSystem* _pFileSystem )
 
 void wv::Texture::create( iGraphicsDevice* _pGraphicsDevice )
 {
-	_pGraphicsDevice->createTexture( this, nullptr );
+
+	TextureDesc desc;
+	_pGraphicsDevice->createTexture( this, &desc );
 
 	iResource::create( _pGraphicsDevice );
 }

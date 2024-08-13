@@ -285,7 +285,7 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 	WV_ASSERT_GL( glCompileShader, shaderHandle );
 	
-	int  success;
+	int  success = 1;
 	char infoLog[ 512 ];
 	WV_ASSERT_GL( glGetShaderiv, shaderHandle, GL_COMPILE_STATUS, &success );
 	if ( !success )
@@ -529,7 +529,7 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 		_desc->height = _pTexture->getHeight();
 		_desc->channels = static_cast<wv::TextureChannels>( _pTexture->getNumChannels() );
 	}
-
+	
 	switch ( _desc->channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:
