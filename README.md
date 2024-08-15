@@ -9,7 +9,7 @@
 | **macOS**      | ❔ | ❔ | ❔ | ❔ |
 | **Consoles***  | ❌ | ❌ | ❌ | ❌ |
 
-<sup>*planned</sup>
+<sup>*work in progress</sup>
 
 ## Features
 Wyvern is far from a feature-usable engine, so don't expect much at the moment.
