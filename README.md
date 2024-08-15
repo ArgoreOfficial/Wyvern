@@ -12,11 +12,7 @@
 <sup>*work in progress</sup>
 
 ## Features
-Wyvern is far from a feature-usable engine, so don't expect much at the moment.
-* Configurable Core Pipeline
-  * Currently this entails choosing between SDL or GLFW, and OpenGL or OpenGL ES (and WebGL through Emscripten).  
-    More options will come in the future as I continue to add better cross-platform support
-* 
+todo :(
 ## Planned Features
 > The code is more what you'd call 'guidelines' than actual rules.
 
