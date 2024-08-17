@@ -407,7 +407,7 @@ wv::Mesh* wv::iGraphicsDevice::createMesh( MeshDesc* _desc )
 
 void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 {
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh\n" );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh '%s'\n", (*_mesh)->name.c_str() );
 
 	Mesh* mesh = *_mesh;
 	for ( int i = 0; i < mesh->primitives.size(); i++ )
