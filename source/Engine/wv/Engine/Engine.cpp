@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include <wv/Assets/Materials/Material.h>
+#include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Assets/Texture.h>
 
 #include <wv/Camera/FreeflightCamera.h>
@@ -51,8 +52,9 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
 
-	m_pFileSystem     = _desc->systems.pFileSystem;
-	m_pShaderRegistry = _desc->systems.pShaderRegistry;
+	m_pFileSystem       = _desc->systems.pFileSystem;
+	m_pShaderRegistry   = _desc->systems.pShaderRegistry;
+	m_pMaterialRegistry = new cMaterialRegistry( m_pFileSystem, graphics, m_pShaderRegistry );
 
 	m_defaultRenderTarget = new RenderTarget();
 	m_defaultRenderTarget->width  = _desc->windowWidth;
@@ -77,7 +79,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 	
 
-	Debug::Draw::Internal::initDebugDraw( graphics );
+	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +164,7 @@ void wv::cEngine::run()
 	if ( m_applicationState )
 	{
 		m_applicationState->onCreate();
-		m_applicationState->onLoad(); /// TODO: multithread
+		m_applicationState->onLoad();
 		// while m_applicationState->isLoading() { doloadingstuff }
 	}
 
@@ -251,6 +253,7 @@ void wv::cEngine::tick()
 
 	// update modules
 	m_pShaderRegistry->update();
+	m_pMaterialRegistry->update();
 
 	if( m_applicationState )
 		m_applicationState->update( dt );

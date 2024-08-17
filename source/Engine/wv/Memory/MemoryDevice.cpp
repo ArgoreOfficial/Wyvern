@@ -8,7 +8,6 @@
 #include <wv/Auxiliary/stb_image.h>
 
 #include <wv/Auxiliary/json.hpp>
-#include <wv/Auxiliary/fkYAML/node.hpp>
 
 #include <fstream>
 #include <vector>
@@ -45,14 +44,17 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 
 	std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
 
+	
 	Memory* mem = new Memory();
 	mem->data = new unsigned char[ buf.size() ];
 	mem->size = static_cast<unsigned int>( buf.size() );
 
 	memcpy( mem->data, buf.data(), buf.size() );
-
+	
+	m_mutex.lock();
 	m_loadedMemory.push_back( mem );
-	//Debug::Print( Debug::WV_PRINT_DEBUG, "Loaded '%s' @ %i bytes\n", _path.c_str(), mem->size );
+	m_mutex.unlock();
+
 	return mem;
 }
 
@@ -62,6 +64,8 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 {
 	if ( !_memory )
 		return;
+
+	m_mutex.lock();
 	
 	for ( int i = 0; i < (int)m_loadedMemory.size(); i++ )
 	{
@@ -71,6 +75,8 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 		m_loadedMemory.erase( m_loadedMemory.begin() + i );
 		break;
 	}
+
+	m_mutex.unlock();
 
 	delete _memory->data;
 	*_memory = {};

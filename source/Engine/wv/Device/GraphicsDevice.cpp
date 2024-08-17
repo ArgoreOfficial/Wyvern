@@ -285,7 +285,7 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 
 	WV_ASSERT_GL( glCompileShader, shaderHandle );
 	
-	int  success;
+	int  success = 1;
 	char infoLog[ 512 ];
 	WV_ASSERT_GL( glGetShaderiv, shaderHandle, GL_COMPILE_STATUS, &success );
 	if ( !success )
@@ -407,7 +407,7 @@ wv::Mesh* wv::iGraphicsDevice::createMesh( MeshDesc* _desc )
 
 void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 {
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh\n" );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh '%s'\n", (*_mesh)->name.c_str() );
 
 	Mesh* mesh = *_mesh;
 	for ( int i = 0; i < mesh->primitives.size(); i++ )
@@ -529,7 +529,7 @@ void wv::iGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc 
 		_desc->height = _pTexture->getHeight();
 		_desc->channels = static_cast<wv::TextureChannels>( _pTexture->getNumChannels() );
 	}
-
+	
 	switch ( _desc->channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:
@@ -660,7 +660,7 @@ void wv::iGraphicsDevice::draw( Mesh* _mesh )
 		if ( _mesh->primitives[ i ]->material )
 		{
 			_mesh->primitives[ i ]->material->setAsActive( this );
-			_mesh->primitives[ i ]->material->instanceCallback( _mesh );
+			_mesh->primitives[ i ]->material->setInstanceUniforms( _mesh );
 		}
 
 		drawPrimitive( _mesh->primitives[ i ] );

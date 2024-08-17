@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include <wv/Assets/Materials/MaterialVariable.h>
+
 #include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -13,38 +15,46 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cShaderProgram;
+	
 	class iGraphicsDevice;
 	class Mesh;
-	class Texture;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Material : public iResource
+	class cMaterial : public iResource
 	{
 
 	public:
 
-		Material( std::string _name ) : 
-			iResource{ _name, L"" }
+		cMaterial( std::string _name, cShaderProgram* _program, std::vector<sMaterialVariable> _variables = {} ) :
+			iResource{ _name, L"" },
+			m_program{ _program },
+			m_variables{ _variables }
 		{ }
 
-		bool loadFromFile( const char* _path );
-		bool loadFromSource( const std::string& _source );
+		void load( cFileSystem* _pFileSystem ) override;
+		void unload( cFileSystem* _pFileSystem ) override;
+
+		void create( iGraphicsDevice* _pGraphicsDevice ) override;
 		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setAsActive( iGraphicsDevice* _device );
 
-		virtual void materialCallback();
-		virtual void instanceCallback( Mesh* _instance );
+		void setMaterialUniforms();
+		void setInstanceUniforms( Mesh* _instance );
 
-		bool tempIsCreated();
+		cShaderProgram* getProgram() { return m_program; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 
+		void setDefaultViewUniforms();
+		void setDefaultMeshUniforms( Mesh* _mesh );
+
 		cShaderProgram* m_program = nullptr;
-		std::vector<Texture*> m_textures;
+		//std::vector<Texture*> m_textures;
+		std::vector<sMaterialVariable> m_variables;
 
 	};
 

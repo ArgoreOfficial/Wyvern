@@ -13,8 +13,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Mesh;
-	class Material;
+	class cMaterial;
 	class iGraphicsDevice;
+	class cMaterialRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,12 +30,12 @@ namespace wv
 			
 			static Mesh* SPHERE_MESH;
 			static Mesh* CUBE_MESH;
-			static Material* DEBUG_MATERIAL;
+			static cMaterial* DEBUG_MATERIAL;
 
 			static std::vector<Sphere> spheres;
 			static std::vector<Transformf> cubes;
 
-			void initDebugDraw  ( iGraphicsDevice* _pGraphicsDevice );
+			void initDebugDraw  ( iGraphicsDevice* _pGraphicsDevice, cMaterialRegistry* _pMaterialRegistry );
 			void deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice );
 			void drawDebug      ( iGraphicsDevice* _pGraphicsDevice );
 		}

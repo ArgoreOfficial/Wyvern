@@ -19,11 +19,13 @@ namespace wv
 	class cFileSystem;
 	class RootNode;
 	class Model;
-	class Material;
+	class iMaterial;
 	class State;
 
 	class cShaderRegistry;
 	class cShaderProgram;
+
+	class cMaterialRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -137,6 +139,7 @@ namespace wv
 	public:
 		cFileSystem* m_pFileSystem = nullptr;
 		cShaderRegistry* m_pShaderRegistry = nullptr;
+		cMaterialRegistry* m_pMaterialRegistry = nullptr;
 
 	};
 

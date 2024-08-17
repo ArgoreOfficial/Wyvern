@@ -2,6 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Assets/Materials/Material.h>
+#include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Memory/ModelParser.h>
 #include <wv/Primitive/Mesh.h>
@@ -32,13 +33,13 @@ void DefaultScene::onLoad()
 	wv::cEngine* app = wv::cEngine::get();
 	
 	wv::assimp::Parser parser;
-	m_skybox = parser.load( "res/meshes/skysphere.dae" );
+	m_skybox = parser.load( "res/meshes/skysphere.dae", app->m_pMaterialRegistry );
 	m_skybox->transform.rotation.x = -90.0f;
 
-	m_mesh = parser.load( "res/meshes/debug-cube.dae" );
+	m_mesh = parser.load( "res/meshes/debug-cube.dae", app->m_pMaterialRegistry );
 
-	m_skyMaterial = new wv::Material( "sky" );
-	m_skyMaterial->loadFromFile( "sky" );
+	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "sky" );
+	
 	// resource leak
 	if( m_skybox ) 
 		m_skybox->primitives[ 0 ]->material = m_skyMaterial;
@@ -94,7 +95,7 @@ void DefaultScene::update( double _deltaTime )
 
 void DefaultScene::draw( wv::iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial->tempIsCreated() )
+	if ( m_skyMaterial->isCreated() && m_skyMaterial->getProgram()->isCreated() )
 	{
 		/// TODO: remove raw gl calls
 		glDepthMask( GL_FALSE );
@@ -102,7 +103,7 @@ void DefaultScene::draw( wv::iGraphicsDevice* _device )
 		_device->draw( m_skybox );
 		glDepthFunc( GL_LESS );
 		glDepthMask( GL_TRUE );
-
+	
 		_device->draw( m_mesh );
 	}
 }

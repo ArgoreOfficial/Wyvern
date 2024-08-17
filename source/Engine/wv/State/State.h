@@ -60,7 +60,7 @@ namespace wv
 					m_currentScene->onUnload();
 				
 				m_nextScene->onLoad();
-
+				
 				Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 				m_currentScene = m_nextScene;
 				m_nextScene = nullptr;

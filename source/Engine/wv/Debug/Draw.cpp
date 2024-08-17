@@ -2,22 +2,24 @@
 
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Assets/Materials/Material.h>
+#include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Memory/ModelParser.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice )
+void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice, cMaterialRegistry* _pMaterialRegistry )
 {
 	wv::assimp::Parser parser;
-	DEBUG_MATERIAL = new Material( "debug" );
-	DEBUG_MATERIAL->loadFromFile( "debug" );
 
-	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae" );
+
+	DEBUG_MATERIAL = _pMaterialRegistry->loadMaterial( "debug" );
+	
+	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae", _pMaterialRegistry );
 	for ( int i = 0; i < CUBE_MESH->primitives.size(); i++ )
 		CUBE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
 	
-	SPHERE_MESH = parser.load( "res/meshes/debug-sphere.dae" );
+	SPHERE_MESH = parser.load( "res/meshes/debug-sphere.dae", _pMaterialRegistry );
 	for ( int i = 0; i < SPHERE_MESH->primitives.size(); i++ )
 		SPHERE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
 	

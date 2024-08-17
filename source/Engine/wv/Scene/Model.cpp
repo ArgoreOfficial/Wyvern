@@ -101,7 +101,7 @@ void wv::Model::draw( iDeviceContext* _context, iGraphicsDevice* _device )
 {
 	m_material->setAsActive( _device ); /// TODO: somewhere else
 
-	m_material->instanceCallback( m_mesh );
+	m_material->setInstanceUniforms( m_mesh );
 	_device->draw( m_mesh );
 
 	Node::draw( _context, _device ); // draw chldren
