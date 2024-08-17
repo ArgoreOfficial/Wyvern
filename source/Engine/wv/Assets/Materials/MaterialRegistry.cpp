@@ -38,10 +38,10 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	while ( !program->isLoaded() ) { }
 
 	std::vector<sMaterialVariable> variables;
-	for( auto& texture : root["textures"] )
+	for( auto& textureObject : root["textures"] )
 	{
-		std::string uniformName = texture.value( "name", "" );
-		std::string textureName = texture.value( "texture", "" );
+		std::string uniformName = textureObject.value( "name", "" );
+		std::string textureName = textureObject.value( "texture", "" );
 
 		if( uniformName == "" || textureName == "" )
 		{

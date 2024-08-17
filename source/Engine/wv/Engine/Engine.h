@@ -17,8 +17,8 @@ namespace wv
 	class ICamera;
 	class RenderTarget;
 	class cFileSystem;
-	class RootNode;
-	class Model;
+	class cSceneRoot;
+	class cModelObject;
 	class iMaterial;
 	class State;
 
@@ -52,6 +52,8 @@ namespace wv
 		} systems;
 
 		State* applicationState = nullptr;
+
+		cSceneRoot* pSceneRoot = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +65,8 @@ namespace wv
 
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
+		
+		static uint64_t getUniqueUUID();
 
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
@@ -120,7 +124,7 @@ namespace wv
 		double m_averageFps = 0.0;
 		double m_maxFps = 0.0;
 
-		RootNode* m_scene;
+		cSceneRoot* m_pScene = nullptr;
 
 		/*
 		 * technically not a singleton but getting a reference 

@@ -10,8 +10,6 @@
 
 #include <wv/Resource/cResourceLoader.h>
 
-#include <Windows.h>
-
 wv::cShader* wv::cShaderRegistry::loadShader( eShaderType _type, const std::string& _name )
 {
 	cShader* shader = static_cast<cShader*>( getLoadedResource( _name ) );

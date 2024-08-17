@@ -19,7 +19,7 @@
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
-#include <wv/Scene/Model.h>
+#include <wv/Scene/SceneRoot.h>
 #include <wv/Shader/ShaderRegistry.h>
 #include <wv/State/State.h>
 
@@ -31,6 +31,9 @@
 #include <fstream>
 #include <vector>
 #include <SDL2/SDL_keycode.h>
+
+#include <type_traits>
+#include <random>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -63,6 +66,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	m_applicationState = _desc->applicationState;
 
+	m_pScene = _desc->pSceneRoot;
+
 	/* 
 	 * create deferred rendering objects
 	 * this should be configurable
@@ -77,7 +82,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	graphics->setClearColor( wv::Color::Black );
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
-	
 
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
 }
@@ -87,6 +91,19 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 wv::cEngine* wv::cEngine::get()
 {
 	return s_instance;
+}
+
+uint64_t wv::cEngine::getUniqueUUID()
+{
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+
+	std::uniform_int_distribution<unsigned long long> dis(
+		std::numeric_limits<std::uint64_t>::min(),
+		std::numeric_limits<std::uint64_t>::max()
+	);
+
+	return dis( gen );
 }
 
 
@@ -160,14 +177,17 @@ void wv::cEngine::run()
 	freeflightCamera->onCreate();
 
 	currentCamera = orbitCamera;
-
+	/*
 	if ( m_applicationState )
 	{
 		m_applicationState->onCreate();
 		m_applicationState->onLoad();
 		// while m_applicationState->isLoading() { doloadingstuff }
 	}
-
+	*/
+	m_pScene->onLoad();
+	m_pScene->onCreate();
+	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
@@ -176,12 +196,16 @@ void wv::cEngine::run()
 #endif
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
-
+	
+	/*
 	if ( m_applicationState )
 	{
 		m_applicationState->onUnload();
 		m_applicationState->onDestroy();
 	}
+	*/
+	m_pScene->onDestroy();
+	m_pScene->onUnload();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -255,8 +279,11 @@ void wv::cEngine::tick()
 	m_pShaderRegistry->update();
 	m_pMaterialRegistry->update();
 
+	/*
 	if( m_applicationState )
 		m_applicationState->update( dt );
+	*/
+	m_pScene->update( dt );
 
 	currentCamera->update( dt );
 
@@ -269,8 +296,11 @@ void wv::cEngine::tick()
 	graphics->setRenderTarget( m_gbuffer );
 	graphics->clearRenderTarget( true, true );
 
+	/*
 	if( m_applicationState )
 		m_applicationState->draw( graphics );
+	*/
+	m_pScene->draw( context, graphics );
 
 	Debug::Draw::Internal::drawDebug( graphics );
 

@@ -10,6 +10,10 @@
 
 #include <StateGame.h>
 
+#include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Model.h>
+#include <wv/Scene/Skybox.h>
+
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
@@ -80,6 +84,8 @@ bool cSandbox::create( void )
 	engineDesc.applicationState = new StateGame();
 	/// TEMPORARY---
 
+	engineDesc.pSceneRoot = setupScene();
+
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
 
@@ -96,5 +102,15 @@ void cSandbox::run( void )
 void cSandbox::destroy( void )
 {
 	m_pEngine->terminate();
+}
+
+wv::cSceneRoot* cSandbox::setupScene()
+{
+	wv::cSceneRoot* scene = new wv::cSceneRoot();
+	
+	scene->addChild( new wv::cModelObject ( wv::cEngine::getUniqueUUID(), "cube", nullptr ) );
+	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
+
+	return scene;
 }
 

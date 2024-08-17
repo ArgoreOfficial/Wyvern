@@ -1,8 +1,8 @@
-#include "Node.h"
+#include "SceneObject.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Node::Node( const uint64_t& _uuid, const std::string& _name ):
+wv::iSceneObject::iSceneObject( const uint64_t& _uuid, const std::string& _name ):
 	m_uuid{ _uuid },
 	m_name{ _name }
 {
@@ -11,14 +11,14 @@ wv::Node::Node( const uint64_t& _uuid, const std::string& _name ):
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Node::~Node()
+wv::iSceneObject::~iSceneObject()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Node::addChild( Node* _node )
+void wv::iSceneObject::addChild( iSceneObject* _node )
 {
 	if ( !_node )
 		return;
@@ -31,7 +31,7 @@ void wv::Node::addChild( Node* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Node::removeChild( Node* _node )
+void wv::iSceneObject::removeChild( iSceneObject* _node )
 {
 	if ( !_node )
 		return;
@@ -49,7 +49,7 @@ void wv::Node::removeChild( Node* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Node::moveChild( Node* _node, Node* _newParent )
+void wv::iSceneObject::moveChild( iSceneObject* _node, iSceneObject* _newParent )
 {
 	if ( !_node || !_newParent )
 		return;
