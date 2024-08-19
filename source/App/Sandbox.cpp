@@ -14,6 +14,7 @@
 #include <wv/Scene/Skybox.h>
 
 #include "SceneObjects/TentacleSection.h"
+#include "SceneObjects/TentacleSettingWindow.h"
 
 bool cSandbox::create( void )
 {
@@ -126,6 +127,8 @@ wv::cSceneRoot* cSandbox::setupScene()
 		parent->addChild( section );
 		parent = section;
 	}
+
+	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
 
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
 

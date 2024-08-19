@@ -313,7 +313,6 @@ void wv::cEngine::tick()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	ImGui::ShowDemoWindow();
 #endif // WV_IMGUI_SUPPORTED
 
 	/*
@@ -393,7 +392,7 @@ void wv::cEngine::shutdownImgui()
 	switch( context->getContextAPI() )
 	{
 	#ifdef WV_GLFW_SUPPORTED
-	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_Shutdown( ( ( GLFWDeviceContext* )context )->m_windowContext, true ); break;
+	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_Shutdown(); break;
 	#endif
 	}
 

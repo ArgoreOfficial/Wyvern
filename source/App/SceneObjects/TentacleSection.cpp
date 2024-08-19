@@ -12,6 +12,8 @@
 
 #include <fstream>
 
+#include "TentacleSettingWindow.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 cTentacleSectionObject::cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _mesh ) :
@@ -54,12 +56,18 @@ void cTentacleSectionObject::updateImpl( double _deltaTime )
 {
 	if( m_mesh )
 	{
+		sTentacleSetting x = cTentacleSettingWindowObject::settings[ 0 ];
+		sTentacleSetting y = cTentacleSettingWindowObject::settings[ 1 ];
+		sTentacleSetting z = cTentacleSettingWindowObject::settings[ 2 ];
+
 		double t = wv::cEngine::get()->context->getTime();
-		m_transform.setRotation( wv::Vector3f{
-			( sinf( ( float )t * 1.0f ) ) * 15.0f,
-			15.0f,
-			( cosf( ( float )t * 3.0f ) + -1.0f ) * 5.0f - 15.0f } );
 		
+		m_transform.setRotation( {
+			sinf( ( float )t * x.frequency + x.phase ) * x.amplitude + x.shift,
+			sinf( ( float )t * y.frequency + y.phase ) * y.amplitude + y.shift,
+			sinf( ( float )t * z.frequency + z.phase ) * z.amplitude + z.shift 
+		} );
+
 		m_mesh->transform = m_transform;
 	}
 }
