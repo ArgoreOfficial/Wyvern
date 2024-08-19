@@ -111,19 +111,24 @@ void cSandbox::destroy( void )
 wv::cSceneRoot* cSandbox::setupScene()
 {
 	wv::cSceneRoot* scene = new wv::cSceneRoot();
+	scene->m_transform.position.y = -2.0f;
+	scene->m_transform.update();
+
+	const int num = 100;
+	const float scale = 0.9;
+
+	wv::cModelObject* cube = nullptr;
+	wv::iSceneObject* parent = scene;
 	
-	const int num = 1200;
-	const float scale = 0.03f;
-
-	float h = -1.0f;
-
 	for( int i = 0; i < num; i++ )
 	{
-		wv::cModelObject* cube = new wv::cModelObject( wv::cEngine::getUniqueUUID(), "cube", nullptr );
-		cube->m_transform.setPosition( { 0.0f, h, 0.0f } );
-		cube->m_transform.setScale( { 0.4f, scale, 0.4f } );
-		h += scale;
-		scene->addChild( cube );
+		cube = new wv::cModelObject( wv::cEngine::getUniqueUUID(), "cube", nullptr );
+
+		cube->m_transform.setPosition( { 0.0f, scale, 0.0f } );
+		cube->m_transform.setScale( { scale, scale, scale } );
+		
+		parent->addChild( cube );
+		parent = cube;
 	}
 
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );

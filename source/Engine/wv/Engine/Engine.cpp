@@ -176,7 +176,7 @@ void wv::cEngine::run()
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 
-	currentCamera = orbitCamera;
+	currentCamera = freeflightCamera;
 	/*
 	if ( m_applicationState )
 	{

@@ -48,7 +48,7 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 	if ( !m_freecam_enabled )
 		return;
 
-	m_rotate = { (float)_event.delta.x, (float)_event.delta.y };
+	m_rotate = { -(float)_event.delta.x, (float)_event.delta.y };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -99,13 +99,13 @@ void wv::FreeflightCamera::update( double _delta_time )
 
 	// forward
 	glm::mat4 rot_forward( 1.0f );
-	rot_forward = glm::rotate( rot_forward, -yaw, { 0.0f, 1.0f, 0.0f } );
+	rot_forward = glm::rotate( rot_forward, yaw, { 0.0f, 1.0f, 0.0f } );
 	rot_forward = glm::rotate( rot_forward, pitch, { 1.0f, 0.0f, 0.0f } );
 	glm::vec4 forward = rot_forward * glm::vec4{ 0.0f, 0.0f, -1.0f, 1.0f };;
 	
 	// right
 	glm::mat4 rot_right( 1.0f );
-	rot_right = glm::rotate( rot_right, -yaw,  { 0.0f, 1.0f, 0.0f } );
+	rot_right = glm::rotate( rot_right, yaw,  { 0.0f, 1.0f, 0.0f } );
 	//rot_right = glm::rotate( rot_right, pitch, { 1.0f, 0.0f, 0.0f } );
 	glm::vec4 right = rot_right * glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f };;
 
