@@ -38,6 +38,8 @@ void cTentacleSectionObject::onLoadImpl()
 	m_mesh = parser.load( "res/meshes/debug-cube.dae", app->m_pMaterialRegistry );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void cTentacleSectionObject::onUnloadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
@@ -45,6 +47,8 @@ void cTentacleSectionObject::onUnloadImpl()
 
 	device->destroyMesh( &m_mesh );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cTentacleSectionObject::updateImpl( double _deltaTime )
 {

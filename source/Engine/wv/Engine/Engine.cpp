@@ -37,8 +37,18 @@
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
-#endif
+#endif // EMSCRIPTEN
 
+#ifdef WV_IMGUI_SUPPORTED
+#include <imgui.h>
+#include <imgui.h>
+#include <wv/Auxiliary/imgui/imgui_impl_glfw.h>
+#include <wv/Auxiliary/imgui/imgui_impl_opengl3.h>
+#endif // WV_IMGUI_SUPPORTED
+
+#ifdef WV_GLFW_SUPPORTED
+#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
+#endif // WV_GLFW_SUPPORTED
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,6 +90,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	
 	graphics->setRenderTarget( m_defaultRenderTarget );
 	graphics->setClearColor( wv::Color::Black );
+
+	initImgui();
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 
@@ -296,6 +308,14 @@ void wv::cEngine::tick()
 	graphics->setRenderTarget( m_gbuffer );
 	graphics->clearRenderTarget( true, true );
 
+#ifdef WV_IMGUI_SUPPORTED
+	/// TODO: move
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+#endif // WV_IMGUI_SUPPORTED
+
 	/*
 	if( m_applicationState )
 		m_applicationState->draw( graphics );
@@ -315,13 +335,70 @@ void wv::cEngine::tick()
 	// render screen quad with deferred shader
 	graphics->useProgram( m_deferredProgram );
 	graphics->draw( m_screenQuad );
+	
+#ifdef WV_IMGUI_SUPPORTED
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+#endif // WV_IMGUI_SUPPORTED
 
 	context->swapBuffers();
 }
 
 void wv::cEngine::quit()
 {
+	shutdownImgui();
 	context->close();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cEngine::initImgui()
+{
+#ifdef WV_IMGUI_SUPPORTED
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	switch( context->getContextAPI() )
+	{
+#ifdef WV_GLFW_SUPPORTED
+	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_InitForOpenGL( ( ( GLFWDeviceContext* )context )->m_windowContext, true ); break;
+#endif
+	}
+
+	switch( context->getGraphicsAPI() )
+	{
+	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Init(); break;
+	}
+
+#else
+	Debug::Print( Debug::WV_PRINT_WARN, "Imgui not supported\n" );
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cEngine::shutdownImgui()
+{
+#ifdef WV_IMGUI_SUPPORTED
+	switch( context->getGraphicsAPI() )
+	{
+	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Shutdown(); break;
+	}
+
+	switch( context->getContextAPI() )
+	{
+	#ifdef WV_GLFW_SUPPORTED
+	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_Shutdown( ( ( GLFWDeviceContext* )context )->m_windowContext, true ); break;
+	#endif
+	}
+
+	ImGui::DestroyContext();
+#endif // WV_IMGUI_SUPPORTED
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
