@@ -363,6 +363,7 @@ void wv::cEngine::createScreenQuad()
 	MeshDesc meshDesc;
 	m_screenQuad = graphics->createMesh( &meshDesc );
 	graphics->createPrimitive( &prDesc, m_screenQuad );
+	m_screenQuad->transform.update();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 #pragma once
 #include <wv/Math/Vector3.h>
 
-// TODO: change to wv/Math/Matrix
+/// TODO: change to wv/Math/Matrix
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -25,22 +25,24 @@ namespace wv
 		inline void translate( wv::Vector3<T> _translation ) { position += _translation; }
 		inline void rotate   ( wv::Vector3<T> _rotation )    { rotation += _rotation; }
 		
-		inline glm::mat<4, 4, T> getMatrix( void )
+		inline glm::mat<4, 4, T> getMatrix() { return m_matrix; }
+
+		void update()
 		{
-			glm::mat<4,4,T> model( 1 );
-			
+			glm::mat<4, 4, T> model( 1 );
+
 			model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
-			
+
 			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
 			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
 			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
 
 			model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
-			
-			if ( parent != nullptr )
+
+			if( parent != nullptr )
 				model = parent->getMatrix() * model;
-			
-			return model;
+
+			m_matrix = model;
 		}
 
 		inline Vector3<T> forward()
@@ -55,6 +57,9 @@ namespace wv
 		Vector3<T> rotation{ 0, 0, 0 };
 		Vector3<T> scale   { 1, 1, 1 };
 
+	private:
+
+		glm::mat<4, 4, T> m_matrix{ 1 };
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////

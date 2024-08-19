@@ -36,6 +36,7 @@ void wv::cSkyboxObject::onLoadImpl()
 	wv::assimp::Parser parser;
 	m_skyboxMesh = parser.load( "res/meshes/skysphere.dae", app->m_pMaterialRegistry );
 	m_skyboxMesh->transform.rotation.x = -90.0f;
+	m_skyboxMesh->transform.update();
 
 	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "sky" );
 

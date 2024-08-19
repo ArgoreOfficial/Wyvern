@@ -61,6 +61,7 @@ namespace wv
 		void update( double _deltaTime ) 
 		{
 			updateImpl( _deltaTime );
+			m_transform.update();
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->update( _deltaTime );
 		}
