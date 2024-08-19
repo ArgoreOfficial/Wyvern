@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "TentacleSection.h"
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
@@ -14,7 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject::cModelObject( const uint64_t& _uuid, const std::string& _name, Mesh* _mesh ) :
+cTentacleSectionObject::cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _mesh ) :
 	iSceneObject{ _uuid, _name },
 	m_mesh{ _mesh }
 {
@@ -23,14 +23,14 @@ wv::cModelObject::cModelObject( const uint64_t& _uuid, const std::string& _name,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject::~cModelObject()
+cTentacleSectionObject::~cTentacleSectionObject()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cModelObject::onLoadImpl()
+void cTentacleSectionObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 
@@ -38,7 +38,7 @@ void wv::cModelObject::onLoadImpl()
 	m_mesh = parser.load( "res/meshes/debug-cube.dae", app->m_pMaterialRegistry );
 }
 
-void wv::cModelObject::onUnloadImpl()
+void cTentacleSectionObject::onUnloadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->graphics;
@@ -46,15 +46,23 @@ void wv::cModelObject::onUnloadImpl()
 	device->destroyMesh( &m_mesh );
 }
 
-void wv::cModelObject::updateImpl( double _deltaTime )
+void cTentacleSectionObject::updateImpl( double _deltaTime )
 {
 	if( m_mesh )
+	{
+		double t = wv::cEngine::get()->context->getTime();
+		m_transform.setRotation( wv::Vector3f{
+			( sinf( ( float )t * 1.0f ) ) * 15.0f,
+			15.0f,
+			( cosf( ( float )t * 3.0f ) + -1.0f ) * 5.0f - 15.0f } );
+		
 		m_mesh->transform = m_transform;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cModelObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
+void cTentacleSectionObject::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
 {
 	if( m_mesh )
 		_device->draw( m_mesh );

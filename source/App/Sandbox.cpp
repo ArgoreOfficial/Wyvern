@@ -11,17 +11,13 @@
 #include <StateGame.h>
 
 #include <wv/Scene/SceneRoot.h>
-#include <wv/Scene/Model.h>
 #include <wv/Scene/Skybox.h>
+
+#include "SceneObjects/TentacleSection.h"
 
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
-	/*
-	engineDesc.windowWidth = 640;
-	engineDesc.windowHeight = 480;
-	*/
-	
 	engineDesc.windowWidth = 640 * 2;
 	engineDesc.windowHeight = 480 * 2;
 	engineDesc.showDebugConsole = true;
@@ -114,21 +110,21 @@ wv::cSceneRoot* cSandbox::setupScene()
 	scene->m_transform.position.y = -2.0f;
 	scene->m_transform.update();
 
-	const int num = 100;
+	const int num = 30;
 	const float scale = 0.9;
 
-	wv::cModelObject* cube = nullptr;
+	cTentacleSectionObject* section = nullptr;
 	wv::iSceneObject* parent = scene;
 	
 	for( int i = 0; i < num; i++ )
 	{
-		cube = new wv::cModelObject( wv::cEngine::getUniqueUUID(), "cube", nullptr );
+		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", nullptr );
 
-		cube->m_transform.setPosition( { 0.0f, scale, 0.0f } );
-		cube->m_transform.setScale( { scale, scale, scale } );
+		section->m_transform.setPosition( { 0.0f, scale, 0.0f } );
+		section->m_transform.setScale( { scale, scale, scale } );
 		
-		parent->addChild( cube );
-		parent = cube;
+		parent->addChild( section );
+		parent = section;
 	}
 
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
