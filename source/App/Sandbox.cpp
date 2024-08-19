@@ -17,9 +17,13 @@
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
-	
+	/*
 	engineDesc.windowWidth = 640;
 	engineDesc.windowHeight = 480;
+	*/
+	
+	engineDesc.windowWidth = 640 * 2;
+	engineDesc.windowHeight = 480 * 2;
 	engineDesc.showDebugConsole = true;
 
 	// create device context
@@ -108,7 +112,24 @@ wv::cSceneRoot* cSandbox::setupScene()
 {
 	wv::cSceneRoot* scene = new wv::cSceneRoot();
 	
-	scene->addChild( new wv::cModelObject ( wv::cEngine::getUniqueUUID(), "cube", nullptr ) );
+	wv::cModelObject* cube = new wv::cModelObject( wv::cEngine::getUniqueUUID(), "cube", nullptr );
+	cube->m_transform.setScale( { 0.5f, 0.5f, 0.5f } );
+	cube->m_transform.setPosition( { 0.f, -1.f, 0.f } );
+
+	const int num = 30;
+	const float scale = 0.95f;
+
+	scene->addChild( cube );
+	for( int i = 0; i < num; i++ )
+	{
+		wv::cModelObject* newCube = new wv::cModelObject( wv::cEngine::getUniqueUUID(), "cube", nullptr );
+		newCube->m_transform.setPosition( { 0.0f, scale, 0.0f } );
+		newCube->m_transform.setScale( { scale, scale, scale } );
+
+		cube->addChild( newCube );
+		cube = newCube;
+	}
+
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
 
 	return scene;

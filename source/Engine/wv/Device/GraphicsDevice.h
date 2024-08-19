@@ -115,7 +115,9 @@ namespace wv
 
 		int m_numTotalUniformBlocks = 0;
 
+		// states
 		std::vector<wv::Handle> m_boundTextureSlots;
+		wv::Handle m_boundUniformBuffer = 0;
 
 	};
 

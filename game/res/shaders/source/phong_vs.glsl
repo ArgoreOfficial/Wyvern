@@ -19,7 +19,7 @@ out vec3 Pos;
 void main()
 {
     TexCoord = a_TexCoord0;
-    Normal = a_Normal;
+    Normal = normalize( transpose( inverse( mat3( u_Model ) ) ) * a_Normal );
     Pos = a_Pos;
 
     gl_Position = u_Projection * u_View * u_Model * vec4( a_Pos, 1.0 );

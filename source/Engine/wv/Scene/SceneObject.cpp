@@ -27,6 +27,7 @@ void wv::iSceneObject::addChild( iSceneObject* _node )
 	m_children.push_back( _node );
 
 	_node->m_parent = this;
+	_node->m_transform.parent = &m_transform;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

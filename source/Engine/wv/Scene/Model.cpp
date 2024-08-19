@@ -50,8 +50,12 @@ void wv::cModelObject::updateImpl( double _deltaTime )
 {
 	if ( m_mesh )
 	{
-		m_transform.rotate( wv::Vector3f{ (float)_deltaTime * 10.0f, 0.0f, 0.0f } );
-
+		if( m_name == "cube" )
+		{
+			double t = wv::cEngine::get()->context->getTime();
+			m_transform.setRotation( wv::Vector3f{ sinf( (float)t * 1.0f ) * 25.0f, 0.0f, 0.0f } );
+		}
+		
 		m_mesh->transform = m_transform;
 	}
 }

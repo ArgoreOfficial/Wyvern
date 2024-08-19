@@ -370,11 +370,11 @@ void wv::cEngine::createScreenQuad()
 void wv::cEngine::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
-	//rtDesc.width  = context->getWidth();
-	//rtDesc.height = context->getHeight();
+	rtDesc.width  = context->getWidth();
+	rtDesc.height = context->getHeight();
 	
-	rtDesc.width  = 640;
-	rtDesc.height = 480;
+	//rtDesc.width  = 640;
+	//rtDesc.height = 480;
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },

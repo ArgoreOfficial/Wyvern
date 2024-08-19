@@ -703,7 +703,12 @@ void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 	for ( auto& block : *uniformBlocks )
 	{
 		WV_ASSERT_GL( glUniformBlockBinding, m_activeProgram->getHandle(), block.second.m_index, block.second.m_bindingIndex);
-		WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
+
+		if( m_boundUniformBuffer != block.second.m_bufferHandle )
+		{
+			WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
+			m_boundUniformBuffer = block.second.m_bufferHandle;
+		}
 		WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
 	}
 

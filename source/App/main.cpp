@@ -5,12 +5,12 @@
 
 int main()
 {
-	cSandbox* sandbox = new cSandbox();
+	cSandbox sandbox{};
 
-	if ( sandbox->create() )
+	if ( sandbox.create() )
 	{
-		sandbox->run();
-		sandbox->destroy();
+		sandbox.run();
+		sandbox.destroy();
 	}
 
 	return 0;
