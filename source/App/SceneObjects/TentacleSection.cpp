@@ -16,9 +16,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cTentacleSectionObject::cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _mesh ) :
+cTentacleSectionObject::cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, float _segmentLength ) :
 	iSceneObject{ _uuid, _name },
-	m_mesh{ _mesh }
+	m_segmentLength{_segmentLength}
 {
 
 }
@@ -63,9 +63,9 @@ void cTentacleSectionObject::updateImpl( double _deltaTime )
 		double t = wv::cEngine::get()->context->getTime();
 		
 		m_transform.setRotation( {
-			sinf( ( float )t * x.frequency + x.phase ) * x.amplitude + x.shift,
-			sinf( ( float )t * y.frequency + y.phase ) * y.amplitude + y.shift,
-			sinf( ( float )t * z.frequency + z.phase ) * z.amplitude + z.shift 
+			x.getValue( t ),
+			y.getValue( t ),
+			z.getValue( t ) 
 		} );
 
 		m_mesh->transform = m_transform;

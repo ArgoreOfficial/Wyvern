@@ -19,7 +19,7 @@ class cTentacleSectionObject : public wv::iSceneObject
 
 public:
 
-	 cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _mesh );
+	 cTentacleSectionObject( const uint64_t& _uuid, const std::string& _name, float _segmentLength );
 	~cTentacleSectionObject();
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -35,5 +35,6 @@ protected:
 	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
 	wv::Mesh* m_mesh;
+	float m_segmentLength = 1.0f;
 
 };

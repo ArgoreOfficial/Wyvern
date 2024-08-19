@@ -83,3 +83,8 @@ void sTentacleSetting::drawInputs( int _i )
 	ImGui::GetForegroundDrawList()->AddRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32( 255, 255, 255, 128 ) );
 
 }
+
+float sTentacleSetting::getValue( float _t )
+{
+	return sinf( ( float )_t * frequency + phase ) * amplitude + shift;
+}

@@ -111,18 +111,20 @@ wv::cSceneRoot* cSandbox::setupScene()
 	scene->m_transform.position.y = -2.0f;
 	scene->m_transform.update();
 
-	const int num = 30;
-	const float scale = 0.9;
+	const int numSegments = 30;
+	const float tentacleLength = 25.0f;
+	const float tapre = 0.9f;
+	const float segmentLength = tentacleLength / (float)numSegments;
 
 	cTentacleSectionObject* section = nullptr;
 	wv::iSceneObject* parent = scene;
 	
-	for( int i = 0; i < num; i++ )
+	for( int i = 0; i < numSegments; i++ )
 	{
-		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", nullptr );
+		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
 
-		section->m_transform.setPosition( { 0.0f, scale, 0.0f } );
-		section->m_transform.setScale( { scale, scale, scale } );
+		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
+		section->m_transform.setScale( { tapre } );
 		
 		parent->addChild( section );
 		parent = section;
