@@ -42,10 +42,7 @@ void wv::cSkyboxObject::onLoadImpl()
 
 	// resource leak
 	if ( m_skyboxMesh )
-	{
-		m_skyboxMesh->primitives[ 0 ]->material->destroy( app->graphics );
 		m_skyboxMesh->primitives[ 0 ]->material = m_skyMaterial;
-	}
 }
 
 void wv::cSkyboxObject::onUnloadImpl()

@@ -262,7 +262,7 @@ void wv::iGraphicsDevice::compileShader( cShader* _shader )
 	std::string source = _shader->getSource();
 	if ( source == "" )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader '%s' with null source\n", _shader->getName().c_str() );
 		return;
 	}
 
@@ -657,14 +657,27 @@ void wv::iGraphicsDevice::draw( Mesh* _mesh )
 
 	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
 	{
-		if ( _mesh->primitives[ i ]->material )
+		cMaterial* mat = _mesh->primitives[ i ]->material;
+		if( mat )
 		{
-			_mesh->primitives[ i ]->material->setAsActive( this );
-			_mesh->primitives[ i ]->material->setInstanceUniforms( _mesh );
-		}
+			if( !mat->isLoaded() || !mat->isCreated() )
+			{
+				continue;
+			}
 
-		drawPrimitive( _mesh->primitives[ i ] );
+			mat->setAsActive( this );
+			mat->setInstanceUniforms( _mesh );
+			drawPrimitive( _mesh->primitives[ i ] );
+		}
+		else
+		{
+			drawPrimitive( _mesh->primitives[ i ] );
+		}
+		
+
+
 	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

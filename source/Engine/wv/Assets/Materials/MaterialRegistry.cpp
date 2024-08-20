@@ -35,7 +35,10 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	std::string shaderName = root.value( "shader", "phong" );
 	cShaderProgram* program = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shaderName + ".wshader" );
 
-	while ( !program->isLoaded() ) { }
+	while ( !program->isLoaded() ) 
+	{
+		Sleep( 1 );
+	}
 
 	std::vector<sMaterialVariable> variables;
 	for( auto& textureObject : root["textures"] )
