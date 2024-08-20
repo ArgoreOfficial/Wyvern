@@ -51,12 +51,12 @@ public:
 
 	virtual void OnContactPersisted( const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings ) override
 	{
-		printf( "A contact was persisted\n" );
+		//printf( "A contact was persisted\n" );
 	}
 
 	virtual void OnContactRemoved( const JPH::SubShapeIDPair& inSubShapePair ) override
 	{
-		printf( "A contact was removed" );
+		printf( "A contact was removed\n" );
 	}
 };
 
@@ -160,10 +160,13 @@ void wv::cJoltPhysicsEngine::init()
 	// Note that this uses the shorthand version of creating and adding a body to the world
 	JPH::BodyCreationSettings sphereSettings( new JPH::SphereShape( 0.5f ), JPH::RVec3( 0.0_r, 20.0_r, 0.0_r ), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::DYNAMIC );
 	sphereSettings.mRestitution = 0.8f;
-	sphereID = m_pBodyInterface->CreateAndAddBody( sphereSettings, JPH::EActivation::Activate );
+
+	JPH::BodyID sphereID = m_pBodyInterface->CreateAndAddBody( sphereSettings, JPH::EActivation::Activate );
 	// Now you can interact with the dynamic body, in this case we're going to give it a velocity.
 	// (note that if we had used CreateBody then we could have set the velocity straight on the body before adding it to the physics system)
-	m_pBodyInterface->SetLinearVelocity( sphereID, JPH::Vec3( 0.0f, 10.0f, 0.0f ) );
+	m_pBodyInterface->SetLinearVelocity( sphereID, JPH::Vec3( 1.0f, 10.0f, 2.0f ) );
+
+	m_bodies[ 0 ] = sphereID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -181,15 +184,31 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	m_steps++;
 
 	// Output current position and velocity of the sphere
-	JPH::RVec3 position = m_pBodyInterface->GetCenterOfMassPosition( sphereID );
-	JPH::Vec3 velocity = m_pBodyInterface->GetLinearVelocity( sphereID );
-	
-	wv::Debug::Draw::AddSphere( { position.GetX(), position.GetY(), position.GetZ() } );
+	Transformf t = getPhysicsBodyTransform( 0 );
+	wv::Debug::Draw::AddSphere( t.position );
 
 	/// TODO: discrete
-	// If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
+	// 1 collision step per 1 / 60th of a second (round up).
 	const int collisionSteps = 1;
 
 	// Step the world
 	m_pPhysicsSystem->Update( _deltaTime, collisionSteps, m_pTempAllocator, m_pJobSystem );
+}
+
+wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )
+{
+	JPH::BodyID id = m_bodies.at( _handle );
+
+	JPH::RVec3 pos = m_pBodyInterface->GetCenterOfMassPosition( id );
+	JPH::Vec3  rot = m_pBodyInterface->GetRotation( id ).GetEulerAngles(); /// TODO: change to quaternion
+
+	Transformf transform{};
+	transform.position = Vector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
+	transform.rotation = Vector3f{ 
+		wv::Math::radToDeg( rot.GetX() ), 
+		wv::Math::radToDeg( rot.GetY() ), 
+		wv::Math::radToDeg( rot.GetZ() ) 
+	};
+
+	return transform;
 }

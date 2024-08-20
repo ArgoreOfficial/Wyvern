@@ -12,6 +12,11 @@ namespace JPH { class BodyInterface; }
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
+#include <wv/Types.h>
+#include <wv/Math/Transform.h>
+
+#include <unordered_map>
+
 class MyContactListener;
 class MyBodyActivationListener;
 
@@ -37,6 +42,8 @@ namespace wv
 
 		void update( double _deltaTime );
 
+		Transformf getPhysicsBodyTransform( wv::Handle _handle );
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
@@ -61,7 +68,7 @@ namespace wv
 		MyContactListener* tempContactListener = nullptr;
 		MyBodyActivationListener* tempBodyActivationListener = nullptr;
 
-		JPH::BodyID sphereID;
+		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
 
 	};
 }

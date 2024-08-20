@@ -122,7 +122,8 @@ wv::cSceneRoot* cSandbox::setupScene()
 	
 	for( int i = 0; i < numSegments; i++ )
 	{
-		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
+		//section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
+		section = new cTentacleSectionObject( i, "section", segmentLength );
 
 		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
 		section->m_transform.setScale( { tapre } );

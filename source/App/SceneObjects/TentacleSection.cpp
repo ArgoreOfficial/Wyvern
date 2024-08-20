@@ -5,10 +5,12 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Primitive/Mesh.h>
-#include <wv/Memory/MemoryDevice.h>
 #include <wv/Assets/Materials/Material.h>
 
 #include <wv/Memory/ModelParser.h>
+#include <wv/Memory/MemoryDevice.h>
+
+#include <wv/Physics/PhysicsEngine.h>
 
 #include <fstream>
 
@@ -56,18 +58,25 @@ void cTentacleSectionObject::updateImpl( double _deltaTime )
 {
 	if( m_mesh )
 	{
-		sTentacleSetting x = cTentacleSettingWindowObject::settings[ 0 ];
-		sTentacleSetting y = cTentacleSettingWindowObject::settings[ 1 ];
-		sTentacleSetting z = cTentacleSettingWindowObject::settings[ 2 ];
+		if( m_uuid == 0 )
+		{
+			m_transform = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( 0 );
+		}
+		else
+		{
+			sTentacleSetting x = cTentacleSettingWindowObject::settings[ 0 ];
+			sTentacleSetting y = cTentacleSettingWindowObject::settings[ 1 ];
+			sTentacleSetting z = cTentacleSettingWindowObject::settings[ 2 ];
 
-		double t = wv::cEngine::get()->context->getTime();
+			double t = wv::cEngine::get()->context->getTime();
 		
-		m_transform.setRotation( {
-			x.getValue( t ),
-			y.getValue( t ),
-			z.getValue( t ) 
-		} );
+			m_transform.setRotation( {
+				x.getValue( t ),
+				y.getValue( t ),
+				z.getValue( t ) 
+			} );
 
+		}
 		m_mesh->transform = m_transform;
 	}
 }
