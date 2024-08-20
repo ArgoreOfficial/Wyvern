@@ -43,13 +43,11 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem )
 void wv::cMaterial::unload( cFileSystem* _pFileSystem )
 {
 
-
 	iResource::unload( _pFileSystem );
 }
 
 void wv::cMaterial::create( iGraphicsDevice* _pGraphicsDevice )
 {
-
 
 	iResource::create( _pGraphicsDevice );
 }
@@ -63,7 +61,6 @@ void wv::cMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
-	// _device->setActivePipeline( m_pipeline );
 	_device->useProgram( m_program );
 	setMaterialUniforms();
 }

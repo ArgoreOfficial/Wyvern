@@ -1,6 +1,6 @@
 
 function load_platform_windows()
-    add_requires( "glm", "libsdl", "assimp" )
+    add_requires( "glm", "libsdl", "assimp", "imgui" )
     
     if( is_arch( "x64" ) ) then
         add_requires( "glfw" )
@@ -30,4 +30,5 @@ function target_platform_windows( target )
 
     import(root.."platform.support.assimp")(target)
     import(root.."platform.support.libsdl")(target) 
+    import(root.."platform.support.imgui")(target) 
 end

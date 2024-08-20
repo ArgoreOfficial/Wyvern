@@ -73,6 +73,7 @@ void wv::iResourceRegistry::unloadResource( const std::string& _name )
 	if ( !m_resources.contains( _name ) )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload shader '%s'. It does not exist\n", _name.c_str() );
+		m_mutex.unlock();
 		return;
 	}
 

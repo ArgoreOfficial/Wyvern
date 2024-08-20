@@ -19,9 +19,9 @@
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
-#include <wv/Scene/Model.h>
+#include <wv/Scene/SceneRoot.h>
 #include <wv/Shader/ShaderRegistry.h>
-#include <wv/State/State.h>
+#include <wv/Engine/ApplicationState.h>
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
@@ -32,22 +32,35 @@
 #include <vector>
 #include <SDL2/SDL_keycode.h>
 
+#include <type_traits>
+#include <random>
+
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
-#endif
+#endif // EMSCRIPTEN
 
+#ifdef WV_IMGUI_SUPPORTED
+#include <imgui.h>
+#include <imgui.h>
+#include <wv/Auxiliary/imgui/imgui_impl_glfw.h>
+#include <wv/Auxiliary/imgui/imgui_impl_opengl3.h>
+#endif // WV_IMGUI_SUPPORTED
+
+#ifdef WV_GLFW_SUPPORTED
+#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
+#endif // WV_GLFW_SUPPORTED
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cEngine::cEngine( EngineDesc* _desc )
 {
-	if ( !_desc->applicationState )
+	if ( !_desc->pApplicationState )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "No application state provided. Cannot create application\n" );
 		return;
 	}
 
-	s_instance = this;
+	s_pInstance = this;
 
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
@@ -61,7 +74,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
 
-	m_applicationState = _desc->applicationState;
+	m_pApplicationState = _desc->pApplicationState;
 
 	/* 
 	 * create deferred rendering objects
@@ -76,8 +89,9 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	graphics->setRenderTarget( m_defaultRenderTarget );
 	graphics->setClearColor( wv::Color::Black );
 
+	initImgui();
+
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
-	
 
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
 }
@@ -86,7 +100,20 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 wv::cEngine* wv::cEngine::get()
 {
-	return s_instance;
+	return s_pInstance;
+}
+
+uint64_t wv::cEngine::getUniqueUUID()
+{
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+
+	std::uniform_int_distribution<unsigned long long> dis(
+		std::numeric_limits<std::uint64_t>::min(),
+		std::numeric_limits<std::uint64_t>::max()
+	);
+
+	return dis( gen );
 }
 
 
@@ -159,15 +186,12 @@ void wv::cEngine::run()
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 
-	currentCamera = orbitCamera;
-
-	if ( m_applicationState )
-	{
-		m_applicationState->onCreate();
-		m_applicationState->onLoad();
-		// while m_applicationState->isLoading() { doloadingstuff }
-	}
-
+	currentCamera = freeflightCamera;
+	
+	m_pApplicationState->onCreate();
+	m_pApplicationState->switchToScene( 0 ); // default scene
+	// while m_applicationState->isLoading() { doloadingstuff }
+	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
@@ -176,12 +200,8 @@ void wv::cEngine::run()
 #endif
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
-
-	if ( m_applicationState )
-	{
-		m_applicationState->onUnload();
-		m_applicationState->onDestroy();
-	}
+	
+	m_pApplicationState->onDestroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -255,13 +275,11 @@ void wv::cEngine::tick()
 	m_pShaderRegistry->update();
 	m_pMaterialRegistry->update();
 
-	if( m_applicationState )
-		m_applicationState->update( dt );
-
+	m_pApplicationState->update( dt );
+	
 	currentCamera->update( dt );
 
 	/// ------------------ render ------------------ ///
-	
 	
 	if ( !m_gbuffer || m_defaultRenderTarget->width == 0 || m_defaultRenderTarget->height == 0 )
 		return;
@@ -269,8 +287,14 @@ void wv::cEngine::tick()
 	graphics->setRenderTarget( m_gbuffer );
 	graphics->clearRenderTarget( true, true );
 
-	if( m_applicationState )
-		m_applicationState->draw( graphics );
+#ifdef WV_IMGUI_SUPPORTED
+	/// TODO: move
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+#endif // WV_IMGUI_SUPPORTED
+
+	m_pApplicationState->draw( context, graphics );
 
 	Debug::Draw::Internal::drawDebug( graphics );
 
@@ -285,13 +309,70 @@ void wv::cEngine::tick()
 	// render screen quad with deferred shader
 	graphics->useProgram( m_deferredProgram );
 	graphics->draw( m_screenQuad );
+	
+#ifdef WV_IMGUI_SUPPORTED
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+#endif // WV_IMGUI_SUPPORTED
 
 	context->swapBuffers();
 }
 
 void wv::cEngine::quit()
 {
+	shutdownImgui();
 	context->close();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cEngine::initImgui()
+{
+#ifdef WV_IMGUI_SUPPORTED
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	switch( context->getContextAPI() )
+	{
+#ifdef WV_GLFW_SUPPORTED
+	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_InitForOpenGL( ( ( GLFWDeviceContext* )context )->m_windowContext, true ); break;
+#endif
+	}
+
+	switch( context->getGraphicsAPI() )
+	{
+	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Init(); break;
+	}
+
+#else
+	Debug::Print( Debug::WV_PRINT_WARN, "Imgui not supported\n" );
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cEngine::shutdownImgui()
+{
+#ifdef WV_IMGUI_SUPPORTED
+	switch( context->getGraphicsAPI() )
+	{
+	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Shutdown(); break;
+	}
+
+	switch( context->getContextAPI() )
+	{
+	#ifdef WV_GLFW_SUPPORTED
+	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_Shutdown(); break;
+	#endif
+	}
+
+	ImGui::DestroyContext();
+#endif // WV_IMGUI_SUPPORTED
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -333,6 +414,7 @@ void wv::cEngine::createScreenQuad()
 	MeshDesc meshDesc;
 	m_screenQuad = graphics->createMesh( &meshDesc );
 	graphics->createPrimitive( &prDesc, m_screenQuad );
+	m_screenQuad->transform.update();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -340,11 +422,11 @@ void wv::cEngine::createScreenQuad()
 void wv::cEngine::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
-	//rtDesc.width  = context->getWidth();
-	//rtDesc.height = context->getHeight();
+	rtDesc.width  = context->getWidth();
+	rtDesc.height = context->getHeight();
 	
-	rtDesc.width  = 640;
-	rtDesc.height = 480;
+	//rtDesc.width  = 640;
+	//rtDesc.height = 480;
 
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },

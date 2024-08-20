@@ -1,6 +1,8 @@
 #include "Sandbox.h"
 
+#include <wv/Engine/ApplicationState.h>
 #include <wv/Engine/Engine.h>
+
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
@@ -8,14 +10,17 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
 
-#include <StateGame.h>
+#include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Skybox.h>
+
+#include "SceneObjects/TentacleSection.h"
+#include "SceneObjects/TentacleSettingWindow.h"
 
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
-	
-	engineDesc.windowWidth = 640;
-	engineDesc.windowHeight = 480;
+	engineDesc.windowWidth = 640 * 2;
+	engineDesc.windowHeight = 480 * 2;
 	engineDesc.showDebugConsole = true;
 
 	// create device context
@@ -27,7 +32,7 @@ bool cSandbox::create( void )
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
 #else
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
+	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 1;
@@ -76,9 +81,12 @@ bool cSandbox::create( void )
 	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
 	wv::Debug::Print( "Created ShaderRegistry\n" );
 
-	/// ---TEMPORARY
-	engineDesc.applicationState = new StateGame();
-	/// TEMPORARY---
+	// setup application state and scenes
+	wv::cApplicationState* appState = new wv::cApplicationState();
+	engineDesc.pApplicationState = appState;
+
+	wv::cSceneRoot* scene = setupScene();
+	appState->addScene( scene );
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
@@ -96,5 +104,37 @@ void cSandbox::run( void )
 void cSandbox::destroy( void )
 {
 	m_pEngine->terminate();
+}
+
+wv::cSceneRoot* cSandbox::setupScene()
+{
+	wv::cSceneRoot* scene = new wv::cSceneRoot( "tentacleScene" );
+	scene->m_transform.position.y = -2.0f;
+	scene->m_transform.update();
+
+	const int numSegments = 30;
+	const float tentacleLength = 25.0f;
+	const float tapre = 0.9f;
+	const float segmentLength = tentacleLength / (float)numSegments;
+
+	cTentacleSectionObject* section = nullptr;
+	wv::iSceneObject* parent = scene;
+	
+	for( int i = 0; i < numSegments; i++ )
+	{
+		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
+
+		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
+		section->m_transform.setScale( { tapre } );
+		
+		parent->addChild( section );
+		parent = section;
+	}
+
+	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
+
+	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
+
+	return scene;
 }
 

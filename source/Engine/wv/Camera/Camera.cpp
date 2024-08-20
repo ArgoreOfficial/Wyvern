@@ -60,6 +60,7 @@ glm::mat4 wv::ICamera::getViewMatrix( void )
 	direction.y = sin( pitch );
 	direction.z = sin( yaw ) * cos( pitch );
 	
+	m_transform.update();
 	return glm::inverse( m_transform.getMatrix() ); 
 }
 

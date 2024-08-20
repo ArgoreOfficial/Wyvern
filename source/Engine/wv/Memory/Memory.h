@@ -68,7 +68,7 @@ namespace wv
 			return;
 
 		// reallocate buffer
-		char* newBuffer = new char[ m_size + _size ];
+		uint8_t* newBuffer = new uint8_t[ m_size + _size ];
 		if ( m_size > 0 )
 		{
 			memcpy( newBuffer, data(), m_size);
