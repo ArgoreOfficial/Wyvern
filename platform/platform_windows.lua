@@ -1,7 +1,8 @@
 
 function load_platform_windows()
-    add_requires( "glm", "libsdl", "assimp", "imgui", "joltphysics" )
-    
+    add_requires( "glm", "libsdl", "assimp", "imgui" )
+    add_requires( "joltphysics", {configs = {runtimes = "MTd"}} )
+
     if( is_arch( "x64" ) ) then
         add_requires( "glfw" )
     end
