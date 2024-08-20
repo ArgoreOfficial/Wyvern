@@ -16,6 +16,7 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Memory/ModelParser.h>
 
+#include <wv/Physics/PhysicsEngine.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
@@ -75,6 +76,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_defaultRenderTarget->fbHandle = 0;
 
 	m_pApplicationState = _desc->pApplicationState;
+
+	/// TODO: move to descriptor
+	m_pPhysicsEngine = new cJoltPhysicsEngine();
+	m_pPhysicsEngine->init();
 
 	/* 
 	 * create deferred rendering objects
@@ -186,6 +191,8 @@ void wv::cEngine::run()
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 
+	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
+
 	currentCamera = freeflightCamera;
 	
 	m_pApplicationState->onCreate();
@@ -270,6 +277,7 @@ void wv::cEngine::tick()
 
 	}
 
+	m_pPhysicsEngine->update( dt );
 
 	// update modules
 	m_pShaderRegistry->update();

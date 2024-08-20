@@ -63,7 +63,7 @@ int wv::cApplicationState::addScene( cSceneRoot* _pScene )
 	int index = static_cast<int>( m_scenes.size() );
 	m_scenes.push_back( _pScene );
 
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Added Scene '%s' (%i)", name.c_str(), index );
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Added Scene '%s' (%i)\n", name.c_str(), index );
 	return index;
 }
 
