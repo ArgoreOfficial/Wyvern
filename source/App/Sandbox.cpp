@@ -1,14 +1,14 @@
 #include "Sandbox.h"
 
+#include <wv/Engine/ApplicationState.h>
 #include <wv/Engine/Engine.h>
+
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
-
-#include <StateGame.h>
 
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Skybox.h>
@@ -81,11 +81,12 @@ bool cSandbox::create( void )
 	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
 	wv::Debug::Print( "Created ShaderRegistry\n" );
 
-	/// ---TEMPORARY
-	engineDesc.applicationState = new StateGame();
-	/// TEMPORARY---
+	// setup application state and scenes
+	wv::cApplicationState* appState = new wv::cApplicationState();
+	engineDesc.pApplicationState = appState;
 
-	engineDesc.pSceneRoot = setupScene();
+	wv::cSceneRoot* scene = setupScene();
+	appState->addScene( scene );
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
@@ -107,7 +108,7 @@ void cSandbox::destroy( void )
 
 wv::cSceneRoot* cSandbox::setupScene()
 {
-	wv::cSceneRoot* scene = new wv::cSceneRoot();
+	wv::cSceneRoot* scene = new wv::cSceneRoot( "tentacleScene" );
 	scene->m_transform.position.y = -2.0f;
 	scene->m_transform.update();
 

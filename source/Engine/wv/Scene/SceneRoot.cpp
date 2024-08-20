@@ -1,6 +1,6 @@
 #include "SceneRoot.h"
 
-wv::cSceneRoot::cSceneRoot() : iSceneObject( 0, "sceneRoot" ) // allow unique name?
+wv::cSceneRoot::cSceneRoot( const std::string& _name ) : iSceneObject( 0, _name ) // allow unique name?
 {
 
 }

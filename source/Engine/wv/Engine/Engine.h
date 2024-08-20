@@ -20,7 +20,8 @@ namespace wv
 	class cSceneRoot;
 	class cModelObject;
 	class iMaterial;
-	class State;
+
+	class cApplicationState;
 
 	class cShaderRegistry;
 	class cShaderProgram;
@@ -51,9 +52,7 @@ namespace wv
 			cShaderRegistry* pShaderRegistry;
 		} systems;
 
-		State* applicationState = nullptr;
-
-		cSceneRoot* pSceneRoot = nullptr;
+		cApplicationState* pApplicationState = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +88,13 @@ namespace wv
 		RenderTarget*   m_gbuffer         = nullptr;
 
 		// engine
-		iDeviceContext*  context = nullptr;
-		iGraphicsDevice* graphics  = nullptr;
-		AudioDevice*    audio   = nullptr;
+		iDeviceContext*  context  = nullptr;
+		iGraphicsDevice* graphics = nullptr;
+		AudioDevice*     audio    = nullptr;
 
 		// camera 
+		/// TODO: move to applicationstate
 		ICamera* currentCamera    = nullptr;
-		/// TODOM: move?
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
 
@@ -106,7 +105,12 @@ namespace wv
 		 */
 		RenderTarget* m_defaultRenderTarget = nullptr;
 
-		State* m_applicationState = nullptr;
+		cApplicationState* m_pApplicationState = nullptr;
+
+		// modules
+		cFileSystem*       m_pFileSystem       = nullptr;
+		cShaderRegistry*   m_pShaderRegistry   = nullptr;
+		cMaterialRegistry* m_pMaterialRegistry = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,14 +124,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		
 	#define FPS_CACHE_NUM 200
 		unsigned int m_fpsCacheCounter = 0;
 		double m_fpsCache[ FPS_CACHE_NUM ] = { 0.0 };
 		double m_averageFps = 0.0;
 		double m_maxFps = 0.0;
-
-		cSceneRoot* m_pScene = nullptr;
 
 		/*
 		 * technically not a singleton but getting a reference 
@@ -138,15 +139,9 @@ namespace wv
 		 * 
 		 * might remove
 		 */
-		static inline cEngine* s_instance = nullptr; 
+		static inline cEngine* s_pInstance = nullptr; 
 
 		wv::Vector2i m_mousePosition;
-
-		// modules
-	public:
-		cFileSystem* m_pFileSystem = nullptr;
-		cShaderRegistry* m_pShaderRegistry = nullptr;
-		cMaterialRegistry* m_pMaterialRegistry = nullptr;
 
 	};
 

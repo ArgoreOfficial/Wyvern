@@ -8,7 +8,7 @@ namespace wv
 	{
 	public:
 
-		 cSceneRoot();
+		 cSceneRoot( const std::string& _name );
 		~cSceneRoot();
 
 	protected:

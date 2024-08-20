@@ -21,7 +21,7 @@
 
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Shader/ShaderRegistry.h>
-#include <wv/State/State.h>
+#include <wv/Engine/ApplicationState.h>
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
@@ -54,13 +54,13 @@
 
 wv::cEngine::cEngine( EngineDesc* _desc )
 {
-	if ( !_desc->applicationState )
+	if ( !_desc->pApplicationState )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "! NO APPLICATION STATE WAS PROVIDED !\n" );
+		Debug::Print( Debug::WV_PRINT_FATAL, "No application state provided. Cannot create application\n" );
 		return;
 	}
 
-	s_instance = this;
+	s_pInstance = this;
 
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
@@ -74,9 +74,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_defaultRenderTarget->height = _desc->windowHeight;
 	m_defaultRenderTarget->fbHandle = 0;
 
-	m_applicationState = _desc->applicationState;
-
-	m_pScene = _desc->pSceneRoot;
+	m_pApplicationState = _desc->pApplicationState;
 
 	/* 
 	 * create deferred rendering objects
@@ -102,7 +100,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 wv::cEngine* wv::cEngine::get()
 {
-	return s_instance;
+	return s_pInstance;
 }
 
 uint64_t wv::cEngine::getUniqueUUID()
@@ -189,16 +187,10 @@ void wv::cEngine::run()
 	freeflightCamera->onCreate();
 
 	currentCamera = freeflightCamera;
-	/*
-	if ( m_applicationState )
-	{
-		m_applicationState->onCreate();
-		m_applicationState->onLoad();
-		// while m_applicationState->isLoading() { doloadingstuff }
-	}
-	*/
-	m_pScene->onLoad();
-	m_pScene->onCreate();
+	
+	m_pApplicationState->onCreate();
+	m_pApplicationState->switchToScene( 0 ); // default scene
+	// while m_applicationState->isLoading() { doloadingstuff }
 	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
@@ -209,15 +201,7 @@ void wv::cEngine::run()
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
-	/*
-	if ( m_applicationState )
-	{
-		m_applicationState->onUnload();
-		m_applicationState->onDestroy();
-	}
-	*/
-	m_pScene->onDestroy();
-	m_pScene->onUnload();
+	m_pApplicationState->onDestroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -291,16 +275,11 @@ void wv::cEngine::tick()
 	m_pShaderRegistry->update();
 	m_pMaterialRegistry->update();
 
-	/*
-	if( m_applicationState )
-		m_applicationState->update( dt );
-	*/
-	m_pScene->update( dt );
-
+	m_pApplicationState->update( dt );
+	
 	currentCamera->update( dt );
 
 	/// ------------------ render ------------------ ///
-	
 	
 	if ( !m_gbuffer || m_defaultRenderTarget->width == 0 || m_defaultRenderTarget->height == 0 )
 		return;
@@ -315,11 +294,7 @@ void wv::cEngine::tick()
 	ImGui::NewFrame();
 #endif // WV_IMGUI_SUPPORTED
 
-	/*
-	if( m_applicationState )
-		m_applicationState->draw( graphics );
-	*/
-	m_pScene->draw( context, graphics );
+	m_pApplicationState->draw( context, graphics );
 
 	Debug::Draw::Internal::drawDebug( graphics );
 

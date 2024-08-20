@@ -30,6 +30,9 @@ namespace wv
 		void removeChild( iSceneObject* _node );
 		void moveChild( iSceneObject* _node, iSceneObject* _newParent );
 
+		std::string getName( void ) { return m_name; }
+		uint64_t    getUUID( void ) { return m_uuid; }
+
 		void onLoad()
 		{
 			onLoadImpl();
