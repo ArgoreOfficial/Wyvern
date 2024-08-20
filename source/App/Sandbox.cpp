@@ -12,6 +12,7 @@
 
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Skybox.h>
+#include <wv/Scene/Rigidbody.h>
 
 #include "SceneObjects/TentacleSection.h"
 #include "SceneObjects/TentacleSettingWindow.h"
@@ -109,8 +110,10 @@ void cSandbox::destroy( void )
 wv::cSceneRoot* cSandbox::setupScene()
 {
 	wv::cSceneRoot* scene = new wv::cSceneRoot( "tentacleScene" );
-	scene->m_transform.position.y = -2.0f;
+	scene->m_transform.position.y = -2.0f; /// TODO: not this
 	scene->m_transform.update();
+
+	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
 
 	const int numSegments = 30;
 	const float tentacleLength = 25.0f;
@@ -122,8 +125,7 @@ wv::cSceneRoot* cSandbox::setupScene()
 	
 	for( int i = 0; i < numSegments; i++ )
 	{
-		//section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
-		section = new cTentacleSectionObject( i, "section", segmentLength );
+		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
 
 		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
 		section->m_transform.setScale( { tapre } );
@@ -132,8 +134,20 @@ wv::cSceneRoot* cSandbox::setupScene()
 		parent = section;
 	}
 
-	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
+	for( int i = 0; i < numSegments; i++ )
+	{
+		auto* rb = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr );
+		rb->m_transform.setPosition( { 0.0f, (float)i, 0.0f } );
+		scene->addChild( rb );
+	}
 
+	cRigidbody* rigidbody = new cRigidbody( wv::cEngine::getUniqueUUID(), "rigidbody", nullptr );
+	rigidbody->m_transform.setPosition( { 0.0f, 10.0f, 0.0f } );
+	rigidbody->m_transform.update();
+	scene->addChild( rigidbody );
+
+	// skybox has to be added last
+	/// TODO: fix that
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
 
 	return scene;

@@ -11,9 +11,12 @@ namespace JPH { class BodyInterface; }
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 
 #include <wv/Types.h>
 #include <wv/Math/Transform.h>
+
+#include <wv/Physics/BroadPhaseLayer.h>
 
 #include <unordered_map>
 
@@ -22,10 +25,6 @@ class MyBodyActivationListener;
 
 namespace wv
 {
-
-	class cBroadPhaseLayer;
-	class cObjectVsBroadPhaseLayerFilter;
-	class cObjectLayerPairFilter;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +41,7 @@ namespace wv
 
 		void update( double _deltaTime );
 
+		wv::Handle createAndAddBody( const JPH::BodyCreationSettings& _settings, bool _activate );
 		Transformf getPhysicsBodyTransform( wv::Handle _handle );
 
 ///////////////////////////////////////////////////////////////////////////////////////

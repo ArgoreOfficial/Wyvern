@@ -15,18 +15,15 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 
+#include <wv/Engine/Engine.h>
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
-
-#include <wv/Physics/BroadPhaseLayer.h>
 
 #include <stdarg.h>
 #include <cstdarg>
 #include <iostream>
 
-
 JPH_SUPPRESS_WARNINGS
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -148,25 +145,10 @@ void wv::cJoltPhysicsEngine::init()
 		JPH::RVec3( 0.0_r, -1.0_r, 0.0_r ), 
 		JPH::Quat::sIdentity(), 
 		JPH::EMotionType::Static, 
-		Layers::STATIC );
+		Layers::STATIC 
+	);
 
-	// Create the actual rigid body
-	JPH::Body* floor = m_pBodyInterface->CreateBody( floorSettings );
-
-	// Add it to the world
-	m_pBodyInterface->AddBody( floor->GetID(), JPH::EActivation::DontActivate );
-
-	// Now create a dynamic body to bounce on the floor
-	// Note that this uses the shorthand version of creating and adding a body to the world
-	JPH::BodyCreationSettings sphereSettings( new JPH::SphereShape( 0.5f ), JPH::RVec3( 0.0_r, 20.0_r, 0.0_r ), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::DYNAMIC );
-	sphereSettings.mRestitution = 0.8f;
-
-	JPH::BodyID sphereID = m_pBodyInterface->CreateAndAddBody( sphereSettings, JPH::EActivation::Activate );
-	// Now you can interact with the dynamic body, in this case we're going to give it a velocity.
-	// (note that if we had used CreateBody then we could have set the velocity straight on the body before adding it to the physics system)
-	m_pBodyInterface->SetLinearVelocity( sphereID, JPH::Vec3( 1.0f, 10.0f, 2.0f ) );
-
-	m_bodies[ 0 ] = sphereID;
+	createAndAddBody( floorSettings, false );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -183,16 +165,27 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	// Next step
 	m_steps++;
 
-	// Output current position and velocity of the sphere
-	Transformf t = getPhysicsBodyTransform( 0 );
-	wv::Debug::Draw::AddSphere( t.position );
-
 	/// TODO: discrete
 	// 1 collision step per 1 / 60th of a second (round up).
 	const int collisionSteps = 1;
 
 	// Step the world
 	m_pPhysicsSystem->Update( _deltaTime, collisionSteps, m_pTempAllocator, m_pJobSystem );
+}
+
+wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( const JPH::BodyCreationSettings& _settings, bool _activate )
+{
+	JPH::Body* body = m_pBodyInterface->CreateBody( _settings );
+	JPH::BodyID id = body->GetID();
+	wv::Handle handle = -1;
+
+	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
+
+	do { handle = cEngine::getUniqueHandle(); } 
+	while( m_bodies.contains( handle ) );
+
+	m_bodies[ handle ] = id;
+	return handle;
 }
 
 wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )

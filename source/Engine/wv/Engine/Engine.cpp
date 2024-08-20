@@ -121,6 +121,19 @@ uint64_t wv::cEngine::getUniqueUUID()
 	return dis( gen );
 }
 
+wv::Handle wv::cEngine::getUniqueHandle()
+{
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+
+	std::uniform_int_distribution<uint32_t> dis(
+		std::numeric_limits<std::uint32_t>::min(),
+		std::numeric_limits<std::uint32_t>::max()
+	);
+
+	return dis( gen );
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

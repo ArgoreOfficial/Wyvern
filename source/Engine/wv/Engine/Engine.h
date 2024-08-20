@@ -4,6 +4,8 @@
 #include <wv/Events/InputListener.h>
 #include <wv/Math/Vector2.h>
 
+#include <wv/Types.h>
+
 namespace wv
 {
 
@@ -66,7 +68,8 @@ namespace wv
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
 		
-		static uint64_t getUniqueUUID();
+		static uint64_t   getUniqueUUID();
+		static wv::Handle getUniqueHandle();
 
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
