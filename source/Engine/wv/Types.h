@@ -11,6 +11,7 @@ namespace wv
 
 	typedef void* ( *GraphicsDriverLoadProc )( const char* _name );
 	typedef uint32_t Handle;
+	typedef uint64_t UUID;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

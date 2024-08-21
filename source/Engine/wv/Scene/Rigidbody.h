@@ -1,7 +1,6 @@
 #pragma once
 
 #include <wv/Scene/SceneObject.h>
-#include <wv/Types.h>
 
 #include <string>
 #include <vector>
@@ -17,7 +16,7 @@ class cRigidbody : public wv::iSceneObject
 
 public:
 
-	 cRigidbody( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc );
+	 cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc );
 	~cRigidbody();
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -108,7 +108,7 @@ wv::cEngine* wv::cEngine::get()
 	return s_pInstance;
 }
 
-uint64_t wv::cEngine::getUniqueUUID()
+wv::UUID wv::cEngine::getUniqueUUID()
 {
 	std::random_device rd;
 	std::mt19937 gen( rd() );

@@ -16,7 +16,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cRigidbody::cRigidbody( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc ) :
+cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc ) :
 	iSceneObject{ _uuid, _name },
 	m_pMesh{ _pMesh },
 	m_pPhysicsBodyDesc{ _bodyDesc }

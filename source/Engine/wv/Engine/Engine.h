@@ -68,7 +68,7 @@ namespace wv
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
 		
-		static uint64_t   getUniqueUUID();
+		static wv::UUID   getUniqueUUID();
 		static wv::Handle getUniqueHandle();
 
 		void onResize( int _width, int _height );

@@ -22,7 +22,7 @@ namespace wv
 
 	public:
 
-		 cModelObject( const uint64_t& _uuid, const std::string& _name, Mesh* _mesh );
+		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
 		~cModelObject();
 
 ///////////////////////////////////////////////////////////////////////////////////////

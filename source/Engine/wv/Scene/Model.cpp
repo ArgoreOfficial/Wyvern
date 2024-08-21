@@ -14,7 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject::cModelObject( const uint64_t& _uuid, const std::string& _name, Mesh* _mesh ) :
+wv::cModelObject::cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh ) :
 	iSceneObject{ _uuid, _name },
 	m_mesh{ _mesh }
 {
