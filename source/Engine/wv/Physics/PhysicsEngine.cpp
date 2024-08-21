@@ -1,7 +1,7 @@
 #include "PhysicsEngine.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 #include <Jolt/Jolt.h>
 
 #include <Jolt/RegisterTypes.h>
@@ -14,6 +14,7 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 #include <wv/Engine/Engine.h>
 #include <wv/Debug/Print.h>
@@ -24,13 +25,14 @@
 #include <stdarg.h>
 #include <cstdarg>
 #include <iostream>
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 JPH_SUPPRESS_WARNINGS
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 /// TODO: move
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 class MyContactListener : public JPH::ContactListener
 {
 public:
@@ -72,9 +74,10 @@ public:
 		printf( "A body went to sleep\n" );
 	}
 };
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 static wv::Vector3f JPHtoWV( const JPH::Vec3& _vec )
 {
 	return { _vec.GetX(), _vec.GetY(), _vec.GetZ() };
@@ -84,9 +87,11 @@ static JPH::Vec3 WVtoJPH( const wv::Vector3f& _vec )
 {
 	return { _vec.x, _vec.y, _vec.z };
 }
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 static void traceImpl( const char* _msg, ... )
 {
 	/// TODO: change to wv::Debug::Print()
@@ -96,7 +101,6 @@ static void traceImpl( const char* _msg, ... )
 	printf( "\n" );
 	va_end( list );
 }
-
 #ifdef JPH_ENABLE_ASSERTS
 
 // Callback for asserts, connect this to your own assert handler if you have one
@@ -110,11 +114,13 @@ static bool AssertFailedImpl( const char* inExpression, const char* inMessage, c
 };
 
 #endif // JPH_ENABLE_ASSERTS
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::init()
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	using namespace JPH::literals;
 
 	JPH::RegisterDefaultAllocator();
@@ -153,23 +159,28 @@ void wv::cJoltPhysicsEngine::init()
 	ballDesc->kind = WV_PHYSICS_KINEMATIC;
 	ballDesc->radius = 1.0f;
 	m_cameraCollider = createAndAddBody( ballDesc, true );
+#else
+	wv::Debug::Print( Debug::WV_PRINT_ERROR, "Jolt Physics is not supported on this platform\n" );
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::terminate()
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	// Unregisters all types with the factory and cleans up the default material
 	JPH::UnregisterTypes();
 
 	// Destroy the factory
 	delete JPH::Factory::sInstance;
 	JPH::Factory::sInstance = nullptr;
-
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	for( auto& body : m_bodies )
 	{
 		m_pBodyInterface->RemoveBody( body.second );
@@ -177,10 +188,12 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 	}
 
 	m_bodies.clear();
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	if( !m_bodies.contains( _handle ) )
 	{
 		wv::Debug::Print( Debug::WV_PRINT_ERROR, "No Physics Body with Handle %i\n", _handle );
@@ -191,13 +204,14 @@ void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
 	m_pBodyInterface->RemoveBody( id );
 	m_pBodyInterface->DestroyBody( id );
 	m_bodies.erase( _handle );
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::update( double _deltaTime )
 {
-	
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	cEngine* app = cEngine::get();
 	if( app->currentCamera )
 		setPhysicsBodyTransform( m_cameraCollider, app->currentCamera->getTransform() );
@@ -221,13 +235,14 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 
 	if( collisionSteps > 0 )
 		m_pPhysicsSystem->Update( m_timestep, collisionSteps, m_pTempAllocator, m_pJobSystem );
-	
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Shape* shape = nullptr;
 	JPH::RVec3 pos = WVtoJPH( _desc->transform.position );
 	JPH::RVec3 rot = WVtoJPH( _desc->transform.rotation );
@@ -276,12 +291,16 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 
 	m_bodies[ handle ] = id;
 	return handle;
+#else
+	return 0;
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyID id = m_bodies.at( _handle );
 
 	JPH::RVec3 pos = m_pBodyInterface->GetCenterOfMassPosition( id );
@@ -296,14 +315,19 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _hand
 	};
 
 	return transform;
+#else
+	return {};
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyID id = m_bodies.at( _handle );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot = WVtoJPH( _transform.rotation );
 	
 	m_pBodyInterface->SetPositionAndRotation( id, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);
+#endif // WV_SUPPORT_JOLT_PHYSICS
 }

@@ -9,6 +9,7 @@
 
 namespace wv { class Mesh; }
 namespace wv { class iPhysicsBodyDesc; }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class cRigidbody : public wv::iSceneObject

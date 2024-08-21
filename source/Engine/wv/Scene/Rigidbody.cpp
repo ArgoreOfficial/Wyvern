@@ -45,9 +45,10 @@ void cRigidbody::onLoadImpl()
 	/// TODO: physics
 	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
 	//sphereSettings.mRestitution = 0.4f;
-
+#ifdef WV_SUPPORT_PHYSICS
 	m_pPhysicsBodyDesc->transform = m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
+#endif // WV_SUPPORT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -64,12 +65,14 @@ void cRigidbody::onUnloadImpl()
 
 void cRigidbody::updateImpl( double _deltaTime )
 {
+#ifdef WV_SUPPORT_PHYSICS
 	if( m_physicsBodyHandle > 0 )
 	{
 		wv::Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;
 		m_transform.rotation = t.rotation;
 	}
+#endif // WV_SUPPORT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

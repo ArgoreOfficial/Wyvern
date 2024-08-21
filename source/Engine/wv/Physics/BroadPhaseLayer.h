@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined( WV_SUPPORT_PHYSICS ) && defined( WV_SUPPORT_JOLT_PHYSICS )
+
 #include <Jolt/Jolt.h>
 
 #include <Jolt/Physics/PhysicsSettings.h>
@@ -80,4 +82,4 @@ namespace wv
 
 }
 
-
+#endif // WV_SUPPORT_PHYSICS && WV_SUPPORT_JOLT_PHYSICS

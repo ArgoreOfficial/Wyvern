@@ -1,28 +1,32 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 namespace JPH { class TempAllocatorImpl; }
 namespace JPH { class JobSystemThreadPool; }
 namespace JPH { class PhysicsSystem; }
 namespace JPH { class BodyInterface; }
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-
-#include <wv/Types.h>
-#include <wv/Math/Transform.h>
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 #include <wv/Physics/BroadPhaseLayer.h>
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
+#include <wv/Types.h>
+#include <wv/Math/Transform.h>
+
 #include <unordered_map>
 
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 class MyContactListener;
 class MyBodyActivationListener;
+#endif // WV_SUPPORT_JOLT_PHYSICS
 
 namespace wv
 {
@@ -64,6 +68,7 @@ namespace wv
 		unsigned int m_steps = 0;
 		float m_accumulator = 0.0f;
 
+	#ifdef WV_SUPPORT_JOLT_PHYSICS
 		JPH::TempAllocatorImpl*   m_pTempAllocator = nullptr;
 		JPH::JobSystemThreadPool* m_pJobSystem     = nullptr;
 		JPH::PhysicsSystem*       m_pPhysicsSystem = nullptr;
@@ -77,6 +82,7 @@ namespace wv
 		MyBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
+	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 		wv::Handle m_cameraCollider = 0;
 	};

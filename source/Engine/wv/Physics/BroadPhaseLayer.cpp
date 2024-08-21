@@ -1,5 +1,7 @@
 #include "BroadPhaseLayer.h"
 
+#if defined( WV_SUPPORT_PHYSICS ) && defined( WV_SUPPORT_JOLT_PHYSICS )
+
 wv::cBroadPhaseLayer::cBroadPhaseLayer()
 {
 	m_objectToBroadPhaseMapping[ Layers::STATIC ] = BroadPhaseLayers::STATIC;
@@ -29,3 +31,5 @@ const char* wv::cBroadPhaseLayer::GetBroadPhaseLayerName( JPH::BroadPhaseLayer i
 	}
 }
 #endif
+
+#endif // WV_SUPPORT_PHYSICS && WV_SUPPORT_JOLT_PHYSICS
