@@ -230,6 +230,8 @@ void wv::cEngine::terminate()
 {
 	currentCamera = nullptr;
 	
+	m_pPhysicsEngine->terminate();
+
 	delete orbitCamera;
 	delete freeflightCamera;
 	orbitCamera = nullptr;

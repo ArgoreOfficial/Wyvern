@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv { class Mesh; }
-
+namespace wv { class iPhysicsBodyDesc; }
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class cRigidbody : public wv::iSceneObject
@@ -17,7 +17,7 @@ class cRigidbody : public wv::iSceneObject
 
 public:
 
-	 cRigidbody( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _mesh );
+	 cRigidbody( const uint64_t& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc );
 	~cRigidbody();
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,8 @@ protected:
 	virtual void updateImpl( double _deltaTime ) override;
 	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-	wv::Mesh* m_mesh = nullptr;
-
+	wv::Mesh* m_pMesh = nullptr;
+	wv::iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
 	wv::Handle m_physicsBodyHandle = 0;
 
 };

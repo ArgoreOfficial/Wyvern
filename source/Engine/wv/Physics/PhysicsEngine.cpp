@@ -19,6 +19,8 @@
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
 
+#include <wv/Camera/Camera.h>
+
 #include <stdarg.h>
 #include <cstdarg>
 #include <iostream>
@@ -70,6 +72,18 @@ public:
 		printf( "A body went to sleep\n" );
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+static wv::Vector3f JPHtoWV( const JPH::Vec3& _vec )
+{
+	return { _vec.GetX(), _vec.GetY(), _vec.GetZ() };
+}
+
+static JPH::Vec3 WVtoJPH( const wv::Vector3f& _vec )
+{
+	return { _vec.x, _vec.y, _vec.z };
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -134,59 +148,144 @@ void wv::cJoltPhysicsEngine::init()
 
 	m_pBodyInterface = &m_pPhysicsSystem->GetBodyInterface();
 
-	JPH::BoxShapeSettings floorShapeSettings( JPH::Vec3( 100.0f, 1.0f, 100.0f ) );
-	floorShapeSettings.SetEmbedded();
 
-	JPH::ShapeSettings::ShapeResult floorShapeResult = floorShapeSettings.Create();
-	JPH::ShapeRefC floorShape = floorShapeResult.Get();
+	// camera ball
 
-	JPH::BodyCreationSettings floorSettings( 
-		floorShape, 
+	JPH::SphereShape* ballShape = new JPH::SphereShape( 1.0f );
+	JPH::BodyCreationSettings ballSettings( 
+		ballShape, 
 		JPH::RVec3( 0.0_r, -1.0_r, 0.0_r ), 
 		JPH::Quat::sIdentity(), 
-		JPH::EMotionType::Static, 
-		Layers::STATIC 
+		JPH::EMotionType::Kinematic, 
+		Layers::DYNAMIC 
 	);
 
-	createAndAddBody( floorSettings, false );
+	m_cameraCollider = m_pBodyInterface->CreateAndAddBody( ballSettings, JPH::EActivation::Activate );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::shutdown()
+void wv::cJoltPhysicsEngine::terminate()
 {
+	// Unregisters all types with the factory and cleans up the default material
+	JPH::UnregisterTypes();
 
+	// Destroy the factory
+	delete JPH::Factory::sInstance;
+	JPH::Factory::sInstance = nullptr;
+
+}
+
+void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
+{
+	for( auto& body : m_bodies )
+	{
+		m_pBodyInterface->RemoveBody( body.second );
+		m_pBodyInterface->DestroyBody( body.second );
+	}
+
+	m_bodies.clear();
+}
+
+void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
+{
+	if( !m_bodies.contains( _handle ) )
+	{
+		wv::Debug::Print( Debug::WV_PRINT_ERROR, "No Physics Body with Handle %i\n", _handle );
+		return;
+	}
+
+	JPH::BodyID id = m_bodies.at( _handle );
+	m_pBodyInterface->RemoveBody( id );
+	m_pBodyInterface->DestroyBody( id );
+	m_bodies.erase( _handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::update( double _deltaTime )
 {
+	
+	cEngine* app = cEngine::get();
+	if( app->currentCamera )
+	{
+		m_pBodyInterface->SetPosition( m_cameraCollider, WVtoJPH( app->currentCamera->getTransform().position ), JPH::EActivation::Activate );
+	}
+
+	// physics update
+	float frameTime = _deltaTime;
+	if( frameTime > 0.016f )
+		frameTime = 0.016f;
+
 	// Next step
 	m_steps++;
 
-	/// TODO: discrete
-	// 1 collision step per 1 / 60th of a second (round up).
-	const int collisionSteps = 1;
+	int collisionSteps = 0;
+	
+	m_accumulator += frameTime;
+	while( m_accumulator >= m_timestep )
+	{
+		collisionSteps++;
+		m_accumulator -= m_timestep;
+	}
 
-	// Step the world
-	m_pPhysicsSystem->Update( _deltaTime, collisionSteps, m_pTempAllocator, m_pJobSystem );
+	if( collisionSteps > 0 )
+	{
+		m_pPhysicsSystem->Update( m_timestep, collisionSteps, m_pTempAllocator, m_pJobSystem );
+	}
 }
 
-wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( const JPH::BodyCreationSettings& _settings, bool _activate )
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
 {
-	JPH::Body* body = m_pBodyInterface->CreateBody( _settings );
+	JPH::Shape* shape = nullptr;
+	JPH::RVec3 pos = WVtoJPH( _desc->transform.position );
+	JPH::RVec3 rot = WVtoJPH( _desc->transform.rotation );
+	
+	switch( _desc->shape )
+	{
+	case WV_PHYSICS_BOX:
+	{
+		sPhysicsBoxDesc* desc = static_cast< sPhysicsBoxDesc* >( _desc );
+		JPH::RVec3 halfExtent = WVtoJPH( desc->halfExtent );
+		shape = new JPH::BoxShape( halfExtent );
+	} break;
+
+	case WV_PHYSICS_PLANE:
+	{
+		JPH::BoxShapeSettings floorShapeSettings( JPH::Vec3( 100.0f, 1.0f, 100.0f ) );
+	} break;
+
+	default: Debug::Print( Debug::WV_PRINT_ERROR, "Physics shape unimplemented" ); break;
+	}
+
+	if( shape == nullptr )
+		return 0;
+	
+	JPH::BodyCreationSettings settings(
+		shape,
+		pos,
+		JPH::Quat::sEulerAngles( rot ),
+		_desc->kind == WV_PHYSICS_STATIC ? JPH::EMotionType::Static : JPH::EMotionType::Dynamic,
+		_desc->kind == WV_PHYSICS_STATIC ? wv::Layers::STATIC       : wv::Layers::DYNAMIC
+	);
+
+	JPH::Body* body = m_pBodyInterface->CreateBody( settings );
+	
 	JPH::BodyID id = body->GetID();
 	wv::Handle handle = -1;
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-
-	do { handle = cEngine::getUniqueHandle(); } 
-	while( m_bodies.contains( handle ) );
+	m_pBodyInterface->SetAngularVelocity( id, { 0.0f, 25.0f, 0.0f } );
+	
+	do { handle = cEngine::getUniqueHandle(); } while( m_bodies.contains( handle ) );
 
 	m_bodies[ handle ] = id;
 	return handle;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )
 {

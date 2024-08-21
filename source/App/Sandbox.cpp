@@ -14,6 +14,8 @@
 #include <wv/Scene/Skybox.h>
 #include <wv/Scene/Rigidbody.h>
 
+#include <wv/Physics/PhysicsBodyDescriptor.h>
+
 #include "SceneObjects/TentacleSection.h"
 #include "SceneObjects/TentacleSettingWindow.h"
 
@@ -109,10 +111,8 @@ void cSandbox::destroy( void )
 
 wv::cSceneRoot* cSandbox::setupScene()
 {
-	wv::cSceneRoot* scene = new wv::cSceneRoot( "tentacleScene" );
-	scene->m_transform.position.y = -2.0f; /// TODO: not this
-	scene->m_transform.update();
-
+	wv::cSceneRoot* scene = new wv::cSceneRoot( "defaultScene" );
+	
 	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
 
 	const int numSegments = 30;
@@ -134,17 +134,27 @@ wv::cSceneRoot* cSandbox::setupScene()
 		parent = section;
 	}
 
-	for( int i = 0; i < numSegments; i++ )
+	// floor
 	{
-		auto* rb = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr );
-		rb->m_transform.setPosition( { 0.0f, (float)i, 0.0f } );
-		scene->addChild( rb );
+		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+		boxDesc->halfExtent = { 100.0f, 1.0f, 100.0f };
+
+		cRigidbody* floor = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
+		floor->m_transform.position.y = -7.0f;
+		floor->m_transform.scale = { 200.0f, 2.0f, 200.0f };
+		scene->addChild( floor );
 	}
 
-	cRigidbody* rigidbody = new cRigidbody( wv::cEngine::getUniqueUUID(), "rigidbody", nullptr );
-	rigidbody->m_transform.setPosition( { 0.0f, 10.0f, 0.0f } );
-	rigidbody->m_transform.update();
-	scene->addChild( rigidbody );
+	for( int i = 0; i <numSegments; i++ )
+	{
+		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+		boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
+		
+		cRigidbody* rb = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
+		rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
+		scene->addChild( rb );
+	}
 
 	// skybox has to be added last
 	/// TODO: fix that
