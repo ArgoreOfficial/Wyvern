@@ -32,10 +32,10 @@ namespace wv
 			glm::mat<4, 4, T> model( 1 );
 
 			model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
-
+			
+			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
 			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
 			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
-			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
 
 			model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
 

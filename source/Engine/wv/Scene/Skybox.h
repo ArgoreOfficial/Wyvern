@@ -22,7 +22,7 @@ namespace wv
 
 	public:
 
-		 cSkyboxObject( const uint64_t& _uuid, const std::string& _name );
+		 cSkyboxObject( const UUID& _uuid, const std::string& _name );
 		~cSkyboxObject();
 
 ///////////////////////////////////////////////////////////////////////////////////////

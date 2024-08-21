@@ -16,7 +16,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cSkyboxObject::cSkyboxObject( const uint64_t& _uuid, const std::string& _name ) :
+wv::cSkyboxObject::cSkyboxObject( const UUID& _uuid, const std::string& _name ) :
 	iSceneObject{ _uuid, _name }
 {
 

@@ -4,6 +4,8 @@
 #include <wv/Events/InputListener.h>
 #include <wv/Math/Vector2.h>
 
+#include <wv/Types.h>
+
 namespace wv
 {
 
@@ -27,6 +29,7 @@ namespace wv
 	class cShaderProgram;
 
 	class cMaterialRegistry;
+	class cJoltPhysicsEngine;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +68,8 @@ namespace wv
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
 		
-		static uint64_t getUniqueUUID();
+		static wv::UUID   getUniqueUUID();
+		static wv::Handle getUniqueHandle();
 
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
@@ -108,9 +112,10 @@ namespace wv
 		cApplicationState* m_pApplicationState = nullptr;
 
 		// modules
-		cFileSystem*       m_pFileSystem       = nullptr;
-		cShaderRegistry*   m_pShaderRegistry   = nullptr;
-		cMaterialRegistry* m_pMaterialRegistry = nullptr;
+		cFileSystem*        m_pFileSystem       = nullptr;
+		cShaderRegistry*    m_pShaderRegistry   = nullptr;
+		cMaterialRegistry*  m_pMaterialRegistry = nullptr;
+		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

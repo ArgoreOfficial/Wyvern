@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SceneObject.h"
+#include <wv/Scene/SceneObject.h>
 
 #include <string>
 #include <vector>
@@ -12,33 +12,33 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh;
-	class cMaterial;
+	class Mesh; 
+	class iPhysicsBodyDesc; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cModelObject : public iSceneObject
+	class cRigidbody : public iSceneObject
 	{
-
 	public:
-
-		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
-		~cModelObject();
+		 cRigidbody( const UUID& _uuid, const std::string& _name, Mesh* _pMesh, iPhysicsBodyDesc* _bodyDesc );
+		~cRigidbody();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
-
 		void onLoadImpl() override;
 		void onUnloadImpl() override;
 		void onCreateImpl() override { };
 		void onDestroyImpl() override { };
 
 		virtual void updateImpl( double _deltaTime ) override;
-		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
+		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-		Mesh* m_mesh;
+		wv::Mesh* m_pMesh = nullptr;
+		wv::iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
+		wv::Handle m_physicsBodyHandle = 0;
 
 	};
 
 }
+

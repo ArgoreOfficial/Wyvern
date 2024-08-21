@@ -16,6 +16,7 @@
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Memory/ModelParser.h>
 
+#include <wv/Physics/PhysicsEngine.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
@@ -76,6 +77,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	m_pApplicationState = _desc->pApplicationState;
 
+	/// TODO: move to descriptor
+	m_pPhysicsEngine = new cJoltPhysicsEngine();
+	m_pPhysicsEngine->init();
+
 	/* 
 	 * create deferred rendering objects
 	 * this should be configurable
@@ -103,7 +108,7 @@ wv::cEngine* wv::cEngine::get()
 	return s_pInstance;
 }
 
-uint64_t wv::cEngine::getUniqueUUID()
+wv::UUID wv::cEngine::getUniqueUUID()
 {
 	std::random_device rd;
 	std::mt19937 gen( rd() );
@@ -111,6 +116,19 @@ uint64_t wv::cEngine::getUniqueUUID()
 	std::uniform_int_distribution<unsigned long long> dis(
 		std::numeric_limits<std::uint64_t>::min(),
 		std::numeric_limits<std::uint64_t>::max()
+	);
+
+	return dis( gen );
+}
+
+wv::Handle wv::cEngine::getUniqueHandle()
+{
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+
+	std::uniform_int_distribution<uint32_t> dis(
+		std::numeric_limits<std::uint32_t>::min(),
+		std::numeric_limits<std::uint32_t>::max()
 	);
 
 	return dis( gen );
@@ -186,6 +204,8 @@ void wv::cEngine::run()
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 
+	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
+
 	currentCamera = freeflightCamera;
 	
 	m_pApplicationState->onCreate();
@@ -210,6 +230,8 @@ void wv::cEngine::terminate()
 {
 	currentCamera = nullptr;
 	
+	m_pPhysicsEngine->terminate();
+
 	delete orbitCamera;
 	delete freeflightCamera;
 	orbitCamera = nullptr;
@@ -270,6 +292,7 @@ void wv::cEngine::tick()
 
 	}
 
+	m_pPhysicsEngine->update( dt );
 
 	// update modules
 	m_pShaderRegistry->update();

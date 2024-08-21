@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Math/Transform.h>
+#include <wv/Types.h>
 
 #include <stdint.h>
 #include <vector>
@@ -23,7 +24,7 @@ namespace wv
 
 	public:
 
-		 iSceneObject( const uint64_t& _uuid, const std::string& _name );
+		 iSceneObject( const UUID& _uuid, const std::string& _name );
 		~iSceneObject();
 
 		void addChild( iSceneObject* _node );

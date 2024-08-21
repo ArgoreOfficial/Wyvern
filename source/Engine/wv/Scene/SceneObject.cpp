@@ -2,7 +2,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iSceneObject::iSceneObject( const uint64_t& _uuid, const std::string& _name ):
+wv::iSceneObject::iSceneObject( const UUID& _uuid, const std::string& _name ):
 	m_uuid{ _uuid },
 	m_name{ _name }
 {

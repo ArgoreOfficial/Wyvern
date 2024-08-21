@@ -5,10 +5,12 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Primitive/Mesh.h>
-#include <wv/Memory/MemoryDevice.h>
 #include <wv/Assets/Materials/Material.h>
 
 #include <wv/Memory/ModelParser.h>
+#include <wv/Memory/MemoryDevice.h>
+
+#include <wv/Physics/PhysicsEngine.h>
 
 #include <fstream>
 
@@ -67,7 +69,7 @@ void cTentacleSectionObject::updateImpl( double _deltaTime )
 			y.getValue( t ),
 			z.getValue( t ) 
 		} );
-
+		
 		m_mesh->transform = m_transform;
 	}
 }

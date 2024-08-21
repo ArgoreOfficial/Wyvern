@@ -8,7 +8,7 @@
 target( PROJECT_NAME )
     set_kind "binary"
     add_deps "Wyvern"
-    
+
     if is_mode("Package") then
         set_basename(PROJECT_NAME .. "_$(arch)")
     else
@@ -17,7 +17,6 @@ target( PROJECT_NAME )
 
     set_targetdir "../../game"
     set_objectdir "../../build/obj"
-    set_runtimes "MT"
 
     add_headerfiles( 
         "**.h", 
