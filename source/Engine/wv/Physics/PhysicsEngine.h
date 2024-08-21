@@ -46,7 +46,10 @@ namespace wv
 		void update( double _deltaTime );
 
 		wv::Handle createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
+		
 		Transformf getPhysicsBodyTransform( wv::Handle _handle );
+
+		void setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,11 +73,11 @@ namespace wv
 		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
 		cObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
 
-		MyContactListener* tempContactListener = nullptr;
+		MyContactListener*        tempContactListener        = nullptr;
 		MyBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
 
-		JPH::BodyID m_cameraCollider;
+		wv::Handle m_cameraCollider = 0;
 	};
 }

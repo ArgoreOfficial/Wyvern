@@ -26,6 +26,8 @@ namespace wv
 		WV_PHYSICS_KINEMATIC
 	};
 
+
+
 	struct iPhysicsBodyDesc
 	{
 		ePhysicsShape shape = WV_PHYSICS_NONE;
@@ -33,12 +35,17 @@ namespace wv
 		Transformf transform{};
 	};
 	
+
+
 	struct sPhysicsBoxDesc : public iPhysicsBodyDesc
 	{
 		sPhysicsBoxDesc() { shape = WV_PHYSICS_BOX; }
-		Vector3f halfExtent;
+		Vector3f halfExtent{};
 	};
-
 	
-
+	struct sPhysicsSphereDesc : public iPhysicsBodyDesc
+	{
+		sPhysicsSphereDesc() { shape = WV_PHYSICS_SPHERE; }
+		float radius = 1.0f;
+	};
 }

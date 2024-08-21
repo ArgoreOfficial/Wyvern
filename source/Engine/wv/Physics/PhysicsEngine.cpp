@@ -37,7 +37,7 @@ public:
 	// See: ContactListener
 	virtual JPH::ValidateResult OnContactValidate( const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult ) override
 	{
-		printf( "Contact validate callback\n" );
+		// printf( "Contact validate callback\n" );
 
 		// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
 		return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
@@ -149,18 +149,10 @@ void wv::cJoltPhysicsEngine::init()
 	m_pBodyInterface = &m_pPhysicsSystem->GetBodyInterface();
 
 
-	// camera ball
-
-	JPH::SphereShape* ballShape = new JPH::SphereShape( 1.0f );
-	JPH::BodyCreationSettings ballSettings( 
-		ballShape, 
-		JPH::RVec3( 0.0_r, -1.0_r, 0.0_r ), 
-		JPH::Quat::sIdentity(), 
-		JPH::EMotionType::Kinematic, 
-		Layers::DYNAMIC 
-	);
-
-	m_cameraCollider = m_pBodyInterface->CreateAndAddBody( ballSettings, JPH::EActivation::Activate );
+	sPhysicsSphereDesc* ballDesc = new sPhysicsSphereDesc();
+	ballDesc->kind = WV_PHYSICS_KINEMATIC;
+	ballDesc->radius = 1.0f;
+	m_cameraCollider = createAndAddBody( ballDesc, true );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -208,10 +200,8 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	
 	cEngine* app = cEngine::get();
 	if( app->currentCamera )
-	{
-		m_pBodyInterface->SetPosition( m_cameraCollider, WVtoJPH( app->currentCamera->getTransform().position ), JPH::EActivation::Activate );
-	}
-
+		setPhysicsBodyTransform( m_cameraCollider, app->currentCamera->getTransform() );
+	
 	// physics update
 	float frameTime = _deltaTime;
 	if( frameTime > 0.016f )
@@ -230,9 +220,8 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	}
 
 	if( collisionSteps > 0 )
-	{
 		m_pPhysicsSystem->Update( m_timestep, collisionSteps, m_pTempAllocator, m_pJobSystem );
-	}
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -252,9 +241,10 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 		shape = new JPH::BoxShape( halfExtent );
 	} break;
 
-	case WV_PHYSICS_PLANE:
+	case WV_PHYSICS_SPHERE:
 	{
-		JPH::BoxShapeSettings floorShapeSettings( JPH::Vec3( 100.0f, 1.0f, 100.0f ) );
+		sPhysicsSphereDesc* desc = static_cast< sPhysicsSphereDesc* >( _desc );
+		shape = new JPH::SphereShape( desc->radius );
 	} break;
 
 	default: Debug::Print( Debug::WV_PRINT_ERROR, "Physics shape unimplemented" ); break;
@@ -306,4 +296,14 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _hand
 	};
 
 	return transform;
+}
+
+void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform )
+{
+	JPH::BodyID id = m_bodies.at( _handle );
+
+	JPH::Vec3 pos = WVtoJPH( _transform.position );
+	JPH::Vec3 rot = WVtoJPH( _transform.rotation );
+	
+	m_pBodyInterface->SetPositionAndRotation( id, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);
 }
