@@ -1,6 +1,22 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef WV_SUPPORT_JOLT_PHYSICS
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#endif // WV_SUPPORT_JOLT_PHYSICS
+
+#include <wv/Math/Transform.h>
+#include <wv/Physics/BroadPhaseLayer.h>
+#include <wv/Physics/PhysicsBodyDescriptor.h>
+#include <wv/Types.h>
+
+#include <unordered_map>
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 namespace JPH { class TempAllocatorImpl; }
 namespace JPH { class JobSystemThreadPool; }
@@ -9,34 +25,19 @@ namespace JPH { class BodyInterface; }
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_JOLT_PHYSICS
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/BodyID.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#endif // WV_SUPPORT_JOLT_PHYSICS
-
-#include <wv/Physics/BroadPhaseLayer.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
-
-#include <wv/Types.h>
-#include <wv/Math/Transform.h>
-
-#include <unordered_map>
 
 namespace wv
 {
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
-	class JoltContactListener;
-	class JoltBodyActivationListener;
+	class cJoltContactListener;
+	class cJoltBodyActivationListener;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cJoltPhysicsEngine
 	{
-
 	public:
-
 		 cJoltPhysicsEngine() { }
 		~cJoltPhysicsEngine() { }
 
@@ -57,7 +58,6 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
-
 		const unsigned int m_maxBodies             = 1024; // 65536;
 		const unsigned int m_numBodyMutexes        = 0;
 		const unsigned int m_maxBodyPairs          = 1024; // 65536;
@@ -77,8 +77,8 @@ namespace wv
 		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
 		cObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
 
-		JoltContactListener*        tempContactListener        = nullptr;
-		JoltBodyActivationListener* tempBodyActivationListener = nullptr;
+		cJoltContactListener*        tempContactListener        = nullptr;
+		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS

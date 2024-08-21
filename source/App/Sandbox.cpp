@@ -139,7 +139,7 @@ wv::cSceneRoot* cSandbox::setupScene()
 		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
 		boxDesc->halfExtent = { 100.0f, 1.0f, 100.0f };
 
-		cRigidbody* floor = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
+		wv::cRigidbody* floor = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
 		floor->m_transform.position.y = -7.0f;
 		floor->m_transform.scale = { 200.0f, 2.0f, 200.0f };
 		scene->addChild( floor );
@@ -151,7 +151,7 @@ wv::cSceneRoot* cSandbox::setupScene()
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
 		
-		cRigidbody* rb = new cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
+		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
 		rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
 		scene->addChild( rb );
 	}

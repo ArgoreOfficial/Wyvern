@@ -7,33 +7,38 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv { class Mesh; }
-namespace wv { class iPhysicsBodyDesc; }
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-class cRigidbody : public wv::iSceneObject
+namespace wv
 {
 
-public:
+///////////////////////////////////////////////////////////////////////////////////////
 
-	 cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc );
-	~cRigidbody();
+	class Mesh; 
+	class iPhysicsBodyDesc; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-protected:
+	class cRigidbody : public iSceneObject
+	{
+	public:
+		 cRigidbody( const UUID& _uuid, const std::string& _name, Mesh* _pMesh, iPhysicsBodyDesc* _bodyDesc );
+		~cRigidbody();
 
-	void onLoadImpl() override;
-	void onUnloadImpl() override;
-	void onCreateImpl() override { };
-	void onDestroyImpl() override { };
+///////////////////////////////////////////////////////////////////////////////////////
 
-	virtual void updateImpl( double _deltaTime ) override;
-	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
+	protected:
+		void onLoadImpl() override;
+		void onUnloadImpl() override;
+		void onCreateImpl() override { };
+		void onDestroyImpl() override { };
 
-	wv::Mesh* m_pMesh = nullptr;
-	wv::iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
-	wv::Handle m_physicsBodyHandle = 0;
+		virtual void updateImpl( double _deltaTime ) override;
+		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-};
+		wv::Mesh* m_pMesh = nullptr;
+		wv::iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
+		wv::Handle m_physicsBodyHandle = 0;
+
+	};
+
+}
+

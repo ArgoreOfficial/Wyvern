@@ -59,6 +59,8 @@ static void traceImpl( const char* _msg, ... )
 }
 #ifdef JPH_ENABLE_ASSERTS
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 // Callback for asserts, connect this to your own assert handler if you have one
 static bool AssertFailedImpl( const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine )
 {
@@ -102,8 +104,8 @@ void wv::cJoltPhysicsEngine::init()
 		*m_pObjectVsBroadPhaseLayerFilter, 
 		*m_pObjectLayerPairFilter );
 
-	tempContactListener = new JoltContactListener();
-	tempBodyActivationListener = new JoltBodyActivationListener();
+	tempContactListener = new cJoltContactListener();
+	tempBodyActivationListener = new cJoltBodyActivationListener();
 
 	m_pPhysicsSystem->SetContactListener( tempContactListener );
 	m_pPhysicsSystem->SetBodyActivationListener( tempBodyActivationListener );
@@ -134,6 +136,8 @@ void wv::cJoltPhysicsEngine::terminate()
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
@@ -146,6 +150,8 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 	m_bodies.clear();
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
 {
@@ -275,6 +281,8 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _hand
 	return {};
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform )
 {

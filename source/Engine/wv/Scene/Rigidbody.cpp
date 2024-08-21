@@ -11,12 +11,11 @@
 #include <wv/Memory/MemoryDevice.h>
 
 #include <wv/Physics/PhysicsEngine.h>
-
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc ) :
+wv::cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc ) :
 	iSceneObject{ _uuid, _name },
 	m_pMesh{ _pMesh },
 	m_pPhysicsBodyDesc{ _bodyDesc }
@@ -26,20 +25,20 @@ cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mes
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cRigidbody::~cRigidbody()
+wv::cRigidbody::~cRigidbody()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cRigidbody::onLoadImpl()
+void wv::cRigidbody::onLoadImpl()
 {
-	wv::cEngine* app = wv::cEngine::get();
+	cEngine* app = wv::cEngine::get();
 
 	if( !m_pMesh )
 	{
-		wv::assimp::Parser parser;
+		assimp::Parser parser;
 		m_pMesh = parser.load( "res/meshes/debug-cube.dae", app->m_pMaterialRegistry );
 	}
 	/// TODO: physics
@@ -53,7 +52,7 @@ void cRigidbody::onLoadImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cRigidbody::onUnloadImpl()
+void wv::cRigidbody::onUnloadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->graphics;
@@ -63,12 +62,12 @@ void cRigidbody::onUnloadImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cRigidbody::updateImpl( double _deltaTime )
+void wv::cRigidbody::updateImpl( double _deltaTime )
 {
 #ifdef WV_SUPPORT_PHYSICS
 	if( m_physicsBodyHandle > 0 )
 	{
-		wv::Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( m_physicsBodyHandle );
+		Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;
 		m_transform.rotation = t.rotation;
 	}
@@ -77,7 +76,7 @@ void cRigidbody::updateImpl( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
+void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
 {
 	if( m_pMesh )
 	{
