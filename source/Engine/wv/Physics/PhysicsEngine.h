@@ -22,6 +22,7 @@ namespace JPH { class TempAllocatorImpl; }
 namespace JPH { class JobSystemThreadPool; }
 namespace JPH { class PhysicsSystem; }
 namespace JPH { class BodyInterface; }
+namespace JPH { class Body; }
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ namespace wv
 		cJoltContactListener*        tempContactListener        = nullptr;
 		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
-		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
+		std::unordered_map<wv::Handle, JPH::Body*> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 		wv::Handle m_cameraCollider = 0;

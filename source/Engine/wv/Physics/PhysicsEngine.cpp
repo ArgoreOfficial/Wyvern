@@ -14,6 +14,9 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+
+#include <Jolt/Physics/Constraints/PulleyConstraint.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 #include <wv/Engine/Engine.h>
@@ -143,8 +146,8 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	for( auto& body : m_bodies )
 	{
-		m_pBodyInterface->RemoveBody( body.second );
-		m_pBodyInterface->DestroyBody( body.second );
+		m_pBodyInterface->RemoveBody ( body.second->GetID() );
+		m_pBodyInterface->DestroyBody( body.second->GetID() );
 	}
 
 	m_bodies.clear();
@@ -162,9 +165,9 @@ void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
 		return;
 	}
 
-	JPH::BodyID id = m_bodies.at( _handle );
-	m_pBodyInterface->RemoveBody( id );
-	m_pBodyInterface->DestroyBody( id );
+	JPH::Body* body = m_bodies.at( _handle );
+	m_pBodyInterface->RemoveBody ( body->GetID() );
+	m_pBodyInterface->DestroyBody( body->GetID() );
 	m_bodies.erase( _handle );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
@@ -241,17 +244,17 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 
 
 	JPH::BodyCreationSettings settings( shape, pos, JPH::Quat::sEulerAngles( rot ), motionType, layer );
-
+	
 	JPH::Body*  body   = m_pBodyInterface->CreateBody( settings );
 	JPH::BodyID id     = body->GetID();
 	wv::Handle  handle = 0;
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-	m_pBodyInterface->SetAngularVelocity( id, { 0.0f, 25.0f, 0.0f } );
+	m_pBodyInterface->SetAngularVelocity( id, { 0.0f, 7.0f, 0.0f } );
 	
 	do { handle = cEngine::getUniqueHandle(); } while( m_bodies.contains( handle ) );
 
-	m_bodies[ handle ] = id;
+	m_bodies[ handle ] = body;
 	return handle;
 #else
 	return 0;
@@ -263,10 +266,10 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::BodyID id = m_bodies.at( _handle );
-
-	JPH::RVec3 pos = m_pBodyInterface->GetCenterOfMassPosition( id );
-	JPH::Vec3  rot = m_pBodyInterface->GetRotation( id ).GetEulerAngles(); /// TODO: change to quaternion
+	JPH::Body* body = m_bodies.at( _handle );
+	
+	JPH::RVec3 pos = body->GetPosition();
+	JPH::Vec3  rot = body->GetRotation().GetEulerAngles(); /// TODO: change to quaternion
 
 	Transformf transform{};
 	transform.position = Vector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
@@ -287,11 +290,11 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _hand
 void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::BodyID id = m_bodies.at( _handle );
+	JPH::Body* body = m_bodies.at( _handle );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot = WVtoJPH( _transform.rotation );
-	
-	m_pBodyInterface->SetPositionAndRotation( id, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);
+
+	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles(rot), JPH::EActivation::DontActivate);
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
