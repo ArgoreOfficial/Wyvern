@@ -1,19 +1,37 @@
 {
     "name" : "defaultScene",
-    "root" : {
-        "uuid" : 12345,
-        "name" : "box",
-        "type" : "Rigidbody",
-        "transform" : {
-            "pos":[0.0,1.0,0.0],
-            "rot":[0.0,0.0,0.0],
-            "scl":[1.0,2.0,1.0]
+    "scene" : [
+        {
+            "uuid" : 12345,
+            "name" : "box",
+            "type" : "Rigidbody",
+            "transform" : {
+                "pos":[0.0,1.0,0.0],
+                "rot":[0.0,0.0,0.0],
+                "scl":[1.0,2.0,1.0]
+            },
+            "data" : {
+                "shape" : 2,
+                "kind" : 1,
+                "halfExtents" : [0.5,1.0,0.5]
+            },
+            "children" : []
         },
-        "data" : {
-            "shape" : 2,
-            "kind" : 1,
-            "halfExtents" : [0.5,1.0,0.5]
-        },
-        "children" : []
-    }
+        {
+            "uuid" : 8014,
+            "name" : "box2",
+            "type" : "Rigidbody",
+            "transform" : {
+                "pos":[0.3,1.0,0.0],
+                "rot":[0.0,0.0,0.0],
+                "scl":[1.0,1.0,1.0]
+            },
+            "data" : {
+                "shape" : 2,
+                "kind" : 1,
+                "halfExtents" : [0.5,0.5,0.5]
+            },
+            "children" : []
+        }
+    ]
 }
