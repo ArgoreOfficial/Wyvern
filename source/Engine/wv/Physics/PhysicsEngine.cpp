@@ -263,18 +263,21 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 	if( shape == nullptr )
 		return 0;
 	
-	JPH::BodyCreationSettings settings(
-		shape,
-		pos,
-		JPH::Quat::sEulerAngles( rot ),
-		_desc->kind == WV_PHYSICS_STATIC ? JPH::EMotionType::Static : JPH::EMotionType::Dynamic,
-		_desc->kind == WV_PHYSICS_STATIC ? wv::Layers::STATIC       : wv::Layers::DYNAMIC
-	);
+	JPH::EMotionType motionType = JPH::EMotionType::Static;
+	switch( _desc->kind )
+	{
+	case WV_PHYSICS_DYANIMIC:  motionType = JPH::EMotionType::Dynamic;   break;
+	case WV_PHYSICS_KINEMATIC: motionType = JPH::EMotionType::Kinematic; break;
+	}
 
-	JPH::Body* body = m_pBodyInterface->CreateBody( settings );
-	
-	JPH::BodyID id = body->GetID();
-	wv::Handle handle = -1;
+	const JPH::ObjectLayer layer = _desc->kind == WV_PHYSICS_STATIC ? wv::Layers::STATIC : wv::Layers::DYNAMIC;
+
+
+	JPH::BodyCreationSettings settings( shape, pos, JPH::Quat::sEulerAngles( rot ), motionType, layer );
+
+	JPH::Body*  body   = m_pBodyInterface->CreateBody( settings );
+	JPH::BodyID id     = body->GetID();
+	wv::Handle  handle = 0;
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
 	m_pBodyInterface->SetAngularVelocity( id, { 0.0f, 25.0f, 0.0f } );

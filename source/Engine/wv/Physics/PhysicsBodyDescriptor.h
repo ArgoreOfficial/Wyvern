@@ -2,6 +2,7 @@
 
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Transform.h>
+
 namespace wv
 {
 	enum ePhysicsShape
@@ -21,7 +22,8 @@ namespace wv
 	enum ePhysicsKind
 	{
 		WV_PHYSICS_STATIC,
-		WV_PHYSICS_DYANIMIC
+		WV_PHYSICS_DYANIMIC,
+		WV_PHYSICS_KINEMATIC
 	};
 
 	struct iPhysicsBodyDesc
