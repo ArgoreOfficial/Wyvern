@@ -21,62 +21,18 @@
 #include <wv/Debug/Draw.h>
 
 #include <wv/Camera/Camera.h>
+#include <wv/Physics/PhysicsListeners.h>
 
 #include <stdarg.h>
 #include <cstdarg>
 #include <iostream>
+
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 JPH_SUPPRESS_WARNINGS
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-/// TODO: move
-#ifdef WV_SUPPORT_JOLT_PHYSICS
-class MyContactListener : public JPH::ContactListener
-{
-public:
-	// See: ContactListener
-	virtual JPH::ValidateResult OnContactValidate( const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult ) override
-	{
-		// printf( "Contact validate callback\n" );
-
-		// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
-		return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
-	}
-
-	virtual void OnContactAdded( const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings ) override
-	{
-		printf( "A contact was added\n" );
-	}
-
-	virtual void OnContactPersisted( const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings ) override
-	{
-		//printf( "A contact was persisted\n" );
-	}
-
-	virtual void OnContactRemoved( const JPH::SubShapeIDPair& inSubShapePair ) override
-	{
-		printf( "A contact was removed\n" );
-	}
-};
-
-class MyBodyActivationListener : public JPH::BodyActivationListener
-{
-public:
-	virtual void OnBodyActivated( const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData ) override
-	{
-		printf( "A body got activated\n" );
-	}
-
-	virtual void OnBodyDeactivated( const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData ) override
-	{
-		printf( "A body went to sleep\n" );
-	}
-};
-#endif // WV_SUPPORT_JOLT_PHYSICS
-
-///////////////////////////////////////////////////////////////////////////////////////
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 static wv::Vector3f JPHtoWV( const JPH::Vec3& _vec )
 {
@@ -146,8 +102,8 @@ void wv::cJoltPhysicsEngine::init()
 		*m_pObjectVsBroadPhaseLayerFilter, 
 		*m_pObjectLayerPairFilter );
 
-	tempContactListener = new MyContactListener();
-	tempBodyActivationListener = new MyBodyActivationListener();
+	tempContactListener = new JoltContactListener();
+	tempBodyActivationListener = new JoltBodyActivationListener();
 
 	m_pPhysicsSystem->SetContactListener( tempContactListener );
 	m_pPhysicsSystem->SetBodyActivationListener( tempBodyActivationListener );

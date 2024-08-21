@@ -23,13 +23,12 @@ namespace JPH { class BodyInterface; }
 
 #include <unordered_map>
 
-#ifdef WV_SUPPORT_JOLT_PHYSICS
-class MyContactListener;
-class MyBodyActivationListener;
-#endif // WV_SUPPORT_JOLT_PHYSICS
-
 namespace wv
 {
+	#ifdef WV_SUPPORT_JOLT_PHYSICS
+	class JoltContactListener;
+	class JoltBodyActivationListener;
+	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -64,9 +63,9 @@ namespace wv
 		const unsigned int m_maxBodyPairs          = 1024; // 65536;
 		const unsigned int m_maxContactConstraints = 1024; // 10240;
 
-		const float m_timestep = 1.0f / 120.0f;
-		unsigned int m_steps = 0;
-		float m_accumulator = 0.0f;
+		const float  m_timestep    = 1.0f / 120.0f;
+		float        m_accumulator = 0.0f;
+		unsigned int m_steps       = 0;
 
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
 		JPH::TempAllocatorImpl*   m_pTempAllocator = nullptr;
@@ -78,8 +77,8 @@ namespace wv
 		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
 		cObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
 
-		MyContactListener*        tempContactListener        = nullptr;
-		MyBodyActivationListener* tempBodyActivationListener = nullptr;
+		JoltContactListener*        tempContactListener        = nullptr;
+		JoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::Handle, JPH::BodyID> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
