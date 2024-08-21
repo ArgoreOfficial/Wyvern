@@ -88,7 +88,7 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
-	wv::cSceneRoot* scene = setupScene();
+	wv::cSceneRoot* scene = setupScene( fileSystem );
 	appState->addScene( scene );
 
 	// create engine
@@ -109,7 +109,7 @@ void cSandbox::destroy( void )
 	m_pEngine->terminate();
 }
 
-wv::cSceneRoot* cSandbox::setupScene()
+wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 {
 	wv::cSceneRoot* scene = new wv::cSceneRoot( "defaultScene" );
 	
@@ -145,16 +145,21 @@ wv::cSceneRoot* cSandbox::setupScene()
 		scene->addChild( floor );
 	}
 
-	for( int i = 0; i <numSegments; i++ )
-	{
-		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
-		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
-		boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
-		
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
-		rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
-		scene->addChild( rb );
-	}
+	//for( int i = 0; i <numSegments; i++ )
+	//{
+	//	wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+	//	boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+	//	boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
+	//	
+	//	wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
+	//	rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
+	//	scene->addChild( rb );
+	//}
+
+	std::string src = _pFileSystem->loadString( "res/scenes/test.json" );
+	nlohmann::json json = nlohmann::json::parse( src );
+	scene->addChild( wv::fromJson<wv::cRigidbody>( json ) );
+
 
 	// skybox has to be added last
 	/// TODO: fix that

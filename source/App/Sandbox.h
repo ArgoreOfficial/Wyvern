@@ -4,6 +4,7 @@
 
 namespace wv { class cEngine; }
 namespace wv { class cSceneRoot; }
+namespace wv { class cFileSystem; }
 
 class cSandbox : public wv::iApplication
 {
@@ -15,7 +16,7 @@ public:
 	void run    ( void ) override;
 	void destroy( void ) override;
 
-	wv::cSceneRoot* setupScene();
+	wv::cSceneRoot* setupScene( wv::cFileSystem* _pFileSystem );
 
 private:
 

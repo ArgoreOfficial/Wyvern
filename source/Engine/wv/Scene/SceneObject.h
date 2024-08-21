@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/Auxiliary/json.hpp>
 #include <wv/Math/Transform.h>
 #include <wv/Types.h>
 
@@ -19,6 +20,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	template<class T>
+	T* fromJson( nlohmann::json& _json ) { return nullptr; };
+
 	class iSceneObject
 	{
 
@@ -26,6 +30,9 @@ namespace wv
 
 		 iSceneObject( const UUID& _uuid, const std::string& _name );
 		~iSceneObject();
+
+		//virtual iSceneObject*  fromJson  ( nlohmann::json& _json ) { return nullptr; };
+		virtual nlohmann::json dataToJson( void )                  { return{}; };
 
 		void addChild( iSceneObject* _node );
 		void removeChild( iSceneObject* _node );
