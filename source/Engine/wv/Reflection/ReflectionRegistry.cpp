@@ -6,12 +6,7 @@
 
 int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOperator* _operator )
 {
-	printf( "reflecting %s\n", _name.c_str() );
-	sClassReflection ref;
-	ref.name = _name;
-	ref.pOperator = _operator;
-	m_classes[ _name ] = ref;
-
+	m_classes[ _name ] = { _name, _operator };
 	return m_classes.size();
 }
 
