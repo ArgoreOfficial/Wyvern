@@ -13,11 +13,14 @@
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Skybox.h>
 #include <wv/Scene/Rigidbody.h>
+#include <wv/Scene/Model.h>
 
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
 #include "SceneObjects/TentacleSection.h"
 #include "SceneObjects/TentacleSettingWindow.h"
+
+#include <wv/Reflection/ReflectedClass.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -117,16 +120,21 @@ void cSandbox::destroy( void )
 
 wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 {
-	wv::iSceneObject* obj = nullptr;
-	std::string objTypeName = _js[ "type" ]; // ew
-
-	if( objTypeName == "Rigidbody" )
+	std::string objTypeName = _js[ "type" ];
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
+	
+	if( !obj )
 	{
-		obj = wv::fromJson<wv::cRigidbody>( _js );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName );
+		return nullptr;
 	}
 
 	for( auto& childJson : _js[ "children" ] )
-		obj->addChild( parseSceneObject( childJson ) );
+	{
+		wv::iSceneObject* childObj = parseSceneObject( childJson );
+		if( childObj != nullptr )
+			obj->addChild( childObj );
+	}
 
 	return obj;
 }
@@ -135,7 +143,6 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 
 wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 {
-	
 	std::string src = _pFileSystem->loadString( "res/scenes/testScene.json" );
 	nlohmann::json js = nlohmann::json::parse( src );
 	
@@ -144,8 +151,6 @@ wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 	for( auto& objJson : js[ "scene" ] )
 		scene->addChild( parseSceneObject( objJson ) );
 	
-	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
-
 	const int numSegments = 30;
 	const float tentacleLength = 25.0f;
 	const float tapre = 0.9f;
@@ -165,17 +170,6 @@ wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 		parent->addChild( section );
 		parent = section;
 	}
-
-	//for( int i = 0; i <numSegments; i++ )
-	//{
-	//	wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
-	//	boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
-	//	boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
-	//	
-	//	wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
-	//	rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
-	//	scene->addChild( rb );
-	//}
 
 	// skybox has to be added last
 	/// TODO: fix that

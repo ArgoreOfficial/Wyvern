@@ -4,7 +4,7 @@
         {
             "uuid" : 28752,
             "name" : "floor",
-            "type" : "Rigidbody",
+            "type" : "cRigidbody",
             "transform" : { "pos":[0.0,-7.0,0.0], "rot":[0.0,0.0,0.0], "scl":[200.0,2.0,200.0] },
             "data" : {
                 "shape" : 2,
@@ -16,7 +16,7 @@
         {
             "uuid" : 12345,
             "name" : "box",
-            "type" : "Rigidbody",
+            "type" : "cRigidbody",
             "transform" : { "pos":[0.0,1.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,2.0,1.0] },
             "data" : {
                 "shape" : 2,
@@ -28,13 +28,28 @@
         {
             "uuid" : 8014,
             "name" : "box2",
-            "type" : "Rigidbody",
+            "type" : "cRigidbody",
             "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
             "data" : {
                 "shape" : 2,
                 "kind" : 1,
                 "halfExtents" : [0.5,0.5,0.5]
             },
+            "children" : []
+        },
+        {
+            "uuid" : 947913,
+            "name" : "tentacleSettings",
+            "type" : "cTentacleSettingWindowObject",
+            "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {},
+            "children" : []
+        },
+        {
+            "name" : "CUBE",
+            "type" : "cModelObject",
+            "transform" : { "pos":[1.0,0.0,1.0], "rot":[0.0,45.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {},
             "children" : []
         }
     ]

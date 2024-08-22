@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <wv/Reflection/Reflection.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -27,6 +29,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		static cSkyboxObject* createInstance( void ) { return nullptr;}
+		static cSkyboxObject* createInstanceJson( nlohmann::json& _json );
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	protected:
 
 		void onLoadImpl   () override;
@@ -41,5 +48,7 @@ namespace wv
 		cMaterial* m_skyMaterial = nullptr;
 
 	};
+
+	REFLECT_CLASS( cSkyboxObject );
 
 }
