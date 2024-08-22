@@ -1,3 +1,5 @@
+includes "toolchains/3ds_arm-none-eabi.lua"
+
 rule("3ds.picasso")
     set_extensions( ".pica" )
     
@@ -49,37 +51,24 @@ rule("3ds.package")
     end)
 rule_end()
 
-local DEVKITARM = "C:/devkitPro/devkitARM" -- os.getenv( "DEVKITARM" )
+function load_platform_3ds()
+    --add_requires( "glm" )
+    --"glfw", "libsdl", "assimp"
+    print("load 3ds")
+    set_toolchains( "arm-none-eabi" )
+end
 
-toolchain("arm-none-eabi")
-    set_kind "standalone"
+function target_platform_3ds( target )
+    local root = "../"
 
-    set_toolset( "cc",  DEVKITARM .. "/bin/arm-none-eabi-g++" )
-    set_toolset( "cxx", DEVKITARM .. "/bin/arm-none-eabi-g++" )
-    set_toolset( "ld",  DEVKITARM .. "/bin/arm-none-eabi-g++" )
+    print("target 3ds")
     
-    add_defines( "__3DS__ " )
+    -- add supports
+    target:add( "deps", "GLAD" )
+    --import(root.."platform.support.glm"   )(target)
+    --import(root.."platform.support.glfw"  )(target)
+    --import(root.."platform.support.assimp")(target)
+    --import(root.."platform.support.libsdl")(target) 
 
-    add_cxxflags{ 
-        "-MMD",
-        "-MP",
-        "-g",
-        "-Wall",
-        "-O2",
-        "-mword-relocations",
-        "-ffunction-sections",
-        "-march=armv6k",
-        "-mtune=mpcore",
-        "-mfloat-abi=hard",
-        "-mtp=soft",
-        "-fno-rtti",
-        "-fno-exceptions",
-        "-std=gnu++11"
-    }
-
-    add_ldflags{
-        "-specs=3dsx.specs", "-g",
-        "-march=armv6k", "-mtune=mpcore", "-mfloat-abi=hard", "-mtp=soft",
-        "-Wl,-Map,$(buildir)/map.map"
-    }
-toolchain_end()
+    
+end
