@@ -142,7 +142,10 @@ void wv::cRigidbody::onUnloadImpl()
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->graphics;
 
-	device->destroyMesh( &m_pMesh );
+	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
+	
+	if( m_pMesh )
+		device->destroyMesh( &m_pMesh );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

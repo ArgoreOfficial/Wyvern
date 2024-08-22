@@ -59,7 +59,9 @@ void wv::cSkyboxObject::onUnloadImpl()
 	wv::iGraphicsDevice* device = app->graphics;
 
 	device->destroyMesh( &m_skyboxMesh );
-	m_skyMaterial->destroy( device );
+	m_skyMaterial->decrNumUsers();
+	
+	// m_skyMaterial->destroy( device );
 }
 
 void wv::cSkyboxObject::onCreateImpl()

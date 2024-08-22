@@ -13,13 +13,13 @@ namespace wv
 	class iDeviceContext;
 	class iGraphicsDevice;
 	class cSceneRoot;
+	class cFileSystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cApplicationState
 	{
 	public:
-
 		void onCreate();
 		void onDestroy();
 
@@ -27,6 +27,8 @@ namespace wv
 		void draw  ( iDeviceContext* _pContext, iGraphicsDevice* _pDevice );
 
 		void reloadScene();
+
+		wv::cSceneRoot* loadScene( cFileSystem* _pFileSystem, const std::string& _path );
 
 		/// <returns>scene index</returns>
 		int addScene( cSceneRoot* _pScene );

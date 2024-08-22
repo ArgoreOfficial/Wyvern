@@ -413,6 +413,8 @@ void wv::iGraphicsDevice::destroyMesh( Mesh** _mesh )
 	for ( int i = 0; i < mesh->primitives.size(); i++ )
 		destroyPrimitive( &mesh->primitives[ i ] );
 	mesh->primitives.clear();
+	mesh->triangles.clear();
+
 	*_mesh = nullptr;
 }
 

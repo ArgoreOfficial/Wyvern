@@ -93,7 +93,8 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
-	wv::cSceneRoot* scene = setupScene( fileSystem );
+	// wv::cSceneRoot* scene = setupScene( fileSystem );
+	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
 	appState->addScene( scene );
 
 	// create engine
@@ -118,39 +119,13 @@ void cSandbox::destroy( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
-{
-	std::string objTypeName = _js[ "type" ];
-	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
-	
-	if( !obj )
-	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName );
-		return nullptr;
-	}
 
-	for( auto& childJson : _js[ "children" ] )
-	{
-		wv::iSceneObject* childObj = parseSceneObject( childJson );
-		if( childObj != nullptr )
-			obj->addChild( childObj );
-	}
-
-	return obj;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 {
-	std::string src = _pFileSystem->loadString( "res/scenes/testScene.json" );
-	nlohmann::json js = nlohmann::json::parse( src );
-	
-	wv::cSceneRoot* scene = new wv::cSceneRoot( js[ "name" ] );
-	
-	for( auto& objJson : js[ "scene" ] )
-		scene->addChild( parseSceneObject( objJson ) );
-	
+	/*
 	const int numSegments = 30;
 	const float tentacleLength = 25.0f;
 	const float tapre = 0.9f;
@@ -174,7 +149,8 @@ wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 	// skybox has to be added last
 	/// TODO: fix that
 	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
+	*/
 
-	return scene;
+	return nullptr;
 }
 

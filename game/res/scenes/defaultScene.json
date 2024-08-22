@@ -27,12 +27,12 @@
         {
             "name" : "box2",
             "type" : "cRigidbody",
-            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[3.0,3.0,3.0] },
+            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[2.0,2.0,2.0] },
             "data" : {
                 "path" : "res/meshes/debug-sphere.dae",
                 "shape" : 1,
                 "kind" : 1,
-                "radius" : 1.5
+                "radius" : 1.0
             },
             "children" : []
         },
@@ -46,10 +46,17 @@
         {
             "name" : "CUBE",
             "type" : "cModelObject",
-            "transform" : { "pos":[1.0,0.0,1.0], "rot":[45.0,0.0,0.0], "scl":[1.0,10.0,1.0] },
+            "transform" : { "pos":[1.0,0.0,1.0], "rot":[45.0,0.0,0.0], "scl":[1.0,5.0,1.0] },
             "data" : {
                 "path" : "res/meshes/debug-sphere.dae"
             },
+            "children" : []
+        },
+        {
+            "name" : "Skybox",
+            "type" : "cSkyboxObject",
+            "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {},
             "children" : []
         }
     ]

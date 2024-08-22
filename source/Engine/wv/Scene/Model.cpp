@@ -33,7 +33,7 @@ wv::cModelObject::cModelObject( const UUID& _uuid, const std::string& _name, con
 
 wv::cModelObject::~cModelObject()
 {
-
+	
 }
 
 wv::cModelObject* wv::cModelObject::createInstanceJson( nlohmann::json& _json )

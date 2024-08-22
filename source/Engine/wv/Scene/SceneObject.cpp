@@ -13,7 +13,10 @@ wv::iSceneObject::iSceneObject( const UUID& _uuid, const std::string& _name ):
 
 wv::iSceneObject::~iSceneObject()
 {
-
+	for( size_t i = 0; i < m_children.size(); i++ )
+	{
+		delete m_children[ i ];
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
