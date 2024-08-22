@@ -13,29 +13,29 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 #ifdef WV_PLATFORM_PSVITA
 	return;
 #endif
-	wv::assimp::Parser parser;
+	wv::Parser parser;
 
 	DEBUG_MATERIAL = _pMaterialRegistry->loadMaterial( "debug" );
-	
-	CUBE_MESH   = parser.load( "res/meshes/debug-cube.dae", _pMaterialRegistry );
+
+	CUBE_MESH = parser.load( "res/meshes/cube", _pMaterialRegistry );
 	if( CUBE_MESH )
-		for ( int i = 0; i < CUBE_MESH->primitives.size(); i++ )
-			CUBE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
-	
-	SPHERE_MESH = parser.load( "res/meshes/debug-sphere.dae", _pMaterialRegistry );
+		for( int i = 0; i < CUBE_MESH->children[ 0 ]->meshes[ 0 ]->primitives.size(); i++ )
+			CUBE_MESH->children[ 0 ]->meshes[ 0 ]->primitives[ i ]->material = DEBUG_MATERIAL;
+
+	SPHERE_MESH = parser.load( "res/meshes/cube", _pMaterialRegistry );
 	if( SPHERE_MESH )
-		for ( int i = 0; i < SPHERE_MESH->primitives.size(); i++ )
-			SPHERE_MESH->primitives[ i ]->material = DEBUG_MATERIAL;
-	
+		for( int i = 0; i < SPHERE_MESH->children[ 0 ]->meshes[ 0 ]->primitives.size(); i++ )
+			SPHERE_MESH->children[ 0 ]->meshes[ 0 ]->primitives[ i ]->material = DEBUG_MATERIAL;
+
 }
 
 void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice )
 {
 	if( CUBE_MESH )
-		_pGraphicsDevice->destroyMesh( &CUBE_MESH );
+		_pGraphicsDevice->destroyMesh( &CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
 
 	if( SPHERE_MESH )
-		_pGraphicsDevice->destroyMesh( &SPHERE_MESH );
+		_pGraphicsDevice->destroyMesh( &SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
 
 	if( DEBUG_MATERIAL )
 	{
@@ -50,7 +50,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 {
 	if( SPHERE_MESH )
 	{
-		for ( int i = 0; i < spheres.size(); i++ )
+		for( int i = 0; i < spheres.size(); i++ )
 		{
 			SPHERE_MESH->transform.position = spheres[ i ].position;
 			SPHERE_MESH->transform.scale = wv::cVector3f{ spheres[ i ].radius };
@@ -58,7 +58,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 			_pGraphicsDevice->draw( SPHERE_MESH );
 		}
 	}
-	
+
 	cubes.clear();
 	spheres.clear();
 }

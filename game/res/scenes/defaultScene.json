@@ -96,29 +96,12 @@
         "scl": [2,2,2]
       },
       "data": {
-        "path": "res/meshes/debug-sphere.dae",
+        "path": "res/meshes/sphere",
         "shape": 1,
         "kind": 1,
         "radius": 1
       },
       "children": [
-        {
-          "uuid": 746198,
-          "name": "BoxRigidbody",
-          "type": "cRigidbody",
-          "transform": {
-            "pos": [0,1,0],
-            "rot": [0,0,0],
-            "scl": [1,2,1]
-          },
-          "data": {
-            "path": "",
-            "shape": 2,
-            "kind": 1,
-            "halfExtents": [0.5,1,0.5]
-          },
-          "children": []
-        },
         {
           "uuid": 983749,
           "name": "smallRect",
@@ -153,11 +136,28 @@
       "type": "cSkyboxObject",
       "transform": {
         "pos": [0,0,0],
-        "rot": [0,0,0],
+        "rot": [-90,0,0],
         "scl": [1,1,1]
       },
       "data": {
         "path": ""
+      },
+      "children": []
+    },
+    {
+      "uuid": 746198,
+      "name": "BoxRigidbody",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [0,1,0],
+        "rot": [0,0,0],
+        "scl": [1,2,1]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 1,
+        "halfExtents": [0.5,1,0.5]
       },
       "children": []
     }

@@ -4,7 +4,7 @@
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Decl.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
@@ -339,11 +339,15 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		return program;
 	}
 
-	for( auto& shader : _desc->shaders )
+	if( _desc->pVertexShader )
 	{
-		WV_ASSERT_GL( glAttachShader, program->handle, shader->handle );
-		WV_ASSERT_ERR( "attach\n" );
+		WV_ASSERT_GL( glAttachShader, program->handle, _desc->pVertexShader->handle );
 	}
+	if( _desc->pFragmentShader )
+	{
+		WV_ASSERT_GL( glAttachShader, program->handle, _desc->pFragmentShader->handle );
+	}
+	
 	WV_ASSERT_GL( glLinkProgram, program->handle );
 
 	WV_ASSERT_ERR( "link\n" );
@@ -512,23 +516,32 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 	primitive->vertexBuffer = createGPUBuffer( WV_BUFFER_TYPE_VERTEX );
 	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
 
-	primitive->vertexBuffer->count = _desc->vertices.size();
-	primitive->vertexBuffer->size  = _desc->vertices.size() * sizeof( Vertex );
 
-	bufferData( primitive->vertexBuffer, _desc->vertices.data(), primitive->vertexBuffer->size );
+	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
+	primitive->vertexBuffer->count = count;
+	primitive->vertexBuffer->size  = _desc->sizeVertices;
+	
+	bufferData( primitive->vertexBuffer, _desc->vertices, primitive->vertexBuffer->size );
 
-	if ( _desc->indices.size() > 0 )
+	if ( _desc->numIndices > 0 )
 	{
 		// create element buffer object
 		primitive->indexBuffer = createGPUBuffer( WV_BUFFER_TYPE_INDEX );
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
 		
-		primitive->indexBuffer->count = _desc->indices.size();
-		primitive->indexBuffer->size  = _desc->indices.size() * sizeof( uint32_t );
-
+		primitive->indexBuffer->count = _desc->numIndices;
 		WV_ASSERT_GL( glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
-		bufferData( primitive->indexBuffer, _desc->indices.data(), primitive->indexBuffer->size );
-
+		
+		if( _desc->indices16 )
+		{
+			primitive->indexBuffer->size  = _desc->numIndices * sizeof( uint16_t );
+			bufferData( primitive->indexBuffer, _desc->indices16, primitive->indexBuffer->size );
+		}
+		else if( _desc->indices32 )
+		{
+			primitive->indexBuffer->size  = _desc->numIndices * sizeof( uint32_t );
+			bufferData( primitive->indexBuffer, _desc->indices32, primitive->indexBuffer->size );
+		}
 	}
 	else
 	{
@@ -539,13 +552,13 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 	int stride = 0;
 	for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
 	{
-		InputLayoutElement& element = _desc->layout->elements[ i ];
+		sVertexAttribute& element = _desc->layout->elements[ i ];
 		stride += element.size;
 	}
 
 	for ( unsigned int i = 0; i < _desc->layout->numElements; i++ )
 	{
-		InputLayoutElement& element = _desc->layout->elements[ i ];
+		sVertexAttribute& element = _desc->layout->elements[ i ];
 
 		GLenum type = GL_FLOAT;
 		switch ( _desc->layout->elements[ i ].type )
@@ -562,7 +575,7 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 		#endif
 		}
 
-		WV_ASSERT_GL( glVertexAttribPointer, i, element.num, type, element.normalized, stride, VPTRi32( offset ) );
+		WV_ASSERT_GL( glVertexAttribPointer, i, element.componentCount, type, element.normalized, stride, VPTRi32( offset ) );
 		WV_ASSERT_GL( glEnableVertexAttribArray, i );
 
 		offset += element.size;
@@ -734,72 +747,6 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 	m_boundTextureSlots[ _slot ] = _texture->getHandle();
 #endif
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::draw( Mesh* _mesh )
-{
-#ifdef WV_SUPPORT_OPENGL
-	if ( !_mesh )
-		return;
-
-	for ( size_t i = 0; i < _mesh->primitives.size(); i++ )
-	{
-		cMaterial* mat = _mesh->primitives[ i ]->material;
-		if( mat )
-		{
-			if( !mat->isLoaded() || !mat->isCreated() )
-			{
-				continue;
-			}
-
-			mat->setAsActive( this );
-			mat->setInstanceUniforms( _mesh );
-			drawPrimitive( _mesh->primitives[ i ] );
-		}
-		else
-		{
-			drawPrimitive( _mesh->primitives[ i ] );
-		}
-		
-
-
-	}
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
-{
-#ifdef WV_SUPPORT_OPENGL
-	bool hasError = false;
-
-	GLenum err;
-	while ( ( err = glGetError() ) != GL_NO_ERROR ) // is while needed here?
-	{
-		hasError = true;
-		switch ( err )
-		{
-		case GL_INVALID_ENUM:      *_out = "GL_INVALID_ENUM";      break;
-		case GL_INVALID_VALUE:     *_out = "GL_INVALID_VALUE";     break;
-		case GL_INVALID_OPERATION: *_out = "GL_INVALID_OPERATION"; break;
-		
-		case GL_STACK_OVERFLOW:  *_out = "GL_STACK_OVERFLOW";    break;
-		case GL_STACK_UNDERFLOW: *_out = "GL_STACK_UNDERFLOW";   break;
-		case GL_OUT_OF_MEMORY:   *_out = "GL_OUT_OF_MEMORY";     break;
-		case GL_CONTEXT_LOST:    *_out = "GL_OUT_OF_MEMORY";     break;
-
-		case GL_INVALID_FRAMEBUFFER_OPERATION: *_out = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
-		}
-	}
-
-	return hasError;
-#else
-	return false;
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
@@ -837,6 +784,38 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
 	}
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
+{
+#ifdef WV_SUPPORT_OPENGL
+	bool hasError = false;
+
+	GLenum err;
+	while ( ( err = glGetError() ) != GL_NO_ERROR ) // is while needed here?
+	{
+		hasError = true;
+		switch ( err )
+		{
+		case GL_INVALID_ENUM:      *_out = "GL_INVALID_ENUM";      break;
+		case GL_INVALID_VALUE:     *_out = "GL_INVALID_VALUE";     break;
+		case GL_INVALID_OPERATION: *_out = "GL_INVALID_OPERATION"; break;
+		
+		case GL_STACK_OVERFLOW:  *_out = "GL_STACK_OVERFLOW";    break;
+		case GL_STACK_UNDERFLOW: *_out = "GL_STACK_UNDERFLOW";   break;
+		case GL_OUT_OF_MEMORY:   *_out = "GL_OUT_OF_MEMORY";     break;
+		case GL_CONTEXT_LOST:    *_out = "GL_OUT_OF_MEMORY";     break;
+
+		case GL_INVALID_FRAMEBUFFER_OPERATION: *_out = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+		}
+	}
+
+	return hasError;
+#else
+	return false;
 #endif
 }
 

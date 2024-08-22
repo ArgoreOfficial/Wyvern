@@ -42,6 +42,8 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 		context->m_deviceApi          = _desc->deviceApi;
 		context->m_graphicsApi        = _desc->graphicsApi;
 		context->m_graphicsApiVersion = _desc->graphicsApiVersion;
+
+		context->setSize( _desc->width, _desc->height );
 	}
 
 	return context;

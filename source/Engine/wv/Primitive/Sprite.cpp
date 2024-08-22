@@ -60,14 +60,14 @@ void wv::Sprite::createQuad()
 			0, 2, 3
 		};
 
-		std::vector<wv::InputLayoutElement> elements = {
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ 4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
+		std::vector<wv::sVertexAttribute> elements = {
+			{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
+			{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
+			{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
+			{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
+			{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 		};
-		wv::InputLayout layout;
+		wv::sVertexLayout layout;
 		layout.elements = elements.data();
 		layout.numElements = (unsigned int)elements.size();
 
@@ -75,8 +75,11 @@ void wv::Sprite::createQuad()
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
 
-		prDesc.vertices = vertices;
-		prDesc.indices = indices;
+		prDesc.vertices     = vertices.data();
+		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
+
+		prDesc.indices32  = indices.data();
+		prDesc.numIndices = indices.size();
 
 		app->graphics->createPrimitive( &prDesc, Internal::S_SPRITE_QUAD );
 	}

@@ -1,7 +1,7 @@
 #include "cResourceLoader.h"
 
 #include <wv/Resource/Resource.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Device/GraphicsDevice.h>
 
 #include <chrono>
@@ -34,6 +34,9 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::sLoaderInformation* _loade
 		#ifdef WV_PLATFORM_WINDOWS
 			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) ); break;
 		#elif WV_PLATFORM_PSVITA
+			xtime t;
+			t.sec = 0.1;
+			_Thrd_sleep( &t );
 		#endif
 		
 		case wv::WV_WORKER_WORKING:

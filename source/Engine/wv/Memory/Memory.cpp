@@ -1,6 +1,6 @@
 #include "Memory.h"
 
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 
 // #include "Base64.h" // https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594
 

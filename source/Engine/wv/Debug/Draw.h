@@ -12,7 +12,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh;
+	struct sMeshNode;
 	class cMaterial;
 	class iGraphicsDevice;
 	class cMaterialRegistry;
@@ -30,8 +30,8 @@ namespace wv
 			{
 				struct Sphere { cVector3f position; float radius; }; /// TODO: move to wv/Math or similar
 
-				static Mesh* SPHERE_MESH;
-				static Mesh* CUBE_MESH;
+				static sMeshNode* SPHERE_MESH;
+				static sMeshNode* CUBE_MESH;
 				static cMaterial* DEBUG_MATERIAL;
 
 				static std::vector<Sphere> spheres;

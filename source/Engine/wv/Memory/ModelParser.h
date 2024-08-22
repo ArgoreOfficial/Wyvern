@@ -15,31 +15,22 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Mesh;
+	struct sMeshNode;
 	class cMaterialRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	namespace assimp
+	class Parser
 	{
 
-///////////////////////////////////////////////////////////////////////////////////////
+	public:
 
-		class Parser
-		{
-
-		public:
-
-			Parser() { }
+		Parser() { }
 			
-			Mesh* load( const char* _path, cMaterialRegistry* _pMaterialRegistry )
-		#ifdef WV_SUPPORT_ASSIMP
-				;
-		#else
-			{ return nullptr; }
-		#endif
-			// temporary solution
-		};
+		
+		sMeshNode* load( const char* _path, cMaterialRegistry* _pMaterialRegistry );
 
-	}
+	};
+
 
 }

@@ -1,4 +1,4 @@
-#include "MemoryDevice.h"
+#include <wv/Memory/FileSystem.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/Engine/Engine.h>
@@ -98,8 +98,6 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	mem->data = new unsigned char[ size ];
 	mem->size = static_cast< unsigned int >( size );
 	memcpy( mem->data, buffer, size );
-
-	printf( "Loaded file %i\n", size );
 
 	return mem;
 #else

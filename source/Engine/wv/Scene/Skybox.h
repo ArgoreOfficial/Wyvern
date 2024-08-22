@@ -14,7 +14,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh;
+	struct sMeshNode;
 	class cMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
-		Mesh*      m_skyboxMesh  = nullptr;
+		sMeshNode* m_skyboxMesh  = nullptr;
 		cMaterial* m_skyMaterial = nullptr;
 
 	};

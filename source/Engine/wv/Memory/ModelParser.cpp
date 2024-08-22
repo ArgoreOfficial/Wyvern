@@ -7,7 +7,7 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Math/Triangle.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 
 #include <fstream>
 
@@ -25,7 +25,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_ASSIMP
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
 {
@@ -105,14 +104,14 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 			indices.push_back( face.mIndices[ j ] );
 	}
 
-	std::vector<wv::InputLayoutElement> elements = {
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ 4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
+	std::vector<wv::sVertexAttribute> elements = {
+			{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
+			{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
+			{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
+			{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
+			{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 	};
-	wv::InputLayout layout;
+	wv::sVertexLayout layout;
 	layout.elements = elements.data();
 	layout.numElements = (unsigned int)elements.size();
 
@@ -120,12 +119,16 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 	prDesc.layout = &layout;
 
-	prDesc.vertices = vertices;
-	prDesc.indices = indices;
+	prDesc.vertices = vertices.data();
+	prDesc.sizeVertices = vertices.size() * sizeof( wv::Vertex );
+	prDesc.numIndices = indices.size();
+	prDesc.indices32 = indices.data();
 	
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
 	primitive->vertices = vertices;
 	primitive->indices = indices;
+
+	wv::cFileSystem filesystem;
 
 	if ( _assimp_mesh->mMaterialIndex >= 0 )
 	{
@@ -149,47 +152,53 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		
 		primitive->material = material;
 	}
-
-	/*
-	std::ofstream wprfile( _mesh->name + ".wpr", std::ios::binary );
-	wprfile.write( (char*)&prDesc.numIndices, sizeof( unsigned int ) );
-	wprfile.write( (char*)&prDesc.numVertices, sizeof( unsigned int ) );
-	// data
-	wprfile.write( (char*)indices.data(), prDesc.indexBufferSize );
-	wprfile.write( (char*)vertices.data(), prDesc.vertexBufferSize);
-	wprfile.close();
-	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh, wv::cMaterialRegistry* _pMaterialRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::iGraphicsDevice* _pGraphicsDevice, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 	// std::string dir = _mesh->path.substr( 0, _mesh->path.find_last_of( '/' ) );
+	
+	aiVector3D pos, scale, rot;
+	_node->mTransformation.Decompose( scale, rot, pos );
+
+	_meshNode->name = std::string( _node->mName.C_Str() );
+	_meshNode->transform.position = { pos.x, pos.y, pos.z };
+	_meshNode->transform.scale    = { scale.x, scale.y, scale.z };
+	_meshNode->transform.rotation = { rot.x, rot.y, rot.z };
 
 	// process all the node's meshes (if any)
 	for ( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
-		aiMesh* mesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
-		processAssimpMesh( mesh, _scene, _mesh, _pMaterialRegistry );
+		wv::Mesh* mesh = _pGraphicsDevice->createMesh( nullptr );
+
+		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
+		processAssimpMesh( aimesh, _scene, mesh, _pMaterialRegistry );
+		
+		mesh->transform.parent = &_meshNode->transform;
+		_meshNode->meshes.push_back( mesh );
 	}
 
 	// then do the same for each of its children
-	for ( unsigned int i = 0; i < _node->mNumChildren; i++ )
-		processAssimpNode( _node->mChildren[ i ], _scene, _mesh, _pMaterialRegistry );
+	for( unsigned int i = 0; i < _node->mNumChildren; i++ )
+	{
+		wv::sMeshNode* meshNode = new wv::sMeshNode();
+		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pGraphicsDevice, _pMaterialRegistry );
 
+		meshNode->transform.parent = &_meshNode->transform;
+		_meshNode->children.push_back( meshNode );
+	}
 }
-#endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_ASSIMP
-wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _pMaterialRegistry )
-{
 
-#ifndef LOAD_WPR
+wv::sMeshNode* wv::Parser::load( const char* _path, wv::cMaterialRegistry* _pMaterialRegistry )
+{
 	cFileSystem md;
-	Memory* meshMem = md.loadMemory( _path );
+	std::string path = std::string( _path ) + ".dae";
+	Memory* meshMem = md.loadMemory( path );
 	
 	if ( !meshMem )
 		return nullptr;
@@ -208,73 +217,9 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _p
 	}
 
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
-	Mesh* mesh = device->createMesh( nullptr );
-	mesh->name = _path;
-	processAssimpNode( scene->mRootNode, scene, mesh, _pMaterialRegistry );
-
-#endif
-
-#ifdef LOAD_WPR
-	std::vector<wv::InputLayoutElement> elements = {
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ 4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
-	};
-	wv::InputLayout layout;
-	layout.elements = elements.data();
-	layout.numElements = (unsigned int)elements.size();
-
-	// custom mesh format export
-	/*
-	// data
-	int pnumIndices = 0;
-	int pnumVertices = 36;
-
-	std::ofstream cubefile( "res/cube.wpr", std::ios::binary );
-	// header
-	cubefile.write( (char*)&pnumIndices, sizeof( int ) );
-	cubefile.write( (char*)&pnumVertices, sizeof( int ) );
-	// data
-	cubefile.write( (char*)indices, sizeof( indices ) );
-	cubefile.write( (char*)skyboxVertices, sizeof( skyboxVertices ) );
-	cubefile.close();
-	*/
-
 	
-	cFileSystem md;
-	std::string path = std::string( _path ) + ".wpr";
-	Memory* mem = md.loadMemory( path.c_str() );
+	wv::sMeshNode* mesh = new wv::sMeshNode();
+	processAssimpNode( scene->mRootNode, scene, mesh, device, _pMaterialRegistry );
 	
-	wv::PrimitiveDesc prDesc;
-	{
-		int numIndices  = *reinterpret_cast<int*>( mem->data );
-		int count = *reinterpret_cast<int*>( mem->data + sizeof( int ) );
-		int vertsSize = count * sizeof( Vertex ); // 5 floats per vertex
-		int indsSize  = numIndices * sizeof( unsigned int );
-
-		uint8_t* indexBuffer = mem->data + ( sizeof( int ) * 2 );
-		uint8_t* vertexBuffer = indexBuffer + indsSize;
-
-		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
-		prDesc.layout = &layout;
-
-		prDesc.vertexBuffer = vertexBuffer;
-		prDesc.vertexBufferSize = vertsSize;
-		prDesc.count = count;
-
-		prDesc.indexBuffer = indexBuffer;
-		prDesc.indexBufferSize = indsSize;
-		prDesc.numIndices = numIndices;
-	}
-
-	cEngine* app = cEngine::get();
-	Mesh* mesh = app->graphics->createMesh( nullptr );
-	Primitive* prm = app->graphics->createPrimitive( &prDesc, mesh );
-	
-	md.unloadMemory( mem );
-#endif
 	return mesh;
 }
-#endif

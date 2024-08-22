@@ -5,7 +5,7 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Primitive/Mesh.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Assets/Materials/Material.h>
 
 #include <wv/Memory/ModelParser.h>
@@ -14,9 +14,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject::cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh ) :
+wv::cModelObject::cModelObject( const UUID& _uuid, const std::string& _name, sMeshNode* _meshNode ) :
 	iSceneObject{ _uuid, _name },
-	m_mesh{ _mesh },
+	m_mesh{ _meshNode },
 	m_meshPath{ "" }
 {
 
@@ -71,12 +71,24 @@ void wv::cModelObject::onLoadImpl()
 		if( m_meshPath == "" )
 		{
 			Debug::Print( Debug::WV_PRINT_WARN, "No mesh path provided, defaulting to cube\n" );
-			m_meshPath = "res/meshes/debug-cube.dae";
+			m_meshPath = "res/meshes/cube";
 		}
 
-		wv::assimp::Parser parser;
+		wv::Parser parser;
 		m_mesh = parser.load( m_meshPath.c_str(), app->m_pMaterialRegistry);
 	}
+}
+
+static void destroyMeshNode( wv::iGraphicsDevice* _graphics, wv::sMeshNode* _node )
+{
+	if( !_node )
+		return;
+
+	for( auto& mesh : _node->meshes )
+		_graphics->destroyMesh( &mesh );
+	
+	for( auto& node : _node->children )
+		destroyMeshNode( _graphics, node );
 }
 
 void wv::cModelObject::onUnloadImpl()
@@ -84,8 +96,7 @@ void wv::cModelObject::onUnloadImpl()
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->graphics;
 
-	if( m_mesh )
-		device->destroyMesh( &m_mesh );
+	destroyMeshNode( device, m_mesh ); /// TODO: take care of meshes in resource registry
 }
 
 void wv::cModelObject::updateImpl( double _deltaTime )

@@ -67,3 +67,21 @@ void wv::iSceneObject::moveChild( iSceneObject* _node, iSceneObject* _newParent 
 	removeChild( _node );
 	_newParent->addChild( _node );
 }
+
+wv::iSceneObject* wv::iSceneObject::getChildByUUID( const wv::UUID& _uuid )
+{
+	for( auto& child : m_children )
+	{
+		if( child->getUUID() == _uuid )
+			return child;
+	}
+
+	for( auto& child : m_children )
+	{
+		iSceneObject* foundChild = child->getChildByUUID( _uuid );
+		if( foundChild )
+			return foundChild;
+	}
+
+	return nullptr;
+}

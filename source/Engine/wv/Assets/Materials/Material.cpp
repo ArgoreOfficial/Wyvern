@@ -51,23 +51,26 @@ void wv::cMaterial::setDefaultViewUniforms()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iDeviceContext* ctx = app->context;
-
-	// camera transorm
-	wv::cShaderBuffer& block = *m_program->getShaderBuffer( "UbInstanceData" );
+	
+	m_UbInstanceData.projection = wv::cMatrix4x4f( 1.0f );
+	m_UbInstanceData.view       = wv::cMatrix4x4f( 1.0f );
+	m_UbInstanceData.model      = wv::cMatrix4x4f( 1.0f );
 
 	m_UbInstanceData.projection = app->currentCamera->getProjectionMatrix();
 	m_UbInstanceData.view = app->currentCamera->getViewMatrix();
-	m_UbInstanceData.model = wv::cMatrix4x4f( 1.0f );
 }
 
 void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 {
 	wv::cEngine* app = wv::cEngine::get();
 
+	m_UbInstanceData.model = _mesh->transform.getMatrix();
+
+#if defined( WV_PLATFORM_PSVITA )
+
+#elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
 	wv::cShaderBuffer& instanceBlock = *m_program->getShaderBuffer( "UbInstanceData" );
-
-	m_UbInstanceData.model = _mesh->transform.getMatrix();
 	instanceBlock.buffer( &m_UbInstanceData );
 	
 	// bind textures
@@ -81,4 +84,5 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 		app->graphics->bindTextureToSlot( m_variables[ i ].data.texture, texSlot );
 		texSlot++;
 	}
+#endif
 }

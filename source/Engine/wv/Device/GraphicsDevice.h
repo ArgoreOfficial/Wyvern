@@ -30,6 +30,7 @@ namespace wv
 	class Texture;
 	class RenderTarget;
 	class Mesh;
+	struct sMeshNode;
 
 	struct sShaderSource;
 	struct sShader;
@@ -60,6 +61,9 @@ namespace wv
 		virtual void onResize( int _width, int _height ) = 0;
 		virtual void setViewport( int _width, int _height ) = 0;
 
+		virtual void beginRender() {}
+		virtual void endRender  () {}
+
 		virtual RenderTarget* createRenderTarget( RenderTargetDesc* _desc ) = 0;
 		virtual void destroyRenderTarget( RenderTarget** _renderTarget ) = 0;
 
@@ -89,7 +93,10 @@ namespace wv
 
 		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) = 0;
 
-		virtual void draw( Mesh* _mesh ) = 0;
+		virtual void drawPrimitive( Primitive* _primitive ) = 0;
+
+		void draw( Mesh* _mesh );
+		void draw( sMeshNode* _node );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

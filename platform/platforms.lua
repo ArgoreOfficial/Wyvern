@@ -2,11 +2,16 @@ includes "platform_3ds.lua"
 includes "platform_windows.lua"
 includes "platform_wasm.lua"
 includes "platform_linux.lua"
-includes "platform_psvita.lua"
 
-includes "toolchains/i686-w64-mingw32.lua"
-includes "toolchains/psvita.lua"
-includes "toolchains/3ds_arm-none-eabi.lua"
+local has_vitasdk = os.getenv("SCE_PSP2_SDK_DIR") ~= nil
+
+if has_vitasdk then
+    includes "platform_psvita.lua"
+    includes "toolchains/psvita.lua"  -- sce psvita toolchain
+end
+
+includes "toolchains/i686-w64-mingw32.lua"  -- win32 toolchain
+includes "toolchains/3ds_arm-none-eabi.lua" -- 3ds toolchain
 
 local PLATFORMS = {
     { plat="windows", arch={ "x64", "x86"  }, load=load_platform_windows, target=target_platform_windows },

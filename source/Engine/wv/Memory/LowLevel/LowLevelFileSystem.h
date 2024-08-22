@@ -20,6 +20,7 @@ namespace wv
 
         virtual wv::Handle openFile ( const char* _path, const eOpenMode& _mode )             = 0;
         virtual int        readFile ( wv::Handle& _file, char* _buffer, const size_t& _size ) = 0;
+        virtual void       writeFile( wv::Handle& _file, char* _buffer, const size_t& _size ) = 0;
         virtual void       closeFile( wv::Handle& _file )                                     = 0;
     };
 

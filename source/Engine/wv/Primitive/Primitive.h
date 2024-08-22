@@ -5,6 +5,8 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
 
+#include <wv/Graphics/VertexLayout.h>
+
 #include <vector>
 
 namespace wv
@@ -41,24 +43,6 @@ namespace wv
 		uint32_t numIndices = 0;
 		uint32_t size = 0;
 	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct InputLayoutElement
-	{
-		unsigned int num;
-		DataType type;
-		bool normalized;
-		unsigned int size;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct InputLayout
-	{
-		InputLayoutElement* elements;
-		unsigned int numElements;
-	};
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,11 +63,15 @@ namespace wv
 
 	struct PrimitiveDesc
 	{
-		PrimitiveBufferMode type = WV_PRIMITIVE_TYPE_STATIC;
-		InputLayout* layout = nullptr;
+		PrimitiveBufferMode type   = WV_PRIMITIVE_TYPE_STATIC;
+		sVertexLayout*      layout = nullptr;
 
-		std::vector<Vertex>   vertices;
-		std::vector<uint32_t> indices;
+		void*    vertices     = nullptr;
+		uint32_t sizeVertices = 0;
+
+		uint16_t* indices16  = nullptr;
+		uint32_t* indices32  = nullptr;
+		uint32_t  numIndices = 0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +92,8 @@ namespace wv
 
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
+
+		PlatformData pPlatformData;
 	};
 
 }

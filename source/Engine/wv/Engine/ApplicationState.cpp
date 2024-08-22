@@ -4,7 +4,7 @@
 #include <wv/Scene/SceneRoot.h>
 
 #include <wv/Reflection/Reflection.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 
 #include <wv/Engine/Engine.h>
 
@@ -28,7 +28,7 @@ void wv::cApplicationState::onDestroy()
 }
 
 void wv::cApplicationState::update( double _deltaTime )
-{
+{;
 	if( m_pNextScene )
 	{
 		if( m_pCurrentScene )
@@ -46,6 +46,9 @@ void wv::cApplicationState::update( double _deltaTime )
 
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iGraphicsDevice* _pDevice )
 {
+	if( !m_pCurrentScene )
+		return;
+	
 	m_pCurrentScene->draw( _pContext, _pDevice );
 }
 

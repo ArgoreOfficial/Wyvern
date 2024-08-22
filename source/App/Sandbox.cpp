@@ -7,7 +7,7 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 
 #include <wv/Scene/SceneRoot.h>
 

@@ -15,7 +15,7 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Device/AudioDevice.h>
 
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Memory/ModelParser.h>
 
 #include <wv/Physics/PhysicsEngine.h>
@@ -99,6 +99,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 * create deferred rendering objects
 	 * this should be configurable
 	 */
+#ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
 		m_deferredProgram = new cShaderProgram( "deferred" );
@@ -108,6 +109,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		createScreenQuad();
 		createGBuffer();
 	}
+#endif
 	
 	graphics->setRenderTarget( m_pScreenRenderTarget );
 	graphics->setClearColor( wv::Color::Black );
@@ -219,10 +221,12 @@ wv::Vector2i wv::cEngine::getViewportSize()
 
 void wv::cEngine::run()
 {
-	
+	Debug::Print( "Begin Run\n" );
+
 	// Subscribe to user input event
 	subscribeMouseEvents();
 	subscribeInputEvent();
+	Debug::Print( "Subscribed Engine Input\n" );
 
 	/*
 	 * Cameras have to be made after the event is subscribed to
@@ -231,6 +235,7 @@ void wv::cEngine::run()
 	 * This is because events are called in the order that they 
 	 * were subscribed in
 	 */
+	Debug::Print( "Creating Default Cameras\n" );
 	orbitCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onCreate();
@@ -240,10 +245,13 @@ void wv::cEngine::run()
 
 	currentCamera = freeflightCamera;
 	
+	Debug::Print( "Creating Application State\n" );
 	m_pApplicationState->onCreate();
+	Debug::Print( "Switching to scene 0\n" );
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	// while m_applicationState->isLoading() { doloadingstuff }
 	
+	Debug::Print( "Start tick\n" );
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
@@ -300,9 +308,8 @@ void wv::cEngine::tick()
 
 	context->pollEvents();
 	
-	//wv::Debug::Print( "Frame Tick\n" );
-
 	// refresh fps display
+#ifndef WV_PLATFORM_PSVITA
 	{
 		double fps = 1.0 / dt;
 		
@@ -323,12 +330,15 @@ void wv::cEngine::tick()
 			context->setTitle( title.c_str() );
 		#endif
 		}
-
 	}
+#endif
 
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	m_pPhysicsEngine->update( dt );
+#endif
 
 	// update modules
+
 	m_pMaterialRegistry->update();
 
 	m_pApplicationState->update( dt );
@@ -337,11 +347,26 @@ void wv::cEngine::tick()
 
 	/// ------------------ render ------------------ ///
 	
-	if ( !m_gbuffer || m_pScreenRenderTarget->width == 0 || m_pScreenRenderTarget->height == 0 )
+
+#ifndef WV_PLATFORM_PSVITA
+	if( !m_gbuffer )
+		return;
+#endif
+
+	if ( m_pScreenRenderTarget->width == 0 || m_pScreenRenderTarget->height == 0 )
 		return;
 
+#ifdef WV_PLATFORM_PSVITA
+
+	graphics->setRenderTarget( nullptr );
+	
+	graphics->beginRender();
+	
+	graphics->clearRenderTarget( true, true );
+#else
 	graphics->setRenderTarget( m_gbuffer );
 	graphics->clearRenderTarget( true, true );
+#endif
 
 #ifdef WV_SUPPORT_IMGUI
 	/// TODO: move
@@ -351,11 +376,14 @@ void wv::cEngine::tick()
 
 	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
 #endif // WV_SUPPORT_IMGUI
-
+	
 	m_pApplicationState->draw( context, graphics );
-
+	
+#ifdef WV_DEBUG
 	Debug::Draw::Internal::drawDebug( graphics );
+#endif
 
+#ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
 	{
 		if( m_pIRTHandler->m_pRenderTarget )
@@ -385,9 +413,13 @@ void wv::cEngine::tick()
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 #endif // WV_SUPPORT_IMGUI
+#endif
+
+	graphics->endRender();
 
 	context->swapBuffers();
 
+#ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
 	{
 		if( m_pIRTHandler->shouldRecreate() )
@@ -399,7 +431,7 @@ void wv::cEngine::tick()
 				recreateScreenRenderTarget( m_pIRTHandler->m_pRenderTarget->width, m_pIRTHandler->m_pRenderTarget->height );
 		}
 	}
-
+#endif
 
 }
 
@@ -454,21 +486,21 @@ void wv::cEngine::shutdownImgui()
 
 void wv::cEngine::createScreenQuad()
 {
-	//wv::InputLayoutElement elements[] = {
+	//wv::sVertexAttribute elements[] = {
 	//	{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
 	//	{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
 	//};
 
 	/// TODO: allow for unique layouts
-	wv::InputLayoutElement elements[] = {
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ 4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
+	wv::sVertexAttribute elements[] = {
+			{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
+			{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
+			{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
+			{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
+			{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 	};
 
-	wv::InputLayout layout;
+	wv::sVertexLayout layout;
 	layout.elements = elements;
 	layout.numElements = 5;
 
@@ -481,14 +513,16 @@ void wv::cEngine::createScreenQuad()
 	indices.push_back( 0 );
 	indices.push_back( 1 );
 	indices.push_back( 2 );
-
 	wv::PrimitiveDesc prDesc;
 	{
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
 
-		prDesc.vertices = vertices;
-		prDesc.indices  = indices;
+		prDesc.vertices  = vertices.data();
+		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
+
+		prDesc.indices32 = indices.data();
+		prDesc.numIndices = indices.size();
 	}
 
 	MeshDesc meshDesc;

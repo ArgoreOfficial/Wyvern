@@ -71,8 +71,8 @@ namespace wv
 		static inline cVector3<T> directionToEuler( cVector3<T> _vec )
 		{
 			return cVector3<T>(
-				wv::Math::radians( std::asin( -_vec.y ) ),         // pitch
-				wv::Math::radians( std::atan2( _vec.x, _vec.z ) ), // yaw
+				wv::Math::degrees( std::asin( -_vec.y ) ),         // pitch
+				wv::Math::degrees( std::atan2( _vec.x, _vec.z ) ), // yaw
 				0
 			);
 		}

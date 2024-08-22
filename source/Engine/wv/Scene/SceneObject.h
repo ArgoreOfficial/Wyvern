@@ -30,6 +30,8 @@ namespace wv
 		void removeChild( iSceneObject* _node );
 		void moveChild  ( iSceneObject* _node, iSceneObject* _newParent );
 
+		wv::iSceneObject* getChildByUUID( const wv::UUID& _uuid );
+
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
 		
@@ -48,8 +50,10 @@ namespace wv
 				m_loaded = true;
 			}
 
-			for ( size_t i = 0; i < m_children.size(); i++ )
+			for( size_t i = 0; i < m_children.size(); i++ )
+			{
 				m_children[ i ]->onLoad();
+			}
 		}
 		
 		void onUnload()
@@ -96,8 +100,11 @@ namespace wv
 				m_transform.update();
 			}
 
-			for ( size_t i = 0; i < m_children.size(); i++ )
-				m_children[ i ]->update( _deltaTime );
+			for( size_t i = 0; i < m_children.size(); i++ )
+			{
+				if( m_children[ i ] != nullptr )
+					m_children[ i ]->update( _deltaTime );
+			}
 		}
 
 		void draw( iDeviceContext* _context, iGraphicsDevice* _device ) 

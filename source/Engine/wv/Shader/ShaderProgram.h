@@ -5,8 +5,9 @@
 #include <wv/Resource/Resource.h>
 
 #include <wv/Shader/UniformBlock.h>
-//#include <wv/Debug/Print.h>
 #include <wv/Shader/Shader.h>
+
+#include <wv/Graphics/VertexLayout.h>
 
 #include <vector>
 #include <string>
@@ -24,7 +25,12 @@ namespace wv
 	struct sShaderProgramDesc
 	{
 		std::string name;
-		std::vector<sShader*> shaders;
+		
+		sVertexLayout* pVertexLayout;
+
+		sShader* pVertexShader;
+		sShader* pFragmentShader;
+
 		bool reflect = true;
 	};
 
@@ -33,7 +39,10 @@ namespace wv
 		wv::Handle handle;
 
 		std::string name;
-		std::vector<sShader*> shaders;
+		
+		sShader* pVertexShader;
+		sShader* pFragmentShader;
+
 		std::vector<cShaderBuffer*> shaderBuffers;
 		std::vector<sUniform> textureUniforms;
 
@@ -59,10 +68,10 @@ namespace wv
 
 		cShaderBuffer* getShaderBuffer( const std::string& _name );
 
-	private:
 		sShaderSource m_fsSource;
 		sShaderSource m_vsSource;
 		sShaderProgram* m_pProgram = nullptr;
+	private:
 
 	};
 

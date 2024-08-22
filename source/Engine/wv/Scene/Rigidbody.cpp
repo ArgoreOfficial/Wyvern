@@ -8,16 +8,16 @@
 #include <wv/Assets/Materials/Material.h>
 
 #include <wv/Memory/ModelParser.h>
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 
 #include <wv/Physics/PhysicsEngine.h>
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::Mesh* _pMesh, wv::iPhysicsBodyDesc* _bodyDesc ) :
+wv::cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv::sMeshNode* _pMeshNode, wv::iPhysicsBodyDesc* _bodyDesc ) :
 	iSceneObject{ _uuid, _name },
-	m_pMesh{ _pMesh },
+	m_pMeshNode{ _pMeshNode },
 	m_meshPath{ "" },
 	m_pPhysicsBodyDesc{ _bodyDesc }
 {
@@ -26,7 +26,7 @@ wv::cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv:
 
 wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) :
 	iSceneObject{ _uuid, _name },
-	m_pMesh{ nullptr },
+	m_pMeshNode{ nullptr },
 	m_meshPath{ _meshPath },
 	m_pPhysicsBodyDesc{ _bodyDesc }
 {
@@ -102,16 +102,16 @@ void wv::cRigidbody::onLoadImpl()
 {
 	cEngine* app = wv::cEngine::get();
 
-	if( m_pMesh == nullptr )
+	if( m_pMeshNode == nullptr )
 	{
 		if( m_meshPath == "" )
 		{
 			Debug::Print( Debug::WV_PRINT_WARN, "No mesh path provided, defaulting to cube\n" );
-			m_meshPath = "res/meshes/debug-cube.dae";
+			m_meshPath = "res/meshes/cube";
 		}
 
-		wv::assimp::Parser parser;
-		m_pMesh = parser.load( m_meshPath.c_str(), app->m_pMaterialRegistry );
+		wv::Parser parser;
+		m_pMeshNode = parser.load( m_meshPath.c_str(), app->m_pMaterialRegistry );
 	}
 
 	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
@@ -126,6 +126,18 @@ void wv::cRigidbody::onLoadImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+static void destroyMeshNode( wv::iGraphicsDevice* _graphics, wv::sMeshNode* _node )
+{
+	if( !_node )
+		return;
+
+	for( auto& mesh : _node->meshes )
+		_graphics->destroyMesh( &mesh );
+
+	for( auto& node : _node->children )
+		destroyMeshNode( _graphics, node );
+}
+
 void wv::cRigidbody::onUnloadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
@@ -133,8 +145,7 @@ void wv::cRigidbody::onUnloadImpl()
 
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
 	
-	if( m_pMesh )
-		device->destroyMesh( &m_pMesh );
+	destroyMeshNode( device, m_pMeshNode );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -159,9 +170,9 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 
 void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
 {
-	if( m_pMesh )
+	if( m_pMeshNode )
 	{
-		m_pMesh->transform = m_transform;
-		_device->draw( m_pMesh );
+		m_pMeshNode->transform = m_transform;
+		_device->draw( m_pMeshNode );
 	}
 }

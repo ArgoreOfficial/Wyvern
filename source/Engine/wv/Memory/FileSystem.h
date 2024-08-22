@@ -48,9 +48,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		cLowLevelFileSystem* m_pLowLevel = nullptr;
 	private:
 
-		cLowLevelFileSystem* m_pLowLevel = nullptr;
 
 		std::mutex m_mutex;
 		std::vector<Memory*> m_loadedMemory;

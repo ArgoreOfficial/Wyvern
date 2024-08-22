@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Device/GraphicsDevice.h>
 
 #ifdef WV_PLATFORM_WINDOWS

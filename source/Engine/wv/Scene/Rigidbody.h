@@ -15,14 +15,14 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh; 
+	struct sMeshNode; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cRigidbody : public iSceneObject
 	{
 	public:
-		 cRigidbody( const UUID& _uuid, const std::string& _name, Mesh* _pMesh, iPhysicsBodyDesc* _bodyDesc );
+		 cRigidbody( const UUID& _uuid, const std::string& _name, sMeshNode* _pMeshNode, iPhysicsBodyDesc* _bodyDesc );
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
 		~cRigidbody();
 
@@ -39,8 +39,8 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-		Mesh*       m_pMesh    = nullptr;
-		std::string m_meshPath = "";
+		sMeshNode*  m_pMeshNode = nullptr;
+		std::string m_meshPath  = "";
 
 		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
 		hPhysicsBody m_physicsBodyHandle = 0;

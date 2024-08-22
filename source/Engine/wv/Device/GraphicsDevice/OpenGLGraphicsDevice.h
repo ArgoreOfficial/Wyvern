@@ -58,7 +58,7 @@ namespace wv
 
 		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) override;
 
-		virtual void draw( Mesh* _mesh ) override;
+		virtual void drawPrimitive( Primitive* _primitive ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,6 @@ namespace wv
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
 
-		void drawPrimitive( Primitive* _primitive );
 		wv::cShaderBuffer* createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;

@@ -3,6 +3,10 @@
 #include <wv/Debug/Print.h>
 #include <wv/Device/DeviceContext.h>
 
+#include <wv/Primitive/Mesh.h>
+#include <wv/Primitive/Primitive.h>
+#include <wv/Assets/Materials/Material.h>
+
 #ifdef WV_SUPPORT_OPENGL
 #include <wv/Device/GraphicsDevice/OpenGLGraphicsDevice.h>
 #endif
@@ -37,4 +41,46 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 	_desc->pContext->m_graphicsApiVersion = device->m_graphicsApiVersion;
 
 	return device;
+}
+
+void wv::iGraphicsDevice::draw( Mesh* _mesh )
+{
+	if( !_mesh )
+		return;
+
+	_mesh->transform.update();
+
+	for( size_t i = 0; i < _mesh->primitives.size(); i++ )
+	{
+		cMaterial* mat = _mesh->primitives[ i ]->material;
+		if( mat )
+		{
+			if( !mat->isLoaded() || !mat->isCreated() )
+			{
+				continue;
+			}
+
+			mat->setAsActive( this );
+			mat->setInstanceUniforms( _mesh );
+			drawPrimitive( _mesh->primitives[ i ] );
+		}
+		else
+		{
+			drawPrimitive( _mesh->primitives[ i ] );
+		}
+	}
+}
+
+void wv::iGraphicsDevice::draw( sMeshNode* _node )
+{
+	if( !_node )
+		return;
+
+	_node->transform.update();
+
+	for( auto& mesh : _node->meshes )
+		draw( mesh );
+	
+	for( auto& childNode : _node->children )
+		draw( childNode );
 }

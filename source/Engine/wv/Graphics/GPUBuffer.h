@@ -4,6 +4,7 @@ namespace wv
 {
 	enum eGPUBufferType
 	{
+		WV_BUFFER_TYPE_NONE = 0,
 		WV_BUFFER_TYPE_INDEX,
 		WV_BUFFER_TYPE_VERTEX
 	};
@@ -11,7 +12,7 @@ namespace wv
 	struct sGPUBuffer
 	{
 		wv::Handle handle = 0;
-		eGPUBufferType type;
+		eGPUBufferType type = WV_BUFFER_TYPE_NONE;
 
 		void* data = nullptr;
 

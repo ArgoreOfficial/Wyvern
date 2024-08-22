@@ -15,6 +15,8 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class Mesh;
+	struct sMeshNode;
+
 	class cMaterial;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +26,10 @@ namespace wv
 
 	public:
 
-		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
+		 cModelObject( const UUID& _uuid, const std::string& _name, sMeshNode* _meshNode );
 		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
+		
 
 		static cModelObject* parseInstance( sParseData& _data );
 
@@ -42,7 +45,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
-		Mesh* m_mesh;
+		sMeshNode* m_mesh = nullptr;
 		std::string m_meshPath = "";
 	};
 }

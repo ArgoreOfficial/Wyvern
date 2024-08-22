@@ -3,7 +3,7 @@
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Assets/Texture.h>
 
-#include <wv/Memory/MemoryDevice.h>
+#include <wv/Memory/FileSystem.h>
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
@@ -45,10 +45,12 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 		Sleep( 1 );
 	#endif
 	}
-
+	
 	program->create( m_pGraphicsDevice );
 
 	std::vector<sMaterialVariable> variables;
+
+#ifdef WV_PLATFORM_WINDOWS
 	for( auto& textureObject : root[ "textures" ].array_items() )
 	{
 		std::string uniformName = textureObject[ "name" ].string_value();
@@ -73,6 +75,8 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 		variables.push_back( textureVariable );
 	}
+
+#endif
 
 	cMaterial* mat = new cMaterial( _name, program, variables );
 	mat->load( m_pFileSystem );
