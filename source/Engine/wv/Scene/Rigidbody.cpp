@@ -46,7 +46,7 @@ wv::cRigidbody* wv::cRigidbody::createInstance()
 
 wv::cRigidbody* wv::cRigidbody::createInstanceJson( nlohmann::json& _json )
 {
-	wv::UUID    uuid = _json.value( "uuid", 0 );
+	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
 	std::string name = _json.value( "name", "" );
 
 	nlohmann::json tfm = _json[ "transform" ];

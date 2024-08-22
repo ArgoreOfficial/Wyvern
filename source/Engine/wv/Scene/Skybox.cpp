@@ -29,6 +29,14 @@ wv::cSkyboxObject::~cSkyboxObject()
 	
 }
 
+wv::cSkyboxObject* wv::cSkyboxObject::createInstanceJson( nlohmann::json& _json )
+{	
+	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
+	std::string name = _json.value( "name", "" );
+
+	return new cSkyboxObject( uuid, name );
+}
+
 void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();

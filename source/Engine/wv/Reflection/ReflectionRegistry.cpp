@@ -7,6 +7,7 @@
 
 int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOperator* _operator )
 {
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Reflecting '%s'\n", _name.c_str() );
 	m_classes[ _name ] = { _name, _operator };
 	return m_classes.size();
 }

@@ -13,6 +13,7 @@
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Skybox.h>
 #include <wv/Scene/Rigidbody.h>
+#include <wv/Scene/Model.h>
 
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 

@@ -28,6 +28,26 @@ wv::cModelObject::~cModelObject()
 
 }
 
+wv::cModelObject* wv::cModelObject::createInstanceJson( nlohmann::json& _json )
+{
+	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
+	std::string name = _json.value( "name", "" );
+
+	nlohmann::json tfm = _json[ "transform" ];
+	std::vector<float> pos = tfm[ "pos" ].get<std::vector<float>>();
+	std::vector<float> rot = tfm[ "rot" ].get<std::vector<float>>();
+	std::vector<float> scl = tfm[ "scl" ].get<std::vector<float>>();
+
+	Transformf transform;
+	transform.setPosition( { pos[ 0 ], pos[ 1 ], pos[ 2 ] } );
+	transform.setRotation( { rot[ 0 ], rot[ 1 ], rot[ 2 ] } );
+	transform.setScale( { scl[ 0 ], scl[ 1 ], scl[ 2 ] } );
+
+	cModelObject* model = new wv::cModelObject( uuid, name, nullptr );
+	model->m_transform = transform;
+	return model;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cModelObject::onLoadImpl()

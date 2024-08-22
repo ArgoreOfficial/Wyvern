@@ -2,6 +2,8 @@
 
 #include "SceneObject.h"
 
+#include <wv/Reflection/Reflection.h>
+
 #include <string>
 #include <vector>
 
@@ -25,6 +27,9 @@ namespace wv
 		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
 		~cModelObject();
 
+		static cModelObject* createInstance( void ) { return nullptr; };
+		static cModelObject* createInstanceJson( nlohmann::json& _json );
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
@@ -40,5 +45,7 @@ namespace wv
 		Mesh* m_mesh;
 
 	};
+
+	REFLECT_CLASS( cModelObject );
 
 }
