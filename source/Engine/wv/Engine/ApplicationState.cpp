@@ -44,6 +44,11 @@ void wv::cApplicationState::draw( iDeviceContext* _pContext, iGraphicsDevice* _p
 	m_pCurrentScene->draw( _pContext, _pDevice );
 }
 
+void wv::cApplicationState::reloadScene()
+{
+	m_pNextScene = m_pCurrentScene;
+}
+
 int wv::cApplicationState::addScene( cSceneRoot* _pScene )
 {
 	// check if scene already exists

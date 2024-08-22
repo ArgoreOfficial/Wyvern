@@ -2,14 +2,22 @@
     "name" : "defaultScene",
     "scene" : [
         {
+            "uuid" : 28752,
+            "name" : "floor",
+            "type" : "Rigidbody",
+            "transform" : { "pos":[0.0,-7.0,0.0], "rot":[0.0,0.0,0.0], "scl":[200.0,2.0,200.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [100.0,1.0,100.0]
+            },
+            "children" : []
+        },
+        {
             "uuid" : 12345,
             "name" : "box",
             "type" : "Rigidbody",
-            "transform" : {
-                "pos":[0.0,1.0,0.0],
-                "rot":[0.0,0.0,0.0],
-                "scl":[1.0,2.0,1.0]
-            },
+            "transform" : { "pos":[0.0,1.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,2.0,1.0] },
             "data" : {
                 "shape" : 2,
                 "kind" : 1,
@@ -21,11 +29,7 @@
             "uuid" : 8014,
             "name" : "box2",
             "type" : "Rigidbody",
-            "transform" : {
-                "pos":[0.3,1.0,0.0],
-                "rot":[0.0,0.0,0.0],
-                "scl":[1.0,1.0,1.0]
-            },
+            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
             "data" : {
                 "shape" : 2,
                 "kind" : 1,

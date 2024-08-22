@@ -26,6 +26,8 @@ namespace wv
 		void update( double _deltaTime );
 		void draw  ( iDeviceContext* _pContext, iGraphicsDevice* _pDevice );
 
+		void reloadScene();
+
 		/// <returns>scene index</returns>
 		int addScene( cSceneRoot* _pScene );
 

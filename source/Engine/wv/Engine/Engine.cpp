@@ -166,7 +166,8 @@ void wv::cEngine::onMouseEvent( MouseEvent _event )
 
 void wv::cEngine::onInputEvent( InputEvent _event )
 {
-	
+	if( _event.buttondown && _event.key == 'R' )
+		m_pApplicationState->reloadScene();
 }
 
 void wv::cEngine::setSize( int _width, int _height, bool _notify )
