@@ -33,6 +33,8 @@ namespace wv
 		/// <returns>scene index</returns>
 		int addScene( cSceneRoot* _pScene );
 
+		wv::cSceneRoot* getCurrentScene() { return m_pCurrentScene; }
+
 		void switchToScene( const std::string& _name );
 		void switchToScene( int _index );
 

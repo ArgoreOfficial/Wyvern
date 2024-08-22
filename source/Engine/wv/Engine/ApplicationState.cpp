@@ -58,8 +58,8 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
-	m_pCurrentScene->onUnload();
 	m_pCurrentScene->onDestroy();
+	m_pCurrentScene->onUnload();
 	
 	int index = -1;
 	for( size_t i = 0; i < m_scenes.size(); i++ )

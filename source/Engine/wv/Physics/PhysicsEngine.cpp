@@ -248,6 +248,12 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 	settings.mRestitution = 0.5f;
 
 	JPH::Body*  body   = m_pBodyInterface->CreateBody( settings );
+	if( !body )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Too many Rigidbodies!\n" );
+		return 0;
+	}
+
 	JPH::BodyID id     = body->GetID();
 	wv::Handle  handle = 0;
 

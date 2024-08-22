@@ -25,61 +25,83 @@ namespace wv
 
 	class iSceneObject
 	{
-
 	public:
 
 		 iSceneObject( const UUID& _uuid, const std::string& _name );
 		~iSceneObject();
 
-		//virtual iSceneObject*  fromJson  ( nlohmann::json& _json ) { return nullptr; };
-		virtual nlohmann::json dataToJson( void )                  { return{}; };
-
-		void addChild( iSceneObject* _node );
+		void addChild   ( iSceneObject* _node, bool _triggerLoadAndCreate = false );
 		void removeChild( iSceneObject* _node );
-		void moveChild( iSceneObject* _node, iSceneObject* _newParent );
+		void moveChild  ( iSceneObject* _node, iSceneObject* _newParent );
 
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
 
 		void onLoad()
 		{
-			onLoadImpl();
+			if( !m_loaded )
+			{
+				onLoadImpl();
+				m_loaded = true;
+			}
+
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->onLoad();
 		}
 		
 		void onUnload()
 		{
-			onUnloadImpl();
+			if( m_loaded )
+			{
+				onUnloadImpl();
+				m_loaded = false;
+			}
+
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->onUnload();
 		}
 		
 		void onCreate()
 		{
-			onCreateImpl();
+			if( !m_created )
+			{
+				onCreateImpl();
+				m_created = true;
+			}
+
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->onCreate();
 		}
 
 		void onDestroy()
 		{
-			onDestroyImpl();
+			if( m_created )
+			{
+				onDestroyImpl();
+				m_created = false;
+			}
+
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->onDestroy();
 		}
 
 		void update( double _deltaTime ) 
 		{
-			updateImpl( _deltaTime );
-			m_transform.update();
+			if( m_loaded && m_created )
+			{
+				updateImpl( _deltaTime );
+				m_transform.update();
+			}
+
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->update( _deltaTime );
 		}
 
 		void draw( iDeviceContext* _context, iGraphicsDevice* _device ) 
 		{
-			drawImpl( _context, _device );
+			if( m_loaded && m_created )
+				drawImpl( _context, _device );
+			
 			for ( size_t i = 0; i < m_children.size(); i++ )
 				m_children[ i ]->draw( _context, _device );
 		}
@@ -105,6 +127,10 @@ namespace wv
 		
 		iSceneObject* m_parent = nullptr;
 		std::vector<iSceneObject*> m_children{};
+
+	private:
+		bool m_loaded  = false;
+		bool m_created = false;
 
 	};
 

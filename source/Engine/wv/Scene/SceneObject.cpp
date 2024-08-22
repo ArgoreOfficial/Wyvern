@@ -21,7 +21,7 @@ wv::iSceneObject::~iSceneObject()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iSceneObject::addChild( iSceneObject* _node )
+void wv::iSceneObject::addChild( iSceneObject* _node, bool _triggerLoadAndCreate )
 {
 	if ( !_node )
 		return;
@@ -31,6 +31,12 @@ void wv::iSceneObject::addChild( iSceneObject* _node )
 
 	_node->m_parent = this;
 	_node->m_transform.parent = &m_transform;
+
+	if( _triggerLoadAndCreate )
+	{
+		onCreate();
+		onLoad();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

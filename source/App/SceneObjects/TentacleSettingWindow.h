@@ -33,7 +33,10 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	
-	static cTentacleSettingWindowObject* createInstance    ( void ) { return nullptr; }
+	static cTentacleSettingWindowObject* createInstance    ( void ) 
+	{ 
+		return new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "cTentacleSettingWindowObject" ); ;
+	}
 	static cTentacleSettingWindowObject* createInstanceJson( nlohmann::json& _json ) 
 	{ 
 		wv::UUID    uuid = _json.value( "uuid", wv::cEngine::getUniqueUUID() );
@@ -60,6 +63,7 @@ protected:
 	virtual void updateImpl( double _deltaTime ) override;
 	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
+	int m_numBalls = 0;
 };
 
 REFLECT_CLASS( cTentacleSettingWindowObject );

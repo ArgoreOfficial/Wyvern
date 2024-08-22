@@ -42,12 +42,6 @@ wv::cRigidbody::~cRigidbody()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-nlohmann::json wv::cRigidbody::dataToJson( void )
-{
-
-	return nlohmann::json();
-}
-
 wv::cRigidbody* wv::cRigidbody::createInstance()
 {
 

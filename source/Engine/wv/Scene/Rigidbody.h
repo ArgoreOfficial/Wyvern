@@ -27,8 +27,6 @@ namespace wv
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
 		~cRigidbody();
 
-		virtual nlohmann::json dataToJson( void ) override;
-
 		static cRigidbody* createInstance();
 		static cRigidbody* createInstanceJson( nlohmann::json& _json );
 
