@@ -13,3 +13,4 @@ game/*.html
 game/*.js
 game/*.wasm
 imgui.ini
+*.self

@@ -1,6 +1,8 @@
 #include "Engine.h"
 
+#ifdef WV_SUPPORT_GLAD
 #include <glad/glad.h>
+#endif
 
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Assets/Materials/MaterialRegistry.h>
@@ -54,6 +56,10 @@
 #ifdef WV_SUPPORT_GLFW
 #include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
 #endif // WV_SUPPORT_GLFW
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::cEngine* wv::cEngine::s_pInstance = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,6 +126,7 @@ wv::cEngine* wv::cEngine::get()
 
 wv::UUID wv::cEngine::getUniqueUUID()
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::random_device rd;
 	std::mt19937 gen( rd() );
 
@@ -127,12 +134,15 @@ wv::UUID wv::cEngine::getUniqueUUID()
 		std::numeric_limits<std::uint64_t>::min(),
 		std::numeric_limits<std::uint64_t>::max()
 	);
-
 	return dis( gen );
+#else
+	return 0;
+#endif
 }
 
 wv::Handle wv::cEngine::getUniqueHandle()
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::random_device rd;
 	std::mt19937 gen( rd() );
 
@@ -142,6 +152,9 @@ wv::Handle wv::cEngine::getUniqueHandle()
 	);
 
 	return dis( gen );
+#else
+	return 0;
+#endif
 }
 
 
@@ -297,9 +310,11 @@ void wv::cEngine::tick()
 			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
 				m_averageFps += m_fpsCache[ i ];
 			m_averageFps /= (double)FPS_CACHE_NUM;
-
+			
+		#ifdef WV_PLATFORM_WINDOWS
 			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
+		#endif
 		}
 
 	}
@@ -455,7 +470,10 @@ void wv::cEngine::createScreenQuad()
 	vertices.push_back( Vertex{ { -1.0f,  3.0f, 0.5f }, {}, {}, {}, { 0.0f, 2.0f } } );
 	vertices.push_back( Vertex{ { -1.0f, -1.0f, 0.5f }, {}, {}, {}, { 0.0f, 0.0f } } );
 	
-	std::vector<uint32_t> indices = { 0, 1, 2 };
+	std::vector<uint32_t> indices;
+	indices.push_back( 0 );
+	indices.push_back( 1 );
+	indices.push_back( 2 );
 
 	wv::PrimitiveDesc prDesc;
 	{

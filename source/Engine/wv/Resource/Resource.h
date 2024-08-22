@@ -27,10 +27,11 @@ namespace wv
     {
 	public: 
 		
-		iResource( const std::string& _name, const std::wstring& _path ) :
-			m_name{_name},
-			m_path{_path}
-		{ }
+		iResource( const std::string& _name, const std::wstring& _path )
+		{ 
+			m_name = _name;
+			m_path = _path;
+		}
 
 		virtual ~iResource() {};
 

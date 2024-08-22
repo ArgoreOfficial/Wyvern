@@ -16,22 +16,25 @@
 
 wv::AudioDevice::AudioDevice( AudioDeviceDesc* _desc )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	m_engine = new ma_engine();
 	initialize();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_MINIAUDIO
 void wv::InternalAudio::onNotif( const ma_device_notification* pNotification )
 {
 	if ( pNotification->type == ma_device_notification_type::ma_device_notification_type_unlocked )
 		wv::cEngine::get()->audio->m_unlocked = true;
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::AudioDevice::initialize()
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	ma_engine_config config = ma_engine_config_init();
 	config.notificationCallback = InternalAudio::onNotif;
 	config.listenerCount = 1;
@@ -43,8 +46,8 @@ void wv::AudioDevice::initialize()
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to initialize ma_audio\n" );
 		return;
 	}
-
 	m_enabled = true;
+#endif
 
 #ifndef WV_PLATFORM_WASM
 	m_unlocked = true;
@@ -55,14 +58,17 @@ void wv::AudioDevice::initialize()
 
 void wv::AudioDevice::terminate()
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	m_enabled = false;
 	ma_engine_uninit( m_engine );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Audio* wv::AudioDevice::loadAudio2D( const char* _path )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	if( !m_enabled )
 		return nullptr;
 
@@ -72,12 +78,16 @@ wv::Audio* wv::AudioDevice::loadAudio2D( const char* _path )
 	ma_sound_set_position( &audio->sound, 0.0f, 0.0f, 0.0f );
 
 	return audio;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Audio* wv::AudioDevice::loadAudio3D( const char* _path )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	if ( !m_enabled )
 		return nullptr;
 
@@ -94,28 +104,37 @@ wv::Audio* wv::AudioDevice::loadAudio3D( const char* _path )
 	ma_sound_set_positioning( &audio->sound, ma_positioning_absolute );
 
 	return audio;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::AudioDevice::unloadAudio( Audio* _audio )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	if( !m_enabled )
 		return;
 
 	ma_sound_uninit( &_audio->sound );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::AudioDevice::setListenerPosition( cVector3f _position )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	ma_engine_listener_set_position( m_engine, 0, _position.x, _position.y, _position.z );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::AudioDevice::setListenerDirection( cVector3f _direction )
 {
+#ifdef WV_SUPPORT_MINIAUDIO
 	ma_engine_listener_set_direction( m_engine, 0, _direction.x, _direction.y, _direction.z );
+#endif
 }

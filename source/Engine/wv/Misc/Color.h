@@ -20,7 +20,7 @@ namespace wv
 	{
 		
 	public:
-
+		
 		cColor( byte _r, byte _g, byte _b, byte _a = 255  );
 		cColor( wv::cVector3< byte > _rgb, byte _a = 255  );
 		cColor( wv::cVector4< byte > _rgba );
@@ -28,6 +28,7 @@ namespace wv
 		cColor( wv::cVector4< float > _rgba );
 		cColor( float _r, float _g, float _b, float _a = 1.0f );
 		cColor( dword _rgba );
+		
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +36,12 @@ namespace wv
 		byte g = 0x00;
 		byte b = 0x00;
 		byte a = 0xFF;
-
+		
+		
 		bool operator == ( cColor& _other );
 		byte& operator[]( const size_t& _index );
 
+		
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // psvita compatability
-#ifdef WV_PLATFORM_PSP2
+#ifdef WV_PLATFORM_PSVITA
 typedef unsigned int size_t;
 #endif
 

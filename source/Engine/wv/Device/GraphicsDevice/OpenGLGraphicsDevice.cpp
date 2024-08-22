@@ -11,7 +11,10 @@
 
 #include <wv/Device/DeviceContext.h>
 
+#ifdef WV_SUPPORT_GLAD
 #include <glad/glad.h>
+#endif 
+
 #include <stdio.h>
 #include <sstream>
 #include <fstream>
@@ -31,7 +34,7 @@ else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func );
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_GLAD
 static inline GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 {
 	switch ( _type )
@@ -42,7 +45,7 @@ static inline GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 
 	return GL_NONE;
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cOpenGLGraphicsDevice::cOpenGLGraphicsDevice()
@@ -53,8 +56,7 @@ wv::cOpenGLGraphicsDevice::cOpenGLGraphicsDevice()
 
 bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 {
-	/// TODO: make configurable
-
+#ifdef WV_SUPPORT_GLAD
 	m_graphicsApi = _desc->pContext->getGraphicsAPI();
 	
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Graphics Device...\n" );
@@ -91,8 +93,10 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits );
 
 	m_boundTextureSlots.assign( numTextureUnits, 0 );
-
 	return true;
+#else
+	return false;
+#endif
 }
 
 void wv::cOpenGLGraphicsDevice::terminate()
@@ -111,13 +115,16 @@ void wv::cOpenGLGraphicsDevice::onResize( int _width, int _height )
 
 void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glViewport, 0, 0, _width, _height );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
+#ifdef WV_SUPPORT_GLAD
 	RenderTarget* target = new RenderTarget();
 	
 	WV_ASSERT_GL( glGenFramebuffers, 1, &target->fbHandle );
@@ -185,12 +192,16 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, 0 );
 
 	return target;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
+#ifdef WV_SUPPORT_GLAD
 	RenderTarget* rt = *_renderTarget;
 
 	WV_ASSERT_GL( glDeleteFramebuffers, 1, &rt->fbHandle );
@@ -204,12 +215,14 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarge
 	}
 
 	*_renderTarget = nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 {
+#ifdef WV_SUPPORT_GLAD
 	if ( m_activeRenderTarget == _target )
 		return;
 
@@ -222,26 +235,32 @@ void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 	}
 	
 	m_activeRenderTarget = _target;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::setClearColor( const wv::cColor& _color )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glClearColor, _color.r, _color.g, _color.b, _color.a );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glClear, (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::cOpenGLGraphicsDevice::createShader( cShader* _shader, eShaderType _type )
 {
+#ifdef WV_SUPPORT_GLAD
 	GLenum type = GL_NONE;
 	{
 		switch ( _type )
@@ -261,20 +280,26 @@ bool wv::cOpenGLGraphicsDevice::createShader( cShader* _shader, eShaderType _typ
 	_shader->setHandle( handle );
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyShader( cShader* _shader )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glDeleteShader, _shader->getHandle() );
 	_shader->setHandle( 0 );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::compileShader( cShader* _shader )
 {
+#ifdef WV_SUPPORT_GLAD
 	if ( !_shader )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile null shader\n" );
@@ -315,32 +340,38 @@ void wv::cOpenGLGraphicsDevice::compileShader( cShader* _shader )
 		WV_ASSERT_GL( glGetShaderInfoLog, shaderHandle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->getName().c_str(), infoLog);
 	}
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::createProgram( wv::cShaderProgram* _program, const std::string& _name )
 {
+#ifdef WV_SUPPORT_GLAD
 	wv::Handle handle{};
 	WV_RETASSERT_GL( handle, glCreateProgram );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create program\n" );
 #endif
 	_program->setHandle( handle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyProgram( cShaderProgram* _program )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glDeleteProgram, _program->getHandle() );
 	_program->setHandle( 0 );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks, std::vector<Uniform> _textureUniforms )
 {
+#ifdef WV_SUPPORT_GLAD
 	if ( !_program )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link null program\n" );
@@ -402,22 +433,25 @@ void wv::cOpenGLGraphicsDevice::linkProgram( cShaderProgram* _program, std::vect
 	}
 
 	WV_ASSERT_GL( glUseProgram, 0 );
-
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::useProgram( cShaderProgram* _program )
 {
+#ifdef WV_SUPPORT_GLAD
 	if ( m_activeProgram == _program )
 		return;
 
 	WV_ASSERT_GL( glUseProgram, _program ? _program->getHandle() : 0 );
 	m_activeProgram = _program;
+#endif
 }
 
 wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
 {
+#ifdef WV_SUPPORT_GLAD
 	sGPUBuffer* buffer = new sGPUBuffer();
 	buffer->type = _type;
 
@@ -426,10 +460,14 @@ wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type
 	assertGLError( "Failed to create buffer\n" );
 
 	return buffer;
+#else 
+	return nullptr;
+#endif
 }
 
 void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, size_t _size )
 {
+#ifdef WV_SUPPORT_GLAD
 	/// TODO: more draw types
 	//GLenum usage = GL_NONE;
 	//switch ( _desc->type )
@@ -439,26 +477,34 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 
 	WV_ASSERT_GL( glBufferData, getGlBufferEnum( _buffer->type ), _size, _data, GL_STATIC_DRAW ) ;
 	assertGLError( "Failed to buffer data\n" );
+#endif
 }
 
 void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( sGPUBuffer* _buffer )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glDeleteBuffers, 1, &_buffer->handle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Mesh* wv::cOpenGLGraphicsDevice::createMesh( MeshDesc* _desc )
 {
+#ifdef WV_SUPPORT_GLAD
 	Mesh* mesh = new Mesh();
 	/// TODO: remove?
 	return mesh;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyMesh( Mesh** _mesh )
 {
+#ifdef WV_SUPPORT_GLAD
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh '%s'\n", (*_mesh)->name.c_str() );
 
 	Mesh* mesh = *_mesh;
@@ -468,12 +514,14 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( Mesh** _mesh )
 	mesh->triangles.clear();
 
 	*_mesh = nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
+#ifdef WV_SUPPORT_GLAD
 	Primitive* primitive = new Primitive();
 	WV_ASSERT_GL( glGenVertexArrays, 1, &primitive->vaoHandle );
 	WV_ASSERT_GL( glBindVertexArray, primitive->vaoHandle );
@@ -545,12 +593,16 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 	_mesh->primitives.push_back( primitive );
 
 	return primitive;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
+#ifdef WV_SUPPORT_GLAD
 	Primitive* pr = *_primitive;
 	destroyGPUBuffer( pr->indexBuffer );
 	destroyGPUBuffer( pr->vertexBuffer );
@@ -558,12 +610,14 @@ void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 	WV_ASSERT_GL( glDeleteVertexArrays, 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc )
 {
+#ifdef WV_SUPPORT_GLAD
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
@@ -661,24 +715,28 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	_pTexture->setHeight( _desc->height );
 
 	// Debug::Print( Debug::WV_PRINT_DEBUG, "Created texture %s\n", _pTexture->getName().c_str() );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 {
+#ifdef WV_SUPPORT_GLAD
 	// Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture %s\n", (*_texture)->getName().c_str() );
 
 	wv::Handle handle = ( *_texture )->getHandle();
 	WV_ASSERT_GL( glDeleteTextures, 1, &handle );
 	delete *_texture;
 	*_texture = nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
+#ifdef WV_SUPPORT_GLAD
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
@@ -691,12 +749,14 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 	}
 
 	m_boundTextureSlots[ _slot ] = _texture->getHandle();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::draw( Mesh* _mesh )
 {
+#ifdef WV_SUPPORT_GLAD
 	if ( !_mesh )
 		return;
 
@@ -722,13 +782,14 @@ void wv::cOpenGLGraphicsDevice::draw( Mesh* _mesh )
 
 
 	}
-
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 {
+#ifdef WV_SUPPORT_GLAD
 	bool hasError = false;
 
 	GLenum err;
@@ -751,12 +812,16 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 	}
 
 	return hasError;
+#else
+	return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
+#ifdef WV_SUPPORT_GLAD
 	WV_ASSERT_GL( glBindVertexArray, _primitive->vaoHandle );
 	
 	UniformBlockMap* uniformBlocks = m_activeProgram->getUniformBlockMap();
@@ -789,12 +854,14 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
 	}
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::UniformBlock wv::cOpenGLGraphicsDevice::createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc )
 {
+#ifdef WV_SUPPORT_GLAD
 	UniformBlock block;
 	Handle programHandle = _program->getHandle();
 
@@ -837,4 +904,7 @@ wv::UniformBlock wv::cOpenGLGraphicsDevice::createUniformBlock( cShaderProgram* 
 	m_numTotalUniformBlocks++;
 
 	return block;
+#else
+	return {};
+#endif
 }

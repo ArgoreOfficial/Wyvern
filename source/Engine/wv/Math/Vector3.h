@@ -61,20 +61,20 @@ namespace wv
 			T pitch = wv::Math::radians( _vec.x );
 			T yaw   = wv::Math::radians( _vec.y );
 			
-			return {
+			return vec(
 				 std::cos( pitch ) * std::sin( yaw ),
 				-std::sin( pitch ),
 				 std::cos( pitch ) * std::cos( yaw )
-			};
+			);
 		}
 
 		static inline cVector3<T> directionToEuler( cVector3<T> _vec )
 		{
-			return {
+			return cVector3<T>(
 				wv::Math::radians( std::asin( -_vec.y ) ),         // pitch
 				wv::Math::radians( std::atan2( _vec.x, _vec.z ) ), // yaw
 				0
-			};
+			);
 		}
 
 		inline cVector3<T> eulerToDirection() { return cVector3<T>::eulerToDirection( *this ); }

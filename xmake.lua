@@ -18,8 +18,7 @@ else
     set_runtimes "MTd"
 end
 
-set_languages( "c17", "cxx20" )
-set_allowedarchs( "x64", "x86", "x86_64", "wasm32" )
+set_allowedarchs( "x64", "x86", "x86_64", "wasm32", "psvita", "3ds-arm" )
 
 includes( "platform/platforms.lua" )
 load_platform()

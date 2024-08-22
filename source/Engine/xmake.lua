@@ -6,7 +6,7 @@
 
 -- load platform dependencies and other specifics
 
-if not is_arch( "psp2" ) then
+if not is_arch( "psvita" ) then
     includes( "../../libs/glad" )
 end
 
@@ -18,7 +18,7 @@ target "Wyvern"
         set_basename("Wyvern_$(mode)_$(arch)")
     end
     
-    set_targetdir "../../build"
+    -- set_targetdir "../../build"
     
     set_objectdir "../../build/obj" 
 

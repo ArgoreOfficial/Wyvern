@@ -8,8 +8,6 @@
 
 void threadedLoad( wv::cFileSystem* _pFileSystem, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
 {
-	using namespace std::chrono_literals;
-
 	wv::iResource* currentlyLoading = nullptr;
 
 	while( _worker->alive )
@@ -29,8 +27,14 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::sLoaderInformation* _loade
 
 		switch ( _worker->state )
 		{
-		
-		case wv::WV_WORKER_IDLE: std::this_thread::sleep_for( 100ms ); break;
+
+		case wv::WV_WORKER_IDLE:
+			
+			/// TODO: wv::time
+		#ifdef WV_PLATFORM_WINDOWS
+			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) ); break;
+		#elif WV_PLATFORM_PSVITA
+		#endif
 		
 		case wv::WV_WORKER_WORKING:
 		{

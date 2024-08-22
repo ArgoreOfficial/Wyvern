@@ -2,11 +2,9 @@
 
 #include <wv/Math/Math.h>
 
-using namespace wv;
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cColor::cColor( byte _r, byte _g, byte _b, byte _a ) :
+wv::cColor::cColor( byte _r, byte _g, byte _b, byte _a ) :
 	r( _r ), 
 	g( _g ), 
 	b( _b ), 
@@ -57,7 +55,7 @@ wv::cColor::cColor( wv::cVector4<float> _rgba ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cColor::cColor( float _r, float _g, float _b, float _a ) :
+wv::cColor::cColor( float _r, float _g, float _b, float _a ) :
 	r( ( byte )( wv::Math::clamp( _r, 0.0f, 1.0f ) * 255.0f ) ),
 	g( ( byte )( wv::Math::clamp( _g, 0.0f, 1.0f ) * 255.0f ) ),
 	b( ( byte )( wv::Math::clamp( _b, 0.0f, 1.0f ) * 255.0f ) ),
@@ -68,7 +66,7 @@ cColor::cColor( float _r, float _g, float _b, float _a ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-cColor::cColor( dword _rgba ):
+wv::cColor::cColor( dword _rgba ):
 	r( ( _rgba >> 24 ) & 0xFF ),
 	g( ( _rgba >> 16 ) & 0xFF ),
 	b( ( _rgba >> 8  ) & 0xFF ),
@@ -76,7 +74,6 @@ cColor::cColor( dword _rgba ):
 {
 	
 }
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::cColor::operator==( cColor& _other )
@@ -86,7 +83,8 @@ bool wv::cColor::operator==( cColor& _other )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-byte& wv::cColor::operator[]( const size_t& _index )
+wv::byte& wv::cColor::operator[]( const size_t& _index )
 {
 	return ( &r )[ _index ];
 }
+

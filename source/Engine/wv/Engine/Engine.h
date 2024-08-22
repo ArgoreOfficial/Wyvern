@@ -157,7 +157,7 @@ namespace wv
 		 * 
 		 * might remove
 		 */
-		static inline cEngine* s_pInstance = nullptr; 
+		static cEngine* s_pInstance; 
 
 		wv::Vector2i m_mousePosition;
 

@@ -2,20 +2,19 @@ includes "platform_3ds.lua"
 includes "platform_windows.lua"
 includes "platform_wasm.lua"
 includes "platform_linux.lua"
+includes "platform_psvita.lua"
 
 includes "toolchains/i686-w64-mingw32.lua"
+includes "toolchains/psvita.lua"
 includes "toolchains/3ds_arm-none-eabi.lua"
 
 local PLATFORMS = {
-    { plat="windows", arch={ "x64", "x86" }, load=load_platform_windows, target=target_platform_windows },
-    { plat="linux",   arch={ "x86_64"     }, load=load_platform_linux,   target=target_platform_linux   },
-    { plat="wasm",    arch={ "wasm32"     }, load=load_platform_wasm,    target=target_platform_wasm    },
-    { plat="3ds",     arch={ "arm"        }, load=load_platform_3ds,     target=target_platform_3ds     }
+    { plat="windows", arch={ "x64", "x86"  }, load=load_platform_windows, target=target_platform_windows },
+    { plat="linux",   arch={ "x86_64"      }, load=load_platform_linux,   target=target_platform_linux   },
+    { plat="wasm",    arch={ "wasm32"      }, load=load_platform_wasm,    target=target_platform_wasm    },
+    { plat="3ds",     arch={ "3ds-arm"     }, load=load_platform_3ds,     target=target_platform_3ds     },
+    { plat="psvita",  arch={ "psvita"      }, load=load_platform_psvita,  target=target_platform_psvita, run=run_platform_psvita  }
 }
-
-function get_plat()
-
-end
 
 function load_platform()
 
@@ -23,7 +22,7 @@ function load_platform()
     if is_arch( "x86" ) and os.arch() == "x64" then
         set_toolchains( "i686-w64-mingw32" )
     end
-    
+
     -- configure modes
     if is_mode("Debug") then
         set_symbols "debug"
@@ -40,7 +39,8 @@ function load_platform()
     end
 
     for i=1,#PLATFORMS do 
-        if is_plat(PLATFORMS[i].plat) --and is_arch(table.unpack(PLATFORMS[i].arch)) 
+        --if is_plat(PLATFORMS[i].plat) --and 
+        if is_arch(table.unpack(PLATFORMS[i].arch)) 
         then
             PLATFORMS[i].load()
         end
@@ -65,8 +65,12 @@ end
 
 function target_platform(_root)
     for i=1,#PLATFORMS do 
-        if is_plat(PLATFORMS[i].plat) and is_arch(table.unpack(PLATFORMS[i].arch)) then 
+        if is_arch(table.unpack(PLATFORMS[i].arch)) then 
             on_load(PLATFORMS[i].target)
+
+            if PLATFORMS[ i ].run ~= nil then
+                on_run( PLATFORMS[ i ].run )
+            end
         end
     end
 end

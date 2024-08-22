@@ -13,7 +13,9 @@ namespace wv
 
 	namespace InternalAudio
 	{
+	#ifdef WV_SUPPORT_MINIAUDIO
 		void onNotif( const ma_device_notification* pNotification );
+	#endif
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -48,9 +50,11 @@ namespace wv
 
 	private:
 
+	#ifdef WV_SUPPORT_MINIAUDIO
 		friend void InternalAudio::onNotif( const ma_device_notification* pNotification );
 
 		ma_engine* m_engine;
+	#endif
 		bool m_enabled = false;
 		bool m_unlocked = false;
 

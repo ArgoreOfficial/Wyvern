@@ -168,7 +168,10 @@ bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 	if ( _desc->allowResize ) flags |= SDL_WINDOW_RESIZABLE;
 
 	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, flags );
+	
+#ifdef WV_SUPPORT_OPENGL 
 	m_glContext = SDL_GL_CreateContext( m_windowContext );
+#endif
 
 	SDL_version version;
 	SDL_GetVersion( &version );
