@@ -120,8 +120,8 @@ void cSandbox::destroy( void )
 wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 {
 	std::string objTypeName = _js[ "type" ];
-	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createClassInstanceJson( objTypeName, _js );
-
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
+	
 	for( auto& childJson : _js[ "children" ] )
 		obj->addChild( parseSceneObject( childJson ) );
 

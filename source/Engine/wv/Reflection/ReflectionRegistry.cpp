@@ -1,8 +1,9 @@
 #include "ReflectionRegistry.h"
 
+#include <wv/Debug/Print.h>
 #include <wv/Reflection/ReflectedClass.h>
 
-#include <wv/Debug/Print.h>
+///////////////////////////////////////////////////////////////////////////////////////
 
 int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOperator* _operator )
 {
@@ -10,7 +11,9 @@ int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOpera
 	return m_classes.size();
 }
 
-void* wv::cReflectionRegistry::createClassInstance( const std::string& _name )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void* wv::cReflectionRegistry::createInstance( const std::string& _name )
 {
 	if( !m_classes.contains( _name ) )
 	{
@@ -22,7 +25,9 @@ void* wv::cReflectionRegistry::createClassInstance( const std::string& _name )
 	return op.pOperator->createInstance();
 }
 
-void* wv::cReflectionRegistry::createClassInstanceJson( const std::string& _name, nlohmann::json& _json )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void* wv::cReflectionRegistry::createInstanceJson( const std::string& _name, nlohmann::json& _json )
 {
 	if( !m_classes.contains( _name ) )
 	{

@@ -33,7 +33,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	
-	static cTentacleSettingWindowObject* createInstance( void ) { return nullptr; }
+	static cTentacleSettingWindowObject* createInstance    ( void ) { return nullptr; }
 	static cTentacleSettingWindowObject* createInstanceJson( nlohmann::json& _json ) 
 	{ 
 		wv::UUID    uuid = _json.value( "uuid", wv::cEngine::getUniqueUUID() );

@@ -5,25 +5,38 @@
 
 #include <wv/Auxiliary/json.hpp>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class iClassOperator;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sClassReflection
 	{
-		std::string name;
-		iClassOperator* pOperator;
+		std::string name = "";
+		iClassOperator* pOperator = nullptr;
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	class cReflectionRegistry
 	{
 	public:
-		static inline std::unordered_map<std::string, sClassReflection> m_classes;
 
 		static int reflectClass( const std::string& _name, iClassOperator* _operator );
 
-		static void* createClassInstance( const std::string& _name );
-		static void* createClassInstanceJson( const std::string& _name, nlohmann::json& _json );
+		static void* createInstance    ( const std::string& _name );
+		static void* createInstanceJson( const std::string& _name, nlohmann::json& _json );
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+		static inline std::unordered_map<std::string, sClassReflection> m_classes;
 
 	};
+
 }
