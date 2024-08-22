@@ -19,6 +19,8 @@
 #include "SceneObjects/TentacleSection.h"
 #include "SceneObjects/TentacleSettingWindow.h"
 
+#include <wv/Reflection/ReflectedClass.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool cSandbox::create( void )
@@ -117,13 +119,8 @@ void cSandbox::destroy( void )
 
 wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 {
-	wv::iSceneObject* obj = nullptr;
-	std::string objTypeName = _js[ "type" ]; // ew
-
-	if( objTypeName == "Rigidbody" )
-	{
-		obj = wv::fromJson<wv::cRigidbody>( _js );
-	}
+	std::string objTypeName = _js[ "type" ];
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createClassInstanceJson( objTypeName, _js );
 
 	for( auto& childJson : _js[ "children" ] )
 		obj->addChild( parseSceneObject( childJson ) );
@@ -135,7 +132,6 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 
 wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 {
-	
 	std::string src = _pFileSystem->loadString( "res/scenes/testScene.json" );
 	nlohmann::json js = nlohmann::json::parse( src );
 	
@@ -144,8 +140,6 @@ wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 	for( auto& objJson : js[ "scene" ] )
 		scene->addChild( parseSceneObject( objJson ) );
 	
-	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
-
 	const int numSegments = 30;
 	const float tentacleLength = 25.0f;
 	const float tapre = 0.9f;
@@ -165,17 +159,6 @@ wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
 		parent->addChild( section );
 		parent = section;
 	}
-
-	//for( int i = 0; i <numSegments; i++ )
-	//{
-	//	wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
-	//	boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
-	//	boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
-	//	
-	//	wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
-	//	rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
-	//	scene->addChild( rb );
-	//}
 
 	// skybox has to be added last
 	/// TODO: fix that
