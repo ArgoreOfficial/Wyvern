@@ -93,7 +93,6 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
-	// wv::cSceneRoot* scene = setupScene( fileSystem );
 	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
 	appState->addScene( scene );
 
@@ -118,39 +117,3 @@ void cSandbox::destroy( void )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::cSceneRoot* cSandbox::setupScene( wv::cFileSystem* _pFileSystem )
-{
-	/*
-	const int numSegments = 30;
-	const float tentacleLength = 25.0f;
-	const float tapre = 0.9f;
-	const float segmentLength = tentacleLength / (float)numSegments;
-
-	cTentacleSectionObject* section = nullptr;
-	wv::iSceneObject* parent = scene;
-	
-	// tentacle
-	for( int i = 0; i < numSegments; i++ )
-	{
-		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
-
-		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
-		section->m_transform.setScale( { tapre } );
-		
-		parent->addChild( section );
-		parent = section;
-	}
-
-	// skybox has to be added last
-	/// TODO: fix that
-	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
-	*/
-
-	return nullptr;
-}
-
