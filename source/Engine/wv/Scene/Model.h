@@ -25,6 +25,7 @@ namespace wv
 	public:
 
 		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
+		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
 
 		static cModelObject* createInstance( void ) { return nullptr; };
@@ -43,7 +44,7 @@ namespace wv
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
 		Mesh* m_mesh;
-
+		std::string m_meshPath = "";
 	};
 
 	REFLECT_CLASS( cModelObject );

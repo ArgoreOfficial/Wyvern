@@ -244,25 +244,29 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 
 
 	JPH::BodyCreationSettings settings( shape, pos, JPH::Quat::sEulerAngles( rot ), motionType, layer );
-	
+	settings.mFriction = 0.5f;
+	settings.mRestitution = 0.5f;
+
 	JPH::Body*  body   = m_pBodyInterface->CreateBody( settings );
 	JPH::BodyID id     = body->GetID();
 	wv::Handle  handle = 0;
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-	m_pBodyInterface->SetAngularVelocity( id, { 0.0f, 7.0f, 0.0f } );
+	m_pBodyInterface->SetAngularVelocity( id, { 4.0f, 0.0f, 0.0f } );
 	
 	// setup constraint
-	
+	/*
 	if( m_cameraCollider != 0 )
 	{
 		JPH::DistanceConstraintSettings distanceSetting;
-		distanceSetting.mPoint1 = body->GetPosition() + JPH::Vec3( 0.5f, 0.5f, 0.5f );
+		distanceSetting.mPoint1 = body->GetPosition();
 		distanceSetting.mPoint2 = m_bodies[ m_cameraCollider ]->GetPosition();
 		distanceSetting.mMinDistance = 0;
 		distanceSetting.mMaxDistance = 10;
 		m_pPhysicsSystem->AddConstraint( distanceSetting.Create( *body, *m_bodies[ m_cameraCollider ] ) );
 	}
+	*/
+
 	do { handle = cEngine::getUniqueHandle(); } while( m_bodies.contains( handle ) );
 
 	m_bodies[ handle ] = body;

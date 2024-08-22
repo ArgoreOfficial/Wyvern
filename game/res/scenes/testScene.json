@@ -14,7 +14,6 @@
             "children" : []
         },
         {
-            "uuid" : 12345,
             "name" : "box",
             "type" : "cRigidbody",
             "transform" : { "pos":[0.0,1.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,2.0,1.0] },
@@ -26,19 +25,18 @@
             "children" : []
         },
         {
-            "uuid" : 8014,
             "name" : "box2",
             "type" : "cRigidbody",
-            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[3.0,3.0,3.0] },
             "data" : {
-                "shape" : 2,
+                "path" : "res/meshes/debug-sphere.dae",
+                "shape" : 1,
                 "kind" : 1,
-                "halfExtents" : [0.5,0.5,0.5]
+                "radius" : 1.5
             },
             "children" : []
         },
         {
-            "uuid" : 947913,
             "name" : "tentacleSettings",
             "type" : "cTentacleSettingWindowObject",
             "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
@@ -48,8 +46,10 @@
         {
             "name" : "CUBE",
             "type" : "cModelObject",
-            "transform" : { "pos":[1.0,0.0,1.0], "rot":[0.0,45.0,0.0], "scl":[1.0,1.0,1.0] },
-            "data" : {},
+            "transform" : { "pos":[1.0,0.0,1.0], "rot":[45.0,0.0,0.0], "scl":[1.0,10.0,1.0] },
+            "data" : {
+                "path" : "res/meshes/debug-sphere.dae"
+            },
             "children" : []
         }
     ]
