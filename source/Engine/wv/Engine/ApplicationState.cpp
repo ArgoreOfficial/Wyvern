@@ -3,6 +3,11 @@
 #include <wv/Debug/Print.h>
 #include <wv/Scene/SceneRoot.h>
 
+#include <wv/Reflection/Reflection.h>
+#include <wv/Memory/MemoryDevice.h>
+
+#include <wv/Engine/Engine.h>
+
 void wv::cApplicationState::onCreate()
 {
 	for( auto& scene : m_scenes )
@@ -42,6 +47,71 @@ void wv::cApplicationState::update( double _deltaTime )
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iGraphicsDevice* _pDevice )
 {
 	m_pCurrentScene->draw( _pContext, _pDevice );
+}
+
+void wv::cApplicationState::reloadScene()
+{
+	std::string path = m_pCurrentScene->getSourcePath();
+	if( path == "" )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot reload scene with no source path\n" );
+		return;
+	}
+
+	m_pCurrentScene->onDestroy();
+	m_pCurrentScene->onUnload();
+	
+	int index = -1;
+	for( size_t i = 0; i < m_scenes.size(); i++ )
+	{
+		if( m_scenes[ i ] == m_pCurrentScene )
+		{
+			index = (int)i;
+			break;
+		}
+	}
+
+	delete m_pCurrentScene;
+
+	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
+	m_scenes[ index ] = m_pCurrentScene;
+
+	m_pCurrentScene->onCreate();
+	m_pCurrentScene->onLoad();
+}
+
+wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
+{
+	std::string objTypeName = _js[ "type" ];
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
+
+	if( !obj )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName );
+		return nullptr;
+	}
+
+	for( auto& childJson : _js[ "children" ] )
+	{
+		wv::iSceneObject* childObj = parseSceneObject( childJson );
+		if( childObj != nullptr )
+			obj->addChild( childObj );
+	}
+
+	return obj;
+}
+
+wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
+{
+	std::string src = _pFileSystem->loadString( _path );
+	nlohmann::json js = nlohmann::json::parse( src );
+
+	wv::cSceneRoot* scene = new wv::cSceneRoot( js[ "name" ], _path );
+	
+	for( auto& objJson : js[ "scene" ] )
+		scene->addChild( parseSceneObject( objJson ) );
+
+	return scene;
 }
 
 int wv::cApplicationState::addScene( cSceneRoot* _pScene )

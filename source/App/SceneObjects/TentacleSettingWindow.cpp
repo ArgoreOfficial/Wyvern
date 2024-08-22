@@ -4,6 +4,10 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 
+#include <wv/Engine/ApplicationState.h>
+#include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Rigidbody.h>
+
 #include <imgui.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +50,37 @@ void cTentacleSettingWindowObject::drawImpl( wv::iDeviceContext* _context, wv::i
 			ImGui::Spacing();
 		}
 	}
+
+	if( ImGui::Button("Add Box") )
+	{
+		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+		
+		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "", boxDesc );
+
+		wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+		sceneRoot->addChild( rb, true );
+	}
+	if( ImGui::Button( "Add BALLS" ) )
+	{
+		wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+
+		for( int i = 0; i < 100; i++ )
+		{
+			wv::sPhysicsSphereDesc* sphereDesc = new wv::sPhysicsSphereDesc();
+			sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+			sphereDesc->radius = 0.5f;
+
+			wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "ball", "res/meshes/debug-sphere.dae", sphereDesc );
+			sceneRoot->addChild( rb );
+			m_numBalls++;
+		}
+		sceneRoot->onCreate();
+		sceneRoot->onLoad();
+	}
+	ImGui::SameLine();
+	ImGui::Text( "m_numBalls:%i", m_numBalls );
 
 	ImGui::End();
 }

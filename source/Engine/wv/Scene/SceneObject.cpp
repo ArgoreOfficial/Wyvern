@@ -13,12 +13,15 @@ wv::iSceneObject::iSceneObject( const UUID& _uuid, const std::string& _name ):
 
 wv::iSceneObject::~iSceneObject()
 {
-
+	for( size_t i = 0; i < m_children.size(); i++ )
+	{
+		delete m_children[ i ];
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iSceneObject::addChild( iSceneObject* _node )
+void wv::iSceneObject::addChild( iSceneObject* _node, bool _triggerLoadAndCreate )
 {
 	if ( !_node )
 		return;
@@ -28,6 +31,12 @@ void wv::iSceneObject::addChild( iSceneObject* _node )
 
 	_node->m_parent = this;
 	_node->m_transform.parent = &m_transform;
+
+	if( _triggerLoadAndCreate )
+	{
+		onCreate();
+		onLoad();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

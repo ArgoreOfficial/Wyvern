@@ -13,11 +13,16 @@
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Skybox.h>
 #include <wv/Scene/Rigidbody.h>
+#include <wv/Scene/Model.h>
 
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
 #include "SceneObjects/TentacleSection.h"
 #include "SceneObjects/TentacleSettingWindow.h"
+
+#include <wv/Reflection/ReflectedClass.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool cSandbox::create( void )
 {
@@ -88,7 +93,7 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
-	wv::cSceneRoot* scene = setupScene();
+	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
 	appState->addScene( scene );
 
 	// create engine
@@ -97,69 +102,18 @@ bool cSandbox::create( void )
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cSandbox::run( void )
 {
 	m_pEngine->run();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cSandbox::destroy( void )
 {
 	m_pEngine->terminate();
 }
 
-wv::cSceneRoot* cSandbox::setupScene()
-{
-	wv::cSceneRoot* scene = new wv::cSceneRoot( "defaultScene" );
-	
-	scene->addChild( new cTentacleSettingWindowObject( wv::cEngine::getUniqueUUID(), "tentacleSettingsWindow" ) );
-
-	const int numSegments = 30;
-	const float tentacleLength = 25.0f;
-	const float tapre = 0.9f;
-	const float segmentLength = tentacleLength / (float)numSegments;
-
-	cTentacleSectionObject* section = nullptr;
-	wv::iSceneObject* parent = scene;
-	
-	for( int i = 0; i < numSegments; i++ )
-	{
-		section = new cTentacleSectionObject( wv::cEngine::getUniqueUUID(), "section", segmentLength );
-
-		section->m_transform.setPosition( { 0.0f, segmentLength, 0.0f } );
-		section->m_transform.setScale( { tapre } );
-		
-		parent->addChild( section );
-		parent = section;
-	}
-
-	// floor
-	{
-		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
-		boxDesc->halfExtent = { 100.0f, 1.0f, 100.0f };
-
-		wv::cRigidbody* floor = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
-		floor->m_transform.position.y = -7.0f;
-		floor->m_transform.scale = { 200.0f, 2.0f, 200.0f };
-		scene->addChild( floor );
-	}
-
-	for( int i = 0; i <numSegments; i++ )
-	{
-		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
-		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
-		boxDesc->halfExtent = { 0.5f, 0.5f, 0.5f };
-		
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "rb", nullptr, boxDesc );
-		rb->m_transform.setPosition( { 0.0f, ( float )i, 0.0f } );
-		scene->addChild( rb );
-	}
-
-	// skybox has to be added last
-	/// TODO: fix that
-	scene->addChild( new wv::cSkyboxObject( wv::cEngine::getUniqueUUID(), "Skybox" ) );
-
-	return scene;
-}
-
+///////////////////////////////////////////////////////////////////////////////////////

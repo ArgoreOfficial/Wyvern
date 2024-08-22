@@ -29,6 +29,14 @@ wv::cSkyboxObject::~cSkyboxObject()
 	
 }
 
+wv::cSkyboxObject* wv::cSkyboxObject::createInstanceJson( nlohmann::json& _json )
+{	
+	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
+	std::string name = _json.value( "name", "" );
+
+	return new cSkyboxObject( uuid, name );
+}
+
 void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
@@ -51,7 +59,9 @@ void wv::cSkyboxObject::onUnloadImpl()
 	wv::iGraphicsDevice* device = app->graphics;
 
 	device->destroyMesh( &m_skyboxMesh );
-	m_skyMaterial->destroy( device );
+	m_skyMaterial->decrNumUsers();
+	
+	// m_skyMaterial->destroy( device );
 }
 
 void wv::cSkyboxObject::onCreateImpl()

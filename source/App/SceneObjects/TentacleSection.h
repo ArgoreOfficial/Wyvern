@@ -2,6 +2,8 @@
 
 #include <wv/Scene/SceneObject.h>
 
+#include <wv/Reflection/Reflection.h>
+
 #include <string>
 #include <vector>
 
@@ -24,6 +26,11 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	static cTentacleSectionObject* createInstance( void ) { return nullptr; }
+	static cTentacleSectionObject* createInstanceJson( nlohmann::json& _json );
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 protected:
 
 	void onLoadImpl() override;
@@ -38,3 +45,5 @@ protected:
 	float m_segmentLength = 1.0f;
 
 };
+
+REFLECT_CLASS( cTentacleSectionObject );

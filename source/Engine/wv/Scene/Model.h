@@ -2,6 +2,8 @@
 
 #include "SceneObject.h"
 
+#include <wv/Reflection/Reflection.h>
+
 #include <string>
 #include <vector>
 
@@ -23,7 +25,11 @@ namespace wv
 	public:
 
 		 cModelObject( const UUID& _uuid, const std::string& _name, Mesh* _mesh );
+		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
+
+		static cModelObject* createInstance( void ) { return nullptr; };
+		static cModelObject* createInstanceJson( nlohmann::json& _json );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +44,9 @@ namespace wv
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
 		Mesh* m_mesh;
-
+		std::string m_meshPath = "";
 	};
+
+	REFLECT_CLASS( cModelObject );
 
 }
