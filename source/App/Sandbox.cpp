@@ -123,8 +123,18 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 	std::string objTypeName = _js[ "type" ];
 	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
 	
+	if( !obj )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName );
+		return nullptr;
+	}
+
 	for( auto& childJson : _js[ "children" ] )
-		obj->addChild( parseSceneObject( childJson ) );
+	{
+		wv::iSceneObject* childObj = parseSceneObject( childJson );
+		if( childObj != nullptr )
+			obj->addChild( childObj );
+	}
 
 	return obj;
 }
