@@ -44,6 +44,7 @@
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_glfw.h>
 #endif // WV_IMGUI_SUPPORTED
 
 #ifdef WV_GLFW_SUPPORTED
@@ -391,36 +392,38 @@ void wv::cEngine::shutdownImgui()
 
 void wv::cEngine::createScreenQuad()
 {
+	//wv::InputLayoutElement elements[] = {
+	//	{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
+	//	{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
+	//};
+
+	/// TODO: allow for unique layouts
 	wv::InputLayoutElement elements[] = {
-		{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
-		{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
+			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
+			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
+			{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
+			{ 4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
+			{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 	};
 
 	wv::InputLayout layout;
 	layout.elements = elements;
-	layout.numElements = 2;
+	layout.numElements = 5;
 
-	float vertices[] = { 
-		 3.0f, -1.0f, 0.5f,       2.0f, 0.0f,
-		-1.0f,  3.0f, 0.5f,       0.0f, 2.0f,
-		-1.0f, -1.0f, 0.5f,       0.0f, 0.0f,
-	};
-	unsigned int indices[] = {
-		0, 1, 2
-	};
+	std::vector<Vertex> vertices;
+	vertices.push_back( Vertex{ {  3.0f, -1.0f, 0.5f }, {}, {}, {}, { 2.0f, 0.0f } } );
+	vertices.push_back( Vertex{ { -1.0f,  3.0f, 0.5f }, {}, {}, {}, { 0.0f, 2.0f } } );
+	vertices.push_back( Vertex{ { -1.0f, -1.0f, 0.5f }, {}, {}, {}, { 0.0f, 0.0f } } );
+	
+	std::vector<uint32_t> indices = { 0, 1, 2 };
 
 	wv::PrimitiveDesc prDesc;
 	{
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
 
-		prDesc.vertexBuffer     = vertices;
-		prDesc.vertexBufferSize = sizeof( vertices );
-		prDesc.numVertices      = 3;
-
-		prDesc.indexBuffer     = indices;
-		prDesc.indexBufferSize = sizeof( indices );
-		prDesc.numIndices      = 3;
+		prDesc.vertices = vertices;
+		prDesc.indices  = indices;
 	}
 
 	MeshDesc meshDesc;

@@ -18,12 +18,30 @@
 #include <vector>
 
 #ifdef WV_DEBUG
-#define WV_ASSERT_GL( _func, ... )          if( _func != nullptr ) { _func( __VA_ARGS__ ); }        else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
+#define WV_ASSERT_GL( _func, ... ) \
+if( _func != nullptr ) { \
+	_func( __VA_ARGS__ ); \
+} \
+else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
+
 #define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
 #else
 #define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
 #define WV_RETASSERT_GL( _ret, _func, ... ) _ret = _func( __VA_ARGS__ )
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+static inline GLenum getGlBufferEnum( wv::eGPUBufferType _type )
+{
+	switch ( _type )
+	{
+	case wv::WV_BUFFER_TYPE_VERTEX: return GL_ARRAY_BUFFER;         break;
+	case wv::WV_BUFFER_TYPE_INDEX:  return GL_ELEMENT_ARRAY_BUFFER; break;
+	}
+
+	return GL_NONE;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +121,7 @@ wv::RenderTarget* wv::iGraphicsDevice::createRenderTarget( RenderTargetDesc* _de
 	
 	WV_ASSERT_GL( glGenFramebuffers, 1, &target->fbHandle );
 	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, target->fbHandle );
-
+	
 	target->numTextures = _desc->numTextures;
 	GLenum* drawBuffers = new GLenum[ _desc->numTextures ];
 	target->textures = new Texture * [ _desc->numTextures ];
@@ -394,6 +412,36 @@ void wv::iGraphicsDevice::useProgram( cShaderProgram* _program )
 	m_activeProgram = _program;
 }
 
+wv::sGPUBuffer* wv::iGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
+{
+	sGPUBuffer* buffer = new sGPUBuffer();
+	buffer->type = _type;
+
+	glGenBuffers( 1, &buffer->handle );
+
+	assertGLError( "Failed to create buffer\n" );
+
+	return buffer;
+}
+
+void wv::iGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, size_t _size )
+{
+	/// TODO: more draw types
+	//GLenum usage = GL_NONE;
+	//switch ( _desc->type )
+	//{
+	//case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
+	//}
+
+	WV_ASSERT_GL( glBufferData, getGlBufferEnum( _buffer->type ), _size, _data, GL_STATIC_DRAW ) ;
+	assertGLError( "Failed to buffer data\n" );
+}
+
+void wv::iGraphicsDevice::destroyGPUBuffer( sGPUBuffer* _buffer )
+{
+	WV_ASSERT_GL( glDeleteBuffers, 1, &_buffer->handle );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Mesh* wv::iGraphicsDevice::createMesh( MeshDesc* _desc )
@@ -425,40 +473,32 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 	Primitive* primitive = new Primitive();
 	WV_ASSERT_GL( glGenVertexArrays, 1, &primitive->vaoHandle );
 	WV_ASSERT_GL( glBindVertexArray, primitive->vaoHandle );
-	
-	// create vertex buffer object
-	WV_ASSERT_GL( glGenBuffers, 1, &primitive->vboHandle );
-	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, primitive->vboHandle );
 
-	GLenum usage = GL_NONE;
-	switch ( _desc->type ) /// TODO: more primitive types
-	{
-	case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
-	}
+	primitive->vertexBuffer = createGPUBuffer( WV_BUFFER_TYPE_VERTEX );
+	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
 
-	// buffer data
-	WV_ASSERT_GL( glBufferData, GL_ARRAY_BUFFER, _desc->vertexBufferSize, _desc->vertexBuffer, usage );
+	primitive->vertexBuffer->count = _desc->vertices.size();
+	primitive->vertexBuffer->size  = _desc->vertices.size() * sizeof( Vertex );
 
+	bufferData( primitive->vertexBuffer, _desc->vertices.data(), primitive->vertexBuffer->size );
 
-	if ( _desc->indexBufferSize > 0 )
+	if ( _desc->indices.size() > 0 )
 	{
 		// create element buffer object
+		primitive->indexBuffer = createGPUBuffer( WV_BUFFER_TYPE_INDEX );
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
+		
+		primitive->indexBuffer->count = _desc->indices.size();
+		primitive->indexBuffer->size  = _desc->indices.size() * sizeof( uint32_t );
 
-		wv::Handle ebo;
-		WV_ASSERT_GL( glGenBuffers, 1, &ebo );
-		WV_ASSERT_GL( glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, ebo );
-		WV_ASSERT_GL( glBufferData, GL_ELEMENT_ARRAY_BUFFER, _desc->indexBufferSize, _desc->indexBuffer, usage );
+		WV_ASSERT_GL( glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
+		bufferData( primitive->indexBuffer, _desc->indices.data(), primitive->indexBuffer->size );
 
-		primitive->eboHandle = ebo;
-		primitive->numIndices = _desc->numIndices;
 	}
 	else
 	{
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
 	}
-
-
 
 	int offset = 0;
 	int stride = 0;
@@ -496,8 +536,7 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, 0 );
 	WV_ASSERT_GL( glBindVertexArray, 0 );
 
-	primitive->numVertices = _desc->numVertices; 
-	primitive->stride = stride;
+	primitive->vertexBuffer->stride = stride;
 	
 	_mesh->primitives.push_back( primitive );
 
@@ -509,8 +548,9 @@ wv::Primitive* wv::iGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh*
 void wv::iGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
 	Primitive* pr = *_primitive;
-	WV_ASSERT_GL( glDeleteBuffers, 1, &pr->eboHandle );
-	WV_ASSERT_GL( glDeleteBuffers, 1, &pr->vboHandle );
+	destroyGPUBuffer( pr->indexBuffer );
+	destroyGPUBuffer( pr->vertexBuffer );
+
 	WV_ASSERT_GL( glDeleteVertexArrays, 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
@@ -710,6 +750,8 @@ bool wv::iGraphicsDevice::getError( std::string* _out )
 	return hasError;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 	WV_ASSERT_GL( glBindVertexArray, _primitive->vaoHandle );
@@ -730,14 +772,16 @@ void wv::iGraphicsDevice::drawPrimitive( Primitive* _primitive )
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
 	{
-		WV_ASSERT_GL( glDrawElements, GL_TRIANGLES, _primitive->numIndices, GL_UNSIGNED_INT, 0 );
+		WV_ASSERT_GL( glDrawElements, GL_TRIANGLES, _primitive->indexBuffer->count, GL_UNSIGNED_INT, 0 );
 	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
 		/// this does not work on WebGL
-		WV_ASSERT_GL( glBindVertexBuffer, 0, _primitive->vboHandle, 0, _primitive->stride );
-		WV_ASSERT_GL( glDrawArrays, GL_TRIANGLES, 0, _primitive->numVertices );
+		wv::Handle vbo = _primitive->vertexBuffer->handle;
+		size_t numVertices = _primitive->vertexBuffer->count;
+		WV_ASSERT_GL( glBindVertexBuffer, 0, vbo, 0, _primitive->vertexBuffer->stride );
+		WV_ASSERT_GL( glDrawArrays, GL_TRIANGLES, 0, numVertices );
 	#else
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif

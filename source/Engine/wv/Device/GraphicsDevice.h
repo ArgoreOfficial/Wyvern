@@ -4,6 +4,7 @@
 #include <wv/Shader/Shader.h>
 #include <wv/Shader/ShaderProgram.h>
 #include <wv/Misc/Color.h>
+#include <wv/Graphics/GPUBuffer.h>
 
 #include <unordered_map>
 
@@ -20,7 +21,7 @@ namespace wv
 	struct UniformBlockDesc;
 	struct RenderTargetDesc;
 	struct MeshDesc;
-
+	
 	struct iDeviceContext;
 
 	class Primitive;
@@ -78,11 +79,16 @@ namespace wv
 		void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } );
 		void useProgram( cShaderProgram* _program );
 
+		sGPUBuffer* createGPUBuffer( eGPUBufferType _type );
+		void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size );
+		void destroyGPUBuffer( sGPUBuffer* _buffer );
+		
 		Mesh* createMesh( MeshDesc* _desc );
 		void destroyMesh( Mesh** _mesh );
 
 		Primitive* createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh );
 		void destroyPrimitive( Primitive** _primitive );
+
 
 		void createTexture( Texture* _pTexture, TextureDesc* _desc );
 		void destroyTexture( Texture** _texture );

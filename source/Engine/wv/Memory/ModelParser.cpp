@@ -117,14 +117,9 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 	prDesc.layout = &layout;
 
-	prDesc.vertexBuffer     = vertices.data();
-	prDesc.vertexBufferSize = (unsigned int)(vertices.size() * sizeof( wv::Vertex ));
-	prDesc.numVertices      = (unsigned int)vertices.size();
-
-	prDesc.indexBuffer     = indices.data();
-	prDesc.indexBufferSize = (unsigned int)(indices.size() * sizeof( unsigned int ));
-	prDesc.numIndices      = (unsigned int)indices.size();
-
+	prDesc.vertices = vertices;
+	prDesc.indices = indices;
+	
 	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
 	primitive->vertices = vertices;
 	primitive->indices = indices;
@@ -251,8 +246,8 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _p
 	wv::PrimitiveDesc prDesc;
 	{
 		int numIndices  = *reinterpret_cast<int*>( mem->data );
-		int numVertices = *reinterpret_cast<int*>( mem->data + sizeof( int ) );
-		int vertsSize = numVertices * sizeof( Vertex ); // 5 floats per vertex
+		int count = *reinterpret_cast<int*>( mem->data + sizeof( int ) );
+		int vertsSize = count * sizeof( Vertex ); // 5 floats per vertex
 		int indsSize  = numIndices * sizeof( unsigned int );
 
 		uint8_t* indexBuffer = mem->data + ( sizeof( int ) * 2 );
@@ -263,7 +258,7 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _p
 
 		prDesc.vertexBuffer = vertexBuffer;
 		prDesc.vertexBufferSize = vertsSize;
-		prDesc.numVertices = numVertices;
+		prDesc.count = count;
 
 		prDesc.indexBuffer = indexBuffer;
 		prDesc.indexBufferSize = indsSize;

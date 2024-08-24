@@ -13,6 +13,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cMaterial;
+	struct sGPUBuffer;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +24,22 @@ namespace wv
 		wv::Vector3f tangent;
 		wv::Vector4f color;
 		wv::Vector2f texCoord0;
+	};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	struct sVertexBuffer
+	{
+		wv::Handle handle = 0;
+		uint32_t count = 0;
+		uint32_t size = 0;
+	};
+
+	struct sIndexBuffer
+	{
+		wv::Handle handle = 0;
+		uint32_t numIndices = 0;
+		uint32_t size = 0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -65,13 +82,8 @@ namespace wv
 		PrimitiveBufferMode type = WV_PRIMITIVE_TYPE_STATIC;
 		InputLayout* layout = nullptr;
 
-		void* vertexBuffer = nullptr;
-		unsigned int vertexBufferSize = 0;
-		unsigned int numVertices = 0;
-
-		void* indexBuffer = nullptr;
-		unsigned int indexBufferSize = 0;
-		unsigned int numIndices = 0;
+		std::vector<Vertex>   vertices;
+		std::vector<uint32_t> indices;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -82,13 +94,12 @@ namespace wv
 	public:
 
 		wv::Handle vaoHandle = 0;
-		wv::Handle vboHandle = 0;
-		wv::Handle eboHandle = 0;
+		sGPUBuffer* vertexBuffer;
+		sGPUBuffer* indexBuffer;
+
 		PrimitiveBufferMode mode = WV_PRIMITIVE_TYPE_STATIC;
 		PrimitiveDrawType drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
-		uint32_t numVertices = 0;
-		uint32_t numIndices = 0;
-		uint32_t stride = 0;
+		
 		cMaterial* material = nullptr;
 
 		std::vector<Vertex> vertices;

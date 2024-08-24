@@ -75,13 +75,8 @@ void wv::Sprite::createQuad()
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = &layout;
 
-		prDesc.vertexBuffer = vertices.data();
-		prDesc.vertexBufferSize = (unsigned int)( vertices.size() * sizeof( wv::Vertex ) );
-		prDesc.numVertices = (unsigned int)vertices.size();
-
-		prDesc.indexBuffer = indices.data();
-		prDesc.indexBufferSize = (unsigned int)( indices.size() * sizeof( unsigned int ) );
-		prDesc.numIndices = (unsigned int)indices.size();
+		prDesc.vertices = vertices;
+		prDesc.indices = indices;
 
 		app->graphics->createPrimitive( &prDesc, Internal::S_SPRITE_QUAD );
 	}
