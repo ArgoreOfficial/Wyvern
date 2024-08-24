@@ -45,16 +45,12 @@ namespace wv
 
 	public:
 
-		friend class iGraphicsDevice;
-
 		UniformBlock() { }
 		
 		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
 		template<typename T> void set( const std::string& _name, T* _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-	private:
 
 		wv::Handle m_index = 0;
 		wv::Handle m_bufferHandle = 0;
