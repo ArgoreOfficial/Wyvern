@@ -22,6 +22,9 @@ namespace wv
 
 		void terminate() override;
 
+		virtual void initImGui() override;
+		virtual void terminateImGui() override;
+
 		GraphicsDriverLoadProc getLoadProc() override;
 
 		void pollEvents() override;

@@ -21,6 +21,8 @@ namespace wv
 	{
 
 	public:
+		virtual void initImGui() override;
+		virtual void terminateImGui() override;
 
 		void terminate() override;
 
@@ -49,9 +51,9 @@ namespace wv
 
 		uint64_t m_performanceCounter = 0;
 
-		// #ifdef WV_OPENGL_SUPPORTED
+		#ifdef WV_SUPPORT_OPENGL 
 		SDL_GLContext m_glContext = nullptr;
+		#endif
 
-		// #endif
 	};
 }

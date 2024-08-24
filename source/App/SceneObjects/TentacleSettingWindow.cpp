@@ -8,7 +8,9 @@
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Rigidbody.h>
 
+#ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +38,7 @@ void cTentacleSettingWindowObject::updateImpl( double _deltaTime )
 
 void cTentacleSettingWindowObject::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
 {
+#ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Tentacle Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize );
 	
 	for( int i = 0; i < 3; i++ )
@@ -83,10 +86,12 @@ void cTentacleSettingWindowObject::drawImpl( wv::iDeviceContext* _context, wv::i
 	ImGui::Text( "m_numBalls:%i", m_numBalls );
 
 	ImGui::End();
+#endif
 }
 
 void sTentacleSetting::drawInputs( int _i )
 {
+#ifdef WV_SUPPORT_IMGUI
 	std::string n = std::to_string( _i );
 
 	std::string f = "##frequ" + n;
@@ -116,7 +121,7 @@ void sTentacleSetting::drawInputs( int _i )
 
 	ImVec2 v = ImVec2( ImGui::GetItemRectMax().x * 1.5, ImGui::GetItemRectMax().y * 1.5 );
 	ImGui::GetForegroundDrawList()->AddRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32( 255, 255, 255, 128 ) );
-
+#endif
 }
 
 float sTentacleSetting::getValue( float _t )

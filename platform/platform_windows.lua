@@ -1,16 +1,25 @@
 
 function load_platform_windows()
-    add_requires( "glm", "libsdl", "assimp", "imgui", "joltphysics" )
-    
+    add_requires( "glm", "libsdl", "assimp", "joltphysics" )
+    add_requires( "imgui v1.91.0-docking", { 
+        configs={
+            opengl3 = true,
+            glfw    = true,
+            sdl2    = true
+        }})
+
     if( is_arch( "x64" ) ) then
         add_requires( "glfw" )
     end
+
+    add_defines( "WV_SUPPORT_OPENGL", "WV_SUPPORT_OPENGLES" )
 end
 
 function target_platform_windows( target )
     local root = "../"
     -- add supports
     target:add( "deps", "GLAD" )
+    
     import(root.."platform.support.glm")(target)
     
     if target:is_arch( "x64" ) then

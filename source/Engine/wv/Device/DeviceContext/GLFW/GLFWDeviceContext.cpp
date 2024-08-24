@@ -8,11 +8,9 @@
 
 #include <wv/Math/Vector2.h>
 
-// TODO: change events to iListeners, separate classes?
-// iInputEventListener, iMouseEventListener, iWindowEventListener, iEventListener 
-// iEventInvoker
-
-#include <wv/Debug/Print.h>
+#ifdef WV_SUPPORT_IMGUI
+#include <backends/imgui_impl_glfw.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +195,29 @@ void wv::GLFWDeviceContext::terminate()
 {
 #ifdef WV_GLFW_SUPPORTED
 	glfwTerminate();
+#endif
+}
+
+void wv::GLFWDeviceContext::initImGui()
+{
+#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplGlfw_InitForOpenGL( m_windowContext, true );
+		break;
+	}
+#endif
+#endif
+}
+
+void wv::GLFWDeviceContext::terminateImGui()
+{
+#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
+	ImGui_ImplGlfw_Shutdown();
+#endif
 #endif
 }
 

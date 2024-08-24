@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Debug/Print.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,9 @@ namespace wv
 
 		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
 
+		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); };
+		virtual void terminateImGui() { };
+
 		virtual void terminate() = 0;
 		virtual GraphicsDriverLoadProc getLoadProc() = 0;
 
@@ -66,6 +70,7 @@ namespace wv
 		virtual void setTitle( const char* _title ) = 0;
 
 		virtual void setSwapInterval( int _interval ) = 0;
+
 
 		DeviceContextAPI getContextAPI     ( void ) { return m_deviceApi; }
 		GraphicsAPI      getGraphicsAPI    ( void ) { return m_graphicsApi; }

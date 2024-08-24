@@ -31,6 +31,7 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
+
 #include <SDL2/SDL_keycode.h>
 
 #include <type_traits>
@@ -40,11 +41,9 @@
 #include <emscripten.h>
 #endif // EMSCRIPTEN
 
-#ifdef WV_IMGUI_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
-#include <imgui.h>
-#include <wv/Auxiliary/imgui/imgui_impl_glfw.h>
-#include <wv/Auxiliary/imgui/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_opengl3.h>
 #endif // WV_IMGUI_SUPPORTED
 
 #ifdef WV_GLFW_SUPPORTED
@@ -311,12 +310,12 @@ void wv::cEngine::tick()
 	graphics->setRenderTarget( m_gbuffer );
 	graphics->clearRenderTarget( true, true );
 
-#ifdef WV_IMGUI_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
 	/// TODO: move
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-#endif // WV_IMGUI_SUPPORTED
+#endif // WV_SUPPORT_IMGUI
 
 	m_pApplicationState->draw( context, graphics );
 
@@ -334,10 +333,10 @@ void wv::cEngine::tick()
 	graphics->useProgram( m_deferredProgram );
 	graphics->draw( m_screenQuad );
 	
-#ifdef WV_IMGUI_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-#endif // WV_IMGUI_SUPPORTED
+#endif // WV_SUPPORT_IMGUI
 
 	context->swapBuffers();
 }
@@ -352,7 +351,7 @@ void wv::cEngine::quit()
 
 void wv::cEngine::initImgui()
 {
-#ifdef WV_IMGUI_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -361,20 +360,14 @@ void wv::cEngine::initImgui()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-	switch( context->getContextAPI() )
-	{
-#ifdef WV_GLFW_SUPPORTED
-	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_InitForOpenGL( ( ( GLFWDeviceContext* )context )->m_windowContext, true ); break;
-#endif
-	}
+	context->initImGui();
 
 	switch( context->getGraphicsAPI() )
 	{
 	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Init(); break;
 	}
-
 #else
-	Debug::Print( Debug::WV_PRINT_WARN, "Imgui not supported\n" );
+	Debug::Print( Debug::WV_PRINT_WARN, "ImGui not supported\n" );
 #endif
 }
 
@@ -382,18 +375,13 @@ void wv::cEngine::initImgui()
 
 void wv::cEngine::shutdownImgui()
 {
-#ifdef WV_IMGUI_SUPPORTED
+#ifdef WV_SUPPORT_IMGUI
 	switch( context->getGraphicsAPI() )
 	{
 	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Shutdown(); break;
 	}
 
-	switch( context->getContextAPI() )
-	{
-	#ifdef WV_GLFW_SUPPORTED
-	case WV_DEVICE_CONTEXT_API_GLFW: ImGui_ImplGlfw_Shutdown(); break;
-	#endif
-	}
+	context->terminateImGui();
 
 	ImGui::DestroyContext();
 #endif // WV_IMGUI_SUPPORTED

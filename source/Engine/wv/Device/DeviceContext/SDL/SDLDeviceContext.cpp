@@ -16,6 +16,10 @@
 
 #include <wv/Debug/Print.h>
 
+#ifdef WV_SUPPORT_IMGUI
+#include <backends/imgui_impl_sdl2.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
@@ -184,6 +188,26 @@ void wv::SDLDeviceContext::setSwapInterval( int _interval )
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::SDLDeviceContext::initImGui()
+{
+#ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplSDL2_InitForOpenGL( m_windowContext, m_glContext );
+		break;
+	}
+#endif
+}
+
+void wv::SDLDeviceContext::terminateImGui()
+{
+#ifdef WV_SUPPORT_IMGUI
+	ImGui_ImplSDL2_Shutdown();
+#endif
+}
+
 
 void wv::SDLDeviceContext::terminate()
 {
