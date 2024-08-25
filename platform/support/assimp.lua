@@ -1,7 +1,7 @@
 -- local ASSIMP_STATIC_ROOT = "D:/SDK/assimp-static/"
 
 function main(target)
-    target:add( "defines", "WV_ASSIMP_SUPPORTED" )
+    target:add( "defines", "WV_SUPPORT_ASSIMP" )
 
     -- TODO: change x86 to winxp-x86
     --if target:is_arch( "x86" ) and os.arch() == "x64" then

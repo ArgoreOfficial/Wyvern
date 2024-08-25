@@ -1,5 +1,5 @@
 function main(target)
-    target:add( "defines", "WV_SDL_SUPPORTED" )
+    target:add( "defines", "WV_SUPPORT_SDL2" )
 
     if target:is_arch( "x86" ) and os.arch() == "x64" then
         target:add( "includedirs", "./libs/SDL2/i686-w64-mingw32/include" )

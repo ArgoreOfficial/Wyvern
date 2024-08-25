@@ -32,7 +32,9 @@
 #include <fstream>
 #include <vector>
 
+#ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL_keycode.h>
+#endif
 
 #include <type_traits>
 #include <random>
@@ -45,11 +47,11 @@
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
-#endif // WV_IMGUI_SUPPORTED
+#endif // WV_SUPPORT_IMGUI
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 #include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#endif // WV_GLFW_SUPPORTED
+#endif // WV_SUPPORT_GLFW
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +387,7 @@ void wv::cEngine::shutdownImgui()
 	context->terminateImGui();
 
 	ImGui::DestroyContext();
-#endif // WV_IMGUI_SUPPORTED
+#endif // WV_SUPPORT_IMGUI
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

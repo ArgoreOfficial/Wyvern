@@ -14,7 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
 	wv::InputEvent inputEvent;
@@ -31,7 +31,7 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
 	wv::MouseEvent mouseEvent;
@@ -47,7 +47,7 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
 	wv::MouseEvent mouseEvent;
@@ -72,7 +72,7 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::cEngine::get()->onResize( _width, _height );
@@ -81,7 +81,7 @@ void onResizeCallback( GLFWwindow* window, int _width, int _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 void glfwErrorCallback(int _err, const char* _msg)
 {
 	const char* errmsg = "";
@@ -117,7 +117,7 @@ wv::GLFWDeviceContext::GLFWDeviceContext()
 
 bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSetErrorCallback( glfwErrorCallback );
 
 	if ( !glfwInit() )
@@ -184,7 +184,7 @@ bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 
 void wv::GLFWDeviceContext::setSwapInterval( int _interval )
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSwapInterval( _interval );
 #endif
 }
@@ -193,14 +193,14 @@ void wv::GLFWDeviceContext::setSwapInterval( int _interval )
 
 void wv::GLFWDeviceContext::terminate()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwTerminate();
 #endif
 }
 
 void wv::GLFWDeviceContext::initImGui()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -214,7 +214,7 @@ void wv::GLFWDeviceContext::initImGui()
 
 void wv::GLFWDeviceContext::terminateImGui()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	ImGui_ImplGlfw_Shutdown();
 #endif
@@ -225,7 +225,7 @@ void wv::GLFWDeviceContext::terminateImGui()
 
 wv::GraphicsDriverLoadProc wv::GLFWDeviceContext::getLoadProc()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
 #else
 	return nullptr;
@@ -236,7 +236,7 @@ wv::GraphicsDriverLoadProc wv::GLFWDeviceContext::getLoadProc()
 
 void wv::GLFWDeviceContext::pollEvents()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	// process input
 	glfwPollEvents();
 
@@ -248,7 +248,7 @@ void wv::GLFWDeviceContext::pollEvents()
 
 void wv::GLFWDeviceContext::swapBuffers()
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
@@ -270,7 +270,7 @@ void wv::GLFWDeviceContext::onResize( int _width, int _height )
 void wv::GLFWDeviceContext::setSize( int _width, int _height )
 {
 	iDeviceContext::setSize( _width, _height );
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSetWindowSize( m_windowContext, _width, _height );
 #endif
 }
@@ -279,7 +279,7 @@ void wv::GLFWDeviceContext::setSize( int _width, int _height )
 
 void wv::GLFWDeviceContext::setMouseLock( bool _lock )
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
 #endif
 }
@@ -288,7 +288,7 @@ void wv::GLFWDeviceContext::setMouseLock( bool _lock )
 
 void wv::GLFWDeviceContext::setTitle( const char* _title )
 {
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 	glfwSetWindowTitle( m_windowContext, _title );
 #endif
 }

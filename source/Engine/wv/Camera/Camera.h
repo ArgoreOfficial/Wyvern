@@ -1,7 +1,9 @@
 #pragma once
 
+#ifdef WV_SUPPORT_GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#endif
 
 #include <wv/Math/Transform.h>
 #include <wv/Math/Vector3.h>

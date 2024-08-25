@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WV_GLFW_SUPPORTED
+#ifdef WV_SUPPORT_GLFW
 #include <GLFW/glfw3.h>
 #endif
 
@@ -40,7 +40,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	#ifdef WV_GLFW_SUPPORTED
+	#ifdef WV_SUPPORT_GLFW
 		GLFWwindow* m_windowContext = nullptr;
 	#endif
 

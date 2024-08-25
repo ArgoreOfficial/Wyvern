@@ -21,7 +21,7 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_SDL2
 void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 {
 	wv::InputEvent inputEvent;
@@ -37,9 +37,10 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 
 	wv::IInputListener::invoke( inputEvent );
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_SDL2
 void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
 	wv::MouseEvent mouseEvent;
@@ -49,9 +50,10 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 
 	wv::IMouseListener::invoke( mouseEvent );
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_SDL2
 void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _event )
 {
 	wv::MouseEvent mouseEvent;
@@ -71,9 +73,10 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 
 	wv::IMouseListener::invoke( mouseEvent );
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_SDL2
 void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 {
 	switch ( _event->event )
@@ -86,10 +89,14 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 		} break;
 	}
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::SDLDeviceContext::SDLDeviceContext() : m_windowContext{ nullptr }
+wv::SDLDeviceContext::SDLDeviceContext() 
+#ifdef WV_SUPPORT_SDL2
+	: m_windowContext{ nullptr }
+#endif
 {
 
 }
@@ -98,6 +105,7 @@ wv::SDLDeviceContext::SDLDeviceContext() : m_windowContext{ nullptr }
 
 bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 {
+#ifdef WV_SUPPORT_SDL2
 	// glfwSetErrorCallback( glfwErrorCallback );
 
 	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -176,14 +184,19 @@ bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 	SDL_GetWindowSize( m_windowContext, &m_width, &m_height );
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setSwapInterval( int _interval )
 {
+#ifdef WV_SUPPORT_SDL2
 	if ( SDL_GL_SetSwapInterval( _interval ) < 0 )
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to set VSync mode" );
+#endif
 }
 
 
@@ -191,6 +204,7 @@ void wv::SDLDeviceContext::setSwapInterval( int _interval )
 
 void wv::SDLDeviceContext::initImGui()
 {
+#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -199,32 +213,42 @@ void wv::SDLDeviceContext::initImGui()
 		break;
 	}
 #endif
+#endif
 }
 
 void wv::SDLDeviceContext::terminateImGui()
 {
+#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	ImGui_ImplSDL2_Shutdown();
+#endif
 #endif
 }
 
 
 void wv::SDLDeviceContext::terminate()
 {
+#ifdef WV_SUPPORT_SDL2
 	SDL_Quit();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDriverLoadProc wv::SDLDeviceContext::getLoadProc()
 {
+#ifdef WV_SUPPORT_SDL2
 	return (GraphicsDriverLoadProc)SDL_GL_GetProcAddress;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::pollEvents()
 {
+#ifdef WV_SUPPORT_SDL2
 	// process input
 	SDL_Event ev;
 	while ( SDL_PollEvent( &ev ) )
@@ -242,12 +266,14 @@ void wv::SDLDeviceContext::pollEvents()
 		case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
 	}
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::swapBuffers()
 {
+#ifdef WV_SUPPORT_SDL2
 	// if opengl
 	SDL_GL_SwapWindow( m_windowContext );
 	
@@ -262,6 +288,7 @@ void wv::SDLDeviceContext::swapBuffers()
 		return;
 
 	m_deltaTime = (double)( ( m_performanceCounter - last ) / (double)SDL_GetPerformanceFrequency() );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -276,20 +303,25 @@ void wv::SDLDeviceContext::onResize( int _width, int _height )
 void wv::SDLDeviceContext::setSize( int _width, int _height )
 {
 	iDeviceContext::setSize( _width, _height );
-
+#ifdef WV_SUPPORT_SDL2
 	SDL_SetWindowSize( m_windowContext, _width, _height );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setMouseLock( bool _lock )
 {
+#ifdef WV_SUPPORT_SDL2
 	SDL_SetRelativeMouseMode( (SDL_bool)_lock );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setTitle( const char* _title )
 {
+#ifdef WV_SUPPORT_SDL2
 	SDL_SetWindowTitle( m_windowContext, _title );
+#endif
 }

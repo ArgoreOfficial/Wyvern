@@ -1,6 +1,8 @@
 #pragma once
 
+#ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>
+#endif
 #include <wv/Types.h>
 
 #include <wv/Device/DeviceContext.h>
@@ -47,13 +49,14 @@ namespace wv
 		
 		bool initialize( ContextDesc* _desc ) override;
 
+	#ifdef WV_SUPPORT_SDL2
 		SDL_Window* m_windowContext = nullptr;
-
+	#endif
 		uint64_t m_performanceCounter = 0;
 
-		#ifdef WV_SUPPORT_OPENGL 
+	#ifdef WV_SUPPORT_OPENGL 
 		SDL_GLContext m_glContext = nullptr;
-		#endif
+	#endif
 
 	};
 }
