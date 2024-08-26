@@ -147,7 +147,7 @@ void wv::cRigidbody::onUnloadImpl()
 void wv::cRigidbody::updateImpl( double _deltaTime )
 {
 #ifdef WV_SUPPORT_PHYSICS
-	if( m_physicsBodyHandle > 0 )
+	if( m_physicsBodyHandle.isValid() )
 	{
 		Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;

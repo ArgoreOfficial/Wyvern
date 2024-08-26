@@ -2,8 +2,7 @@
 
 #include <wv/Scene/SceneObject.h>
 
-#include <wv/Physics/PhysicsBodyDescriptor.h>
-
+#include <wv/Physics/Physics.h>
 #include <wv/Reflection/Reflection.h>
 
 #include <string>
@@ -41,11 +40,11 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-		wv::Mesh*   m_pMesh    = nullptr;
+		Mesh*   m_pMesh    = nullptr;
 		std::string m_meshPath = "";
 
-		wv::iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
-		wv::Handle m_physicsBodyHandle = 0;
+		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
+		hPhysicsBody m_physicsBodyHandle = 0;
 
 	};
 

@@ -156,19 +156,20 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::destroyPhysicsBody( const wv::Handle& _handle )
+void wv::cJoltPhysicsEngine::destroyPhysicsBody( hPhysicsBody& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	if( !m_bodies.contains( _handle ) )
+	if( !m_bodies.contains( _handle.value() ) )
 	{
 		wv::Debug::Print( Debug::WV_PRINT_ERROR, "No Physics Body with Handle %i\n", _handle );
 		return;
 	}
 
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::Body* body = m_bodies.at( _handle.value() );
 	m_pBodyInterface->RemoveBody ( body->GetID() );
 	m_pBodyInterface->DestroyBody( body->GetID() );
-	m_bodies.erase( _handle );
+	m_bodies.erase( _handle.value() );
+	_handle.invalidate();
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -205,7 +206,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
+wv::hPhysicsBody wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Shape* shape = nullptr;
@@ -284,10 +285,10 @@ wv::Handle wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _handle )
+wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( hPhysicsBody& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::Body* body = m_bodies.at( _handle.value() );
 	
 	JPH::RVec3 pos = body->GetPosition();
 	JPH::Vec3  rot = body->GetRotation().GetEulerAngles(); /// TODO: change to quaternion
@@ -308,10 +309,10 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( wv::Handle _hand
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform )
+void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const hPhysicsBody& _handle, const Transformf& _transform )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::Body* body = m_bodies.at( _handle.value() );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot = WVtoJPH( _transform.rotation );

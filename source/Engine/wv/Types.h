@@ -53,4 +53,27 @@ namespace wv
 
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+	template<typename T>
+	struct sUniqueHandle
+	{
+	public:
+		sUniqueHandle( wv::Handle _value ) : m_value( _value ) { }
+
+		const wv::Handle& value  ( void ) const { return m_value; }
+		const bool        isValid( void ) const { return m_value > 0; }
+
+		void invalidate( void ) { m_value = 0; }
+
+		friend bool operator==( const sUniqueHandle<T>& _l, const sUniqueHandle<T>& _r ) { return _l.m_value == _r.m_value; }
+		friend bool operator <( const sUniqueHandle<T>& _l, const sUniqueHandle<T>& _r ) { return _l.m_value <  _r.m_value; }
+
+	private:
+		wv::Handle m_value;
+
+	};
+
+	#define DEFINE_UNIQUE_HANDLE( _name ) struct handletag__##_name {}; typedef sUniqueHandle<handletag__##_name> h##_name
+
 }

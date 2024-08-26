@@ -1,0 +1,14 @@
+#pragma once
+
+#include <wv/Types.h>
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+namespace wv
+{
+	
+	DEFINE_UNIQUE_HANDLE( PhysicsBody );
+
+}
+

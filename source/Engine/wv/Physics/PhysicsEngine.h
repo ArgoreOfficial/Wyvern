@@ -2,6 +2,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#include <wv/Types.h>
+
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
@@ -11,7 +13,8 @@
 #include <wv/Math/Transform.h>
 #include <wv/Physics/BroadPhaseLayer.h>
 #include <wv/Physics/PhysicsBodyDescriptor.h>
-#include <wv/Types.h>
+
+#include <wv/Physics/PhysicsTypes.h>
 
 #include <unordered_map>
 
@@ -46,15 +49,16 @@ namespace wv
 		void terminate();
 
 		void killAllPhysicsBodies();
-		void destroyPhysicsBody( const wv::Handle& _handle );
+		void destroyPhysicsBody( hPhysicsBody& _handle );
 
 		void update( double _deltaTime );
 
-		wv::Handle createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
+		hPhysicsBody createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
 		
-		Transformf getPhysicsBodyTransform( wv::Handle _handle );
+		Transformf getPhysicsBodyTransform( hPhysicsBody& _handle );
+		void       setPhysicsBodyActive   ( hPhysicsBody& _handle, bool _active );
 
-		void setPhysicsBodyTransform( const wv::Handle& _handle, const Transformf& _transform );
+		void setPhysicsBodyTransform( const hPhysicsBody& _handle, const Transformf& _transform );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +88,6 @@ namespace wv
 		std::unordered_map<wv::Handle, JPH::Body*> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
-		wv::Handle m_cameraCollider = 0;
+		hPhysicsBody m_cameraCollider = 0;
 	};
 }
