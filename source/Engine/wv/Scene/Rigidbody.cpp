@@ -149,7 +149,7 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 #ifdef WV_SUPPORT_PHYSICS
 	if( m_physicsBodyHandle.isValid() )
 	{
-		Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getPhysicsBodyTransform( m_physicsBodyHandle );
+		Transformf t = wv::cEngine::get()->m_pPhysicsEngine->getBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;
 		m_transform.rotation = t.rotation;
 		m_transform.parent = nullptr;

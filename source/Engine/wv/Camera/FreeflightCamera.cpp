@@ -112,11 +112,11 @@ void wv::FreeflightCamera::update( double _delta_time )
 	// up
 	glm::vec4 up = rot_forward * glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f };;
 
-	Vector3f move = Vector3f{ forward.x, forward.y, forward.z } * -m_move.z;
-	move += Vector3f{ right.x, right.y, right.z } * m_move.x;
-	move += Vector3f{ up.x, up.y, up.z } * m_move.y;
+	cVector3f move = cVector3f{ forward.x, forward.y, forward.z } * -m_move.z;
+	move += cVector3f{ right.x, right.y, right.z } * m_move.x;
+	move += cVector3f{ up.x, up.y, up.z } * m_move.y;
 
-	Vector3f acceleration = move * m_speed;
+	cVector3f acceleration = move * m_speed;
 
 	m_transform.position += m_velocity * (float)_delta_time + acceleration * 0.5f * (float)_delta_time * (float)_delta_time;
 	m_velocity += acceleration * (float)_delta_time;

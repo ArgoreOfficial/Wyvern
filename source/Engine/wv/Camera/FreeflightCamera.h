@@ -40,9 +40,9 @@ namespace wv
 
 	private:
 
-		wv::Vector3f m_move;
+		wv::cVector3f m_move;
 		wv::Vector2f m_rotate;
-		wv::Vector3f m_velocity;
+		wv::cVector3f m_velocity;
 
 		bool m_freecam_enabled = false;
 

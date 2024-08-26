@@ -17,7 +17,7 @@ cColor::cColor( byte _r, byte _g, byte _b, byte _a ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cColor::cColor( wv::Vector3<byte> _rgb, byte _a ) :
+wv::cColor::cColor( wv::cVector3<byte> _rgb, byte _a ) :
 	r( _rgb.x ), 
 	g( _rgb.y ), 
 	b( _rgb.z ), 
@@ -37,7 +37,7 @@ wv::cColor::cColor( wv::Vector4<byte> _rgba ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cColor::cColor( wv::Vector3<float> _rgb, float _a ) :
+wv::cColor::cColor( wv::cVector3<float> _rgb, float _a ) :
 	r( ( byte )( wv::Math::clamp( _rgb.x, 0.0f, 1.0f ) * 255.0f ) ), 
 	g( ( byte )( wv::Math::clamp( _rgb.y, 0.0f, 1.0f ) * 255.0f ) ), 
 	b( ( byte )( wv::Math::clamp( _rgb.z, 0.0f, 1.0f ) * 255.0f ) ), 

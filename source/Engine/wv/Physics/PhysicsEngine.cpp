@@ -37,12 +37,12 @@ JPH_SUPPRESS_WARNINGS
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-static wv::Vector3f JPHtoWV( const JPH::Vec3& _vec )
+static wv::cVector3f JPHtoWV( const JPH::Vec3& _vec )
 {
 	return { _vec.GetX(), _vec.GetY(), _vec.GetZ() };
 }
 
-static JPH::Vec3 WVtoJPH( const wv::Vector3f& _vec )
+static JPH::Vec3 WVtoJPH( const wv::cVector3f& _vec )
 {
 	return { _vec.x, _vec.y, _vec.z };
 }
@@ -294,8 +294,8 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( hPhysicsBody& _handle )
 	JPH::Vec3  rot = body->GetRotation().GetEulerAngles(); /// TODO: change to quaternion
 
 	Transformf transform{};
-	transform.position = Vector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
-	transform.rotation = Vector3f{ 
+	transform.position = cVector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
+	transform.rotation = cVector3f{ 
 		wv::Math::radToDeg( rot.GetX() ), 
 		wv::Math::radToDeg( rot.GetY() ), 
 		wv::Math::radToDeg( rot.GetZ() ) 
@@ -307,14 +307,14 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( hPhysicsBody& _handle )
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
-wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( hPhysicsBody& _handle )
+wv::cVector3f wv::cJoltPhysicsEngine::getBodyVelocity( hPhysicsBody& _handle )
 {
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	
 	return JPHtoWV( body->GetLinearVelocity() );
 }
 
-wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _handle )
+wv::cVector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _handle )
 {
 	JPH::Body* body = m_bodies.at( _handle.value() );
 
@@ -341,7 +341,7 @@ void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Tran
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const Vector3f& _velocity )
+void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const cVector3f& _velocity )
 {
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	JPH::Vec3 vel = WVtoJPH( _velocity );
@@ -351,7 +351,7 @@ void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const Vecto
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, const Vector3f& _angularVelocity )
+void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, const cVector3f& _angularVelocity )
 {
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	JPH::Vec3 vel = WVtoJPH( _angularVelocity );

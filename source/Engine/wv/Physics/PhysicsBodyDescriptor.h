@@ -47,7 +47,7 @@ namespace wv
 	struct sPhysicsBoxDesc : public iPhysicsBodyDesc
 	{
 		sPhysicsBoxDesc() { shape = WV_PHYSICS_BOX; }
-		Vector3f halfExtent{};
+		cVector3f halfExtent{};
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -13,8 +13,8 @@ namespace wv
 	struct RayIntersection
 	{
 		bool hit = false;
-		Vector3f point;
-		Vector3f planeProjectedPoint;
+		cVector3f point;
+		cVector3f planeProjectedPoint;
 		
 		float depth;
 		float planeProjectedDepth;
@@ -30,10 +30,10 @@ namespace wv
 	public:
 
 		Ray( void )                                         : start{ },        end{ }      { }
-		Ray( const Vector3f& _start, const Vector3f& _end ) : start{ _start }, end{ _end } { }
+		Ray( const cVector3f& _start, const cVector3f& _end ) : start{ _start }, end{ _end } { }
 
-		Vector3f start;
-		Vector3f end;
+		cVector3f start;
+		cVector3f end;
 
 		template<typename T>
 		RayIntersection intersect( T* _t );
@@ -54,27 +54,27 @@ namespace wv
 		if ( start == end )
 			return {};
 
-		Vector3f dir = end - start;
+		cVector3f dir = end - start;
 		dir.normalize();
 
 		float u, v, t;
 
-		Vector3f edge1 = _t->edge1();
-		Vector3f edge2 = _t->edge2();
-		Vector3f pvec = dir.cross( edge2 );
+		cVector3f edge1 = _t->edge1();
+		cVector3f edge2 = _t->edge2();
+		cVector3f pvec = dir.cross( edge2 );
 		float det = edge1.dot( pvec );
 
 		#ifndef TEST_CULL
 		if ( det < wv::Const::Float::EPSILON )
 			return {};
 
-		Vector3f tvec = start - _t->v0;
+		cVector3f tvec = start - _t->v0;
 
 		u = tvec.dot( pvec );
 		if ( u < 0.0f || u > det )
 			return {};
 
-		Vector3f qvec = tvec.cross( edge1 );
+		cVector3f qvec = tvec.cross( edge1 );
 
 		v = dir.dot( qvec );
 		if ( v < 0.0f || u + v > det )
@@ -110,8 +110,8 @@ namespace wv
 		result.point = _t->barycentricToCartesian( u, v );
 		result.triangle = *_t;
 
-		Vector3f n = _t->getNormal();
-		Vector3f pto = end - result.point;
+		cVector3f n = _t->getNormal();
+		cVector3f pto = end - result.point;
 		result.planeProjectedPoint = end - n * (pto.x * n.x + pto.y * n.y + pto.z * n.z);
 		result.planeProjectedDepth = pto.x * n.x + 
 			                         pto.y * n.y + 

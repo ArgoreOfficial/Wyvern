@@ -40,7 +40,7 @@ namespace wv
 		glm::mat4x4 getViewMatrix( void );
 
 		Transformf& getTransform( void ) { return m_transform; }
-		Vector3f getViewDirection();
+		cVector3f getViewDirection();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

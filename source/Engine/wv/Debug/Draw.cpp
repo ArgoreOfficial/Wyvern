@@ -40,7 +40,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 	for ( int i = 0; i < spheres.size(); i++ )
 	{
 		SPHERE_MESH->transform.position = spheres[ i ].position;
-		SPHERE_MESH->transform.scale = wv::Vector3f{ spheres[ i ].radius };
+		SPHERE_MESH->transform.scale = wv::cVector3f{ spheres[ i ].radius };
 		SPHERE_MESH->transform.update();
 		_pGraphicsDevice->draw( SPHERE_MESH );
 	}
@@ -51,7 +51,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::AddSphere( Vector3f _position, float _radius )
+void wv::Debug::Draw::AddSphere( cVector3f _position, float _radius )
 {
 	Internal::spheres.push_back( { _position, _radius } );
 }

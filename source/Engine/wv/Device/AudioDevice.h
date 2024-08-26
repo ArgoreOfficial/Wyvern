@@ -41,8 +41,8 @@ namespace wv
 		bool isEnabled() { return m_enabled; }
 		bool isUnlocked() { return m_unlocked; }
 
-		void setListenerPosition( Vector3f _position );
-		void setListenerDirection( Vector3f _direction );
+		void setListenerPosition( cVector3f _position );
+		void setListenerDirection( cVector3f _direction );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

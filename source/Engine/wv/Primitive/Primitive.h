@@ -19,9 +19,9 @@ namespace wv
 
 	struct Vertex
 	{
-		wv::Vector3f position;
-		wv::Vector3f normal;
-		wv::Vector3f tangent;
+		wv::cVector3f position;
+		wv::cVector3f normal;
+		wv::cVector3f tangent;
 		wv::Vector4f color;
 		wv::Vector2f texCoord0;
 	};

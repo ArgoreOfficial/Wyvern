@@ -24,8 +24,8 @@ namespace wv
 	{
 		Mesh* mesh = nullptr;
 		cMaterial* material = nullptr;
-		Vector3f position{};
-		Vector3f size{ 64.0f, 64.0f, 1.0f };
+		cVector3f position{};
+		cVector3f size{ 64.0f, 64.0f, 1.0f };
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

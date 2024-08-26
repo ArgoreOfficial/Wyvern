@@ -18,12 +18,12 @@ namespace wv
 
 	public:
 
-		inline void setPosition( wv::Vector3<T> _position ) { position = _position; }
-		inline void setRotation( wv::Vector3<T> _rotation ) { rotation = _rotation; }
-		inline void setScale   ( wv::Vector3<T> _scale )    { scale = _scale; }
+		inline void setPosition( wv::cVector3<T> _position ) { position = _position; }
+		inline void setRotation( wv::cVector3<T> _rotation ) { rotation = _rotation; }
+		inline void setScale   ( wv::cVector3<T> _scale )    { scale = _scale; }
 		
-		inline void translate( wv::Vector3<T> _translation ) { position += _translation; }
-		inline void rotate   ( wv::Vector3<T> _rotation )    { rotation += _rotation; }
+		inline void translate( wv::cVector3<T> _translation ) { position += _translation; }
+		inline void rotate   ( wv::cVector3<T> _rotation )    { rotation += _rotation; }
 		
 		inline glm::mat<4, 4, T> getMatrix() { return m_matrix; }
 
@@ -45,7 +45,7 @@ namespace wv
 			m_matrix = model;
 		}
 
-		inline Vector3<T> forward()
+		inline cVector3<T> forward()
 		{
 			return rotation.eulerToDirection();
 		}
@@ -53,9 +53,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		Transform<T>* parent = nullptr;
-		Vector3<T> position{ 0, 0, 0 };
-		Vector3<T> rotation{ 0, 0, 0 };
-		Vector3<T> scale   { 1, 1, 1 };
+		cVector3<T> position{ 0, 0, 0 };
+		cVector3<T> rotation{ 0, 0, 0 };
+		cVector3<T> scale   { 1, 1, 1 };
 
 	private:
 

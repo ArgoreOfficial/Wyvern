@@ -15,20 +15,20 @@ namespace wv
 
 	public:
 
-		Vector3<T> v0, v1, v2;
+		cVector3<T> v0, v1, v2;
 
 		Triangle( void ) : v0{}, v1{}, v2{} {}
-		Triangle( const Vector3<T>& _a, 
-				  const Vector3<T>& _b, 
-				  const Vector3<T>& _c ) 
+		Triangle( const cVector3<T>& _a, 
+				  const cVector3<T>& _b, 
+				  const cVector3<T>& _c ) 
 			: v0{ _a }, v1{ _b }, v2{ _c } {}
 
-		Vector3<T> edge1() const { return v1 - v0; }
-		Vector3<T> edge2() const { return v2 - v0; }
+		cVector3<T> edge1() const { return v1 - v0; }
+		cVector3<T> edge2() const { return v2 - v0; }
 
-		Vector3<T> getNormal() const{ return edge1().cross( edge2() ).normalized(); }
+		cVector3<T> getNormal() const{ return edge1().cross( edge2() ).normalized(); }
 
-		Vector3<T> barycentricToCartesian( const T& _u, const T& _v ) const;
+		cVector3<T> barycentricToCartesian( const T& _u, const T& _v ) const;
 
 	};
 
@@ -40,7 +40,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline Vector3<T> Triangle<T>::barycentricToCartesian( const T& _u, const T& _v ) const
+	inline cVector3<T> Triangle<T>::barycentricToCartesian( const T& _u, const T& _v ) const
 	{
 		// https://alexpolt.github.io/barycentric.html
 		return v0 + edge1() * _u + 

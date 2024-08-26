@@ -26,7 +26,7 @@ namespace wv
 
 		namespace Internal
 		{
-			struct Sphere { Vector3f position; float radius; }; /// TODO: move to wv/Math or similar
+			struct Sphere { cVector3f position; float radius; }; /// TODO: move to wv/Math or similar
 			
 			static Mesh* SPHERE_MESH;
 			static Mesh* CUBE_MESH;
@@ -42,7 +42,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		void AddSphere( Vector3f _position, float _radius = 1.0f );
+		void AddSphere( cVector3f _position, float _radius = 1.0f );
 		void AddCube  ( Transformf _transform );
 		
 	}
