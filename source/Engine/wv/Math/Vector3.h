@@ -26,7 +26,7 @@ namespace wv
 		cVector3( const T& _t )                           : x( _t ), y( _t ), z( _t ) { }
 		cVector3( const T& _x, const T& _y, const T& _z ) : x( _x ), y( _y ), z( _z ) { }
 
-		T length( void )                     const { return std::sqrt( x * x + y * y + z * z ); }
+		T length( void )                      const { return std::sqrt( x * x + y * y + z * z ); }
 		T dot   ( const cVector3<T>& _other ) const { return x * _other.x + y * _other.y + z * _other.z; }
 
 		cVector3<T> cross( const cVector3<T>& _other ) const

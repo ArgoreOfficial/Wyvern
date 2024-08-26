@@ -21,9 +21,9 @@ namespace wv
 
 		cColor( byte _r, byte _g, byte _b, byte _a = 255  );
 		cColor( wv::cVector3< byte > _rgb, byte _a = 255  );
-		cColor( wv::Vector4< byte > _rgba );
+		cColor( wv::cVector4< byte > _rgba );
 		cColor( wv::cVector3< float > _rgb, float _a = 1.0f );
-		cColor( wv::Vector4< float > _rgba );
+		cColor( wv::cVector4< float > _rgba );
 		cColor( float _r, float _g, float _b, float _a = 1.0f );
 		cColor( dword _rgba );
 
