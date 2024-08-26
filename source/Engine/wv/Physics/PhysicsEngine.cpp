@@ -180,7 +180,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	cEngine* app = cEngine::get();
 	if( app->currentCamera )
-		setPhysicsBodyTransform( m_cameraCollider, app->currentCamera->getTransform() );
+		setBodyTransform( m_cameraCollider, app->currentCamera->getTransform() );
 	
 	// physics update
 	float frameTime = _deltaTime;
@@ -200,7 +200,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	}
 
 	if( collisionSteps > 0 )
-		m_pPhysicsSystem->Update( m_timestep, collisionSteps, m_pTempAllocator, m_pJobSystem );
+		m_pPhysicsSystem->Update( m_timestep * (float)collisionSteps, collisionSteps, m_pTempAllocator, m_pJobSystem );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -285,7 +285,7 @@ wv::hPhysicsBody wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _de
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( hPhysicsBody& _handle )
+wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( hPhysicsBody& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
@@ -307,16 +307,54 @@ wv::Transformf wv::cJoltPhysicsEngine::getPhysicsBodyTransform( hPhysicsBody& _h
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
+wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( hPhysicsBody& _handle )
+{
+	JPH::Body* body = m_bodies.at( _handle.value() );
+	
+	return JPHtoWV( body->GetLinearVelocity() );
+}
+
+wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _handle )
+{
+	JPH::Body* body = m_bodies.at( _handle.value() );
+
+	return JPHtoWV( body->GetAngularVelocity() );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setPhysicsBodyTransform( const hPhysicsBody& _handle, const Transformf& _transform )
+void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Transformf& _transform )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
-	JPH::Vec3 rot = WVtoJPH( _transform.rotation );
+	JPH::Vec3 rot{
+		wv::Math::degToRad( _transform.rotation.x ),
+		wv::Math::degToRad( _transform.rotation.y ),
+		wv::Math::degToRad( _transform.rotation.z )
+	};
 
-	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles(rot), JPH::EActivation::DontActivate);
+	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);
 #endif // WV_SUPPORT_JOLT_PHYSICS
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const Vector3f& _velocity )
+{
+	JPH::Body* body = m_bodies.at( _handle.value() );
+	JPH::Vec3 vel = WVtoJPH( _velocity );
+
+	body->SetLinearVelocity( WVtoJPH( _velocity ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, const Vector3f& _angularVelocity )
+{
+	JPH::Body* body = m_bodies.at( _handle.value() );
+	JPH::Vec3 vel = WVtoJPH( _angularVelocity );
+
+	body->SetAngularVelocity( vel );
 }

@@ -55,10 +55,13 @@ namespace wv
 
 		hPhysicsBody createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
 		
-		Transformf getPhysicsBodyTransform( hPhysicsBody& _handle );
-		void       setPhysicsBodyActive   ( hPhysicsBody& _handle, bool _active );
+		Transformf getBodyTransform      ( hPhysicsBody& _handle );
+		Vector3f   getBodyVelocity       ( hPhysicsBody& _handle );
+		Vector3f   getBodyAngularVelocity( hPhysicsBody& _handle );
 
-		void setPhysicsBodyTransform( const hPhysicsBody& _handle, const Transformf& _transform );
+		void setBodyTransform      ( hPhysicsBody& _handle, const Transformf& _transform );
+		void setBodyVelocity       ( hPhysicsBody& _handle, const Vector3f& _velocity );
+		void setBodyAngularVelocity( hPhysicsBody& _handle, const Vector3f& _angularVelocity );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
