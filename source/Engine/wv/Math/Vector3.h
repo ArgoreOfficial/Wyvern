@@ -2,7 +2,10 @@
 
 #include <cmath>
 #include <wv/Math/Math.h>
+
+#ifdef WV_CPP20
 #include <compare>
+#endif
 
 namespace wv
 {
@@ -88,7 +91,9 @@ namespace wv
 		Vector3<T>  operator / ( const T& _scalar ) const;
 		Vector3<T>& operator /=( const T& _scalar );
 
+	#ifdef WV_CPP20
 		auto operator<=>( const Vector3<T>& ) const = default;
+	#endif
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
