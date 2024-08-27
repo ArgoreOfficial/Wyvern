@@ -17,8 +17,7 @@
 
 #include <wv/Physics/PhysicsBodyDescriptor.h>
 
-#include "SceneObjects/TentacleSection.h"
-#include "SceneObjects/TentacleSettingWindow.h"
+#include "SceneObjects/DemoWindow.h"
 
 #include <wv/Reflection/ReflectedClass.h>
 

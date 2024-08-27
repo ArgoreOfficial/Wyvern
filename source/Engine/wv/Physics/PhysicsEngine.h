@@ -91,6 +91,5 @@ namespace wv
 		std::unordered_map<wv::Handle, JPH::Body*> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
-		hPhysicsBody m_cameraCollider = 0;
 	};
 }

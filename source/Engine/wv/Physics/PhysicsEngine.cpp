@@ -119,7 +119,7 @@ void wv::cJoltPhysicsEngine::init()
 	sPhysicsSphereDesc* ballDesc = new sPhysicsSphereDesc();
 	ballDesc->kind = WV_PHYSICS_KINEMATIC;
 	ballDesc->radius = 1.0f;
-	m_cameraCollider = createAndAddBody( ballDesc, true );
+
 #else
 	wv::Debug::Print( Debug::WV_PRINT_ERROR, "Jolt Physics is not supported on this platform\n" );
 #endif // WV_SUPPORT_JOLT_PHYSICS
@@ -178,10 +178,6 @@ void wv::cJoltPhysicsEngine::destroyPhysicsBody( hPhysicsBody& _handle )
 void wv::cJoltPhysicsEngine::update( double _deltaTime )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	cEngine* app = cEngine::get();
-	if( app->currentCamera )
-		setBodyTransform( m_cameraCollider, app->currentCamera->getTransform() );
-	
 	// physics update
 	float frameTime = _deltaTime;
 	if( frameTime > 0.016f )
