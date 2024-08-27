@@ -39,30 +39,21 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-			                T*                operator []( size_t _index )               const { return (T*)m[ _index ]; }
+			                T*                operator []( const size_t& _index        ) const { return (T*)m[ _index ]; }
 			                cMatrix<T, R, C>& operator = ( const cMatrix<T, R, C>&  _o );
 		template<size_t C2> cMatrix<T, R, C2> operator * ( const cMatrix<T, C, C2>& _o ) const;
 		template<size_t C2> cMatrix<T, R, C>& operator *=( const cMatrix<T, R, C2>& _o );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		static cMatrix<T, R, R> identity( const T& _val ) { return cMatrix<T, R, R>( _val ); }
-			
-		void setRow( const size_t& _r, T _v[ C ] )
+		static cMatrix<T, R, R> identity( const T& _val ) 
 		{
-			for ( int i = 0; i < C; i++ )
-				m[ _r ][ i ] = _v[ i ];
+			return cMatrix<T, R, R>( _val ); 
 		}
 
-		void setRow( const size_t& _r, std::array<T, C> _v )
-		{
-			size_t id = 0;
-			for( auto& v : _v )
-			{
-				m[ _r ][ id ] = v;
-				id++;
-			}
-		}
+///////////////////////////////////////////////////////////////////////////////////////
+
+		void setRow( const size_t& _r, std::array<T, C> _v );
 
 		template<typename = if_4x4::type> cVector4<T>& right( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 0 ] ); }
 		template<typename = if_4x4::type> cVector4<T>& up   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 1 ] ); }
@@ -75,6 +66,9 @@ namespace wv
 
 	namespace Matrix
 	{
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 		template<typename T, size_t RowA, size_t ColA_RowB, size_t ColB>
 		cMatrix<T, RowA, ColB> multiply( cMatrix<T, RowA, ColA_RowB> _a, cMatrix<T, ColA_RowB, ColB> _b )
 		{
@@ -93,6 +87,7 @@ namespace wv
 			}
 			return res;
 		}
+
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +115,19 @@ namespace wv
 	inline cMatrix<T, R, C>& cMatrix<T, R, C>::operator*=( const cMatrix<T, R, C2>& _o )
 	{
 		( *this ) = ( *this ) * _o;
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	template<typename T, size_t R, size_t C>
+	inline void cMatrix<T, R, C>::setRow( const size_t& _r, std::array<T, C> _v )
+	{
+		size_t id = 0;
+		for( auto& v : _v )
+		{
+			m[ _r ][ id ] = v;
+			id++;
+		}
 	}
 
 }
