@@ -24,6 +24,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	typedef std::unordered_map<std::string, sClassReflection> tReflectedClassesMap;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	class cReflectionRegistry
 	{
 	public:
@@ -33,9 +37,12 @@ namespace wv
 		static void* createInstance    ( const std::string& _name );
 		static void* createInstanceJson( const std::string& _name, nlohmann::json& _json );
 
-///////////////////////////////////////////////////////////////////////////////////////
+		// classes map has to be local static because 
+		// global static does not guarantee it to be 
+		// created before REFLECT_CLASS() is called
+		static tReflectedClassesMap& getClasses();
 
-		static inline std::unordered_map<std::string, sClassReflection> m_classes;
+///////////////////////////////////////////////////////////////////////////////////////
 
 	};
 
