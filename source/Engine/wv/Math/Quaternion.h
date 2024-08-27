@@ -97,9 +97,9 @@ namespace wv
 	inline T cQuaternion<T>::norm()
 	{
 		T imaginary = v.dot( v );
-		T scalar = s * s;
+		T scale = s * s;
 
-		return sqrt( imaginary + scalar );
+		return sqrt( imaginary + scale );
 	}
 
 	template<typename T>
@@ -124,10 +124,10 @@ namespace wv
 		absoluteValue = T{ 1 } / absoluteValue;
 
 		cQuaternion<T> conjugateValue = conjugate();
-		T scalar = conjugateValue.s * absoluteValue;
+		T scale = conjugateValue.s * absoluteValue;
 
 		cVector3<T> imaginary = conjugateValue.v * absoluteValue;
-		return cQuaternion<T>( imaginary, scalar );
+		return cQuaternion<T>( imaginary, scale );
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -145,18 +145,18 @@ namespace wv
 	inline cQuaternion<T> cQuaternion<T>::operator+( const cQuaternion<T>& _other ) const
 	{
 		cVector3<T> imaginary = v + _other.v;
-		T scalar              = s + _other.s;
+		T scale              = s + _other.s;
 
-		return cQuaternion<T>{ imaginary, scalar };
+		return cQuaternion<T>{ imaginary, scale };
 	}
 
 	template<typename T>
 	inline cQuaternion<T> cQuaternion<T>::operator-( const cQuaternion<T>& _other ) const
 	{
 		cVector3<T> imaginary = v - _other.v;
-		T scalar              = s - _other.s;
+		T scale              = s - _other.s;
 
-		return cQuaternion<T>{ imaginary, scalar };
+		return cQuaternion<T>{ imaginary, scale };
 	}
 
 	template<typename T>
@@ -181,9 +181,9 @@ namespace wv
 	inline cQuaternion<T> cQuaternion<T>::operator*( const cQuaternion<T>& _other ) const
 	{
 		cVector3<T> imaginary = ( _other.v * s ) + ( v * _other.s ) + v.cross( _other.v );
-		T scalar              = ( s * _other.s ) - v.dot( _other.v );
+		T scale              = ( s * _other.s ) - v.dot( _other.v );
 
-		return cQuaternion<T>{ imaginary, scalar };
+		return cQuaternion<T>{ imaginary, scale };
 	}
 
 	template<typename T>
@@ -198,9 +198,9 @@ namespace wv
 	inline cQuaternion<T> cQuaternion<T>::operator*( const T& _scalar ) const
 	{
 		cVector3<T> imaginary = v * _scalar;
-		T scalar              = s * _scalar;
+		T scale              = s * _scalar;
 
-		return cQuaternion<T>( imaginary, scalar );
+		return cQuaternion<T>( imaginary, scale );
 	}
 
 	template<typename T>

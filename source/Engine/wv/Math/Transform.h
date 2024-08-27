@@ -53,6 +53,11 @@ namespace wv
 				cMatrix<T, 4, 4> model{ 1 };
 				
 				model = Matrix::translate( model, position );
+
+				model = Matrix::rotateZ( model, Math::degToRad( rotation.z ) );
+				model = Matrix::rotateY( model, Math::degToRad( rotation.y ) );
+				model = Matrix::rotateX( model, Math::degToRad( rotation.x ) );
+				
 				model = Matrix::scale( model, scale );
 
 				if ( parent != nullptr )

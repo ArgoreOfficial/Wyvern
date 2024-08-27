@@ -102,21 +102,49 @@ namespace wv
 		template<typename T>
 		cMatrix<T, 4, 4> scale( const cMatrix<T, 4, 4>& _m, const wv::cVector3<T>& _scale )
 		{
-			T zero = T( 0 );
-
-			cMatrix<T, 4, 4> mat( T( 1 ) );
+			cMatrix<T, 4, 4> mat( 1.0 );
 			
-			mat.setRow( 0, { _scale.x,     zero,     zero } );
-			mat.setRow( 1, {     zero, _scale.y,     zero } );
-			mat.setRow( 2, {     zero,     zero, _scale.z } );
+			mat.setRow( 0, { _scale.x,      0.0,      0.0 } );
+			mat.setRow( 1, {      0.0, _scale.y,      0.0 } );
+			mat.setRow( 2, {      0.0,      0.0, _scale.z } );
 
 			return mat * _m;
 		}
 
 		template<typename T>
-		cMatrix<T, 4, 4> rotateX( const cMatrix<T, 4, 4>& _m )
+		cMatrix<T, 4, 4> rotateX( const cMatrix<T, 4, 4>& _m, T _angle )
 		{
-			return _m;
+			cMatrix<T, 4, 4> mat( 1.0 );
+
+			mat.setRow( 0, { 1.0,                0.0,                 0.0 } );
+			mat.setRow( 1, { 0.0,  std::cos( _angle ), std::sin( _angle ) });
+			mat.setRow( 2, { 0.0, -std::sin( _angle ), std::cos( _angle ) });
+
+			return mat * _m;
+		}
+
+		template<typename T>
+		cMatrix<T, 4, 4> rotateY( const cMatrix<T, 4, 4>& _m, T _angle )
+		{
+			cMatrix<T, 4, 4> mat( 1.0 );
+
+			mat.setRow( 0, { std::cos( _angle ), 0.0, -std::sin( _angle ) } );
+			mat.setRow( 1, {                0.0, 1.0,                0.0 } );
+			mat.setRow( 2, { std::sin( _angle ), 0.0,  std::cos( _angle ) } );
+
+			return mat * _m;
+		}
+
+		template<typename T>
+		cMatrix<T, 4, 4> rotateZ( const cMatrix<T, 4, 4>& _m, T _angle )
+		{
+			cMatrix<T, 4, 4> mat( 1.0 );
+
+			mat.setRow( 0, {  std::cos( _angle ), std::sin( _angle ), 0.0 } );
+			mat.setRow( 1, { -std::sin( _angle ), std::cos( _angle ), 0.0 } );
+			mat.setRow( 2, {                 0.0,                0.0, 1.0 } );
+
+			return mat * _m;
 		}
 	}
 

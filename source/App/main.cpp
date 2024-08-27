@@ -40,10 +40,6 @@ int main()
 
 	auto I = A * G * A;
 
-	wv::cVector3f vec{ 3.f, 4.f, 2.f };
-	wv::cMatrix4x4f trl = wv::Matrix::translation( vec );
-	wv::cMatrix4x4f scl = wv::Matrix::scalar( vec );
-
 	if ( sandbox.create() )
 	{
 		sandbox.run();
