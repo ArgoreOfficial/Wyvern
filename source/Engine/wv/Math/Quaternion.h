@@ -20,9 +20,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		cQuaternion( void )                                               : v( {} ),         s(  0 ) { }
-		cQuaternion( const cVector3<T>& _v, const T& _s )                 : v( _v ),         s( _s ) { }
-		cQuaternion( const T& _x, const T& _y, const T& _z, const T& _s ) : v( _x, _y, _z ), s( _s ) { }
+		cQuaternion( void )                                               : v( {} ),         s( 1.0 ) { }
+		cQuaternion( const cVector3<T>& _v, const T& _s )                 : v( _v ),         s(  _s ) { }
+		cQuaternion( const T& _x, const T& _y, const T& _z, const T& _s ) : v( _x, _y, _z ), s(  _s ) { }
 
 		static cVector3<T> rotateVector( const cVector3<T>& _v, const cVector3<T>& _axis, const T& _angle );
 
@@ -31,11 +31,14 @@ namespace wv
 		void normalize ( void );
 		void toUnitNorm( void );
 
+		void rotate( const cVector3<T>& _axis, const T& _angle );
+
 		T norm( void );
 
 		cQuaternion<T> normalized( void );
 		cQuaternion<T> conjugate ( void );
 		cQuaternion<T> inverse   ( void );
+
 
 		cQuaternion<T>& operator = ( const cQuaternion<T>& _other );
 		cQuaternion<T>  operator + ( const cQuaternion<T>& _other ) const;
@@ -107,6 +110,13 @@ namespace wv
 		v.normalize();
 		s = std::cos( angle / T{ 2 } );
 		v = v * std::sin( angle / T{ 2 } );
+	}
+	
+	template<typename T>
+	inline void cQuaternion<T>::rotate( const cVector3<T>& _axis, const T& _angle )
+	{
+		cQuaternion<T> _other = cQuaternion<T>::fromAxisAngle( _axis, _angle );
+		( *this ) *= _other;
 	}
 
 	template<typename T>

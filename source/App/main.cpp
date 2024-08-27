@@ -4,11 +4,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 #include <wv/Math/Matrix.h>
 #include <wv/Math/Quaternion.h>
+
 int main()
 {
 	cSandbox sandbox{};
-
-	wv::cQuaternionf quat = wv::cQuaternionf::fromAxisAngle( { 1.0f, 0.0f, 0.0f }, wv::Math::degToRad( 10.0f ) );
 
 	/*
 	wv::cMatrix<float, 3, 3> A;
@@ -23,6 +22,16 @@ int main()
 
 	auto I = A * G * A;
 	*/
+
+	wv::cMatrix4x4f test;
+	test.setRow( 0, { 3, 2, 0, 0 } );
+	test.setRow( 1, { 4, 3, 0, 0 } );
+	test.setRow( 2, { 0, 0, 6, 5 } );
+	test.setRow( 3, { 0, 0, 7, 6 } );
+
+	wv::cMatrix4x4f inv = wv::Matrix::inverse( test );
+
+	auto id = test * inv; // identity
 
 	if ( sandbox.create() )
 	{
