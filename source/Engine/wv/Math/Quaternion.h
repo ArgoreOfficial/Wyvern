@@ -26,6 +26,8 @@ namespace wv
 
 		static cVector3<T> rotateVector( const cVector3<T>& _v, const cVector3<T>& _axis, const T& _angle );
 
+		static cQuaternion<T> fromAxisAngle( const cVector3<T>& _axis, const T& _angle );
+
 		void normalize ( void );
 		void toUnitNorm( void );
 
@@ -69,6 +71,20 @@ namespace wv
 		cQuaternion<T> rotated = q * pure * qInv;
 
 		return rotated.v;
+	}
+
+	template<typename T>
+	inline cQuaternion<T> cQuaternion<T>::fromAxisAngle( const cVector3<T>& _axis, const T& _angle )
+	{
+		T factor = std::sin( _angle / 2.0 );
+
+		T x = _axis.x * factor;
+		T y = _axis.y * factor;
+		T z = _axis.z * factor;
+
+		T w = std::cos( _angle / 2.0 );
+
+		return cQuaternion<T>( x, y, z, w ).normalized();
 	}
 
 	template<typename T>
