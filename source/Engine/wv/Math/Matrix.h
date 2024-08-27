@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
 
 #include <stdint.h>
@@ -86,6 +87,28 @@ namespace wv
 				}
 			}
 			return res;
+		}
+
+		template<typename T>
+		cMatrix<T, 4, 4> translation( wv::cVector3<T> _pos )
+		{
+			cMatrix<T, 4, 4> mat( T( 1 ) );
+			mat.pos() = { _pos.x, _pos.y, _pos.z, T( 1 ) };
+			return mat;
+		}
+
+		template<typename T>
+		cMatrix<T, 4, 4> scalar( wv::cVector3<T> _scale )
+		{
+			T zero = T( 0 );
+
+			cMatrix<T, 4, 4> mat( T( 1 ) );
+			
+			mat.setRow( 0, { _scale.x,     zero,     zero } );
+			mat.setRow( 1, {     zero, _scale.y,     zero } );
+			mat.setRow( 2, {     zero,     zero, _scale.z } );
+
+			return mat;
 		}
 
 	}
