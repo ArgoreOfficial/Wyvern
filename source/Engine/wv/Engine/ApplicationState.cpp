@@ -87,7 +87,7 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 
 	if( !obj )
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName.c_str() );
 		return nullptr;
 	}
 

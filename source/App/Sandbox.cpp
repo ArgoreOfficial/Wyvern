@@ -11,15 +11,8 @@
 #include <wv/Shader/ShaderRegistry.h>
 
 #include <wv/Scene/SceneRoot.h>
-#include <wv/Scene/Skybox.h>
-#include <wv/Scene/Rigidbody.h>
-#include <wv/Scene/Model.h>
-
-#include <wv/Physics/PhysicsBodyDescriptor.h>
 
 #include "SceneObjects/DemoWindow.h"
-
-#include <wv/Reflection/ReflectedClass.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +47,7 @@ bool cSandbox::create( void )
 	if ( !deviceContext )
 		return false;
 
-	deviceContext->setSwapInterval( 0 ); // disable vsync
+	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
 
 	// create graphics device
 	wv::GraphicsDeviceDesc deviceDesc;
@@ -70,30 +63,30 @@ bool cSandbox::create( void )
 
 	engineDesc.device.pContext = deviceContext;
 	engineDesc.device.pGraphics = graphicsDevice;
-	wv::Debug::Print( "Creating FileSystem\n" );
+	
 	engineDesc.device.pAudio = new wv::AudioDevice( nullptr );
-	wv::Debug::Print( "Created FileSystem\n" );
+	
 
 	// create modules
-	wv::Debug::Print( "Creating FileSystem\n" );
 	wv::cFileSystem* fileSystem = new wv::cFileSystem();
+
+	// set up load directories
 	fileSystem->addDirectory( L"res/" );
 	fileSystem->addDirectory( L"res/materials/" );
 	fileSystem->addDirectory( L"res/meshes/" );
 	fileSystem->addDirectory( L"res/shaders/" );
 	fileSystem->addDirectory( L"res/textures/" );
-	engineDesc.systems.pFileSystem = fileSystem;
-	wv::Debug::Print( "Created FileSystem\n" );
-	wv::Debug::Print( "Creating ShaderRegistry\n" );
-	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
-	wv::Debug::Print( "Created ShaderRegistry\n" );
 
-	// setup application state and scenes
+	engineDesc.systems.pFileSystem = fileSystem;
+	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
+	
+	// setup application state
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
+	// load scenes
 	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
-	appState->addScene( scene );
+	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );

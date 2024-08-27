@@ -21,6 +21,10 @@
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Model.h>
+#include <wv/Scene/Rigidbody.h>
+#include <wv/Scene/Skybox.h>
+
 #include <wv/Shader/ShaderRegistry.h>
 #include <wv/Engine/ApplicationState.h>
 
