@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace wv
 {
 
@@ -35,9 +37,9 @@ namespace wv
 				*this *= _magnitude;
 		}
 
-		cVector3<T> normalized() const
+		cVector4<T> normalized() const
 		{
-			cVector3 vec = *this;
+			cVector4<T> vec = *this;
 			vec.normalize();
 			return vec;
 		}
