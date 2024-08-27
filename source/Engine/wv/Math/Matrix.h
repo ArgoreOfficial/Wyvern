@@ -90,15 +90,17 @@ namespace wv
 		}
 
 		template<typename T>
-		cMatrix<T, 4, 4> translation( wv::cVector3<T> _pos )
+		cMatrix<T, 4, 4> translate( const cMatrix<T, 4, 4>& _m, const wv::cVector3<T>& _pos )
 		{
 			cMatrix<T, 4, 4> mat( T( 1 ) );
+			
 			mat.pos() = { _pos.x, _pos.y, _pos.z, T( 1 ) };
-			return mat;
+
+			return mat * _m;
 		}
 
 		template<typename T>
-		cMatrix<T, 4, 4> scalar( wv::cVector3<T> _scale )
+		cMatrix<T, 4, 4> scale( const cMatrix<T, 4, 4>& _m, const wv::cVector3<T>& _scale )
 		{
 			T zero = T( 0 );
 
@@ -108,9 +110,14 @@ namespace wv
 			mat.setRow( 1, {     zero, _scale.y,     zero } );
 			mat.setRow( 2, {     zero,     zero, _scale.z } );
 
-			return mat;
+			return mat * _m;
 		}
 
+		template<typename T>
+		cMatrix<T, 4, 4> rotateX( const cMatrix<T, 4, 4>& _m )
+		{
+			return _m;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +144,8 @@ namespace wv
 	template<size_t C2>
 	inline cMatrix<T, R, C>& cMatrix<T, R, C>::operator*=( const cMatrix<T, R, C2>& _o )
 	{
-		( *this ) = ( *this ) * _o;
+		(*this) = (*this) * _o;
+		return ( *this );
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////

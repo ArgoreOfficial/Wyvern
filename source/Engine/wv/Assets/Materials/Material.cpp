@@ -101,7 +101,7 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 	// model transform
 	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
 
-	instanceBlock.set( "u_Model", _mesh->transform.getMatrix() );
+	instanceBlock.set( "u_Model", _mesh->transform.getWVMatrix() );
 
 	// bind textures
 	int texSlot = 0;

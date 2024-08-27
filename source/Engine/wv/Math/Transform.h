@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <wv/Math/Matrix.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv 
@@ -26,23 +28,38 @@ namespace wv
 		inline void rotate   ( wv::cVector3<T> _rotation )    { rotation += _rotation; }
 		
 		inline glm::mat<4, 4, T> getMatrix() { return m_matrix; }
+		inline cMatrix<T, 4, 4> getWVMatrix() { return m_wvMatrix; }
 
 		void update()
 		{
-			glm::mat<4, 4, T> model( 1 );
+			{
+				glm::mat<4, 4, T> model( 1 );
 
-			model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
+				model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
 			
-			model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
-			model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
-			model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
+				model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
+				model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
+				model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
 
-			model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
+				model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
 
-			if( parent != nullptr )
-				model = parent->getMatrix() * model;
+				if( parent != nullptr )
+					model = parent->getMatrix() * model;
 
-			m_matrix = model;
+				m_matrix = model;
+			}
+
+			{
+				cMatrix<T, 4, 4> model{ 1 };
+				
+				model = Matrix::translate( model, position );
+				model = Matrix::scale( model, scale );
+
+				if ( parent != nullptr )
+					model = model * parent->getWVMatrix();
+
+				m_wvMatrix = model;
+			}
 		}
 
 		inline cVector3<T> forward()
@@ -58,6 +75,8 @@ namespace wv
 		cVector3<T> scale   { 1, 1, 1 };
 
 	private:
+
+		cMatrix<T, 4, 4> m_wvMatrix{ 1 };
 
 		glm::mat<4, 4, T> m_matrix{ 1 };
     };
