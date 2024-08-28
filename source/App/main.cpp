@@ -23,6 +23,13 @@ int main()
 	auto I = A * G * A;
 	*/
 
+	wv::cMatrix<float, 3, 2> tsp;
+	tsp.setRow( 0, { 1,2 } );
+	tsp.setRow( 1, { 3,4 } );
+	tsp.setRow( 2, { 5,6 } );
+
+	auto ntsp = wv::Matrix::transpose( tsp );
+
 	wv::cMatrix4x4f test;
 	test.setRow( 0, { 3, 2, 0, 0 } );
 	test.setRow( 1, { 4, 3, 0, 0 } );
@@ -30,7 +37,6 @@ int main()
 	test.setRow( 3, { 0, 0, 7, 6 } );
 
 	wv::cMatrix4x4f inv = wv::Matrix::inverse( test );
-
 	auto id = test * inv; // identity
 
 	if ( sandbox.create() )

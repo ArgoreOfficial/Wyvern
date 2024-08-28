@@ -143,6 +143,20 @@ namespace wv
 			return im;
 		}
 
+		template<typename T, size_t R, size_t C>
+		cMatrix<T, C, R> transpose( const cMatrix<T, R, C>& _m )
+		{
+			cMatrix<T, C, R> res;
+
+			/// naive approach
+			/// TODO: optimize
+			for( size_t row = 0; row < R; row++ )
+				for( size_t col = 0; col < C; col++ )
+					res[ col ][ row ] = _m[ row ][ col ];
+			
+			return res;
+		}
+
 		template<typename T>
 		cMatrix<T, 4, 4> translate( const cMatrix<T, 4, 4>& _m, const wv::cVector3<T>& _pos )
 		{
