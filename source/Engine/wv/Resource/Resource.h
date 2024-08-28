@@ -32,6 +32,8 @@ namespace wv
 			m_path{_path}
 		{ }
 
+		virtual ~iResource() {};
+
 		/// TODO: impl? might place in iResourceRegistry
 		virtual void load  ( cFileSystem* _pFileSystem ) 
 		{ 

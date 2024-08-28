@@ -37,8 +37,6 @@ const char* wv::cBroadPhaseLayer::GetBroadPhaseLayerName( JPH::BroadPhaseLayer i
 }
 #endif
 
-#endif // WV_SUPPORT_PHYSICS && WV_SUPPORT_JOLT_PHYSICS
-
 bool wv::cObjectLayerPairFilter::ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const
 {
 	switch( inObject1 )
@@ -60,3 +58,5 @@ bool wv::cObjectVsBroadPhaseLayerFilter::ShouldCollide( JPH::ObjectLayer inLayer
 	default: return false;
 	}
 }
+
+#endif // WV_SUPPORT_PHYSICS && WV_SUPPORT_JOLT_PHYSICS

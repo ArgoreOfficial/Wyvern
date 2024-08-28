@@ -305,16 +305,24 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( hPhysicsBody& _handle )
 
 wv::cVector3f wv::cJoltPhysicsEngine::getBodyVelocity( hPhysicsBody& _handle )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	
 	return JPHtoWV( body->GetLinearVelocity() );
+#else
+	return {};
+#endif
 }
 
 wv::cVector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _handle )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 
 	return JPHtoWV( body->GetAngularVelocity() );
+#else
+	return {};
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -339,18 +347,22 @@ void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Tran
 
 void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const cVector3f& _velocity )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	JPH::Vec3 vel = WVtoJPH( _velocity );
 
 	body->SetLinearVelocity( WVtoJPH( _velocity ) );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, const cVector3f& _angularVelocity )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	JPH::Vec3 vel = WVtoJPH( _angularVelocity );
 
 	body->SetAngularVelocity( vel );
+#endif
 }

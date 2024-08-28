@@ -14,10 +14,14 @@
 
 #include <wv/Debug/Print.h>
 
+#include <string>
+
+
+#ifdef WV_CPP20
 #include <locale>
 #include <codecvt>
-#include <string>
 #include <filesystem>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +39,7 @@ wv::cFileSystem::~cFileSystem()
 
 wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::ifstream in( _path, std::ios::binary );
 	if ( !in.is_open() )
 	{
@@ -56,6 +61,9 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	m_mutex.unlock();
 
 	return mem;
+#else
+	return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -101,25 +109,37 @@ std::string wv::cFileSystem::loadString( const std::string& _path )
 
 bool wv::cFileSystem::fileExists( const std::string& _path )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::ifstream f( _path );
 	return f.good();
+#else
+	return false;
+#endif
 }
 
 bool wv::cFileSystem::fileExists( const std::wstring& _path )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::filesystem::path fpath( _path ); // might not be needed on windows?
 	std::ifstream f( fpath );
 	return f.good();
+#else
+	return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 std::wstring wv::cFileSystem::getFullPath( const std::string& _fileName )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::wstring wname = converter.from_bytes( _fileName ); // convert char string to wchar string
 
 	return getFullPath( wname );
+#else
+	return L"";
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +148,8 @@ std::wstring wv::cFileSystem::getFullPath( const std::wstring& _fileName )
 {
 	for ( int i = 0; i < m_directories.size(); i++ )
 	{
-		std::wstring wpath = m_directories[ i ] + _fileName;
+		std::wstring wpath = m_directories[ i ];
+		wpath.append( _fileName );
 
 		if ( fileExists( wpath ) )
 			return wpath;

@@ -3,6 +3,8 @@
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
 
+#include <stdint.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -16,7 +18,7 @@ namespace wv
 
 	class cColor
 	{
-
+		
 	public:
 
 		cColor( byte _r, byte _g, byte _b, byte _a = 255  );
