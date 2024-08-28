@@ -51,7 +51,7 @@ function load_platform()
         import( "core.project.config" )
         import("core.base.option")
 
-        target:add( "defines", "WV_PLATFORM_" .. string.upper( config.plat() ) )
+        -- target:add( "defines", "WV_PLATFORM_" .. string.upper( config.plat() ) )
         target:add( "defines", "WV_ARCH_"     .. string.upper( config.arch() ) )
         target:add( "defines", "WV_"          .. string.upper( config.mode() ) )
 

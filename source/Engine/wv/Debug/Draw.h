@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv 
+namespace wv
 {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -19,31 +19,34 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	namespace Debug::Draw
+	namespace Debug 
 	{
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-		namespace Internal
+		namespace Draw
 		{
-			struct Sphere { cVector3f position; float radius; }; /// TODO: move to wv/Math or similar
-			
-			static Mesh* SPHERE_MESH;
-			static Mesh* CUBE_MESH;
-			static cMaterial* DEBUG_MATERIAL;
 
-			static std::vector<Sphere> spheres;
-			static std::vector<Transformf> cubes;
+	///////////////////////////////////////////////////////////////////////////////////////
 
-			void initDebugDraw  ( iGraphicsDevice* _pGraphicsDevice, cMaterialRegistry* _pMaterialRegistry );
-			void deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice );
-			void drawDebug      ( iGraphicsDevice* _pGraphicsDevice );
+			namespace Internal
+			{
+				struct Sphere { cVector3f position; float radius; }; /// TODO: move to wv/Math or similar
+
+				static Mesh* SPHERE_MESH;
+				static Mesh* CUBE_MESH;
+				static cMaterial* DEBUG_MATERIAL;
+
+				static std::vector<Sphere> spheres;
+				static std::vector<Transformf> cubes;
+
+				void initDebugDraw( iGraphicsDevice* _pGraphicsDevice, cMaterialRegistry* _pMaterialRegistry );
+				void deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice );
+				void drawDebug( iGraphicsDevice* _pGraphicsDevice );
+			}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+			void AddSphere( cVector3f _position, float _radius = 1.0f );
+			void AddCube( Transformf _transform );
+
 		}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-		void AddSphere( cVector3f _position, float _radius = 1.0f );
-		void AddCube  ( Transformf _transform );
-		
 	}
 }
