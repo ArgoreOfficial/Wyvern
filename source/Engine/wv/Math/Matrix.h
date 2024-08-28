@@ -214,6 +214,44 @@ namespace wv
 
 			return mat * _m;
 		}
+
+		// https://jsantell.com/3d-projection/#field-of-view
+		template<typename T>
+		cMatrix<T, 4, 4> perspective( const T& _aspect, const T& _fov, const T& _near, const T& _far )
+		{
+			cMatrix<T, 4, 4> res{ 0 };
+
+			const T e = 1.0 / std::tan( _fov / 2.0 );
+			const T m00 = e / _aspect;
+			const T m22 = ( _far + _near )     / ( _near - _far );
+			const T m32 = ( 2 * _far * _near ) / ( _near - _far );
+
+			res.setRow( 0, { m00, 0,   0,  0 } );
+			res.setRow( 1, {   0, e,   0,  0 } );
+			res.setRow( 2, {   0, 0, m22, -1 } );
+			res.setRow( 3, {   0, 0, m32,  0 } );
+
+			return res;
+		}
+
+		/// TODO: focal length camera https://paulbourke.net/miscellaneous/lens/
+
+		template<typename T>
+		cMatrix<T, 1, 4> fromVector( const cVector4<T>& _vec )
+		{
+			cMatrix<T, 1, 4> m;
+			m.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
+			return m;
+		}
+
+		template<typename T>
+		cMatrix<T, 1, 3> fromVector( cVector3<T> _vec )
+		{
+			cMatrix<T, 1, 3> m;
+			m.setRow( 0, { _vec.x, _vec.y, _vec.z } );
+			return m;
+		}
+
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
