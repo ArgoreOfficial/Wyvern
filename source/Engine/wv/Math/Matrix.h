@@ -261,6 +261,24 @@ namespace wv
 			return res;
 		}
 
+		template<typename T>
+		cMatrix<T, 4, 4> orthographic( const T& _halfWidth, const T& _halfHeight, const T& _far, const T& _near )
+		{
+			cMatrix<T, 4, 4> res{ 0 };
+
+			T m00 = 1.0 / _halfWidth;
+			T m11 = 1.0 / _halfHeight;
+			T m22 = ( -2.0 ) / ( _far - _near );
+			T m32 = -( ( _far + _near ) / ( _far - _near ) );
+
+			res.setRow( 0, { m00,   0,   0, 0 } );
+			res.setRow( 1, {   0, m11,   0, 0 } );
+			res.setRow( 2, {   0,   0, m22, 0 } );
+			res.setRow( 3, {   0,   0, m32, 1 } );
+
+			return res;
+		}
+
 		/// TODO: focal length camera https://paulbourke.net/miscellaneous/lens/
 
 		template<typename T>

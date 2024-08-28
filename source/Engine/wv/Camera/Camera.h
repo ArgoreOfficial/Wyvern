@@ -47,10 +47,7 @@ namespace wv
 	protected:
 
 		cMatrix4x4f getPerspectiveMatrix( void );
-
-		/*
-		glm::mat4x4 getOrthographicMatrix( void );
-		*/
+		cMatrix4x4f getOrthographicMatrix( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

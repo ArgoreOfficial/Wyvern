@@ -110,7 +110,8 @@ void wv::FreeflightCamera::update( double _delta_time )
 	// right
 	cMatrix4x4f rot_right( 1.0f );
 	rot_right = Matrix::rotateY( rot_right, yaw );
-	//rot_right = glm::rotate( rot_right, pitch, { 1.0f, 0.0f, 0.0f } );
+	//rot_right = Matrix::rotateX( rot_right, pitch );
+
 	cVector4f right = cVector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
 
 	// up

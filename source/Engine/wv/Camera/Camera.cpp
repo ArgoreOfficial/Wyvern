@@ -20,7 +20,8 @@ wv::cMatrix4x4f wv::ICamera::getProjectionMatrix( void )
 {
 	switch( m_type )
 	{
-	case WV_CAMERA_TYPE_PERSPECTIVE:  return getPerspectiveMatrix();break;
+	case WV_CAMERA_TYPE_PERSPECTIVE:  return getPerspectiveMatrix ();break;
+	case WV_CAMERA_TYPE_ORTHOGRAPHIC: return getOrthographicMatrix();break;
 	}
 
 	return cMatrix4x4f{ 1.0f };
@@ -36,17 +37,16 @@ wv::cMatrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-/*
-glm::mat4x4 wv::ICamera::getOrthographicMatrix( void )
+
+wv::cMatrix4x4f wv::ICamera::getOrthographicMatrix( void )
 {
 	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 	float w = (float)ctx->getWidth()  / 2.0f;
 	float h = (float)ctx->getHeight() / 2.0f;
 
-	return glm::ortho( -w, w, -h, h, -1000.0f, 1000.0f );
+	return Matrix::orthographic( w, h, -1000.0f, 1000.0f );
 }
 
-*/
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cMatrix4x4f wv::ICamera::getViewMatrix( void )
