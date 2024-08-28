@@ -5,10 +5,6 @@
 #include <wv/Events/MouseListener.h>
 #include <wv/Events/InputListener.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include <wv/Math/Transform.h>
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>

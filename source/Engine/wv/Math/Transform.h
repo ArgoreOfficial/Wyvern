@@ -1,10 +1,6 @@
 #pragma once
 #include <wv/Math/Vector3.h>
 
-/// TODO: change to wv/Math/Matrix
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <wv/Math/Matrix.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -27,44 +23,24 @@ namespace wv
 		inline void translate( wv::cVector3<T> _translation ) { position += _translation; }
 		inline void rotate   ( wv::cVector3<T> _rotation )    { rotation += _rotation; }
 		
-		inline glm::mat<4, 4, T> getMatrix() { return m_matrix; }
-		inline cMatrix<T, 4, 4> getWVMatrix() { return m_wvMatrix; }
+		inline cMatrix<T, 4, 4> getMatrix() { return m_matrix; }
 
 		void update()
 		{
-			{
-				glm::mat<4, 4, T> model( 1 );
-
-				model = glm::translate( model, glm::vec<3, T>{ position.x, position.y, position.z } );
-			
-				model = glm::rotate<T>( model, glm::radians( rotation.z ), glm::vec<3, T>{ 0, 0, 1 } ); // roll
-				model = glm::rotate<T>( model, glm::radians( rotation.y ), glm::vec<3, T>{ 0, 1, 0 } ); // yaw
-				model = glm::rotate<T>( model, glm::radians( rotation.x ), glm::vec<3, T>{ 1, 0, 0 } ); // pitch
-
-				model = glm::scale( model, glm::vec<3, T>{ scale.x, scale.y, scale.z } );
-
-				if( parent != nullptr )
-					model = parent->getMatrix() * model;
-
-				m_matrix = model;
-			}
-
-			{
-				cMatrix<T, 4, 4> model{ 1 };
+			cMatrix<T, 4, 4> model{ 1 };
 				
-				model = Matrix::translate( model, position );
+			model = Matrix::translate( model, position );
 
-				model = Matrix::rotateZ( model, Math::degToRad( rotation.z ) );
-				model = Matrix::rotateY( model, Math::degToRad( rotation.y ) );
-				model = Matrix::rotateX( model, Math::degToRad( rotation.x ) );
+			model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
+			model = Matrix::rotateY( model, Math::radians( rotation.y ) );
+			model = Matrix::rotateX( model, Math::radians( rotation.x ) );
 				
-				model = Matrix::scale( model, scale );
+			model = Matrix::scale( model, scale );
 
-				if ( parent != nullptr )
-					model = model * parent->getWVMatrix();
+			if ( parent != nullptr )
+				model = model * parent->getMatrix();
 
-				m_wvMatrix = model;
-			}
+			m_matrix = model;
 		}
 
 		inline cVector3<T> forward()
@@ -81,9 +57,7 @@ namespace wv
 
 	private:
 
-		cMatrix<T, 4, 4> m_wvMatrix{ 1 };
-
-		glm::mat<4, 4, T> m_matrix{ 1 };
+		cMatrix<T, 4, 4> m_matrix{ 1 };
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////

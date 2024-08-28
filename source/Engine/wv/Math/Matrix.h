@@ -65,6 +65,33 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	template<typename T>
+	cVector4<T> operator * ( const cMatrix<T, 4, 4>& _mat, const cVector4<T>& _vec )
+	{
+		cMatrix<T, 4, 1> tmpMat{};
+		tmpMat[ 0 ][ 0 ] = _vec.x;
+		tmpMat[ 1 ][ 0 ] = _vec.y;
+		tmpMat[ 2 ][ 0 ] = _vec.z;
+		tmpMat[ 3 ][ 0 ] = _vec.w;
+
+		auto res = _mat * tmpMat;
+		
+		return { res[ 1 ][ 0 ], res[ 1 ][ 0 ], res[ 2 ][ 0 ], res[ 3 ][ 0 ] };
+	}
+
+	template<typename T>
+	cVector4<T> operator * ( const cVector4<T>& _vec, const cMatrix<T, 4, 4>& _mat )
+	{
+		cMatrix<T, 1, 4> tmpMat{};
+		tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.z } );
+		
+		auto res = tmpMat * _mat;
+
+		return { res[ 0 ][ 0 ], res[ 0 ][ 1 ], res[ 0 ][ 2 ], res[ 0 ][ 3 ] };
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	namespace Matrix
 	{
 
@@ -257,6 +284,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	typedef cMatrix<float, 4, 4> cMatrix4x4f;
+	typedef cMatrix<float, 3, 3> cMatrix3x3f;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	

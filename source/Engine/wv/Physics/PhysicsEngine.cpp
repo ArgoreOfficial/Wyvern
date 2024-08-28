@@ -292,9 +292,9 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( hPhysicsBody& _handle )
 	Transformf transform{};
 	transform.position = cVector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
 	transform.rotation = cVector3f{ 
-		wv::Math::radToDeg( rot.GetX() ), 
-		wv::Math::radToDeg( rot.GetY() ), 
-		wv::Math::radToDeg( rot.GetZ() ) 
+		wv::Math::degrees( rot.GetX() ), 
+		wv::Math::degrees( rot.GetY() ), 
+		wv::Math::degrees( rot.GetZ() ) 
 	};
 
 	return transform;
@@ -326,9 +326,9 @@ void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Tran
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot{
-		wv::Math::degToRad( _transform.rotation.x ),
-		wv::Math::degToRad( _transform.rotation.y ),
-		wv::Math::degToRad( _transform.rotation.z )
+		wv::Math::radians( _transform.rotation.x ),
+		wv::Math::radians( _transform.rotation.y ),
+		wv::Math::radians( _transform.rotation.z )
 	};
 
 	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);

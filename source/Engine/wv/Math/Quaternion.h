@@ -106,7 +106,7 @@ namespace wv
 	template<typename T>
 	inline void cQuaternion<T>::toUnitNorm()
 	{
-		T angle = Math::degToRad( s );
+		T angle = Math::radians( s );
 		v.normalize();
 		s = std::cos( angle / T{ 2 } );
 		v = v * std::sin( angle / T{ 2 } );

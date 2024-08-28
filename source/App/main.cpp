@@ -23,6 +23,19 @@ int main()
 	auto I = A * G * A;
 	*/
 
+	wv::cMatrix<float, 4, 1> v1;
+	wv::cMatrix<float, 1, 4> v2;
+	wv::cMatrix4x4f m;
+
+	auto vm1 = m * v1;
+	auto vm2 = v2 * m;
+
+
+
+
+
+
+
 	wv::cMatrix<float, 3, 2> tsp;
 	tsp.setRow( 0, { 1,2 } );
 	tsp.setRow( 1, { 3,4 } );

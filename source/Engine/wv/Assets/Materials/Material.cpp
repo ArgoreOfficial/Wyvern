@@ -11,8 +11,6 @@
 #include <wv/Shader/ShaderRegistry.h>
 #include <wv/Auxiliary/json.hpp>
 
-#include <glm/glm.hpp>
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -85,9 +83,9 @@ void wv::cMaterial::setDefaultViewUniforms()
 	// camera transorm
 	wv::UniformBlock& block = *m_program->getUniformBlock( "UbInstanceData" );
 
-	glm::mat4x4 projection = app->currentCamera->getProjectionMatrix();
-	glm::mat4x4 view = app->currentCamera->getViewMatrix();
-	glm::mat4x4 model{ 1.0f };
+	cMatrix4x4f projection = app->currentCamera->getProjectionMatrix();
+	cMatrix4x4f view       = app->currentCamera->getViewMatrix();
+	cMatrix4x4f model{ 1.0f };
 
 	block.set( "u_Projection", projection );
 	block.set( "u_View", view );
@@ -101,7 +99,7 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 	// model transform
 	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
 
-	instanceBlock.set( "u_Model", _mesh->transform.getWVMatrix() );
+	instanceBlock.set( "u_Model", _mesh->transform.getMatrix() );
 
 	// bind textures
 	int texSlot = 0;

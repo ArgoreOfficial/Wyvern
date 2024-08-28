@@ -36,11 +36,11 @@ namespace wv
 		template <typename T> T max  ( const T& _a, const T& _b );
 		template <typename T> T lerp ( const T& _a, const T& _b, const T& _t );
 
-		inline float  degToRad( const float&  _degrees ) { return _degrees * ( Const::Float::PI  / 180.0f ); }
-		inline double degToRad( const double& _degrees ) { return _degrees * ( Const::Double::PI / 180.0 ); }
+		inline float  radians( const float&  _degrees ) { return _degrees * ( Const::Float::PI  / 180.0f ); }
+		inline double radians( const double& _degrees ) { return _degrees * ( Const::Double::PI / 180.0 ); }
 
-		inline float  radToDeg( const float&  _radians ) { return _radians * ( 180.0f / Const::Float::PI ); }
-		inline double radToDeg( const double& _radians ) { return _radians * ( 180.0  / Const::Double::PI ); }
+		inline float  degrees( const float&  _radians ) { return _radians * ( 180.0f / Const::Float::PI ); }
+		inline double degrees( const double& _radians ) { return _radians * ( 180.0  / Const::Double::PI ); }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////

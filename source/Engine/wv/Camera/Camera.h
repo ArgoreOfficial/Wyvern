@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef WV_SUPPORT_GLM
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#endif
-
 #include <wv/Math/Transform.h>
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector2.h>
@@ -36,8 +31,9 @@ namespace wv
 		virtual void onCreate() { }
 		virtual void update( double _delta_time ) { }
 
-		glm::mat4x4 getProjectionMatrix( void );
-		glm::mat4x4 getViewMatrix( void );
+		cMatrix4x4f getProjectionMatrix( void );
+
+		cMatrix4x4f getViewMatrix( void );
 
 		Transformf& getTransform( void ) { return m_transform; }
 		cVector3f getViewDirection();
@@ -50,8 +46,11 @@ namespace wv
 
 	protected:
 
-		glm::mat4x4 getPerspectiveMatrix ( void );
+		cMatrix4x4f getPerspectiveMatrix( void );
+
+		/*
 		glm::mat4x4 getOrthographicMatrix( void );
+		*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

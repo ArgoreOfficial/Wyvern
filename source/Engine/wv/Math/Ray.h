@@ -3,6 +3,8 @@
 #include <wv/Math/Triangle.h>
 #include <wv/Primitive/Mesh.h>
 
+#include <wv/Math/Matrix.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -123,16 +125,15 @@ namespace wv
 	template<>
 	inline RayIntersection Ray::intersect<Mesh>( Mesh* _t )
 	{
-		/// TODO: remove glm
-
-		glm::vec4 s = glm::vec4{ start.x, start.y, start.z, 1.0f };
-		glm::vec4 e = glm::vec4{   end.x,   end.y,   end.z, 1.0f };
-		s = glm::inverse( _t->transform.getMatrix() ) * s;
-		e = glm::inverse( _t->transform.getMatrix() ) * e;
+		
+		cVector4f s{ start.x, start.y, start.z, 1.0f };
+		cVector4f e{   end.x,   end.y,   end.z, 1.0f };
+		s = Matrix::inverse( _t->transform.getMatrix() ) * s;
+		e = Matrix::inverse( _t->transform.getMatrix() ) * e;
 
 		wv::Ray ray{
-			wv::Vector3f{ s.x, s.y, s.z },
-			wv::Vector3f{ e.x, e.y, e.z }
+			wv::cVector3f{ s.x, s.y, s.z },
+			wv::cVector3f{ e.x, e.y, e.z }
 		};
 
 		float rayLen = ray.length();

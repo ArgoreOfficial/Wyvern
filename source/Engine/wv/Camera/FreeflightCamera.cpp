@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL_keycode.h> /// TODO: remove
 
+#include <wv/Math/Matrix.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
@@ -91,26 +93,28 @@ void wv::FreeflightCamera::update( double _delta_time )
 	if ( m_transform.rotation.x < -89.0f )
 		m_transform.rotation.x = -89.0f;
 
-	float yaw   = glm::radians( m_transform.rotation.y );
-	float pitch = glm::radians( m_transform.rotation.x );
-	float roll  = 0.0f; // glm::radians( 0.0f );
+	float yaw   = Math::radians( m_transform.rotation.y );
+	float pitch = Math::radians( m_transform.rotation.x );
+	float roll  = 0.0f;
 
 	// TODO: change to wv::matrix
 
 	// forward
-	glm::mat4 rot_forward( 1.0f );
-	rot_forward = glm::rotate( rot_forward, yaw, { 0.0f, 1.0f, 0.0f } );
-	rot_forward = glm::rotate( rot_forward, pitch, { 1.0f, 0.0f, 0.0f } );
-	glm::vec4 forward = rot_forward * glm::vec4{ 0.0f, 0.0f, -1.0f, 1.0f };;
+	
+	cMatrix4x4f rot_forward( 1.0f );
+	rot_forward = Matrix::rotateY( rot_forward, yaw );
+	rot_forward = Matrix::rotateX( rot_forward, pitch );
+
+	cVector4f forward = cVector4f{ 0.0f, 0.0f, -1.0f, 1.0f } * rot_forward;
 	
 	// right
-	glm::mat4 rot_right( 1.0f );
-	rot_right = glm::rotate( rot_right, yaw,  { 0.0f, 1.0f, 0.0f } );
+	cMatrix4x4f rot_right( 1.0f );
+	rot_right = Matrix::rotateY( rot_right, yaw );
 	//rot_right = glm::rotate( rot_right, pitch, { 1.0f, 0.0f, 0.0f } );
-	glm::vec4 right = rot_right * glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f };;
+	cVector4f right = cVector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
 
 	// up
-	glm::vec4 up = rot_forward * glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f };;
+	cVector4f up = cVector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
 
 	cVector3f move = cVector3f{ forward.x, forward.y, forward.z } * -m_move.z;
 	move += cVector3f{ right.x, right.y, right.z } * m_move.x;
