@@ -37,6 +37,10 @@ namespace wv
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
 		
+	#ifdef WV_EDITOR
+		bool isEditorSelected() { return m_editorSelected; }
+	#endif
+
 		std::vector<iSceneObject*> getChildren( void ) { return m_children; };
 		iSceneObject*              getParent  ( void ) { return m_parent; }
 
@@ -130,6 +134,10 @@ namespace wv
 		
 		iSceneObject* m_parent = nullptr;
 		std::vector<iSceneObject*> m_children{};
+
+	#ifdef WV_EDITOR
+		bool m_editorSelected = false;
+	#endif
 
 	private:
 		bool m_loaded  = false;
