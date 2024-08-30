@@ -359,6 +359,7 @@ void wv::cEngine::tick()
 	if( m_pIRTHandler )
 	{
 		graphics->setRenderTarget( m_pScreenRenderTarget );
+		graphics->clearRenderTarget( true, true );
 		m_pIRTHandler->draw( graphics );
 	}
 
