@@ -16,6 +16,7 @@
 #include "SceneObjects/RewindSettingsWindow.h"
 
 #include <wv/Reflection/ReflectedClass.h>
+#include "IRTWindow/IRTViewportHandler.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,14 +38,14 @@ bool cSandbox::create( void )
 #else
 	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
-	ctxDesc.graphicsApiVersion.major = 3;
-	ctxDesc.graphicsApiVersion.minor = 1;
+	ctxDesc.graphicsApiVersion.major = 4;
+	ctxDesc.graphicsApiVersion.minor = 6;
 #endif
 
 	ctxDesc.name   = "Wyvern Sandbox";
 	ctxDesc.width  = engineDesc.windowWidth;
 	ctxDesc.height = engineDesc.windowHeight;
-	ctxDesc.allowResize = false;
+	ctxDesc.allowResize = true;
 
 	wv::iDeviceContext* deviceContext = wv::iDeviceContext::getDeviceContext( &ctxDesc );
 	if ( !deviceContext )
@@ -89,6 +90,8 @@ bool cSandbox::create( void )
 
 	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/rewindableObjects.json" );
 	appState->addScene( scene );
+
+	engineDesc.pIRTHandler = new cIRTViewportHandler();
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
