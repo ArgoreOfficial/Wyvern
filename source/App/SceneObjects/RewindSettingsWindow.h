@@ -47,7 +47,9 @@ namespace psq
 		void onLoadImpl   ( void ) override { };
 		void onUnloadImpl ( void ) override { };
 		void onCreateImpl ( void ) override { };
-		void onDestroyImpl( void ) override { };
+		void onDestroyImpl( void ) override { 
+			unsubscribeInputEvent();
+		};
 
 		void updateImpl( double _deltaTime ) override;
 		void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
