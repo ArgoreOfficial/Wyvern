@@ -59,9 +59,13 @@ namespace wv
 		cVector3f   getBodyVelocity       ( hPhysicsBody& _handle );
 		cVector3f   getBodyAngularVelocity( hPhysicsBody& _handle );
 
+		bool isBodyActive( hPhysicsBody& _handle );
+
 		void setBodyTransform      ( hPhysicsBody& _handle, const Transformf& _transform );
 		void setBodyVelocity       ( hPhysicsBody& _handle, const cVector3f& _velocity );
 		void setBodyAngularVelocity( hPhysicsBody& _handle, const cVector3f& _angularVelocity );
+
+		void setBodyActive( hPhysicsBody& _handle, bool _active );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

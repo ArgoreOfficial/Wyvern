@@ -325,6 +325,11 @@ wv::cVector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _han
 #endif
 }
 
+bool wv::cJoltPhysicsEngine::isBodyActive( hPhysicsBody& _handle )
+{
+	return m_bodies.at( _handle.value() )->IsActive();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Transformf& _transform )
@@ -338,8 +343,8 @@ void wv::cJoltPhysicsEngine::setBodyTransform( hPhysicsBody& _handle, const Tran
 		wv::Math::radians( _transform.rotation.y ),
 		wv::Math::radians( _transform.rotation.z )
 	};
-
-	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate);
+	
+	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -350,7 +355,7 @@ void wv::cJoltPhysicsEngine::setBodyVelocity( hPhysicsBody& _handle, const cVect
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	JPH::Vec3 vel = WVtoJPH( _velocity );
-
+	
 	body->SetLinearVelocity( WVtoJPH( _velocity ) );
 #endif
 }
@@ -365,4 +370,14 @@ void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, cons
 
 	body->SetAngularVelocity( vel );
 #endif
+}
+
+void wv::cJoltPhysicsEngine::setBodyActive( hPhysicsBody& _handle, bool _active )
+{
+	JPH::Body* body = m_bodies.at( _handle.value() );
+	
+	if( _active )
+		m_pBodyInterface->ActivateBody( body->GetID() );
+	else
+		m_pBodyInterface->DeactivateBody( body->GetID() );
 }

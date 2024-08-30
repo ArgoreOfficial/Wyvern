@@ -36,6 +36,9 @@ namespace wv
 
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
+		
+		std::vector<iSceneObject*> getChildren( void ) { return m_children; };
+		iSceneObject*              getParent  ( void ) { return m_parent; }
 
 		void onLoad()
 		{
@@ -120,7 +123,7 @@ namespace wv
 		virtual void onDestroyImpl() = 0;
 
 		virtual void updateImpl( double _deltaTime ) = 0;
-		virtual void drawImpl( iDeviceContext* _context, iGraphicsDevice* _device ) = 0;
+		virtual void drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) = 0;
 
 		uint64_t    m_uuid;
 		std::string m_name;

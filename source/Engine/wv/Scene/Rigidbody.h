@@ -40,7 +40,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-		Mesh*   m_pMesh    = nullptr;
+		Mesh*       m_pMesh    = nullptr;
 		std::string m_meshPath = "";
 
 		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
