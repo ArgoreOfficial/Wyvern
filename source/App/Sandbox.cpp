@@ -12,7 +12,10 @@
 
 #include <wv/Scene/SceneRoot.h>
 
-#include "SceneObjects/DemoWindow.h"
+#include "SceneObjects/RewindableRigidbody.h"
+#include "SceneObjects/RewindSettingsWindow.h"
+
+#include <wv/Reflection/ReflectedClass.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +50,7 @@ bool cSandbox::create( void )
 	if ( !deviceContext )
 		return false;
 
-	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
+	deviceContext->setSwapInterval( 1 ); // vsync
 
 	// create graphics device
 	wv::GraphicsDeviceDesc deviceDesc;
@@ -84,9 +87,8 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
-	// load scenes
-	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
-	appState->addScene( scene ); // the engine will load into scene 0 by default
+	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/rewindableObjects.json" );
+	appState->addScene( scene );
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );

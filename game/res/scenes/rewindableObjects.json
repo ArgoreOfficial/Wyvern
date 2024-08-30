@@ -1,0 +1,117 @@
+{
+    "name" : "defaultScene",
+    "scene" : [
+        {
+            "uuid" : 28752,
+            "name" : "FloorRigidbody",
+            "type" : "cRigidbody",
+            "transform" : { "pos":[0.0,-7.0,0.0], "rot":[0.0,0.0,0.0], "scl":[200.0,2.0,200.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [100.0,1.0,100.0]
+            },
+            "children" : []
+        },
+        {
+            "name" : "wall",
+            "type" : "cRigidbody",
+            "transform" : { "pos":[0.0,-4.5,50.0], "rot":[0.0,0.0,0.0], "scl":[100.0,4.0,1.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [50.0,2.0,0.5]
+            },
+            "children" : []
+        },
+        {
+            "name" : "wall",
+            "type" : "cRigidbody",
+            "transform" : { "pos":[0.0,-4.5,-50.0], "rot":[0.0,0.0,0.0], "scl":[100.0,4.0,1.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [50.0,2.0,0.5]
+            },
+            "children" : []
+        },
+        {
+            "name" : "wall",
+            "type" : "cRigidbody",
+            "transform" : { "pos":[50.0,-4.5,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,4.0,100.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [0.5,2.0,50.0]
+            },
+            "children" : []
+        },
+        {
+            "name" : "wall",
+            "type" : "cRigidbody",
+            "transform" : { "pos":[-50.0,-4.5,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,4.0,100.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 0,
+                "halfExtents" : [0.5,2.0,50.0]
+            },
+            "children" : []
+        },
+        {
+            "name" : "SphereRigidbody",
+            "type" : "psq::cRewindableRigidbody",
+            "transform" : { "pos":[0.3,2.0,0.0], "rot":[0.0,0.0,0.0], "scl":[2.0,2.0,2.0] },
+            "data" : {
+                "path" : "res/meshes/debug-sphere.dae",
+                "shape" : 1,
+                "kind" : 1,
+                "radius" : 1.0
+            },
+            "children" : [
+                {
+                    "name" : "smallRect",
+                    "type" : "cModelObject",
+                    "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[0.3,1.2,0.3] },
+                    "data" : {},
+                    "children" : []
+                }
+            ]
+        },
+        {
+            "name" : "BoxRigidbody",
+            "type" : "psq::cRewindableRigidbody",
+            "transform" : { "pos":[0.0,1.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,2.0,1.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 1,
+                "halfExtents" : [0.5,1.0,0.5]
+            },
+            "children" : []
+        },
+        {
+            "name" : "RewindTime",
+            "type" : "psq::cRewindableRigidbody",
+            "transform" : { "pos":[0.0,1.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {
+                "shape" : 2,
+                "kind" : 1,
+                "halfExtents" : [0.5,0.5,0.5]
+            },
+            "children" : []
+        },
+        {
+            "name" : "RewindSettings",
+            "type" : "psq::cRewindSettingsWindow",
+            "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {},
+            "children" : []
+        },
+        {
+            "name" : "Skybox",
+            "type" : "cSkyboxObject",
+            "transform" : { "pos":[0.0,0.0,0.0], "rot":[0.0,0.0,0.0], "scl":[1.0,1.0,1.0] },
+            "data" : {},
+            "children" : []
+        }
+    ]
+}

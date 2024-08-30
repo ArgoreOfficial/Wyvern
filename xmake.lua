@@ -4,7 +4,7 @@
 
 ]]--
 
-PROJECT_NAME = "Sandbox"
+PROJECT_NAME = "08 Speed-Prototyping"
 
 set_project( PROJECT_NAME )
 set_version( "0.0.1" )
