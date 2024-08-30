@@ -87,7 +87,10 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	m_graphicsApiVersion.major = GLVersion.major;
 	m_graphicsApiVersion.minor = GLVersion.minor;
 	
-	m_boundTextureSlots.assign( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, 0 );
+	int numTextureUnits = 0;
+	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits );
+
+	m_boundTextureSlots.assign( numTextureUnits, 0 );
 
 	return true;
 }
@@ -195,9 +198,12 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarge
 
 	for ( int i = 0; i < rt->numTextures; i++ )
 	{
-		wv::Handle handle = rt->textures[ i ]->getHandle();
-		WV_ASSERT_GL( glDeleteTextures, 1, &handle );
+		destroyTexture( &rt->textures[ i ] );
+		//wv::Handle handle = rt->textures[ i ]->getHandle();
+		//WV_ASSERT_GL( glDeleteTextures, 1, &handle );
 	}
+
+	*_renderTarget = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -653,13 +659,15 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	}
 	_pTexture->setWidth( _desc->width );
 	_pTexture->setHeight( _desc->height );
+
+	// Debug::Print( Debug::WV_PRINT_DEBUG, "Created texture %s\n", _pTexture->getName().c_str() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 {
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture\n" );
+	// Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture %s\n", (*_texture)->getName().c_str() );
 
 	wv::Handle handle = ( *_texture )->getHandle();
 	WV_ASSERT_GL( glDeleteTextures, 1, &handle );
@@ -671,9 +679,6 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 
 void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
-	if ( m_boundTextureSlots[ _slot ] == _texture->getHandle() )
-		return;
-
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{

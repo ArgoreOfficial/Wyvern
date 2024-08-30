@@ -16,6 +16,8 @@ namespace wv
 	class iGraphicsDevice;
 	class AudioDevice;
 
+	class iIntermediateRenderTargetHandler;
+
 	class Mesh;
 	class ICamera;
 	class RenderTarget;
@@ -56,6 +58,11 @@ namespace wv
 			cShaderRegistry* pShaderRegistry;
 		} systems;
 
+		/// <summary>
+		/// Optional intermediate render target. Can be used to render to viewport
+		/// </summary>
+		iIntermediateRenderTargetHandler* pIRTHandler = nullptr;
+
 		cApplicationState* pApplicationState = nullptr;
 	};
 
@@ -80,6 +87,13 @@ namespace wv
 
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
+		wv::Vector2i getViewportSize();
+		float getViewportAspect()
+		{
+			wv::Vector2i size = getViewportSize();
+			return ( float )size.x / ( float )size.y;
+		}
+
 		void run();
 		void terminate();
 		void tick();
@@ -103,12 +117,8 @@ namespace wv
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
 
-		/*
-		 * Special render target with handle 0
-		 * targetting the default context
-		 * backbuffer.
-		 */
-		RenderTarget* m_defaultRenderTarget = nullptr;
+		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
+		RenderTarget* m_pScreenRenderTarget = nullptr;
 
 		cApplicationState* m_pApplicationState = nullptr;
 
@@ -127,6 +137,8 @@ namespace wv
 
 		void createScreenQuad();
 		void createGBuffer();
+
+		void recreateScreenRenderTarget( int _width, int _height );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

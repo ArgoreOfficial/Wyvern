@@ -19,6 +19,7 @@
 #include <wv/Physics/PhysicsEngine.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
+#include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
 
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Model.h>
@@ -76,10 +77,16 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pShaderRegistry   = _desc->systems.pShaderRegistry;
 	m_pMaterialRegistry = new cMaterialRegistry( m_pFileSystem, graphics, m_pShaderRegistry );
 
-	m_defaultRenderTarget = new RenderTarget();
-	m_defaultRenderTarget->width  = _desc->windowWidth;
-	m_defaultRenderTarget->height = _desc->windowHeight;
-	m_defaultRenderTarget->fbHandle = 0;
+	m_pIRTHandler = _desc->pIRTHandler;
+	
+	if( m_pIRTHandler )
+		m_pIRTHandler->create( graphics );
+
+	m_pScreenRenderTarget = new RenderTarget();
+	m_pScreenRenderTarget->width = _desc->windowWidth;
+	m_pScreenRenderTarget->height = _desc->windowHeight;
+	m_pScreenRenderTarget->fbHandle = 0;
+	
 
 	m_pApplicationState = _desc->pApplicationState;
 
@@ -97,7 +104,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		createGBuffer();
 	}
 	
-	graphics->setRenderTarget( m_defaultRenderTarget );
+	graphics->setRenderTarget( m_pScreenRenderTarget );
 	graphics->setClearColor( wv::Color::Black );
 
 	initImgui();
@@ -146,19 +153,7 @@ wv::Handle wv::cEngine::getUniqueHandle()
 void wv::cEngine::onResize( int _width, int _height )
 {
 	context->onResize( _width, _height );
-	graphics->onResize( _width, _height );
-
-	// recreate render target
-	m_defaultRenderTarget->width = _width;
-	m_defaultRenderTarget->height = _height;
-	graphics->setRenderTarget( m_defaultRenderTarget );
-
-	graphics->destroyRenderTarget( &m_gbuffer );
-	
-	if ( _width == 0 || _height == 0 )
-		return;
-	
-	createGBuffer();
+	recreateScreenRenderTarget( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -191,6 +186,19 @@ void emscriptenMainLoop() { wv::cEngine::get()->tick(); }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+wv::Vector2i wv::cEngine::getViewportSize()
+{
+	if( m_pIRTHandler )
+	{
+		if( m_pIRTHandler->m_pRenderTarget )
+			return { m_pIRTHandler->m_pRenderTarget->width, m_pIRTHandler->m_pRenderTarget->height };
+		else
+			return { 1,1 };
+	}
+	
+	return { context->getWidth(), context->getHeight() };
+}
 
 void wv::cEngine::run()
 {
@@ -311,7 +319,7 @@ void wv::cEngine::tick()
 
 	/// ------------------ render ------------------ ///
 	
-	if ( !m_gbuffer || m_defaultRenderTarget->width == 0 || m_defaultRenderTarget->height == 0 )
+	if ( !m_gbuffer || m_pScreenRenderTarget->width == 0 || m_pScreenRenderTarget->height == 0 )
 		return;
 
 	graphics->setRenderTarget( m_gbuffer );
@@ -330,8 +338,14 @@ void wv::cEngine::tick()
 
 	Debug::Draw::Internal::drawDebug( graphics );
 
-	// normal back buffer
-	graphics->setRenderTarget( m_defaultRenderTarget );
+	if( m_pIRTHandler )
+	{
+		if( m_pIRTHandler->m_pRenderTarget )
+			graphics->setRenderTarget( m_pIRTHandler->m_pRenderTarget );
+	}
+	else
+		graphics->setRenderTarget( m_pScreenRenderTarget );
+	
 	graphics->clearRenderTarget( true, true );
 
 	// bind gbuffer textures to deferred pass
@@ -342,12 +356,32 @@ void wv::cEngine::tick()
 	graphics->useProgram( m_deferredProgram );
 	graphics->draw( m_screenQuad );
 	
+	if( m_pIRTHandler )
+	{
+		graphics->setRenderTarget( m_pScreenRenderTarget );
+		m_pIRTHandler->draw( graphics );
+	}
+
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 #endif // WV_SUPPORT_IMGUI
 
 	context->swapBuffers();
+
+	if( m_pIRTHandler )
+	{
+		if( m_pIRTHandler->shouldRecreate() )
+		{
+			m_pIRTHandler->destroy();
+			m_pIRTHandler->create( graphics );
+
+			if( m_pIRTHandler->m_pRenderTarget )
+				recreateScreenRenderTarget( m_pIRTHandler->m_pRenderTarget->width, m_pIRTHandler->m_pRenderTarget->height );
+		}
+	}
+
+
 }
 
 void wv::cEngine::quit()
@@ -445,12 +479,10 @@ void wv::cEngine::createScreenQuad()
 void wv::cEngine::createGBuffer()
 {
 	RenderTargetDesc rtDesc;
-	rtDesc.width  = context->getWidth();
-	rtDesc.height = context->getHeight();
+	Vector2i size = getViewportSize();
+	rtDesc.width  = size.x;
+	rtDesc.height = size.y;
 	
-	//rtDesc.width  = 640;
-	//rtDesc.height = 480;
-
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
 	#ifdef EMSCRIPTEN
@@ -469,3 +501,21 @@ void wv::cEngine::createGBuffer()
 
 	m_gbuffer = graphics->createRenderTarget( &rtDesc );
 }
+
+void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
+{
+	graphics->onResize( _width, _height );
+
+	// recreate render target
+	m_pScreenRenderTarget->width = _width;
+	m_pScreenRenderTarget->height = _height;
+	
+	if( m_gbuffer )
+		graphics->destroyRenderTarget( &m_gbuffer );
+
+	if( _width == 0 || _height == 0 )
+		return;
+
+	createGBuffer();
+}
+

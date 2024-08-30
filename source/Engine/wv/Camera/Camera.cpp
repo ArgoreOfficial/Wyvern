@@ -31,9 +31,9 @@ wv::cMatrix4x4f wv::ICamera::getProjectionMatrix( void )
 
 wv::cMatrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
-	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+	wv::cEngine* engine = wv::cEngine::get();
 	
-	return Matrix::perspective( ctx->getAspect(), Math::radians( fov ), m_near, m_far );
+	return Matrix::perspective( engine->getViewportAspect(), Math::radians( fov ), m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
