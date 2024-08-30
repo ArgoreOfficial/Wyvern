@@ -1,6 +1,7 @@
 #include "RewindSettingsWindow.h"
 
 #include <imgui.h>
+#include <SDL2/SDL_keycode.h>
 
 psq::cRewindSettingsWindow::cRewindSettingsWindow( const wv::UUID& _uuid, const std::string& _name ) :
 	wv::iSceneObject( _uuid, _name )
@@ -8,6 +9,14 @@ psq::cRewindSettingsWindow::cRewindSettingsWindow( const wv::UUID& _uuid, const 
 	m_recorder.startRecordingVariable( &m_windowPos );
 
 	m_recorder.setEnabled( m_rewindImgui );
+
+	subscribeInputEvent();
+}
+
+void psq::cRewindSettingsWindow::onInputEvent( wv::InputEvent _event )
+{
+	if( _event.buttondown && _event.key == SDLK_SPACE ) 
+		togglePause();
 }
 
 void psq::cRewindSettingsWindow::updateImpl( double _deltaTime )
@@ -40,29 +49,23 @@ void psq::cRewindSettingsWindow::drawImpl( wv::iDeviceContext* _context, wv::iGr
 		}
 	}
 
-	bool wopen = ImGui::Begin( m_name.c_str() );
+	bool wopen = ImGui::Begin( m_name.c_str(), 0, ImGuiWindowFlags_AlwaysAutoResize );
 	pos = ImGui::GetWindowPos();
-
-
 
 	if ( wopen )
 	{
-		ImGui::Checkbox( "##Pause", &cRewindSettingsWindow::worldIsPaused );
+		const char* buttonLabel = cRewindSettingsWindow::worldIsPaused ? "Play" : "Pause";
+		if( ImGui::Button( buttonLabel ) ) togglePause();
 		
 		if( !cRewindSettingsWindow::worldIsPaused )
 			ImGui::BeginDisabled();
 
-		ImGui::SameLine();
 		ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
 		
-		float minY = ImGui::GetWindowContentRegionMin().y + ImGui::GetWindowPos().y;
-		float maxY = ImGui::GetWindowContentRegionMax().y + ImGui::GetWindowPos().y;
-		
-		ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 4, ( maxY - minY ) * 0.5f - 7.0f } );
+		ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 4, 60 } );
 		ImGui::SliderInt( "##Frame", &cRewindSettingsWindow::currentFrame, 0.f, m_maxFrames );
+		ImGui::PopStyleVar();
 		
-		ImGui::PopStyleVar( 2 );
-
 		if( !cRewindSettingsWindow::worldIsPaused )
 			ImGui::EndDisabled();
 	}

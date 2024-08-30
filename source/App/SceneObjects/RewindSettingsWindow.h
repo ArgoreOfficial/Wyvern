@@ -6,9 +6,11 @@
 #include <wv/Scene/SceneObject.h>
 #include <wv/Engine/Engine.h>
 
+#include <wv/Events/InputListener.h>
+
 namespace psq
 {
-	class cRewindSettingsWindow : public wv::iSceneObject
+	class cRewindSettingsWindow : public wv::iSceneObject, public wv::IInputListener
 	{
 	public:
 		 cRewindSettingsWindow( const wv::UUID& _uuid, const std::string& _name );
@@ -22,6 +24,10 @@ namespace psq
 
 			return new cRewindSettingsWindow( uuid, name ); 
 		}
+
+		void onInputEvent( wv::InputEvent _event ) override;
+
+		static void togglePause() { cRewindSettingsWindow::worldIsPaused ^= 1; }
 
 		static inline bool isRewinding   = false;
 		static inline bool worldIsPaused = false;
