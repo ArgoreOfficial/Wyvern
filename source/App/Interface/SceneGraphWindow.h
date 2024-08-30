@@ -17,9 +17,12 @@ namespace wv
 
 			void draw( wv::iGraphicsDevice* _pGraphicsDevice );
 
-			void drawSceneObject( wv::iSceneObject* _obj );
+			void drawSceneObject( wv::iSceneObject* _obj, bool _defaultOpen );
 
 			std::vector<wv::iSceneObject*> m_selectedObjects;
+			wv::iSceneObject* m_addChildSelected = nullptr;
+
+			bool m_openAddChild = false;
 		};
 	}
 }

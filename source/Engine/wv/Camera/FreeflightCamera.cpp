@@ -34,18 +34,18 @@ void wv::FreeflightCamera::onCreate()
 
 void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 {
-	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+	// wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 	
-	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
-	{
-		m_freecam_enabled = !m_freecam_enabled;
-		ctx->setMouseLock( m_freecam_enabled );
+	//if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
+	//{
+	//	m_freecam_enabled = !m_freecam_enabled;
+	//	ctx->setMouseLock( m_freecam_enabled );
 
-		// reset input
-		m_rotate = { 0.0f, 0.0f };
-		m_move = { 0.0f, 0.0f, 0.0f };
-		m_speed = m_speed_normal;
-	}
+	//	// reset input
+	//	m_rotate = { 0.0f, 0.0f };
+	//	m_move = { 0.0f, 0.0f, 0.0f };
+	//	m_speed = m_speed_normal;
+	//}
 
 	if ( !m_freecam_enabled )
 		return;
@@ -58,6 +58,21 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 {
 	int button_delta = _event.buttondown ? 1 : -1;
+
+	if( !_event.repeat && _event.buttondown )
+	{
+		if( _event.key == 'F' )
+		{
+			wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+			m_freecam_enabled = !m_freecam_enabled;
+			ctx->setMouseLock( m_freecam_enabled );
+
+			// reset input
+			m_rotate = { 0.0f, 0.0f };
+			m_move = { 0.0f, 0.0f, 0.0f };
+			m_speed = m_speed_normal;
+		}
+	}
 
 	if ( !m_freecam_enabled )
 		return;
