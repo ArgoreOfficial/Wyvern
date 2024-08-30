@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
+#include <Interface/SceneGraphWindow.h>
 
 class cIRTViewportHandler : public wv::iIntermediateRenderTargetHandler
 {
@@ -16,5 +17,7 @@ public:
 private:
 
 	wv::Vector2i m_viewportSize{ 100, 100 };
+	
+	wv::Editor::cSceneGraphWindow sceneGraphWindow{};
 
 };

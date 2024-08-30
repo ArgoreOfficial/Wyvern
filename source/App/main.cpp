@@ -1,3 +1,4 @@
+#define WV_EDITOR
 
 #include "Sandbox.h"
 

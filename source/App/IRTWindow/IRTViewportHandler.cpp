@@ -52,4 +52,6 @@ void cIRTViewportHandler::draw( wv::iGraphicsDevice* _pGraphics )
 	);
 
 	ImGui::End();
+
+	sceneGraphWindow.draw( _pGraphics );
 }
