@@ -8,6 +8,7 @@ PROJECT_NAME = "08 Speed-Prototyping"
 
 set_project( PROJECT_NAME )
 set_version( "0.0.1" )
+add_defines( "WV_EDITOR" )
 
 set_symbols "debug"
 set_optimize "none"

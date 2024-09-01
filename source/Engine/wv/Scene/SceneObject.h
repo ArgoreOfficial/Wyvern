@@ -33,8 +33,13 @@ namespace wv
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
 		
+		void setName    ( const std::string& _name ) { m_name = _name; }
+		void setUpdating( const bool& _updating )    { m_updating = _updating; }
+
 	#ifdef WV_EDITOR
 		bool isEditorSelected() { return m_editorSelected; }
+
+		void drawProperties();
 	#endif
 
 		std::vector<iSceneObject*> getChildren( void ) { return m_children; };
@@ -90,6 +95,9 @@ namespace wv
 
 		void update( double _deltaTime ) 
 		{
+			if ( !m_updating )
+				return;
+
 			if( m_loaded && m_created )
 			{
 				updateImpl( _deltaTime );
@@ -125,6 +133,10 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) = 0;
 		virtual void drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) = 0;
 
+	#ifdef WV_EDITOR
+		virtual void drawPropertiesImpl() { }
+	#endif
+
 		uint64_t    m_uuid;
 		std::string m_name;
 		
@@ -136,8 +148,9 @@ namespace wv
 	#endif
 
 	private:
-		bool m_loaded  = false;
-		bool m_created = false;
+		bool m_loaded   = false;
+		bool m_created  = false;
+		bool m_updating = true;
 
 	};
 

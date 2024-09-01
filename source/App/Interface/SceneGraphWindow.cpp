@@ -14,11 +14,19 @@ void wv::Editor::cSceneGraphWindow::draw( wv::iGraphicsDevice* _pGraphicsDevice 
 	wv::cEngine* engine = cEngine::get();
 	cSceneRoot* sceneRoot = engine->m_pApplicationState->getCurrentScene();
 
-	if( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
+	if ( ImGui::Begin( "Properties" ) )
+	{
+		if ( m_selectedObjects.size() == 1 )
+			m_selectedObjects[ 0 ]->drawProperties();
+		
+	}
+	ImGui::End();
+	
+
+	ImGui::Begin( "SceneGraph" );
+	if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) && ImGui::IsWindowHovered() )
 		m_selectedObjects.clear();
 
-	
-	ImGui::Begin( "SceneGraph" );
 	drawSceneObject( sceneRoot, true );
 	ImGui::End();
 

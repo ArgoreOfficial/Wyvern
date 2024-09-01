@@ -27,7 +27,7 @@ namespace psq
 
 		void onInputEvent( wv::InputEvent _event ) override;
 
-		static void togglePause() { cRewindSettingsWindow::worldIsPaused ^= 1; }
+		static void togglePause();
 
 		static inline bool isRewinding   = false;
 		static inline bool worldIsPaused = false;

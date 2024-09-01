@@ -1,5 +1,9 @@
 #include "RewindSettingsWindow.h"
 
+#include <wv/Engine/Engine.h>
+#include <wv/Engine/ApplicationState.h>
+#include <wv/Scene/SceneRoot.h>
+
 #include <imgui.h>
 #include <SDL2/SDL_keycode.h>
 
@@ -17,6 +21,13 @@ void psq::cRewindSettingsWindow::onInputEvent( wv::InputEvent _event )
 {
 	if( _event.buttondown && _event.key == SDLK_SPACE ) 
 		togglePause();
+}
+
+void psq::cRewindSettingsWindow::togglePause()
+{
+	cRewindSettingsWindow::worldIsPaused ^= 1;
+	
+	// wv::cEngine::get()->m_pApplicationState->getCurrentScene()->setUpdating( !cRewindSettingsWindow::worldIsPaused );
 }
 
 void psq::cRewindSettingsWindow::updateImpl( double _deltaTime )

@@ -14,6 +14,7 @@
 
 #include "SceneObjects/RewindableRigidbody.h"
 #include "SceneObjects/RewindSettingsWindow.h"
+#include "SceneObjects/FollowPath.h"
 
 #include <wv/Reflection/ReflectedClass.h>
 #include "IRTWindow/IRTViewportHandler.h"

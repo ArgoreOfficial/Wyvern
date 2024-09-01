@@ -1,5 +1,8 @@
 #include "SceneObject.h"
 
+#include <imgui.h>
+#include <imgui_stdlib.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iSceneObject::iSceneObject( const UUID& _uuid, const std::string& _name ):
@@ -67,3 +70,19 @@ void wv::iSceneObject::moveChild( iSceneObject* _node, iSceneObject* _newParent 
 	removeChild( _node );
 	_newParent->addChild( _node );
 }
+
+#ifdef WV_EDITOR
+void wv::iSceneObject::drawProperties()
+{
+#ifdef WV_SUPPORT_IMGUI
+	std::string uuidText = "UUID: " + std::to_string(m_uuid);
+	ImGui::Text( uuidText.c_str() );
+	ImGui::InputText( "Name", &m_name );
+
+	ImGui::InputFloat3( "Position", (float*)( &m_transform.position ) );
+
+#endif
+
+	drawPropertiesImpl();
+}
+#endif
