@@ -26,7 +26,6 @@ namespace wv
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
 		~cRigidbody();
 
-		static cRigidbody* createInstance() { return nullptr; }
 		static cRigidbody* createInstanceYaml( fkyaml::node& _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////

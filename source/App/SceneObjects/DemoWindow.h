@@ -18,10 +18,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	
-	static cDemoWindow* createInstance    ( void ) 
-	{ 
-		return new cDemoWindow( wv::cEngine::getUniqueUUID(), "cDemoWindow" ); ;
-	}
+	static cDemoWindow* createInstance( void ) { return new cDemoWindow( wv::cEngine::getUniqueUUID(), "cDemoWindow" ); }
 	static cDemoWindow* createInstanceYaml( fkyaml::node& _data ) 
 	{ 
 		wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();

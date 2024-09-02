@@ -33,11 +33,11 @@ namespace wv
 	{
 
 	private:
-		template<typename C> static wv::Function<void> get_createInstance_impl( decltype( &C::createInstance ) ) { return { &C::createInstance }; }
-		template<typename C> static wv::Function<void> get_createInstance_impl( ... )                            { return { nullptr }; }
+		template<typename C> static wv::Function<C*>::fptr_t get_createInstance_impl( decltype( &C::createInstance ) ) { return &C::createInstance; }
+		template<typename C> static wv::Function<C*>::fptr_t get_createInstance_impl( ... )                            { return nullptr; }
 
-		template<typename C> static wv::Function<void, fkyaml::node&> get_createInstanceYaml_impl( decltype( &C::createInstanceYaml ) ) { return { &C::createInstanceYaml }; }
-		template<typename C> static wv::Function<void, fkyaml::node&> get_createInstanceYaml_impl( ... )                                { return { nullptr }; }
+		template<typename C> static wv::Function<C*, fkyaml::node&>::fptr_t get_createInstanceYaml_impl( decltype( &C::createInstanceYaml ) ) { return &C::createInstanceYaml; }
+		template<typename C> static wv::Function<C*, fkyaml::node&>::fptr_t get_createInstanceYaml_impl( ... )                                { return nullptr; }
 
 
 	public:
@@ -47,16 +47,10 @@ namespace wv
 		static void* createInstanceYaml( const std::string& _name, fkyaml::node& _yaml );
 
 		template<typename C> 
-		static wv::Function<void>::fptr_t get_createInstance( void )
-		{
-			return get_createInstance_impl<C>( 0 ).ptr;
-		};
+		static wv::Function<C*>::fptr_t get_createInstance( void ) { return get_createInstance_impl<C>( 0 ); };
 
 		template<typename C> 
-		static wv::Function<void, fkyaml::node&>::fptr_t get_createInstanceYaml( void )
-		{
-			return get_createInstanceYaml_impl<C>( 0 ).ptr;
-		};
+		static wv::Function<C*, fkyaml::node&>::fptr_t get_createInstanceYaml( void ) { return get_createInstanceYaml_impl<C>( 0 ); };
 
 		// classes map has to be local static because 
 		// global static does not guarantee it to be 
