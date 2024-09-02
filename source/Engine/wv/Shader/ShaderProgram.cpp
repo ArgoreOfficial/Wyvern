@@ -1,16 +1,16 @@
 #include "ShaderProgram.h"
 
 #include <wv/Memory/MemoryDevice.h>
-#include <wv/Auxiliary/json.hpp>
+#include <fkYAML/node.hpp>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
 
 void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 {
 	std::string jsonSource = _pFileSystem->loadString( m_name );
-	nlohmann::json root = nlohmann::json::parse( jsonSource );
+	fkyaml::node root = fkyaml::node::deserialize( jsonSource );
 
-	std::string source = root.value<std::string>( "source", "source/unlit" );
+	std::string source = root["source"].get_value<std::string>();
 
 	cShader* vs = m_pShaderRegistry->loadShader( WV_SHADER_TYPE_VERTEX, "res/shaders/" + source + "_vs.glsl" );
 	cShader* fs = m_pShaderRegistry->loadShader( WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" );
@@ -28,7 +28,7 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	{
 		UniformBlockDesc blockDesc{};
 
-		blockDesc.name = block.value<std::string>( "block", "" );
+		blockDesc.name = block[ "block" ].get_value<std::string>();
 		if( blockDesc.name == "" )
 		{
 			Debug::Print( Debug::WV_PRINT_ERROR, "Block name is empty\n" );
@@ -37,7 +37,7 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 
 		for ( auto& uniform : block[ "uniforms" ] )
 		{
-			std::string uniformName = uniform.value<std::string>( "uniform", "" );
+			std::string uniformName = uniform[ "uniform" ].get_value<std::string>();
 			if( uniformName == "" )
 			{
 				Debug::Print( Debug::WV_PRINT_ERROR, "Uniform name is empty\n" );
@@ -55,9 +55,9 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	unsigned int textureCounter = 0;
 	if ( !root[ "textures" ].empty() )
 	{
-		for ( auto& texture : root[ "textures" ].items() )
+		for ( auto& texture : root[ "textures" ] )
 		{
-			wv::Uniform u{ textureCounter, 0, texture.value() };
+			wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
 			m_textureUniforms.push_back( u );
 			textureCounter++;
 		}

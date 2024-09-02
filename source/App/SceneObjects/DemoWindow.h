@@ -22,10 +22,10 @@ public:
 	{ 
 		return new cDemoWindow( wv::cEngine::getUniqueUUID(), "cDemoWindow" ); ;
 	}
-	static cDemoWindow* createInstanceJson( nlohmann::json& _json ) 
+	static cDemoWindow* createInstanceYaml( fkyaml::node& _data ) 
 	{ 
-		wv::UUID    uuid = _json.value( "uuid", wv::cEngine::getUniqueUUID() );
-		std::string name = _json.value( "name", "cDemoWindow" );
+		wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
+		std::string name = _data[ "name" ].get_value<std::string>();
 
 		return new cDemoWindow( uuid, name ); 
 	}

@@ -13,8 +13,8 @@ namespace wv
 	class iClassOperator
 	{
 	public:
-		virtual void* createInstance    ( void )               { printf( "%s::createInstance not implemented!",     m_name.c_str() ); return nullptr; }
-		virtual void* createInstanceJson( nlohmann::json _js ) { printf( "%s::createInstanceJson not implemented!", m_name.c_str() ); return nullptr; }
+		virtual void* createInstance    ( void )                { printf( "%s::createInstance not implemented!",     m_name.c_str() ); return nullptr; }
+		virtual void* createInstanceYaml( fkyaml::node& _data ) { printf( "%s::createInstanceYaml not implemented!", m_name.c_str() ); return nullptr; }
 
 	protected:
 		std::string m_name;
@@ -29,8 +29,8 @@ namespace wv
 	public:
 		cReflectedClass( const std::string& _name ) { m_name = _name; }
 
-		virtual void* createInstance    ( void )               override { return T::createInstance(); }
-		virtual void* createInstanceJson( nlohmann::json _js ) override { return T::createInstanceJson( _js ); }
+		virtual void* createInstance    ( void )                override { return T::createInstance(); }
+		virtual void* createInstanceYaml( fkyaml::node& _data ) override { return T::createInstanceYaml( _data ); }
 
 	private:
 	};

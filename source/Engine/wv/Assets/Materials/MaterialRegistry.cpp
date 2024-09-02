@@ -6,7 +6,7 @@
 #include <wv/Shader/ShaderRegistry.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Device/GraphicsDevice.h>
-#include <wv/Auxiliary/json.hpp>
+#include <fkYAML/node.hpp>
 
 
 wv::cMaterial* wv::cMaterialRegistry::loadMaterial( std::string _name )
@@ -30,9 +30,9 @@ wv::cMaterial* wv::cMaterialRegistry::loadMaterial( std::string _name )
 
 wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _name, std::string _source )
 {
-	nlohmann::json root = nlohmann::json::parse( _source );
+	fkyaml::node root = fkyaml::node::deserialize( _source );
 
-	std::string shaderName = root.value( "shader", "phong" );
+	std::string shaderName = root["shader"].get_value<std::string>();
 	cShaderProgram* program = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shaderName + ".wshader" );
 
 	while ( !program->isLoaded() ) 
@@ -41,10 +41,10 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	}
 
 	std::vector<sMaterialVariable> variables;
-	for( auto& textureObject : root["textures"] )
+	for( auto& textureObject : root[ "textures" ] )
 	{
-		std::string uniformName = textureObject.value( "name", "" );
-		std::string textureName = textureObject.value( "texture", "" );
+		std::string uniformName = textureObject[ "name" ].get_value<std::string>();
+		std::string textureName = textureObject[ "texture" ].get_value<std::string>();
 
 		if( uniformName == "" || textureName == "" )
 		{

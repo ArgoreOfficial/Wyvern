@@ -9,7 +9,6 @@
 #include <wv/Primitive/Mesh.h>
 
 #include <wv/Shader/ShaderRegistry.h>
-#include <wv/Auxiliary/json.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -42,31 +42,25 @@ wv::cRigidbody::~cRigidbody()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody* wv::cRigidbody::createInstance()
+wv::cRigidbody* wv::cRigidbody::createInstanceYaml( fkyaml::node& _data )
 {
+	std::string name = _data[ "name" ].get_value<std::string>();
+	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
 
-	return nullptr;
-}
-
-wv::cRigidbody* wv::cRigidbody::createInstanceJson( nlohmann::json& _json )
-{
-	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
-	std::string name = _json.value( "name", "" );
-
-	nlohmann::json tfm = _json[ "transform" ];
-	std::vector<float> pos = tfm[ "pos" ].get<std::vector<float>>();
-	std::vector<float> rot = tfm[ "rot" ].get<std::vector<float>>();
-	std::vector<float> scl = tfm[ "scl" ].get<std::vector<float>>();
+	fkyaml::node& tfm = _data[ "transform" ];
+	std::vector<float> pos = tfm[ "pos" ].get_value<std::vector<float>>();
+	std::vector<float> rot = tfm[ "rot" ].get_value<std::vector<float>>();
+	std::vector<float> scl = tfm[ "scl" ].get_value<std::vector<float>>();
 
 	Transformf transform;
 	transform.setPosition( { pos[ 0 ], pos[ 1 ], pos[ 2 ] } );
 	transform.setRotation( { rot[ 0 ], rot[ 1 ], rot[ 2 ] } );
 	transform.setScale( { scl[ 0 ], scl[ 1 ], scl[ 2 ] } );
 
-	nlohmann::json data = _json[ "data" ];
+	fkyaml::node& data = _data[ "data" ];
 
-	ePhysicsKind  kind = data.value( "kind", ePhysicsKind::WV_PHYSICS_STATIC );
-	ePhysicsShape shape = data.value( "shape", ePhysicsShape::WV_PHYSICS_BOX );
+	ePhysicsKind  kind  = ( ePhysicsKind )data[ "kind" ].get_value<int>();
+	ePhysicsShape shape = ( ePhysicsShape )data[ "shape" ].get_value<int>();
 
 	iPhysicsBodyDesc* desc = nullptr;
 	
@@ -74,7 +68,7 @@ wv::cRigidbody* wv::cRigidbody::createInstanceJson( nlohmann::json& _json )
 	{
 	case WV_PHYSICS_BOX:
 	{
-		std::vector<float> halfExtents = data[ "halfExtents" ].get<std::vector<float>>();
+		std::vector<float> halfExtents = data[ "halfExtents" ].get_value<std::vector<float>>();
 
 		sPhysicsBoxDesc* boxDesc = new sPhysicsBoxDesc();
 		boxDesc->halfExtent.x = halfExtents[ 0 ];
@@ -86,7 +80,7 @@ wv::cRigidbody* wv::cRigidbody::createInstanceJson( nlohmann::json& _json )
 	case WV_PHYSICS_SPHERE:
 	{
 		sPhysicsSphereDesc* sphereDesc = new sPhysicsSphereDesc();
-		sphereDesc->radius = data.value( "radius", 1.0f );
+		sphereDesc->radius = data[ "radius" ].get_value<float>();
 		desc = sphereDesc;
 	} break;
 	}
@@ -94,7 +88,7 @@ wv::cRigidbody* wv::cRigidbody::createInstanceJson( nlohmann::json& _json )
 	if( desc )
 		desc->kind = kind;
 
-	std::string meshPath = data.value( "path", "" );
+	std::string meshPath = data[ "path" ].get_value<std::string>();
 
 	cRigidbody* rb = new cRigidbody( uuid, name, meshPath, desc );
 	rb->m_transform = transform;

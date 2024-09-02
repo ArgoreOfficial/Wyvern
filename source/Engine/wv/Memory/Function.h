@@ -9,15 +9,16 @@ namespace wv
 	class Function
 	{
 	public:
-		void operator()( Args..._args ) { m_func( _args... ); }
+		typedef R( *fptr_t )( Args... );
 
-		void bind( R( *_func )( Args... ) ) { m_func = _func; }
+		R operator()( Args..._args ) { return m_fptr( _args... ); }
+
+		void bind( R( *_func )( Args... ) ) { m_fptr = _func; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	private:
-		R( *m_func )( Args... );
-
+		// R( *m_fptr )( Args... );
+		fptr_t m_fptr = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -27,14 +28,16 @@ namespace wv
 	{
 	public:
 		
-		void operator()( Args..._args ) { ( m_class->*m_func )( _args... ); }
+		typedef R( T::* mfptr_t )( Args... );
 
-		void bind( R( T::* _func )( Args... ), T* _member ) { m_func = _func; m_class = _member; }
+		R operator()( Args..._args ) { return ( m_class->*m_fptr )( _args... ); }
+
+		void bind( R( T::* _func )( Args... ), T* _member ) { m_fptr = _func; m_class = _member; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	private:
-		R( T::* m_func )( Args... );
+		// R( T::* m_func )( Args... );
+		mfptr_t m_fptr = nullptr;
 		T* m_class;
 	};
 

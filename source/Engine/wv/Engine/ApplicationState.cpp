@@ -80,10 +80,10 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene->onLoad();
 }
 
-wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
+wv::iSceneObject* parseSceneObject( fkyaml::node& _yaml )
 {
-	std::string objTypeName = _js[ "type" ];
-	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceJson( objTypeName, _js );
+	std::string objTypeName = _yaml[ "type" ].get_value<std::string>();
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceYaml( objTypeName, _yaml );
 
 	if( !obj )
 	{
@@ -91,7 +91,7 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 		return nullptr;
 	}
 
-	for( auto& childJson : _js[ "children" ] )
+	for( auto& childJson : _yaml[ "children" ] )
 	{
 		wv::iSceneObject* childObj = parseSceneObject( childJson );
 		if( childObj != nullptr )
@@ -104,11 +104,11 @@ wv::iSceneObject* parseSceneObject( nlohmann::json& _js )
 wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
 {
 	std::string src = _pFileSystem->loadString( _path );
-	nlohmann::json js = nlohmann::json::parse( src );
+	fkyaml::node root = fkyaml::node::deserialize( src );
 
-	wv::cSceneRoot* scene = new wv::cSceneRoot( js[ "name" ], _path );
+	wv::cSceneRoot* scene = new wv::cSceneRoot( root[ "name" ].get_value<std::string>(), _path);
 	
-	for( auto& objJson : js[ "scene" ] )
+	for( auto& objJson : root[ "scene" ] )
 		scene->addChild( parseSceneObject( objJson ) );
 
 	return scene;

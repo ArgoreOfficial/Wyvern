@@ -29,10 +29,10 @@ wv::cSkyboxObject::~cSkyboxObject()
 	
 }
 
-wv::cSkyboxObject* wv::cSkyboxObject::createInstanceJson( nlohmann::json& _json )
+wv::cSkyboxObject* wv::cSkyboxObject::createInstanceYaml( fkyaml::node& _data )
 {	
-	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
-	std::string name = _json.value( "name", "" );
+	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
+	std::string name = _data[ "name" ].get_value<std::string>();
 
 	return new cSkyboxObject( uuid, name );
 }

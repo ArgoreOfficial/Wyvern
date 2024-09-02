@@ -1,6 +1,5 @@
 #pragma once
 
-#include <wv/Auxiliary/json.hpp>
 #include <wv/Math/Transform.h>
 #include <wv/Types.h>
 
@@ -19,9 +18,6 @@ namespace wv
 	class iGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-	template<class T>
-	T* fromJson( nlohmann::json& _json ) { return nullptr; };
 
 	class iSceneObject
 	{

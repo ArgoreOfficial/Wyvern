@@ -5,7 +5,6 @@
 #include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
 
-#include <wv/Auxiliary/json.hpp>
 #include <wv/Shader/ShaderProgram.h>
 
 #include <wv/Resource/cResourceLoader.h>

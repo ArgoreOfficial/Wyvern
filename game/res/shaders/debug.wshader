@@ -1,14 +1,15 @@
-{
-  "source":"source/debug",
-  "blocks":[
-    {
-      "block":"UbInstanceData",
-      "uniforms":[
-        { "uniform":"u_Projection", "type":"float", "size":16 },
-        { "uniform":"u_View", "type":"float", "size":16 },
-        { "uniform":"u_Model", "type":"float", "size":16 }
-      ]
-    }
-  ],
-  "textures":[]
-}
+---
+source: source/debug
+blocks:
+- block: UbInstanceData
+  uniforms:
+  - uniform: u_Projection
+    type: float
+    size: 16
+  - uniform: u_View
+    type: float
+    size: 16
+  - uniform: u_Model
+    type: float
+    size: 16
+textures: []

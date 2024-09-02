@@ -28,8 +28,8 @@ namespace wv
 		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
 
-		static cModelObject* createInstance( void ) { return nullptr; };
-		static cModelObject* createInstanceJson( nlohmann::json& _json );
+		static cModelObject* createInstance() { return nullptr; };
+		static cModelObject* createInstanceYaml( fkyaml::node& _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

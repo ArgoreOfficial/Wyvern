@@ -1,16 +1,16 @@
-{
-  "source":"source/phong",
-  "blocks":[
-    {
-      "block":"UbInstanceData",
-      "uniforms":[
-        { "uniform":"u_Projection", "type":"float", "size":16 },
-        { "uniform":"u_View", "type":"float", "size":16 },
-        { "uniform":"u_Model", "type":"float", "size":16 }
-      ]
-    }
-  ],
-  "textures":[
-    "u_Albedo"
-  ]
-}
+---
+source: source/phong
+blocks:
+- block: UbInstanceData
+  uniforms:
+  - uniform: u_Projection
+    type: float
+    size: 16
+  - uniform: u_View
+    type: float
+    size: 16
+  - uniform: u_Model
+    type: float
+    size: 16
+textures:
+- u_Albedo

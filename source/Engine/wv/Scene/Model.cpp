@@ -36,23 +36,23 @@ wv::cModelObject::~cModelObject()
 	
 }
 
-wv::cModelObject* wv::cModelObject::createInstanceJson( nlohmann::json& _json )
+wv::cModelObject* wv::cModelObject::createInstanceYaml( fkyaml::node& _data )
 {
-	wv::UUID    uuid = _json.value( "uuid", cEngine::getUniqueUUID() );
-	std::string name = _json.value( "name", "" );
+	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
+	std::string name = _data[ "name" ].get_value<std::string>();
 
-	nlohmann::json tfm = _json[ "transform" ];
-	std::vector<float> pos = tfm[ "pos" ].get<std::vector<float>>();
-	std::vector<float> rot = tfm[ "rot" ].get<std::vector<float>>();
-	std::vector<float> scl = tfm[ "scl" ].get<std::vector<float>>();
+	fkyaml::node& tfm = _data[ "transform" ];
+	std::vector<float> pos = tfm[ "pos" ].get_value<std::vector<float>>();
+	std::vector<float> rot = tfm[ "rot" ].get_value<std::vector<float>>();
+	std::vector<float> scl = tfm[ "scl" ].get_value<std::vector<float>>();
 
 	Transformf transform;
 	transform.setPosition( { pos[ 0 ], pos[ 1 ], pos[ 2 ] } );
 	transform.setRotation( { rot[ 0 ], rot[ 1 ], rot[ 2 ] } );
 	transform.setScale( { scl[ 0 ], scl[ 1 ], scl[ 2 ] } );
 
-	nlohmann::json data = _json[ "data" ];
-	std::string meshPath = data.value( "path", "" );
+	fkyaml::node& data = _data[ "data" ];
+	std::string meshPath = data["path"].get_value<std::string>();
 	
 	cModelObject* model = new wv::cModelObject( uuid, name, meshPath );
 	model->m_transform = transform;

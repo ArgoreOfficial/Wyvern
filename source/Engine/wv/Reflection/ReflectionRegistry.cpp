@@ -34,7 +34,7 @@ void* wv::cReflectionRegistry::createInstance( const std::string& _name )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void* wv::cReflectionRegistry::createInstanceJson( const std::string& _name, nlohmann::json& _json )
+void* wv::cReflectionRegistry::createInstanceYaml( const std::string& _name, fkyaml::node& _yaml )
 {
 	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
 
@@ -45,7 +45,7 @@ void* wv::cReflectionRegistry::createInstanceJson( const std::string& _name, nlo
 	}
 
 	sClassReflection& op = classes[ _name ];
-	return op.pOperator->createInstanceJson( _json );
+	return op.pOperator->createInstanceYaml( _yaml );
 }
 
 wv::tReflectedClassesMap& wv::cReflectionRegistry::getClasses()

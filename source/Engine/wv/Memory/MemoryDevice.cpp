@@ -7,8 +7,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 
-#include <wv/Auxiliary/json.hpp>
-
 #include <fstream>
 #include <vector>
 
