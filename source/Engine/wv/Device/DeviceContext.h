@@ -52,7 +52,7 @@ namespace wv
 
 		friend class iGraphicsDevice;
 
-		virtual ~iDeviceContext() = 0;
+		virtual ~iDeviceContext() { };
 
 		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
 

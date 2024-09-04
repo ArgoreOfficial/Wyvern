@@ -22,6 +22,7 @@ namespace wv
 	public:
 
 		cOpenGLGraphicsDevice();
+		~cOpenGLGraphicsDevice() { }
 
 		virtual void terminate() override;
 

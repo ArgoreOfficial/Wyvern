@@ -49,7 +49,7 @@ namespace wv
 	{
 	public:
 
-		virtual ~iGraphicsDevice() = 0;
+		virtual ~iGraphicsDevice() { };
 
 		static iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc );
 

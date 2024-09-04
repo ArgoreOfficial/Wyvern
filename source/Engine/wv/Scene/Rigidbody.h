@@ -47,6 +47,5 @@ namespace wv
 
 	};
 
-	REFLECT_CLASS( cRigidbody );
 }
 

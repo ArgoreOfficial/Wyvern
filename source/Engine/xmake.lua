@@ -6,7 +6,9 @@
 
 -- load platform dependencies and other specifics
 
-includes( "../../libs/glad" )
+if not is_arch( "psp2" ) then
+    includes( "../../libs/glad" )
+end
 
 -- create project
 target "Wyvern" 

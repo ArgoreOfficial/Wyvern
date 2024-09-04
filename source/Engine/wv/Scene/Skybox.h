@@ -47,7 +47,4 @@ namespace wv
 		cMaterial* m_skyMaterial = nullptr;
 
 	};
-
-	REFLECT_CLASS( cSkyboxObject );
-
 }

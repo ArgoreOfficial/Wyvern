@@ -14,7 +14,7 @@ namespace wv
 	class iClassOperator
 	{
 	public:
-		virtual ~iClassOperator() = 0;
+		virtual ~iClassOperator() { };
 
 		virtual void* createInstance( void )              = 0;
 		virtual void* parseInstance ( sParseData& _data ) = 0;

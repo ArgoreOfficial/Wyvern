@@ -45,7 +45,4 @@ namespace wv
 		Mesh* m_mesh;
 		std::string m_meshPath = "";
 	};
-
-	REFLECT_CLASS( cModelObject );
-
 }
