@@ -42,25 +42,26 @@ wv::cRigidbody::~cRigidbody()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody* wv::cRigidbody::createInstanceYaml( fkyaml::node& _data )
+wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 {
-	std::string name = _data[ "name" ].get_value<std::string>();
-	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
+	wv::Json& json = _data.json;
+	std::string name = json[ "name" ].string_value();
+	wv::UUID    uuid = json[ "uuid" ].int_value();
 
-	fkyaml::node& tfm = _data[ "transform" ];
-	std::vector<float> pos = tfm[ "pos" ].get_value<std::vector<float>>();
-	std::vector<float> rot = tfm[ "rot" ].get_value<std::vector<float>>();
-	std::vector<float> scl = tfm[ "scl" ].get_value<std::vector<float>>();
+	wv::Json tfm = json[ "transform" ];
+	cVector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
+	cVector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
+	cVector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
 
 	Transformf transform;
-	transform.setPosition( { pos[ 0 ], pos[ 1 ], pos[ 2 ] } );
-	transform.setRotation( { rot[ 0 ], rot[ 1 ], rot[ 2 ] } );
-	transform.setScale( { scl[ 0 ], scl[ 1 ], scl[ 2 ] } );
+	transform.setPosition( pos );
+	transform.setRotation( rot );
+	transform.setScale   ( scl );
 
-	fkyaml::node& data = _data[ "data" ];
+	wv::Json data = json[ "data" ];
 
-	ePhysicsKind  kind  = ( ePhysicsKind )data[ "kind" ].get_value<int>();
-	ePhysicsShape shape = ( ePhysicsShape )data[ "shape" ].get_value<int>();
+	ePhysicsKind  kind  = ( ePhysicsKind  )data[ "kind"  ].int_value();
+	ePhysicsShape shape = ( ePhysicsShape )data[ "shape" ].int_value();
 
 	iPhysicsBodyDesc* desc = nullptr;
 	
@@ -68,19 +69,19 @@ wv::cRigidbody* wv::cRigidbody::createInstanceYaml( fkyaml::node& _data )
 	{
 	case WV_PHYSICS_BOX:
 	{
-		std::vector<float> halfExtents = data[ "halfExtents" ].get_value<std::vector<float>>();
+		wv::Json::array halfExtents = data[ "halfExtents" ].array_items();
 
 		sPhysicsBoxDesc* boxDesc = new sPhysicsBoxDesc();
-		boxDesc->halfExtent.x = halfExtents[ 0 ];
-		boxDesc->halfExtent.y = halfExtents[ 1 ];
-		boxDesc->halfExtent.z = halfExtents[ 2 ];
+		boxDesc->halfExtent.x = halfExtents[ 0 ].number_value();
+		boxDesc->halfExtent.y = halfExtents[ 1 ].number_value();
+		boxDesc->halfExtent.z = halfExtents[ 2 ].number_value();
 		desc = boxDesc;
 	} break;
 
 	case WV_PHYSICS_SPHERE:
 	{
 		sPhysicsSphereDesc* sphereDesc = new sPhysicsSphereDesc();
-		sphereDesc->radius = data[ "radius" ].get_value<float>();
+		sphereDesc->radius = data[ "radius" ].number_value();
 		desc = sphereDesc;
 	} break;
 	}
@@ -88,7 +89,7 @@ wv::cRigidbody* wv::cRigidbody::createInstanceYaml( fkyaml::node& _data )
 	if( desc )
 		desc->kind = kind;
 
-	std::string meshPath = data[ "path" ].get_value<std::string>();
+	std::string meshPath = data[ "path" ].string_value();
 
 	cRigidbody* rb = new cRigidbody( uuid, name, meshPath, desc );
 	rb->m_transform = transform;

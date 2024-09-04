@@ -20,8 +20,8 @@ wv::cMatrix4x4f wv::ICamera::getProjectionMatrix( void )
 {
 	switch( m_type )
 	{
-	case WV_CAMERA_TYPE_PERSPECTIVE:  return getPerspectiveMatrix ();break;
-	case WV_CAMERA_TYPE_ORTHOGRAPHIC: return getOrthographicMatrix();break;
+	case WV_CAMERA_TYPE_PERSPECTIVE:  return getPerspectiveMatrix (); break;
+	case WV_CAMERA_TYPE_ORTHOGRAPHIC: return getOrthographicMatrix(); break;
 	}
 
 	return cMatrix4x4f{ 1.0f };
@@ -63,8 +63,8 @@ wv::cVector3f wv::ICamera::getViewDirection()
 	float pitch = Math::radians( m_transform.rotation.x );
 
 	cVector3f direction;
-	direction.x = cos( yaw ) * cos( pitch );
-	direction.y = sin( pitch );
-	direction.z = sin( yaw ) * cos( pitch );
+	direction.x = std::cos( yaw ) * std::cos( pitch );
+	direction.y = std::sin( pitch );
+	direction.z = std::sin( yaw ) * std::cos( pitch );
     return direction;
 }

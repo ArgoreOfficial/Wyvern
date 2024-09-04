@@ -28,7 +28,7 @@ namespace wv
 		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
 
-		static cModelObject* createInstanceYaml( fkyaml::node& _data );
+		static cModelObject* parseInstance( sParseData& _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

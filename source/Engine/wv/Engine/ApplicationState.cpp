@@ -80,10 +80,14 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene->onLoad();
 }
 
-wv::iSceneObject* parseSceneObject( fkyaml::node& _yaml )
+wv::iSceneObject* parseSceneObject( const wv::Json& _json )
 {
-	std::string objTypeName = _yaml[ "type" ].get_value<std::string>();
-	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::createInstanceYaml( objTypeName, _yaml );
+	std::string objTypeName = _json[ "type" ].string_value();
+
+	wv::sParseData parseData; /// TODO: fix
+	parseData.json = _json;
+
+	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::parseInstance( objTypeName, parseData );
 
 	if( !obj )
 	{
@@ -91,7 +95,7 @@ wv::iSceneObject* parseSceneObject( fkyaml::node& _yaml )
 		return nullptr;
 	}
 
-	for( auto& childJson : _yaml[ "children" ] )
+	for( auto& childJson : _json[ "children" ].array_items() )
 	{
 		wv::iSceneObject* childObj = parseSceneObject( childJson );
 		if( childObj != nullptr )
@@ -104,11 +108,13 @@ wv::iSceneObject* parseSceneObject( fkyaml::node& _yaml )
 wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
 {
 	std::string src = _pFileSystem->loadString( _path );
-	fkyaml::node root = fkyaml::node::deserialize( src );
+	std::string err;
+	wv::Json root = wv::Json::parse( src, err );
 
-	wv::cSceneRoot* scene = new wv::cSceneRoot( root[ "name" ].get_value<std::string>(), _path);
+
+	wv::cSceneRoot* scene = new wv::cSceneRoot( root[ "name" ].string_value(), _path);
 	
-	for( auto& objJson : root[ "scene" ] )
+	for( auto& objJson : root[ "scene" ].array_items() )
 		scene->addChild( parseSceneObject( objJson ) );
 
 	return scene;

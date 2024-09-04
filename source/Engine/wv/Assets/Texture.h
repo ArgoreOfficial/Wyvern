@@ -32,7 +32,7 @@ namespace wv
 	};
 
 	struct TextureDesc
-	{
+	{			 
 		TextureChannels channels = WV_TEXTURE_CHANNELS_RGB;
 		TextureFormat format = WV_TEXTURE_FORMAT_BYTE;
 		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;

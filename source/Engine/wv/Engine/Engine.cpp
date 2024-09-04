@@ -483,7 +483,7 @@ void wv::cEngine::createGBuffer()
 	Vector2i size = getViewportSize();
 	rtDesc.width  = size.x;
 	rtDesc.height = size.y;
-	
+#ifdef WV_PLATFORM_WINDOWS
 	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
 	#ifdef EMSCRIPTEN
@@ -499,7 +499,7 @@ void wv::cEngine::createGBuffer()
 	};
 	rtDesc.textureDescs = texDescs;
 	rtDesc.numTextures = 4;
-
+#endif
 	m_gbuffer = graphics->createRenderTarget( &rtDesc );
 }
 

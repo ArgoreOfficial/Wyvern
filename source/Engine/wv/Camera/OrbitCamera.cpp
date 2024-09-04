@@ -75,10 +75,10 @@ void wv::OrbitCamera::update( double _delta_time )
 	if ( m_transform.rotation.x < -89.0f )
 		m_transform.rotation.x = -89.0f;
 
-	float d = cos( wv::Math::radians( -m_transform.rotation.x ) ) * 4.0f;
-	m_transform.position.x = sin( wv::Math::radians( m_transform.rotation.y ) ) * d;
-	m_transform.position.y = sin( wv::Math::radians( -m_transform.rotation.x ) ) * 4.0f;
-	m_transform.position.z = cos( wv::Math::radians( m_transform.rotation.y ) ) * d;
+	float d = std::cos( wv::Math::radians( -m_transform.rotation.x ) ) * 4.0f;
+	m_transform.position.x = std::sin( wv::Math::radians( m_transform.rotation.y ) ) * d;
+	m_transform.position.y = std::sin( wv::Math::radians( -m_transform.rotation.x ) ) * 4.0f;
+	m_transform.position.z = std::cos( wv::Math::radians( m_transform.rotation.y ) ) * d;
 	
 	m_rotate = { 0.0f, 0.0f };
 }

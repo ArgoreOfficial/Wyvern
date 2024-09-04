@@ -327,7 +327,9 @@ wv::cVector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( hPhysicsBody& _han
 
 bool wv::cJoltPhysicsEngine::isBodyActive( hPhysicsBody& _handle )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	return m_bodies.at( _handle.value() )->IsActive();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -374,10 +376,12 @@ void wv::cJoltPhysicsEngine::setBodyAngularVelocity( hPhysicsBody& _handle, cons
 
 void wv::cJoltPhysicsEngine::setBodyActive( hPhysicsBody& _handle, bool _active )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Body* body = m_bodies.at( _handle.value() );
 	
 	if( _active )
 		m_pBodyInterface->ActivateBody( body->GetID() );
 	else
 		m_pBodyInterface->DeactivateBody( body->GetID() );
+#endif
 }

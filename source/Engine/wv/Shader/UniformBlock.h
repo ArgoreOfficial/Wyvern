@@ -1,7 +1,8 @@
 #pragma once
 
-#include <wv/Debug/Print.h>
 #include <wv/Types.h>
+
+#include <wv/Debug/Print.h>
 
 #include <string>
 #include <vector>
@@ -47,8 +48,8 @@ namespace wv
 
 		UniformBlock() { }
 		
-		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
 		template<typename T> void set( const std::string& _name, T* _data );
+		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,12 +1,15 @@
 #include "ShaderProgram.h"
 
 #include <wv/Memory/MemoryDevice.h>
-#include <fkYAML/node.hpp>
+
+// #include <fkYAML/node.hpp>
+
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
 
 void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	std::string jsonSource = _pFileSystem->loadString( m_name );
 	fkyaml::node root = fkyaml::node::deserialize( jsonSource );
 
@@ -20,7 +23,9 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 
 	while ( !vs->isLoaded() || !fs->isLoaded() ) 
 	{
+	#ifdef WV_PLATFORM_WINDOWS
 		Sleep( 1 );
+	#endif
 	}
 
 	int blockCounter = 0;
@@ -64,6 +69,7 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	}
 
 	iResource::load( _pFileSystem );
+#endif
 }
 
 void wv::cShaderProgram::unload( cFileSystem* _pFileSystem )
@@ -88,4 +94,24 @@ void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
 void wv::cShaderProgram::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
 	iResource::destroy( _pGraphicsDevice );
+}
+wv::UniformBlock* wv::cShaderProgram::getUniformBlock( const std::string& _name )
+{
+	auto search = m_uniformBlocks.find( _name );
+	if( search == m_uniformBlocks.end() )
+		return nullptr;
+
+	return &m_uniformBlocks[ _name ];
+}
+
+void wv::cShaderProgram::addUniformBlock( const std::string& _name, const UniformBlock& _block )
+{
+	auto search = m_uniformBlocks.find( _name );
+	if( search != m_uniformBlocks.end() )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Uniform Block '%s' already exists\n", _name.c_str() );
+		return;
+	}
+
+	m_uniformBlocks[ _name ] = _block;
 }

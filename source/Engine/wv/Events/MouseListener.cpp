@@ -2,6 +2,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+std::vector<wv::IMouseListener*> wv::IMouseListener::m_hooks{};
+bool wv::IMouseListener::m_enabled = true;
+
 void wv::IMouseListener::invoke( MouseEvent _event )
 {
 	for ( int i = 0; i < m_hooks.size(); i++ )

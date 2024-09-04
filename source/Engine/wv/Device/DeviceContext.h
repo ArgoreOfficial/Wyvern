@@ -52,6 +52,8 @@ namespace wv
 
 		friend class iGraphicsDevice;
 
+		virtual ~iDeviceContext() = 0;
+
 		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
 
 		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); };

@@ -1,11 +1,13 @@
 #include "MemoryDevice.h"
 
+#ifdef WV_PLATFORM_WINDOWS
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Shader/UniformBlock.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
+#endif
 
 #include <fstream>
 #include <vector>
@@ -13,7 +15,6 @@
 #include <wv/Debug/Print.h>
 
 #include <string>
-
 
 #ifdef WV_CPP20
 #include <locale>

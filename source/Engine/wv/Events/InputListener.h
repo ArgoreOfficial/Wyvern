@@ -43,8 +43,8 @@ namespace wv
 
 	private:
 
-		static inline std::vector<IInputListener*> m_hooks;
-		static inline bool m_enabled = true;
+		static std::vector<IInputListener*> m_hooks;
+		static bool m_enabled;
 
 	};
 

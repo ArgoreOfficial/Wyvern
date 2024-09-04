@@ -14,8 +14,8 @@ namespace wv
 
 	struct MouseEvent
 	{
-		Vector2i position = {0,0};
-		Vector2i delta = {0,0};
+		Vector2i position = { 0, 0 };
+		Vector2i delta = { 0, 0 };
 
 		enum MouseButton
 		{
@@ -59,8 +59,8 @@ namespace wv
 
 	private:
 
-		inline static std::vector<IMouseListener*> m_hooks;
-		inline static bool m_enabled = true;
+		static std::vector<IMouseListener*> m_hooks;
+		static bool m_enabled;
 
 	};
 

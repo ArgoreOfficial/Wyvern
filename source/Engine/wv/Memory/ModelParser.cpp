@@ -15,14 +15,17 @@
 //#define LOAD_WPR
 #endif
 
+#ifdef WV_SUPPORT_ASSIMP
 #ifndef LOAD_WPR
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef WV_SUPPORT_ASSIMP
 #ifndef LOAD_WPR
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
 {
@@ -177,9 +180,10 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::Mesh* _mesh, w
 
 }
 #endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef WV_SUPPORT_ASSIMP
 wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 
@@ -273,3 +277,4 @@ wv::Mesh* wv::assimp::Parser::load( const char* _path, wv::cMaterialRegistry* _p
 #endif
 	return mesh;
 }
+#endif

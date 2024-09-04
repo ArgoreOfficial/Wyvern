@@ -2,6 +2,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <stdio.h>
+
 struct node
 {
 	double prob, range_from, range_to;
@@ -59,7 +61,8 @@ void dothing()
 	{
 		char letter = encodeString[ i ];
 
-		if( arr.contains( letter ) )
+		auto search = arr.find( letter );
+		if( search != arr.end() )
 			continue;
 
 		arr[ letter ] = {};

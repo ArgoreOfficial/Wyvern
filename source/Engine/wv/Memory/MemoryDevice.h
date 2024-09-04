@@ -18,8 +18,8 @@ namespace wv
 
 	struct Memory
 	{
-		uint8_t* data = nullptr;
-		unsigned int size = 0;
+		uint8_t* data{ nullptr };
+		unsigned int size{ 0 };
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

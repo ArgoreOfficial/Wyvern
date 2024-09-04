@@ -9,7 +9,9 @@
 #include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Memory/ModelParser.h>
 
+#ifdef WV_SUPPORT_GLAD
 #include <glad/glad.h>
+#endif
 
 #include <fstream>
 
@@ -29,10 +31,11 @@ wv::cSkyboxObject::~cSkyboxObject()
 	
 }
 
-wv::cSkyboxObject* wv::cSkyboxObject::createInstanceYaml( fkyaml::node& _data )
+wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 {	
-	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
-	std::string name = _data[ "name" ].get_value<std::string>();
+	auto& json = _data.json;
+	wv::UUID    uuid = json[ "uuid" ].int_value();
+	std::string name = json[ "name" ].string_value();
 
 	return new cSkyboxObject( uuid, name );
 }
@@ -88,10 +91,12 @@ void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _de
 	if ( m_skyboxMesh && m_skyMaterial->isCreated() && m_skyMaterial->getProgram()->isCreated() )
 	{
 		/// TODO: remove raw gl calls
+	#ifdef WV_SUPPORT_GLAD
 		glDepthMask( GL_FALSE );
 		glDepthFunc( GL_LEQUAL );
 		_device->draw( m_skyboxMesh );
 		glDepthFunc( GL_LESS );
 		glDepthMask( GL_TRUE );
+	#endif
 	}
 }

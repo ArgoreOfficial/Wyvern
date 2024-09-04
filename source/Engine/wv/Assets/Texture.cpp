@@ -4,8 +4,11 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Auxiliary/stb_image.h>
+
+#ifdef WV_PLATFORM_WINDOWS
 #include <locale>
 #include <codecvt>
+#endif
 
 void wv::Texture::load( cFileSystem* _pFileSystem )
 {
@@ -18,8 +21,12 @@ void wv::Texture::load( cFileSystem* _pFileSystem )
 	if ( m_path == L"" )
 		m_path = _pFileSystem->getFullPath( m_name );
 
+#ifdef WV_PLATFORM_WINDOWS
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::string path = converter.to_bytes( m_path ); // convert wstring to string
+#else
+	std::string path = "";
+#endif
 
 	stbi_set_flip_vertically_on_load( 0 );
 	m_pData = reinterpret_cast<uint8_t*>( stbi_load( path.c_str(), &m_width, &m_height, &m_numChannels, 0 ) );

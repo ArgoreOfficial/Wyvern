@@ -56,10 +56,25 @@ namespace wv
 
 		void setRow( const size_t& _r, std::array<T, C> _v );
 
-		template<typename = if_4x4::type> cVector4<T>& right( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 0 ] ); }
-		template<typename = if_4x4::type> cVector4<T>& up   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 1 ] ); }
-		template<typename = if_4x4::type> cVector4<T>& at   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 2 ] ); }
-		template<typename = if_4x4::type> cVector4<T>& pos  ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 3 ] ); }
+	#ifndef WV_PLATFORM_PSP2
+		template<typename = if_4x4::type>
+	#endif
+		cVector4<T>& right( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 0 ] ); }
+
+	#ifndef WV_PLATFORM_PSP2
+		template<typename = if_4x4::type>
+	#endif
+		cVector4<T>& up   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 1 ] ); }
+
+	#ifndef WV_PLATFORM_PSP2
+		template<typename = if_4x4::type>
+	#endif
+		cVector4<T>& at   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 2 ] ); }
+
+	#ifndef WV_PLATFORM_PSP2
+		template<typename = if_4x4::type>
+	#endif
+		cVector4<T>& pos  ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 3 ] ); }
 
 	};
 

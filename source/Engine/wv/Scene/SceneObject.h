@@ -23,8 +23,8 @@ namespace wv
 	{
 	public:
 
-		 iSceneObject( const UUID& _uuid, const std::string& _name );
-		~iSceneObject();
+		iSceneObject( const UUID& _uuid, const std::string& _name );
+		virtual ~iSceneObject() = 0;
 
 		void addChild   ( iSceneObject* _node, bool _triggerLoadAndCreate = false );
 		void removeChild( iSceneObject* _node );

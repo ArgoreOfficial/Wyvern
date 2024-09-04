@@ -96,7 +96,9 @@ namespace wv
 		#ifndef WV_DEBUG
 			if( _printLevel == WV_PRINT_DEBUG )
 			{
+			#ifdef WV_PLATFORM_WINDOWS
 				Internal::PRINT_MUTEX.unlock();
+			#endif
 				return;
 			}
 		#endif

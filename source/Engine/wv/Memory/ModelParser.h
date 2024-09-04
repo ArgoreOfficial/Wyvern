@@ -31,8 +31,13 @@ namespace wv
 
 			Parser() { }
 			
-			Mesh* load( const char* _path, cMaterialRegistry* _pMaterialRegistry );
-
+			Mesh* load( const char* _path, cMaterialRegistry* _pMaterialRegistry )
+		#ifdef WV_SUPPORT_ASSIMP
+				;
+		#else
+			{ return nullptr; }
+		#endif
+			// temporary solution
 		};
 
 	}

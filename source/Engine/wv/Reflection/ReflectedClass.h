@@ -3,6 +3,7 @@
 #include <wv/Memory/Function.h>
 #include <wv/Reflection/ReflectionRegistry.h>
 #include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -13,8 +14,10 @@ namespace wv
 	class iClassOperator
 	{
 	public:
-		virtual void* createInstance    ( void )                = 0;
-		virtual void* createInstanceYaml( fkyaml::node& _data ) = 0;
+		virtual ~iClassOperator() = 0;
+
+		virtual void* createInstance( void )              = 0;
+		virtual void* parseInstance ( sParseData& _data ) = 0;
 
 	protected:
 		std::string m_name;
@@ -28,6 +31,7 @@ namespace wv
 	{
 	public:
 		cReflectedClass( const std::string& _name ) { m_name = _name; }
+		virtual ~cReflectedClass() { }
 
 		virtual void* createInstance( void ) override
 		{
@@ -38,17 +42,17 @@ namespace wv
 			return nullptr;
 		}
 
-		virtual void* createInstanceYaml( fkyaml::node& _data ) override
+		virtual void* parseInstance( sParseData& _data ) override
 		{
-			if( m_createInstanceYaml.m_fptr )
-				return m_createInstanceYaml( _data );
+			if( m_parseInstance.m_fptr )
+				return m_parseInstance( _data );
 
-			printf( "%s::createInstanceYaml not implemented!\n", m_name.c_str() );
+			printf( "%s::parseInstance not implemented!\n", m_name.c_str() );
 			return nullptr;
 		}
 
-		wv::Function<T*>                m_createInstance = nullptr;
-		wv::Function<T*, fkyaml::node&> m_createInstanceYaml = nullptr;
+		typename wv::Function<T*>                  m_createInstance;
+		typename wv::Function<T*, wv::sParseData&> m_parseInstance;
 
 	};
 
@@ -61,12 +65,12 @@ namespace wv
 		{
 			static cReflectedClass<T> classReflection{ _name };
 			classReflection.m_createInstance.bind( cReflectionRegistry::get_createInstance<T>() );
-			classReflection.m_createInstanceYaml.bind( cReflectionRegistry::get_createInstanceYaml<T>() );
+			classReflection.m_parseInstance.bind( cReflectionRegistry::get_parseInstance<T>() );
 			cReflectionRegistry::reflectClass( _name, static_cast< iClassOperator* >( &classReflection ) );
 			
 		#ifdef WV_DEBUG
-			if( classReflection.m_createInstance.m_fptr )     printf( "    ::createInstance\n" );
-			if( classReflection.m_createInstanceYaml.m_fptr ) printf( "    ::createInstanceYaml\n" );
+			if( classReflection.m_createInstance.m_fptr ) printf( "    ::createInstance\n" );
+			if( classReflection.m_parseInstance.m_fptr  ) printf( "    ::parseInstance\n" );
 		#endif
 
 		}

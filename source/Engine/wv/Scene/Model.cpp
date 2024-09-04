@@ -36,23 +36,25 @@ wv::cModelObject::~cModelObject()
 	
 }
 
-wv::cModelObject* wv::cModelObject::createInstanceYaml( fkyaml::node& _data )
+wv::cModelObject* wv::cModelObject::parseInstance( sParseData& _data )
 {
-	wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
-	std::string name = _data[ "name" ].get_value<std::string>();
+	wv::Json& json = _data.json;
 
-	fkyaml::node& tfm = _data[ "transform" ];
-	std::vector<float> pos = tfm[ "pos" ].get_value<std::vector<float>>();
-	std::vector<float> rot = tfm[ "rot" ].get_value<std::vector<float>>();
-	std::vector<float> scl = tfm[ "scl" ].get_value<std::vector<float>>();
+	wv::UUID    uuid = json[ "uuid" ].int_value();
+	std::string name = json[ "name" ].string_value();
+
+	wv::Json tfm = json[ "transform" ];
+	cVector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
+	cVector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
+	cVector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
 
 	Transformf transform;
-	transform.setPosition( { pos[ 0 ], pos[ 1 ], pos[ 2 ] } );
-	transform.setRotation( { rot[ 0 ], rot[ 1 ], rot[ 2 ] } );
-	transform.setScale( { scl[ 0 ], scl[ 1 ], scl[ 2 ] } );
+	transform.setPosition( pos );
+	transform.setRotation( rot );
+	transform.setScale   ( scl );
 
-	fkyaml::node& data = _data[ "data" ];
-	std::string meshPath = data["path"].get_value<std::string>();
+	wv::Json data = json[ "data" ];
+	std::string meshPath = data["path"].string_value();
 	
 	cModelObject* model = new wv::cModelObject( uuid, name, meshPath );
 	model->m_transform = transform;

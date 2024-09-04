@@ -11,7 +11,10 @@ int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOpera
 
 	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
 
-	classes[ _name ] = { _name, _operator };
+	sClassReflection c;
+	c.name = _name;
+	c.pOperator = _operator;
+	classes[ _name ] = c;
 	
 	return classes.size();
 }
@@ -22,7 +25,8 @@ void* wv::cReflectionRegistry::createInstance( const std::string& _name )
 {
 	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
 
-	if( !classes.contains( _name ) )
+	auto search = classes.find( _name );
+	if( search == classes.end() )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Class '%s' does not exist or hasn't been reflected\n", _name.c_str() );
 		return nullptr;
@@ -34,18 +38,19 @@ void* wv::cReflectionRegistry::createInstance( const std::string& _name )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void* wv::cReflectionRegistry::createInstanceYaml( const std::string& _name, fkyaml::node& _yaml )
+void* wv::cReflectionRegistry::parseInstance( const std::string& _name, sParseData& _data )
 {
 	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
 
-	if( !classes.contains( _name ) )
+	auto search = classes.find( _name );
+	if( search == classes.end() )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Class '%s' does not exist or hasn't been reflected\n", _name.c_str() );
 		return nullptr;
 	}
 
 	sClassReflection& op = classes[ _name ];
-	return op.pOperator->createInstanceYaml( _yaml );
+	return op.pOperator->parseInstance( _data );
 }
 
 wv::tReflectedClassesMap& wv::cReflectionRegistry::getClasses()

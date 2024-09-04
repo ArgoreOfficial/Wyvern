@@ -19,10 +19,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 	
 	static cDemoWindow* createInstance( void ) { return new cDemoWindow( wv::cEngine::getUniqueUUID(), "cDemoWindow" ); }
-	static cDemoWindow* createInstanceYaml( fkyaml::node& _data ) 
+	static cDemoWindow* parseInstance( wv::sParseData& _data ) 
 	{ 
-		wv::UUID    uuid = _data[ "uuid" ].get_value<unsigned int>();
-		std::string name = _data[ "name" ].get_value<std::string>();
+		wv::Json& json = _data.json;
+		wv::UUID    uuid = json[ "uuid" ].int_value();
+		std::string name = json[ "name" ].string_value();
 
 		return new cDemoWindow( uuid, name ); 
 	}

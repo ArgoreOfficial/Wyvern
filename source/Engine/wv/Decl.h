@@ -4,7 +4,7 @@
 
 #define WV_DECLARE_INTERFACE( _class )               \
 	public:                                          \
-		virtual ~_class( void ) = default;           \
+		virtual ~_class( void ) = 0;                 \
 	protected:                                       \
 		_class() { }                                 \
 		_class( const _class& )            = delete; \

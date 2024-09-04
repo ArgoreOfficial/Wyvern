@@ -3,7 +3,9 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Engine/Engine.h>
 
+#ifdef WV_SUPPORT_SDL
 #include <SDL2/SDL_keycode.h> /// TODO: remove
+#endif
 
 #include <wv/Math/Matrix.h>
 
@@ -11,13 +13,6 @@
 
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ICamera( _type, _fov, _near, _far )
-{
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::FreeflightCamera::~FreeflightCamera( void )
 {
 
 }
@@ -74,7 +69,9 @@ void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 		case 'E': m_move.y += button_delta; break; // up
 		case 'Q': m_move.y += -button_delta; break; // down
 
+		#ifdef WV_SUPPORT_SDL
 		case SDL_Scancode::SDL_SCANCODE_LSHIFT: m_speed += button_delta * 200.0f; break;
+		#endif // WV_SUPPORT_SDL
 		}
 	}
 }

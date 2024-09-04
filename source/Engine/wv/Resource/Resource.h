@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-
-#include <wv/Debug/Print.h>
 #include <wv/Types.h>
+
+#include <string>
+#include <wv/Debug/Print.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

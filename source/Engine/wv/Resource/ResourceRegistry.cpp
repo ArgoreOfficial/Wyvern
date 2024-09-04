@@ -29,8 +29,11 @@ wv::iResource* wv::iResourceRegistry::getLoadedResource( const std::string& _nam
 {
 	wv::iResource* res = nullptr;
 	m_mutex.lock();
-	if ( m_resources.contains( _name ) )
+
+	auto search = m_resources.find( _name );
+	if ( search != m_resources.end() )
 		res = m_resources[ _name ];
+	
 	m_mutex.unlock();
 	
 	return res;
@@ -70,7 +73,8 @@ void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )
 void wv::iResourceRegistry::unloadResource( const std::string& _name )
 {
 	m_mutex.lock();
-	if ( !m_resources.contains( _name ) )
+	auto search = m_resources.find( _name );
+	if ( search == m_resources.end() )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload shader '%s'. It does not exist\n", _name.c_str() );
 		m_mutex.unlock();

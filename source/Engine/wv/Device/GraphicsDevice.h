@@ -1,9 +1,12 @@
 #pragma once
 
 #include <wv/Types.h>
+
 #include <wv/Shader/Shader.h>
 #include <wv/Shader/ShaderProgram.h>
+
 #include <wv/Misc/Color.h>
+
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <unordered_map>
@@ -30,6 +33,7 @@ namespace wv
 	class Mesh;
 
 	class cShader;
+	class cShaderProgram;
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +48,8 @@ namespace wv
 	class iGraphicsDevice
 	{
 	public:
+
+		virtual ~iGraphicsDevice() = 0;
 
 		static iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc );
 
@@ -65,7 +71,7 @@ namespace wv
 
 		virtual void createProgram( wv::cShaderProgram* _program, const std::string& _name ) = 0;
 		virtual void destroyProgram( cShaderProgram* _program ) = 0;
-		virtual void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = {}, std::vector<Uniform> _textureUniforms = { } ) = 0;
+		virtual void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = { }, std::vector<Uniform> _textureUniforms = { } ) = 0;
 		virtual void useProgram( cShaderProgram* _program ) = 0;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) = 0;

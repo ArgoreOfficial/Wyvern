@@ -26,17 +26,16 @@ namespace wv
 
 	public:
 
-		cMaterial( std::string _name, cShaderProgram* _program, std::vector<sMaterialVariable> _variables = {} ) :
-			iResource{ _name, L"" },
-			m_program{ _program },
-			m_variables{ _variables }
+		cMaterial( std::string _name, cShaderProgram* _program ) : 
+			iResource( _name, L"" ),
+			m_program( _program )
 		{ }
 
-		void load( cFileSystem* _pFileSystem ) override;
-		void unload( cFileSystem* _pFileSystem ) override;
-
-		void create( iGraphicsDevice* _pGraphicsDevice ) override;
-		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
+		cMaterial( std::string _name, cShaderProgram* _program, std::vector<sMaterialVariable> _variables ) : 
+			iResource( _name, L"" ),
+			m_program ( _program),
+			m_variables ( _variables)
+		{ }
 
 		void setAsActive( iGraphicsDevice* _device );
 
