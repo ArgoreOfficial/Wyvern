@@ -46,5 +46,3 @@ protected:
 	int m_numToSpawn = 10;
 	int m_numSpawned = 0;
 };
-
-REFLECT_CLASS( cDemoWindow );
