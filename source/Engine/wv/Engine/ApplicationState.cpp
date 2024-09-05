@@ -107,10 +107,18 @@ wv::iSceneObject* parseSceneObject( const wv::Json& _json )
 
 wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
 {
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Loading scene '%s'\n", _path.c_str() );
+
 	std::string src = _pFileSystem->loadString( _path );
+
+	if( src == "" )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to load scene\n" );
+		return nullptr;
+	}
+
 	std::string err;
 	wv::Json root = wv::Json::parse( src, err );
-
 
 	wv::cSceneRoot* scene = new wv::cSceneRoot( root[ "name" ].string_value(), _path);
 	
@@ -122,6 +130,12 @@ wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, con
 
 int wv::cApplicationState::addScene( cSceneRoot* _pScene )
 {
+	if( !_pScene )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot add null scene\n" );
+		return -1;
+	}
+
 	// check if scene already exists
 	// allow skip?
 	std::string name = _pScene->getName();

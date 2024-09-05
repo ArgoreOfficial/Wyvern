@@ -14,18 +14,30 @@
 
 #include "SceneObjects/DemoWindow.h"
 
+#ifdef WV_PLATFORM_PSVITA
+#include <wv/Platform/PSVita.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 REFLECT_CLASS( cDemoWindow );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#include <display.h>
+
 bool cSandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
+
+#ifdef WV_PLATFORM_PSVITA
+	engineDesc.windowWidth  = wv::PSVita::DISPLAY_WIDTH;
+	engineDesc.windowHeight = wv::PSVita::DISPLAY_HEIGHT;
+#else
 	engineDesc.windowWidth = 640 * 2;
 	engineDesc.windowHeight = 480 * 2;
 	engineDesc.showDebugConsole = true;
+#endif
 
 	// create device context
 	wv::ContextDesc ctxDesc;
@@ -35,11 +47,16 @@ bool cSandbox::create( void )
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL_ES2;
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
-#else
-	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_GLFW;
+#elif defined( WV_PLATFORM_WINDOWS )
+	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_GLFW;
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+	ctxDesc.graphicsApiVersion.major = 4;
+	ctxDesc.graphicsApiVersion.minor = 6;
+#elif defined( WV_PLATFORM_PSVITA )
+	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_PSVITA;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_PSVITA;
 	ctxDesc.graphicsApiVersion.major = 3;
-	ctxDesc.graphicsApiVersion.minor = 1;
+	ctxDesc.graphicsApiVersion.minor = 57;
 #endif
 
 	ctxDesc.name   = "Wyvern Sandbox";
@@ -51,7 +68,7 @@ bool cSandbox::create( void )
 	if ( !deviceContext )
 		return false;
 
-	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
+	deviceContext->setSwapInterval( 1 ); // vsync on(1) off(0)
 
 	// create graphics device
 	wv::GraphicsDeviceDesc deviceDesc;
@@ -68,8 +85,8 @@ bool cSandbox::create( void )
 	engineDesc.device.pContext = deviceContext;
 	engineDesc.device.pGraphics = graphicsDevice;
 	
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing Audio Device\n" );
 	engineDesc.device.pAudio = new wv::AudioDevice( nullptr );
-	
 
 	// create modules
 	wv::cFileSystem* fileSystem = new wv::cFileSystem();
@@ -85,15 +102,22 @@ bool cSandbox::create( void )
 	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
 	
 	// setup application state
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
 	wv::cApplicationState* appState = new wv::cApplicationState();
 	engineDesc.pApplicationState = appState;
 
 	// load scenes
-	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
+	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "app0:res/scenes/defaultScene.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
+
+	if( !wv::cEngine::get() )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Couldn't create Engine\n" );
+		return false;
+	}
 
     return true;
 }

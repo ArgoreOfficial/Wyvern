@@ -65,13 +65,13 @@ wv::cEngine* wv::cEngine::s_pInstance = nullptr;
 
 wv::cEngine::cEngine( EngineDesc* _desc )
 {
+	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Engine\n" );
+
 	if ( !_desc->pApplicationState )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "No application state provided. Cannot create application\n" );
 		return;
 	}
-
-	s_pInstance = this;
 
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
@@ -115,6 +115,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
+
+	s_pInstance = this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

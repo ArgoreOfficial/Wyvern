@@ -1,17 +1,28 @@
 #include "GraphicsDevice.h"
 
+#include <wv/Debug/Print.h>
 #include <wv/Device/DeviceContext.h>
 
 #ifdef WV_SUPPORT_GLAD
 #include <wv/Device/GraphicsDevice/OpenGLGraphicsDevice.h>
 #endif
 
+#ifdef WV_PLATFORM_PSVITA
+#include <wv/Device/GraphicsDevice/PSVitaGraphicsDevice.h>
+#endif
+
 wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDesc* _desc )
 {
-	/// TODO: different backends
+	
+	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Graphics Device\n" );
+
 	iGraphicsDevice* device = nullptr;
+#ifdef WV_PLATFORM_PSVITA
+	device = new cPSVitaGraphicsDevice();
+#else
 #ifdef WV_SUPPORT_GLAD
-	iGraphicsDevice* device = new cOpenGLGraphicsDevice();
+	device = new cOpenGLGraphicsDevice();
+#endif
 #endif
 
 	if( !device )
@@ -22,9 +33,8 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 		delete device;
 		return nullptr;
 	}
-	/*
+
 	_desc->pContext->m_graphicsApiVersion = device->m_graphicsApiVersion;
-	*/
 
 	return device;
 }

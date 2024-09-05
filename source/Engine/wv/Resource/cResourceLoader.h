@@ -40,7 +40,9 @@ namespace wv
 			m_pFileSystem{ _pFileSystem },
 			m_pGraphicsDevice{ _pGraphicsDevice }
 		{ 
+		#ifndef WV_PLATFORM_PSVITA
 			createWorkers( 5 );
+		#endif
 		}
 
 		void createWorkers( int _count );

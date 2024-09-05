@@ -5,6 +5,8 @@
 #include <vector>
 #include <mutex>
 
+#include "LowLevel/LowLevelFileSystem.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -28,7 +30,7 @@ namespace wv
 	{
 
 	public:
-
+		 cFileSystem();
 		~cFileSystem();
 
 		void addDirectory( const std::wstring& _dir ) { m_directories.push_back( _dir ); }
@@ -48,9 +50,11 @@ namespace wv
 
 	private:
 
+		cLowLevelFileSystem* m_pLowLevel = nullptr;
+
 		std::mutex m_mutex;
 		std::vector<Memory*> m_loadedMemory;
-		std::vector<std::wstring> m_directories{ L"" };
+		std::vector<std::wstring> m_directories;
 	};
 
 }

@@ -2,6 +2,8 @@
 
 #include <wv/Resource/cResourceLoader.h>
 
+#include <wv/Debug/Print.h>
+
 #include <string>
 #include <unordered_map>
 #include <mutex>
@@ -19,7 +21,9 @@ namespace wv
 			m_name{_name},
 			m_pFileSystem{ _pFileSystem },
 			m_resourceLoader{_pFileSystem, _pGraphicsDevice }
-		 { }
+		{
+			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing %s\n", _name.c_str() );
+		}
 
 		~iResourceRegistry();
 

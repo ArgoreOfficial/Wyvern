@@ -12,8 +12,19 @@ namespace wv
 
 	enum DeviceContextAPI
 	{
-		WV_DEVICE_CONTEXT_API_SDL,
-		WV_DEVICE_CONTEXT_API_GLFW
+		WV_DEVICE_CONTEXT_API_NONE
+
+	#ifdef WV_SUPPORT_SDL
+		,WV_DEVICE_CONTEXT_API_SDL
+	#endif
+
+	#ifdef WV_SUPPORT_GLFW
+		,WV_DEVICE_CONTEXT_API_GLFW
+	#endif
+
+	#ifdef WV_PLATFORM_PSVITA
+		,WV_DEVICE_CONTEXT_API_PSVITA
+	#endif
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

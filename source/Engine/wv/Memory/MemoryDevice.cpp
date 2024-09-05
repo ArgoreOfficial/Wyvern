@@ -22,7 +22,22 @@
 #include <filesystem>
 #endif
 
+#ifdef WV_PLATFORM_PSVITA
+#include "LowLevel/PSVitaFileSystem.h"
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
+
+wv::cFileSystem::cFileSystem()
+{
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing File System\n" );
+
+#ifdef WV_PLATFORM_PSVITA
+	m_pLowLevel = new cPSVitaFileSystem();
+#endif
+
+	addDirectory( L"" );
+}
 
 wv::cFileSystem::~cFileSystem()
 {
@@ -35,6 +50,9 @@ wv::cFileSystem::~cFileSystem()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+#define BUFFER_SIZE 1024 * 8
+#define ERROR_PREFIX "Error:"
 
 wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
@@ -58,6 +76,27 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	m_mutex.lock();
 	m_loadedMemory.push_back( mem );
 	m_mutex.unlock();
+
+	return mem;
+#elif defined( WV_PLATFORM_PSVITA )
+	char buffer[ 1024 * 4 ];
+
+	wv::Handle file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
+	int size = m_pLowLevel->readFile( file, buffer, sizeof( buffer ) );
+	m_pLowLevel->closeFile( file );
+
+	if( strncmp( buffer, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
+	{
+		printf( "%s\n", buffer );
+		return nullptr;
+	}
+
+	Memory* mem = new Memory();
+	mem->data = new unsigned char[ size ];
+	mem->size = static_cast< unsigned int >( size );
+	memcpy( mem->data, buffer, size );
+
+	printf( "Loaded file %i\n", size );
 
 	return mem;
 #else

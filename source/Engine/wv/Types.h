@@ -38,9 +38,17 @@ namespace wv
 
 	enum GraphicsAPI
 	{
-		WV_GRAPHICS_API_OPENGL,
-		WV_GRAPHICS_API_OPENGL_ES1,
-		WV_GRAPHICS_API_OPENGL_ES2
+		WV_GRAPHICS_API_NONE
+
+	#ifdef WV_SUPPORT_OPENGL
+		,WV_GRAPHICS_API_OPENGL,
+		,WV_GRAPHICS_API_OPENGL_ES1
+		,WV_GRAPHICS_API_OPENGL_ES2
+	#endif
+
+	#ifdef WV_PLATFORM_PSVITA
+		,WV_GRAPHICS_API_PSVITA
+	#endif
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
