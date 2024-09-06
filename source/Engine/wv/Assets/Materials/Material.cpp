@@ -32,7 +32,7 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
-	//_device->useProgram( m_program );
+	_device->useProgram( m_program );
 	setMaterialUniforms();
 }
 

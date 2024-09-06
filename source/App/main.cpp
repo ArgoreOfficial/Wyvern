@@ -20,12 +20,21 @@ int main()
 
 	cSandbox sandbox{};
 
-	if ( sandbox.create() )
+	try
 	{
-		sandbox.run();
-		sandbox.destroy();
+		if( sandbox.create() )
+		{
+			wv::Debug::Print( "Starting Run Loop\n" );
+			sandbox.run();
+			wv::Debug::Print( "Ending Run Loop\n" );
+			sandbox.destroy();
+		}
 	}
-	
+	catch( ... )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "A fatal error occured\n" );
+	}
+
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
 	
 	return 0;

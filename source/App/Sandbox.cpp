@@ -24,7 +24,6 @@ REFLECT_CLASS( cDemoWindow );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#include <display.h>
 
 bool cSandbox::create( void )
 {
@@ -107,7 +106,7 @@ bool cSandbox::create( void )
 	engineDesc.pApplicationState = appState;
 
 	// load scenes
-	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "app0:res/scenes/defaultScene.json" );
+	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/defaultScene.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine

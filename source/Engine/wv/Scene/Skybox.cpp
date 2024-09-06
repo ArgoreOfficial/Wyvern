@@ -9,7 +9,7 @@
 #include <wv/Assets/Materials/MaterialRegistry.h>
 #include <wv/Memory/ModelParser.h>
 
-#ifdef WV_SUPPORT_GLAD
+#ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>
 #endif
 
@@ -91,7 +91,7 @@ void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _de
 	if ( m_skyboxMesh && m_skyMaterial->isCreated() && m_skyMaterial->getProgram()->isCreated() )
 	{
 		/// TODO: remove raw gl calls
-	#ifdef WV_SUPPORT_GLAD
+	#ifdef WV_SUPPORT_OPENGL
 		glDepthMask( GL_FALSE );
 		glDepthFunc( GL_LEQUAL );
 		_device->draw( m_skyboxMesh );

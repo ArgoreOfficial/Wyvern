@@ -2,7 +2,7 @@
 
 #include <wv/Memory/MemoryDevice.h>
 
-// #include <fkYAML/node.hpp>
+#include <wv/Auxiliary/json/json11.hpp>
 
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Shader/ShaderRegistry.h>
@@ -11,9 +11,10 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	std::string jsonSource = _pFileSystem->loadString( m_name );
-	fkyaml::node root = fkyaml::node::deserialize( jsonSource );
+	std::string err;
+	json11::Json root = json11::Json::parse( jsonSource, err );
 
-	std::string source = root["source"].get_value<std::string>();
+	std::string source = root["source"].string_value();
 
 	cShader* vs = m_pShaderRegistry->loadShader( WV_SHADER_TYPE_VERTEX, "res/shaders/" + source + "_vs.glsl" );
 	cShader* fs = m_pShaderRegistry->loadShader( WV_SHADER_TYPE_FRAGMENT, "res/shaders/" + source + "_fs.glsl" );
@@ -29,20 +30,20 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	}
 
 	int blockCounter = 0;
-	for ( auto& block : root[ "blocks" ] )
+	for ( auto& block : root[ "blocks" ].array_items() )
 	{
 		UniformBlockDesc blockDesc{};
 
-		blockDesc.name = block[ "block" ].get_value<std::string>();
+		blockDesc.name = block[ "block" ].string_value();
 		if( blockDesc.name == "" )
 		{
 			Debug::Print( Debug::WV_PRINT_ERROR, "Block name is empty\n" );
 			continue;
 		}
 
-		for ( auto& uniform : block[ "uniforms" ] )
+		for ( auto& uniform : block[ "uniforms" ].array_items() )
 		{
-			std::string uniformName = uniform[ "uniform" ].get_value<std::string>();
+			std::string uniformName = uniform[ "uniform" ].string_value();
 			if( uniformName == "" )
 			{
 				Debug::Print( Debug::WV_PRINT_ERROR, "Uniform name is empty\n" );
@@ -58,11 +59,11 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	}
 
 	unsigned int textureCounter = 0;
-	if ( !root[ "textures" ].empty() )
+	if ( !root[ "textures" ].array_items().empty() )
 	{
-		for ( auto& texture : root[ "textures" ] )
+		for ( auto& texture : root[ "textures" ].array_items() )
 		{
-			wv::Uniform u{ textureCounter, 0, texture.get_value<std::string>() };
+			wv::Uniform u{ textureCounter, 0, texture.string_value() };
 			m_textureUniforms.push_back( u );
 			textureCounter++;
 		}

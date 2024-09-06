@@ -3,7 +3,7 @@
 #include <wv/Debug/Print.h>
 #include <wv/Device/DeviceContext.h>
 
-#ifdef WV_SUPPORT_GLAD
+#ifdef WV_SUPPORT_OPENGL
 #include <wv/Device/GraphicsDevice/OpenGLGraphicsDevice.h>
 #endif
 
@@ -20,7 +20,7 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 #ifdef WV_PLATFORM_PSVITA
 	device = new cPSVitaGraphicsDevice();
 #else
-#ifdef WV_SUPPORT_GLAD
+#ifdef WV_SUPPORT_OPENGL
 	device = new cOpenGLGraphicsDevice();
 #endif
 #endif

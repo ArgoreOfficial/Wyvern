@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-#ifdef WV_SUPPORT_GLAD
+#ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>
 #endif
 
@@ -96,11 +96,12 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	/// TODO: move to descriptor
 	m_pPhysicsEngine = new cJoltPhysicsEngine();
 	m_pPhysicsEngine->init();
-
+	
 	/* 
 	 * create deferred rendering objects
 	 * this should be configurable
 	 */
+	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
 		m_deferredProgram = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/deferred.wshader" );
 		createScreenQuad();
@@ -114,9 +115,12 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 
+	s_pInstance = this;
+
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Debug Draw\n" );
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
 
-	s_pInstance = this;
+	Debug::Print( "Created Engine\n" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -297,6 +301,8 @@ void wv::cEngine::tick()
 
 	context->pollEvents();
 	
+	wv::Debug::Print( "Frame Tick\n" );
+
 	// refresh fps display
 	{
 		double fps = 1.0 / dt;
@@ -312,7 +318,7 @@ void wv::cEngine::tick()
 			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
 				m_averageFps += m_fpsCache[ i ];
 			m_averageFps /= (double)FPS_CACHE_NUM;
-			
+
 		#ifdef WV_PLATFORM_WINDOWS
 			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
@@ -410,6 +416,7 @@ void wv::cEngine::quit()
 void wv::cEngine::initImgui()
 {
 #ifdef WV_SUPPORT_IMGUI
+	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing ImGui\n" );
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -425,7 +432,7 @@ void wv::cEngine::initImgui()
 	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Init(); break;
 	}
 #else
-	Debug::Print( Debug::WV_PRINT_WARN, "ImGui not supported\n" );
+	Debug::Print( Debug::WV_PRINT_WARN, "ImGui not supported on this platform\n" );
 #endif
 }
 
@@ -489,7 +496,9 @@ void wv::cEngine::createScreenQuad()
 	MeshDesc meshDesc;
 	m_screenQuad = graphics->createMesh( &meshDesc );
 	graphics->createPrimitive( &prDesc, m_screenQuad );
-	m_screenQuad->transform.update();
+	
+	if( m_screenQuad )
+		m_screenQuad->transform.update();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

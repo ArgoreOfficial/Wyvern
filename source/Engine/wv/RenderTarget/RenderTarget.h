@@ -25,6 +25,7 @@ namespace wv
 	{
 
 	public:
+		wv::Handle internalHandle = 0;
 
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
