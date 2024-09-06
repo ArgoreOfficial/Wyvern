@@ -6,7 +6,6 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
 #include <wv/Primitive/Mesh.h>
-#include <wv/Shader/ShaderRegistry.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +31,7 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
-	_device->useProgram( m_program );
+	m_program->use( _device );
 	setMaterialUniforms();
 }
 
@@ -54,15 +53,11 @@ void wv::cMaterial::setDefaultViewUniforms()
 	wv::iDeviceContext* ctx = app->context;
 
 	// camera transorm
-	wv::UniformBlock& block = *m_program->getUniformBlock( "UbInstanceData" );
+	wv::cShaderBuffer& block = *m_program->getShaderBuffer( "UbInstanceData" );
 
-	cMatrix4x4f projection = app->currentCamera->getProjectionMatrix();
-	cMatrix4x4f view       = app->currentCamera->getViewMatrix();
-	cMatrix4x4f model( 1.0f );
-
-	block.set( "u_Projection", projection );
-	block.set( "u_View", view );
-	block.set( "u_Model", model );
+	m_UbInstanceData.projection = app->currentCamera->getProjectionMatrix();
+	m_UbInstanceData.view = app->currentCamera->getViewMatrix();
+	m_UbInstanceData.model = wv::cMatrix4x4f( 1.0f );
 }
 
 void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
@@ -70,10 +65,11 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 	wv::cEngine* app = wv::cEngine::get();
 
 	// model transform
-	wv::UniformBlock& instanceBlock = *m_program->getUniformBlock( "UbInstanceData" );
+	wv::cShaderBuffer& instanceBlock = *m_program->getShaderBuffer( "UbInstanceData" );
 
-	instanceBlock.set( "u_Model", _mesh->transform.getMatrix() );
-
+	m_UbInstanceData.model = _mesh->transform.getMatrix();
+	instanceBlock.buffer( &m_UbInstanceData );
+	
 	// bind textures
 	int texSlot = 0;
 	for( int i = 0; i < ( int )m_variables.size(); i++ )

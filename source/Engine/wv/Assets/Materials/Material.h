@@ -4,7 +4,7 @@
 #include <string>
 
 #include <wv/Assets/Materials/MaterialVariable.h>
-
+#include <wv/Math/Matrix.h>
 #include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,15 @@ namespace wv
 	
 	class iGraphicsDevice;
 	class Mesh;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	struct sUbInstanceData
+	{
+		cMatrix4x4f projection;
+		cMatrix4x4f view;
+		cMatrix4x4f model;
+	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +63,8 @@ namespace wv
 		cShaderProgram* m_program = nullptr;
 		//std::vector<Texture*> m_textures;
 		std::vector<sMaterialVariable> m_variables;
+
+		sUbInstanceData m_UbInstanceData;
 
 	};
 

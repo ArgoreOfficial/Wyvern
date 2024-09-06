@@ -5,16 +5,14 @@
 namespace wv
 {
 	class iGraphicsDevice;
-	class cShaderRegistry;
 	class cMaterial;
 
 	class cMaterialRegistry : public iResourceRegistry
 	{
 	public:
-		cMaterialRegistry( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice, cShaderRegistry* m_pShaderRegistry ) :
+		cMaterialRegistry( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) :
 			iResourceRegistry{ "MaterialRegistry", _pFileSystem, _pGraphicsDevice },
-			m_pGraphicsDevice{ _pGraphicsDevice },
-			m_pShaderRegistry{ m_pShaderRegistry }
+			m_pGraphicsDevice{ _pGraphicsDevice }
 		{
 			// loadBaseMaterials();
 		}
@@ -28,7 +26,6 @@ namespace wv
 		void loadBaseMaterials();
 
 		iGraphicsDevice* m_pGraphicsDevice;
-		cShaderRegistry* m_pShaderRegistry;
 
 		std::unordered_map<std::string, cMaterial*> m_materials;
 

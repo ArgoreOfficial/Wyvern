@@ -8,7 +8,6 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Memory/MemoryDevice.h>
-#include <wv/Shader/ShaderRegistry.h>
 
 #include <wv/Scene/SceneRoot.h>
 
@@ -98,7 +97,6 @@ bool cSandbox::create( void )
 	fileSystem->addDirectory( L"res/textures/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
-	engineDesc.systems.pShaderRegistry = new wv::cShaderRegistry( engineDesc.systems.pFileSystem, graphicsDevice );
 	
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );

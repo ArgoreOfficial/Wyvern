@@ -3,7 +3,6 @@
 #include <wv/Assets/Materials/Material.h>
 #include <wv/Assets/Texture.h>
 
-#include <wv/Shader/ShaderRegistry.h>
 #include <wv/Memory/MemoryDevice.h>
 #include <wv/Device/GraphicsDevice.h>
 
@@ -34,12 +33,16 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	json11::Json root = json11::Json::parse( _source, err );
 
 	std::string shaderName = root["shader"].string_value();
-	cShaderProgram* program = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/" + shaderName + ".wshader" );
+
+	cShaderProgram* program = new cShaderProgram( shaderName );
+	program->load( m_pFileSystem );
 
 	while ( !program->isLoaded() ) 
 	{
-		//Sleep( 1 );
+		Sleep( 1 );
 	}
+
+	program->create( m_pGraphicsDevice );
 
 	std::vector<sMaterialVariable> variables;
 	for( auto& textureObject : root[ "textures" ].array_items() )
@@ -76,12 +79,6 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 void wv::cMaterialRegistry::loadBaseMaterials()
 {
-	m_pShaderRegistry->batchLoadPrograms( 
-		{
-			"res/shaders/phong.wshader",
-			"res/shaders/sky.wshader"
-		} );
-
 	loadMaterial( "phong" );
 	loadMaterial( "sky" );
 }

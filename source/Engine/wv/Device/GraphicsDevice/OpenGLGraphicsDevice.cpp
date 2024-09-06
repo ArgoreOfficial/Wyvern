@@ -28,9 +28,12 @@ if( _func != nullptr ) { \
 else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
 
 #define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
+
+#define WV_ASSERT_ERR( _msg ) assertGLError( _msg )
 #else
 #define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
 #define WV_RETASSERT_GL( _ret, _func, ... ) _ret = _func( __VA_ARGS__ )
+#define WV_ASSERT_ERR( _msg ) 
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -256,198 +259,178 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool wv::cOpenGLGraphicsDevice::createShader( cShader* _shader, eShaderType _type )
+wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShaderSource* _source )
 {
 #ifdef WV_SUPPORT_OPENGL
+	if( _source->data->size == 0 )
+	{
+		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
+		return nullptr;
+	}
+
+	sShader* shader = new sShader();
+
 	GLenum type = GL_NONE;
 	{
-		switch ( _type )
+		switch( _type )
 		{
 		case wv::WV_SHADER_TYPE_FRAGMENT: type = GL_FRAGMENT_SHADER; break;
 		case wv::WV_SHADER_TYPE_VERTEX:   type = GL_VERTEX_SHADER; break;
 		}
 	}
 
-	wv::Handle handle{};
-	WV_RETASSERT_GL( handle, glCreateShader, type );
+	WV_RETASSERT_GL( shader->handle, glCreateShader, type );
 
-#ifdef WV_DEBUG
-	assertGLError( "Failed to create shader\n" );
-#endif
-	
-	_shader->setHandle( handle );
-
-	return true;
-#else
-	return false;
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::destroyShader( cShader* _shader )
-{
-#ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDeleteShader, _shader->getHandle() );
-	_shader->setHandle( 0 );
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::compileShader( cShader* _shader )
-{
-#ifdef WV_SUPPORT_OPENGL
-	if ( !_shader )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile null shader\n" );
-		return;
-	}
-	
-	std::string source = _shader->getSource();
-	if ( source == "" )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader '%s' with null source\n", _shader->getName().c_str() );
-		return;
-	}
+	std::string source = std::string( (char*)_source->data->data, _source->data->size ); // this assumes source is a string
 
 	// GLSL specification (chapter 3.3) requires that #version be the first thing in a shader source
 	// therefore '#if GL_ES' cannot be used in the shader itself
-	/// TODO: move /// This will keep adding if compileShader is called more than once on the same shader
 #ifdef EMSCRIPTEN
 	source = "#version 300 es\n" + source;
 #else
 	source = "#version 460 core\n" + source;
 #endif
 	const char* sourcePtr = source.c_str();
-	_shader->setSource( source );
 
-	wv::Handle shaderHandle = _shader->getHandle();
-	WV_ASSERT_GL( glShaderSource, shaderHandle, 1, &sourcePtr, NULL);
-#ifdef WV_DEBUG
-	assertGLError( "Failed to add shader source to program\n" );
-#endif
+	WV_ASSERT_GL( glShaderSource, shader->handle, 1, &sourcePtr, NULL );
+	WV_ASSERT_ERR( "Failed to add shader source to program\n" );
 
-	WV_ASSERT_GL( glCompileShader, shaderHandle );
-	
+	WV_ASSERT_GL( glCompileShader, shader->handle );
+
 	int  success = 1;
 	char infoLog[ 512 ];
-	WV_ASSERT_GL( glGetShaderiv, shaderHandle, GL_COMPILE_STATUS, &success );
-	if ( !success )
+	WV_ASSERT_GL( glGetShaderiv, shader->handle, GL_COMPILE_STATUS, &success );
+	if( !success )
 	{
-		WV_ASSERT_GL( glGetShaderInfoLog, shaderHandle, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader '%s'\n %s \n", _shader->getName().c_str(), infoLog);
-	}
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::createProgram( wv::cShaderProgram* _program, const std::string& _name )
-{
-#ifdef WV_SUPPORT_OPENGL
-	wv::Handle handle{};
-	WV_RETASSERT_GL( handle, glCreateProgram );
-#ifdef WV_DEBUG
-	assertGLError( "Failed to create program\n" );
-#endif
-	_program->setHandle( handle );
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::destroyProgram( cShaderProgram* _program )
-{
-#ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDeleteProgram, _program->getHandle() );
-	_program->setHandle( 0 );
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks, std::vector<Uniform> _textureUniforms )
-{
-#ifdef WV_SUPPORT_OPENGL
-	if ( !_program )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link null program\n" );
-		return;
+		WV_ASSERT_GL( glGetShaderInfoLog, shader->handle, 512, NULL, infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader\n %s \n", infoLog );
 	}
 
-	wv::Handle programHandle = _program->getHandle();
-	if ( programHandle == 0 )
+	WV_ASSERT_ERR( "Failed to create shader\n" );
+
+	return shader;
+#else
+	return nullptr;
+#endif
+}
+
+void wv::cOpenGLGraphicsDevice::destroyShader( sShader* _shader )
+{
+#ifdef WV_SUPPORT_OPENGL
+	WV_ASSERT_GL( glDeleteShader, _shader->handle );
+	_shader->handle = 0;
+#endif
+}
+
+wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
+{
+#ifdef WV_SUPPORT_OPENGL
+	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
+
+	sShaderProgram* program = new sShaderProgram();
+
+	WV_RETASSERT_GL( program->handle, glCreateProgram );
+
+	WV_ASSERT_ERR( "Failed to create program\n" );
+
+	if( program->handle == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link program with null handle\n" );
-		return;
+		return program;
 	}
 
-	std::vector<cShader*> shaders = _program->getShaders();
-
-	for ( int i = 0; i < shaders.size(); i++ )
+	for( auto& shader : _desc->shaders )
 	{
-		WV_ASSERT_GL( glAttachShader, programHandle, shaders[ i ]->getHandle() );
-	#ifdef WV_DEBUG
-		assertGLError( "attach\n" );
-	#endif
+		WV_ASSERT_GL( glAttachShader, program->handle, shader->handle );
+		WV_ASSERT_ERR( "attach\n" );
 	}
-	WV_ASSERT_GL( glLinkProgram, programHandle );
-#ifdef WV_DEBUG
-	assertGLError( "link\n" );
-#endif
+	WV_ASSERT_GL( glLinkProgram, program->handle );
+
+	WV_ASSERT_ERR( "link\n" );
 
 	int success = 0;
 	char infoLog[ 512 ];
-	WV_ASSERT_GL( glGetProgramiv, programHandle, GL_LINK_STATUS, &success );
-	if ( !success )
+	WV_ASSERT_GL( glGetProgramiv, program->handle, GL_LINK_STATUS, &success );
+	if( !success )
 	{
-		WV_ASSERT_GL( glGetProgramInfoLog, programHandle, 512, NULL, infoLog );
+		WV_ASSERT_GL( glGetProgramInfoLog, program->handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
 
-	// clean up shaders
-	//for ( int i = 0; i < (int)_desc->shaders.size(); i++ )
-	//	glDeleteShader( shaders[ i ] );
+	GLint numActiveResources;
+	glGetProgramInterfaceiv( program->handle, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &numActiveResources );
 
-	/// TODO: move? I don't like having these vectors in linkProgram()
-	for ( int i = 0; i < (int)_uniformBlocks.size(); i++ )
+	for( GLuint i = 0; i < numActiveResources; i++ )
 	{
-		UniformBlock block = createUniformBlock( _program, &_uniformBlocks[ i ] );
-		_program->addUniformBlock( _uniformBlocks[ i ].name, block );
+		GLenum props[ 1 ] = { GL_NAME_LENGTH };
+		GLint res[ 1 ];
+		glGetProgramResourceiv( program->handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
+
+		std::string name( ( GLuint )res[ 0 ] - 1, '\0' );
+		glGetProgramResourceName( program->handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
+
+		glUniformBlockBinding( program->handle, i, m_numTotalUniformBlocks );
+		m_numTotalUniformBlocks++;
+
+		sShaderBufferDesc desc;
+		desc.name = name;
+		
+
+		cShaderBuffer* buf = createUniformBlock( program, &desc );
+		program->shaderBuffers.push_back( buf );
+
+		Debug::Print( Debug::WV_PRINT_DEBUG, "    - ShaderBuffer: %s\n", name.c_str() );
+		// glShaderStorageBlockBinding(Handle, i, newBindingPoint);
 	}
 
-	WV_ASSERT_GL( glUseProgram, programHandle );
+	/// TODO: move? I don't like having these vectors in linkProgram()
+	//for( int i = 0; i < ( int )_uniformBlocks.size(); i++ )
+	//{
+	//	cShaderBuffer block = createUniformBlock( program, &_uniformBlocks[ i ] );
+	//	_program->addUniformBlock( _uniformBlocks[ i ].name, block );
+	//}
+
+	WV_ASSERT_GL( glUseProgram, program->handle );
 
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
-	for ( int i = 0; i < (int)_textureUniforms.size(); i++ )
-	{
-		unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
-		WV_ASSERT_GL( glUniform1i, loc, _textureUniforms[ i ].index );
-	#ifdef WV_DEBUG
-		assertGLError( "Failed to bind texture loc\n" );
-	#endif
-	}
+	//for( int i = 0; i < ( int )_textureUniforms.size(); i++ )
+	//{
+	//	unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
+	//	WV_ASSERT_GL( glUniform1i, loc, _textureUniforms[ i ].index );
+	//#ifdef WV_DEBUG
+	//	assertGLError( "Failed to bind texture loc\n" );
+	//#endif
+	//}
 
 	WV_ASSERT_GL( glUseProgram, 0 );
+
+	return program;
+#else
+	return nullptr;
+#endif
+}
+
+void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _program )
+{
+#ifdef WV_SUPPORT_OPENGL
+	WV_ASSERT_GL( glDeleteProgram, _program->handle );
+	_program->handle = 0;
+#endif
+}
+
+void wv::cOpenGLGraphicsDevice::useProgram( sShaderProgram* _program )
+{
+#ifdef WV_SUPPORT_OPENGL
+	if( m_activeProgram == _program )
+		return;
+
+	WV_ASSERT_GL( glUseProgram, _program ? _program->handle : 0 );
+	m_activeProgram = _program;
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::useProgram( cShaderProgram* _program )
-{
-#ifdef WV_SUPPORT_OPENGL
-	if ( m_activeProgram == _program )
-		return;
-
-	WV_ASSERT_GL( glUseProgram, _program ? _program->getHandle() : 0 );
-	m_activeProgram = _program;
-#endif
-}
 
 wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
 {
@@ -824,19 +807,19 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 #ifdef WV_SUPPORT_OPENGL
 	WV_ASSERT_GL( glBindVertexArray, _primitive->vaoHandle );
 	
-	UniformBlockMap* uniformBlocks = m_activeProgram->getUniformBlockMap();
-	for ( auto& block : *uniformBlocks )
+	std::vector<cShaderBuffer*>& shaderBuffers = m_activeProgram->shaderBuffers;
+	for ( auto& buf : shaderBuffers )
 	{
-		WV_ASSERT_GL( glUniformBlockBinding, m_activeProgram->getHandle(), block.second.m_index, block.second.m_bindingIndex);
+		WV_ASSERT_GL( glUniformBlockBinding, m_activeProgram->handle, buf->m_index, buf->m_bindingIndex);
 
-		if( m_boundUniformBuffer != block.second.m_bufferHandle )
+		if( m_boundUniformBuffer != buf->m_bufferHandle )
 		{
-			WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.second.m_bufferHandle );
-			m_boundUniformBuffer = block.second.m_bufferHandle;
+			WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, buf->m_bufferHandle );
+			m_boundUniformBuffer = buf->m_bufferHandle;
 		}
-		WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, block.second.m_bufferSize, block.second.m_buffer, GL_DYNAMIC_DRAW );
+		WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, buf->m_bufferSize, buf->m_buffer, GL_DYNAMIC_DRAW );
 	}
-
+	
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
 	{
@@ -859,52 +842,34 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::UniformBlock wv::cOpenGLGraphicsDevice::createUniformBlock( cShaderProgram* _program, UniformBlockDesc* _desc )
+wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc )
 {
 #ifdef WV_SUPPORT_OPENGL
-	UniformBlock block;
-	Handle programHandle = _program->getHandle();
+	cShaderBuffer* sb = new cShaderBuffer();
+	Handle programHandle = _program->handle;
 
-	block.m_bindingIndex = m_numTotalUniformBlocks;
-	
-	block.m_index = 0;
-	WV_RETASSERT_GL( block.m_index, glGetUniformBlockIndex, programHandle, _desc->name.c_str() );;
-	WV_ASSERT_GL( glGetActiveUniformBlockiv, programHandle, block.m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block.m_bufferSize );
+	sb->m_bindingIndex = m_numTotalUniformBlocks;
+	sb->name = _desc->name;
 
-	block.m_buffer = new char[ block.m_bufferSize ];
-	memset( block.m_buffer, 0, block.m_bufferSize );
+	WV_RETASSERT_GL( sb->m_index, glGetUniformBlockIndex, programHandle, _desc->name.c_str() );;
+	WV_ASSERT_GL( glGetActiveUniformBlockiv, programHandle, sb->m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &sb->m_bufferSize );
+
+	sb->m_buffer = new char[ sb->m_bufferSize ];
+	memset( sb->m_buffer, 0, sb->m_bufferSize );
 	
-	WV_ASSERT_GL( glGenBuffers, 1, &block.m_bufferHandle );
-	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, block.m_bufferHandle );
-	WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, block.m_bufferSize, 0, GL_DYNAMIC_DRAW );
+	WV_ASSERT_GL( glGenBuffers, 1, &sb->m_bufferHandle );
+	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, sb->m_bufferHandle );
+	WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, sb->m_bufferSize, 0, GL_DYNAMIC_DRAW );
 	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, 0 );
 	
-	WV_ASSERT_GL( glBindBufferBase, GL_UNIFORM_BUFFER, block.m_bindingIndex, block.m_bufferHandle );
-
-	std::vector<unsigned int> indices( _desc->uniforms.size() );
-	std::vector<int> offsets( _desc->uniforms.size() );
-	
-	std::vector<const char*> uniformNames;
-	for ( size_t i = 0; i < _desc->uniforms.size(); i++ )
-		uniformNames.push_back( _desc->uniforms[ i ].name.c_str() ); // lifetime issues?
-	
-	WV_ASSERT_GL( glGetUniformIndices, programHandle, (GLsizei)_desc->uniforms.size(), uniformNames.data(), indices.data() );
-	WV_ASSERT_GL( glGetActiveUniformsiv, programHandle, (GLsizei)_desc->uniforms.size(), indices.data(), GL_UNIFORM_OFFSET, offsets.data());
-
-	for ( int o = 0; o < _desc->uniforms.size(); o++ )
-	{
-		Uniform u;
-		u.index = indices[ o ];
-		u.offset = offsets[ o ];
-		u.name = _desc->uniforms[ o ].name;
-
-		block.m_uniforms[ u.name ] = u;
-	}
+	WV_ASSERT_GL( glBindBufferBase, GL_UNIFORM_BUFFER, sb->m_bindingIndex, sb->m_bufferHandle );
 
 	m_numTotalUniformBlocks++;
 
-	return block;
+	return sb;
 #else
-	return {};
+	return nullptr;
 #endif
 }
+
+

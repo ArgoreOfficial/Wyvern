@@ -25,7 +25,6 @@
 
 #include <wv/Engine/EngineReflect.h>
 
-#include <wv/Shader/ShaderRegistry.h>
 #include <wv/Engine/ApplicationState.h>
 
 #include <wv/Debug/Print.h>
@@ -77,8 +76,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	graphics = _desc->device.pGraphics;
 
 	m_pFileSystem       = _desc->systems.pFileSystem;
-	m_pShaderRegistry   = _desc->systems.pShaderRegistry;
-	m_pMaterialRegistry = new cMaterialRegistry( m_pFileSystem, graphics, m_pShaderRegistry );
+	m_pMaterialRegistry = new cMaterialRegistry( m_pFileSystem, graphics );
 
 	m_pIRTHandler = _desc->pIRTHandler;
 	
@@ -103,7 +101,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 */
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
-		m_deferredProgram = m_pShaderRegistry->loadProgramFromWShader( "res/shaders/deferred.wshader" );
+		m_deferredProgram = new cShaderProgram( "deferred" );
+		m_deferredProgram->load( m_pFileSystem );
+		m_deferredProgram->create( graphics );
+
 		createScreenQuad();
 		createGBuffer();
 	}
@@ -270,12 +271,10 @@ void wv::cEngine::terminate()
 
 	graphics->destroyMesh( &m_screenQuad );
 	graphics->destroyRenderTarget( &m_gbuffer );
-	m_pShaderRegistry->unloadShaderProgram( m_deferredProgram );
 
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
 	delete m_pFileSystem;
-	delete m_pShaderRegistry;
 
 	context->terminate();
 	graphics->terminate();
@@ -301,7 +300,7 @@ void wv::cEngine::tick()
 
 	context->pollEvents();
 	
-	wv::Debug::Print( "Frame Tick\n" );
+	//wv::Debug::Print( "Frame Tick\n" );
 
 	// refresh fps display
 	{
@@ -330,7 +329,6 @@ void wv::cEngine::tick()
 	m_pPhysicsEngine->update( dt );
 
 	// update modules
-	m_pShaderRegistry->update();
 	m_pMaterialRegistry->update();
 
 	m_pApplicationState->update( dt );
@@ -373,7 +371,7 @@ void wv::cEngine::tick()
 		graphics->bindTextureToSlot( m_gbuffer->textures[ i ], i );
 
 	// render screen quad with deferred shader
-	graphics->useProgram( m_deferredProgram );
+	m_deferredProgram->use( graphics );
 	graphics->draw( m_screenQuad );
 	
 	if( m_pIRTHandler )

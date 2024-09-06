@@ -6,7 +6,6 @@
 #include <wv/Shader/ShaderProgram.h>
 
 #include <wv/Misc/Color.h>
-
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <unordered_map>
@@ -21,7 +20,7 @@ namespace wv
 	struct PipelineDesc;
 	struct PrimitiveDesc;
 	struct TextureDesc;
-	struct UniformBlockDesc;
+	struct sShaderBufferDesc;
 	struct RenderTargetDesc;
 	struct MeshDesc;
 	
@@ -32,8 +31,11 @@ namespace wv
 	class RenderTarget;
 	class Mesh;
 
-	class cShader;
-	class cShaderProgram;
+	struct sShaderSource;
+	struct sShader;
+
+	struct sShaderProgramDesc;
+	struct sShaderProgram;
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,14 +67,12 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual bool createShader( cShader* _shader, eShaderType _type ) = 0;
-		virtual void destroyShader( cShader* _shader ) = 0;
-		virtual void compileShader( cShader* _shader ) = 0;
+		virtual sShader* createShader( eShaderType _type, sShaderSource* _source ) = 0;
+		virtual void destroyShader( sShader* _shader ) = 0;
 
-		virtual void createProgram( wv::cShaderProgram* _program, const std::string& _name ) = 0;
-		virtual void destroyProgram( cShaderProgram* _program ) = 0;
-		virtual void linkProgram( cShaderProgram* _program, std::vector<UniformBlockDesc> _uniformBlocks = { }, std::vector<Uniform> _textureUniforms = { } ) = 0;
-		virtual void useProgram( cShaderProgram* _program ) = 0;
+		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) = 0;
+		virtual void destroyProgram( sShaderProgram* _program ) = 0;
+		virtual void useProgram    ( sShaderProgram* _program ) = 0;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) = 0;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) = 0;

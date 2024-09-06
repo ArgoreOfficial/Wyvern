@@ -30,12 +30,9 @@
 
 wv::cFileSystem::cFileSystem()
 {
-	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing File System\n" );
-
 #ifdef WV_PLATFORM_PSVITA
 	m_pLowLevel = new cPSVitaFileSystem();
 #endif
-
 	addDirectory( L"" );
 }
 
@@ -46,6 +43,12 @@ wv::cFileSystem::~cFileSystem()
 		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty cFileSystem destroyed. This may cause memory leaks\n" );
 		while ( m_loadedMemory.size() > 0 )
 			unloadMemory( m_loadedMemory.front() );
+	}
+
+	if( m_pLowLevel )
+	{
+		delete m_pLowLevel;
+		m_pLowLevel = nullptr;
 	}
 }
 

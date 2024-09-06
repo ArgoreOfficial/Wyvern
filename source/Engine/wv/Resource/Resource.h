@@ -35,18 +35,8 @@ namespace wv
 
 		virtual ~iResource() {};
 
-		/// TODO: impl? might place in iResourceRegistry
-		virtual void load  ( cFileSystem* _pFileSystem ) 
-		{ 
-			m_loaded = true; 
-			wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Loaded '%s'\n", m_name.c_str() );
-		}
-		
-		virtual void unload( cFileSystem* _pFileSystem ) 
-		{ 
-			m_loaded = false; 
-			wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Unoaded '%s'\n", m_name.c_str() );
-		}
+		virtual void load  ( cFileSystem* _pFileSystem ) { m_loaded = true; }		
+		virtual void unload( cFileSystem* _pFileSystem ) { m_loaded = false; }
 
 		virtual void reload( void ) { }
 		

@@ -28,7 +28,6 @@ namespace wv
 
 	class cApplicationState;
 
-	class cShaderRegistry;
 	class cShaderProgram;
 
 	class cMaterialRegistry;
@@ -55,7 +54,6 @@ namespace wv
 		struct
 		{
 			cFileSystem* pFileSystem;
-			cShaderRegistry* pShaderRegistry;
 		} systems;
 
 		/// <summary>
@@ -124,7 +122,6 @@ namespace wv
 
 		// modules
 		cFileSystem*        m_pFileSystem       = nullptr;
-		cShaderRegistry*    m_pShaderRegistry   = nullptr;
 		cMaterialRegistry*  m_pMaterialRegistry = nullptr;
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 

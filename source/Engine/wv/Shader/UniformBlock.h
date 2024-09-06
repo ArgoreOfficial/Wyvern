@@ -16,7 +16,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum UniformBlockSubmitMode
+	enum eUniformBlockSubmitMode
 	{
 		WV_UNIFORM_BLOCK_SUBMIT_IMMEDIATE,
 		WV_UNIFORM_BLOCK_SUBMIT_DEFERRED
@@ -24,7 +24,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct Uniform
+	struct sUniform
 	{
 		unsigned int index = 0;
 		unsigned int offset = 0;
@@ -33,25 +33,23 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct UniformBlockDesc
+	struct sShaderBufferDesc
 	{
 		std::string name;
-		std::vector<Uniform> uniforms;
+		int index;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class UniformBlock
+	class cShaderBuffer
 	{
-
 	public:
-
-		UniformBlock() { }
-		
-		template<typename T> void set( const std::string& _name, T* _data );
-		template<typename T> void set( const std::string& _name, T _data ) { set<T>( _name, &_data ); }
+		cShaderBuffer() { }
+	
+		template<typename T> void buffer( T* _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
+		std::string name = "";
 
 		wv::Handle m_index = 0;
 		wv::Handle m_bufferHandle = 0;
@@ -60,26 +58,20 @@ namespace wv
 		char* m_buffer = nullptr;
 		int m_bufferSize = 0;
 
-		std::unordered_map<std::string, Uniform> m_uniforms;
-
+		PlatformData m_pPlatformData = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	typedef std::unordered_map<std::string, wv::UniformBlock> UniformBlockMap;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 	template<typename T>
-	inline void UniformBlock::set( const std::string& _name, T* _data )
+	inline void cShaderBuffer::buffer( T* _data )
 	{
-		if ( m_uniforms.count( _name ) == 0 )
+		if( sizeof( T ) > m_bufferSize )
 		{
-			Debug::Print( Debug::WV_PRINT_WARN, "Uniform %s does not exist\n", _name.c_str() );
-			return;
+			Debug::Print( Debug::WV_PRINT_ERROR, "Data out of range of shader buffer size\n" );
 		}
-		unsigned int offset = m_uniforms[ _name ].offset;
-		memcpy( m_buffer + offset, _data, sizeof( T ) );
+		
+		memcpy( m_buffer, _data, m_bufferSize );
 	}
 
 }
