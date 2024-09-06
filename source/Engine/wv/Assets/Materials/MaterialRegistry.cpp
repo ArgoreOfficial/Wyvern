@@ -39,7 +39,11 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 	while ( !program->isLoaded() ) 
 	{
+		/// TEMPORARY FIX
+		/// TODO: NOT THIS
+	#ifdef WV_PLATFORM_WINDOWS 
 		Sleep( 1 );
+	#endif
 	}
 
 	program->create( m_pGraphicsDevice );
