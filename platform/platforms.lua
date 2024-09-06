@@ -39,9 +39,7 @@ function load_platform()
     end
 
     for i=1,#PLATFORMS do 
-        --if is_plat(PLATFORMS[i].plat) --and 
-        if is_arch(table.unpack(PLATFORMS[i].arch)) 
-        then
+        if is_arch(table.unpack(PLATFORMS[i].arch)) and PLATFORMS[ i ].load ~= nil then
             PLATFORMS[i].load()
         end
     end
@@ -66,8 +64,9 @@ end
 function target_platform(_root)
     for i=1,#PLATFORMS do 
         if is_arch(table.unpack(PLATFORMS[i].arch)) then 
-            on_load(PLATFORMS[i].target)
-
+            if PLATFORMS[ i ].load ~= nil then
+                on_load(PLATFORMS[i].target)
+            end
             if PLATFORMS[ i ].run ~= nil then
                 on_run( PLATFORMS[ i ].run )
             end
