@@ -1,5 +1,9 @@
----
-shader: phong
-textures:
-- name: u_Albedo
-  texture: uv.png
+{
+  "shader": "phong",
+  "textures": [
+    {
+      "name": "u_Albedo",
+      "texture": "uv.png"
+    }
+  ]
+}

@@ -1,123 +1,165 @@
----
-name: defaultScene
-scene:
-- uuid: 28752
-  name: "FloorRigidbody"
-  type: "cRigidbody"
-  transform:
-    pos: [ 0.0, -7.0, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 200.0, 2.0, 200.0 ]
-  data:
-    path: ""
-    shape: 2
-    kind: 0
-    halfExtents: [ 100.0, 1.0, 100.0 ]
-  children: []
-- uuid: 168716
-  name: "wall"
-  type: "cRigidbody"
-  transform:
-    pos: [ 0.0, -4.5, 50.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 100.0, 4.0, 1.0 ]
-  data:
-    path: ""
-    shape: 2
-    kind: 0
-    halfExtents: [ 50.0, 2.0, 0.5 ]
-  children: []
-- uuid: 497598
-  name: "wall"
-  type: "cRigidbody"
-  transform:
-    pos: [ 0.0, -4.5, -50.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 100.0, 4.0, 1.0 ]
-  data:
-    path: ""
-    shape: 2
-    kind: 0
-    halfExtents: [ 50.0, 2.0, 0.5 ]
-  children: []
-- uuid: 561581
-  name: "wall"
-  type: "cRigidbody"
-  transform:
-    pos: [ 50.0, -4.5, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 1.0, 4.0, 100.0 ]
-  data:
-    path: ""
-    shape: 2
-    kind: 0
-    halfExtents: [ 0.5, 2.0, 50.0 ]
-  children: []
-- uuid: 875219
-  name: "wall"
-  type: "cRigidbody"
-  transform:
-    pos: [ -50.0, -4.5, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 1.0, 4.0, 100.0 ]
-  data:
-    path: ""
-    shape: 2
-    kind: 0
-    halfExtents: [ 0.5, 2.0, 50.0 ]
-  children: []
-- uuid: 984759
-  name: "SphereRigidbody"
-  type: "cRigidbody"
-  transform:
-    pos: [ 0.3, 2.0, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 2.0, 2.0, 2.0 ]
-  data:
-    path: "res/meshes/debug-sphere.dae"
-    shape: 1
-    kind: 1
-    radius: 1.0
-  children:
-  - uuid: 746198
-    name: "BoxRigidbody"
-    type: "cRigidbody"
-    transform:
-      pos: [ 0.0, 1.0, 0.0 ]
-      rot: [ 0.0, 0.0, 0.0 ]
-      scl: [ 1.0, 2.0, 1.0 ]
-    data:
-      path: ""
-      shape: 2
-      kind: 1
-      halfExtents: [ 0.5, 1.0, 0.5 ]
-    children: []
-  - uuid: 983749
-    name: "smallRect"
-    type: "cModelObject"
-    transform:
-      pos: [ 0.0, 0.0, 0.0 ]
-      rot: [ 0.0, 0.0, 0.0 ]
-      scl: [ 0.3, 1.2, 0.3 ]
-    data:
-      path: ""
-    children: []
-- uuid: 8740140
-  name: DemoWindow
-  type: cDemoWindow
-  transform:
-    pos: [ 0.0, 0.0, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 1.0, 1.0, 1.0 ]
-  data: {}
-  children: []
-- uuid: 981749
-  name: "Skybox"
-  type: "cSkyboxObject"
-  transform:
-    pos: [ 0.0, 0.0, 0.0 ]
-    rot: [ 0.0, 0.0, 0.0 ]
-    scl: [ 1.0, 1.0, 1.0 ]
-  data:
-    path: ""
-  children: []
+{
+  "name": "defaultScene",
+  "scene": [
+    {
+      "uuid": 28752,
+      "name": "FloorRigidbody",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [0,-7,0],
+        "rot": [0,0,0],
+        "scl": [200,2,200]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 0,
+        "halfExtents": [100,1,100]
+      },
+      "children": []
+    },
+    {
+      "uuid": 168716,
+      "name": "wall",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [0,-4.5,50],
+        "rot": [0,0,0],
+        "scl": [100,4,1]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 0,
+        "halfExtents": [50,2,0.5]
+      },
+      "children": []
+    },
+    {
+      "uuid": 497598,
+      "name": "wall",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [0,-4.5,-50],
+        "rot": [0,0,0],
+        "scl": [100,4,1]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 0,
+        "halfExtents": [50,2,0.5]
+      },
+      "children": []
+    },
+    {
+      "uuid": 561581,
+      "name": "wall",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [50,-4.5,0],
+        "rot": [0,0,0],
+        "scl": [1,4,100]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 0,
+        "halfExtents": [0.5,2,50]
+      },
+      "children": []
+    },
+    {
+      "uuid": 875219,
+      "name": "wall",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [-50,-4.5,0],
+        "rot": [0,0,0],
+        "scl": [1,4,100]
+      },
+      "data": {
+        "path": "",
+        "shape": 2,
+        "kind": 0,
+        "halfExtents": [0.5,2,50]
+      },
+      "children": []
+    },
+    {
+      "uuid": 984759,
+      "name": "SphereRigidbody",
+      "type": "cRigidbody",
+      "transform": {
+        "pos": [0.3,2,0],
+        "rot": [0,0,0],
+        "scl": [2,2,2]
+      },
+      "data": {
+        "path": "res/meshes/debug-sphere.dae",
+        "shape": 1,
+        "kind": 1,
+        "radius": 1
+      },
+      "children": [
+        {
+          "uuid": 746198,
+          "name": "BoxRigidbody",
+          "type": "cRigidbody",
+          "transform": {
+            "pos": [0,1,0],
+            "rot": [0,0,0],
+            "scl": [1,2,1]
+          },
+          "data": {
+            "path": "",
+            "shape": 2,
+            "kind": 1,
+            "halfExtents": [0.5,1,0.5]
+          },
+          "children": []
+        },
+        {
+          "uuid": 983749,
+          "name": "smallRect",
+          "type": "cModelObject",
+          "transform": {
+            "pos": [0,0,0],
+            "rot": [0,0,0],
+            "scl": [0.3,1.2,0.3]
+          },
+          "data": {
+            "path": ""
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "uuid": 8740140,
+      "name": "DemoWindow",
+      "type": "cDemoWindow",
+      "transform": {
+        "pos": [0,0,0],
+        "rot": [0,0,0],
+        "scl": [1,1,1]
+      },
+      "data": {},
+      "children": []
+    },
+    {
+      "uuid": 981749,
+      "name": "Skybox",
+      "type": "cSkyboxObject",
+      "transform": {
+        "pos": [0,0,0],
+        "rot": [0,0,0],
+        "scl": [1,1,1]
+      },
+      "data": {
+        "path": ""
+      },
+      "children": []
+    }
+  ]
+}

@@ -1,5 +1,9 @@
----
-shader: sky
-textures:
-- name: u_Albedo
-  texture: autumn_field_puresky.png
+{
+  "shader": "sky",
+  "textures": [
+    {
+      "name": "u_Albedo",
+      "texture": "autumn_field_puresky.png"
+    }
+  ]
+}
