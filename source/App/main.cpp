@@ -2,7 +2,7 @@
 #include "Sandbox.h"
 
 #include <wv/Defines.h>
-#include <wv/Debug/Print.h>
+#include <wv/Debug/Trace.h>
 
 #include <stdio.h>
 
@@ -16,9 +16,8 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 
 int main()
 {
-	wv::Debug::SetRenderPrints( false );
-	wv::Debug::SetTracePrints ( false );
-	
+	wv::Trace::sTrace::printEnabled = false;
+
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
 	cSandbox sandbox{};

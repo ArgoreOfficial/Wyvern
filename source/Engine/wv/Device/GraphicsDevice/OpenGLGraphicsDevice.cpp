@@ -2,9 +2,14 @@
 
 #include <wv/Assets/Texture.h>
 #include <wv/Assets/Materials/Material.h>
+
 #include <wv/Debug/Print.h>
+#include <wv/Debug/Trace.h>
+
 #include <wv/Decl.h>
+
 #include <wv/Memory/FileSystem.h>
+
 #include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
@@ -45,12 +50,16 @@ static inline GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 
 wv::cOpenGLGraphicsDevice::cOpenGLGraphicsDevice()
 {
+	WV_TRACE();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	m_graphicsApi = _desc->pContext->getGraphicsAPI();
 	
@@ -96,20 +105,22 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 
 void wv::cOpenGLGraphicsDevice::terminate()
 {
-
+	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::onResize( int _width, int _height )
 {
-	
+	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glViewport( 0, 0, _width, _height );
 #endif
@@ -119,6 +130,8 @@ void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 
 wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	RenderTarget* target = new RenderTarget();
 	
@@ -196,6 +209,8 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 
 void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	RenderTarget* rt = *_renderTarget;
 
@@ -217,6 +232,8 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarge
 
 void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	if ( m_activeRenderTarget == _target )
 		return;
@@ -237,6 +254,8 @@ void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 
 void wv::cOpenGLGraphicsDevice::setClearColor( const wv::cColor& _color )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glClearColor( _color.r, _color.g, _color.b, _color.a );
 #endif
@@ -246,6 +265,8 @@ void wv::cOpenGLGraphicsDevice::setClearColor( const wv::cColor& _color )
 
 void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 #endif
@@ -253,7 +274,7 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType _type, sShaderProgramSource* _source )
 {
-	WV_RENDER_PRINT();
+	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	if( _source->data->size == 0 )
@@ -310,6 +331,8 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 
 void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _shader )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteShader( _shader->handle );
 	_shader->handle = 0;
@@ -318,7 +341,7 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _shader )
 
 wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 {
-	WV_RENDER_PRINT();
+	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
@@ -413,6 +436,8 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 
 void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _program )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteProgram( _program->handle );
 	_program->handle = 0;
@@ -421,6 +446,8 @@ void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _program )
 
 void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _program )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	if( m_activeProgram == _program )
 		return;
@@ -434,7 +461,7 @@ void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _program )
 
 wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
 {
-	WV_RENDER_PRINT();
+	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer* buffer = new sGPUBuffer();
@@ -452,6 +479,8 @@ wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type
 
 void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, size_t _size )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	/// TODO: more draw types
 	//GLenum usage = GL_NONE;
@@ -467,6 +496,8 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 
 void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( sGPUBuffer* _buffer )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteBuffers( 1, &_buffer->handle );
 #endif
@@ -476,6 +507,8 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( sGPUBuffer* _buffer )
 
 wv::Mesh* wv::cOpenGLGraphicsDevice::createMesh( MeshDesc* _desc )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	Mesh* mesh = new Mesh();
 	/// TODO: remove?
@@ -489,6 +522,8 @@ wv::Mesh* wv::cOpenGLGraphicsDevice::createMesh( MeshDesc* _desc )
 
 void wv::cOpenGLGraphicsDevice::destroyMesh( Mesh** _mesh )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh '%s'\n", (*_mesh)->name.c_str() );
 
@@ -506,6 +541,8 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( Mesh** _mesh )
 
 wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	Primitive* primitive = new Primitive();
 	glGenVertexArrays( 1, &primitive->vaoHandle );
@@ -596,6 +633,8 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 
 void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	Primitive* pr = *_primitive;
 	destroyGPUBuffer( pr->indexBuffer );
@@ -611,6 +650,8 @@ void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 
 void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
@@ -716,6 +757,8 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 
 void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	// Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture %s\n", (*_texture)->getName().c_str() );
 
@@ -730,6 +773,8 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 
 void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
@@ -749,6 +794,8 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 
 void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	glBindVertexArray( _primitive->vaoHandle );
 	
@@ -789,6 +836,8 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 
 bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	bool hasError = false;
 
@@ -821,6 +870,8 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 
 wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sPipeline* _program, sShaderBufferDesc* _desc )
 {
+	WV_TRACE();
+
 #ifdef WV_SUPPORT_OPENGL
 	cShaderBuffer* sb = new cShaderBuffer();
 	Handle programHandle = _program->handle;

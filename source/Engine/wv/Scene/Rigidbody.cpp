@@ -173,6 +173,6 @@ void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice
 	if( m_pMeshNode )
 	{
 		m_pMeshNode->transform = m_transform;
-		_device->draw( m_pMeshNode );
+		_device->drawNode( m_pMeshNode );
 	}
 }

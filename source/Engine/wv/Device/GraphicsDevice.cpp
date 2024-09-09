@@ -1,6 +1,8 @@
 #include "GraphicsDevice.h"
 
 #include <wv/Debug/Print.h>
+#include <wv/Debug/Trace.h>
+
 #include <wv/Device/DeviceContext.h>
 
 #include <wv/Primitive/Mesh.h>
@@ -45,6 +47,8 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 
 void wv::iGraphicsDevice::draw( Mesh* _mesh )
 {
+	WV_TRACE();
+
 	if( !_mesh )
 		return;
 
@@ -71,8 +75,10 @@ void wv::iGraphicsDevice::draw( Mesh* _mesh )
 	}
 }
 
-void wv::iGraphicsDevice::draw( sMeshNode* _node )
+void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 {
+	WV_TRACE();
+
 	if( !_node )
 		return;
 
@@ -82,5 +88,5 @@ void wv::iGraphicsDevice::draw( sMeshNode* _node )
 		draw( mesh );
 	
 	for( auto& childNode : _node->children )
-		draw( childNode );
+		drawNode( childNode );
 }

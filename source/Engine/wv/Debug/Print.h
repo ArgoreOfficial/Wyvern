@@ -27,8 +27,7 @@ namespace wv
 				" WARN",
 				"ERROR",
 				"FATAL",
-				"TRACE",
-				" GPU "
+				"TRACE"
 			};
 
 			static int LEVEL_COL[] = {
@@ -37,21 +36,14 @@ namespace wv
 				14,  // warning
 				4,   // error
 				12,  // fatal
-				13,  // trace
-				13  // render call
+				13   // trace
 			};
-
+			
 		#ifdef WV_PLATFORM_WINDOWS
 			static HANDLE hConsole = nullptr;
 
 			static std::mutex PRINT_MUTEX;
 		#endif
-
-			struct sPrintEnabled
-			{
-				static inline bool TRACE = false;
-				static inline bool RENDER = false;
-			};
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,14 +70,10 @@ namespace wv
 			WV_PRINT_WARN,
 			WV_PRINT_ERROR,
 			WV_PRINT_FATAL,
-			WV_PRINT_TRACE,
-			WV_PRINT_RENDER
+			WV_PRINT_TRACE
 		};
 
 	///////////////////////////////////////////////////////////////////////////////////////
-
-		static void SetRenderPrints( bool _enabled ) { Internal::sPrintEnabled::RENDER = _enabled; }
-		static void SetTracePrints ( bool _enabled ) { Internal::sPrintEnabled::TRACE  = _enabled; }
 
 		template<typename... Args>
 		inline void Print( const char* _str, Args... _args )
@@ -110,8 +98,6 @@ namespace wv
 
 			
 			bool skip;
-			skip |= _printLevel == WV_PRINT_RENDER && !Debug::Internal::sPrintEnabled::RENDER;
-			skip |= _printLevel == WV_PRINT_TRACE  && !Debug::Internal::sPrintEnabled::TRACE;
 		#ifndef WV_DEBUG
 			skip |= _printLevel == WV_PRINT_DEBUG;
 		#endif
@@ -141,10 +127,6 @@ namespace wv
 			Internal::PRINT_MUTEX.unlock();
 		#endif
 		}
-
-	#define WV_RENDER_PRINT() wv::Debug::Print( wv::Debug::WV_PRINT_RENDER, "%s\n", __FUNCTION__ )
-	#define WV_TRACE_PRINT()  wv::Debug::Print( wv::Debug::WV_PRINT_TRACE, "%s\n", __FUNCTION__ )
-
 	}
 }
 

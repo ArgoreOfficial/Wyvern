@@ -107,7 +107,7 @@ void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _de
 	#ifdef WV_SUPPORT_OPENGL
 		glDepthMask( GL_FALSE );
 		glDepthFunc( GL_LEQUAL );
-		_device->draw( m_skyboxMesh );
+		_device->drawNode( m_skyboxMesh );
 		glDepthFunc( GL_LESS );
 		glDepthMask( GL_TRUE );
 	#endif

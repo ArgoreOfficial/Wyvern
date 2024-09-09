@@ -110,5 +110,5 @@ void wv::cModelObject::updateImpl( double _deltaTime )
 void wv::cModelObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
 {
 	if( m_mesh )
-		_device->draw( m_mesh );
+		_device->drawNode( m_mesh );
 }

@@ -96,7 +96,7 @@ namespace wv
 		virtual void drawPrimitive( Primitive* _primitive ) = 0;
 
 		void draw( Mesh* _mesh );
-		void draw( sMeshNode* _node );
+		void drawNode( sMeshNode* _node );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

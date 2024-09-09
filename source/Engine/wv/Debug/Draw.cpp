@@ -55,7 +55,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 			SPHERE_MESH->transform.position = spheres[ i ].position;
 			SPHERE_MESH->transform.scale = wv::cVector3f{ spheres[ i ].radius };
 			SPHERE_MESH->transform.update();
-			_pGraphicsDevice->draw( SPHERE_MESH );
+			_pGraphicsDevice->drawNode( SPHERE_MESH );
 		}
 	}
 
