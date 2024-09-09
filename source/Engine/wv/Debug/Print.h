@@ -26,22 +26,32 @@ namespace wv
 				"DEBUG",
 				" WARN",
 				"ERROR",
-				"FATAL"
+				"FATAL",
+				"TRACE",
+				" GPU "
 			};
 
 			static int LEVEL_COL[] = {
-				7,  // info
+				7,   // info
 				11,  // debug
-				14, // warning
-				4,  // error
-				12  // fatal
+				14,  // warning
+				4,   // error
+				12,  // fatal
+				13,  // trace
+				13  // render call
 			};
 
 		#ifdef WV_PLATFORM_WINDOWS
 			static HANDLE hConsole = nullptr;
 
-			static inline std::mutex PRINT_MUTEX{};
+			static std::mutex PRINT_MUTEX;
 		#endif
+
+			struct sPrintEnabled
+			{
+				static inline bool TRACE = false;
+				static inline bool RENDER = false;
+			};
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,14 +73,19 @@ namespace wv
 
 		enum PrintLevel
 		{
-			WV_PRINT_INFO = 0x0,
-			WV_PRINT_DEBUG = 0x1,
-			WV_PRINT_WARN = 0x2,
-			WV_PRINT_ERROR = 0x3,
-			WV_PRINT_FATAL = 0x4
+			WV_PRINT_INFO,
+			WV_PRINT_DEBUG,
+			WV_PRINT_WARN,
+			WV_PRINT_ERROR,
+			WV_PRINT_FATAL,
+			WV_PRINT_TRACE,
+			WV_PRINT_RENDER
 		};
 
 	///////////////////////////////////////////////////////////////////////////////////////
+
+		static void SetRenderPrints( bool _enabled ) { Internal::sPrintEnabled::RENDER = _enabled; }
+		static void SetTracePrints ( bool _enabled ) { Internal::sPrintEnabled::TRACE  = _enabled; }
 
 		template<typename... Args>
 		inline void Print( const char* _str, Args... _args )
@@ -93,15 +108,22 @@ namespace wv
 			Internal::PRINT_MUTEX.lock();
 		#endif
 
+			
+			bool skip;
+			skip |= _printLevel == WV_PRINT_RENDER && !Debug::Internal::sPrintEnabled::RENDER;
+			skip |= _printLevel == WV_PRINT_TRACE  && !Debug::Internal::sPrintEnabled::TRACE;
 		#ifndef WV_DEBUG
-			if( _printLevel == WV_PRINT_DEBUG )
+			skip |= _printLevel == WV_PRINT_DEBUG;
+		#endif
+
+			if( skip )
 			{
 			#ifdef WV_PLATFORM_WINDOWS
 				Internal::PRINT_MUTEX.unlock();
 			#endif
 				return;
 			}
-		#endif
+
 			if( _printLevel != WV_PRINT_INFO )
 			{
 				printf( "[ " );
@@ -119,6 +141,9 @@ namespace wv
 			Internal::PRINT_MUTEX.unlock();
 		#endif
 		}
+
+	#define WV_RENDER_PRINT() wv::Debug::Print( wv::Debug::WV_PRINT_RENDER, "%s\n", __FUNCTION__ )
+	#define WV_TRACE_PRINT()  wv::Debug::Print( wv::Debug::WV_PRINT_TRACE, "%s\n", __FUNCTION__ )
 
 	}
 }

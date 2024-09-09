@@ -16,25 +16,21 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 
 int main()
 {
+	wv::Debug::SetRenderPrints( false );
+	wv::Debug::SetTracePrints ( false );
+	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
 	cSandbox sandbox{};
 
-	try
+	if( sandbox.create() )
 	{
-		if( sandbox.create() )
-		{
-			wv::Debug::Print( "Starting Run Loop\n" );
-			sandbox.run();
-			wv::Debug::Print( "Ending Run Loop\n" );
-			sandbox.destroy();
-		}
+		wv::Debug::Print( "Starting Run Loop\n" );
+		sandbox.run();
+		wv::Debug::Print( "Ending Run Loop\n" );
+		sandbox.destroy();
 	}
-	catch( ... )
-	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "A fatal error occured\n" );
-	}
-
+	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
 	
 	return 0;

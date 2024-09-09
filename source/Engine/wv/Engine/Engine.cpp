@@ -221,13 +221,10 @@ wv::Vector2i wv::cEngine::getViewportSize()
 
 void wv::cEngine::run()
 {
-	Debug::Print( "Begin Run\n" );
-
 	// Subscribe to user input event
 	subscribeMouseEvents();
 	subscribeInputEvent();
-	Debug::Print( "Subscribed Engine Input\n" );
-
+	
 	/*
 	 * Cameras have to be made after the event is subscribed to
 	 * to get the correct event callback order
@@ -235,7 +232,7 @@ void wv::cEngine::run()
 	 * This is because events are called in the order that they 
 	 * were subscribed in
 	 */
-	Debug::Print( "Creating Default Cameras\n" );
+
 	orbitCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onCreate();
@@ -245,13 +242,10 @@ void wv::cEngine::run()
 
 	currentCamera = freeflightCamera;
 	
-	Debug::Print( "Creating Application State\n" );
 	m_pApplicationState->onCreate();
-	Debug::Print( "Switching to scene 0\n" );
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	// while m_applicationState->isLoading() { doloadingstuff }
 	
-	Debug::Print( "Start tick\n" );
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else

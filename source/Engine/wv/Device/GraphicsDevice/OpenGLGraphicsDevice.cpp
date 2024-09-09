@@ -261,6 +261,8 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShaderSource* _source )
 {
+	WV_RENDER_PRINT();
+
 #ifdef WV_SUPPORT_OPENGL
 	if( _source->data->size == 0 )
 	{
@@ -324,6 +326,8 @@ void wv::cOpenGLGraphicsDevice::destroyShader( sShader* _shader )
 
 wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
 {
+	WV_RENDER_PRINT();
+
 #ifdef WV_SUPPORT_OPENGL
 	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
 
@@ -438,6 +442,8 @@ void wv::cOpenGLGraphicsDevice::useProgram( sShaderProgram* _program )
 
 wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
 {
+	WV_RENDER_PRINT();
+
 #ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer* buffer = new sGPUBuffer();
 	buffer->type = _type;
