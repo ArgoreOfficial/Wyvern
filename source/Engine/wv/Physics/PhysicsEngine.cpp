@@ -330,6 +330,7 @@ bool wv::cJoltPhysicsEngine::isBodyActive( hPhysicsBody& _handle )
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	return m_bodies.at( _handle.value() )->IsActive();
 #endif
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
