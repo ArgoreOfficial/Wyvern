@@ -21,18 +21,10 @@
 #include <vector>
 
 #ifdef WV_DEBUG
-#define WV_ASSERT_GL( _func, ... ) \
-if( _func != nullptr ) { \
-	_func( __VA_ARGS__ ); \
-} \
-else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
-
-#define WV_RETASSERT_GL( _ret, _func, ... ) if( _func != nullptr ) { _ret = _func( __VA_ARGS__ ); } else { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
-
+#define WV_VALIDATE_GL( _func ) if( _func == nullptr ) { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
 #define WV_ASSERT_ERR( _msg ) assertGLError( _msg )
 #else
-#define WV_ASSERT_GL( _func, ... ) _func( __VA_ARGS__ )
-#define WV_RETASSERT_GL( _ret, _func, ... ) _ret = _func( __VA_ARGS__ )
+#define WV_VALIDATE_GL( _func )
 #define WV_ASSERT_ERR( _msg ) 
 #endif
 
@@ -85,9 +77,9 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	//glEnable( GL_MULTISAMPLE );
 	//glEnable( GL_BLEND );
 	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	WV_ASSERT_GL( glEnable, GL_DEPTH_TEST );
-	WV_ASSERT_GL( glDepthFunc, GL_LESS );
-	WV_ASSERT_GL( glEnable, GL_CULL_FACE );
+	glEnable( GL_DEPTH_TEST );
+	glDepthFunc( GL_LESS );
+	glEnable( GL_CULL_FACE );
 
 	m_graphicsApiVersion.major = GLVersion.major;
 	m_graphicsApiVersion.minor = GLVersion.minor;
@@ -119,7 +111,7 @@ void wv::cOpenGLGraphicsDevice::onResize( int _width, int _height )
 void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glViewport, 0, 0, _width, _height );
+	glViewport( 0, 0, _width, _height );
 #endif
 }
 
@@ -130,8 +122,8 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 #ifdef WV_SUPPORT_OPENGL
 	RenderTarget* target = new RenderTarget();
 	
-	WV_ASSERT_GL( glGenFramebuffers, 1, &target->fbHandle );
-	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, target->fbHandle );
+	glGenFramebuffers( 1, &target->fbHandle );
+	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
 	
 	target->numTextures = _desc->numTextures;
 	GLenum* drawBuffers = new GLenum[ _desc->numTextures ];
@@ -146,21 +138,21 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 		target->textures[ i ] = new Texture( texname );
 		createTexture( target->textures[i], &_desc->textureDescs[i] );
 
-		WV_ASSERT_GL( glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
 
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
-	WV_ASSERT_GL( glGenRenderbuffers, 1, &target->rbHandle );
-	WV_ASSERT_GL( glBindRenderbuffer, GL_RENDERBUFFER, target->rbHandle );
-	WV_ASSERT_GL( glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
-	WV_ASSERT_GL( glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
+	glGenRenderbuffers( 1, &target->rbHandle );
+	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
+	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _desc->width, _desc->height );
+	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
 	
-	WV_ASSERT_GL( glDrawBuffers, _desc->numTextures, drawBuffers );
+	glDrawBuffers( _desc->numTextures, drawBuffers );
 	delete[] drawBuffers;
 #ifdef WV_DEBUG
 	int errcode = 0; 
-	WV_RETASSERT_GL( errcode, glCheckFramebufferStatus, GL_FRAMEBUFFER );
+	errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
@@ -190,9 +182,9 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 	target->width = _desc->width;
 	target->height = _desc->height;
 
-	WV_ASSERT_GL( glBindRenderbuffer, GL_RENDERBUFFER, 0 );
-	WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, 0 );
-	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, 0 );
+	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	return target;
 #else
@@ -207,8 +199,8 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarge
 #ifdef WV_SUPPORT_OPENGL
 	RenderTarget* rt = *_renderTarget;
 
-	WV_ASSERT_GL( glDeleteFramebuffers, 1, &rt->fbHandle );
-	WV_ASSERT_GL( glDeleteRenderbuffers, 1, &rt->rbHandle );
+	glDeleteFramebuffers( 1, &rt->fbHandle );
+	glDeleteRenderbuffers( 1, &rt->rbHandle );
 
 	for ( int i = 0; i < rt->numTextures; i++ )
 	{
@@ -231,10 +223,10 @@ void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 
 	unsigned int handle = _target ? _target->fbHandle : 0;
 	
-	WV_ASSERT_GL( glBindFramebuffer, GL_FRAMEBUFFER, handle );
+	glBindFramebuffer( GL_FRAMEBUFFER, handle );
 	if ( _target )
 	{
-		WV_ASSERT_GL( glViewport, 0, 0, _target->width, _target->height );
+		glViewport( 0, 0, _target->width, _target->height );
 	}
 	
 	m_activeRenderTarget = _target;
@@ -246,7 +238,7 @@ void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 void wv::cOpenGLGraphicsDevice::setClearColor( const wv::cColor& _color )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glClearColor, _color.r, _color.g, _color.b, _color.a );
+	glClearColor( _color.r, _color.g, _color.b, _color.a );
 #endif
 }
 
@@ -255,11 +247,11 @@ void wv::cOpenGLGraphicsDevice::setClearColor( const wv::cColor& _color )
 void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glClear, (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
+	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 #endif
 }
 
-wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShaderSource* _source )
+wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType _type, sShaderProgramSource* _source )
 {
 	WV_RENDER_PRINT();
 
@@ -270,7 +262,7 @@ wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShader
 		return nullptr;
 	}
 
-	sShader* shader = new sShader();
+	sShaderProgram* shader = new sShaderProgram();
 
 	GLenum type = GL_NONE;
 	{
@@ -281,7 +273,7 @@ wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShader
 		}
 	}
 
-	WV_RETASSERT_GL( shader->handle, glCreateShader, type );
+	shader->handle = glCreateShader( type );
 
 	std::string source = std::string( (char*)_source->data->data, _source->data->size ); // this assumes source is a string
 
@@ -294,17 +286,17 @@ wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShader
 #endif
 	const char* sourcePtr = source.c_str();
 
-	WV_ASSERT_GL( glShaderSource, shader->handle, 1, &sourcePtr, NULL );
+	glShaderSource( shader->handle, 1, &sourcePtr, NULL );
 	WV_ASSERT_ERR( "Failed to add shader source to program\n" );
 
-	WV_ASSERT_GL( glCompileShader, shader->handle );
+	glCompileShader( shader->handle );
 
 	int  success = 1;
 	char infoLog[ 512 ];
-	WV_ASSERT_GL( glGetShaderiv, shader->handle, GL_COMPILE_STATUS, &success );
+	glGetShaderiv( shader->handle, GL_COMPILE_STATUS, &success );
 	if( !success )
 	{
-		WV_ASSERT_GL( glGetShaderInfoLog, shader->handle, 512, NULL, infoLog );
+		glGetShaderInfoLog( shader->handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader\n %s \n", infoLog );
 	}
 
@@ -316,24 +308,24 @@ wv::sShader* wv::cOpenGLGraphicsDevice::createShader( eShaderType _type, sShader
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyShader( sShader* _shader )
+void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _shader )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDeleteShader, _shader->handle );
+	glDeleteShader( _shader->handle );
 	_shader->handle = 0;
 #endif
 }
 
-wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
+wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 {
 	WV_RENDER_PRINT();
 
 #ifdef WV_SUPPORT_OPENGL
 	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
 
-	sShaderProgram* program = new sShaderProgram();
+	sPipeline* program = new sPipeline();
 
-	WV_RETASSERT_GL( program->handle, glCreateProgram );
+	program->handle = glCreateProgram();
 
 	WV_ASSERT_ERR( "Failed to create program\n" );
 
@@ -343,25 +335,25 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		return program;
 	}
 
-	if( _desc->pVertexShader )
+	if( _desc->pVertexProgram )
 	{
-		WV_ASSERT_GL( glAttachShader, program->handle, _desc->pVertexShader->handle );
+		glAttachShader( program->handle, _desc->pVertexProgram->handle );
 	}
-	if( _desc->pFragmentShader )
+	if( _desc->pFragmentProgram )
 	{
-		WV_ASSERT_GL( glAttachShader, program->handle, _desc->pFragmentShader->handle );
+		glAttachShader( program->handle, _desc->pFragmentProgram->handle );
 	}
 	
-	WV_ASSERT_GL( glLinkProgram, program->handle );
+	glLinkProgram( program->handle );
 
 	WV_ASSERT_ERR( "link\n" );
 
 	int success = 0;
 	char infoLog[ 512 ];
-	WV_ASSERT_GL( glGetProgramiv, program->handle, GL_LINK_STATUS, &success );
+	glGetProgramiv( program->handle, GL_LINK_STATUS, &success );
 	if( !success )
 	{
-		WV_ASSERT_GL( glGetProgramInfoLog, program->handle, 512, NULL, infoLog );
+		glGetProgramInfoLog( program->handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
 
@@ -398,7 +390,7 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	//	_program->addUniformBlock( _uniformBlocks[ i ].name, block );
 	//}
 
-	WV_ASSERT_GL( glUseProgram, program->handle );
+	glUseProgram( program->handle );
 
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
@@ -411,7 +403,7 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	//#endif
 	//}
 
-	WV_ASSERT_GL( glUseProgram, 0 );
+	glUseProgram( 0 );
 
 	return program;
 #else
@@ -419,21 +411,21 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _program )
+void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _program )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDeleteProgram, _program->handle );
+	glDeleteProgram( _program->handle );
 	_program->handle = 0;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::useProgram( sShaderProgram* _program )
+void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _program )
 {
 #ifdef WV_SUPPORT_OPENGL
 	if( m_activeProgram == _program )
 		return;
 
-	WV_ASSERT_GL( glUseProgram, _program ? _program->handle : 0 );
+	glUseProgram( _program ? _program->handle : 0 );
 	m_activeProgram = _program;
 #endif
 }
@@ -468,7 +460,7 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 	//case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
 	//}
 
-	WV_ASSERT_GL( glBufferData, getGlBufferEnum( _buffer->type ), _size, _data, GL_STATIC_DRAW ) ;
+	glBufferData( getGlBufferEnum( _buffer->type ), _size, _data, GL_STATIC_DRAW ) ;
 	assertGLError( "Failed to buffer data\n" );
 #endif
 }
@@ -476,7 +468,7 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( sGPUBuffer* _buffer )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDeleteBuffers, 1, &_buffer->handle );
+	glDeleteBuffers( 1, &_buffer->handle );
 #endif
 }
 
@@ -516,11 +508,11 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 {
 #ifdef WV_SUPPORT_OPENGL
 	Primitive* primitive = new Primitive();
-	WV_ASSERT_GL( glGenVertexArrays, 1, &primitive->vaoHandle );
-	WV_ASSERT_GL( glBindVertexArray, primitive->vaoHandle );
+	glGenVertexArrays( 1, &primitive->vaoHandle );
+	glBindVertexArray( primitive->vaoHandle );
 
 	primitive->vertexBuffer = createGPUBuffer( WV_BUFFER_TYPE_VERTEX );
-	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
+	glBindBuffer( GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
 
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
@@ -536,7 +528,7 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
 		
 		primitive->indexBuffer->count = _desc->numIndices;
-		WV_ASSERT_GL( glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
 		
 		if( _desc->indices16 )
 		{
@@ -581,14 +573,14 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 		#endif
 		}
 
-		WV_ASSERT_GL( glVertexAttribPointer, i, element.componentCount, type, element.normalized, stride, VPTRi32( offset ) );
-		WV_ASSERT_GL( glEnableVertexAttribArray, i );
+		glVertexAttribPointer( i, element.componentCount, type, element.normalized, stride, VPTRi32( offset ) );
+		glEnableVertexAttribArray( i );
 
 		offset += element.size;
 	}
 
-	WV_ASSERT_GL( glBindBuffer, GL_ARRAY_BUFFER, 0 );
-	WV_ASSERT_GL( glBindVertexArray, 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
 
 	primitive->vertexBuffer->stride = stride;
 	
@@ -609,7 +601,7 @@ void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive** _primitive )
 	destroyGPUBuffer( pr->indexBuffer );
 	destroyGPUBuffer( pr->vertexBuffer );
 
-	WV_ASSERT_GL( glDeleteVertexArrays, 1, &pr->vaoHandle );
+	glDeleteVertexArrays( 1, &pr->vaoHandle );
 	delete pr;
 	*_primitive = nullptr;
 #endif
@@ -654,7 +646,7 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
-		WV_ASSERT_GL( glPixelStorei, GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
+		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
 		switch ( _desc->format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;   break;
@@ -674,13 +666,13 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	}
 
 	GLuint handle;
-	WV_ASSERT_GL( glGenTextures, 1, &handle );
+	glGenTextures( 1, &handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to gen texture\n" );
 #endif
 	_pTexture->setHandle( handle );
 
-	WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, handle );
+	glBindTexture( GL_TEXTURE_2D, handle );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to bind texture\n" );
 #endif
@@ -692,10 +684,10 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	case WV_TEXTURE_FILTER_LINEAR:  filter = GL_LINEAR; break;
 	}
 	
-	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
-	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
-	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	WV_ASSERT_GL( glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	
 	GLenum type = GL_UNSIGNED_BYTE;
 	switch ( _desc->format )
@@ -704,14 +696,14 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	case wv::WV_TEXTURE_FORMAT_INT:   type = GL_INT; break;
 	}
 
-	WV_ASSERT_GL( glTexImage2D, GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
 #ifdef WV_DEBUG
 	assertGLError( "Failed to create Texture\n" );
 #endif
 
 	if ( _desc->generateMipMaps )
 	{
-		WV_ASSERT_GL( glGenerateMipmap, GL_TEXTURE_2D );
+		glGenerateMipmap( GL_TEXTURE_2D );
 	}
 	_pTexture->setWidth( _desc->width );
 	_pTexture->setHeight( _desc->height );
@@ -728,7 +720,7 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
 	// Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture %s\n", (*_texture)->getName().c_str() );
 
 	wv::Handle handle = ( *_texture )->getHandle();
-	WV_ASSERT_GL( glDeleteTextures, 1, &handle );
+	glDeleteTextures( 1, &handle );
 	delete *_texture;
 	*_texture = nullptr;
 #endif
@@ -742,12 +734,12 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		WV_ASSERT_GL( glBindTextureUnit, _slot, _texture->getHandle() );
+		glBindTextureUnit( _slot, _texture->getHandle() );
 	}
 	else 
 	{
-		WV_ASSERT_GL( glActiveTexture, GL_TEXTURE0 + _slot );
-		WV_ASSERT_GL( glBindTexture, GL_TEXTURE_2D, _texture->getHandle() );
+		glActiveTexture( GL_TEXTURE0 + _slot );
+		glBindTexture( GL_TEXTURE_2D, _texture->getHandle() );
 	}
 
 	m_boundTextureSlots[ _slot ] = _texture->getHandle();
@@ -758,25 +750,25 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 {
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glBindVertexArray, _primitive->vaoHandle );
+	glBindVertexArray( _primitive->vaoHandle );
 	
 	std::vector<cShaderBuffer*>& shaderBuffers = m_activeProgram->shaderBuffers;
 	for ( auto& buf : shaderBuffers )
 	{
-		WV_ASSERT_GL( glUniformBlockBinding, m_activeProgram->handle, buf->m_index, buf->m_bindingIndex);
+		glUniformBlockBinding( m_activeProgram->handle, buf->m_index, buf->m_bindingIndex);
 
 		if( m_boundUniformBuffer != buf->m_bufferHandle )
 		{
-			WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, buf->m_bufferHandle );
+			glBindBuffer( GL_UNIFORM_BUFFER, buf->m_bufferHandle );
 			m_boundUniformBuffer = buf->m_bufferHandle;
 		}
-		WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, buf->m_bufferSize, buf->m_buffer, GL_DYNAMIC_DRAW );
+		glBufferData( GL_UNIFORM_BUFFER, buf->m_bufferSize, buf->m_buffer, GL_DYNAMIC_DRAW );
 	}
 	
 	/// TODO: change GL_TRIANGLES
 	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
 	{
-		WV_ASSERT_GL( glDrawElements, GL_TRIANGLES, _primitive->indexBuffer->count, GL_UNSIGNED_INT, 0 );
+		glDrawElements( GL_TRIANGLES, _primitive->indexBuffer->count, GL_UNSIGNED_INT, 0 );
 	}
 	else
 	{ 
@@ -784,8 +776,8 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 		/// this does not work on WebGL
 		wv::Handle vbo = _primitive->vertexBuffer->handle;
 		size_t numVertices = _primitive->vertexBuffer->count;
-		WV_ASSERT_GL( glBindVertexBuffer, 0, vbo, 0, _primitive->vertexBuffer->stride );
-		WV_ASSERT_GL( glDrawArrays, GL_TRIANGLES, 0, numVertices );
+		glBindVertexBuffer( 0, vbo, 0, _primitive->vertexBuffer->stride );
+		glDrawArrays( GL_TRIANGLES, 0, numVertices );
 	#else
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
@@ -827,7 +819,7 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc )
+wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sPipeline* _program, sShaderBufferDesc* _desc )
 {
 #ifdef WV_SUPPORT_OPENGL
 	cShaderBuffer* sb = new cShaderBuffer();
@@ -836,18 +828,18 @@ wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sShaderProgram
 	sb->m_bindingIndex = m_numTotalUniformBlocks;
 	sb->name = _desc->name;
 
-	WV_RETASSERT_GL( sb->m_index, glGetUniformBlockIndex, programHandle, _desc->name.c_str() );;
-	WV_ASSERT_GL( glGetActiveUniformBlockiv, programHandle, sb->m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &sb->m_bufferSize );
+	sb->m_index = glGetUniformBlockIndex( programHandle, _desc->name.c_str() );;
+	glGetActiveUniformBlockiv( programHandle, sb->m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &sb->m_bufferSize );
 
 	sb->m_buffer = new char[ sb->m_bufferSize ];
 	memset( sb->m_buffer, 0, sb->m_bufferSize );
 	
-	WV_ASSERT_GL( glGenBuffers, 1, &sb->m_bufferHandle );
-	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, sb->m_bufferHandle );
-	WV_ASSERT_GL( glBufferData, GL_UNIFORM_BUFFER, sb->m_bufferSize, 0, GL_DYNAMIC_DRAW );
-	WV_ASSERT_GL( glBindBuffer, GL_UNIFORM_BUFFER, 0 );
+	glGenBuffers( 1, &sb->m_bufferHandle );
+	glBindBuffer( GL_UNIFORM_BUFFER, sb->m_bufferHandle );
+	glBufferData( GL_UNIFORM_BUFFER, sb->m_bufferSize, 0, GL_DYNAMIC_DRAW );
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 	
-	WV_ASSERT_GL( glBindBufferBase, GL_UNIFORM_BUFFER, sb->m_bindingIndex, sb->m_bufferHandle );
+	glBindBufferBase( GL_UNIFORM_BUFFER, sb->m_bindingIndex, sb->m_bufferHandle );
 
 	m_numTotalUniformBlocks++;
 

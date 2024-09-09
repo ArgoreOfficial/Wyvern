@@ -11,23 +11,23 @@ namespace wv
 
 	struct Memory;
 
-	enum eShaderType
+	enum eShaderProgramType
 	{
 		WV_SHADER_TYPE_VERTEX,
 		WV_SHADER_TYPE_FRAGMENT
 	};
 
-	struct sShaderSource
+	struct sShaderProgramSource
 	{
 		Memory* data;
 	};
 
-	struct sShader
+	struct sShaderProgram
 	{
 		Handle handle;
 
-		eShaderType type;
-		sShaderSource source;
+		eShaderProgramType type;
+		sShaderProgramSource source;
 
 		PlatformData pPlatformData;
 	};

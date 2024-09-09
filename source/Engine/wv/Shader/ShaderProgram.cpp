@@ -33,10 +33,10 @@ void wv::cShaderProgram::unload( cFileSystem* _pFileSystem )
 
 void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
 {
-	sShader* vs = _pGraphicsDevice->createShader( WV_SHADER_TYPE_VERTEX,   &m_vsSource );
-	sShader* fs = _pGraphicsDevice->createShader( WV_SHADER_TYPE_FRAGMENT, &m_fsSource );
+	sShaderProgram* vs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_VERTEX,   &m_vsSource );
+	sShaderProgram* fs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_FRAGMENT, &m_fsSource );
 
-	sShaderProgramDesc desc;
+	sPipelineDesc desc;
 	desc.name = m_name;
 	
 	wv::sVertexAttribute attributes[] = {
@@ -51,10 +51,10 @@ void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
 	layout.numElements = 5;
 
 	desc.pVertexLayout = &layout;
-	desc.pVertexShader = vs;
-	desc.pFragmentShader = fs;
+	desc.pVertexProgram = vs;
+	desc.pFragmentProgram = fs;
 	
-	m_pProgram = _pGraphicsDevice->createProgram( &desc );
+	m_pProgram = _pGraphicsDevice->createPipeline( &desc );
 	
 	iResource::create( _pGraphicsDevice );
 }
@@ -66,7 +66,7 @@ void wv::cShaderProgram::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 void wv::cShaderProgram::use( iGraphicsDevice* _pGraphicsDevice )
 {
-	_pGraphicsDevice->useProgram( m_pProgram );
+	_pGraphicsDevice->bindPipeline( m_pProgram );
 }
 
 wv::cShaderBuffer* wv::cShaderProgram::getShaderBuffer( const std::string& _name )

@@ -19,29 +19,29 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class sShader;
+	class sShaderProgram;
 	class iGraphicsDevice;
 
-	struct sShaderProgramDesc
+	struct sPipelineDesc
 	{
 		std::string name;
 		
 		sVertexLayout* pVertexLayout;
 
-		sShader* pVertexShader;
-		sShader* pFragmentShader;
+		sShaderProgram* pVertexProgram;
+		sShaderProgram* pFragmentProgram;
 
 		bool reflect = true;
 	};
 
-	struct sShaderProgram
+	struct sPipeline
 	{
 		wv::Handle handle;
 
 		std::string name;
 		
-		sShader* pVertexShader;
-		sShader* pFragmentShader;
+		sShaderProgram* pVertexProgram;
+		sShaderProgram* pFragmentProgram;
 
 		std::vector<cShaderBuffer*> shaderBuffers;
 		std::vector<sUniform> textureUniforms;
@@ -68,9 +68,9 @@ namespace wv
 
 		cShaderBuffer* getShaderBuffer( const std::string& _name );
 
-		sShaderSource m_fsSource;
-		sShaderSource m_vsSource;
-		sShaderProgram* m_pProgram = nullptr;
+		sShaderProgramSource m_fsSource;
+		sShaderProgramSource m_vsSource;
+		sPipeline* m_pProgram = nullptr;
 	private:
 
 	};

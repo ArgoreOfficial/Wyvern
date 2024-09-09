@@ -32,11 +32,11 @@ namespace wv
 	class Mesh;
 	struct sMeshNode;
 
-	struct sShaderSource;
-	struct sShader;
-
-	struct sShaderProgramDesc;
+	struct sShaderProgramSource;
 	struct sShaderProgram;
+
+	struct sPipelineDesc;
+	struct sPipeline;
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,12 +71,12 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual sShader* createShader( eShaderType _type, sShaderSource* _source ) = 0;
-		virtual void destroyShader( sShader* _shader ) = 0;
+		virtual sShaderProgram* createProgram( eShaderProgramType _type, sShaderProgramSource* _source ) = 0;
+		virtual void destroyProgram( sShaderProgram* _shader ) = 0;
 
-		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) = 0;
-		virtual void destroyProgram( sShaderProgram* _program ) = 0;
-		virtual void useProgram    ( sShaderProgram* _program ) = 0;
+		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) = 0;
+		virtual void destroyPipeline( sPipeline* _program ) = 0;
+		virtual void bindPipeline   ( sPipeline* _program ) = 0;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) = 0;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) = 0;
