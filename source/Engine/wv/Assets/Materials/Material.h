@@ -14,7 +14,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cShaderProgram;
+	class cProgramPipeline;
 	
 	class iGraphicsDevice;
 	class Mesh;
@@ -35,12 +35,12 @@ namespace wv
 
 	public:
 
-		cMaterial( std::string _name, cShaderProgram* _program ) : 
+		cMaterial( std::string _name, cProgramPipeline* _program ) : 
 			iResource( _name, L"" ),
 			m_program( _program )
 		{ }
 
-		cMaterial( std::string _name, cShaderProgram* _program, std::vector<sMaterialVariable> _variables ) : 
+		cMaterial( std::string _name, cProgramPipeline* _program, std::vector<sMaterialVariable> _variables ) : 
 			iResource( _name, L"" ),
 			m_program ( _program),
 			m_variables ( _variables)
@@ -51,7 +51,7 @@ namespace wv
 		void setMaterialUniforms();
 		void setInstanceUniforms( Mesh* _instance );
 
-		cShaderProgram* getProgram() { return m_program; }
+		cProgramPipeline* getProgram() { return m_program; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ namespace wv
 		void setDefaultViewUniforms();
 		void setDefaultMeshUniforms( Mesh* _mesh );
 
-		cShaderProgram* m_program = nullptr;
+		cProgramPipeline* m_program = nullptr;
 		//std::vector<Texture*> m_textures;
 		std::vector<sMaterialVariable> m_variables;
 

@@ -5,6 +5,11 @@ layout(location = 2) in vec3 a_Tangent;
 layout(location = 3) in vec4 a_Color;
 layout(location = 4) in vec2 a_TexCoord0;
 
+out gl_PerVertex
+{
+    vec4 gl_Position;
+};
+
 out vec2 TexCoord;
 
 void main()

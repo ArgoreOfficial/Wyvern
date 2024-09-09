@@ -13,6 +13,11 @@ uniform UbInstanceData
     vec2 u_UVOffset;
 };
 
+out gl_PerVertex
+{
+    vec4 gl_Position;
+};
+
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 Pos;

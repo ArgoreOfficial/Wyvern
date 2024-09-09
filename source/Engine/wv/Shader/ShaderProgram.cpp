@@ -6,7 +6,7 @@
 
 #include <wv/Device/GraphicsDevice.h>
 
-void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
+void wv::cProgramPipeline::load( cFileSystem* _pFileSystem )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -26,12 +26,12 @@ void wv::cShaderProgram::load( cFileSystem* _pFileSystem )
 	iResource::load( _pFileSystem );
 }
 
-void wv::cShaderProgram::unload( cFileSystem* _pFileSystem )
+void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem )
 {
 	iResource::unload( _pFileSystem );
 }
 
-void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
+void wv::cProgramPipeline::create( iGraphicsDevice* _pGraphicsDevice )
 {
 	sShaderProgram* vs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_VERTEX,   &m_vsSource );
 	sShaderProgram* fs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_FRAGMENT, &m_fsSource );
@@ -54,27 +54,39 @@ void wv::cShaderProgram::create( iGraphicsDevice* _pGraphicsDevice )
 	desc.pVertexProgram = vs;
 	desc.pFragmentProgram = fs;
 	
-	m_pProgram = _pGraphicsDevice->createPipeline( &desc );
+	m_pPipeline = _pGraphicsDevice->createPipeline( &desc );
 	
 	iResource::create( _pGraphicsDevice );
 }
 
-void wv::cShaderProgram::destroy( iGraphicsDevice* _pGraphicsDevice )
+void wv::cProgramPipeline::destroy( iGraphicsDevice* _pGraphicsDevice )
 {
 	iResource::destroy( _pGraphicsDevice );
 }
 
-void wv::cShaderProgram::use( iGraphicsDevice* _pGraphicsDevice )
+void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
 {
-	_pGraphicsDevice->bindPipeline( m_pProgram );
+	_pGraphicsDevice->bindPipeline( m_pPipeline );
 }
 
-wv::cShaderBuffer* wv::cShaderProgram::getShaderBuffer( const std::string& _name )
+wv::cShaderBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
 {
-	for( auto& buf : m_pProgram->shaderBuffers )
+	if ( m_pPipeline->pVertexProgram )
 	{
-		if( buf->name == _name )
-			return buf;
+		for( auto& buf : m_pPipeline->pVertexProgram->shaderBuffers )
+		{
+			if( buf->name == _name )
+				return buf;
+		}
+	}
+
+	if ( m_pPipeline->pFragmentProgram )
+	{
+		for ( auto& buf : m_pPipeline->pFragmentProgram->shaderBuffers )
+		{
+			if ( buf->name == _name )
+				return buf;
+		}
 	}
 
 	return nullptr;

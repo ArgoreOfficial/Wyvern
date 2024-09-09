@@ -283,18 +283,16 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 		return nullptr;
 	}
 
-	sShaderProgram* shader = new sShaderProgram();
+	sShaderProgram* program = new sShaderProgram();
 
 	GLenum type = GL_NONE;
 	{
 		switch( _type )
 		{
 		case wv::WV_SHADER_TYPE_FRAGMENT: type = GL_FRAGMENT_SHADER; break;
-		case wv::WV_SHADER_TYPE_VERTEX:   type = GL_VERTEX_SHADER; break;
+		case wv::WV_SHADER_TYPE_VERTEX:   type = GL_VERTEX_SHADER;   break;
 		}
 	}
-
-	shader->handle = glCreateShader( type );
 
 	std::string source = std::string( (char*)_source->data->data, _source->data->size ); // this assumes source is a string
 
@@ -307,89 +305,44 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 #endif
 	const char* sourcePtr = source.c_str();
 
-	glShaderSource( shader->handle, 1, &sourcePtr, NULL );
 	WV_ASSERT_ERR( "Failed to add shader source to program\n" );
+	
+	/// TODO: Use shader objects?
 
-	glCompileShader( shader->handle );
+	program->handle = glCreateShaderProgramv( type, 1, &sourcePtr );
 
+	/*
 	int  success = 1;
 	char infoLog[ 512 ];
-	glGetShaderiv( shader->handle, GL_COMPILE_STATUS, &success );
+	glGetShaderiv( program->handle, GL_COMPILE_STATUS, &success );
 	if( !success )
 	{
-		glGetShaderInfoLog( shader->handle, 512, NULL, infoLog );
+		glGetShaderInfoLog( program->handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader\n %s \n", infoLog );
 	}
-
-	WV_ASSERT_ERR( "Failed to create shader\n" );
-
-	return shader;
-#else
-	return nullptr;
-#endif
-}
-
-void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _shader )
-{
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
-	glDeleteShader( _shader->handle );
-	_shader->handle = 0;
-#endif
-}
-
-wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
-{
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
-	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
-
-	sPipeline* program = new sPipeline();
-
-	program->handle = glCreateProgram();
-
-	WV_ASSERT_ERR( "Failed to create program\n" );
-
-	if( program->handle == 0 )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot link program with null handle\n" );
-		return program;
-	}
-
-	if( _desc->pVertexProgram )
-	{
-		glAttachShader( program->handle, _desc->pVertexProgram->handle );
-	}
-	if( _desc->pFragmentProgram )
-	{
-		glAttachShader( program->handle, _desc->pFragmentProgram->handle );
-	}
-	
-	glLinkProgram( program->handle );
-
-	WV_ASSERT_ERR( "link\n" );
+	*/
 
 	int success = 0;
 	char infoLog[ 512 ];
 	glGetProgramiv( program->handle, GL_LINK_STATUS, &success );
-	if( !success )
+	if ( !success )
 	{
 		glGetProgramInfoLog( program->handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
 
+	WV_ASSERT_ERR( "Failed to create program\n" );
+
 	GLint numActiveResources;
 	glGetProgramInterfaceiv( program->handle, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &numActiveResources );
 
-	for( GLuint i = 0; i < numActiveResources; i++ )
+	for ( GLuint i = 0; i < numActiveResources; i++ )
 	{
 		GLenum props[ 1 ] = { GL_NAME_LENGTH };
 		GLint res[ 1 ];
 		glGetProgramResourceiv( program->handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
 
-		std::string name( ( GLuint )res[ 0 ] - 1, '\0' );
+		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
 		glGetProgramResourceName( program->handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
 
 		glUniformBlockBinding( program->handle, i, m_numTotalUniformBlocks );
@@ -397,7 +350,6 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 
 		sShaderBufferDesc desc;
 		desc.name = name;
-		
 
 		cShaderBuffer* buf = createUniformBlock( program, &desc );
 		program->shaderBuffers.push_back( buf );
@@ -413,8 +365,6 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	//	_program->addUniformBlock( _uniformBlocks[ i ].name, block );
 	//}
 
-	glUseProgram( program->handle );
-
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
 	//for( int i = 0; i < ( int )_textureUniforms.size(); i++ )
@@ -426,15 +376,13 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	//#endif
 	//}
 
-	glUseProgram( 0 );
-
 	return program;
 #else
 	return nullptr;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _program )
+void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _program )
 {
 	WV_TRACE();
 
@@ -444,16 +392,58 @@ void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _program )
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _program )
+wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( m_activeProgram == _program )
+	Debug::Print( "Creating Program '%s'\n", _desc->name.c_str() );
+
+	sPipeline* pipeline = new sPipeline();
+
+	glGenProgramPipelines( 1, &pipeline->handle );
+
+	WV_ASSERT_ERR( "Failed to create program\n" );
+	if( pipeline->handle == 0 )
+		return pipeline;
+	
+	if( _desc->pVertexProgram )
+		glUseProgramStages( pipeline->handle, GL_VERTEX_SHADER_BIT, _desc->pVertexProgram->handle );
+	if( _desc->pFragmentProgram )
+		glUseProgramStages( pipeline->handle, GL_FRAGMENT_SHADER_BIT, _desc->pFragmentProgram->handle );
+	
+	pipeline->pVertexProgram   = _desc->pVertexProgram;
+	pipeline->pFragmentProgram = _desc->pFragmentProgram;
+
+	WV_ASSERT_ERR( "Failed to bind program stages\n" );
+
+	return pipeline;
+#else
+	return nullptr;
+#endif
+}
+
+void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _pipeline )
+{
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
+	glDeleteProgramPipelines( 1, &_pipeline->handle );
+	_pipeline->handle = 0;
+#endif
+}
+
+void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _pipeline )
+{
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
+	if( m_activePipeline == _pipeline )
 		return;
 
-	glUseProgram( _program ? _program->handle : 0 );
-	m_activeProgram = _program;
+	glBindProgramPipeline( _pipeline ? _pipeline->handle : 0 );
+
+	m_activePipeline = _pipeline;
 #endif
 }
 
@@ -799,10 +789,11 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 #ifdef WV_SUPPORT_OPENGL
 	glBindVertexArray( _primitive->vaoHandle );
 	
-	std::vector<cShaderBuffer*>& shaderBuffers = m_activeProgram->shaderBuffers;
+	std::vector<cShaderBuffer*>& shaderBuffers = m_activePipeline->pVertexProgram->shaderBuffers;
+
 	for ( auto& buf : shaderBuffers )
 	{
-		glUniformBlockBinding( m_activeProgram->handle, buf->m_index, buf->m_bindingIndex);
+		glUniformBlockBinding( m_activePipeline->pVertexProgram->handle, buf->m_index, buf->m_bindingIndex);
 
 		if( m_boundUniformBuffer != buf->m_bufferHandle )
 		{
@@ -868,7 +859,7 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sPipeline* _program, sShaderBufferDesc* _desc )
+wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc )
 {
 	WV_TRACE();
 

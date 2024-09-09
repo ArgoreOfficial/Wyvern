@@ -1,6 +1,9 @@
 #pragma once
 
 #include <wv/Resource/Resource.h>
+#include <wv/Shader/UniformBlock.h>
+
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +31,9 @@ namespace wv
 
 		eShaderProgramType type;
 		sShaderProgramSource source;
+
+		std::vector<cShaderBuffer*> shaderBuffers;
+		std::vector<sUniform> textureUniforms;
 
 		PlatformData pPlatformData;
 	};

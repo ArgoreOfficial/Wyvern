@@ -37,11 +37,11 @@ namespace wv
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
 		virtual sShaderProgram* createProgram( eShaderProgramType _type, sShaderProgramSource* _source ) override;
-		virtual void destroyProgram( sShaderProgram* _shader ) override;
+		virtual void destroyProgram( sShaderProgram* _program ) override;
 
 		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) override;
-		virtual void destroyPipeline( sPipeline* _program ) override;
-		virtual void bindPipeline( sPipeline* _program ) override;
+		virtual void destroyPipeline( sPipeline* _pipeline ) override;
+		virtual void bindPipeline( sPipeline* _pipeline ) override;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) override;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) override;
@@ -70,13 +70,13 @@ namespace wv
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
 
-		wv::cShaderBuffer* createUniformBlock( sPipeline* _program, sShaderBufferDesc* _desc );
+		wv::cShaderBuffer* createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
 		/// TODO: remove?
-		sPipeline* m_activeProgram = nullptr;
+		sPipeline* m_activePipeline = nullptr;
 		RenderTarget* m_activeRenderTarget = nullptr;
 
 		int m_numTotalUniformBlocks = 0;
@@ -91,7 +91,7 @@ namespace wv
 	{
 		std::string error;
 		if ( !getError( &error ) )
-			return false;
+			return true;
 		
 		Debug::Print( Debug::WV_PRINT_ERROR, _msg.c_str(), _args... );
 		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", error.c_str() );

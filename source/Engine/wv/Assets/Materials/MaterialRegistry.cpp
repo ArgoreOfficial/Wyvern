@@ -34,7 +34,7 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 	std::string shaderName = root["shader"].string_value();
 
-	cShaderProgram* program = new cShaderProgram( shaderName );
+	cProgramPipeline* program = new cProgramPipeline( shaderName );
 	program->load( m_pFileSystem );
 
 	while ( !program->isLoaded() ) 

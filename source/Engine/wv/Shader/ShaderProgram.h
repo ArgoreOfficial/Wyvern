@@ -4,7 +4,6 @@
 
 #include <wv/Resource/Resource.h>
 
-#include <wv/Shader/UniformBlock.h>
 #include <wv/Shader/Shader.h>
 
 #include <wv/Graphics/VertexLayout.h>
@@ -43,18 +42,15 @@ namespace wv
 		sShaderProgram* pVertexProgram;
 		sShaderProgram* pFragmentProgram;
 
-		std::vector<cShaderBuffer*> shaderBuffers;
-		std::vector<sUniform> textureUniforms;
-
 		PlatformData pPlatformData;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cShaderProgram : public iResource
+	class cProgramPipeline : public iResource
 	{
 	public:
-		cShaderProgram( const std::string& _name ) :
+		cProgramPipeline( const std::string& _name ) :
 			iResource( _name, L"" )
 		{ }
 
@@ -70,7 +66,7 @@ namespace wv
 
 		sShaderProgramSource m_fsSource;
 		sShaderProgramSource m_vsSource;
-		sPipeline* m_pProgram = nullptr;
+		sPipeline* m_pPipeline = nullptr;
 	private:
 
 	};

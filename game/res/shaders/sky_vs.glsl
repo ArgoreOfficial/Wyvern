@@ -12,6 +12,11 @@ uniform UbInstanceData
     mat4x4 u_Model;
 };
 
+out gl_PerVertex
+{
+    vec4 gl_Position;
+};
+
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 Pos;
