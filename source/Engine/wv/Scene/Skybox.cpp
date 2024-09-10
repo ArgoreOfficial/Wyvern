@@ -101,7 +101,7 @@ void wv::cSkyboxObject::updateImpl( double _deltaTime )
 
 void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial && m_skyboxMesh && m_skyMaterial->isCreated() && m_skyMaterial->getProgram()->isCreated() )
+	if ( m_skyMaterial && m_skyboxMesh && m_skyMaterial->isCreated() && m_skyMaterial->getPipeline()->isCreated() )
 	{
 		/// TODO: remove raw gl calls
 	#ifdef WV_SUPPORT_OPENGL

@@ -47,11 +47,11 @@ namespace wv
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
 		virtual sShaderProgram* createProgram( eShaderProgramType _type, sShaderProgramSource* _source ) override;
-		virtual void destroyProgram( sShaderProgram* _program ) override;
+		virtual void destroyProgram( sShaderProgram* _pProgram ) override;
 
 		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) override;
-		virtual void destroyPipeline( sPipeline* _pipeline ) override;
-		virtual void bindPipeline( sPipeline* _pipeline ) override;
+		virtual void destroyPipeline( sPipeline* _pPipeline ) override;
+		virtual void bindPipeline( sPipeline* _pPipeline ) override;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage ) override;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) override;

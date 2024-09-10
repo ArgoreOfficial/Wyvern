@@ -102,9 +102,9 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
-		m_deferredProgram = new cProgramPipeline( "deferred" );
-		m_deferredProgram->load( m_pFileSystem );
-		m_deferredProgram->create( graphics );
+		m_deferredPipeline = new cProgramPipeline( "deferred" );
+		m_deferredPipeline->load( m_pFileSystem );
+		m_deferredPipeline->create( graphics );
 
 		createScreenQuad();
 		createGBuffer();
@@ -393,7 +393,7 @@ void wv::cEngine::tick()
 		graphics->bindTextureToSlot( m_gbuffer->textures[ i ], i );
 
 	// render screen quad with deferred shader
-	m_deferredProgram->use( graphics );
+	m_deferredPipeline->use( graphics );
 	graphics->draw( m_screenQuad );
 	
 	if( m_pIRTHandler )

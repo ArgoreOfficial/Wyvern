@@ -356,7 +356,7 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
 		glGetProgramResourceName( program->handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
-
+	
 		// create uniform buffer
 
 		sOpenGLUniformBufferData* pUBData = new sOpenGLUniformBufferData();
@@ -405,13 +405,13 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _program )
+void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _pProgram )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glDeleteProgram( _program->handle );
-	_program->handle = 0;
+	glDeleteProgram( _pProgram->handle );
+	_pProgram->handle = 0;
 #endif
 }
 
@@ -426,7 +426,7 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 
 	glGenProgramPipelines( 1, &pipeline->handle );
 
-	WV_ASSERT_ERR( "Failed to create program\n" );
+	WV_ASSERT_ERR( "Failed to create pipeline\n" );
 	if( pipeline->handle == 0 )
 		return pipeline;
 	
@@ -438,7 +438,7 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	pipeline->pVertexProgram   = _desc->pVertexProgram;
 	pipeline->pFragmentProgram = _desc->pFragmentProgram;
 
-	WV_ASSERT_ERR( "Failed to bind program stages\n" );
+	WV_ASSERT_ERR( "Failed to bind pipeline stages\n" );
 
 	return pipeline;
 #else
@@ -446,27 +446,27 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _pipeline )
+void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _pPipeline )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glDeleteProgramPipelines( 1, &_pipeline->handle );
-	_pipeline->handle = 0;
+	glDeleteProgramPipelines( 1, &_pPipeline->handle );
+	_pPipeline->handle = 0;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _pipeline )
+void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _pPipeline )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( m_activePipeline == _pipeline )
+	if( m_activePipeline == _pPipeline )
 		return;
 
-	glBindProgramPipeline( _pipeline ? _pipeline->handle : 0 );
+	glBindProgramPipeline( _pPipeline ? _pPipeline->handle : 0 );
 
-	m_activePipeline = _pipeline;
+	m_activePipeline = _pPipeline;
 #endif
 }
 

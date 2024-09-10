@@ -100,9 +100,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		Mesh*           m_screenQuad      = nullptr;
-		cProgramPipeline* m_deferredProgram = nullptr;
-		RenderTarget*   m_gbuffer         = nullptr;
+		Mesh*             m_screenQuad      = nullptr;
+		cProgramPipeline* m_deferredPipeline = nullptr;
+		RenderTarget*     m_gbuffer         = nullptr;
 
 		// engine
 		iDeviceContext*  context  = nullptr;

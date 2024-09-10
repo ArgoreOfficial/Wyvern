@@ -71,11 +71,11 @@ namespace wv
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
 		virtual sShaderProgram* createProgram( eShaderProgramType _type, sShaderProgramSource* _source ) = 0;
-		virtual void destroyProgram( sShaderProgram* _shader ) = 0;
+		virtual void destroyProgram( sShaderProgram* _pProgram ) = 0;
 
 		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) = 0;
-		virtual void destroyPipeline( sPipeline* _program ) = 0;
-		virtual void bindPipeline   ( sPipeline* _program ) = 0;
+		virtual void destroyPipeline( sPipeline* _pPipeline ) = 0;
+		virtual void bindPipeline   ( sPipeline* _pPipeline ) = 0;
 
 		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage ) = 0;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) = 0;

@@ -9,6 +9,10 @@
 typedef unsigned int size_t;
 #endif
 
+// funny
+#define WV_SLASH_HELPER( _f ) /_f
+#define WV_COMMENT WV_SLASH_HELPER(/)
+
 namespace wv
 {
 

@@ -21,7 +21,7 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 	//	device->destroyTexture( &m_textures[ i ] );
 	//m_textures.clear();
 	//
-	//app->m_pShaderRegistry->unloadShaderProgram( m_program );
+	//app->m_pShaderRegistry->unloadShaderProgram( m_pPipeline );
 
 	iMaterial::destroy( _pGraphicsDevice );
 }
@@ -31,7 +31,7 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
-	m_program->use( _device );
+	m_pPipeline->use( _device );
 	setMaterialUniforms();
 }
 
@@ -70,7 +70,7 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 
 #elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
-	wv::sGPUBuffer& instanceBlock = *m_program->getShaderBuffer( "UbInstanceData" );
+	wv::sGPUBuffer& instanceBlock = *m_pPipeline->getShaderBuffer( "UbInstanceData" );
 	instanceBlock.buffer( &m_UbInstanceData );
 	
 	// bind textures

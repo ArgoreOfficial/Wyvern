@@ -34,10 +34,10 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 	std::string shaderName = root["shader"].string_value();
 
-	cProgramPipeline* program = new cProgramPipeline( shaderName );
-	program->load( m_pFileSystem );
+	cProgramPipeline* pipeline = new cProgramPipeline( shaderName );
+	pipeline->load( m_pFileSystem );
 
-	while ( !program->isLoaded() ) 
+	while ( !pipeline->isLoaded() ) 
 	{
 		/// TEMPORARY FIX
 		/// TODO: NOT THIS
@@ -46,7 +46,7 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	#endif
 	}
 	
-	program->create( m_pGraphicsDevice );
+	pipeline->create( m_pGraphicsDevice );
 
 	std::vector<sMaterialVariable> variables;
 
@@ -78,7 +78,7 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 #endif
 
-	cMaterial* mat = new cMaterial( _name, program, variables );
+	cMaterial* mat = new cMaterial( _name, pipeline, variables );
 	mat->load( m_pFileSystem );
 	mat->create( m_pGraphicsDevice );
 
