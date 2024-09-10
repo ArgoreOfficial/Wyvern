@@ -34,6 +34,7 @@ protected:
 
 	void spawnBalls( int _count );
 	void spawnCubes( int _count );
+	void spawnBlock( int _halfX, int _halfY, int _halfZ );
 
 	void onLoadImpl() override { };
 	void onUnloadImpl() override { };

@@ -99,13 +99,16 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	 * create deferred rendering objects
 	 * this should be configurable
 	 */
+
+	s_pInstance = this;
+
+
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
 		m_deferredPipeline = new cProgramPipeline( "deferred" );
-		m_deferredPipeline->load( m_pFileSystem );
-		m_deferredPipeline->create( graphics );
-
+		m_deferredPipeline->load( m_pFileSystem, graphics );
+		
 		createScreenQuad();
 		createGBuffer();
 	}
@@ -117,8 +120,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	initImgui();
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
-
-	s_pInstance = this;
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Debug Draw\n" );
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
@@ -351,16 +352,14 @@ void wv::cEngine::tick()
 		return;
 
 #ifdef WV_PLATFORM_PSVITA
-
 	graphics->setRenderTarget( nullptr );
-	
+#else
+	graphics->setRenderTarget( m_gbuffer );
+#endif
+
 	graphics->beginRender();
 	
 	graphics->clearRenderTarget( true, true );
-#else
-	graphics->setRenderTarget( m_gbuffer );
-	graphics->clearRenderTarget( true, true );
-#endif
 
 #ifdef WV_SUPPORT_IMGUI
 	/// TODO: move
@@ -521,18 +520,19 @@ void wv::cEngine::createScreenQuad()
 
 	MeshDesc meshDesc;
 	m_screenQuad = graphics->createMesh( &meshDesc );
-	graphics->createPrimitive( &prDesc, m_screenQuad );
+	m_screenQuad->primitives.push_back( graphics->createPrimitive( &prDesc ) );
 	
 	if( m_screenQuad )
-		m_screenQuad->transform.update();
+		m_screenQuad->transform.update( nullptr );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cEngine::createGBuffer()
 {
-	RenderTargetDesc rtDesc;
 	Vector2i size = getViewportSize();
+
+	RenderTargetDesc rtDesc;
 	rtDesc.width  = size.x;
 	rtDesc.height = size.y;
 #ifdef WV_PLATFORM_WINDOWS
@@ -549,10 +549,16 @@ void wv::cEngine::createGBuffer()
 		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_FLOAT }
 	#endif
 	};
-	rtDesc.textureDescs = texDescs;
+	rtDesc.pTextureDescs = texDescs;
 	rtDesc.numTextures = 4;
 #endif
-	m_gbuffer = graphics->createRenderTarget( &rtDesc );
+
+	wv::cCommandBuffer& buffer = graphics->getCommandBuffer();
+	buffer.push( WV_GPUTASK_CREATE_RENDERTARGET, &m_gbuffer, &rtDesc );
+	graphics->submitCommandBuffer( buffer );
+	graphics->executeCommandBuffer( buffer );
+
+
 }
 
 void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )

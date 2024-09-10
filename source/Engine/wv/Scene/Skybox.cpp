@@ -56,10 +56,11 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
-
 	wv::Parser parser;
+
 	m_skyboxMesh = parser.load( "res/meshes/skysphere", app->m_pMaterialRegistry );
-	m_skyboxMesh->transform.parent = &m_transform;
+	m_transform.addChild( &m_skyboxMesh->transform );
+
 	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "sky" );
 	
 #ifdef WV_SUPPORT_OPENGL // temporary
@@ -76,7 +77,7 @@ void wv::cSkyboxObject::onUnloadImpl()
 
 	device->destroyMesh( &m_skyboxMesh->children[ 0 ]->meshes[ 0 ] );
 	m_skyMaterial->decrNumUsers();
-	
+
 	// m_skyMaterial->destroy( device );
 }
 
@@ -101,7 +102,7 @@ void wv::cSkyboxObject::updateImpl( double _deltaTime )
 
 void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial && m_skyboxMesh && m_skyMaterial->isCreated() && m_skyMaterial->getPipeline()->isCreated() )
+	if ( m_skyMaterial && m_skyboxMesh && m_skyMaterial->isComplete() && m_skyMaterial->getPipeline()->isComplete() )
 	{
 		/// TODO: remove raw gl calls
 	#ifdef WV_SUPPORT_OPENGL

@@ -39,7 +39,7 @@ void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevi
 
 	if( DEBUG_MATERIAL )
 	{
-		DEBUG_MATERIAL->destroy( _pGraphicsDevice );
+		DEBUG_MATERIAL->unload( nullptr, _pGraphicsDevice ); /// TODO: fix
 		delete DEBUG_MATERIAL;
 	}
 }
@@ -54,7 +54,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 		{
 			SPHERE_MESH->transform.position = spheres[ i ].position;
 			SPHERE_MESH->transform.scale = wv::cVector3f{ spheres[ i ].radius };
-			SPHERE_MESH->transform.update();
+			SPHERE_MESH->transform.update( nullptr );
 			_pGraphicsDevice->drawNode( SPHERE_MESH );
 		}
 	}

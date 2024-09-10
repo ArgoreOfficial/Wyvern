@@ -97,7 +97,7 @@ namespace wv
 		#endif
 
 			
-			bool skip;
+			bool skip = false;
 		#ifndef WV_DEBUG
 			skip |= _printLevel == WV_PRINT_DEBUG;
 		#endif

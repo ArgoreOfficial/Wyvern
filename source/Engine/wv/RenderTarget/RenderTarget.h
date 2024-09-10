@@ -10,12 +10,14 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	class RenderTarget;
+
 	struct RenderTargetDesc
 	{
 		int width = 0;
 		int height = 0;
 		
-		wv::TextureDesc* textureDescs = nullptr;
+		wv::TextureDesc* pTextureDescs = nullptr;
 		int numTextures = 0;
 	};
 

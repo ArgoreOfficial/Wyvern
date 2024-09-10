@@ -29,18 +29,36 @@ void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+{
+	setComplete( true );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+{
+	setComplete( false );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
 	m_pPipeline->use( _device );
 	setMaterialUniforms();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cMaterial::setMaterialUniforms()
 {
 	setDefaultViewUniforms(); // sets projection and view matrices
 }
 
-void wv::cMaterial::setInstanceUniforms( Mesh* _instance )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cMaterial::setInstanceUniforms( sMesh* _instance )
 {
 	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
@@ -60,7 +78,9 @@ void wv::cMaterial::setDefaultViewUniforms()
 	m_UbInstanceData.view = app->currentCamera->getViewMatrix();
 }
 
-void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 {
 	wv::cEngine* app = wv::cEngine::get();
 
@@ -70,7 +90,7 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 
 #elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
-	wv::sGPUBuffer& instanceBlock = *m_pPipeline->getShaderBuffer( "UbInstanceData" );
+	wv::cGPUBuffer& instanceBlock = *m_pPipeline->getShaderBuffer( "UbInstanceData" );
 	instanceBlock.buffer( &m_UbInstanceData );
 	
 	// bind textures
@@ -86,3 +106,4 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 	}
 #endif
 }
+

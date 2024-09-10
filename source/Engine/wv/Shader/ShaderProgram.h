@@ -18,20 +18,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class sShaderProgram;
 	class iGraphicsDevice;
-
-	struct sPipelineDesc
-	{
-		std::string name;
-		
-		sVertexLayout* pVertexLayout;
-
-		sShaderProgram* pVertexProgram;
-		sShaderProgram* pFragmentProgram;
-
-		bool reflect = true;
-	};
 
 	struct sPipeline
 	{
@@ -42,7 +29,19 @@ namespace wv
 		sShaderProgram* pVertexProgram;
 		sShaderProgram* pFragmentProgram;
 
-		sPlatformData pPlatformData;
+		void* pPlatformData;
+	};
+
+	struct sPipelineDesc
+	{
+		std::string name;
+
+		sVertexLayout* pVertexLayout;
+
+		sShaderProgram** pVertexProgram;
+		sShaderProgram** pFragmentProgram;
+
+		bool reflect = true;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -54,18 +53,19 @@ namespace wv
 			iResource( _name, L"" )
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem ) override;
-		void unload( cFileSystem* _pFileSystem ) override;
+		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 		
-		void create ( iGraphicsDevice* _pGraphicsDevice ) override;
-		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
-
 		void use( iGraphicsDevice* _pGraphicsDevice );
 
-		sGPUBuffer* getShaderBuffer( const std::string& _name );
+		cGPUBuffer* getShaderBuffer( const std::string& _name );
 
 		sShaderProgramSource m_fsSource;
 		sShaderProgramSource m_vsSource;
+
+		sShaderProgram* m_vs;
+		sShaderProgram* m_fs;
+
 		sPipeline* m_pPipeline = nullptr;
 	private:
 

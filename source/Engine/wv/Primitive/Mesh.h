@@ -22,7 +22,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh
+	class sMesh
 	{
 
 	public:
@@ -37,18 +37,7 @@ namespace wv
 	{
 		std::string name;
 		Transformf transform;
-		std::vector<Mesh*>      meshes;
+		std::vector<sMesh*>      meshes;
 		std::vector<sMeshNode*> children;
-
-		void update()
-		{
-			transform.update();
-
-			for( auto& mesh : meshes )
-				mesh->transform.update();
-			
-			for( auto& child : children )
-				child->update();
-		}
 	};
 }

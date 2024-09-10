@@ -35,38 +35,35 @@ namespace wv
 
 		virtual ~iResource() {};
 
-		virtual void load  ( cFileSystem* _pFileSystem ) { m_loaded = true; }		
-		virtual void unload( cFileSystem* _pFileSystem ) { m_loaded = false; }
+		virtual void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) = 0;
+		virtual void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) = 0;
 
 		virtual void reload( void ) { }
 		
-		virtual void create ( iGraphicsDevice* _pGraphicsDevice ) { m_created = true; }
-		virtual void destroy( iGraphicsDevice* _pGraphicsDevice ) { m_created = false; }
-
 		void incrNumUsers( void ) { m_numUsers++; }
 		void decrNumUsers( void ) { if( m_numUsers > 0) m_numUsers--; }
 
 		void setHandle  ( const wv::Handle& _handle ) { m_handle = _handle; }
 		void setFullPath( const std::wstring& _path ) { m_path = _path; }
+		void setComplete( bool _complete )            { m_complete = _complete; }
 		
 		wv::Handle   getHandle  ( void ) { return m_handle; }
 		unsigned int getNumUsers( void ) { return m_numUsers; }
 		std::string  getName    ( void ) { return m_name; }
 
-		bool isLoaded ( void ) { return m_loaded; }
-		bool isCreated( void ) { return m_created; }
+		bool isComplete ( void ) { return m_complete; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 
+		
 		std::string m_name;
 		std::wstring m_path;
 
 		wv::Handle m_handle = 0;
 		unsigned int m_numUsers = 0;
 
-		bool m_loaded  = false;
-		bool m_created = false;
+		bool m_complete = false;
     };
 }

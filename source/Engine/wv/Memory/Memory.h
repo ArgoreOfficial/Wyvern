@@ -9,7 +9,7 @@
 
 namespace wv
 {
-	struct cMemory 
+	struct cMemoryStream 
 	{
 	public:
 
@@ -18,34 +18,35 @@ namespace wv
 
 		void allocate( size_t _size );
 		void deallocate();
+		void reallocate( size_t _newSize );
 
 		void dump( const std::string& _path );
 
-		//static cMemory decodeBase64( const std::string& _dataString );
-		//std::string encodeBase64();
+		template<typename T> T& at( size_t _index );
 
-		template<typename T> T at( size_t _index );
+		template<typename T> void push( const T& _data, const size_t& _size );
+		template<typename T> void push( const T& _data ) { push( _data, sizeof(T) ); }
 
-		template<typename T> void push( const T& _data ) { push(_data, sizeof(T)); }
-		template<typename T> void push( const T& _data, size_t _size );
+		template<typename T> T& pop( const size_t& _size );
+		template<typename T> T& pop() { return pop<T>( sizeof( T ) ); }
 
-		inline uint8_t* data( void ) { return m_pAllocatedData + m_offset; }
+		inline uint8_t* data( void ) { return m_pData; }
 
 		inline size_t size         ( void ) { return m_size; }
 		inline size_t allocatedSize( void ) { return m_allocatedSize; }
  
 	private:
 		
-		uint8_t* m_pAllocatedData = nullptr;
-
-		size_t m_offset = 0;
+		uint8_t* m_pAllocatedData = nullptr; // allocated buffer base
+		uint8_t* m_pData          = nullptr; // stream buffer
+		
 		size_t m_allocatedSize = 0;
 		size_t m_size = 0;
 
 	};
 
 	template<typename T>
-	inline T cMemory::at( size_t _index )
+	inline T& cMemoryStream::at( size_t _index )
 	{
 		if ( _index < 0 || _index >= m_size )
 		{
@@ -53,31 +54,28 @@ namespace wv
 			return T();
 		}
 
-		return *reinterpret_cast<T*>( &data()[ _index ] );
+		return *reinterpret_cast<T*>( &m_pData[ _index ] );
 	}
 
 	template<typename T>
-	inline void cMemory::push( const T& _data, size_t _size )
+	inline void cMemoryStream::push( const T& _data, const size_t& _size )
 	{
-		Debug::Print( Debug::WV_PRINT_FATAL, "cMemory::push is not fully implemented" );
-		return;
-
-
-		printf( "unstable function, fix this NOW" );
 		if ( _size <= 0 )
 			return;
-
-		// reallocate buffer
-		uint8_t* newBuffer = new uint8_t[ m_size + _size ];
-		if ( m_size > 0 )
-		{
-			memcpy( newBuffer, data(), m_size);
-			delete m_pAllocatedData;
-		}
-		m_pAllocatedData = newBuffer;
-
+ 
+		if( m_pData + m_size + _size >= m_pAllocatedData + m_allocatedSize ) // outside allocated buffer
+			reallocate( m_size + _size );
+		
 		// push new data
 		memcpy( m_pAllocatedData + m_size, &_data, _size );
-		m_size = m_size + _size;
+		m_size += _size;
+	}
+
+	template<typename T>
+	inline T& cMemoryStream::pop( const size_t& _size )
+	{
+		T* ptr = reinterpret_cast<T*>( m_pData );
+		m_pData += _size;
+		return *ptr;
 	}
 }

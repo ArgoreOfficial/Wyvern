@@ -15,7 +15,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cMaterial;
-	struct sGPUBuffer;
+	struct cGPUBuffer;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -82,8 +82,8 @@ namespace wv
 	public:
 
 		wv::Handle vaoHandle = 0;
-		sGPUBuffer* vertexBuffer;
-		sGPUBuffer* indexBuffer;
+		cGPUBuffer* vertexBuffer;
+		cGPUBuffer* indexBuffer;
 
 		PrimitiveBufferMode mode = WV_PRIMITIVE_TYPE_STATIC;
 		PrimitiveDrawType drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
@@ -93,7 +93,7 @@ namespace wv
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 
-		sPlatformData pPlatformData;
+		void* pPlatformData;
 	};
 
 }

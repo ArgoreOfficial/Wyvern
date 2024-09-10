@@ -17,7 +17,7 @@ namespace wv
 	class cProgramPipeline;
 	
 	class iGraphicsDevice;
-	class Mesh;
+	class sMesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,10 +46,13 @@ namespace wv
 			m_variables( _variables )
 		{ }
 
+		void load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+
 		void setAsActive( iGraphicsDevice* _device );
 
 		void setMaterialUniforms();
-		void setInstanceUniforms( Mesh* _instance );
+		void setInstanceUniforms( sMesh* _instance );
 
 		cProgramPipeline* getPipeline() { return m_pPipeline; }
 
@@ -58,7 +61,7 @@ namespace wv
 	protected:
 
 		void setDefaultViewUniforms();
-		void setDefaultMeshUniforms( Mesh* _mesh );
+		void setDefaultMeshUniforms( sMesh* _mesh );
 
 		cProgramPipeline* m_pPipeline = nullptr;
 		//std::vector<Texture*> m_textures;

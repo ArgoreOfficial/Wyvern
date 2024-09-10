@@ -14,6 +14,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct Memory;
+	struct sShaderProgram;
 
 	enum eShaderProgramType
 	{
@@ -26,6 +27,12 @@ namespace wv
 		Memory* data;
 	};
 
+	struct sShaderProgramDesc
+	{
+		eShaderProgramType type;
+		sShaderProgramSource source;
+	};
+
 	struct sShaderProgram
 	{
 		Handle handle;
@@ -33,10 +40,10 @@ namespace wv
 		eShaderProgramType type;
 		sShaderProgramSource source;
 
-		std::vector<sGPUBuffer*> shaderBuffers;
+		std::vector<cGPUBuffer*> shaderBuffers;
 		std::vector<sUniform> textureUniforms;
 
-		sPlatformData pPlatformData;
+		void* pPlatformData;
 	};
 
 }

@@ -11,14 +11,36 @@ namespace wv
 	public:
 		typedef R( *fptr_t )( Args... );
 
+		Function()                      : m_fptr{ nullptr } {}
+		Function( const fptr_t& _func ) : m_fptr{ _func }   {}
+
 		R operator()( Args..._args ) { return m_fptr( _args... ); }
 
-		void bind( R( *_func )( Args... ) ) { m_fptr = _func; }
+		void bind( const fptr_t& _func ) { m_fptr = _func; }
+		
+		template<typename T>
+		void bind( T& t );
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-		// R( *m_fptr )( Args... );
 		fptr_t m_fptr = nullptr;
+
+	private:
+
+		template<typename T>
+		static void* lambdaFunc( void* new_fn = nullptr )
+		{
+			static void* fn;
+			if ( new_fn != nullptr )
+				fn = new_fn;
+			return fn;
+		}
+
+		template<typename T>
+		static R lambdaFptr( Args... _args )
+		{
+			T* tPtr = (T*)lambdaFunc<T>();
+			return (R)(*tPtr)( _args... );
+		}
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -42,5 +64,13 @@ namespace wv
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+	template<class R, class ...Args>
+	template<typename T>
+	inline void Function<R, Args...>::bind( T& t )
+	{
+		lambdaFunc<T>( &t );
+		m_fptr = (fptr_t)lambdaFptr<T>;
+	}
 
 }

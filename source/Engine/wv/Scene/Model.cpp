@@ -76,6 +76,7 @@ void wv::cModelObject::onLoadImpl()
 
 		wv::Parser parser;
 		m_mesh = parser.load( m_meshPath.c_str(), app->m_pMaterialRegistry);
+		m_transform.addChild( &m_mesh->transform );
 	}
 }
 
@@ -101,11 +102,6 @@ void wv::cModelObject::onUnloadImpl()
 
 void wv::cModelObject::updateImpl( double _deltaTime )
 {
-	if( m_mesh )
-	{
-		m_mesh->transform = m_transform;
-		m_mesh->update();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

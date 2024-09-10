@@ -38,7 +38,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _mesh, wv::cMaterialRegistry* _pMaterialRegistry )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* _mesh, wv::cMaterialRegistry* _pMaterialRegistry )
 {
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 
@@ -124,7 +124,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 	prDesc.numIndices = indices.size();
 	prDesc.indices32 = indices.data();
 	
-	wv::Primitive* primitive = device->createPrimitive( &prDesc, _mesh );
+	wv::Primitive* primitive = device->createPrimitive( &prDesc );
 	primitive->vertices = vertices;
 	primitive->indices = indices;
 
@@ -152,6 +152,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::Mesh* _
 		
 		primitive->material = material;
 	}
+
+	_mesh->primitives.push_back( primitive );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -166,17 +168,21 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	_meshNode->name = std::string( _node->mName.C_Str() );
 	_meshNode->transform.position = { pos.x, pos.y, pos.z };
 	_meshNode->transform.scale    = { scale.x, scale.y, scale.z };
-	_meshNode->transform.rotation = { rot.x, rot.y, rot.z };
+	_meshNode->transform.rotation = { 
+		wv::Math::degrees( rot.x ), 
+		wv::Math::degrees( rot.y ), 
+		wv::Math::degrees( rot.z ) 
+	};
 
 	// process all the node's meshes (if any)
 	for ( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
-		wv::Mesh* mesh = _pGraphicsDevice->createMesh( nullptr );
+		wv::sMesh* mesh = _pGraphicsDevice->createMesh( nullptr );
 
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
 		processAssimpMesh( aimesh, _scene, mesh, _pMaterialRegistry );
 		
-		mesh->transform.parent = &_meshNode->transform;
+		_meshNode->transform.addChild( &mesh->transform );
 		_meshNode->meshes.push_back( mesh );
 	}
 
@@ -186,7 +192,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 		wv::sMeshNode* meshNode = new wv::sMeshNode();
 		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pGraphicsDevice, _pMaterialRegistry );
 
-		meshNode->transform.parent = &_meshNode->transform;
+		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
 	}
 }

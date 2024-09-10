@@ -239,7 +239,7 @@ namespace wv
 			cMatrix<T, 4, 4> mat( 1.0 );
 
 			mat.setRow( 0, { std::cos( _angle ), 0.0, -std::sin( _angle ) } );
-			mat.setRow( 1, {                0.0, 1.0,                0.0 } );
+			mat.setRow( 1, {                0.0, 1.0,                 0.0 } );
 			mat.setRow( 2, { std::sin( _angle ), 0.0,  std::cos( _angle ) } );
 
 			return mat * _m;

@@ -17,7 +17,7 @@
 cDemoWindow::cDemoWindow( const uint64_t& _uuid, const std::string& _name ) :
 	iSceneObject{ _uuid, _name }
 {
-
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -56,12 +56,40 @@ void cDemoWindow::spawnCubes( int _count )
 		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
-
+		
 		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "", boxDesc );
-		sceneRoot->addChild( rb );
 		rb->m_transform.position.y = 50.0f;
+		sceneRoot->addChild( rb );
+		
 		m_numSpawned++;
 	}
+	sceneRoot->onCreate();
+	sceneRoot->onLoad();
+}
+
+void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
+{
+	wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+
+	for( int x = -_halfX; x < _halfX; x++ )
+	{
+		for( int y = -_halfY; y < _halfY; y++ )
+		{
+			for( int z = -_halfZ; z < _halfZ; z++ )
+			{
+				wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+				
+				wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "", boxDesc );
+				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
+				sceneRoot->addChild( rb );
+
+				m_numSpawned++;
+			}
+		}
+	}
+
 	sceneRoot->onCreate();
 	sceneRoot->onLoad();
 }
@@ -87,6 +115,10 @@ void cDemoWindow::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _
 	if ( ImGui::Button( "Spawn Boxes" ) )
 		spawnCubes( m_numToSpawn );
 	
+	ImGui::SameLine();
+	if ( ImGui::Button( "Spawn Block" ) )
+		spawnBlock( 5, 5, 5 );
+
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
 	ImGui::SameLine();
 

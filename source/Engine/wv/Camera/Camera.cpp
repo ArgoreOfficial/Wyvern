@@ -51,7 +51,6 @@ wv::cMatrix4x4f wv::ICamera::getOrthographicMatrix( void )
 
 wv::cMatrix4x4f wv::ICamera::getViewMatrix( void )
 {
-	m_transform.update();
 	return Matrix::inverse( m_transform.getMatrix() );
 }
 

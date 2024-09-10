@@ -8,7 +8,7 @@
 
 #include <wv/Auxiliary/json/json11.hpp>
 
-wv::cMaterial* wv::cMaterialRegistry::loadMaterial( std::string _name )
+wv::cMaterial* wv::cMaterialRegistry::loadMaterial( const std::string& _name )
 {
 	cMaterial* material = static_cast< cMaterial* >( getLoadedResource( _name ) );
 
@@ -35,9 +35,9 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	std::string shaderName = root["shader"].string_value();
 
 	cProgramPipeline* pipeline = new cProgramPipeline( shaderName );
-	pipeline->load( m_pFileSystem );
+	pipeline->load( m_pFileSystem, m_pGraphicsDevice );
 
-	while ( !pipeline->isLoaded() ) 
+	while ( !pipeline->isComplete() ) 
 	{
 		/// TEMPORARY FIX
 		/// TODO: NOT THIS
@@ -46,8 +46,6 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	#endif
 	}
 	
-	pipeline->create( m_pGraphicsDevice );
-
 	std::vector<sMaterialVariable> variables;
 
 #ifdef WV_PLATFORM_WINDOWS
@@ -71,7 +69,13 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 		m_resourceLoader.addLoad( texture );
 		textureVariable.data.texture = texture;
 		
-		while ( !texture->isLoaded() ) { }
+		while ( !texture->isComplete() ) 
+		{
+		#ifdef WV_PLATFORM_WINDOWS 
+			Sleep( 1 );
+			m_pGraphicsDevice->endRender();
+		#endif
+		}
 
 		variables.push_back( textureVariable );
 	}
@@ -79,9 +83,8 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 #endif
 
 	cMaterial* mat = new cMaterial( _name, pipeline, variables );
-	mat->load( m_pFileSystem );
-	mat->create( m_pGraphicsDevice );
-
+	mat->load( m_pFileSystem, m_pGraphicsDevice );
+	
 	return mat;
 }
 

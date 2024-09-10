@@ -124,4 +124,6 @@ void wv::FreeflightCamera::update( double _delta_time )
 	m_velocity += acceleration * (float)_delta_time;
 
 	m_rotate = { 0.0f, 0.0f };
+
+	ICamera::update( _delta_time );
 }

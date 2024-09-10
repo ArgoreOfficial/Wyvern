@@ -20,8 +20,29 @@ namespace wv
 		WV_BUFFER_USAGE_DYNAMIC_DRAW
 	};
 
-	struct sGPUBuffer
+	struct sGPUBufferDesc
 	{
+		std::string name;
+		eGPUBufferType type;
+		eGPUBufferUsage usage;
+		size_t size = 0;
+	};
+
+	class cGPUBuffer
+	{
+	public:
+
+		template<typename T> 
+		void buffer( T* _data, size_t _size = sizeof( T ) )
+		{
+			if ( sizeof( T ) > size )
+			{
+				Debug::Print( Debug::WV_PRINT_ERROR, "Data out of range of shader buffer size\n" );
+			}
+
+			memcpy( pData, _data, size );
+		}
+
 		std::string name = "";
 		wv::Handle handle = 0;
 		eGPUBufferType  type  = WV_BUFFER_TYPE_NONE;
@@ -33,21 +54,7 @@ namespace wv
 		uint32_t stride = 0;
 		int32_t  size   = 0;
 		
-		sPlatformData pPlatformData;
+		void* pPlatformData = nullptr;
 
-		/// <summary>
-		/// memcpy helper 
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="_data"></param>
-		template<typename T> void buffer( T* _data )
-		{
-			if( sizeof( T ) > size )
-			{
-				Debug::Print( Debug::WV_PRINT_ERROR, "Data out of range of shader buffer size\n" );
-			}
-
-			memcpy( pData, _data, size );
-		}
 	};
 }

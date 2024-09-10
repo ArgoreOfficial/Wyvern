@@ -42,6 +42,7 @@ void wv::cApplicationState::update( double _deltaTime )
 	}
 
 	m_pCurrentScene->update( _deltaTime );
+	m_pCurrentScene->m_transform.update( nullptr );
 }
 
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iGraphicsDevice* _pDevice )

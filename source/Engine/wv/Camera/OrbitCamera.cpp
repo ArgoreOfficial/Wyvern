@@ -81,4 +81,6 @@ void wv::OrbitCamera::update( double _delta_time )
 	m_transform.position.z = std::cos( wv::Math::radians( m_transform.rotation.y ) ) * d;
 	
 	m_rotate = { 0.0f, 0.0f };
+
+	ICamera::update( _delta_time );
 }

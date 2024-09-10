@@ -95,10 +95,7 @@ namespace wv
 		void update( double _deltaTime ) 
 		{
 			if( m_loaded && m_created )
-			{
 				updateImpl( _deltaTime );
-				m_transform.update();
-			}
 
 			for( size_t i = 0; i < m_children.size(); i++ )
 			{
@@ -117,8 +114,7 @@ namespace wv
 		}
 
 		Transformf m_transform;
-		Transformf m_worldTransform;
-
+		
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:

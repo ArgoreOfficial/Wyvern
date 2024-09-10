@@ -35,7 +35,7 @@ void wv::Sprite::draw( iGraphicsDevice* _device )
 	if ( !Internal::S_SPRITE_QUAD )
 		return;
 	
-	Mesh* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
+	sMesh* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
 	m->transform = m_transform;
 	m->primitives[ 0 ]->material = m_material;
 	_device->draw( m );
@@ -47,7 +47,7 @@ void wv::Sprite::createQuad()
 {
 	wv::cEngine* app = wv::cEngine::get();
 
-	Internal::S_SPRITE_QUAD = new wv::Mesh();
+	Internal::S_SPRITE_QUAD = new wv::sMesh();
 	{
 		std::vector<wv::Vertex> vertices = {
 			wv::Vertex{ { 0.0f,  0.0f, 0.0f },{},{},{},{0.0f, 0.0f} },
@@ -81,6 +81,6 @@ void wv::Sprite::createQuad()
 		prDesc.indices32  = indices.data();
 		prDesc.numIndices = indices.size();
 
-		app->graphics->createPrimitive( &prDesc, Internal::S_SPRITE_QUAD );
+		Internal::S_SPRITE_QUAD->primitives.push_back( app->graphics->createPrimitive( &prDesc ) );
 	}
 }

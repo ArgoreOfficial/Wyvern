@@ -31,14 +31,18 @@ namespace wv
 		WV_TEXTURE_FILTER_LINEAR,
 	};
 
+	class Texture;
+
 	struct TextureDesc
-	{			 
+	{
 		TextureChannels channels = WV_TEXTURE_CHANNELS_RGB;
 		TextureFormat format = WV_TEXTURE_FORMAT_BYTE;
 		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
 		int width = 0;
 		int height = 0;
 		bool generateMipMaps = false;
+
+		Texture* tmpTex; /// TEMPORARY
 	};
 
 	class Texture : public iResource
@@ -49,11 +53,8 @@ namespace wv
 			iResource{ _name, _path } 
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem ) override;
-		void unload( cFileSystem* _pFileSystem ) override;
-
-		void create ( iGraphicsDevice* _pGraphicsDevice ) override;
-		void destroy( iGraphicsDevice* _pGraphicsDevice ) override;
+		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setWidth ( int _width )  { m_width = _width; }
 		void setHeight( int _height ) { m_height = _height; }

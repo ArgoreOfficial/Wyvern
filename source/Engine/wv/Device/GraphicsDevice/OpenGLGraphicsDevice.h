@@ -46,21 +46,22 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
-		virtual sShaderProgram* createProgram( eShaderProgramType _type, sShaderProgramSource* _source ) override;
+		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) override;
 		virtual void destroyProgram( sShaderProgram* _pProgram ) override;
 
 		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) override;
 		virtual void destroyPipeline( sPipeline* _pPipeline ) override;
 		virtual void bindPipeline( sPipeline* _pPipeline ) override;
 
-		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage ) override;
-		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) override;
-		virtual void destroyGPUBuffer( sGPUBuffer* _buffer ) override;
+		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) override;
+		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) override;
+		virtual void        bufferData      ( cGPUBuffer* _buffer ) override;
+		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) override;
 		
-		virtual Mesh* createMesh( MeshDesc* _desc ) override;
-		virtual void destroyMesh( Mesh** _mesh ) override;
+		virtual sMesh* createMesh ( MeshDesc* _desc ) override;
+		virtual void   destroyMesh( sMesh** _mesh ) override;
 
-		virtual Primitive* createPrimitive( PrimitiveDesc* _desc, Mesh* _mesh ) override;
+		virtual Primitive* createPrimitive( PrimitiveDesc* _desc ) override;
 		virtual void destroyPrimitive( Primitive** _primitive ) override;
 
 		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) override;
@@ -91,7 +92,6 @@ namespace wv
 
 		// states
 		std::vector<wv::Handle> m_boundTextureSlots;
-		wv::Handle m_boundUniformBuffer = 0;
 	};
 
 	template<typename ...Args>

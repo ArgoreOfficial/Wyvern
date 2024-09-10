@@ -21,7 +21,6 @@ wv::cRigidbody::cRigidbody( const wv::UUID& _uuid, const std::string& _name, wv:
 	m_meshPath{ "" },
 	m_pPhysicsBodyDesc{ _bodyDesc }
 {
-
 }
 
 wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) :
@@ -30,7 +29,6 @@ wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const s
 	m_meshPath{ _meshPath },
 	m_pPhysicsBodyDesc{ _bodyDesc }
 {
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +110,7 @@ void wv::cRigidbody::onLoadImpl()
 
 		wv::Parser parser;
 		m_pMeshNode = parser.load( m_meshPath.c_str(), app->m_pMaterialRegistry );
+		m_transform.addChild( &m_pMeshNode->transform );
 	}
 
 	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
@@ -120,6 +119,7 @@ void wv::cRigidbody::onLoadImpl()
 	m_pPhysicsBodyDesc->transform = m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
 #endif // WV_SUPPORT_PHYSICS
+	
 	delete m_pPhysicsBodyDesc;
 	m_pPhysicsBodyDesc = nullptr;
 }
@@ -161,14 +161,8 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 		Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;
 		m_transform.rotation = t.rotation;
-		m_transform.parent = nullptr;
 	}
-
-	if( m_pMeshNode )
-	{
-		m_pMeshNode->transform = m_transform;
-		m_pMeshNode->update();
-	}
+	
 #endif // WV_SUPPORT_PHYSICS
 }
 

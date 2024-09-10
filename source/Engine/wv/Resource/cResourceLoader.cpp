@@ -6,7 +6,7 @@
 
 #include <chrono>
 
-void threadedLoad( wv::cFileSystem* _pFileSystem, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
+void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphicsDevice, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
 {
 	wv::iResource* currentlyLoading = nullptr;
 
@@ -41,7 +41,7 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::sLoaderInformation* _loade
 		
 		case wv::WV_WORKER_WORKING:
 		{
-			currentlyLoading->load( _pFileSystem );
+			currentlyLoading->load( _pFileSystem, _pGraphicsDevice );
 			_loaderInfo->createQueueMutex.lock();
 			
 			_loaderInfo->createQueue.push( currentlyLoading );
@@ -59,14 +59,14 @@ void wv::cResourceLoader::createWorkers( int _count )
 	for ( int i = 0; i < _count; i++ )
 	{
 		sLoadWorker* worker = new sLoadWorker();
-		worker->thread = std::thread( threadedLoad, m_pFileSystem, &m_info, worker );
+		worker->thread = std::thread( threadedLoad, m_pFileSystem, m_pGraphicsDevice, &m_info, worker );
 		m_workers.push_back( worker );
 	}
 }
 
 void wv::cResourceLoader::addLoad( iResource* _resource )
 {
-	if ( _resource->isLoaded() )
+	if ( _resource->isComplete() )
 	{
 		wv::Debug::Print( Debug::WV_PRINT_WARN, "Resource %s already loaded\n", _resource->getName().c_str() );
 		return;
@@ -75,24 +75,6 @@ void wv::cResourceLoader::addLoad( iResource* _resource )
 	m_info.loadQueueMutex.lock();
 	m_info.loadQueue.push( _resource );
 	m_info.loadQueueMutex.unlock();
-}
-
-void wv::cResourceLoader::update()
-{
-	m_info.createQueueMutex.lock();
-
-	while ( !m_info.createQueue.empty() )
-	{
-		iResource* resource = m_info.createQueue.front();
-
-		if ( !resource->isCreated() )
-			resource->create( m_pGraphicsDevice );
-		else
-			wv::Debug::Print( Debug::WV_PRINT_WARN, "Resource %s already created\n", resource->getName().c_str() );
-		
-		m_info.createQueue.pop();
-	}
-	m_info.createQueueMutex.unlock();
 }
 
 bool wv::cResourceLoader::isWorking()

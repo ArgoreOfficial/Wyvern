@@ -28,10 +28,10 @@ void wv::iSceneObject::addChild( iSceneObject* _node, bool _triggerLoadAndCreate
 	for ( size_t i = 0; i < m_children.size(); i++ )
 		if ( m_children[ i ] == _node ) return; // node already has child
 	m_children.push_back( _node );
-
+	
 	_node->m_parent = this;
-	_node->m_transform.parent = &m_transform;
-
+	m_transform.addChild( &_node->m_transform );
+	
 	if( _triggerLoadAndCreate )
 	{
 		onCreate();

@@ -2,6 +2,7 @@
 
 #include <wv/Memory/FileSystem.h>
 #include <wv/Device/GraphicsDevice.h>
+#include <wv/Engine/Engine.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/Auxiliary/stb_image.h>
@@ -10,12 +11,12 @@
 #include <codecvt>
 #endif
 
-void wv::Texture::load( cFileSystem* _pFileSystem )
+void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	if ( m_name == "" ) // no file should be loaded
 	{
-		m_loaded = true;
+		setComplete( true );
 		return;
 	}
 
@@ -38,28 +39,25 @@ void wv::Texture::load( cFileSystem* _pFileSystem )
 
 	m_dataSize = m_height * m_numChannels * m_width * m_numChannels;
 	
-	iResource::load( _pFileSystem );
+
+	TextureDesc desc;
+	wv::cCommandBuffer& cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	cmdBuffer.push( WV_GPUTASK_CREATE_TEXTURE, (void**)this, &desc ); // hack
+
+	auto onCompleteCallback = []( void* _c ) { ( (iResource*)( _c ) )->setComplete( true ); };
+	cmdBuffer.callback.bind( onCompleteCallback );
+	cmdBuffer.callbacker = (void*)this;
+
+	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
+	if ( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )
+		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
+
 #else
 	printf( "wv::Texture::load unimplemented\n" );
 #endif
 }
 
-void wv::Texture::unload( cFileSystem* _pFileSystem )
+void wv::Texture::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 
-	iResource::unload( _pFileSystem );
-}
-
-void wv::Texture::create( iGraphicsDevice* _pGraphicsDevice )
-{
-
-	TextureDesc desc;
-	_pGraphicsDevice->createTexture( this, &desc );
-
-	iResource::create( _pGraphicsDevice );
-}
-
-void wv::Texture::destroy( iGraphicsDevice* _pGraphicsDevice )
-{
-	iResource::destroy( _pGraphicsDevice );
 }

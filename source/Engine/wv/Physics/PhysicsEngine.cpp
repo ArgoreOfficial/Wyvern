@@ -179,10 +179,8 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	// physics update
-	float frameTime = _deltaTime;
-	if( frameTime > 0.016f )
-		frameTime = 0.016f;
-
+	float frameTime = wv::Math::min( _deltaTime, 0.05 );
+	
 	// Next step
 	m_steps++;
 
@@ -196,7 +194,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	}
 
 	if( collisionSteps > 0 )
-		m_pPhysicsSystem->Update( m_timestep * (float)collisionSteps, collisionSteps, m_pTempAllocator, m_pJobSystem );
+		m_pPhysicsSystem->Update( frameTime, collisionSteps, m_pTempAllocator, m_pJobSystem );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -255,7 +253,6 @@ wv::hPhysicsBody wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _de
 	wv::Handle  handle = 0;
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-	m_pBodyInterface->SetAngularVelocity( id, { 4.0f, 0.0f, 0.0f } );
 	
 	// setup constraint
 	/*

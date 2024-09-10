@@ -22,12 +22,6 @@ namespace wv
 	typedef uint32_t Handle;
 	typedef uint64_t UUID;
 
-	struct sPlatformData
-	{
-		uint32_t type;
-		void* pData = nullptr;
-	};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	enum DataType

@@ -1,7 +1,9 @@
 #pragma once
-#include <wv/Math/Vector3.h>
 
+#include <wv/Math/Vector3.h>
 #include <wv/Math/Matrix.h>
+
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,39 +27,24 @@ namespace wv
 		
 		inline cMatrix<T, 4, 4> getMatrix() { return m_matrix; }
 
-		void update()
-		{
-			cMatrix<T, 4, 4> model{ 1 };
-				
-			model = Matrix::translate( model, position );
+		void addChild( Transform<T>* _child );
+		void removeChild( Transform<T>* _child );
 
-			model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
-			model = Matrix::rotateY( model, Math::radians( rotation.y ) );
-			model = Matrix::rotateX( model, Math::radians( rotation.x ) );
-				
-			model = Matrix::scale( model, scale );
+		void update  ( Transform<T>* _parent );
 
-			if ( parent != nullptr )
-				model = model * parent->getMatrix();
-
-			m_matrix = model;
-		}
-
-		inline cVector3<T> forward()
-		{
-			return rotation.eulerToDirection();
-		}
+		inline cVector3<T> forward() { return rotation.eulerToDirection(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		Transform<T>* parent = nullptr;
 		cVector3<T> position{ 0, 0, 0 };
 		cVector3<T> rotation{ 0, 0, 0 };
 		cVector3<T> scale   { 1, 1, 1 };
 
+
 	private:
 
 		cMatrix<T, 4, 4> m_matrix{ 1 };
+		std::vector<Transform<T>*> m_children;
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -65,5 +52,59 @@ namespace wv
 	typedef Transform<float>  Transformf;
 	typedef Transform<double> Transformd;
 	typedef Transform<int>    Transformi;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	template<typename T>
+	inline void Transform<T>::addChild( Transform<T>* _child )
+	{
+		if( _child == nullptr )
+			return;
+
+		for( auto& child : m_children ) // if child is already added
+			if( child == _child ) 
+				return;
+		
+		m_children.push_back( _child );
+	}
+
+	template<typename T>
+	inline void Transform<T>::removeChild( Transform<T>* _child )
+	{
+		if( _child == nullptr )
+			return;
+
+		for( size_t i = 0; i++; i < m_children.size() )
+		{
+			if( m_children[ i ] != _child )
+				continue;
+
+			m_children.erase( m_children.begin() + i );
+			return;
+		}
+	}
+
+	template<typename T>
+	inline void Transform<T>::update( Transform<T>* _parent )
+	{
+		cMatrix<T, 4, 4> model{ 1 };
+
+		model = Matrix::translate( model, position );
+
+		
+		model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
+		model = Matrix::rotateY( model, Math::radians( rotation.y ) );
+		model = Matrix::rotateX( model, Math::radians( rotation.x ) );
+
+		model = Matrix::scale( model, scale );
+
+		if( _parent != nullptr )
+			model = model * _parent->getMatrix();
+
+		m_matrix = model;
+
+		for( auto& child : m_children )
+			child->update( this );
+	}
 
 }

@@ -3,10 +3,10 @@
 #include <wv/Memory/FileSystem.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
-
+#include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 
-void wv::cProgramPipeline::load( cFileSystem* _pFileSystem )
+void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -23,22 +23,20 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem )
 	m_vsSource.data = _pFileSystem->loadMemory( basepath + m_name + "_vs" + ext );
 	m_fsSource.data = _pFileSystem->loadMemory( basepath + m_name + "_fs" + ext );
 
-	iResource::load( _pFileSystem );
-}
 
-void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem )
-{
-	iResource::unload( _pFileSystem );
-}
 
-void wv::cProgramPipeline::create( iGraphicsDevice* _pGraphicsDevice )
-{
-	sShaderProgram* vs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_VERTEX,   &m_vsSource );
-	sShaderProgram* fs = _pGraphicsDevice->createProgram( WV_SHADER_TYPE_FRAGMENT, &m_fsSource );
+	sShaderProgramDesc vsDesc;
+	vsDesc.source = m_vsSource;
+	vsDesc.type = WV_SHADER_TYPE_VERTEX;
+
+	sShaderProgramDesc fsDesc;
+	fsDesc.source = m_fsSource;
+	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
 	sPipelineDesc desc;
 	desc.name = m_name;
-	
+
+	/// TODO: generalize 
 	wv::sVertexAttribute attributes[] = {
 			{ "aPosition",  3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
 			{ "aNormal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
@@ -50,18 +48,30 @@ void wv::cProgramPipeline::create( iGraphicsDevice* _pGraphicsDevice )
 	layout.elements = attributes;
 	layout.numElements = 5;
 
-	desc.pVertexLayout = &layout;
-	desc.pVertexProgram = vs;
-	desc.pFragmentProgram = fs;
-	
-	m_pPipeline = _pGraphicsDevice->createPipeline( &desc );
-	
-	iResource::create( _pGraphicsDevice );
+	desc.pVertexLayout    = &layout;
+	desc.pVertexProgram   = &m_vs;
+	desc.pFragmentProgram = &m_fs;
+
+	wv::cCommandBuffer& cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+
+	cmdBuffer.push( WV_GPUTASK_CREATE_PROGRAM, &m_vs, &vsDesc );
+	cmdBuffer.push( WV_GPUTASK_CREATE_PROGRAM, &m_fs, &fsDesc );
+	cmdBuffer.push( WV_GPUTASK_CREATE_PIPELINE, &m_pPipeline, &desc );
+
+	// probably a better way to handle this but can't think of one right now
+	auto onCompleteCallback = []( void* _c ) { ( (iResource*)( _c ) )->setComplete( true ); };
+	cmdBuffer.callback.bind( onCompleteCallback );
+	cmdBuffer.callbacker = (void*)this;
+
+	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
+
+	if ( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )
+		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
 }
 
-void wv::cProgramPipeline::destroy( iGraphicsDevice* _pGraphicsDevice )
+void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
-	iResource::destroy( _pGraphicsDevice );
+	
 }
 
 void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
@@ -69,7 +79,7 @@ void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
 	_pGraphicsDevice->bindPipeline( m_pPipeline );
 }
 
-wv::sGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
+wv::cGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
 {
 	if ( m_pPipeline->pVertexProgram )
 	{

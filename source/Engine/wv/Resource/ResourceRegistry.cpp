@@ -54,8 +54,7 @@ void wv::iResourceRegistry::addResource( iResource* _resource )
 
 void wv::iResourceRegistry::update()
 {
-	//if ( m_resourceLoader.isWorking() )
-		m_resourceLoader.update();
+
 }
 
 void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )

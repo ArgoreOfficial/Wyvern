@@ -49,7 +49,6 @@ namespace wv
 
 		void addLoad( iResource* _resource );
 		
-		void update();
 		bool isWorking();
 
 	private:

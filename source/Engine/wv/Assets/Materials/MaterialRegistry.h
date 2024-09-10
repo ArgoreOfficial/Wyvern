@@ -17,7 +17,7 @@ namespace wv
 			// loadBaseMaterials();
 		}
 
-		cMaterial* loadMaterial( std::string _name );
+		cMaterial* loadMaterial( const std::string& _name );
 
 	private:
 

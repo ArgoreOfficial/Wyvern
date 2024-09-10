@@ -14,14 +14,14 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Mesh;
+	class sMesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct Memory
 	{
-		uint8_t* data{ nullptr };
-		unsigned int size{ 0 };
+		uint8_t* data = nullptr;
+		unsigned int size = 0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,8 @@ namespace wv
 
 		void addDirectory( const std::wstring& _dir ) { m_directories.push_back( _dir ); }
 
+		// why does this return a heap allocated pointer?
+		// Memory.data is already heap allocated
 		Memory* loadMemory( const std::string& _path );
 		void unloadMemory( Memory* _memory );
 

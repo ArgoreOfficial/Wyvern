@@ -18,7 +18,7 @@ namespace wv
 
 	class iIntermediateRenderTargetHandler;
 
-	class Mesh;
+	class sMesh;
 	class ICamera;
 	class RenderTarget;
 	class cFileSystem;
@@ -100,7 +100,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		Mesh*             m_screenQuad      = nullptr;
+		sMesh*             m_screenQuad      = nullptr;
 		cProgramPipeline* m_deferredPipeline = nullptr;
 		RenderTarget*     m_gbuffer         = nullptr;
 
