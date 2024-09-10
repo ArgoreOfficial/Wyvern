@@ -496,10 +496,17 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	// GLenum bufferEnum = getGlBufferEnum( _buffer->type );
-	GLenum usage      = getGlBufferUsage( _buffer->usage );
+	if( _data == nullptr || _buffer->size != _size ) // (re)alloc and copy
+	{
+		GLenum usage      = getGlBufferUsage( _buffer->usage );
+		_buffer->size = _size;
+		glNamedBufferData( _buffer->handle, _size, _data, usage );
+	}
+	else // just copy
+	{
+		glNamedBufferSubData( _buffer->handle, 0, _size, _data );
+	}
 
-	glNamedBufferData( _buffer->handle, _size, _data, usage );
 	assertGLError( "Failed to buffer data\n" );
 #endif
 }
@@ -563,10 +570,9 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	primitive->vertexBuffer->count = count;
-	primitive->vertexBuffer->size  = _desc->sizeVertices;
 	
 	glBindBuffer( GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
-	bufferData( primitive->vertexBuffer, _desc->vertices, primitive->vertexBuffer->size );
+	bufferData( primitive->vertexBuffer, _desc->vertices, _desc->sizeVertices );
 
 	if ( _desc->numIndices > 0 )
 	{
@@ -578,15 +584,9 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
 		
 		if( _desc->indices16 )
-		{
-			primitive->indexBuffer->size  = _desc->numIndices * sizeof( uint16_t );
-			bufferData( primitive->indexBuffer, _desc->indices16, primitive->indexBuffer->size );
-		}
+			bufferData( primitive->indexBuffer, _desc->indices16, _desc->numIndices * sizeof( uint16_t ) );
 		else if( _desc->indices32 )
-		{
-			primitive->indexBuffer->size  = _desc->numIndices * sizeof( uint32_t );
-			bufferData( primitive->indexBuffer, _desc->indices32, primitive->indexBuffer->size );
-		}
+			bufferData( primitive->indexBuffer, _desc->indices32, _desc->numIndices * sizeof( uint32_t ) );
 	}
 	else
 	{
