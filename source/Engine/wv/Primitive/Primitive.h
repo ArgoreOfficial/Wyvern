@@ -93,7 +93,7 @@ namespace wv
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 
-		PlatformData pPlatformData;
+		sPlatformData pPlatformData;
 	};
 
 }

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <wv/Resource/Resource.h>
-#include <wv/Shader/UniformBlock.h>
+#include <wv/Graphics/Uniform.h>
+#include <wv/Graphics/GPUBuffer.h>
 
 #include <vector>
 
@@ -32,10 +33,10 @@ namespace wv
 		eShaderProgramType type;
 		sShaderProgramSource source;
 
-		std::vector<cShaderBuffer*> shaderBuffers;
+		std::vector<sGPUBuffer*> shaderBuffers;
 		std::vector<sUniform> textureUniforms;
 
-		PlatformData pPlatformData;
+		sPlatformData pPlatformData;
 	};
 
 }

@@ -3,7 +3,7 @@
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
-#include <wv/Shader/UniformBlock.h>
+#include <wv/Graphics/Uniform.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>

@@ -32,8 +32,8 @@ bool cSandbox::create( void )
 	engineDesc.windowWidth  = wv::PSVita::DISPLAY_WIDTH;
 	engineDesc.windowHeight = wv::PSVita::DISPLAY_HEIGHT;
 #else
-	engineDesc.windowWidth = 640 * 2;
-	engineDesc.windowHeight = 480 * 2;
+	engineDesc.windowWidth  = 1280;
+	engineDesc.windowHeight = 960;
 	engineDesc.showDebugConsole = true;
 #endif
 

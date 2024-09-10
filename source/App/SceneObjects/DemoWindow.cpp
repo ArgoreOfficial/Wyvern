@@ -39,7 +39,7 @@ void cDemoWindow::spawnBalls( int _count )
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
 
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "ball", "res/meshes/debug-sphere.dae", sphereDesc );
+		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "ball", "res/meshes/sphere", sphereDesc );
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}

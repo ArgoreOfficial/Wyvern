@@ -20,7 +20,6 @@ namespace wv
 	struct PipelineDesc;
 	struct PrimitiveDesc;
 	struct TextureDesc;
-	struct sShaderBufferDesc;
 	struct RenderTargetDesc;
 	struct MeshDesc;
 	
@@ -78,7 +77,7 @@ namespace wv
 		virtual void destroyPipeline( sPipeline* _program ) = 0;
 		virtual void bindPipeline   ( sPipeline* _program ) = 0;
 
-		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) = 0;
+		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage ) = 0;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) = 0;
 		virtual void destroyGPUBuffer( sGPUBuffer* _buffer ) = 0;
 		

@@ -15,6 +15,16 @@
 namespace wv
 {
 
+#ifdef WV_SUPPORT_OPENGL
+
+	struct sOpenGLUniformBufferData
+	{
+		wv::Handle blockIndex = 0;
+		wv::Handle bindingIndex = 0;
+	};
+
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cOpenGLGraphicsDevice : public iGraphicsDevice
@@ -43,7 +53,7 @@ namespace wv
 		virtual void destroyPipeline( sPipeline* _pipeline ) override;
 		virtual void bindPipeline( sPipeline* _pipeline ) override;
 
-		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type ) override;
+		virtual sGPUBuffer* createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage ) override;
 		virtual void bufferData( sGPUBuffer* _buffer, void* _data, size_t _size ) override;
 		virtual void destroyGPUBuffer( sGPUBuffer* _buffer ) override;
 		
@@ -69,8 +79,6 @@ namespace wv
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
-
-		wv::cShaderBuffer* createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc );
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;

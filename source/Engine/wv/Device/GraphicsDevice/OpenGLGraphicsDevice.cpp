@@ -39,8 +39,20 @@ static inline GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 {
 	switch ( _type )
 	{
-	case wv::WV_BUFFER_TYPE_VERTEX: return GL_ARRAY_BUFFER;         break;
-	case wv::WV_BUFFER_TYPE_INDEX:  return GL_ELEMENT_ARRAY_BUFFER; break;
+	case wv::WV_BUFFER_TYPE_VERTEX:  return GL_ARRAY_BUFFER;         break;
+	case wv::WV_BUFFER_TYPE_INDEX:   return GL_ELEMENT_ARRAY_BUFFER; break;
+	case wv::WV_BUFFER_TYPE_UNIFORM: return GL_UNIFORM_BUFFER;       break;
+	}
+
+	return GL_NONE;
+}
+
+static inline GLenum getGlBufferUsage( wv::eGPUBufferUsage _usage )
+{
+	switch( _usage )
+	{
+	case wv::WV_BUFFER_USAGE_STATIC_DRAW:  return GL_STATIC_DRAW; break;
+	case wv::WV_BUFFER_USAGE_DYNAMIC_DRAW: return GL_DYNAMIC_DRAW; break;
 	}
 
 	return GL_NONE;
@@ -345,32 +357,43 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( eShaderProgramType
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
 		glGetProgramResourceName( program->handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
 
-		glUniformBlockBinding( program->handle, i, m_numTotalUniformBlocks );
+		// create uniform buffer
+
+		sOpenGLUniformBufferData* pUBData = new sOpenGLUniformBufferData();
+		sGPUBuffer* buf = createGPUBuffer( WV_BUFFER_TYPE_UNIFORM, WV_BUFFER_USAGE_DYNAMIC_DRAW );
+		buf->usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+		buf->name = name;
+		buf->pPlatformData.pData = pUBData;
+
+		pUBData->bindingIndex = m_numTotalUniformBlocks;
+
+		pUBData->blockIndex = glGetUniformBlockIndex( program->handle, name.c_str() );;
+		glGetActiveUniformBlockiv( program->handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf->size );
+
+		buf->pData = new char[ buf->size ];
+		memset( buf->pData, 0, buf->size );
+
+		glBindBuffer( GL_UNIFORM_BUFFER, buf->handle );
+		//glBufferData( GL_UNIFORM_BUFFER, buf->size, 0, GL_DYNAMIC_DRAW );
+		bufferData( buf, 0, buf->size );
+
+		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf->handle );
+
+		glUniformBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
+
 		m_numTotalUniformBlocks++;
-
-		sShaderBufferDesc desc;
-		desc.name = name;
-
-		cShaderBuffer* buf = createUniformBlock( program, &desc );
+		
 		program->shaderBuffers.push_back( buf );
-
-		Debug::Print( Debug::WV_PRINT_DEBUG, "    - ShaderBuffer: %s\n", name.c_str() );
+		Debug::Print( Debug::WV_PRINT_DEBUG, "    - Uniform Buffer: %s\n", name.c_str() );
 		// glShaderStorageBlockBinding(Handle, i, newBindingPoint);
 	}
-
-	/// TODO: move? I don't like having these vectors in linkProgram()
-	//for( int i = 0; i < ( int )_uniformBlocks.size(); i++ )
-	//{
-	//	cShaderBuffer block = createUniformBlock( program, &_uniformBlocks[ i ] );
-	//	_program->addUniformBlock( _uniformBlocks[ i ].name, block );
-	//}
 
 	// required for OpenGL < 4.2
 	// could probably be skipped for OpenGL >= 4.2 but would require layout(binding=i) in the shader source
 	//for( int i = 0; i < ( int )_textureUniforms.size(); i++ )
 	//{
 	//	unsigned int loc = glGetUniformLocation( programHandle, _textureUniforms[ i ].name.c_str() );
-	//	WV_ASSERT_GL( glUniform1i, loc, _textureUniforms[ i ].index );
+	//	WV_ASSERT_GL( glUniform1i, loc, _textureUniforms[ i ].blockIndex );
 	//#ifdef WV_DEBUG
 	//	assertGLError( "Failed to bind texture loc\n" );
 	//#endif
@@ -449,13 +472,14 @@ void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _pipeline )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type )
+wv::sGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( eGPUBufferType _type, eGPUBufferUsage _usage )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer* buffer = new sGPUBuffer();
 	buffer->type = _type;
+	buffer->usage = _usage;
 
 	glGenBuffers( 1, &buffer->handle );
 
@@ -472,14 +496,10 @@ void wv::cOpenGLGraphicsDevice::bufferData( sGPUBuffer* _buffer, void* _data, si
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	/// TODO: more draw types
-	//GLenum usage = GL_NONE;
-	//switch ( _desc->type )
-	//{
-	//case wv::WV_PRIMITIVE_TYPE_STATIC: usage = GL_STATIC_DRAW; break;
-	//}
+	// GLenum bufferEnum = getGlBufferEnum( _buffer->type );
+	GLenum usage      = getGlBufferUsage( _buffer->usage );
 
-	glBufferData( getGlBufferEnum( _buffer->type ), _size, _data, GL_STATIC_DRAW ) ;
+	glNamedBufferData( _buffer->handle, _size, _data, usage );
 	assertGLError( "Failed to buffer data\n" );
 #endif
 }
@@ -538,23 +558,23 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc,
 	glGenVertexArrays( 1, &primitive->vaoHandle );
 	glBindVertexArray( primitive->vaoHandle );
 
-	primitive->vertexBuffer = createGPUBuffer( WV_BUFFER_TYPE_VERTEX );
-	glBindBuffer( GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
+	primitive->vertexBuffer = createGPUBuffer( WV_BUFFER_TYPE_VERTEX, WV_BUFFER_USAGE_STATIC_DRAW );
 
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	primitive->vertexBuffer->count = count;
 	primitive->vertexBuffer->size  = _desc->sizeVertices;
 	
+	glBindBuffer( GL_ARRAY_BUFFER, primitive->vertexBuffer->handle );
 	bufferData( primitive->vertexBuffer, _desc->vertices, primitive->vertexBuffer->size );
 
 	if ( _desc->numIndices > 0 )
 	{
-		// create element buffer object
-		primitive->indexBuffer = createGPUBuffer( WV_BUFFER_TYPE_INDEX );
 		primitive->drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
-		
+
+		primitive->indexBuffer = createGPUBuffer( WV_BUFFER_TYPE_INDEX, WV_BUFFER_USAGE_STATIC_DRAW );
 		primitive->indexBuffer->count = _desc->numIndices;
+		
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, primitive->indexBuffer->handle );
 		
 		if( _desc->indices16 )
@@ -789,18 +809,16 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 #ifdef WV_SUPPORT_OPENGL
 	glBindVertexArray( _primitive->vaoHandle );
 	
-	std::vector<cShaderBuffer*>& shaderBuffers = m_activePipeline->pVertexProgram->shaderBuffers;
+	std::vector<sGPUBuffer*>& shaderBuffers = m_activePipeline->pVertexProgram->shaderBuffers;
 
 	for ( auto& buf : shaderBuffers )
 	{
-		glUniformBlockBinding( m_activePipeline->pVertexProgram->handle, buf->m_index, buf->m_bindingIndex);
-
-		if( m_boundUniformBuffer != buf->m_bufferHandle )
+		if( m_boundUniformBuffer != buf->handle )
 		{
-			glBindBuffer( GL_UNIFORM_BUFFER, buf->m_bufferHandle );
-			m_boundUniformBuffer = buf->m_bufferHandle;
+			glBindBuffer( GL_UNIFORM_BUFFER, buf->handle );
+			m_boundUniformBuffer = buf->handle;
 		}
-		glBufferData( GL_UNIFORM_BUFFER, buf->m_bufferSize, buf->m_buffer, GL_DYNAMIC_DRAW );
+		glBufferData( GL_UNIFORM_BUFFER, buf->size, buf->pData, GL_DYNAMIC_DRAW );
 	}
 	
 	/// TODO: change GL_TRIANGLES
@@ -856,39 +874,3 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 	return false;
 #endif
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::cShaderBuffer* wv::cOpenGLGraphicsDevice::createUniformBlock( sShaderProgram* _program, sShaderBufferDesc* _desc )
-{
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
-	cShaderBuffer* sb = new cShaderBuffer();
-	Handle programHandle = _program->handle;
-
-	sb->m_bindingIndex = m_numTotalUniformBlocks;
-	sb->name = _desc->name;
-
-	sb->m_index = glGetUniformBlockIndex( programHandle, _desc->name.c_str() );;
-	glGetActiveUniformBlockiv( programHandle, sb->m_index, GL_UNIFORM_BLOCK_DATA_SIZE, &sb->m_bufferSize );
-
-	sb->m_buffer = new char[ sb->m_bufferSize ];
-	memset( sb->m_buffer, 0, sb->m_bufferSize );
-	
-	glGenBuffers( 1, &sb->m_bufferHandle );
-	glBindBuffer( GL_UNIFORM_BUFFER, sb->m_bufferHandle );
-	glBufferData( GL_UNIFORM_BUFFER, sb->m_bufferSize, 0, GL_DYNAMIC_DRAW );
-	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
-	
-	glBindBufferBase( GL_UNIFORM_BUFFER, sb->m_bindingIndex, sb->m_bufferHandle );
-
-	m_numTotalUniformBlocks++;
-
-	return sb;
-#else
-	return nullptr;
-#endif
-}
-
-

@@ -69,7 +69,7 @@ void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
 	_pGraphicsDevice->bindPipeline( m_pPipeline );
 }
 
-wv::cShaderBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
+wv::sGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
 {
 	if ( m_pPipeline->pVertexProgram )
 	{

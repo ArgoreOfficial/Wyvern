@@ -70,7 +70,7 @@ void wv::cMaterial::setDefaultMeshUniforms( Mesh* _mesh )
 
 #elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
-	wv::cShaderBuffer& instanceBlock = *m_program->getShaderBuffer( "UbInstanceData" );
+	wv::sGPUBuffer& instanceBlock = *m_program->getShaderBuffer( "UbInstanceData" );
 	instanceBlock.buffer( &m_UbInstanceData );
 	
 	// bind textures

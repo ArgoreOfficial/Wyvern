@@ -42,7 +42,7 @@ namespace wv
 		sShaderProgram* pVertexProgram;
 		sShaderProgram* pFragmentProgram;
 
-		PlatformData pPlatformData;
+		sPlatformData pPlatformData;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ namespace wv
 
 		void use( iGraphicsDevice* _pGraphicsDevice );
 
-		cShaderBuffer* getShaderBuffer( const std::string& _name );
+		sGPUBuffer* getShaderBuffer( const std::string& _name );
 
 		sShaderProgramSource m_fsSource;
 		sShaderProgramSource m_vsSource;
