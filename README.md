@@ -4,12 +4,13 @@
 |                | SDL2 | GLFW | OpenGL | GLES |
 | :-----------:  | :-: | :-: | :-: | :-: |
 | **Windows**    | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Emscripten** | ✔️ | ❌ | ❌ | ✔️ |
+| **Emscripten**** | ✔️ | ❌ | ❌ | ✔️ |
 | **Linux**      | ❔ | ❔ | ❔ | ❔ |
 | **macOS**      | ❔ | ❔ | ❔ | ❔ |
 | **Consoles***  | ❌ | ❌ | ❌ | ❌ |
 
-<sup>*work in progress</sup>
+<sup>*work in progress</sup>  
+<sup>**haven't tested in a while :)</sup>
 
 ## Features
 todo :(
