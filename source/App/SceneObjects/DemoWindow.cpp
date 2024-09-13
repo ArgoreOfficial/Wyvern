@@ -59,6 +59,7 @@ void cDemoWindow::spawnCubes( int _count )
 
 		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "", boxDesc );
 		sceneRoot->addChild( rb );
+		rb->m_transform.position.y = 50.0f;
 		m_numSpawned++;
 	}
 	sceneRoot->onCreate();

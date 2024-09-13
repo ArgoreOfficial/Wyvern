@@ -102,7 +102,10 @@ void wv::cModelObject::onUnloadImpl()
 void wv::cModelObject::updateImpl( double _deltaTime )
 {
 	if( m_mesh )
+	{
 		m_mesh->transform = m_transform;
+		m_mesh->update();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

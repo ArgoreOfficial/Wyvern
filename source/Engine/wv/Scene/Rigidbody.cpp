@@ -163,6 +163,12 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 		m_transform.rotation = t.rotation;
 		m_transform.parent = nullptr;
 	}
+
+	if( m_pMeshNode )
+	{
+		m_pMeshNode->transform = m_transform;
+		m_pMeshNode->update();
+	}
 #endif // WV_SUPPORT_PHYSICS
 }
 
@@ -171,8 +177,5 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
 {
 	if( m_pMeshNode )
-	{
-		m_pMeshNode->transform = m_transform;
 		_device->drawNode( m_pMeshNode );
-	}
 }

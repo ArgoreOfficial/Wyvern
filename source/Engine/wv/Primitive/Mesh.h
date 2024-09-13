@@ -39,5 +39,16 @@ namespace wv
 		Transformf transform;
 		std::vector<Mesh*>      meshes;
 		std::vector<sMeshNode*> children;
+
+		void update()
+		{
+			transform.update();
+
+			for( auto& mesh : meshes )
+				mesh->transform.update();
+			
+			for( auto& child : children )
+				child->update();
+		}
 	};
 }
