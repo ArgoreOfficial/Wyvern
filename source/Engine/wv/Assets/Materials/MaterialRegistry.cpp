@@ -90,6 +90,7 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 
 void wv::cMaterialRegistry::loadBaseMaterials()
 {
-	loadMaterial( "phong" );
-	loadMaterial( "sky" );
+	loadMaterial( "DefaultMaterial" );
+	loadMaterial( "DebugTextureMaterial" );
+	loadMaterial( "SkyMaterial" );
 }

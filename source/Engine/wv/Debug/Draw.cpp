@@ -15,7 +15,7 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 #endif
 	wv::Parser parser;
 
-	DEBUG_MATERIAL = _pMaterialRegistry->loadMaterial( "debug" );
+	DEBUG_MATERIAL = _pMaterialRegistry->loadMaterial( "DebugMaterial" );
 
 	CUBE_MESH = parser.load( "res/meshes/cube", _pMaterialRegistry );
 	if( CUBE_MESH )

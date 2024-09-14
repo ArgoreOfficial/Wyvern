@@ -61,7 +61,7 @@ void wv::cSkyboxObject::onLoadImpl()
 	m_skyboxMesh = parser.load( "res/meshes/skysphere", app->m_pMaterialRegistry );
 	m_transform.addChild( &m_skyboxMesh->transform );
 
-	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "sky" );
+	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "SkyMaterial" );
 	
 #ifdef WV_SUPPORT_OPENGL // temporary
 	// bad

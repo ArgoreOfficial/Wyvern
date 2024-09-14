@@ -1,0 +1,9 @@
+{
+  "shader": "phong",
+  "textures": [
+    {
+      "name": "u_Albedo",
+      "texture": "default_notex.png"
+    }
+  ]
+}

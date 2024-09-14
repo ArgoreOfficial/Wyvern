@@ -134,21 +134,21 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 		
-		wv::cFileSystem md;
-		std::string matPath = assimpMaterial->GetName().C_Str();
+		wv::cFileSystem& md = *wv::cEngine::get()->m_pFileSystem;
+
+		std::string materialName = assimpMaterial->GetName().C_Str();
 		wv::cMaterial* material = nullptr;
 
-		/*
-		if( md.fileExists( matPath ) ) 
+		if ( materialName == "" )  // fallback to DefaultMaterial
+			materialName = "DefaultMaterial";
+		
+		if ( md.getFullPath( materialName + ".wmat" ) == L"" )
 		{
-			material = _pMaterialRegistry->loadMaterial( assimpMaterial->GetName().C_Str() );
+			materialName = "DefaultMaterial";
+			// create new material file
 		}
-		else
-		{
-			material = _pMaterialRegistry->loadMaterial( "phong" );
-		}
-		*/
-		material = _pMaterialRegistry->loadMaterial( "phong" );
+		
+		material = _pMaterialRegistry->loadMaterial( materialName );
 		
 		primitive->material = material;
 	}
@@ -160,8 +160,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 
 void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::iGraphicsDevice* _pGraphicsDevice, wv::cMaterialRegistry* _pMaterialRegistry )
 {
-	// std::string dir = _mesh->path.substr( 0, _mesh->path.find_last_of( '/' ) );
-	
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
 

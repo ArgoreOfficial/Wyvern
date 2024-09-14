@@ -1,9 +1,9 @@
 {
-  "shader": "phong",
+  "shader": "unlit",
   "textures": [
     {
       "name": "u_Albedo",
-      "texture": "uv.png"
+      "texture": "default_debug.png"
     }
   ]
 }
