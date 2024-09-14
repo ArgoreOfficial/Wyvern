@@ -1,5 +1,5 @@
 {
-  "shader": "phong",
+  "shader": "basic",
   "textures": [
     {
       "name": "u_Albedo",
