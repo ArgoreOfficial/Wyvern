@@ -4,9 +4,8 @@
 #include <glad/glad.h>
 #endif
 
-#include <wv/Assets/Materials/Material.h>
-#include <wv/Assets/Materials/MaterialRegistry.h>
-#include <wv/Assets/Texture.h>
+#include <wv/Material/Material.h>
+#include <wv/Texture/Texture.h>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
@@ -20,8 +19,10 @@
 
 #include <wv/Physics/PhysicsEngine.h>
 #include <wv/Primitive/Mesh.h>
+
 #include <wv/RenderTarget/RenderTarget.h>
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
+#include <wv/Resource/ResourceRegistry.h>
 
 #include <wv/Engine/EngineReflect.h>
 
@@ -72,11 +73,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		return;
 	}
 
+	s_pInstance = this;
+
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
-
-	m_pFileSystem       = _desc->systems.pFileSystem;
-	m_pMaterialRegistry = new cMaterialRegistry( m_pFileSystem, graphics );
 
 	m_pIRTHandler = _desc->pIRTHandler;
 	
@@ -88,20 +88,23 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pScreenRenderTarget->height = _desc->windowHeight;
 	m_pScreenRenderTarget->fbHandle = 0;
 	
-
 	m_pApplicationState = _desc->pApplicationState;
 
 	/// TODO: move to descriptor
 	m_pPhysicsEngine = new cJoltPhysicsEngine();
 	m_pPhysicsEngine->init();
 	
+
+	m_pFileSystem = _desc->systems.pFileSystem;
+	m_pResourceRegistry = new cResourceRegistry( m_pFileSystem, graphics );
+	m_pResourceRegistry->initializeEmbeded();
+
+	graphics->initEmbeds();
+
 	/* 
 	 * create deferred rendering objects
 	 * this should be configurable
 	 */
-
-	s_pInstance = this;
-
 
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
@@ -122,7 +125,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Debug Draw\n" );
-	Debug::Draw::Internal::initDebugDraw( graphics, m_pMaterialRegistry );
+	Debug::Draw::Internal::initDebugDraw( graphics, m_pResourceRegistry );
 
 	Debug::Print( "Created Engine\n" );
 }
@@ -245,6 +248,7 @@ void wv::cEngine::run()
 	
 	m_pApplicationState->onCreate();
 	m_pApplicationState->switchToScene( 0 ); // default scene
+
 	// while m_applicationState->isLoading() { doloadingstuff }
 	
 #ifdef EMSCRIPTEN
@@ -334,8 +338,6 @@ void wv::cEngine::tick()
 
 	// update modules
 
-	m_pMaterialRegistry->update();
-
 	m_pApplicationState->update( dt );
 	
 	currentCamera->update( dt );
@@ -371,7 +373,8 @@ void wv::cEngine::tick()
 #endif // WV_SUPPORT_IMGUI
 	
 	m_pApplicationState->draw( context, graphics );
-	
+	m_pResourceRegistry->drawMeshInstances();
+
 #ifdef WV_DEBUG
 	Debug::Draw::Internal::drawDebug( graphics );
 #endif
@@ -509,7 +512,7 @@ void wv::cEngine::createScreenQuad()
 	wv::PrimitiveDesc prDesc;
 	{
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
-		prDesc.layout = &layout;
+		prDesc.layout = layout;
 
 		prDesc.vertices  = vertices.data();
 		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
@@ -518,8 +521,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.numIndices = indices.size();
 	}
 
-	MeshDesc meshDesc;
-	m_screenQuad = graphics->createMesh( &meshDesc );
+	m_screenQuad = graphics->createMesh();
 	m_screenQuad->primitives.push_back( graphics->createPrimitive( &prDesc ) );
 	
 	if( m_screenQuad )

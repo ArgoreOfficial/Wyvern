@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <wv/Reflection/Reflection.h>
+#include <wv/Primitive/Mesh.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
-		sMeshNode* m_pMeshNode  = nullptr;
+		sMeshInstance m_mesh;
 
 	};
 }

@@ -64,7 +64,7 @@ namespace wv
 	struct PrimitiveDesc
 	{
 		PrimitiveBufferMode type   = WV_PRIMITIVE_TYPE_STATIC;
-		sVertexLayout*      layout = nullptr;
+		sVertexLayout       layout;
 
 		void*    vertices     = nullptr;
 		uint32_t sizeVertices = 0;
@@ -72,6 +72,8 @@ namespace wv
 		uint16_t* indices16  = nullptr;
 		uint32_t* indices32  = nullptr;
 		uint32_t  numIndices = 0;
+
+		cMaterial* pMaterial = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

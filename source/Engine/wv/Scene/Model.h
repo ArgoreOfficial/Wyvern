@@ -3,6 +3,7 @@
 #include "SceneObject.h"
 
 #include <wv/Reflection/Reflection.h>
+#include <wv/Primitive/Mesh.h>
 
 #include <string>
 #include <vector>
@@ -14,8 +15,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class sMesh;
-	struct sMeshNode;
+	class cMeshResource;
 
 	class cMaterial;
 
@@ -26,7 +26,6 @@ namespace wv
 
 	public:
 
-		 cModelObject( const UUID& _uuid, const std::string& _name, sMeshNode* _meshNode );
 		 cModelObject( const UUID& _uuid, const std::string& _name, const std::string& _meshPath );
 		~cModelObject();
 		
@@ -45,7 +44,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
-		sMeshNode* m_mesh = nullptr;
+		sMeshInstance m_mesh;
 		std::string m_meshPath = "";
 	};
 }

@@ -15,7 +15,7 @@ namespace wv
 	struct sMeshNode;
 	class cMaterial;
 	class iGraphicsDevice;
-	class cMaterialRegistry;
+	class cResourceRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ namespace wv
 				static std::vector<Sphere> spheres;
 				static std::vector<Transformf> cubes;
 
-				void initDebugDraw( iGraphicsDevice* _pGraphicsDevice, cMaterialRegistry* _pMaterialRegistry );
+				void initDebugDraw( iGraphicsDevice* _pGraphicsDevice, cResourceRegistry* _pResourceRegistry );
 				void deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice );
 				void drawDebug( iGraphicsDevice* _pGraphicsDevice );
 			}

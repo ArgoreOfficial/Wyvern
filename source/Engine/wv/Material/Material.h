@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include <wv/Assets/Materials/MaterialVariable.h>
+#include <wv/Material/MaterialVariable.h>
 #include <wv/Math/Matrix.h>
 #include <wv/Resource/Resource.h>
 
@@ -35,15 +35,8 @@ namespace wv
 
 	public:
 
-		cMaterial( std::string _name, cProgramPipeline* _pPipeline ) :
-			iResource( _name, L"" ),
-			m_pPipeline( _pPipeline )
-		{ }
-
-		cMaterial( std::string _name, cProgramPipeline* _pPipeline, std::vector<sMaterialVariable> _variables ) :
-			iResource( _name, L"" ),
-			m_pPipeline( _pPipeline ),
-			m_variables( _variables )
+		cMaterial( std::string _name, std::string _path ) :
+			iResource( _name, _path )
 		{ }
 
 		void load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;

@@ -13,6 +13,7 @@
 #include <vector>
 #include <queue>
 #include <thread>
+#include <mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,16 +25,16 @@ namespace wv
 	class Primitive;
 	class Texture;
 	class RenderTarget;
-	class sMesh;
+	class cMaterial;
 
 	struct PipelineDesc;
 	struct PrimitiveDesc;
 	struct TextureDesc;
 	struct RenderTargetDesc;
-	struct MeshDesc;
 	
 	struct iDeviceContext;
 	struct sMeshNode;
+	struct sMesh;
 
 	struct sShaderProgramSource;
 	struct sShaderProgram;
@@ -42,6 +43,7 @@ namespace wv
 	struct sPipeline;
 
 	struct sGPUBufferDesc;
+
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +62,8 @@ namespace wv
 		virtual ~iGraphicsDevice() { };
 
 		static iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc );
+
+		void initEmbeds();
 
 		void draw( sMesh* _mesh );
 		void drawNode( sMeshNode* _node );
@@ -98,11 +102,11 @@ namespace wv
 		virtual void        bufferData      ( cGPUBuffer* _buffer ) = 0;
 		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) = 0;
 		
-		virtual sMesh* createMesh( MeshDesc* _desc ) = 0;
+		virtual sMesh* createMesh() = 0;
 		virtual void destroyMesh( sMesh** _mesh ) = 0;
 
 		virtual Primitive* createPrimitive( PrimitiveDesc* _desc ) = 0;
-		virtual void destroyPrimitive( Primitive** _primitive ) = 0;
+		virtual void destroyPrimitive( Primitive* _primitive ) = 0;
 
 		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) = 0;
 		virtual void destroyTexture( Texture** _texture ) = 0;
@@ -124,10 +128,13 @@ namespace wv
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
+		std::mutex m_mutex;
+
 		std::vector<cCommandBuffer> m_commandBuffers;
 		std::queue <uint32_t>       m_availableCommandBuffers;
 		std::vector<uint32_t>       m_recordingCommandBuffers;
 		std::vector<uint32_t>       m_submittedCommandBuffers;
 
+		cMaterial* m_emptyMaterial;
 	};
 }

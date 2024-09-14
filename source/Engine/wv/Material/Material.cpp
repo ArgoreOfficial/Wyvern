@@ -1,36 +1,83 @@
 #include "Material.h"
 
-#include <wv/Assets/Texture.h>
+#include <wv/Texture/Texture.h>
 #include <wv/Camera/Camera.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
 #include <wv/Primitive/Mesh.h>
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-/*
-void wv::iMaterial::destroy( iGraphicsDevice* _pGraphicsDevice )
-{
-	cEngine* app = cEngine::get();
-	iGraphicsDevice* device = cEngine::get()->graphics;
-
-	///// TODO: move to some resource/texture manager
-	//for ( int i = 0; i < (int)m_textures.size(); i++ )
-	//	device->destroyTexture( &m_textures[ i ] );
-	//m_textures.clear();
-	//
-	//app->m_pShaderRegistry->unloadShaderProgram( m_pPipeline );
-
-	iMaterial::destroy( _pGraphicsDevice );
-}
-*/
+#include <wv/Auxiliary/json/json11.hpp>
+#include <wv/Memory/FileSystem.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
+	if ( m_path == "" )
+		m_path = _pFileSystem->getFullPath( m_name + ".wmat" );
+
+	std::string jsonSource = _pFileSystem->loadString( m_path );
+
+	std::string err;
+	json11::Json root = json11::Json::parse( jsonSource, err );
+
+	std::string shaderName = root[ "shader" ].string_value();
+
+	m_pPipeline = new cProgramPipeline( shaderName );
+	m_pPipeline->load( _pFileSystem, _pGraphicsDevice );
+
+	while ( !m_pPipeline->isComplete() )
+	{
+		/// TEMPORARY FIX
+		/// TODO: NOT THIS
+	#ifdef WV_PLATFORM_WINDOWS 
+		Sleep( 1 );
+		//_pGraphicsDevice->endRender();
+	#endif
+	}
+
+#ifdef WV_PLATFORM_WINDOWS
+	for ( auto& textureObject : root[ "textures" ].array_items() )
+	{
+		std::string uniformName = textureObject[ "name" ].string_value();
+		std::string textureName = textureObject[ "texture" ].string_value();
+		auto filteringObj = textureObject[ "filtering" ];
+		int filtering = 0;
+
+		if ( !textureObject.is_null() )
+			filtering = filteringObj.int_value();
+
+		if ( uniformName == "" || textureName == "" )
+		{
+			Debug::Print( Debug::WV_PRINT_ERROR, "Texture uniform is empty\n" );
+			continue;
+		}
+
+		sMaterialVariable textureVariable;
+		textureVariable.handle = 0;
+		textureVariable.name = uniformName;
+		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
+
+		Texture* texture = new Texture( textureName, "", (wv::TextureFiltering)filtering );
+		texture->load( _pFileSystem, _pGraphicsDevice );
+		textureVariable.data.texture = texture;
+
+		//m_resourceLoader.addLoad( texture );
+
+		while ( !texture->isComplete() )
+		{
+		#ifdef WV_PLATFORM_WINDOWS 
+			Sleep( 1 );
+			//_pGraphicsDevice->endRender();
+		#endif
+		}
+
+		m_variables.push_back( textureVariable );
+	}
+
+#endif
+
 	setComplete( true );
 }
 

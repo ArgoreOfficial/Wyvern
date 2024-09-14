@@ -33,7 +33,7 @@ namespace wv
 		 cFileSystem();
 		~cFileSystem();
 
-		void addDirectory( const std::wstring& _dir ) { m_directories.push_back( _dir ); }
+		void addDirectory( const std::string& _dir ) { m_directories.push_back( _dir ); }
 
 		// why does this return a heap allocated pointer?
 		// Memory.data is already heap allocated
@@ -43,11 +43,9 @@ namespace wv
 		std::string loadString( const std::string& _path );
 
 		bool fileExists( const std::string& _path );
-		bool fileExists( const std::wstring& _path );
-
-		std::wstring getFullPath( const std::string& _fileName );
-		std::wstring getFullPath( const std::wstring& _fileName );
-
+		
+		std::string getFullPath( const std::string& _fileName );
+		
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		cLowLevelFileSystem* m_pLowLevel = nullptr;
@@ -56,7 +54,7 @@ namespace wv
 
 		std::mutex m_mutex;
 		std::vector<Memory*> m_loadedMemory;
-		std::vector<std::wstring> m_directories;
+		std::vector<std::string> m_directories;
 	};
 
 }

@@ -30,7 +30,7 @@ namespace wv
 
 	class cProgramPipeline;
 
-	class cMaterialRegistry;
+	class cResourceRegistry;
 	class cJoltPhysicsEngine;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ namespace wv
 
 		// modules
 		cFileSystem*        m_pFileSystem       = nullptr;
-		cMaterialRegistry*  m_pMaterialRegistry = nullptr;
+		cResourceRegistry*  m_pResourceRegistry = nullptr;
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////

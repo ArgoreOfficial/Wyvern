@@ -5,9 +5,8 @@
 #include <wv/Device/GraphicsDevice.h>
 
 #include <wv/Primitive/Mesh.h>
-#include <wv/Assets/Materials/Material.h>
-#include <wv/Assets/Materials/MaterialRegistry.h>
-#include <wv/Memory/ModelParser.h>
+#include <wv/Material/Material.h>
+#include <wv/Resource/ResourceRegistry.h>
 
 #ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>
@@ -56,18 +55,14 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
-	wv::Parser parser;
-
-	m_pMeshNode = parser.load( "res/meshes/skysphere", app->m_pMaterialRegistry );
-	m_transform.addChild( &m_pMeshNode->transform );
+	
+	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "res/meshes/skysphere.dae" )->createInstance();
+	m_transform.addChild( &m_mesh.transform );
 }
 
 void wv::cSkyboxObject::onUnloadImpl()
 {
-	wv::cEngine* app = wv::cEngine::get();
-	wv::iGraphicsDevice* device = app->graphics;
-
-	device->destroyMesh( &m_pMeshNode->children[ 0 ]->meshes[ 0 ] );
+	m_mesh.destroy();
 }
 
 void wv::cSkyboxObject::onCreateImpl()
@@ -91,15 +86,12 @@ void wv::cSkyboxObject::updateImpl( double _deltaTime )
 
 void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
 {
-	if ( !m_pMeshNode )
-		return;
-
-	
 	/// TODO: remove raw gl calls
 #ifdef WV_SUPPORT_OPENGL
 	glDepthMask( GL_FALSE );
 	glDepthFunc( GL_LEQUAL );
-	_device->drawNode( m_pMeshNode );
+	m_mesh.draw();
+	m_mesh.pResource->drawInstances( _device ); 
 	glDepthFunc( GL_LESS );
 	glDepthMask( GL_TRUE );
 #endif

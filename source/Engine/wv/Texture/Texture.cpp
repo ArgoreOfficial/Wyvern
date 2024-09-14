@@ -20,18 +20,15 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 		return;
 	}
 
-	if ( m_path == L"" )
+	if ( m_path == "" )
 		m_path = _pFileSystem->getFullPath( m_name );
 
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	std::string path = converter.to_bytes( m_path ); // convert wstring to string
-
 	stbi_set_flip_vertically_on_load( 0 );
-	m_pData = reinterpret_cast<uint8_t*>( stbi_load( path.c_str(), &m_width, &m_height, &m_numChannels, 0 ) );
+	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &m_width, &m_height, &m_numChannels, 0 ) );
 
 	if ( !m_pData )
 	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", path.c_str() );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", m_path.c_str() );
 		delete m_pData;
 
 		return;

@@ -50,7 +50,7 @@ namespace wv
 	{
 	public:
 		cProgramPipeline( const std::string& _name ) :
-			iResource( _name, L"" )
+			iResource( _name, "" )
 		{ }
 
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;

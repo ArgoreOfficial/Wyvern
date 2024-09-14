@@ -2,6 +2,8 @@
 
 #include <wv/Scene/SceneObject.h>
 
+#include <wv/Primitive/Mesh.h>
+
 #include <wv/Physics/Physics.h>
 #include <wv/Reflection/Reflection.h>
 
@@ -16,13 +18,13 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sMeshNode; 
+	struct cMeshResource; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cRigidbody : public iSceneObject
 	{
 	public:
-		 cRigidbody( const UUID& _uuid, const std::string& _name, sMeshNode* _pMeshNode, iPhysicsBodyDesc* _bodyDesc );
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
 		~cRigidbody();
 
@@ -39,7 +41,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
 
-		sMeshNode*  m_pMeshNode = nullptr;
+		sMeshInstance m_mesh;
 		std::string m_meshPath  = "";
 
 		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;

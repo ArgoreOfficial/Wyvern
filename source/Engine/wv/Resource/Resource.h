@@ -27,7 +27,7 @@ namespace wv
     {
 	public: 
 		
-		iResource( const std::string& _name, const std::wstring& _path )
+		iResource( const std::string& _name, const std::string& _path )
 		{ 
 			m_name = _name;
 			m_path = _path;
@@ -44,7 +44,7 @@ namespace wv
 		void decrNumUsers( void ) { if( m_numUsers > 0) m_numUsers--; }
 
 		void setHandle  ( const wv::Handle& _handle ) { m_handle = _handle; }
-		void setFullPath( const std::wstring& _path ) { m_path = _path; }
+		void setFullPath( const std::string& _path )  { m_path = _path; }
 		void setComplete( bool _complete )            { m_complete = _complete; }
 		
 		wv::Handle   getHandle  ( void ) { return m_handle; }
@@ -59,7 +59,7 @@ namespace wv
 
 		
 		std::string m_name;
-		std::wstring m_path;
+		std::string m_path;
 
 		wv::Handle m_handle = 0;
 		unsigned int m_numUsers = 0;

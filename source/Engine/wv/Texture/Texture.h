@@ -41,15 +41,13 @@ namespace wv
 		int width = 0;
 		int height = 0;
 		bool generateMipMaps = false;
-
-		Texture* tmpTex; /// TEMPORARY
 	};
 
 	class Texture : public iResource
 	{
 	public:
 		
-		Texture( const std::string& _name = "", const std::wstring& _path = L"", TextureFiltering _filtering = WV_TEXTURE_FILTER_NEAREST ) :
+		Texture( const std::string& _name = "", const std::string& _path = "", TextureFiltering _filtering = WV_TEXTURE_FILTER_NEAREST ) :
 			iResource{ _name, _path },
 			m_filtering{ _filtering }
 		{ }

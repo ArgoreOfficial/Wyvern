@@ -90,11 +90,11 @@ bool cSandbox::create( void )
 	wv::cFileSystem* fileSystem = new wv::cFileSystem();
 
 	// set up load directories
-	fileSystem->addDirectory( L"res/" );
-	fileSystem->addDirectory( L"res/materials/" );
-	fileSystem->addDirectory( L"res/meshes/" );
-	fileSystem->addDirectory( L"res/shaders/" );
-	fileSystem->addDirectory( L"res/textures/" );
+	fileSystem->addDirectory( "res/" );
+	fileSystem->addDirectory( "res/materials/" );
+	fileSystem->addDirectory( "res/meshes/" );
+	fileSystem->addDirectory( "res/shaders/" );
+	fileSystem->addDirectory( "res/textures/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
 	

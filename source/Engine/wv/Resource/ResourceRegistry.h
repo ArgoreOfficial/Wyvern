@@ -1,8 +1,10 @@
 #pragma once
 
-#include <wv/Resource/cResourceLoader.h>
-
 #include <wv/Debug/Print.h>
+
+#include <wv/Memory/FileSystem.h>
+#include <wv/Resource/cResourceLoader.h>
+#include <wv/Resource/Resource.h>
 
 #include <string>
 #include <unordered_map>
@@ -11,40 +13,93 @@
 namespace wv
 {
 	class iResource;
-	class cFileSystem;
 	class iGraphicsDevice;
+	class cMeshResource;
 
-	class iResourceRegistry
+	class cResourceRegistry
 	{
 	public:
-		iResourceRegistry( const std::string& _name, cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ):
-			m_name{_name},
+		cResourceRegistry( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ):
 			m_pFileSystem{ _pFileSystem },
+			m_pGraphicsDevice{ _pGraphicsDevice },
 			m_resourceLoader{_pFileSystem, _pGraphicsDevice }
 		{
-			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing %s\n", _name.c_str() );
+			
 		}
 
-		~iResourceRegistry();
+		~cResourceRegistry();
+		
+		void initializeEmbeded();
+
+		template<typename T, std::enable_if_t<std::is_base_of_v<wv::iResource, T>, bool> = true>
+		T* load( const std::string& _path )
+		{
+			iResource* res = getLoadedResource( _path );
+
+			if ( res == nullptr )
+			{
+				std::string fullPath = m_pFileSystem->getFullPath( _path );
+				res = (iResource*)new T( _path, fullPath );
+				
+				handleResourceType<T>( (T*)res );
+				m_resourceLoader.addLoad( res );
+				addResource( res );
+			}
+
+			res->incrNumUsers();
+
+			return (T*)res;
+		}
+
+		void unload( iResource* _res )
+		{
+			_res->decrNumUsers();
+
+			if ( _res->getNumUsers() == 0 )
+			{
+				_res->unload( m_pFileSystem, m_pGraphicsDevice );
+				m_resources.erase( _res->getName() );
+			}
+		}
+		
+		// should this be moved?
+		void drawMeshInstances();
 
 		iResource* getLoadedResource( const std::string& _name );
 
-		void addResource( iResource* _resource );
-
-		void update();
 		bool isWorking() { return m_resourceLoader.isWorking(); }
 
 	protected:
 
+		template<typename T> 
+		void handleResourceType( T* _res );
+
+		void addResource( iResource* _resource );
+		 
 		void findAndUnloadResource( iResource* _resource );
 		void unloadResource( const std::string& _name );
 
 		cResourceLoader m_resourceLoader;
 
-		std::string m_name;
-
 		cFileSystem* m_pFileSystem;
+		iGraphicsDevice* m_pGraphicsDevice;
+
 		std::unordered_map<std::string, iResource*> m_resources;
 		std::mutex m_mutex;
+
+		std::vector<cMeshResource*> m_meshes;
 	};
+
+	template<typename T>
+	inline void cResourceRegistry::handleResourceType( T* _res )
+	{
+		// do nothing
+	}
+
+	template<>
+	inline void cResourceRegistry::handleResourceType<wv::cMeshResource>( cMeshResource* _res )
+	{
+		m_meshes.push_back( _res );
+	}
+
 }

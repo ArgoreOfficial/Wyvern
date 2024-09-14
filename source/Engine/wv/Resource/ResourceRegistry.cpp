@@ -1,13 +1,14 @@
 #include "ResourceRegistry.h"
 
+#include <wv/Material/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Resource/Resource.h>
-
+#include <wv/Primitive/Mesh.h>
 #include <vector>
 
-wv::iResourceRegistry::~iResourceRegistry()
+wv::cResourceRegistry::~cResourceRegistry()
 {
-	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "%s has %i unloaded resources\n", m_name.c_str(), (int)m_resources.size() );
+	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource Registry has %i unloaded resources\n", (int)m_resources.size() );
 
 	std::vector<std::string> markedForDelete;
 
@@ -25,7 +26,23 @@ wv::iResourceRegistry::~iResourceRegistry()
 	}
 }
 
-wv::iResource* wv::iResourceRegistry::getLoadedResource( const std::string& _name )
+void wv::cResourceRegistry::initializeEmbeded()
+{
+	// anything loaded in here will always have numUsers of greater than 0
+	// essentially keeping them alive for the enire application lifetime
+
+	load<cMaterial>( "DefaultMaterial.wmat" );
+	load<cMaterial>( "DebugMaterial.wmat" );
+	load<cMaterial>( "DebugTextureMaterial.wmat" );
+}
+
+void wv::cResourceRegistry::drawMeshInstances()
+{
+	for ( auto& meshRes : m_meshes )
+		meshRes->drawInstances( m_pGraphicsDevice );
+}
+
+wv::iResource* wv::cResourceRegistry::getLoadedResource( const std::string& _name )
 {
 	wv::iResource* res = nullptr;
 	m_mutex.lock();
@@ -39,7 +56,7 @@ wv::iResource* wv::iResourceRegistry::getLoadedResource( const std::string& _nam
 	return res;
 }
 
-void wv::iResourceRegistry::addResource( iResource* _resource )
+void wv::cResourceRegistry::addResource( iResource* _resource )
 {
 	std::string name = _resource->getName();
 	if ( getLoadedResource( name ) )
@@ -52,12 +69,7 @@ void wv::iResourceRegistry::addResource( iResource* _resource )
 	m_mutex.unlock();
 }
 
-void wv::iResourceRegistry::update()
-{
-
-}
-
-void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )
+void wv::cResourceRegistry::findAndUnloadResource( iResource* _resource )
 {
 	if ( !_resource )
 	{
@@ -69,7 +81,7 @@ void wv::iResourceRegistry::findAndUnloadResource( iResource* _resource )
 	unloadResource( key );
 }
 
-void wv::iResourceRegistry::unloadResource( const std::string& _name )
+void wv::cResourceRegistry::unloadResource( const std::string& _name )
 {
 	m_mutex.lock();
 	auto search = m_resources.find( _name );

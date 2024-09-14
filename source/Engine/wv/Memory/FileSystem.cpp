@@ -33,7 +33,7 @@ wv::cFileSystem::cFileSystem()
 #ifdef WV_PLATFORM_PSVITA
 	m_pLowLevel = new cPSVitaFileSystem();
 #endif
-	addDirectory( L"" );
+	addDirectory( "" );
 }
 
 wv::cFileSystem::~cFileSystem()
@@ -54,8 +54,10 @@ wv::cFileSystem::~cFileSystem()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef WV_PLATFORM_PSVITA
 #define BUFFER_SIZE 1024 * 8
 #define ERROR_PREFIX "Error:"
+#endif
 
 wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
@@ -156,43 +158,18 @@ bool wv::cFileSystem::fileExists( const std::string& _path )
 #endif
 }
 
-bool wv::cFileSystem::fileExists( const std::wstring& _path )
-{
-#ifdef WV_PLATFORM_WINDOWS
-	std::filesystem::path fpath( _path ); // might not be needed on windows?
-	std::ifstream f( fpath );
-	return f.good();
-#else
-	return false;
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::wstring wv::cFileSystem::getFullPath( const std::string& _fileName )
-{
-#ifdef WV_PLATFORM_WINDOWS
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	std::wstring wname = converter.from_bytes( _fileName ); // convert char string to wchar string
-
-	return getFullPath( wname );
-#else
-	return L"";
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-std::wstring wv::cFileSystem::getFullPath( const std::wstring& _fileName )
+std::string wv::cFileSystem::getFullPath( const std::string& _fileName )
 {
 	for ( int i = 0; i < m_directories.size(); i++ )
 	{
-		std::wstring wpath = m_directories[ i ];
-		wpath.append( _fileName );
+		std::string path = m_directories[ i ];
+		path.append( _fileName );
 
-		if ( fileExists( wpath ) )
-			return wpath;
+		if ( fileExists( path ) )
+			return path;
 	}
 
-	return std::wstring();
+	return "";
 }

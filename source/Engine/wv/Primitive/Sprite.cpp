@@ -3,7 +3,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Primitive/Mesh.h>
-#include <wv/Assets/Materials/Material.h>
+#include <wv/Material/Material.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ void wv::Sprite::createQuad()
 
 		wv::PrimitiveDesc prDesc;
 		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
-		prDesc.layout = &layout;
+		prDesc.layout = layout;
 
 		prDesc.vertices     = vertices.data();
 		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );

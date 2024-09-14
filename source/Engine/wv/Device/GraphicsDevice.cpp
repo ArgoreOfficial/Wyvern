@@ -3,11 +3,14 @@
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Trace.h>
 
-#include <wv/Assets/Materials/Material.h>
+#include <wv/Material/Material.h>
 #include <wv/Device/DeviceContext.h>
 #include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
+
+#include <wv/Engine/Engine.h>
+#include <wv/Resource/ResourceRegistry.h>
 
 #if defined( WV_SUPPORT_OPENGL )
 #include <wv/Device/GraphicsDevice/OpenGLGraphicsDevice.h>
@@ -49,6 +52,12 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 	return device;
 }
 
+void wv::iGraphicsDevice::initEmbeds()
+{
+	m_emptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
+	m_emptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::draw( sMesh* _mesh )
@@ -60,11 +69,14 @@ void wv::iGraphicsDevice::draw( sMesh* _mesh )
 
 	for( size_t i = 0; i < _mesh->primitives.size(); i++ )
 	{
+		if ( _mesh->primitives[ i ] == nullptr )
+			continue;
+
 		cMaterial* mat = _mesh->primitives[ i ]->material;
 		if( mat )
 		{
-			if( !mat->isComplete() )
-				continue;
+			if ( !mat->isComplete() )
+				mat = m_emptyMaterial;
 			
 			mat->setAsActive( this );
 			mat->setInstanceUniforms( _mesh );
@@ -98,6 +110,8 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 
 wv::cCommandBuffer& wv::iGraphicsDevice::getCommandBuffer()
 {
+	m_mutex.lock();
+
 	if( m_availableCommandBuffers.size() == 0 )
 	{
 		cCommandBuffer buffer( m_commandBuffers.size(), 128 );
@@ -109,6 +123,8 @@ wv::cCommandBuffer& wv::iGraphicsDevice::getCommandBuffer()
 	m_availableCommandBuffers.pop();
 	m_recordingCommandBuffers.push_back( bufferIndex );
 
+	m_mutex.unlock();
+
 	return m_commandBuffers[ bufferIndex ];
 }
 
@@ -116,6 +132,8 @@ wv::cCommandBuffer& wv::iGraphicsDevice::getCommandBuffer()
 
 void wv::iGraphicsDevice::submitCommandBuffer( wv::cCommandBuffer& _buffer )
 {
+	m_mutex.lock();
+
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
 	{
 		uint32_t index = _buffer.getIndex();
@@ -126,8 +144,11 @@ void wv::iGraphicsDevice::submitCommandBuffer( wv::cCommandBuffer& _buffer )
 		m_recordingCommandBuffers.erase( m_recordingCommandBuffers.begin() + i );
 		m_submittedCommandBuffers.push_back( index );
 
+		m_mutex.unlock();
 		return;
 	}
+	
+	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +219,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( cCommandBuffer& _buffer )
 			break;
 
 		case WV_GPUTASK_DESTROY_PRIMITIVE:
-			destroyPrimitive( stream.pop<Primitive**>() );
+			destroyPrimitive( stream.pop<Primitive*>() );
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
@@ -215,6 +236,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( cCommandBuffer& _buffer )
 		}
 	}
 
+	m_mutex.lock();
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 	{
 		uint32_t submittedIndex = m_submittedCommandBuffers[ i ];
@@ -224,6 +246,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( cCommandBuffer& _buffer )
 		m_submittedCommandBuffers.erase( m_submittedCommandBuffers.begin() + i );
 		m_availableCommandBuffers.push( submittedIndex );
 	}
+	m_mutex.unlock();
 
 	if( _buffer.callback.m_fptr )
 		_buffer.callback( _buffer.callbacker );
@@ -243,6 +266,12 @@ void wv::iGraphicsDevice::beginRender()
 
 void wv::iGraphicsDevice::endRender()
 {
+	while ( m_recordingCommandBuffers.size() > 0 )
+	{
+		Sleep( 1 ); // is there a better solution?
+		// application will freeze if command buffer is not submitted
+	}
+
 	for( auto& submittedIndex : m_submittedCommandBuffers )
 		executeCommandBuffer( m_commandBuffers[ submittedIndex ] );
 }
