@@ -53,6 +53,11 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 	{
 		std::string uniformName = textureObject[ "name" ].string_value();
 		std::string textureName = textureObject[ "texture" ].string_value();
+		auto filteringObj = textureObject[ "filtering" ];
+		int filtering = 0;
+
+		if ( !textureObject.is_null() )
+			filtering = filteringObj.int_value();
 
 		if( uniformName == "" || textureName == "" )
 		{
@@ -65,7 +70,7 @@ wv::cMaterial* wv::cMaterialRegistry::createMaterialFromSource( std::string _nam
 		textureVariable.name = uniformName;
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 		
-		Texture* texture = new Texture( textureName );
+		Texture* texture = new Texture( textureName, L"", (wv::TextureFiltering)filtering );
 		m_resourceLoader.addLoad( texture );
 		textureVariable.data.texture = texture;
 		

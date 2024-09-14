@@ -43,8 +43,7 @@ namespace wv
 		virtual void updateImpl( double _deltaTime ) override;
 		virtual void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override;
 
-		sMeshNode* m_skyboxMesh  = nullptr;
-		cMaterial* m_skyMaterial = nullptr;
+		sMeshNode* m_pMeshNode  = nullptr;
 
 	};
 }

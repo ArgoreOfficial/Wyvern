@@ -144,6 +144,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 		
 		if ( md.getFullPath( materialName + ".wmat" ) == L"" )
 		{
+			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. Please create it\n", materialName );
 			materialName = "DefaultMaterial";
 			// create new material file
 		}

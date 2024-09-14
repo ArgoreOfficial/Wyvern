@@ -41,6 +41,7 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 	
 
 	TextureDesc desc;
+	desc.filtering = m_filtering;
 	wv::cCommandBuffer& cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	cmdBuffer.push( WV_GPUTASK_CREATE_TEXTURE, (void**)this, &desc ); // hack
 

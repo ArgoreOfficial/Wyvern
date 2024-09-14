@@ -49,8 +49,9 @@ namespace wv
 	{
 	public:
 		
-		Texture( const std::string& _name = "", const std::wstring& _path = L"" ) :
-			iResource{ _name, _path } 
+		Texture( const std::string& _name = "", const std::wstring& _path = L"", TextureFiltering _filtering = WV_TEXTURE_FILTER_NEAREST ) :
+			iResource{ _name, _path },
+			m_filtering{ _filtering }
 		{ }
 
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
@@ -67,6 +68,8 @@ namespace wv
 		unsigned int getDataSize( void ) { return m_dataSize; }
 
 	private:
+		TextureFiltering m_filtering;
+		
 		uint8_t* m_pData = nullptr;
 		unsigned int m_dataSize = 0;
 

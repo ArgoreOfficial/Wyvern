@@ -58,16 +58,8 @@ void wv::cSkyboxObject::onLoadImpl()
 	wv::cEngine* app = wv::cEngine::get();
 	wv::Parser parser;
 
-	m_skyboxMesh = parser.load( "res/meshes/skysphere", app->m_pMaterialRegistry );
-	m_transform.addChild( &m_skyboxMesh->transform );
-
-	m_skyMaterial = app->m_pMaterialRegistry->loadMaterial( "SkyMaterial" );
-	
-#ifdef WV_SUPPORT_OPENGL // temporary
-	// bad
-	if ( m_skyboxMesh )
-		m_skyboxMesh->children[ 0 ]->meshes[ 0 ]->primitives[ 0 ]->material = m_skyMaterial;
-#endif
+	m_pMeshNode = parser.load( "res/meshes/skysphere", app->m_pMaterialRegistry );
+	m_transform.addChild( &m_pMeshNode->transform );
 }
 
 void wv::cSkyboxObject::onUnloadImpl()
@@ -75,10 +67,7 @@ void wv::cSkyboxObject::onUnloadImpl()
 	wv::cEngine* app = wv::cEngine::get();
 	wv::iGraphicsDevice* device = app->graphics;
 
-	device->destroyMesh( &m_skyboxMesh->children[ 0 ]->meshes[ 0 ] );
-	m_skyMaterial->decrNumUsers();
-
-	// m_skyMaterial->destroy( device );
+	device->destroyMesh( &m_pMeshNode->children[ 0 ]->meshes[ 0 ] );
 }
 
 void wv::cSkyboxObject::onCreateImpl()
@@ -102,15 +91,17 @@ void wv::cSkyboxObject::updateImpl( double _deltaTime )
 
 void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
 {
-	if ( m_skyMaterial && m_skyboxMesh && m_skyMaterial->isComplete() && m_skyMaterial->getPipeline()->isComplete() )
-	{
-		/// TODO: remove raw gl calls
-	#ifdef WV_SUPPORT_OPENGL
-		glDepthMask( GL_FALSE );
-		glDepthFunc( GL_LEQUAL );
-		_device->drawNode( m_skyboxMesh );
-		glDepthFunc( GL_LESS );
-		glDepthMask( GL_TRUE );
-	#endif
-	}
+	if ( !m_pMeshNode )
+		return;
+
+	
+	/// TODO: remove raw gl calls
+#ifdef WV_SUPPORT_OPENGL
+	glDepthMask( GL_FALSE );
+	glDepthFunc( GL_LEQUAL );
+	_device->drawNode( m_pMeshNode );
+	glDepthFunc( GL_LESS );
+	glDepthMask( GL_TRUE );
+#endif
+	
 }
