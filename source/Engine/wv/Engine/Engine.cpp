@@ -234,8 +234,8 @@ void wv::cEngine::run()
 	 * were subscribed in
 	 */
 
-	orbitCamera = new OrbitCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	freeflightCamera = new FreeflightCamera( ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	orbitCamera = new OrbitCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	freeflightCamera = new FreeflightCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 

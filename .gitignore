@@ -15,3 +15,4 @@ game/*.wasm
 imgui.ini
 *.self
 *.gxp
+resource.aps

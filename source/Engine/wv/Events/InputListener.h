@@ -22,9 +22,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class IInputListener
+	class iInputListener
 	{
-	WV_DECLARE_INTERFACE( IInputListener )
+	WV_DECLARE_INTERFACE( iInputListener )
 
 	public:
 
@@ -43,7 +43,7 @@ namespace wv
 
 	private:
 
-		static std::vector<IInputListener*> m_hooks;
+		static std::vector<iInputListener*> m_hooks;
 		static bool m_enabled;
 
 	};

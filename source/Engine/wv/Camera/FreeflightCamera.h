@@ -16,7 +16,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class FreeflightCamera : public ICamera, public IMouseListener, public IInputListener
+	class FreeflightCamera : public iCamera, public iMouseListener, public iInputListener
 	{
 
 	public:

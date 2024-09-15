@@ -13,10 +13,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class ICamera
+	class iCamera
 	{
 
-	WV_DECLARE_INTERFACE( ICamera )
+	WV_DECLARE_INTERFACE( iCamera )
 
 	public:
 
@@ -26,7 +26,7 @@ namespace wv
 			WV_CAMERA_TYPE_ORTHOGRAPHIC
 		};
 
-		ICamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
+		iCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
 		virtual void onCreate() { }
 		virtual void update( double _delta_time ) { m_transform.update( nullptr ); }

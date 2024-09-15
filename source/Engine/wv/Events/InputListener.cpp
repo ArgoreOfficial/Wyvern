@@ -2,12 +2,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<wv::IInputListener*> wv::IInputListener::m_hooks{};
-bool wv::IInputListener::m_enabled = true;
+std::vector<wv::iInputListener*> wv::iInputListener::m_hooks{};
+bool wv::iInputListener::m_enabled = true;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IInputListener::invoke( InputEvent _event )
+void wv::iInputListener::invoke( InputEvent _event )
 {
 	for ( int i = 0; i < m_hooks.size(); i++ )
 		m_hooks[ i ]->onInputEvent( _event );
@@ -15,21 +15,16 @@ void wv::IInputListener::invoke( InputEvent _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IInputListener::subscribeInputEvent( void )
+void wv::iInputListener::subscribeInputEvent( void )
 {
-	IInputListener::m_hooks.push_back( this );
+	iInputListener::m_hooks.push_back( this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IInputListener::unsubscribeInputEvent( void )
+void wv::iInputListener::unsubscribeInputEvent( void )
 {
-	for ( int i = 0; i < IInputListener::m_hooks.size(); i++ )
-	{
-		if ( IInputListener::m_hooks[ i ] == this )
-		{
-			IInputListener::m_hooks.erase( IInputListener::m_hooks.begin() + i );
-			return;
-		}
-	}
+	auto it = std::find( iInputListener::m_hooks.begin(), iInputListener::m_hooks.end(), this );
+	if ( it != iInputListener::m_hooks.end() )
+		iInputListener::m_hooks.erase( it );
 }

@@ -19,7 +19,7 @@ namespace wv
 	class iIntermediateRenderTargetHandler;
 
 	class sMesh;
-	class ICamera;
+	class iCamera;
 	class RenderTarget;
 	class cFileSystem;
 	class cSceneRoot;
@@ -66,7 +66,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cEngine : IMouseListener, IInputListener
+	class cEngine : iMouseListener, iInputListener
 	{
 
 	public:
@@ -111,9 +111,9 @@ namespace wv
 
 		// camera 
 		/// TODO: move to applicationstate
-		ICamera* currentCamera    = nullptr;
-		ICamera* orbitCamera      = nullptr;
-		ICamera* freeflightCamera = nullptr;
+		iCamera* currentCamera    = nullptr;
+		iCamera* orbitCamera      = nullptr;
+		iCamera* freeflightCamera = nullptr;
 
 		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
 		RenderTarget* m_pScreenRenderTarget = nullptr;

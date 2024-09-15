@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::OrbitCamera::OrbitCamera( CameraType _type, float _fov, float _near, float _far ) :
-	ICamera( _type, _fov, _near, _far )
+	iCamera( _type, _fov, _near, _far )
 {
 	m_transform.setRotation( { -15.0f, 0.0f, 0.0f } );
 }
@@ -82,5 +82,5 @@ void wv::OrbitCamera::update( double _delta_time )
 	
 	m_rotate = { 0.0f, 0.0f };
 
-	ICamera::update( _delta_time );
+	iCamera::update( _delta_time );
 }

@@ -7,12 +7,14 @@
 #include <SDL2/SDL_keycode.h> /// TODO: remove
 #endif
 
+#include <iostream>
+
 #include <wv/Math/Matrix.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
-	ICamera( _type, _fov, _near, _far )
+	iCamera( _type, _fov, _near, _far )
 {
 
 }
@@ -35,15 +37,7 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 	{
 		m_freecam_enabled = !m_freecam_enabled;
 		ctx->setMouseLock( m_freecam_enabled );
-
-		// reset input
-		m_rotate = { 0.0f, 0.0f };
-		m_move = { 0.0f, 0.0f, 0.0f };
-		m_speed = m_speed_normal;
 	}
-
-	if ( !m_freecam_enabled )
-		return;
 
 	m_rotate = { -(float)_event.delta.x, (float)_event.delta.y };
 }
@@ -54,14 +48,11 @@ void wv::FreeflightCamera::onInputEvent( InputEvent _event )
 {
 	int button_delta = _event.buttondown ? 1 : -1;
 
-	if ( !m_freecam_enabled )
-		return;
-
 	if ( !_event.repeat )
 	{
-			/// TODO: change to WV_KEY
+		/// TODO: change to WV_KEY
 		switch ( _event.key )
-		{ 
+		{
 		case 'W': m_move.z += -button_delta; break;
 		case 'S': m_move.z += button_delta; break;
 		case 'A': m_move.x += -button_delta; break;
@@ -82,8 +73,11 @@ void wv::FreeflightCamera::update( double _delta_time )
 {
 	m_velocity *= 1.0f - (float)_delta_time * 10.0f;
 
-	m_transform.rotation.y += m_rotate.x * 0.1f;
-	m_transform.rotation.x -= m_rotate.y * 0.1f;
+	if (m_freecam_enabled)
+	{
+		m_transform.rotation.y += m_rotate.x * 0.1f;
+		m_transform.rotation.x -= m_rotate.y * 0.1f;
+	}
 
 	if ( m_transform.rotation.x > 89.0f )
 		m_transform.rotation.x = 89.0f;
@@ -114,9 +108,13 @@ void wv::FreeflightCamera::update( double _delta_time )
 	// up
 	cVector4f up = cVector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
 
-	cVector3f move = cVector3f{ forward.x, forward.y, forward.z } * -m_move.z;
-	move += cVector3f{ right.x, right.y, right.z } * m_move.x;
-	move += cVector3f{ up.x, up.y, up.z } * m_move.y;
+	cVector3f move = {};
+	if ( m_freecam_enabled )
+	{
+		move += cVector3f{ forward.x, forward.y, forward.z } * -m_move.z;
+		move += cVector3f{ right.x, right.y, right.z } * m_move.x;
+		move += cVector3f{ up.x, up.y, up.z } * m_move.y;
+	}
 
 	cVector3f acceleration = move * m_speed;
 
@@ -125,5 +123,5 @@ void wv::FreeflightCamera::update( double _delta_time )
 
 	m_rotate = { 0.0f, 0.0f };
 
-	ICamera::update( _delta_time );
+	iCamera::update( _delta_time );
 }
