@@ -5,6 +5,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Events/InputListener.h>
 #include <wv/Events/MouseListener.h>
+#include <wv/Events/WindowListener.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -35,7 +36,7 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 	if ( inputEvent.key >= 'a' && inputEvent.key <= 'z' )
 		inputEvent.key -= 32;
 
-	wv::IInputListener::invoke( inputEvent );
+	wv::iInputListener::invoke( inputEvent );
 }
 #endif
 
@@ -48,7 +49,7 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
 	SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
 
-	wv::IMouseListener::invoke( mouseEvent );
+	wv::iMouseListener::invoke( mouseEvent );
 }
 #endif
 
@@ -71,7 +72,7 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 	mouseEvent.buttondown = _event->type == SDL_MOUSEBUTTONDOWN;
 	mouseEvent.buttonup   = _event->type == SDL_MOUSEBUTTONUP;
 
-	wv::IMouseListener::invoke( mouseEvent );
+	wv::iMouseListener::invoke( mouseEvent );
 }
 #endif
 
@@ -86,7 +87,29 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 			int w, h;
 			SDL_GetWindowSize( _window, &w, &h );
 			wv::cEngine::get()->onResize( w, h );
-		} break;
+
+			wv::WindowEvent windowEvent;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
+			windowEvent.size.x = w;
+			windowEvent.size.y = h;
+
+			wv::iWindowListener::invoke( windowEvent );
+			break;
+		}
+		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_GAINED:
+		{
+			wv::WindowEvent windowEvent;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_GAINED;
+			wv::iWindowListener::invoke( windowEvent );
+			break;
+		}
+		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_LOST:
+		{
+			wv::WindowEvent windowEvent;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
+			wv::iWindowListener::invoke( windowEvent );
+			break;
+		}
 	}
 }
 #endif

@@ -16,7 +16,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class OrbitCamera : public ICamera, public IMouseListener, public IInputListener
+	class OrbitCamera : public iCamera, public iMouseListener, public iInputListener
 	{
 	public:
 
@@ -27,7 +27,7 @@ namespace wv
 		void onCreate() override;
 		void onMouseEvent( MouseEvent _event ) override;
 		void onInputEvent( InputEvent _event ) override;
-		void update    ( double _delta_time ) override;
+		void update( double _delta_time ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

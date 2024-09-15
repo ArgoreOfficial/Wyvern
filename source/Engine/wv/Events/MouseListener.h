@@ -38,9 +38,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class IMouseListener
+	class iMouseListener
 	{
-	WV_DECLARE_INTERFACE( IMouseListener )
+	WV_DECLARE_INTERFACE( iMouseListener )
 
 	public:
 
@@ -59,7 +59,7 @@ namespace wv
 
 	private:
 
-		static std::vector<IMouseListener*> m_hooks;
+		static std::vector<iMouseListener*> m_hooks;
 		static bool m_enabled;
 
 	};

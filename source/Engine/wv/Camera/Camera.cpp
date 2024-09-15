@@ -5,7 +5,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
+wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_type{ _type },
 	fov{ _fov },
 	m_near{ _near },
@@ -16,7 +16,7 @@ wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cMatrix4x4f wv::ICamera::getProjectionMatrix( void )
+wv::cMatrix4x4f wv::iCamera::getProjectionMatrix( void )
 {
 	switch( m_type )
 	{
@@ -29,7 +29,7 @@ wv::cMatrix4x4f wv::ICamera::getProjectionMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cMatrix4x4f wv::ICamera::getPerspectiveMatrix( void )
+wv::cMatrix4x4f wv::iCamera::getPerspectiveMatrix( void )
 {
 	wv::cEngine* engine = wv::cEngine::get();
 	
@@ -38,7 +38,7 @@ wv::cMatrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cMatrix4x4f wv::ICamera::getOrthographicMatrix( void )
+wv::cMatrix4x4f wv::iCamera::getOrthographicMatrix( void )
 {
 	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 	float w = (float)ctx->getWidth()  / 2.0f;
@@ -49,14 +49,14 @@ wv::cMatrix4x4f wv::ICamera::getOrthographicMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cMatrix4x4f wv::ICamera::getViewMatrix( void )
+wv::cMatrix4x4f wv::iCamera::getViewMatrix( void )
 {
 	return Matrix::inverse( m_transform.getMatrix() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cVector3f wv::ICamera::getViewDirection()
+wv::cVector3f wv::iCamera::getViewDirection()
 {
 	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
 	float pitch = Math::radians( m_transform.rotation.x );

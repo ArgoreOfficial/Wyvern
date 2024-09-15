@@ -5,8 +5,11 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Events/InputListener.h>
 #include <wv/Events/MouseListener.h>
+#include <wv/Events/WindowListener.h>
 
 #include <wv/Math/Vector2.h>
+
+#include <iostream>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <backends/imgui_impl_glfw.h>
@@ -25,7 +28,7 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	inputEvent.scancode = _scancode;
 	inputEvent.mods = _mods;
 
-	wv::IInputListener::invoke( inputEvent );
+	wv::iInputListener::invoke( inputEvent );
 }
 #endif
 
@@ -41,7 +44,7 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	wv::Vector2i oldPos = wv::cEngine::get()->getMousePosition();
 	mouseEvent.delta = wv::Vector2i{ (int)xpos - oldPos.x, (int)ypos - oldPos.y };
 	
-	wv::IMouseListener::invoke( mouseEvent );
+	wv::iMouseListener::invoke( mouseEvent );
 }
 #endif
 
@@ -66,7 +69,21 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 	mouseEvent.buttondown = _action == GLFW_PRESS;
 	mouseEvent.buttonup = _action == GLFW_RELEASE;
 
-	wv::IMouseListener::invoke( mouseEvent );
+	wv::iMouseListener::invoke( mouseEvent );
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef WV_SUPPORT_GLFW
+void windowFocusCallback(GLFWwindow* _window, int _focused)
+{
+	wv::WindowEvent windowEvent;
+	windowEvent.type = _focused == GLFW_TRUE
+		? wv::WindowEvent::WV_WINDOW_FOCUS_GAINED
+		: wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
+
+	wv::iWindowListener::invoke( windowEvent );
 }
 #endif
 
@@ -76,6 +93,13 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::cEngine::get()->onResize( _width, _height );
+
+	wv::WindowEvent windowEvent;
+	windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
+	windowEvent.size.x = _width;
+	windowEvent.size.y = _height;
+
+	wv::iWindowListener::invoke( windowEvent );
 }
 #endif
 
@@ -160,6 +184,11 @@ bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glfwGetVersionString() );
 
 	m_windowContext = glfwCreateWindow( _desc->width, _desc->height, _desc->name, NULL, NULL );
+	if ( !m_windowContext )
+	{
+		Debug::Print(Debug::WV_PRINT_FATAL, "Failed to create Context\n");
+		return false;
+	}
 
 	glfwSetFramebufferSizeCallback( m_windowContext, onResizeCallback );
 	glfwSetKeyCallback( m_windowContext, keyCallback );
@@ -167,11 +196,8 @@ bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 	glfwSetCursorPosCallback( m_windowContext, mouseCallback );
 	glfwSetMouseButtonCallback( m_windowContext, mouseButtonCallback );
 
-	if ( !m_windowContext )
-	{
-		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to create Context\n" );
-		return false;
-	}
+	glfwSetWindowFocusCallback( m_windowContext, windowFocusCallback );
+
 	glfwMakeContextCurrent( m_windowContext );
 
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
