@@ -4,7 +4,7 @@
 #include <wv/Memory/FileSystem.h>
 #include <wv/Device/GraphicsDevice.h>
 
-#include <chrono>
+#include <wv/Misc/Time.h>
 
 void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphicsDevice, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
 {
@@ -29,16 +29,11 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphic
 		{
 
 		case wv::WV_WORKER_IDLE:
-			
-			/// TODO: wv::time
-		#ifdef WV_PLATFORM_WINDOWS
-			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) ); break;
-		#elif WV_PLATFORM_PSVITA
-			xtime t;
-			t.sec = 0.1;
-			_Thrd_sleep( &t );
-		#endif
-		
+		{
+			wv::time::sleepForSeconds( 0.1 );
+			break;
+		}
+
 		case wv::WV_WORKER_WORKING:
 		{
 			currentlyLoading->load( _pFileSystem, _pGraphicsDevice );

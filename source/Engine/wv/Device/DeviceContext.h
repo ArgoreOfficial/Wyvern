@@ -14,7 +14,7 @@ namespace wv
 	{
 		WV_DEVICE_CONTEXT_API_NONE
 
-	#ifdef WV_SUPPORT_SDL
+	#ifdef WV_SUPPORT_SDL2
 		,WV_DEVICE_CONTEXT_API_SDL
 	#endif
 
@@ -63,12 +63,14 @@ namespace wv
 
 		friend class iGraphicsDevice;
 
-		virtual ~iDeviceContext() { };
+		virtual ~iDeviceContext() { }
 
 		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
 
-		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); };
-		virtual void terminateImGui() { };
+		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); }
+		virtual void terminateImGui() { }
+		virtual void newImGuiFrame() { Debug::Print( Debug::WV_PRINT_ERROR, "newImGuiFrame not implemented\n" ); }
+		virtual void renderImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "renderImGui not implemented\n" ); }
 
 		virtual void terminate() = 0;
 		virtual GraphicsDriverLoadProc getLoadProc() = 0;

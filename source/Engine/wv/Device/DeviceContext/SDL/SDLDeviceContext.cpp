@@ -18,6 +18,7 @@
 #include <wv/Debug/Print.h>
 
 #ifdef WV_SUPPORT_IMGUI
+#include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 #endif
 
@@ -45,10 +46,11 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
 	wv::MouseEvent mouseEvent;
+	mouseEvent.position.x = _event->x;
+	mouseEvent.position.y = _event->y;
+	mouseEvent.delta.x = _event->xrel;
+	mouseEvent.delta.y = _event->yrel;
 	
-	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
-	SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
-
 	wv::iMouseListener::invoke( mouseEvent );
 }
 #endif
@@ -190,6 +192,8 @@ bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 
 	if ( _desc->allowResize ) flags |= SDL_WINDOW_RESIZABLE;
 
+	SDL_SetHint( SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1" );
+
 	m_windowContext = SDL_CreateWindow( _desc->name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _desc->width, _desc->height, flags );
 	
 #ifdef WV_SUPPORT_OPENGL 
@@ -234,7 +238,10 @@ void wv::SDLDeviceContext::initImGui()
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
-	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+	case WV_GRAPHICS_API_OPENGL:
+		ImGui_ImplOpenGL3_Init();
+	case WV_GRAPHICS_API_OPENGL_ES1:
+	case WV_GRAPHICS_API_OPENGL_ES2:
 		ImGui_ImplSDL2_InitForOpenGL( m_windowContext, m_glContext );
 		break;
 	}
@@ -246,7 +253,53 @@ void wv::SDLDeviceContext::terminateImGui()
 {
 #ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL:
+		ImGui_ImplOpenGL3_Shutdown();
+		break;
+	}
 	ImGui_ImplSDL2_Shutdown();
+#endif
+#endif
+}
+
+
+void wv::SDLDeviceContext::newImGuiFrame()
+{
+#ifdef WV_SUPPORT_SDL2
+#ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+		break;
+	default:
+		Debug::Print( Debug::WV_PRINT_FATAL, "SDL context newImGuiFrame() graphics mode not supported" );
+		break;
+	}
+#endif
+#endif
+}
+
+
+void wv::SDLDeviceContext::renderImGui()
+{
+#ifdef WV_SUPPORT_SDL2
+#ifdef WV_SUPPORT_IMGUI
+	ImGui::Render();
+
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+		break;
+	default:
+		Debug::Print( Debug::WV_PRINT_FATAL, "SDL context renderImGui() graphics mode not supported" );
+		break;
+	}
 #endif
 #endif
 }

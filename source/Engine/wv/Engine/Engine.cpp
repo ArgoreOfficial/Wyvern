@@ -49,8 +49,6 @@
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_glfw.h>
 #endif // WV_SUPPORT_IMGUI
 
 #ifdef WV_SUPPORT_GLFW
@@ -123,7 +121,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	initImgui();
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
-
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Debug Draw\n" );
 	Debug::Draw::Internal::initDebugDraw( graphics, m_pResourceRegistry );
 
@@ -307,11 +304,10 @@ void wv::cEngine::tick()
 
 	context->pollEvents();
 	
-	// refresh fps display
-#ifndef WV_PLATFORM_PSVITA
+#ifdef WV_PLATFORM_WINDOWS
+	// refresh fps display only on windows
 	{
 		double fps = 1.0 / dt;
-		
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
@@ -324,10 +320,8 @@ void wv::cEngine::tick()
 				m_averageFps += m_fpsCache[ i ];
 			m_averageFps /= (double)FPS_CACHE_NUM;
 
-		#ifdef WV_PLATFORM_WINDOWS
 			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
-		#endif
 		}
 	}
 #endif
@@ -360,15 +354,10 @@ void wv::cEngine::tick()
 #endif
 
 	graphics->beginRender();
-	
 	graphics->clearRenderTarget( true, true );
 
 #ifdef WV_SUPPORT_IMGUI
-	/// TODO: move
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
+	context->newImGuiFrame();
 	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
 #endif // WV_SUPPORT_IMGUI
 	
@@ -404,11 +393,10 @@ void wv::cEngine::tick()
 		graphics->clearRenderTarget( true, true );
 		m_pIRTHandler->draw( graphics );
 	}
+#endif
 
 #ifdef WV_SUPPORT_IMGUI
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-#endif // WV_SUPPORT_IMGUI
+	context->renderImGui();
 #endif
 
 	graphics->endRender();
@@ -452,11 +440,6 @@ void wv::cEngine::initImgui()
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	context->initImGui();
-
-	switch( context->getGraphicsAPI() )
-	{
-	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Init(); break;
-	}
 #else
 	Debug::Print( Debug::WV_PRINT_WARN, "ImGui not supported on this platform\n" );
 #endif
@@ -467,13 +450,7 @@ void wv::cEngine::initImgui()
 void wv::cEngine::shutdownImgui()
 {
 #ifdef WV_SUPPORT_IMGUI
-	switch( context->getGraphicsAPI() )
-	{
-	case WV_GRAPHICS_API_OPENGL: ImGui_ImplOpenGL3_Shutdown(); break;
-	}
-
 	context->terminateImGui();
-
 	ImGui::DestroyContext();
 #endif // WV_SUPPORT_IMGUI
 }

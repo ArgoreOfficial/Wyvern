@@ -42,7 +42,11 @@ namespace wv
 		#ifdef WV_PLATFORM_WINDOWS
 			static HANDLE hConsole = nullptr;
 
-			static std::mutex PRINT_MUTEX;
+			static std::mutex& getMutex()
+			{
+				static std::mutex PRINT_MUTEX{};
+				return PRINT_MUTEX;
+			}
 		#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -79,13 +83,13 @@ namespace wv
 		inline void Print( const char* _str, Args... _args )
 		{
 		#ifdef WV_PLATFORM_WINDOWS
-			Internal::PRINT_MUTEX.lock();
+			Internal::getMutex().lock();
 		#endif
 			printf( "%s", Internal::LEVEL_STR[ 0 ] );
 			printf( _str, _args... );
 
 		#ifdef WV_PLATFORM_WINDOWS
-			Internal::PRINT_MUTEX.unlock();
+			Internal::getMutex().unlock();
 		#endif
 		}
 
@@ -93,7 +97,7 @@ namespace wv
 		inline void Print( PrintLevel _printLevel, const char* _str, Args... _args )
 		{
 		#ifdef WV_PLATFORM_WINDOWS
-			Internal::PRINT_MUTEX.lock();
+			Internal::getMutex().lock();
 		#endif
 
 			
@@ -105,7 +109,7 @@ namespace wv
 			if( skip )
 			{
 			#ifdef WV_PLATFORM_WINDOWS
-				Internal::PRINT_MUTEX.unlock();
+				Internal::getMutex().unlock();
 			#endif
 				return;
 			}
@@ -124,7 +128,7 @@ namespace wv
 			printf( _str, _args... );
 
 		#ifdef WV_PLATFORM_WINDOWS
-			Internal::PRINT_MUTEX.unlock();
+			Internal::getMutex().unlock();
 		#endif
 		}
 	}
