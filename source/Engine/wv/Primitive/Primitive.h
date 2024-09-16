@@ -8,6 +8,7 @@
 #include <wv/Graphics/VertexLayout.h>
 
 #include <vector>
+#include <string>
 
 namespace wv
 {
@@ -25,45 +26,25 @@ namespace wv
 		wv::cVector3f normal;
 		wv::cVector3f tangent;
 		wv::cVector4f color;
-		wv::Vector2f texCoord0;
+		wv::Vector2f  texCoord0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sVertexBuffer
+	enum eMeshDrawType
 	{
-		wv::Handle handle = 0;
-		uint32_t count = 0;
-		uint32_t size = 0;
-	};
-
-	struct sIndexBuffer
-	{
-		wv::Handle handle = 0;
-		uint32_t numIndices = 0;
-		uint32_t size = 0;
-	};
-	
-///////////////////////////////////////////////////////////////////////////////////////
-
-	enum PrimitiveBufferMode
-	{
-		WV_PRIMITIVE_TYPE_STATIC
+		WV_MESH_DRAW_TYPE_VERTICES,
+		WV_MESH_DRAW_TYPE_INDICES
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum PrimitiveDrawType
+	struct sMeshDesc
 	{
-		WV_PRIMITIVE_DRAW_TYPE_VERTICES,
-		WV_PRIMITIVE_DRAW_TYPE_INDICES
-	};
+		std::string name;
+		Transformf transform;
+		Transformf* pParentTransform;
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct PrimitiveDesc
-	{
-		PrimitiveBufferMode type   = WV_PRIMITIVE_TYPE_STATIC;
 		sVertexLayout       layout;
 
 		void*    vertices     = nullptr;
@@ -78,17 +59,17 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Primitive
+	class cMesh
 	{
-
 	public:
+		std::string name;
+		Transformf transform;
 
-		wv::Handle vaoHandle = 0;
+		wv::Handle handle = 0;
 		cGPUBuffer* vertexBuffer;
 		cGPUBuffer* indexBuffer;
 
-		PrimitiveBufferMode mode = WV_PRIMITIVE_TYPE_STATIC;
-		PrimitiveDrawType drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
+		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
 		cMaterial* material = nullptr;
 

@@ -6,6 +6,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
 #include <wv/Primitive/Mesh.h>
+#include <wv/Primitive/Primitive.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Memory/FileSystem.h>
@@ -105,7 +106,7 @@ void wv::cMaterial::setMaterialUniforms()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setInstanceUniforms( sMesh* _instance )
+void wv::cMaterial::setInstanceUniforms( cMesh* _instance )
 {
 	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
@@ -127,7 +128,7 @@ void wv::cMaterial::setDefaultViewUniforms()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
+void wv::cMaterial::setDefaultMeshUniforms( cMesh* _mesh )
 {
 	wv::cEngine* app = wv::cEngine::get();
 

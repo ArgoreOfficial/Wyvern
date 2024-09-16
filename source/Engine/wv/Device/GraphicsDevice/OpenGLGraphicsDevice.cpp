@@ -10,6 +10,8 @@
 
 #include <wv/Memory/FileSystem.h>
 
+#include <wv/Math/Transform.h>
+
 #include <wv/Primitive/Mesh.h>
 #include <wv/Primitive/Primitive.h>
 #include <wv/RenderTarget/RenderTarget.h>
@@ -579,48 +581,14 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh()
+wv::cMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sMesh* mesh = new sMesh();
-	/// TODO: remove?
-	return mesh;
-#else
-	return nullptr;
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh** _mesh )
-{
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed mesh '%s'\n", (*_mesh)->name.c_str() );
-
-	sMesh* mesh = *_mesh;
-	for ( int i = 0; i < mesh->primitives.size(); i++ )
-		destroyPrimitive( mesh->primitives[ i ] );
-	mesh->primitives.clear();
-	mesh->triangles.clear();
-
-	*_mesh = nullptr;
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc )
-{
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
-	Primitive& primitive = *new Primitive();
-	glGenVertexArrays( 1, &primitive.vaoHandle );
-	glBindVertexArray( primitive.vaoHandle );
+	cMesh& mesh = *new cMesh();
+	glGenVertexArrays( 1, &mesh.handle );
+	glBindVertexArray( mesh.handle );
 
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -629,32 +597,32 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc 
 	vbDesc.type  = WV_BUFFER_TYPE_VERTEX;
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size  = _desc->sizeVertices;
-	primitive.vertexBuffer = createGPUBuffer( &vbDesc );
-	primitive.material = _desc->pMaterial;
+	mesh.vertexBuffer = createGPUBuffer( &vbDesc );
+	mesh.material = _desc->pMaterial;
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
-	primitive.vertexBuffer->count = count;
+	mesh.vertexBuffer->count = count;
 	
-	glBindBuffer( GL_ARRAY_BUFFER, primitive.vertexBuffer->handle );
+	glBindBuffer( GL_ARRAY_BUFFER, mesh.vertexBuffer->handle );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	primitive.vertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
-	bufferData( primitive.vertexBuffer );
+	mesh.vertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
+	bufferData( mesh.vertexBuffer );
 
 	if ( _desc->numIndices > 0 )
 	{
-		primitive.drawType = WV_PRIMITIVE_DRAW_TYPE_INDICES;
+		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
 
 		sGPUBufferDesc ibDesc;
 		ibDesc.name  = "ebo";
 		ibDesc.type  = WV_BUFFER_TYPE_INDEX;
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
-		primitive.indexBuffer = createGPUBuffer( &ibDesc );
-		primitive.indexBuffer->count = _desc->numIndices;
+		mesh.indexBuffer = createGPUBuffer( &ibDesc );
+		mesh.indexBuffer->count = _desc->numIndices;
 		
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, primitive.indexBuffer->handle );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer->handle );
 		
 		WV_ASSERT_ERR( "ERROR\n" );
 
@@ -662,22 +630,22 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc 
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
 
-			allocateBuffer( primitive.indexBuffer, bufferSize );
-			primitive.indexBuffer->buffer( _desc->indices16, bufferSize );
+			allocateBuffer( mesh.indexBuffer, bufferSize );
+			mesh.indexBuffer->buffer( _desc->indices16, bufferSize );
 		}
 		else if ( _desc->indices32 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
 
-			allocateBuffer( primitive.indexBuffer, bufferSize );
-			primitive.indexBuffer->buffer( _desc->indices32, bufferSize );
+			allocateBuffer( mesh.indexBuffer, bufferSize );
+			mesh.indexBuffer->buffer( _desc->indices32, bufferSize );
 		}
 
-		bufferData( primitive.indexBuffer );
+		bufferData( mesh.indexBuffer );
 	}
 	else
 	{
-		primitive.drawType = WV_PRIMITIVE_DRAW_TYPE_VERTICES;
+		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
 	}
 	
 	int offset = 0;
@@ -720,9 +688,12 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc 
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	primitive.vertexBuffer->stride = stride;
+	mesh.vertexBuffer->stride = stride;
 	
-	return &primitive;
+	if( _desc->pParentTransform != nullptr )
+		_desc->pParentTransform->addChild( &mesh.transform );
+	
+	return &mesh;
 #else
 	return nullptr;
 #endif
@@ -730,18 +701,18 @@ wv::Primitive* wv::cOpenGLGraphicsDevice::createPrimitive( PrimitiveDesc* _desc 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyPrimitive( Primitive* _primitive )
+void wv::cOpenGLGraphicsDevice::destroyMesh( cMesh* _pMesh )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	Primitive& pr = *_primitive;
+	cMesh& pr = *_pMesh;
 	destroyGPUBuffer( pr.indexBuffer );
 	destroyGPUBuffer( pr.vertexBuffer );
 
-	glDeleteVertexArrays( 1, &pr.vaoHandle );
+	glDeleteVertexArrays( 1, &pr.handle );
 	WV_ASSERT_ERR( "ERROR\n" );
-	delete &pr;
+	delete _pMesh;
 #endif
 }
 
@@ -895,12 +866,12 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
+void wv::cOpenGLGraphicsDevice::draw( cMesh* _pMesh )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glBindVertexArray( _primitive->vaoHandle );
+	glBindVertexArray( _pMesh->handle );
 
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -909,9 +880,9 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 		bufferData( buf );
 	
 	/// TODO: change GL_TRIANGLES
-	if ( _primitive->drawType == WV_PRIMITIVE_DRAW_TYPE_INDICES )
+	if ( _pMesh->drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		glDrawElements( GL_TRIANGLES, _primitive->indexBuffer->count, GL_UNSIGNED_INT, 0 );
+		glDrawElements( GL_TRIANGLES, _pMesh->indexBuffer->count, GL_UNSIGNED_INT, 0 );
 
 		WV_ASSERT_ERR( "ERROR\n" );
 	}
@@ -919,9 +890,9 @@ void wv::cOpenGLGraphicsDevice::drawPrimitive( Primitive* _primitive )
 	{ 
 	#ifndef EMSCRIPTEN
 		/// this does not work on WebGL
-		wv::Handle vbo = _primitive->vertexBuffer->handle;
-		size_t numVertices = _primitive->vertexBuffer->count;
-		glBindVertexBuffer( 0, vbo, 0, _primitive->vertexBuffer->stride );
+		wv::Handle vbo = _pMesh->vertexBuffer->handle;
+		size_t numVertices = _pMesh->vertexBuffer->count;
+		glBindVertexBuffer( 0, vbo, 0, _pMesh->vertexBuffer->stride );
 		WV_ASSERT_ERR( "ERROR\n" );
 
 		glDrawArrays( GL_TRIANGLES, 0, numVertices );

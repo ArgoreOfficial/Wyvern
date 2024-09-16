@@ -58,18 +58,15 @@ namespace wv
 		virtual void        bufferData      ( cGPUBuffer* _buffer ) override;
 		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) override;
 		
-		virtual sMesh* createMesh () override;
-		virtual void   destroyMesh( sMesh** _mesh ) override;
-
-		virtual Primitive* createPrimitive( PrimitiveDesc* _desc ) override;
-		virtual void destroyPrimitive( Primitive* _primitive ) override;
+		virtual cMesh* createMesh ( sMeshDesc* _desc )      override;
+		virtual void       destroyMesh( cMesh* _pMesh ) override;
 
 		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) override;
 		virtual void destroyTexture( Texture** _texture ) override;
 
 		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) override;
 
-		virtual void drawPrimitive( Primitive* _primitive ) override;
+		virtual void draw( cMesh* _pMesh ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

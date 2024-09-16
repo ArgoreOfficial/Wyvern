@@ -26,10 +26,10 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice )
 {
 	if( CUBE_MESH )
-		_pGraphicsDevice->destroyMesh( &CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pGraphicsDevice->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
 	
 	if( SPHERE_MESH )
-		_pGraphicsDevice->destroyMesh( &SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pGraphicsDevice->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
 
 	if( DEBUG_MATERIAL )
 	{

@@ -39,7 +39,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* _mesh, wv::cResourceRegistry* _pResourceRegistry, size_t _primitiveIndex )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::cMesh** _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
 {
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 
@@ -91,6 +91,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 	{
 		aiFace face = _assimp_mesh->mFaces[ i ];
 
+		/*
 		if ( face.mNumIndices == 3 )
 		{
 			wv::Triangle3f triangle{
@@ -100,6 +101,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 			};
 			_mesh->triangles.push_back( triangle );
 		}
+		*/
 		
 		for ( unsigned int j = 0; j < face.mNumIndices; j++ )
 			indices.push_back( face.mIndices[ j ] );
@@ -129,7 +131,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 		material = _pResourceRegistry->load<wv::cMaterial>( materialName + ".wmat" );
 	}
 
-	wv::Primitive*& primitive = _mesh->primitives[ _primitiveIndex ];
 	{ // create primitive
 		std::vector<wv::sVertexAttribute> elements = {
 				{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
@@ -143,9 +144,9 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 		layout.elements = new wv::sVertexAttribute[ elements.size() ];
 		memcpy( layout.elements, elements.data(), elements.size() * sizeof( wv::sVertexAttribute ) );
 
-		wv::PrimitiveDesc prDesc;
-		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
+		wv::sMeshDesc prDesc;
 		prDesc.layout = layout;
+		prDesc.pParentTransform = &_meshNode->transform;
 
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
 		prDesc.sizeVertices = sizeVertices;
@@ -158,10 +159,10 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 		memcpy( prDesc.indices32, indices.data(), indices.size() * sizeof( uint32_t ) );
 		
 		prDesc.pMaterial = material;
-
+		
 		// buffer
 		uint32_t cmdBuffer = device->getCommandBuffer();
-		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_PRIMITIVE, &primitive, &prDesc );
+		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, _outMesh, &prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
 		if ( device->getThreadID() == std::this_thread::get_id() )
@@ -190,14 +191,10 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	// process all the node's meshes (if any)
 	for ( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
-		wv::sMesh* mesh = _pGraphicsDevice->createMesh();
-		mesh->primitives.resize( _node->mNumMeshes );
+		_meshNode->meshes.resize( _node->mNumMeshes );
 
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
-		processAssimpMesh( aimesh, _scene, mesh, _pResourceRegistry, i );
-		
-		_meshNode->transform.addChild( &mesh->transform );
-		_meshNode->meshes.push_back( mesh );
+		processAssimpMesh( aimesh, _scene, &_meshNode->meshes[ i ], _meshNode, _pResourceRegistry );
 	}
 
 	// then do the same for each of its children

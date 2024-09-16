@@ -18,19 +18,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMesh
-	{
-		std::string name;
-		Transformf transform;
-		std::vector<Primitive*> primitives;
-		std::vector<Triangle3f> triangles;
-	};
-
 	struct sMeshNode
 	{
 		std::string name;
 		Transformf transform;
-		std::vector<sMesh*>      meshes;
+		std::vector<cMesh*> meshes;
 		std::vector<sMeshNode*> children;
 	};
 

@@ -276,7 +276,7 @@ void wv::cEngine::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	graphics->destroyMesh( &m_screenQuad );
+	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( &m_gbuffer );
 
 	// destroy modules
@@ -509,9 +509,8 @@ void wv::cEngine::createScreenQuad()
 	indices.push_back( 0 );
 	indices.push_back( 1 );
 	indices.push_back( 2 );
-	wv::PrimitiveDesc prDesc;
+	wv::sMeshDesc prDesc;
 	{
-		prDesc.type = wv::WV_PRIMITIVE_TYPE_STATIC;
 		prDesc.layout = layout;
 
 		prDesc.vertices  = vertices.data();
@@ -521,8 +520,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.numIndices = indices.size();
 	}
 
-	m_screenQuad = graphics->createMesh();
-	m_screenQuad->primitives.push_back( graphics->createPrimitive( &prDesc ) );
+	m_screenQuad = graphics->createMesh( &prDesc );
 	
 	if( m_screenQuad )
 		m_screenQuad->transform.update( nullptr );

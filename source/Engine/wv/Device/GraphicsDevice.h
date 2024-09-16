@@ -23,19 +23,18 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Primitive;
+	class cMesh;
 	class Texture;
 	class RenderTarget;
 	class cMaterial;
 
 	struct PipelineDesc;
-	struct PrimitiveDesc;
+	struct sMeshDesc;
 	struct TextureDesc;
 	struct RenderTargetDesc;
 	
 	struct iDeviceContext;
 	struct sMeshNode;
-	struct sMesh;
 
 	struct sShaderProgramSource;
 	struct sShaderProgram;
@@ -66,7 +65,6 @@ namespace wv
 
 		void initEmbeds();
 
-		void draw( sMesh* _mesh );
 		void drawNode( sMeshNode* _node );
 
 		std::thread::id getThreadID() { return m_threadID; }
@@ -111,18 +109,15 @@ namespace wv
 		virtual void        bufferData      ( cGPUBuffer* _buffer ) = 0;
 		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) = 0;
 		
-		virtual sMesh* createMesh() = 0;
-		virtual void destroyMesh( sMesh** _mesh ) = 0;
-
-		virtual Primitive* createPrimitive( PrimitiveDesc* _desc ) = 0;
-		virtual void destroyPrimitive( Primitive* _primitive ) = 0;
+		virtual cMesh* createMesh( sMeshDesc* _desc ) = 0;
+		virtual void destroyMesh( cMesh* _pMesh ) = 0;
 
 		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) = 0;
 		virtual void destroyTexture( Texture** _texture ) = 0;
 
 		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) = 0;
 
-		virtual void drawPrimitive( Primitive* _primitive ) = 0;
+		virtual void draw( cMesh* _pMesh ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		

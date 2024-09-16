@@ -18,13 +18,13 @@ namespace wv
 
 	class iIntermediateRenderTargetHandler;
 
-	class sMesh;
 	class iCamera;
 	class RenderTarget;
 	class cFileSystem;
 	class cSceneRoot;
 	class cModelObject;
 	class iMaterial;
+	class cMesh;
 
 	class cApplicationState;
 
@@ -100,9 +100,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		sMesh*             m_screenQuad      = nullptr;
+		cMesh*        m_screenQuad       = nullptr;
 		cProgramPipeline* m_deferredPipeline = nullptr;
-		RenderTarget*     m_gbuffer         = nullptr;
+		RenderTarget*     m_gbuffer          = nullptr;
 
 		// engine
 		iDeviceContext*  context  = nullptr;

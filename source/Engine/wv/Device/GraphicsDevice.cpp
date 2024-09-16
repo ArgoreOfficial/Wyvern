@@ -60,37 +60,6 @@ void wv::iGraphicsDevice::initEmbeds()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::draw( sMesh* _mesh )
-{
-	WV_TRACE();
-
-	if( !_mesh )
-		return;
-
-	for( size_t i = 0; i < _mesh->primitives.size(); i++ )
-	{
-		if ( _mesh->primitives[ i ] == nullptr )
-			continue;
-
-		cMaterial* mat = _mesh->primitives[ i ]->material;
-		if( mat )
-		{
-			if ( !mat->isComplete() )
-				mat = m_emptyMaterial;
-			
-			mat->setAsActive( this );
-			mat->setInstanceUniforms( _mesh );
-			drawPrimitive( _mesh->primitives[ i ] );
-		}
-		else
-		{
-			drawPrimitive( _mesh->primitives[ i ] );
-		}
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 {
 	WV_TRACE();
@@ -99,10 +68,30 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 		return;
 
 	for( auto& mesh : _node->meshes )
-		draw( mesh );
+	{
+		if( mesh == nullptr )
+			continue;
 
+		cMaterial* mat = mesh->material;
+		if( mat )
+		{
+			if( !mat->isComplete() )
+				mat = m_emptyMaterial;
+
+			mat->setAsActive( this );
+			mat->setInstanceUniforms( mesh );
+			draw( mesh );
+		}
+		else
+		{
+			draw( mesh );
+		}
+	}
+	
 	for( auto& childNode : _node->children )
+	{
 		drawNode( childNode );
+	}
 }
 
 
@@ -212,12 +201,12 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t& _index )
 			destroyGPUBuffer( stream.pop<cGPUBuffer*>() );
 			break;
 
-		case WV_GPUTASK_CREATE_PRIMITIVE:
-			*outPtr = createPrimitive( &stream.pop<PrimitiveDesc>() );
+		case WV_GPUTASK_CREATE_MESH:
+			*outPtr = createMesh( &stream.pop<sMeshDesc>() );
 			break;
 
-		case WV_GPUTASK_DESTROY_PRIMITIVE:
-			destroyPrimitive( stream.pop<Primitive*>() );
+		case WV_GPUTASK_DESTROY_MESH:
+			destroyMesh( stream.pop<cMesh*>() );
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:

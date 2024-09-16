@@ -122,10 +122,10 @@ namespace wv
 		return result;
 	}
 
+		/*
 	template<>
-	inline RayIntersection Ray::intersect<sMesh>( sMesh* _t )
+	inline RayIntersection Ray::intersect<cMesh>( cMesh* _t )
 	{
-		
 		cVector4f s{ start.x, start.y, start.z, 1.0f };
 		cVector4f e{   end.x,   end.y,   end.z, 1.0f };
 		s = Matrix::inverse( _t->transform.getMatrix() ) * s;
@@ -153,6 +153,8 @@ namespace wv
 		}
 
 		return finalResult;
+		return {};
 	}
+		*/
 
 }
