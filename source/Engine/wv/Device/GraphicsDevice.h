@@ -14,6 +14,7 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,10 +71,18 @@ namespace wv
 
 		std::thread::id getThreadID() { return m_threadID; }
 
-		[[nodiscard]] cCommandBuffer& getCommandBuffer();
-		void submitCommandBuffer( cCommandBuffer& _buffer );
+		[[nodiscard]] uint32_t getCommandBuffer();
+		
+		void submitCommandBuffer( uint32_t& _buffer );
+		void executeCommandBuffer( uint32_t& _index );
 
-		void executeCommandBuffer( cCommandBuffer& _buffer );
+		template<typename R, typename T>
+		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
+		template<typename T>
+		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _buffer, _type, nullptr, _pInfo ); }
+		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _buffer, _type, nullptr, nullptr ); }
+
+		void setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller );
 
 		virtual void terminate() = 0;
 
@@ -116,7 +125,7 @@ namespace wv
 		virtual void drawPrimitive( Primitive* _primitive ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+		
 	protected:
 
 		iGraphicsDevice() { };
@@ -129,6 +138,7 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		std::mutex m_mutex;
+		bool m_reallocatingCommandBuffers = false;
 
 		std::vector<cCommandBuffer> m_commandBuffers;
 		std::queue <uint32_t>       m_availableCommandBuffers;
@@ -137,4 +147,11 @@ namespace wv
 
 		cMaterial* m_emptyMaterial;
 	};
+	template<typename R, typename T>
+	inline void iGraphicsDevice::bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
+	{
+		m_mutex.lock();
+		m_commandBuffers[ _buffer ].push<R, T>( _type, _ppReturn, _pInfo );
+		m_mutex.unlock();
+	}
 }

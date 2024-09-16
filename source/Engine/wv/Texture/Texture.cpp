@@ -39,12 +39,13 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 
 	TextureDesc desc;
 	desc.filtering = m_filtering;
-	wv::cCommandBuffer& cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	cmdBuffer.push( WV_GPUTASK_CREATE_TEXTURE, (void**)this, &desc ); // hack
+	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	 
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)this, &desc ); // hack
 
 	auto onCompleteCallback = []( void* _c ) { ( (iResource*)( _c ) )->setComplete( true ); };
-	cmdBuffer.callback.bind( onCompleteCallback );
-	cmdBuffer.callbacker = (void*)this;
+
+	_pGraphicsDevice->setCommandBufferCallback( cmdBuffer, onCompleteCallback, (void*)this );
 
 	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
 	if ( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )

@@ -108,11 +108,12 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cCommandBuffer& wv::iGraphicsDevice::getCommandBuffer()
+uint32_t wv::iGraphicsDevice::getCommandBuffer()
 {
 	m_mutex.lock();
+	m_reallocatingCommandBuffers = m_availableCommandBuffers.size() == 0;
 
-	if( m_availableCommandBuffers.size() == 0 )
+	if( m_reallocatingCommandBuffers )
 	{
 		cCommandBuffer buffer( m_commandBuffers.size(), 128 );
 		m_commandBuffers.push_back( buffer );
@@ -124,40 +125,37 @@ wv::cCommandBuffer& wv::iGraphicsDevice::getCommandBuffer()
 	m_recordingCommandBuffers.push_back( bufferIndex );
 
 	m_mutex.unlock();
-
-	return m_commandBuffers[ bufferIndex ];
+	return bufferIndex;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::submitCommandBuffer( wv::cCommandBuffer& _buffer )
+void wv::iGraphicsDevice::submitCommandBuffer( uint32_t& _buffer )
 {
 	m_mutex.lock();
-
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
 	{
-		uint32_t index = _buffer.getIndex();
-
-		if( m_recordingCommandBuffers[ i ] != index )
+		if( m_recordingCommandBuffers[ i ] != _buffer )
 			continue;
 
 		m_recordingCommandBuffers.erase( m_recordingCommandBuffers.begin() + i );
-		m_submittedCommandBuffers.push_back( index );
+		m_submittedCommandBuffers.push_back( _buffer );
 
 		m_mutex.unlock();
 		return;
 	}
-	
 	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::executeCommandBuffer( cCommandBuffer& _buffer )
+void wv::iGraphicsDevice::executeCommandBuffer( uint32_t& _index )
 {
-	cMemoryStream& stream = _buffer.getBuffer();
+	m_mutex.lock();
+	cCommandBuffer& buffer = m_commandBuffers[ _index ];
+	cMemoryStream& stream = buffer.getBuffer();
 
-	for( size_t i = 0; i < _buffer.getNumCommands(); i++ )
+	for( size_t i = 0; i < buffer.getNumCommands(); i++ )
 	{
 		eGPUTaskType taskType = stream.pop<eGPUTaskType>();
 		void** outPtr = stream.pop<void**>();
@@ -236,25 +234,32 @@ void wv::iGraphicsDevice::executeCommandBuffer( cCommandBuffer& _buffer )
 		}
 	}
 
-	m_mutex.lock();
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 	{
 		uint32_t submittedIndex = m_submittedCommandBuffers[ i ];
-		if( submittedIndex != _buffer.getIndex() )
+		if( submittedIndex != _index )
 			continue;
 
 		m_submittedCommandBuffers.erase( m_submittedCommandBuffers.begin() + i );
 		m_availableCommandBuffers.push( submittedIndex );
 	}
+
+	if( buffer.callback.m_fptr )
+		buffer.callback( buffer.callbacker );
+
+	buffer.flush();
 	m_mutex.unlock();
-
-	if( _buffer.callback.m_fptr )
-		_buffer.callback( _buffer.callbacker );
-
-	_buffer.flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::iGraphicsDevice::setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller )
+{
+	m_mutex.lock();
+	m_commandBuffers[ _buffer ].callback = _func;
+	m_commandBuffers[ _buffer ].callbacker = _caller;
+	m_mutex.unlock();
+}
 
 void wv::iGraphicsDevice::beginRender()
 {
@@ -266,12 +271,6 @@ void wv::iGraphicsDevice::beginRender()
 
 void wv::iGraphicsDevice::endRender()
 {
-	while ( m_recordingCommandBuffers.size() > 0 )
-	{
-		Sleep( 1 ); // is there a better solution?
-		// application will freeze if command buffer is not submitted
-	}
-
 	for( auto& submittedIndex : m_submittedCommandBuffers )
-		executeCommandBuffer( m_commandBuffers[ submittedIndex ] );
+		executeCommandBuffer( submittedIndex );
 }

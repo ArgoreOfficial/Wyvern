@@ -74,11 +74,11 @@ namespace wv
 
 		wv::Function<void, void*> callback;
 		void* callbacker = nullptr;
+		uint32_t m_index = -1;
 	private:
 		wv::cMemoryStream m_buffer;
 		size_t m_numCommands = 0;
 
-		uint32_t m_index = -1;
 
 	};
 

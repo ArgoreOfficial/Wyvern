@@ -34,18 +34,17 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGrap
 static void unloadMesh( wv::sMesh* _mesh )
 {
 	wv::iGraphicsDevice* pGraphicsDevice = wv::cEngine::get()->graphics;
-	wv::cCommandBuffer& cmdBuffer = pGraphicsDevice->getCommandBuffer();
+	uint32_t cmdBuffer = pGraphicsDevice->getCommandBuffer();
 	
 	for ( auto& primitive : _mesh->primitives )
-		cmdBuffer.push( wv::WV_GPUTASK_DESTROY_PRIMITIVE, &primitive );
+		pGraphicsDevice->bufferCommand( cmdBuffer, wv::WV_GPUTASK_DESTROY_PRIMITIVE, &primitive );
 	
-	cmdBuffer.callback.m_fptr = []( void* _c )
+	auto cb = []( void* _c )
 		{
 			wv::sMesh* mesh = (wv::sMesh*)_c;
 			delete mesh;
 		};
-
-	cmdBuffer.callbacker = _mesh;
+	pGraphicsDevice->setCommandBufferCallback( cmdBuffer, cb, (void*)_mesh );
 
 	pGraphicsDevice->submitCommandBuffer( cmdBuffer );
 }

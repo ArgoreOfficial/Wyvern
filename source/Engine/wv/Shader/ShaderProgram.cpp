@@ -52,20 +52,24 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	desc.pVertexProgram   = &m_vs;
 	desc.pFragmentProgram = &m_fs;
 
-	wv::cCommandBuffer& cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_vs, &vsDesc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_fs, &fsDesc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, &m_pPipeline, &desc );
 
-	cmdBuffer.push( WV_GPUTASK_CREATE_PROGRAM, &m_vs, &vsDesc );
-	cmdBuffer.push( WV_GPUTASK_CREATE_PROGRAM, &m_fs, &fsDesc );
-	cmdBuffer.push( WV_GPUTASK_CREATE_PIPELINE, &m_pPipeline, &desc );
+	/// this is disgusting
+	auto cb =
+		[]( void* _c ) 
+		{ 
+			iResource* res = (iResource*)_c;
+			res->setComplete( true ); 
+		};
 
-	// probably a better way to handle this but can't think of one right now
-	auto onCompleteCallback = []( void* _c ) { ( (iResource*)( _c ) )->setComplete( true ); };
-	cmdBuffer.callback.bind( onCompleteCallback );
-	cmdBuffer.callbacker = (void*)this;
+	_pGraphicsDevice->setCommandBufferCallback( cmdBuffer, cb, (void*)this );
 
 	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
 
-	if ( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )
+	if( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )
 		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
 }
 

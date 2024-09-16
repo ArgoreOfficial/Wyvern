@@ -160,8 +160,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh* 
 		prDesc.pMaterial = material;
 
 		// buffer
-		wv::cCommandBuffer& cmdBuffer = device->getCommandBuffer();
-		cmdBuffer.push( wv::WV_GPUTASK_CREATE_PRIMITIVE, &primitive, &prDesc );
+		uint32_t cmdBuffer = device->getCommandBuffer();
+		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_PRIMITIVE, &primitive, &prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
 		if ( device->getThreadID() == std::this_thread::get_id() )
