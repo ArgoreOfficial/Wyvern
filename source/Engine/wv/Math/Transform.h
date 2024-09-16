@@ -103,13 +103,9 @@ namespace wv
 
 		m_matrix = model;
 
-		//for( auto& child : m_children )
-		//	child->update( this );
+		for( auto& child : m_children )
+			child->update( this );
 
-		for ( size_t i = 0; i < m_children.size(); i++ )
-		{
-			m_children[ i ]->update( this );
-		}
 	}
 
 }

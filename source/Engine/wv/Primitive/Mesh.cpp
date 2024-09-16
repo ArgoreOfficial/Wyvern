@@ -4,6 +4,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Resource/ResourceRegistry.h>
+#include <wv/Material/Material.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,6 +79,46 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void drawNode( wv::iGraphicsDevice* _pGraphicsDevice, wv::sMeshNode* _node, std::vector<wv::Transformf>& _transforms )
+{
+	if( !_node )
+		return;
+
+	for( auto& mesh : _node->meshes )
+	{
+		if( mesh == nullptr )
+			continue;
+
+		wv::cMaterial* mat = mesh->material;
+		if( mat )
+		{
+			if( !mat->isComplete() )
+				continue; // fix
+
+			mat->setAsActive( _pGraphicsDevice );
+
+			for( auto& transform : _transforms )
+			{
+				_node->transform.update( &transform );
+				mat->setInstanceUniforms( mesh );
+				_pGraphicsDevice->draw( mesh );
+			}
+		}
+		else
+		{
+			for( auto& transform : _transforms )
+			{
+				_node->transform.update( &transform );
+				
+				_pGraphicsDevice->draw( mesh );
+			}
+		}
+	}
+
+	for( auto& childNode : _node->children )
+		drawNode( _pGraphicsDevice, childNode, _transforms );
+}
+
 void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 {
 	if ( m_pMeshNode == nullptr )
@@ -86,6 +127,10 @@ void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 		return;
 	}
 
+	//drawNode( _pGraphicsDevice, m_pMeshNode, m_drawQueue );
+
+	/*
+	*/
 	for ( auto& transform : m_drawQueue )
 	{
 		m_pMeshNode->transform.update( &transform );
