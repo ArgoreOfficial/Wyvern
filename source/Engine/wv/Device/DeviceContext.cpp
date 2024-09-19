@@ -24,7 +24,7 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 	case WV_DEVICE_CONTEXT_API_GLFW: context = new GLFWDeviceContext(); break;
 	#endif
 
-	#ifdef WV_SUPPORT_SDL
+	#ifdef WV_SUPPORT_SDL2
 	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext (); break;
 	#endif
 	}

@@ -13,6 +13,7 @@
 
 #ifdef WV_SUPPORT_IMGUI
 #include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +231,10 @@ void wv::GLFWDeviceContext::initImGui()
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
-	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+	case WV_GRAPHICS_API_OPENGL:
+		ImGui_ImplOpenGL3_Init();
+	case WV_GRAPHICS_API_OPENGL_ES1:
+	case WV_GRAPHICS_API_OPENGL_ES2:
 		ImGui_ImplGlfw_InitForOpenGL( m_windowContext, true );
 		break;
 	}
@@ -242,7 +246,49 @@ void wv::GLFWDeviceContext::terminateImGui()
 {
 #ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL:
+		ImGui_ImplOpenGL3_Shutdown();
+		break;
+	}
 	ImGui_ImplGlfw_Shutdown();
+#endif
+#endif
+}
+
+void wv::GLFWDeviceContext::newImGuiFrame()
+{
+#ifdef WV_SUPPORT_GLFW
+#ifdef WV_SUPPORT_IMGUI
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		break;
+	default:
+		Debug::Print( Debug::WV_PRINT_FATAL, "GLFW context newImGuiFrame() graphics mode not supported" );
+	}
+#endif
+#endif
+}
+
+void wv::GLFWDeviceContext::renderImGui()
+{
+#ifdef WV_SUPPORT_GLFW
+#ifdef WV_SUPPORT_IMGUI
+	ImGui::Render();
+
+	switch ( m_graphicsApi )
+	{
+	case WV_GRAPHICS_API_OPENGL: case WV_GRAPHICS_API_OPENGL_ES1: case WV_GRAPHICS_API_OPENGL_ES2:
+		ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+		break;
+	default:
+		Debug::Print( Debug::WV_PRINT_FATAL, "GLFW context renderImGui() graphics mode not supported" );
+	}
 #endif
 #endif
 }

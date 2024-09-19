@@ -24,6 +24,8 @@ namespace wv
 
 		virtual void initImGui() override;
 		virtual void terminateImGui() override;
+		virtual void newImGuiFrame() override;
+		virtual void renderImGui() override;
 
 		GraphicsDriverLoadProc getLoadProc() override;
 
