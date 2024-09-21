@@ -901,7 +901,7 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		draw( rMesh.indexBuffer->count );
+		drawIndices( rMesh.indexBuffer->count );
 	}
 	else
 	{ 
@@ -920,7 +920,7 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::draw( uint32_t _numIndices )
+void wv::cOpenGLGraphicsDevice::drawIndices( uint32_t _numIndices )
 {
 	/// TODO: allow for other draw modes
 	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
@@ -947,10 +947,10 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 		case GL_INVALID_VALUE:     *_out = "GL_INVALID_VALUE";     break;
 		case GL_INVALID_OPERATION: *_out = "GL_INVALID_OPERATION"; break;
 		
-		case GL_STACK_OVERFLOW:  *_out = "GL_STACK_OVERFLOW";    break;
-		case GL_STACK_UNDERFLOW: *_out = "GL_STACK_UNDERFLOW";   break;
-		case GL_OUT_OF_MEMORY:   *_out = "GL_OUT_OF_MEMORY";     break;
-		case GL_CONTEXT_LOST:    *_out = "GL_OUT_OF_MEMORY";     break;
+		case GL_STACK_OVERFLOW:  *_out = "GL_STACK_OVERFLOW";  break;
+		case GL_STACK_UNDERFLOW: *_out = "GL_STACK_UNDERFLOW"; break;
+		case GL_OUT_OF_MEMORY:   *_out = "GL_OUT_OF_MEMORY";   break;
+		case GL_CONTEXT_LOST:    *_out = "GL_OUT_OF_MEMORY";   break;
 
 		case GL_INVALID_FRAMEBUFFER_OPERATION: *_out = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
 		}

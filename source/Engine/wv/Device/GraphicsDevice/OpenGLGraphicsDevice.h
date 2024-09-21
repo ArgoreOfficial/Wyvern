@@ -70,7 +70,7 @@ namespace wv
 		virtual void setFillMode( eFillMode _mode ) override;
 
 		virtual void draw( sMesh* _pMesh ) override;
-		virtual void draw( uint32_t _numIndices ) override;
+		virtual void drawIndices( uint32_t _numIndices ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
