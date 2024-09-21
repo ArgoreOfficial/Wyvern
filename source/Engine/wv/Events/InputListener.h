@@ -9,7 +9,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct InputEvent
+	struct sInputEvent
 	{
 		int key;
 		int scancode;
@@ -28,7 +28,7 @@ namespace wv
 
 	public:
 
-		static void invoke( InputEvent _event );
+		static void invoke( sInputEvent _event );
 		static void setEnabled( bool _enabled ) { m_enabled = _enabled; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace wv
 
 		void subscribeInputEvent  ( void );
 		void unsubscribeInputEvent( void );
-		virtual void onInputEvent( InputEvent _event ) = 0;
+		virtual void onInputEvent( sInputEvent _event ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

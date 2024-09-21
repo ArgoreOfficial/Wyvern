@@ -26,7 +26,7 @@
 #ifdef WV_SUPPORT_SDL2
 void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 {
-	wv::InputEvent inputEvent;
+	wv::sInputEvent inputEvent;
 	inputEvent.buttondown = _event->type == SDL_KEYDOWN;
 	inputEvent.buttonup = _event->type == SDL_KEYUP;
 	inputEvent.repeat = _event->repeat != 0;

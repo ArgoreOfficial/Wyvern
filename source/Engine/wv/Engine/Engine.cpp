@@ -185,10 +185,30 @@ void wv::cEngine::onMouseEvent( MouseEvent _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::onInputEvent( InputEvent _event )
+void wv::cEngine::onInputEvent( sInputEvent _event )
 {
-	if( _event.buttondown && _event.key == 'R' )
-			m_pApplicationState->reloadScene();
+	if ( _event.buttondown )
+	{
+		switch ( _event.key )
+		{
+		case 'R':         m_pApplicationState->reloadScene(); break;
+		}
+
+		switch ( context->getContextAPI() )
+		{
+		case WV_DEVICE_CONTEXT_API_SDL:
+		{
+			if ( _event.key == SDLK_ESCAPE )
+				context->close();
+		}
+		case WV_DEVICE_CONTEXT_API_GLFW:
+		{
+			if ( _event.key == GLFW_KEY_ESCAPE )
+				context->close();
+		}
+		break;
+		}
+	}
 }
 
 void wv::cEngine::setSize( int _width, int _height, bool _notify )

@@ -44,7 +44,7 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::FreeflightCamera::onInputEvent( InputEvent _event )
+void wv::FreeflightCamera::onInputEvent( sInputEvent _event )
 {
 	int button_delta = _event.buttondown ? 1 : -1;
 

@@ -26,7 +26,7 @@ namespace wv
 
 		void onCreate() override;
 		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( InputEvent _event ) override;
+		void onInputEvent( sInputEvent _event ) override;
 		void update( double _delta_time ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////

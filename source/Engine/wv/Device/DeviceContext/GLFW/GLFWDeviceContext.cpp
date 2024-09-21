@@ -21,7 +21,7 @@
 #ifdef WV_SUPPORT_GLFW
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
-	wv::InputEvent inputEvent;
+	wv::sInputEvent inputEvent;
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;
 	inputEvent.repeat = _action == GLFW_REPEAT;
@@ -312,7 +312,8 @@ void wv::GLFWDeviceContext::pollEvents()
 	// process input
 	glfwPollEvents();
 
-	m_alive = !glfwWindowShouldClose( m_windowContext );
+	if ( glfwWindowShouldClose( m_windowContext ) )
+		m_alive = false;
 #endif
 }
 

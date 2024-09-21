@@ -79,7 +79,7 @@ namespace wv
 
 		void onResize( int _width, int _height );
 		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( InputEvent _event ) override;
+		void onInputEvent( sInputEvent _event ) override;
 
 		void setSize( int _width, int _height, bool _notify = true );
 		void setDrawWireframe( bool _enabled ) { m_drawWireframe = _enabled; }

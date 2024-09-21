@@ -56,7 +56,7 @@ void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OrbitCamera::onInputEvent( InputEvent _event )
+void wv::OrbitCamera::onInputEvent( sInputEvent _event )
 {
 
 	/// scroll?

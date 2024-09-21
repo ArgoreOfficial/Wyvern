@@ -95,9 +95,9 @@ namespace wv
 		
 		int    getWidth    () { return m_width; }
 		int    getHeight   () { return m_height; }
-		double getTime     () { return m_time; };
+		double getTime     () { return m_time; }
 		double getDeltaTime() { return m_deltaTime; }
-		bool   isAlive     () { return m_alive; };
+		bool   isAlive     () { return m_alive; }
 
 		void close() { m_alive = false; }
 

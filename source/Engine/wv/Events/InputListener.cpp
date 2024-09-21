@@ -7,7 +7,7 @@ bool wv::iInputListener::m_enabled = true;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iInputListener::invoke( InputEvent _event )
+void wv::iInputListener::invoke( sInputEvent _event )
 {
 	for ( int i = 0; i < m_hooks.size(); i++ )
 		m_hooks[ i ]->onInputEvent( _event );
