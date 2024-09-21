@@ -206,7 +206,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t& _index )
 			break;
 
 		case WV_GPUTASK_DESTROY_MESH:
-			destroyMesh( stream.pop<cMesh*>() );
+			destroyMesh( stream.pop<sMesh*>() );
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:

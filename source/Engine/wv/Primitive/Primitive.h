@@ -59,24 +59,24 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMesh
+	struct sMesh
 	{
-	public:
 		std::string name;
 		Transformf transform;
 
 		wv::Handle handle = 0;
-		cGPUBuffer* vertexBuffer;
-		cGPUBuffer* indexBuffer;
+		cGPUBuffer* vertexBuffer = nullptr;
+		cGPUBuffer* indexBuffer  = nullptr;
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
 		cMaterial* material = nullptr;
 
+		// remove?
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 
-		void* pPlatformData;
+		void* pPlatformData = nullptr;
 	};
 
 }

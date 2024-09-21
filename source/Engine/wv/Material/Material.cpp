@@ -106,7 +106,7 @@ void wv::cMaterial::setMaterialUniforms()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setInstanceUniforms( cMesh* _instance )
+void wv::cMaterial::setInstanceUniforms( sMesh* _instance )
 {
 	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
@@ -128,7 +128,7 @@ void wv::cMaterial::setDefaultViewUniforms()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setDefaultMeshUniforms( cMesh* _mesh )
+void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 {
 	wv::cEngine* app = wv::cEngine::get();
 

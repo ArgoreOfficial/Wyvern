@@ -430,14 +430,11 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	
 #ifdef WV_SUPPORT_OPENGL
 	sPipeline& pipeline = *new sPipeline();
-
+	
 	glGenProgramPipelines( 1, &pipeline.handle );
 
 	WV_ASSERT_ERR( "Failed to create pipeline\n" );
-	if( pipeline.handle == 0 )
-	{
-		return &pipeline;
-	}
+	if( pipeline.handle == 0 ) return &pipeline;
 	
 	if ( desc.pVertexProgram )
 	{
@@ -581,12 +578,12 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
+wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cMesh& mesh = *new cMesh();
+	sMesh& mesh = *new sMesh();
 	glGenVertexArrays( 1, &mesh.handle );
 	glBindVertexArray( mesh.handle );
 
@@ -701,12 +698,12 @@ wv::cMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyMesh( cMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cMesh& pr = *_pMesh;
+	sMesh& pr = *_pMesh;
 	destroyGPUBuffer( pr.indexBuffer );
 	destroyGPUBuffer( pr.vertexBuffer );
 
@@ -864,14 +861,36 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned i
 	m_boundTextureSlots[ _slot ] = _texture->getHandle();
 #endif
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::draw( cMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::bindVertexBuffer( cGPUBuffer* _pVertexBuffer )
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cOpenGLGraphicsDevice::setFillMode( eFillMode _mode )
+{
+	switch ( _mode )
+	{
+	case WV_FILL_MODE_SOLID:     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  break;
+	case WV_FILL_MODE_WIREFRAME: glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  break;
+	case WV_FILL_MODE_POINTS:    glPolygonMode( GL_FRONT_AND_BACK, GL_POINT ); break;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glBindVertexArray( _pMesh->handle );
+	sMesh& rMesh = *_pMesh;
+
+	glBindVertexArray( rMesh.handle );
 
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -880,28 +899,33 @@ void wv::cOpenGLGraphicsDevice::draw( cMesh* _pMesh )
 		bufferData( buf );
 	
 	/// TODO: change GL_TRIANGLES
-	if ( _pMesh->drawType == WV_MESH_DRAW_TYPE_INDICES )
+	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		glDrawElements( GL_TRIANGLES, _pMesh->indexBuffer->count, GL_UNSIGNED_INT, 0 );
-
-		WV_ASSERT_ERR( "ERROR\n" );
+		draw( rMesh.indexBuffer->count );
 	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
 		/// this does not work on WebGL
-		wv::Handle vbo = _pMesh->vertexBuffer->handle;
-		size_t numVertices = _pMesh->vertexBuffer->count;
-		glBindVertexBuffer( 0, vbo, 0, _pMesh->vertexBuffer->stride );
-		WV_ASSERT_ERR( "ERROR\n" );
-
+		wv::Handle vbo = rMesh.vertexBuffer->handle;
+		size_t numVertices = rMesh.vertexBuffer->count;
+		glBindVertexBuffer( 0, vbo, 0, rMesh.vertexBuffer->stride );
 		glDrawArrays( GL_TRIANGLES, 0, numVertices );
-		WV_ASSERT_ERR( "ERROR\n" );
 	#else
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
 	#endif
 	}
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cOpenGLGraphicsDevice::draw( uint32_t _numIndices )
+{
+	/// TODO: allow for other draw modes
+	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
+
+	glDrawElements( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

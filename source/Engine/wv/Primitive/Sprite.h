@@ -7,7 +7,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMesh;
+	class sMesh;
 	class cMaterial;
 	class iGraphicsDevice;
 
@@ -15,14 +15,14 @@ namespace wv
 
 	namespace Internal
 	{
-		static cMesh* S_SPRITE_QUAD = nullptr;
+		static sMesh* S_SPRITE_QUAD = nullptr;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct SpriteDesc
 	{
-		cMesh* mesh = nullptr;
+		sMesh* mesh = nullptr;
 		cMaterial* material = nullptr;
 		cVector3f position{};
 		cVector3f size{ 64.0f, 64.0f, 1.0f };
@@ -53,7 +53,7 @@ namespace wv
 
 		cMaterial* m_material = nullptr;
 		Transformf m_transform;
-		cMesh* m_mesh = nullptr;
+		sMesh* m_mesh = nullptr;
 
 	};
 

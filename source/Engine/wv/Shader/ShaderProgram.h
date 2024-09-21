@@ -20,6 +20,13 @@ namespace wv
 
 	class iGraphicsDevice;
 
+	enum eFillMode
+	{
+		WV_FILL_MODE_SOLID,
+		WV_FILL_MODE_WIREFRAME,
+		WV_FILL_MODE_POINTS
+	};
+
 	struct sPipeline
 	{
 		wv::Handle handle;

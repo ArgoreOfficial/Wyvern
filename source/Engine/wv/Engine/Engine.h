@@ -24,7 +24,7 @@ namespace wv
 	class cSceneRoot;
 	class cModelObject;
 	class iMaterial;
-	class cMesh;
+	class sMesh;
 
 	class cApplicationState;
 
@@ -82,6 +82,7 @@ namespace wv
 		void onInputEvent( InputEvent _event ) override;
 
 		void setSize( int _width, int _height, bool _notify = true );
+		void setDrawWireframe( bool _enabled ) { m_drawWireframe = _enabled; }
 
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
@@ -100,7 +101,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		cMesh*        m_screenQuad       = nullptr;
+		sMesh*        m_screenQuad       = nullptr;
 		cProgramPipeline* m_deferredPipeline = nullptr;
 		RenderTarget*     m_gbuffer          = nullptr;
 
@@ -144,6 +145,8 @@ namespace wv
 		double m_fpsCache[ FPS_CACHE_NUM ] = { 0.0 };
 		double m_averageFps = 0.0;
 		double m_maxFps = 0.0;
+
+		bool m_drawWireframe = false;
 
 		/*
 		 * technically not a singleton but getting a reference 

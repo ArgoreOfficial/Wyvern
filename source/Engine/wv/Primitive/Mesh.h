@@ -22,7 +22,7 @@ namespace wv
 	{
 		std::string name;
 		Transformf transform;
-		std::vector<cMesh*> meshes;
+		std::vector<sMesh*> meshes;
 		std::vector<sMeshNode*> children;
 	};
 

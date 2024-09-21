@@ -39,7 +39,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::cMesh** _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh** _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
 {
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 

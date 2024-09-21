@@ -23,7 +23,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMesh;
+	class sMesh;
 	class Texture;
 	class RenderTarget;
 	class cMaterial;
@@ -75,10 +75,10 @@ namespace wv
 		void executeCommandBuffer( uint32_t& _index );
 
 		template<typename R, typename T>
-		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
+		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
 		template<typename T>
-		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _buffer, _type, nullptr, _pInfo ); }
-		void bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _buffer, _type, nullptr, nullptr ); }
+		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _rBuffer, _type, nullptr, _pInfo ); }
+		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _rBuffer, _type, nullptr, nullptr ); }
 
 		void setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller );
 
@@ -100,24 +100,28 @@ namespace wv
 		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) = 0;
 		virtual void destroyProgram( sShaderProgram* _pProgram ) = 0;
 
-		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) = 0;
-		virtual void destroyPipeline( sPipeline* _pPipeline ) = 0;
-		virtual void bindPipeline   ( sPipeline* _pPipeline ) = 0;
+		virtual sPipeline* createPipeline ( sPipelineDesc* _desc ) = 0;
+		virtual void       destroyPipeline( sPipeline* _pPipeline ) = 0;
+		virtual void       bindPipeline   ( sPipeline* _pPipeline ) = 0;
 
 		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) = 0;
 		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) = 0;
 		virtual void        bufferData      ( cGPUBuffer* _buffer ) = 0;
 		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) = 0;
 		
-		virtual cMesh* createMesh( sMeshDesc* _desc ) = 0;
-		virtual void destroyMesh( cMesh* _pMesh ) = 0;
+		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
+		virtual void destroyMesh( sMesh* _pMesh ) = 0;
 
 		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) = 0;
 		virtual void destroyTexture( Texture** _texture ) = 0;
 
 		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) = 0;
+		virtual void bindVertexBuffer( cGPUBuffer* _pVertexBuffer ) = 0;
 
-		virtual void draw( cMesh* _pMesh ) = 0;
+		virtual void setFillMode( eFillMode _mode ) = 0;
+
+		virtual void draw( sMesh* _pMesh ) = 0;
+		virtual void draw( uint32_t _numIndices ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
@@ -143,10 +147,10 @@ namespace wv
 		cMaterial* m_emptyMaterial;
 	};
 	template<typename R, typename T>
-	inline void iGraphicsDevice::bufferCommand( uint32_t& _buffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
+	inline void iGraphicsDevice::bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
 	{
 		m_mutex.lock();
-		m_commandBuffers[ _buffer ].push<R, T>( _type, _ppReturn, _pInfo );
+		m_commandBuffers[ _rBuffer ].push<R, T>( _type, _ppReturn, _pInfo );
 		m_mutex.unlock();
 	}
 }

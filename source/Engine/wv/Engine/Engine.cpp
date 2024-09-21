@@ -361,8 +361,12 @@ void wv::cEngine::tick()
 	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
 #endif // WV_SUPPORT_IMGUI
 	
+	if( m_drawWireframe ) graphics->setFillMode( WV_FILL_MODE_WIREFRAME );
+
 	m_pApplicationState->draw( context, graphics );
 	m_pResourceRegistry->drawMeshInstances();
+
+	if( m_drawWireframe ) graphics->setFillMode( WV_FILL_MODE_SOLID );
 
 #ifdef WV_DEBUG
 	Debug::Draw::Internal::drawDebug( graphics );
