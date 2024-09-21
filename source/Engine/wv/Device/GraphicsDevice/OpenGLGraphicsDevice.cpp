@@ -594,18 +594,18 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	vbDesc.type  = WV_BUFFER_TYPE_VERTEX;
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size  = _desc->sizeVertices;
-	mesh.vertexBuffer = createGPUBuffer( &vbDesc );
-	mesh.material = _desc->pMaterial;
+	mesh.pVertexBuffer = createGPUBuffer( &vbDesc );
+	mesh.pMaterial = _desc->pMaterial;
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
-	mesh.vertexBuffer->count = count;
+	mesh.pVertexBuffer->count = count;
 	
-	glBindBuffer( GL_ARRAY_BUFFER, mesh.vertexBuffer->handle );
+	glBindBuffer( GL_ARRAY_BUFFER, mesh.pVertexBuffer->handle );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	mesh.vertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
-	bufferData( mesh.vertexBuffer );
+	mesh.pVertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
+	bufferData( mesh.pVertexBuffer );
 
 	if ( _desc->numIndices > 0 )
 	{
@@ -616,29 +616,29 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		ibDesc.type  = WV_BUFFER_TYPE_INDEX;
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
-		mesh.indexBuffer = createGPUBuffer( &ibDesc );
-		mesh.indexBuffer->count = _desc->numIndices;
+		mesh.pIndexBuffer = createGPUBuffer( &ibDesc );
+		mesh.pIndexBuffer->count = _desc->numIndices;
 		
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer->handle );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.pIndexBuffer->handle );
 		
 		WV_ASSERT_ERR( "ERROR\n" );
 
-		if ( _desc->indices16 )
+		if ( _desc->pIndices16 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
 
-			allocateBuffer( mesh.indexBuffer, bufferSize );
-			mesh.indexBuffer->buffer( _desc->indices16, bufferSize );
+			allocateBuffer( mesh.pIndexBuffer, bufferSize );
+			mesh.pIndexBuffer->buffer( _desc->pIndices16, bufferSize );
 		}
-		else if ( _desc->indices32 )
+		else if ( _desc->pIndices32 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
 
-			allocateBuffer( mesh.indexBuffer, bufferSize );
-			mesh.indexBuffer->buffer( _desc->indices32, bufferSize );
+			allocateBuffer( mesh.pIndexBuffer, bufferSize );
+			mesh.pIndexBuffer->buffer( _desc->pIndices32, bufferSize );
 		}
 
-		bufferData( mesh.indexBuffer );
+		bufferData( mesh.pIndexBuffer );
 	}
 	else
 	{
@@ -685,7 +685,7 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	mesh.vertexBuffer->stride = stride;
+	mesh.pVertexBuffer->stride = stride;
 	
 	if( _desc->pParentTransform != nullptr )
 		_desc->pParentTransform->addChild( &mesh.transform );
@@ -704,8 +704,8 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& pr = *_pMesh;
-	destroyGPUBuffer( pr.indexBuffer );
-	destroyGPUBuffer( pr.vertexBuffer );
+	destroyGPUBuffer( pr.pIndexBuffer );
+	destroyGPUBuffer( pr.pVertexBuffer );
 
 	glDeleteVertexArrays( 1, &pr.handle );
 	WV_ASSERT_ERR( "ERROR\n" );
@@ -901,15 +901,15 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		drawIndices( rMesh.indexBuffer->count );
+		drawIndices( rMesh.pIndexBuffer->count );
 	}
 	else
 	{ 
 	#ifndef EMSCRIPTEN
 		/// this does not work on WebGL
-		wv::Handle vbo = rMesh.vertexBuffer->handle;
-		size_t numVertices = rMesh.vertexBuffer->count;
-		glBindVertexBuffer( 0, vbo, 0, rMesh.vertexBuffer->stride );
+		wv::Handle vbo = rMesh.pVertexBuffer->handle;
+		size_t numVertices = rMesh.pVertexBuffer->count;
+		glBindVertexBuffer( 0, vbo, 0, rMesh.pVertexBuffer->stride );
 		glDrawArrays( GL_TRIANGLES, 0, numVertices );
 	#else
 		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );

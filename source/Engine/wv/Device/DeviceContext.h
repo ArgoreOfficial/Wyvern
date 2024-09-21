@@ -114,9 +114,9 @@ namespace wv
 	protected:
 		virtual bool initialize( ContextDesc* _desc ) = 0;
 
-		DeviceContextAPI m_deviceApi;
-		GraphicsAPI      m_graphicsApi;
-		GenericVersion   m_graphicsApiVersion;
+		DeviceContextAPI m_deviceApi = WV_DEVICE_CONTEXT_API_NONE;
+		GraphicsAPI      m_graphicsApi = WV_GRAPHICS_API_NONE;
+		GenericVersion   m_graphicsApiVersion {};
 
 		int m_width = 0;
 		int m_height = 0;

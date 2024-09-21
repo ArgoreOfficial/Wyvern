@@ -90,8 +90,8 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 			SDL_GetWindowSize( _window, &w, &h );
 			wv::cEngine::get()->onResize( w, h );
 
-			wv::WindowEvent windowEvent;
-			windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
+			wv::sWindowEvent windowEvent;
+			windowEvent.type = wv::sWindowEvent::WV_WINDOW_RESIZED;
 			windowEvent.size.x = w;
 			windowEvent.size.y = h;
 
@@ -100,15 +100,15 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_GAINED:
 		{
-			wv::WindowEvent windowEvent;
-			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_GAINED;
+			wv::sWindowEvent windowEvent;
+			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED;
 			wv::iWindowListener::invoke( windowEvent );
 			break;
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_LOST:
 		{
-			wv::WindowEvent windowEvent;
-			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
+			wv::sWindowEvent windowEvent;
+			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
 			wv::iWindowListener::invoke( windowEvent );
 			break;
 		}

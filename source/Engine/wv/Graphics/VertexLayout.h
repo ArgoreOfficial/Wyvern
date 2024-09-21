@@ -20,8 +20,8 @@ namespace wv
 
 	struct sVertexLayout
 	{
-		sVertexAttribute* elements;
-		unsigned int numElements;
+		sVertexAttribute* elements = nullptr;
+		unsigned int numElements = 0;
 	};
 
 }

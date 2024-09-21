@@ -72,7 +72,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 		if( mesh == nullptr )
 			continue;
 
-		cMaterial* mat = mesh->material;
+		cMaterial* mat = mesh->pMaterial;
 		if( mat )
 		{
 			if( !mat->isComplete() )

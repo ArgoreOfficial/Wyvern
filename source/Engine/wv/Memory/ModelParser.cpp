@@ -155,8 +155,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
 		
 		prDesc.numIndices = indices.size();
-		prDesc.indices32 = new uint32_t[ indices.size() ];
-		memcpy( prDesc.indices32, indices.data(), indices.size() * sizeof( uint32_t ) );
+		prDesc.pIndices32 = new uint32_t[ indices.size() ];
+		memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
 		
 		prDesc.pMaterial = material;
 		

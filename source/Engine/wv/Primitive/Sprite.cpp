@@ -76,7 +76,7 @@ void wv::Sprite::createQuad()
 	prDesc.vertices     = vertices.data();
 	prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
 
-	prDesc.indices32  = indices.data();
+	prDesc.pIndices32  = indices.data();
 	prDesc.numIndices = indices.size();
 
 	Internal::S_SPRITE_QUAD = app->graphics->createMesh( &prDesc );

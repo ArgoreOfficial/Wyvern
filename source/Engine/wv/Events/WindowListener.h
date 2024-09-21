@@ -12,16 +12,20 @@ namespace wv
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	struct WindowEvent
+	struct sWindowEvent
 	{
-		enum EventType
+		enum sEventType
 		{
+			WV_WINDOW_EVENT_NONE,
 			WV_WINDOW_FOCUS_LOST,
 			WV_WINDOW_FOCUS_GAINED,
 			WV_WINDOW_RESIZED,
-		} type;
+		};
+
+		sEventType type = WV_WINDOW_EVENT_NONE;
 
 		/// Only applicable when WV_WINDOW_FOCUS_RESIZED
+		/// TODO: event data union?
 		Vector2i size = { 0, 0 };
 	};
 
@@ -33,7 +37,7 @@ namespace wv
 
 	public:
 
-		static void invoke( WindowEvent _event );
+		static void invoke( sWindowEvent _event );
 		static void setEnabled( bool _enabled );
 
 		///////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +46,7 @@ namespace wv
 
 		void subscribeWindowEvents( void );
 		void unsubscribeWindowEvents( void );
-		virtual void onWindowEvent( WindowEvent _event ) = 0;
+		virtual void onWindowEvent( sWindowEvent _event ) = 0;
 
 		///////////////////////////////////////////////////////////////////////////////////////
 

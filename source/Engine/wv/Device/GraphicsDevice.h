@@ -133,8 +133,8 @@ namespace wv
 
 		virtual bool initialize( GraphicsDeviceDesc* _desc ) = 0;
 
-		GraphicsAPI    m_graphicsApi;
-		GenericVersion m_graphicsApiVersion;
+		GraphicsAPI    m_graphicsApi = WV_GRAPHICS_API_NONE;
+		GenericVersion m_graphicsApiVersion {};
 
 		std::mutex m_mutex;
 		bool m_reallocatingCommandBuffers = false;
@@ -144,7 +144,7 @@ namespace wv
 		std::vector<uint32_t>       m_recordingCommandBuffers;
 		std::vector<uint32_t>       m_submittedCommandBuffers;
 
-		cMaterial* m_emptyMaterial;
+		cMaterial* m_emptyMaterial = nullptr;
 	};
 	template<typename R, typename T>
 	inline void iGraphicsDevice::bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )

@@ -79,10 +79,10 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 #ifdef WV_SUPPORT_GLFW
 void windowFocusCallback(GLFWwindow* _window, int _focused)
 {
-	wv::WindowEvent windowEvent;
+	wv::sWindowEvent windowEvent;
 	windowEvent.type = _focused == GLFW_TRUE
-		? wv::WindowEvent::WV_WINDOW_FOCUS_GAINED
-		: wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
+		? wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED
+		: wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
 
 	wv::iWindowListener::invoke( windowEvent );
 }
@@ -95,8 +95,8 @@ void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::cEngine::get()->onResize( _width, _height );
 
-	wv::WindowEvent windowEvent;
-	windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
+	wv::sWindowEvent windowEvent;
+	windowEvent.type = wv::sWindowEvent::WV_WINDOW_RESIZED;
 	windowEvent.size.x = _width;
 	windowEvent.size.y = _height;
 

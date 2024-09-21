@@ -14,25 +14,29 @@ namespace wv
 
 	struct MouseEvent
 	{
-		Vector2i position = { 0, 0 };
-		Vector2i delta = { 0, 0 };
-
-		enum MouseButton
+		enum sMouseButton
 		{
 			WV_MOUSE_BUTTON_NONE = 0,
 			WV_MOUSE_BUTTON_LEFT,
 			WV_MOUSE_BUTTON_RIGHT,
 			WV_MOUSE_BUTTON_MIDDLE
-		} button = WV_MOUSE_BUTTON_NONE;
+		};
+
+		enum sMouseButtonAction
+		{
+			WV_MOUSE_BUTTON_ACTION_DOWN,
+			WV_MOUSE_BUTTON_ACTION_UP
+		};
+
+		Vector2i position = { 0, 0 };
+		Vector2i delta = { 0, 0 };
+
+		sMouseButton button = WV_MOUSE_BUTTON_NONE;
 		
 		bool buttondown = false;
 		bool buttonup = false;
 
-		enum MouseButtonAction
-		{
-			WV_MOUSE_BUTTON_ACTION_DOWN,
-			WV_MOUSE_BUTTON_ACTION_UP
-		} action;
+		sMouseButtonAction action = WV_MOUSE_BUTTON_ACTION_DOWN;
 
 	};
 

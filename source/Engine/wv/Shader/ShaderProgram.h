@@ -67,11 +67,11 @@ namespace wv
 
 		cGPUBuffer* getShaderBuffer( const std::string& _name );
 
-		sShaderProgramSource m_fsSource;
-		sShaderProgramSource m_vsSource;
+		sShaderProgramSource m_fsSource{};
+		sShaderProgramSource m_vsSource{};
 
-		sShaderProgram* m_vs;
-		sShaderProgram* m_fs;
+		sShaderProgram* m_vs = nullptr;
+		sShaderProgram* m_fs = nullptr;
 
 		sPipeline* m_pPipeline = nullptr;
 	private:

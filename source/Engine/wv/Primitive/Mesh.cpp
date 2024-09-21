@@ -89,7 +89,7 @@ void drawNode( wv::iGraphicsDevice* _pGraphicsDevice, wv::sMeshNode* _node, std:
 		if( mesh == nullptr )
 			continue;
 
-		wv::cMaterial* mat = mesh->material;
+		wv::cMaterial* mat = mesh->pMaterial;
 		if( mat )
 		{
 			if( !mat->isComplete() )

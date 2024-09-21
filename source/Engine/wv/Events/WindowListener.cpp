@@ -6,7 +6,7 @@ std::vector<wv::iWindowListener*> wv::iWindowListener::m_hooks{};
 
 bool wv::iWindowListener::m_enabled = true;
 
-void wv::iWindowListener::invoke( WindowEvent _event )
+void wv::iWindowListener::invoke( sWindowEvent _event )
 {
 	for ( int i = 0; i < m_hooks.size(); i++ )
 		m_hooks[i]->onWindowEvent( _event );

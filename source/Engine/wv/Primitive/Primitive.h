@@ -43,15 +43,15 @@ namespace wv
 	{
 		std::string name;
 		Transformf transform;
-		Transformf* pParentTransform;
+		Transformf* pParentTransform = nullptr;
 
-		sVertexLayout       layout;
+		sVertexLayout layout {};
 
 		void*    vertices     = nullptr;
 		uint32_t sizeVertices = 0;
 
-		uint16_t* indices16  = nullptr;
-		uint32_t* indices32  = nullptr;
+		uint16_t* pIndices16 = nullptr;
+		uint32_t* pIndices32 = nullptr;
 		uint32_t  numIndices = 0;
 
 		cMaterial* pMaterial = nullptr;
@@ -65,12 +65,12 @@ namespace wv
 		Transformf transform;
 
 		wv::Handle handle = 0;
-		cGPUBuffer* vertexBuffer = nullptr;
-		cGPUBuffer* indexBuffer  = nullptr;
+		cGPUBuffer* pVertexBuffer = nullptr;
+		cGPUBuffer* pIndexBuffer  = nullptr;
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
-		cMaterial* material = nullptr;
+		cMaterial* pMaterial = nullptr;
 
 		// remove?
 		std::vector<Vertex> vertices;
