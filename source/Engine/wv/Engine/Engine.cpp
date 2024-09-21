@@ -197,16 +197,11 @@ void wv::cEngine::onInputEvent( sInputEvent _event )
 		switch ( context->getContextAPI() )
 		{
 		case WV_DEVICE_CONTEXT_API_SDL:
-		{
-			if ( _event.key == SDLK_ESCAPE )
-				context->close();
-		}
+			if ( _event.key == SDLK_ESCAPE ) context->close();
+			break;
 		case WV_DEVICE_CONTEXT_API_GLFW:
-		{
-			if ( _event.key == GLFW_KEY_ESCAPE )
-				context->close();
-		}
-		break;
+			if ( _event.key == GLFW_KEY_ESCAPE ) context->close();
+			break;
 		}
 	}
 }
