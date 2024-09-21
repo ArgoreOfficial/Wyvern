@@ -10,7 +10,6 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
-	std::string basepath = "res/shaders/";
 	std::string ext;
 
 #ifdef WV_PLATFORM_WINDOWS
@@ -20,8 +19,11 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	basepath += "psvita/";
 #endif
 
-	m_vsSource.data = _pFileSystem->loadMemory( basepath + m_name + "_vs" + ext );
-	m_fsSource.data = _pFileSystem->loadMemory( basepath + m_name + "_fs" + ext );
+	std::string vsPath = _pFileSystem->getFullPath( m_name + "_vs" + ext );
+	std::string fsPath = _pFileSystem->getFullPath( m_name + "_fs" + ext );
+
+	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
+	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
 
 
 

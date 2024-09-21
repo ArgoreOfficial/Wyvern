@@ -80,6 +80,8 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	
 	m_mutex.lock();
 	m_loadedMemory.push_back( mem );
+
+	Debug::Print( "Loaded file '%s'\n", _path.c_str() );
 	m_mutex.unlock();
 
 	return mem;

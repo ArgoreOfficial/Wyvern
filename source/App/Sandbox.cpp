@@ -93,7 +93,8 @@ bool cSandbox::create( void )
 	fileSystem->addDirectory( "res/" );
 	fileSystem->addDirectory( "res/materials/" );
 	fileSystem->addDirectory( "res/meshes/" );
-	fileSystem->addDirectory( "res/shaders/" );
+	fileSystem->addDirectory( "res/shaders/user/" );
+	fileSystem->addDirectory( "res/shaders/core/" );
 	fileSystem->addDirectory( "res/textures/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
