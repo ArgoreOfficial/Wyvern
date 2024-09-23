@@ -10,7 +10,7 @@
 namespace wv
 {
 
-    class Texture;
+    class cTextureResource;
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ namespace wv
     {
         int i;
         float f;
-        Texture* texture;
+        cTextureResource* texture;
         cColor* rgba;
     };
 

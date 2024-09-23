@@ -23,6 +23,14 @@ namespace wv
 		wv::Handle bindingIndex = 0;
 	};
 
+	struct sOpenGLTextureData
+	{
+		unsigned int format = 0;
+		unsigned int internalFormat = 0;
+		unsigned int filter = 0;
+		unsigned int type = 0;
+	};
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -61,10 +69,17 @@ namespace wv
 		virtual sMesh* createMesh ( sMeshDesc* _desc )      override;
 		virtual void   destroyMesh( sMesh* _pMesh ) override;
 
-		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) override;
-		virtual void destroyTexture( Texture** _texture ) override;
+		/// TODO: texture handles?
+		/// all gpu objects should be handles tbh
+		 
+		// Index > Ref > Pointer
+		//          - graphics man 2024
 
-		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) override;
+		virtual sTexture createTexture    ( sTextureDesc* _pDesc )                    override;
+		virtual void     bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps ) override;
+		virtual void     destroyTexture   ( sTexture* _pTexture )                     override;
+		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) override;
+
 		virtual void bindVertexBuffer( cGPUBuffer* _pVertexBuffer ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
@@ -90,9 +105,6 @@ namespace wv
 		RenderTarget* m_activeRenderTarget = nullptr;
 
 		int m_numTotalUniformBlocks = 0;
-
-		// states
-		std::vector<wv::Handle> m_boundTextureSlots;
 	};
 
 	template<typename ...Args>

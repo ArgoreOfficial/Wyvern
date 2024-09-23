@@ -406,7 +406,7 @@ void wv::cEngine::tick()
 
 	// bind gbuffer textures to deferred pass
 	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
-		graphics->bindTextureToSlot( m_gbuffer->textures[ i ], i );
+		graphics->bindTextureToSlot( &m_gbuffer->pTextures[ i ], i );
 
 	// render screen quad with deferred shader
 	m_deferredPipeline->use( graphics );
@@ -538,7 +538,7 @@ void wv::cEngine::createGBuffer()
 	rtDesc.width  = size.x;
 	rtDesc.height = size.y;
 #ifdef WV_PLATFORM_WINDOWS
-	TextureDesc texDescs[] = {
+	sTextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
 	#ifdef EMSCRIPTEN
 		// WebGL doesn't seem to support FLOAT R, RG, or RGB

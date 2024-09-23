@@ -17,7 +17,7 @@ namespace wv
 		int width = 0;
 		int height = 0;
 		
-		wv::TextureDesc* pTextureDescs = nullptr;
+		wv::sTextureDesc* pTextureDescs = nullptr;
 		int numTextures = 0;
 	};
 
@@ -30,7 +30,7 @@ namespace wv
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 
-		wv::Texture** textures = 0;
+		wv::sTexture* pTextures = nullptr;
 		int numTextures = 0;
 
 		int width = 0;

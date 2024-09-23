@@ -210,15 +210,23 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t& _index )
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
-			createTexture( (Texture*)outPtr, &stream.pop<TextureDesc>() );
+			(sTexture&)*outPtr = createTexture( &stream.pop<sTextureDesc>() );
 			break;
 
+		case WV_GPUTASK_BUFFER_TEXTURE_DATA:
+		{
+			sTexture* tex = stream.pop<sTexture*>();
+			void* pData = stream.pop<void*>();
+			bool generateMipMaps = stream.pop<bool>();
+			bufferTextureData( tex, pData, generateMipMaps );
+		} break;
+
 		case WV_GPUTASK_DESTROY_TEXTURE:
-			destroyTexture( stream.pop<Texture**>() );
+			destroyTexture( stream.pop<sTexture*>() );
 			break;
 
 		case WV_GPUTASK_BIND_TEXTURE:
-			bindTextureToSlot( (Texture*)outPtr, stream.pop<unsigned int>() );
+			bindTextureToSlot( (sTexture*)outPtr, stream.pop<unsigned int>() );
 			break;
 		}
 	}

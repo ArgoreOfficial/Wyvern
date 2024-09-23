@@ -18,36 +18,53 @@ namespace wv
 		WV_TEXTURE_CHANNELS_RGBA
 	};
 
-	enum TextureFormat
+	enum eTextureFormat
 	{
 		WV_TEXTURE_FORMAT_BYTE,
 		WV_TEXTURE_FORMAT_INT,
 		WV_TEXTURE_FORMAT_FLOAT
 	};
 
-	enum TextureFiltering
+	enum eTextureFiltering
 	{
 		WV_TEXTURE_FILTER_NEAREST,
 		WV_TEXTURE_FILTER_LINEAR,
 	};
 
-	class Texture;
+	class cTextureResource;
 
-	struct TextureDesc
+	struct sTextureDesc
 	{
-		TextureChannels channels = WV_TEXTURE_CHANNELS_RGB;
-		TextureFormat format = WV_TEXTURE_FORMAT_BYTE;
-		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
+		TextureChannels   channels  = WV_TEXTURE_CHANNELS_RGB;
+		eTextureFormat    format    = WV_TEXTURE_FORMAT_BYTE;
+		eTextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
 		int width = 0;
 		int height = 0;
+		int numChannels = 0;
 		bool generateMipMaps = false;
 	};
 
-	class Texture : public iResource
+	struct sTexture
+	{
+		eTextureFiltering m_filtering;
+
+		wv::Handle textureObjectHandle = 0; // opengl specific
+		
+		uint8_t* pData = nullptr;
+		unsigned int dataSize = 0;
+
+		int width  = 0;
+		int height = 0;
+		int numChannels = 0;
+
+		void* pPlatformData = nullptr;
+	};
+
+	class cTextureResource : public iResource
 	{
 	public:
 		
-		Texture( const std::string& _name = "", const std::string& _path = "", TextureFiltering _filtering = WV_TEXTURE_FILTER_NEAREST ) :
+		cTextureResource( const std::string& _name = "", const std::string& _path = "", eTextureFiltering _filtering = WV_TEXTURE_FILTER_NEAREST ) :
 			iResource{ _name, _path },
 			m_filtering{ _filtering }
 		{ }
@@ -55,25 +72,20 @@ namespace wv
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 
-		void setWidth ( int _width )  { m_width = _width; }
-		void setHeight( int _height ) { m_height = _height; }
+		int getWidth ( void ) { return m_texture.width; }
+		int getHeight( void ) { return m_texture.height; }
+		int getNumChannels( void ) { return m_texture.numChannels; }
 
-		int getWidth ( void ) { return m_width; }
-		int getHeight( void ) { return m_height; }
-		int getNumChannels( void ) { return m_numChannels; }
+		uint8_t*     getData    ( void ) { return m_texture.pData; }
+		unsigned int getDataSize( void ) { return m_texture.dataSize; }
 
-		uint8_t*     getData    ( void ) { return m_pData; }
-		unsigned int getDataSize( void ) { return m_dataSize; }
-
+		sTexture m_texture;
 	private:
-		TextureFiltering m_filtering;
 		
-		uint8_t* m_pData = nullptr;
-		unsigned int m_dataSize = 0;
 
-		int m_width  = 0;
-		int m_height = 0;
-		int m_numChannels = 0;
+		eTextureFiltering m_filtering;
+		uint8_t* m_pData = nullptr;
+		size_t m_dataSize = 0;
 	};
 
 }

@@ -23,18 +23,21 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class sMesh;
-	class Texture;
 	class RenderTarget;
 	class cMaterial;
 
 	struct PipelineDesc;
+
 	struct sMeshDesc;
-	struct TextureDesc;
-	struct RenderTargetDesc;
-	
-	struct iDeviceContext;
 	struct sMeshNode;
+	struct sMesh;
+	
+	struct sTextureDesc;
+	struct sTexture;
+
+	struct RenderTargetDesc;
+
+	struct iDeviceContext;
 
 	struct sShaderProgramSource;
 	struct sShaderProgram;
@@ -112,10 +115,11 @@ namespace wv
 		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
 		virtual void destroyMesh( sMesh* _pMesh ) = 0;
 
-		virtual void createTexture( Texture* _pTexture, TextureDesc* _desc ) = 0;
-		virtual void destroyTexture( Texture** _texture ) = 0;
+		virtual sTexture createTexture    ( sTextureDesc* _pDesc )                    = 0;
+		virtual void     bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps ) = 0;
+		virtual void     destroyTexture   ( sTexture* _pTexture )                     = 0;
+		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) = 0;
 
-		virtual void bindTextureToSlot( Texture* _texture, unsigned int _slot ) = 0;
 		virtual void bindVertexBuffer( cGPUBuffer* _pVertexBuffer ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;

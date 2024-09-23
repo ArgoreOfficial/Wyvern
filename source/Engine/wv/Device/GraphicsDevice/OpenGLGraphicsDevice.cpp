@@ -117,7 +117,6 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	int numTextureUnits = 0;
 	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits );
 
-	m_boundTextureSlots.assign( numTextureUnits, 0 );
 	return true;
 #else
 	return false;
@@ -162,7 +161,8 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 	
 	target->numTextures = desc.numTextures;
 	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
-	target->textures = new Texture * [ desc.numTextures ];
+	target->pTextures = new sTexture[ desc.numTextures ];
+
 	for ( int i = 0; i < desc.numTextures; i++ )
 	{
 		desc.pTextureDescs[ i ].width = desc.width;
@@ -170,10 +170,9 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target->textures[ i ] = new Texture( texname );
-		createTexture( target->textures[i], &desc.pTextureDescs[i] );
+		target->pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
 
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->textures[ i ]->getHandle(), 0);
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->pTextures[ i ].textureObjectHandle, 0 );
 
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
@@ -241,7 +240,7 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarge
 	glDeleteRenderbuffers( 1, &rt->rbHandle );
 
 	for ( int i = 0; i < rt->numTextures; i++ )
-		destroyTexture( &rt->textures[ i ] );
+		destroyTexture( &rt->pTextures[ i ] );
 	
 	*_renderTarget = nullptr;
 #endif
@@ -713,9 +712,7 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* _desc )
+wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 {
 	WV_TRACE();
 
@@ -723,142 +720,164 @@ void wv::cOpenGLGraphicsDevice::createTexture( Texture* _pTexture, TextureDesc* 
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
-	unsigned char* data = nullptr;
-	if ( _pTexture->getData() )
-	{
-		data = _pTexture->getData();
-		_desc->width = _pTexture->getWidth();
-		_desc->height = _pTexture->getHeight();
-		_desc->channels = static_cast<wv::TextureChannels>( _pTexture->getNumChannels() );
-	}
+	sTextureDesc& desc = *_pDesc;
+	sTexture texture;
 	
-	switch ( _desc->channels )
+	switch ( desc.channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:
 		format = GL_RED;
-		switch ( _desc->format )
+		switch ( desc.format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_R8;  break;
+		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_R8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_R32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_R32I; format = GL_RED_INTEGER; break;
+		case wv::WV_TEXTURE_FORMAT_INT:
+			internalFormat = GL_R32I;
+			format = GL_RED_INTEGER;
+			break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RG:
 		format = GL_RG;
-		switch ( _desc->format )
+		switch ( desc.format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RG8;    break;
+		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RG8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RG32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RG32I; format = GL_RG_INTEGER; break;
+		case wv::WV_TEXTURE_FORMAT_INT:
+			internalFormat = GL_RG32I;
+			format = GL_RG_INTEGER;
+			break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
 		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
-		switch ( _desc->format )
+		switch ( desc.format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGB8;   break;
+		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RGB8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGB32I; format = GL_RGB_INTEGER; break;
+		case wv::WV_TEXTURE_FORMAT_INT:
+			internalFormat = GL_RGB32I;
+			format = GL_RGB_INTEGER;
+			break;
 		}
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGBA:
 		format = GL_RGBA;
-		switch ( _desc->format )
+		switch ( desc.format )
 		{
-		case wv::WV_TEXTURE_FORMAT_BYTE:  internalFormat = GL_RGBA8;   break;
+		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RGBA8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
-		case wv::WV_TEXTURE_FORMAT_INT:   internalFormat = GL_RGBA32I; format = GL_RGBA_INTEGER; break;
+		case wv::WV_TEXTURE_FORMAT_INT:
+			internalFormat = GL_RGBA32I;
+			format = GL_RGBA_INTEGER;
+			break;
 		}
 		break;
 	}
 
-	GLuint handle;
-	glGenTextures( 1, &handle );
+	glGenTextures( 1, &texture.textureObjectHandle );
 	WV_ASSERT_ERR( "Failed to gen texture\n" );
 
-	_pTexture->setHandle( handle );
-
-	glBindTexture( GL_TEXTURE_2D, handle );
+	glBindTexture( GL_TEXTURE_2D, texture.textureObjectHandle );
 
 	WV_ASSERT_ERR( "Failed to bind texture\n" );
-	
+
 	GLenum filter = GL_NEAREST;
-	switch ( _desc->filtering )
+	switch ( desc.filtering )
 	{
 	case WV_TEXTURE_FILTER_NEAREST: filter = GL_NEAREST; break;
-	case WV_TEXTURE_FILTER_LINEAR:  filter = GL_LINEAR; break;
+	case WV_TEXTURE_FILTER_LINEAR: filter = GL_LINEAR; break;
 	}
-	
+
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-	
+
 	GLenum type = GL_UNSIGNED_BYTE;
-	switch ( _desc->format )
+	switch ( desc.format )
 	{
 	case wv::WV_TEXTURE_FORMAT_FLOAT: type = GL_FLOAT; break;
-	case wv::WV_TEXTURE_FORMAT_INT:   type = GL_INT; break;
+	case wv::WV_TEXTURE_FORMAT_INT: type = GL_INT; break;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, _desc->width, _desc->height, 0, format, type, data );
-#ifdef WV_DEBUG
-	assertGLError( "Failed to create Texture\n" );
-#endif
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
 
-	if ( _desc->generateMipMaps )
-	{
-		glGenerateMipmap( GL_TEXTURE_2D );
+	sOpenGLTextureData* pPData = new sOpenGLTextureData();
+	pPData->filter = filter;
+	pPData->format = format;
+	pPData->internalFormat = internalFormat;
+	pPData->type = type;
 
-		WV_ASSERT_ERR( "ERROR\n" );
-	}
-	_pTexture->setWidth( _desc->width );
-	_pTexture->setHeight( _desc->height );
-
+	texture.pPlatformData = pPData;
+	texture.width  = desc.width;
+	texture.height = desc.height;
+	
+	return texture;
 	// Debug::Print( Debug::WV_PRINT_DEBUG, "Created texture %s\n", _pTexture->getName().c_str() );
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
+void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps )
+{
+	sOpenGLTextureData* pPData = (sOpenGLTextureData*)_pTexture->pPlatformData;
 
-void wv::cOpenGLGraphicsDevice::destroyTexture( Texture** _texture )
+	glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle );
+	glTexImage2D( GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
+	glBindTexture( GL_TEXTURE_2D, 0 );
+
+	_pTexture->pData = (uint8_t*)_pData;
+
+#ifdef WV_DEBUG
+	assertGLError( "Failed to buffer Texture data\n" );
+#endif
+
+	if ( _generateMipMaps )
+	{
+		glGenerateMipmap( GL_TEXTURE_2D );
+
+		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
+	}
+}
+
+void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	// Debug::Print( Debug::WV_PRINT_DEBUG, "Destroyed texture %s\n", (*_texture)->getName().c_str() );
-
-	wv::Handle handle = ( *_texture )->getHandle();
-	glDeleteTextures( 1, &handle );
+	glDeleteTextures( 1, &_pTexture->textureObjectHandle );
+	
+	// textures are not heap allocated
+	/*
 	delete *_texture;
 	*_texture = nullptr;
+	*/
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cOpenGLGraphicsDevice::bindTextureToSlot( Texture* _texture, unsigned int _slot )
+void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned int _slot )
 {
 	WV_TRACE();
+
+	if ( _pTexture->textureObjectHandle == 0 )
+		printf( "asd" );
 
 #ifdef WV_SUPPORT_OPENGL
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		glBindTextureUnit( _slot, _texture->getHandle() );
+		glBindTextureUnit( _slot, _pTexture->textureObjectHandle );
 
 		WV_ASSERT_ERR( "ERROR\n" );
 	}
-	else 
+	else
 	{
 		glActiveTexture( GL_TEXTURE0 + _slot );
-		glBindTexture( GL_TEXTURE_2D, _texture->getHandle() );
+		glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle );
 
 		WV_ASSERT_ERR( "ERROR\n" );
 	}
-
-	m_boundTextureSlots[ _slot ] = _texture->getHandle();
 #endif
 }
 

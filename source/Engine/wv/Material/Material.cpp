@@ -60,7 +60,7 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 		textureVariable.name = uniformName;
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 
-		Texture* texture = new Texture( textureName, "", (wv::TextureFiltering)filtering );
+		cTextureResource* texture = new cTextureResource( textureName, "", (wv::eTextureFiltering)filtering );
 		texture->load( _pFileSystem, _pGraphicsDevice );
 		textureVariable.data.texture = texture;
 
@@ -149,7 +149,7 @@ void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 			continue;
 
 		/// TODO: move and change to instance variables
-		app->graphics->bindTextureToSlot( m_variables[ i ].data.texture, texSlot );
+		app->graphics->bindTextureToSlot( &m_variables[ i ].data.texture->m_texture, texSlot );
 		texSlot++;
 	}
 #endif

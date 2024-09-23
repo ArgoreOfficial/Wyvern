@@ -11,7 +11,7 @@
 #include <codecvt>
 #endif
 
-void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	if ( m_name == "" ) // no file should be loaded
@@ -23,8 +23,10 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 	if ( m_path == "" )
 		m_path = _pFileSystem->getFullPath( m_name );
 
+	sTextureDesc desc;
+
 	stbi_set_flip_vertically_on_load( 0 );
-	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &m_width, &m_height, &m_numChannels, 0 ) );
+	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &desc.width, &desc.height, &desc.numChannels, 0 ) );
 
 	if ( !m_pData )
 	{
@@ -34,14 +36,22 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 		return;
 	}
 
-	m_dataSize = m_height * m_numChannels * m_width * m_numChannels;
+	m_dataSize = desc.width * desc.numChannels * desc.width * desc.numChannels;
 	
-
-	TextureDesc desc;
 	desc.filtering = m_filtering;
 	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	 
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)this, &desc ); // hack
+	
+	struct
+	{
+		sTexture* tex;
+		void* pData;
+		bool generateMipMaps = false;
+	} bufferData;
+	bufferData.tex = &m_texture;
+	bufferData.pData = m_pData;
+
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)&m_texture, &desc ); // hack
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) { ( (iResource*)( _c ) )->setComplete( true ); };
 
@@ -52,11 +62,11 @@ void wv::Texture::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDe
 		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
 
 #else
-	printf( "wv::Texture::load unimplemented\n" );
+	printf( "wv::cTextureResource::load unimplemented\n" );
 #endif
 }
 
-void wv::Texture::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 
 }
