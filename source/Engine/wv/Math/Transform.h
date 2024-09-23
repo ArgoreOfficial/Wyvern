@@ -41,9 +41,9 @@ namespace wv
 		cVector3<T> scale   { 1, 1, 1 };
 
 
+		cMatrix<T, 4, 4> m_matrix{ 1 };
 	private:
 
-		cMatrix<T, 4, 4> m_matrix{ 1 };
 		std::vector<Transform<T>*> m_children;
     };
 

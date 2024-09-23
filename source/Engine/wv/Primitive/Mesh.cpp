@@ -81,42 +81,38 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 void drawNode( wv::iGraphicsDevice* _pGraphicsDevice, wv::sMeshNode* _node, std::vector<wv::Transformf>& _transforms )
 {
-	if( !_node )
+	if ( !_node )
 		return;
 
-	for( auto& mesh : _node->meshes )
+	for ( auto& mesh : _node->meshes )
 	{
-		if( mesh == nullptr )
+		if ( mesh == nullptr )
 			continue;
 
 		wv::cMaterial* mat = mesh->pMaterial;
-		if( mat )
+		if ( mat )
 		{
-			if( !mat->isComplete() )
-				continue; // fix
+			if ( !mat->isComplete() )
+				continue;
 
 			mat->setAsActive( _pGraphicsDevice );
 
-			for( auto& transform : _transforms )
+			wv::cMatrix4x4f basematrix = mesh->transform.getMatrix();
+
+			for ( auto& transform : _transforms )
 			{
-				_node->transform.update( &transform );
+				mesh->transform.m_matrix = basematrix * transform.getMatrix();
 				mat->setInstanceUniforms( mesh );
-				_pGraphicsDevice->draw( mesh );
-			}
-		}
-		else
-		{
-			for( auto& transform : _transforms )
-			{
-				_node->transform.update( &transform );
-				
+
 				_pGraphicsDevice->draw( mesh );
 			}
 		}
 	}
 
-	for( auto& childNode : _node->children )
+	for ( auto& childNode : _node->children )
+	{
 		drawNode( _pGraphicsDevice, childNode, _transforms );
+	}
 }
 
 void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
@@ -127,15 +123,8 @@ void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 		return;
 	}
 
-	//drawNode( _pGraphicsDevice, m_pMeshNode, m_drawQueue );
-
-	/*
-	*/
-	for ( auto& transform : m_drawQueue )
-	{
-		m_pMeshNode->transform.update( &transform );
-		_pGraphicsDevice->drawNode( m_pMeshNode );
-	}
+	m_pMeshNode->transform.update( nullptr );
+	drawNode( _pGraphicsDevice, m_pMeshNode, m_drawQueue );
 
 	m_drawQueue.clear();
 }

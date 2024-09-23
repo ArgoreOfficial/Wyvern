@@ -57,7 +57,7 @@ void cDemoWindow::spawnCubes( int _count )
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 		
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "res/meshes/cube.dae", boxDesc );
+		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "res/meshes/beetlebot.dae", boxDesc );
 		rb->m_transform.position.y = 1.0f;
 		sceneRoot->addChild( rb );
 		

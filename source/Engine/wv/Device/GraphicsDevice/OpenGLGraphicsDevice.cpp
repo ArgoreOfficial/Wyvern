@@ -260,9 +260,7 @@ void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, handle );
 	if ( _target )
-	{
 		glViewport( 0, 0, _target->width, _target->height );
-	}
 	
 	m_activeRenderTarget = _target;
 #endif
