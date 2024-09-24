@@ -142,6 +142,8 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 				// temporary
 				glBindVertexArray( mesh->handle );
 
+				mat->setInstanceUniforms( mesh );
+
 				wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstanceData" );
 				if ( SbInstanceData )
 					SbInstanceData->buffer( matrices.data(), matrices.size() * sizeof( cMatrix4x4f ) );
@@ -150,7 +152,6 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 				for ( auto& buf : shaderBuffers )
 					_pGraphicsDevice->bufferData( buf );
 
-				mat->setInstanceUniforms( mesh );
 				_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
 
 				matrices.clear();

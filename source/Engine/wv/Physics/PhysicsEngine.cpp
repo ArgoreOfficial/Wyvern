@@ -194,7 +194,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	}
 
 	if( collisionSteps > 0 )
-		m_pPhysicsSystem->Update( frameTime, collisionSteps, m_pTempAllocator, m_pJobSystem );
+		m_pPhysicsSystem->Update( wv::Math::max( (float)_deltaTime, m_timestep ), collisionSteps, m_pTempAllocator, m_pJobSystem );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
