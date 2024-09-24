@@ -3,7 +3,7 @@
 #include <wv/Material/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Resource/Resource.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 #include <vector>
 
 wv::cResourceRegistry::~cResourceRegistry()

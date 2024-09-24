@@ -4,7 +4,7 @@
 #include <wv/Material/Material.h>
 #include <wv/Debug/Print.h>
 #include <wv/Device/GraphicsDevice.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 #include <wv/Math/Triangle.h>
 #include <wv/Memory/FileSystem.h>
 

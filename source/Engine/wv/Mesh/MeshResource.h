@@ -2,7 +2,7 @@
 
 #include <wv/Math/Transform.h>
 #include <wv/Math/Triangle.h>
-#include <wv/Primitive/Primitive.h>
+#include <wv/Mesh/Mesh.h>
 #include <wv/Types.h>
 
 #include <string>
@@ -15,16 +15,6 @@
 
 namespace wv
 {
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct sMeshNode
-	{
-		std::string name;
-		Transformf transform;
-		std::vector<sMesh*> meshes;
-		std::vector<sMeshNode*> children;
-	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 #include <wv/Material/Material.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////

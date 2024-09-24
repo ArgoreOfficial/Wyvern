@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <wv/Reflection/Reflection.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,0 +1,9 @@
+{
+  "shader": "basic",
+  "textures": [
+    {
+      "name": "u_Albedo",
+      "texture": "Termite_BaseColor.png"
+    }
+  ]
+}

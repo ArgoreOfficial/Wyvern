@@ -4,7 +4,7 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Device/GraphicsDevice.h>
 
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 #include <wv/Memory/FileSystem.h>
 #include <wv/Material/Material.h>
 

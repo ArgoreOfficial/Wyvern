@@ -18,7 +18,7 @@
 #include <wv/Memory/ModelParser.h>
 
 #include <wv/Physics/PhysicsEngine.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 
 #include <wv/RenderTarget/RenderTarget.h>
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
@@ -191,8 +191,9 @@ void wv::cEngine::onInputEvent( sInputEvent _event )
 	{
 		switch ( _event.key )
 		{
-		case 'R':         m_pApplicationState->reloadScene(); break;
-		
+		case 'R': m_pApplicationState->reloadScene(); break;
+		case 'F': m_drawWireframe ^= 1; break;
+
 		default:
 		{
 			switch ( context->getContextAPI() )

@@ -8,7 +8,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::time::sleepForSeconds( double _seconds )
+void wv::Time::sleepForSeconds( double _seconds )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	std::chrono::milliseconds time( static_cast<std::chrono::milliseconds::rep>( _seconds * 1000 ) );

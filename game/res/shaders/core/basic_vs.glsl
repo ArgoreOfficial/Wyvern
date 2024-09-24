@@ -13,7 +13,7 @@ uniform UbInstanceData
     mat4x4 u_Model;
 };
 
-layout(std430, binding = 2) buffer SbInstanceData
+layout(std430) buffer SbInstanceData
 {
     mat4x4 u_Models[];
 };

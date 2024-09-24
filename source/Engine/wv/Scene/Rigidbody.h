@@ -2,7 +2,7 @@
 
 #include <wv/Scene/SceneObject.h>
 
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 
 #include <wv/Physics/Physics.h>
 #include <wv/Reflection/Reflection.h>

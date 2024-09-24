@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/Math/Triangle.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 
 #include <wv/Math/Matrix.h>
 

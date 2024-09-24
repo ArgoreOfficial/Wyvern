@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "MeshResource.h"
 
 #include <wv/Memory/ModelParser.h>
 #include <wv/Engine/Engine.h>

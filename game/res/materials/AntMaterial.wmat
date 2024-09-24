@@ -1,0 +1,9 @@
+{
+  "shader": "basic",
+  "textures": [
+    {
+      "name": "u_Albedo",
+      "texture": "Ant_BaseColor.png"
+    }
+  ]
+}

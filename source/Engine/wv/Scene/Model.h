@@ -3,7 +3,7 @@
 #include "SceneObject.h"
 
 #include <wv/Reflection/Reflection.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 
 #include <string>
 #include <vector>

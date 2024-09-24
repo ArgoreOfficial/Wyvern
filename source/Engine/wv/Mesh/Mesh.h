@@ -79,4 +79,14 @@ namespace wv
 		void* pPlatformData = nullptr;
 	};
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+	struct sMeshNode
+	{
+		std::string name;
+		Transformf transform;
+		std::vector<sMesh*> meshes;
+		std::vector<sMeshNode*> children;
+	};
+
 }

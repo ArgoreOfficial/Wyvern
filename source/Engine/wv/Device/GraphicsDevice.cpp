@@ -5,8 +5,8 @@
 
 #include <wv/Material/Material.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Primitive/Mesh.h>
-#include <wv/Primitive/Primitive.h>
+#include <wv/Mesh/MeshResource.h>
+#include <wv/Mesh/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <wv/Engine/Engine.h>
@@ -275,6 +275,6 @@ void wv::iGraphicsDevice::beginRender()
 
 void wv::iGraphicsDevice::endRender()
 {
-	for( auto& submittedIndex : m_submittedCommandBuffers )
+	for( uint32_t submittedIndex : m_submittedCommandBuffers )
 		executeCommandBuffer( submittedIndex );
 }

@@ -5,8 +5,8 @@
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
-#include <wv/Primitive/Mesh.h>
-#include <wv/Primitive/Primitive.h>
+#include <wv/Mesh/MeshResource.h>
+#include <wv/Mesh/Mesh.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Memory/FileSystem.h>

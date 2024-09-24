@@ -2,7 +2,7 @@
 
 #include <wv/Device/GraphicsDevice.h>
 #include <wv/Material/Material.h>
-#include <wv/Primitive/Mesh.h>
+#include <wv/Mesh/MeshResource.h>
 #include <wv/Memory/ModelParser.h>
 
 #include <wv/Resource/ResourceRegistry.h>

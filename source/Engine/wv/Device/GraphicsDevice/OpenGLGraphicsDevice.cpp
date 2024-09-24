@@ -12,8 +12,8 @@
 
 #include <wv/Math/Transform.h>
 
-#include <wv/Primitive/Mesh.h>
-#include <wv/Primitive/Primitive.h>
+#include <wv/Mesh/MeshResource.h>
+#include <wv/Mesh/Mesh.h>
 #include <wv/RenderTarget/RenderTarget.h>
 
 #include <wv/Device/DeviceContext.h>
@@ -386,18 +386,15 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 		glBindBuffer( GL_UNIFORM_BUFFER, buf.handle );
 		allocateBuffer( &buf, buf.size );
-		
 		WV_ASSERT_ERR( "ERROR\n" );
-		
 		glBindBuffer( GL_UNIFORM_BUFFER, 0 );
-		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
 		
+		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
 		WV_ASSERT_ERR( "ERROR\n" );
 		
 		glUniformBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
-		
 		WV_ASSERT_ERR( "ERROR\n" );
-
+		
 		m_numTotalUniformBlocks++;
 		
 		program->shaderBuffers.push_back( &buf );
@@ -428,13 +425,18 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		buf.pPlatformData = pUBData;
 
 		glBindBuffer( GL_SHADER_STORAGE_BUFFER, buf.handle );
+		pUBData->bindingIndex = m_numTotalUniformBlocks;
 		pUBData->blockIndex = glGetProgramResourceIndex( program->handle, GL_SHADER_STORAGE_BLOCK, name.data() );
-		WV_ASSERT_ERR( "ERROR\n" );
-		
 		glBindBuffer( GL_SHADER_STORAGE_BUFFER, 0 );
 		WV_ASSERT_ERR( "ERROR\n" );
 
-		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 2, buf.handle );
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
+		WV_ASSERT_ERR( "ERROR\n" );
+		
+		glShaderStorageBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
+		WV_ASSERT_ERR( "ERROR\n" );
+
+		m_numTotalUniformBlocks++;
 
 		program->shaderBuffers.push_back( &buf );
 	}
