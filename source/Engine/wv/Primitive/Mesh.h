@@ -43,7 +43,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMeshResource : wv::iResource
+	class cMeshResource : public wv::iResource
 	{
 	public:
 		cMeshResource( const std::string& _name, const std::string& _path ) :
@@ -64,10 +64,16 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		bool m_useGPUInstancing = false;
+
 	private:
+		void drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node );
+
 		sMeshNode* m_pMeshNode = nullptr;
 
+
 		std::vector<Transformf> m_drawQueue; /// sMeshInstanceData ?
+		std::vector<cMatrix4x4f> m_matrices;
 	};
 
 

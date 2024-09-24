@@ -13,6 +13,11 @@ uniform UbInstanceData
     mat4x4 u_Model;
 };
 
+layout(std430, binding = 2) buffer SbInstanceData
+{
+    mat4x4 u_Models[];
+};
+
 out gl_PerVertex
 {
     vec4 gl_Position;
@@ -24,9 +29,11 @@ out vec3 Pos;
 
 void main()
 {
+    mat4x4 model = u_Models[gl_InstanceID];
+
     TexCoord = a_TexCoord0;
-    Normal = normalize( transpose( inverse( mat3( u_Model ) ) ) * a_Normal );
+    Normal = normalize( transpose( inverse( mat3( model ) ) ) * a_Normal );
     Pos = a_Pos;
 
-    gl_Position = u_Projection * u_View * u_Model * vec4( a_Pos, 1.0 );
+    gl_Position = u_Projection * u_View * model * vec4( a_Pos, 1.0 );
 }

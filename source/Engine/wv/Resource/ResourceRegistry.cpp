@@ -20,7 +20,7 @@ wv::cResourceRegistry::~cResourceRegistry()
 
 	for ( int i = 0; i < markedForDelete.size(); i++ )
 	{
-		unloadResource( markedForDelete[ i ] );
+		removeResource( markedForDelete[ i ] );
 
 		wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Force unloaded '%s'\n", markedForDelete[ i ].c_str());
 	}
@@ -69,7 +69,7 @@ void wv::cResourceRegistry::addResource( iResource* _resource )
 	m_mutex.unlock();
 }
 
-void wv::cResourceRegistry::findAndUnloadResource( iResource* _resource )
+void wv::cResourceRegistry::findAndRemoveResource( iResource* _resource )
 {
 	if ( !_resource )
 	{
@@ -78,26 +78,32 @@ void wv::cResourceRegistry::findAndUnloadResource( iResource* _resource )
 	}
 
 	std::string key = _resource->getName();
-	unloadResource( key );
+	removeResource( key );
 }
 
-void wv::cResourceRegistry::unloadResource( const std::string& _name )
+void wv::cResourceRegistry::removeResource( const std::string& _name )
 {
 	m_mutex.lock();
 	auto search = m_resources.find( _name );
 	if ( search == m_resources.end() )
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload shader '%s'. It does not exist\n", _name.c_str() );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload resource '%s'. It does not exist\n", _name.c_str() );
 		m_mutex.unlock();
 		return;
 	}
 
-	m_resources[ _name ]->decrNumUsers();
-
-	if ( m_resources[ _name ]->getNumUsers() <= 0 )
+	for ( size_t i = 0; i < m_meshes.size(); i++ )
 	{
-		delete m_resources[ _name ];
-		m_resources.erase( _name );
+		if ( m_meshes[ i ]->getName() != _name )
+			continue;
+
+		m_meshes.erase( m_meshes.begin() + i );
+		i--;
+		break;
 	}
+
+	delete m_resources[ _name ];
+	m_resources.erase( _name );
+	
 	m_mutex.unlock();
 }

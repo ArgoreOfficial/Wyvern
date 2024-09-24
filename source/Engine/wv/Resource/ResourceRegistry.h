@@ -55,10 +55,10 @@ namespace wv
 		{
 			_res->decrNumUsers();
 
-			if ( _res->getNumUsers() == 0 )
+			if( _res->getNumUsers() == 0 )
 			{
 				_res->unload( m_pFileSystem, m_pGraphicsDevice );
-				m_resources.erase( _res->getName() );
+				removeResource( _res->getName() );
 			}
 		}
 		
@@ -76,8 +76,8 @@ namespace wv
 
 		void addResource( iResource* _resource );
 		 
-		void findAndUnloadResource( iResource* _resource );
-		void unloadResource( const std::string& _name );
+		void findAndRemoveResource( iResource* _resource );
+		void removeResource( const std::string& _name );
 
 		cResourceLoader m_resourceLoader;
 

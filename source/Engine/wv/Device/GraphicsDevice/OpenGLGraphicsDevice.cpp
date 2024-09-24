@@ -51,6 +51,7 @@ static GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 	case wv::WV_BUFFER_TYPE_VERTEX:  return GL_ARRAY_BUFFER;         break;
 	case wv::WV_BUFFER_TYPE_INDEX:   return GL_ELEMENT_ARRAY_BUFFER; break;
 	case wv::WV_BUFFER_TYPE_UNIFORM: return GL_UNIFORM_BUFFER;       break;
+	case wv::WV_BUFFER_TYPE_DYNAMIC_STORAGE: return GL_SHADER_STORAGE_BUFFER; break;
 	}
 
 	return GL_NONE;
@@ -373,12 +374,12 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 		cGPUBuffer& buf = *createGPUBuffer( &ubDesc );
 
-		sOpenGLUniformBufferData* pUBData = new sOpenGLUniformBufferData();
+		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
 		pUBData->bindingIndex = m_numTotalUniformBlocks;
 
-		pUBData->blockIndex = glGetUniformBlockIndex( program->handle, name.c_str() );;
+		pUBData->blockIndex = glGetUniformBlockIndex( program->handle, name.c_str() );
 		glGetActiveUniformBlockiv( program->handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size );
 		
 		WV_ASSERT_ERR( "ERROR\n" );
@@ -401,6 +402,43 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		
 		program->shaderBuffers.push_back( &buf );
 	}
+
+	
+	GLint numActiveSSBOs;
+	glGetProgramInterfaceiv( program->handle, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &numActiveSSBOs );
+	for ( GLuint i = 0; i < numActiveSSBOs; i++ )
+	{
+		GLenum props[ 1 ] = { GL_NAME_LENGTH };
+		GLint res[ 1 ];
+		glGetProgramResourceiv( program->handle, GL_SHADER_STORAGE_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
+
+		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
+		glGetProgramResourceName( program->handle, GL_SHADER_STORAGE_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
+		WV_ASSERT_ERR( "ERROR\n" );
+
+		// create ssbo
+
+		sGPUBufferDesc ubDesc;
+		ubDesc.name = name;
+		ubDesc.type = WV_BUFFER_TYPE_DYNAMIC_STORAGE;
+		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+		cGPUBuffer& buf = *createGPUBuffer( &ubDesc );
+
+		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
+		buf.pPlatformData = pUBData;
+
+		glBindBuffer( GL_SHADER_STORAGE_BUFFER, buf.handle );
+		pUBData->blockIndex = glGetProgramResourceIndex( program->handle, GL_SHADER_STORAGE_BLOCK, name.data() );
+		WV_ASSERT_ERR( "ERROR\n" );
+		
+		glBindBuffer( GL_SHADER_STORAGE_BUFFER, 0 );
+		WV_ASSERT_ERR( "ERROR\n" );
+
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 2, buf.handle );
+
+		program->shaderBuffers.push_back( &buf );
+	}
+
 
 	return program;
 #else
@@ -526,7 +564,22 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 		return;
 	}
 
-	glNamedBufferSubData( buffer.handle, 0, buffer.size, buffer.pData );
+	if ( buffer.size != buffer.bufferedSize )
+	{
+		GLenum usage = getGlBufferUsage( buffer.usage );
+		GLenum target = getGlBufferEnum( buffer.type );
+		glBindBuffer( target, buffer.handle );
+		// glNamedBufferData( buffer.handle, buffer.size, buffer.pData, usage );
+		glBufferData( target, buffer.size, buffer.pData, usage );
+		glBindBuffer( target, 0 );
+
+		buffer.bufferedSize = buffer.size;
+	}
+	else
+	{
+		glNamedBufferSubData( buffer.handle, 0, buffer.size, buffer.pData );
+	}
+
 	
 	WV_ASSERT_ERR( "Failed to buffer data\n" );
 	
@@ -545,6 +598,7 @@ void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _siz
 	GLenum usage = getGlBufferUsage( buffer.usage );
 	buffer.pData = new uint8_t[ _size ];
 	buffer.size  = _size;
+	buffer.bufferedSize = buffer.size;
 
 	glNamedBufferData( buffer.handle, _size, 0, usage );
 
@@ -918,7 +972,7 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		drawIndices( rMesh.pIndexBuffer->count );
+		drawIndexed( rMesh.pIndexBuffer->count );
 	}
 	else
 	{ 
@@ -937,12 +991,23 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::drawIndices( uint32_t _numIndices )
+void wv::cOpenGLGraphicsDevice::drawIndexed( uint32_t _numIndices )
 {
+	WV_TRACE();
+
 	/// TODO: allow for other draw modes
 	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
 
 	glDrawElements( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0 );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cOpenGLGraphicsDevice::drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances )
+{
+	WV_TRACE();
+
+	glDrawElementsInstanced( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

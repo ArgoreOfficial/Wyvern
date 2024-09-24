@@ -17,7 +17,7 @@ namespace wv
 
 #ifdef WV_SUPPORT_OPENGL
 
-	struct sOpenGLUniformBufferData
+	struct sOpenGLBufferData
 	{
 		wv::Handle blockIndex = 0;
 		wv::Handle bindingIndex = 0;
@@ -85,7 +85,8 @@ namespace wv
 		virtual void setFillMode( eFillMode _mode ) override;
 
 		virtual void draw( sMesh* _pMesh ) override;
-		virtual void drawIndices( uint32_t _numIndices ) override;
+		virtual void drawIndexed( uint32_t _numIndices ) override;
+		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +107,7 @@ namespace wv
 
 		int m_numTotalUniformBlocks = 0;
 	};
-
+	
 	template<typename ...Args>
 	inline bool cOpenGLGraphicsDevice::assertGLError( const std::string _msg, Args ..._args )
 	{

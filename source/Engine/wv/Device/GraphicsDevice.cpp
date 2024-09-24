@@ -260,6 +260,11 @@ void wv::iGraphicsDevice::setCommandBufferCallback( uint32_t& _buffer, wv::Funct
 
 void wv::iGraphicsDevice::beginRender()
 {
+	while( m_recordingCommandBuffers.size() > 0 )
+	{
+
+	}
+
 	if( m_recordingCommandBuffers.size() > 0 )
 		throw std::runtime_error( "recording one or more command buffers across frames" );
 }

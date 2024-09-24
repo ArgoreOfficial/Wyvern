@@ -125,7 +125,8 @@ namespace wv
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
 		virtual void draw( sMesh* _pMesh ) = 0;
-		virtual void drawIndices( uint32_t _numIndices ) = 0;
+		virtual void drawIndexed( uint32_t _numIndices ) = 0;
+		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
