@@ -20,6 +20,8 @@
 
 #include <exception>
 
+#include <wv/Misc/Time.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDesc* _desc )
@@ -262,7 +264,7 @@ void wv::iGraphicsDevice::beginRender()
 {
 	while( m_recordingCommandBuffers.size() > 0 )
 	{
-
+		wv::Time::sleepForSeconds( 0.01 );
 	}
 
 	if( m_recordingCommandBuffers.size() > 0 )

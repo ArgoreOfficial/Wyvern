@@ -935,9 +935,9 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bindVertexBuffer( cGPUBuffer* _pVertexBuffer )
+void wv::cOpenGLGraphicsDevice::bindVertexArray( sMesh* _pMesh )
 {
-
+	glBindVertexArray( _pMesh->handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

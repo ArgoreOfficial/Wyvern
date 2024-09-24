@@ -5,7 +5,7 @@
 namespace wv
 {
 
-	namespace time
+	namespace Time
 	{
 		/// Sleep for the given duration of seconds
 		/// 

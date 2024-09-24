@@ -139,8 +139,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			
 			if( m_useGPUInstancing )
 			{
-				// temporary
-				glBindVertexArray( mesh->handle );
+				_pGraphicsDevice->bindVertexArray( mesh );
 
 				mat->setInstanceUniforms( mesh );
 

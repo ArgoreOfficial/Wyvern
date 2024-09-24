@@ -113,14 +113,15 @@ namespace wv
 		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) = 0;
 		
 		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
-		virtual void destroyMesh( sMesh* _pMesh ) = 0;
+		virtual void   destroyMesh( sMesh* _pMesh ) = 0;
 
 		virtual sTexture createTexture    ( sTextureDesc* _pDesc )                    = 0;
 		virtual void     bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps ) = 0;
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     = 0;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) = 0;
 
-		virtual void bindVertexBuffer( cGPUBuffer* _pVertexBuffer ) = 0;
+		// temporary until vertex pulling is implemented
+		virtual void bindVertexArray( sMesh* _pMesh ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
