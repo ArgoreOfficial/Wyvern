@@ -30,7 +30,7 @@ namespace wv
 		void addChild( Transform<T>* _child );
 		void removeChild( Transform<T>* _child );
 
-		void update  ( Transform<T>* _parent );
+		void update( Transform<T>* _parent, bool _recalculateMatrix = true );
 
 		inline cVector3<T> forward() { return rotation.eulerToDirection(); }
 
@@ -43,6 +43,12 @@ namespace wv
 
 		cMatrix<T, 4, 4> m_matrix{ 1 };
 	private:
+
+		cMatrix<T, 4, 4> m_localMatrix{ 1 };
+
+		cVector3<T> m_cachedPosition{ 0, 0, 0 };
+		cVector3<T> m_cachedRotation{ 0, 0, 0 };
+		cVector3<T> m_cachedScale{ 1, 1, 1 };
 
 		std::vector<Transform<T>*> m_children;
     };
@@ -85,26 +91,39 @@ namespace wv
 	}
 
 	template<typename T>
-	inline void Transform<T>::update( Transform<T>* _parent )
+	inline void Transform<T>::update( Transform<T>* _parent, bool _recalculateMatrix )
 	{
-		cMatrix<T, 4, 4> model{ 1 };
 
-		model = Matrix::translate( model, position );
+		bool posChanged = position != m_cachedPosition;
+		bool rotChanged = rotation != m_cachedRotation;
+		bool sclChanged = scale    != m_cachedScale;
+		bool recalc = posChanged || rotChanged || sclChanged;
 
-		
-		model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
-		model = Matrix::rotateY( model, Math::radians( rotation.y ) );
-		model = Matrix::rotateX( model, Math::radians( rotation.x ) );
+		if ( posChanged || rotChanged || sclChanged )
+		{
+			cMatrix<T, 4, 4> model{ 1 };
 
-		model = Matrix::scale( model, scale );
+			model = Matrix::translate( model, position );
 
-		if( _parent != nullptr )
-			model = model * _parent->getMatrix();
+			model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
+			model = Matrix::rotateY( model, Math::radians( rotation.y ) );
+			model = Matrix::rotateX( model, Math::radians( rotation.x ) );
 
-		m_matrix = model;
+			model = Matrix::scale( model, scale );
+
+			m_localMatrix = model;
+		}
+
+		if ( _recalculateMatrix )
+		{
+			if( _parent != nullptr )
+				m_matrix = m_localMatrix * _parent->getMatrix();
+			else
+				m_matrix = m_localMatrix;
+		}
 
 		for( auto& child : m_children )
-			child->update( this );
+			child->update( this, recalc || _recalculateMatrix );
 
 	}
 
