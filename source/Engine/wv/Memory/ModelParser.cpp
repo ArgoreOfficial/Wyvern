@@ -10,6 +10,8 @@
 
 #include <wv/Resource/ResourceRegistry.h>
 
+#include <wv/Auxiliary/json/json11.hpp>
+
 #include <fstream>
 
 #ifdef EMSCRIPTEN
@@ -45,23 +47,23 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
-	
+
 	// process vertices
-	for ( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )
+	for( unsigned int i = 0; i < _assimp_mesh->mNumVertices; i++ )
 	{
 		wv::Vertex v;
 		v.position.x = _assimp_mesh->mVertices[ i ].x;
 		v.position.y = _assimp_mesh->mVertices[ i ].y;
 		v.position.z = _assimp_mesh->mVertices[ i ].z;
 
-		if ( _assimp_mesh->HasNormals() )
+		if( _assimp_mesh->HasNormals() )
 		{
 			v.normal.x = _assimp_mesh->mNormals[ i ].x;
 			v.normal.y = _assimp_mesh->mNormals[ i ].y;
 			v.normal.z = _assimp_mesh->mNormals[ i ].z;
 		}
 
-		if ( _assimp_mesh->HasVertexColors( i ) )
+		if( _assimp_mesh->HasVertexColors( i ) )
 		{
 			aiColor4D col = _assimp_mesh->mColors[ i ][ 1 ];
 			v.color = { col.r, col.g, col.b, col.a };
@@ -69,25 +71,24 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 		else
 			v.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		if ( _assimp_mesh->HasTangentsAndBitangents() )
+		if( _assimp_mesh->HasTangentsAndBitangents() )
 		{
 			v.tangent.x = _assimp_mesh->mTangents[ i ].x;
 			v.tangent.y = _assimp_mesh->mTangents[ i ].y;
 			v.tangent.z = _assimp_mesh->mTangents[ i ].z;
 		}
 
-		if ( _assimp_mesh->HasTextureCoords( 0 ) )
+		if( _assimp_mesh->HasTextureCoords( 0 ) )
 		{
 			aiVector3D* texcoord = _assimp_mesh->mTextureCoords[ 0 ];
 			v.texCoord0 = { texcoord[ i ].x, texcoord[ i ].y };
-			
 		}
 
 		vertices.push_back( v );
 	}
 
 	// process indices
-	for ( unsigned int i = 0; i < _assimp_mesh->mNumFaces; i++ )
+	for( unsigned int i = 0; i < _assimp_mesh->mNumFaces; i++ )
 	{
 		aiFace face = _assimp_mesh->mFaces[ i ];
 
@@ -102,15 +103,15 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 			_mesh->triangles.push_back( triangle );
 		}
 		*/
-		
-		for ( unsigned int j = 0; j < face.mNumIndices; j++ )
+
+		for( unsigned int j = 0; j < face.mNumIndices; j++ )
 			indices.push_back( face.mIndices[ j ] );
 	}
 
 	/// this reeeeeeeally needs to be reworked
 
 	wv::cMaterial* material = nullptr;
-	if ( _assimp_mesh->mMaterialIndex >= 0 )
+	if( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 
@@ -118,13 +119,34 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 
 		std::string materialName = assimpMaterial->GetName().C_Str();
 
-		if ( materialName == "" )  // fallback to DefaultMaterial
+		if( materialName == "" ) // fallback to DefaultMaterial
 			materialName = "DefaultMaterial";
 
-		if ( md.getFullPath( materialName + ".wmat" ) == "" )
+		if( md.getFullPath( materialName + ".wmat" ) == "" )
 		{
 			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. Please create it\n", materialName.c_str() );
-			materialName = "DefaultMaterial";
+			// materialName = "DefaultMaterial";
+
+			aiString diffusePath;
+			assimpMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &diffusePath );
+
+			json11::Json newMaterial = json11::Json::object{
+				{ "shader", "basic" },
+				{ "textures", json11::Json::array 
+					{
+						json11::Json::object {
+							{ "name", "u_Albedo" },
+							{ "texture", diffusePath.C_Str() }
+						}
+					} 
+				}
+			};
+			
+
+			std::ofstream file( "res/materials/" + materialName + ".wmat" );
+			file << newMaterial.dump();
+			file.close();
+
 			// create new material file
 		}
 
@@ -137,22 +159,22 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
 		prDesc.sizeVertices = sizeVertices;
-		
+
 		prDesc.vertices = new wv::Vertex[ vertices.size() ];
 		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
-		
+
 		prDesc.numIndices = indices.size();
 		prDesc.pIndices32 = new uint32_t[ indices.size() ];
 		memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
-		
+
 		prDesc.pMaterial = material;
-		
+
 		// buffer
 		uint32_t cmdBuffer = device->getCommandBuffer();
 		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, _outMesh, &prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
-		if ( device->getThreadID() == std::this_thread::get_id() )
+		if( device->getThreadID() == std::this_thread::get_id() )
 			device->executeCommandBuffer( cmdBuffer );
 	}
 
@@ -168,15 +190,14 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 
 	_meshNode->name = std::string( _node->mName.C_Str() );
 	_meshNode->transform.position = { pos.x, pos.y, pos.z };
-	_meshNode->transform.scale    = { scale.x, scale.y, scale.z };
-	_meshNode->transform.rotation = { 
-		wv::Math::degrees( rot.x ), 
-		wv::Math::degrees( rot.y ), 
-		wv::Math::degrees( rot.z ) 
-	};
+	_meshNode->transform.scale = { scale.x, scale.y, scale.z };
+	_meshNode->transform.rotation = {
+		wv::Math::degrees( rot.x ),
+		wv::Math::degrees( rot.y ),
+		wv::Math::degrees( rot.z ) };
 
 	// process all the node's meshes (if any)
-	for ( unsigned int i = 0; i < _node->mNumMeshes; i++ )
+	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
 		_meshNode->meshes.resize( _node->mNumMeshes );
 
@@ -203,26 +224,26 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 	cFileSystem md;
 	std::string path = std::string( _path );
 	Memory* meshMem = md.loadMemory( path );
-	
-	if ( !meshMem )
+
+	if( !meshMem )
 		return nullptr;
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
-	
+	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals );
+
 	md.unloadMemory( meshMem );
 
 	// TODO: change to wv::assert
-	if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
+	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "ASSIMP::%s\n", importer.GetErrorString() );
 		return nullptr;
 	}
 
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
-	
+
 	wv::sMeshNode* mesh = new wv::sMeshNode();
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
-	
+
 	return mesh;
 }

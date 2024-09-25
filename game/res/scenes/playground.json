@@ -87,6 +87,20 @@
       "children": []
     },
     {
+      "uuid": 1875219,
+      "name": "mesh",
+      "type": "cModelObject",
+      "transform": {
+        "pos": [0,0,0],
+        "rot": [0,0,0],
+        "scl": [1,1,1]
+      },
+      "data": {
+        "path": "m2300B1A15.dae"
+      },
+      "children": []
+    },
+    {
       "uuid": 8740140,
       "name": "DemoWindow",
       "type": "cDemoWindow",

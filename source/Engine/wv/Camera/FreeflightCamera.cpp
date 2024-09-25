@@ -3,8 +3,12 @@
 #include <wv/Device/DeviceContext.h>
 #include <wv/Engine/Engine.h>
 
-#ifdef WV_SUPPORT_SDL
+#ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL_keycode.h> /// TODO: remove
+#endif
+
+#ifdef WV_SUPPORT_GLFW
+#include <GLFW/glfw3.h>
 #endif
 
 #include <iostream>
@@ -60,9 +64,11 @@ void wv::FreeflightCamera::onInputEvent( sInputEvent _event )
 		case 'E': m_move.y += button_delta; break; // up
 		case 'Q': m_move.y += -button_delta; break; // down
 
-		#ifdef WV_SUPPORT_SDL
-		case SDL_Scancode::SDL_SCANCODE_LSHIFT: m_speed += button_delta * 200.0f; break;
-		#endif // WV_SUPPORT_SDL
+		case GLFW_KEY_LEFT_SHIFT:
+		case SDLK_LSHIFT:
+			m_speed += button_delta * 1000.0f;	
+			break;
+
 		}
 	}
 }
