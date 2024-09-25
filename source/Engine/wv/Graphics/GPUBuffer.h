@@ -39,7 +39,7 @@ namespace wv
 			if ( _data == nullptr )
 				return;
 
-			if( _size != size )
+			if( _size >= allocatedSize )
 			{
 				if( type == WV_BUFFER_TYPE_DYNAMIC_STORAGE )
 				{
@@ -48,14 +48,19 @@ namespace wv
 					// in such cases, vmalloc should be implemented here too
 					delete pData;
 					pData = malloc( _size );
-					size = _size;
+					allocatedSize = _size;
 					bufferedSize = 0;
 				}
+				/*
 				else
 					Debug::Print( Debug::WV_PRINT_ERROR, "Data size does not match buffer size\n" );	
+				*/
 			}
 
-			memcpy( pData, _data, size );
+			size = _size;
+
+			if( pData != nullptr )
+				memcpy( pData, _data, size );
 		}
 
 		std::string name = "";
@@ -68,6 +73,7 @@ namespace wv
 		uint32_t count  = 0;
 		uint32_t stride = 0;
 		int32_t  size   = 0;
+		int32_t  allocatedSize = 0;
 
 		int32_t bufferedSize = 0;
 		
