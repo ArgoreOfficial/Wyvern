@@ -82,7 +82,9 @@ void main()
 
     Pos = getPosition( gl_VertexID );
     TexCoord = getTexCoord0( gl_VertexID );
+    
     Normal = getNormal( gl_VertexID );
     Normal = normalize( transpose( inverse( mat3( model ) ) ) * Normal );
+    
     gl_Position = u_Projection * u_View * model * vec4( Pos, 1.0 );
 }
