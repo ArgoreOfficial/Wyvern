@@ -16,8 +16,7 @@ in flat int InstanceID;
 
 layout(location = 0) out vec4 o_Albedo;
 layout(location = 1) out vec4 o_Normal;
-layout(location = 2) out vec4 o_Position;
-layout(location = 3) out vec4 o_RoughnessMetallic;
+layout(location = 2) out vec4 o_RoughnessMetallic;
 
 float randf(vec2 p)
 {
@@ -42,6 +41,5 @@ void main()
     //o_Albedo = randVec4( InstanceID + gl_PrimitiveID + 1 );
     
     o_Normal = vec4( Normal, 1.0 );
-    o_Position = vec4( Pos, 1.0 );
     o_RoughnessMetallic = vec4( 1.0 );
 }

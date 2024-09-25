@@ -6,13 +6,11 @@ precision mediump float;
 #if GL_ES 
 uniform sampler2D u_Albedo;
 uniform sampler2D u_Normal;
-uniform sampler2D u_Position;
 uniform sampler2D u_RoughnessMetallic;
 #else
 layout(binding = 0) uniform sampler2D u_Albedo;
 layout(binding = 1) uniform sampler2D u_Normal;
-layout(binding = 2) uniform sampler2D u_Position;
-layout(binding = 3) uniform sampler2D u_RoughnessMetallic;
+layout(binding = 2) uniform sampler2D u_RoughnessMetallic;
 #endif
 
 in vec2 TexCoord;

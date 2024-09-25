@@ -7,6 +7,8 @@
 #include <wv/Engine/ApplicationState.h>
 #include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Rigidbody.h>
+#include <wv/Scene/Model.h>
+#include <wv/Memory/FileSystem.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
