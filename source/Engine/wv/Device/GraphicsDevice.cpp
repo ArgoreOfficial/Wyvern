@@ -140,7 +140,7 @@ void wv::iGraphicsDevice::submitCommandBuffer( uint32_t& _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::executeCommandBuffer( uint32_t& _index )
+void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 {
 	m_mutex.lock();
 	cCommandBuffer& buffer = m_commandBuffers[ _index ];

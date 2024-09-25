@@ -118,6 +118,10 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	int numTextureUnits = 0;
 	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits );
 
+	glGenVertexArrays( 1, &m_vaoHandle);
+	glBindVertexArray( m_vaoHandle );
+	glBindVertexArray( 0 );
+
 	return true;
 #else
 	return false;
@@ -659,7 +663,7 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 	mesh.pVertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
 	bufferData( mesh.pVertexBuffer );
-
+	
 	if ( _desc->numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -705,7 +709,7 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		sVertexAttribute& element = _desc->layout.elements[ i ];
 		stride += element.size;
 	}
-
+	
 	for ( unsigned int i = 0; i < _desc->layout.numElements; i++ )
 	{
 		sVertexAttribute& element = _desc->layout.elements[ i ];
@@ -939,6 +943,13 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 
 void wv::cOpenGLGraphicsDevice::bindVertexArray( sMesh* _pMesh )
 {
+	if ( _pMesh->pMaterial && _pMesh->pMaterial->isComplete() )
+	{
+		wv::cGPUBuffer* SbVertices = _pMesh->pMaterial->getPipeline()->getShaderBuffer( "SbVertices" );
+		if ( SbVertices && _pMesh->pVertexBuffer->pData )
+			SbVertices->buffer( _pMesh->pVertexBuffer->pData, _pMesh->pVertexBuffer->size );
+	}
+
 	glBindVertexArray( _pMesh->handle );
 }
 
@@ -963,8 +974,8 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& rMesh = *_pMesh;
 
-	glBindVertexArray( rMesh.handle );
-
+	bindVertexArray( _pMesh );
+	
 	WV_ASSERT_ERR( "ERROR\n" );
 
 	std::vector<cGPUBuffer*>& shaderBuffers = m_activePipeline->pVertexProgram->shaderBuffers;

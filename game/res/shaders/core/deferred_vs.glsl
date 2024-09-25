@@ -1,9 +1,60 @@
+///////////////////////////////////////////////////////////////////////////////////////
+// Common Shader Header
+///////////////////////////////////////////////////////////////////////////////////////
 
-layout(location = 0) in vec3 a_Pos;
-layout(location = 1) in vec3 a_Normal;
-layout(location = 2) in vec3 a_Tangent;
-layout(location = 3) in vec4 a_Color;
-layout(location = 4) in vec2 a_TexCoord0;
+struct sInstance
+{
+    mat4x4 Model;
+};
+
+struct sVertex
+{
+    float Pos[3];
+    float Normal[3];
+    float Tangent[3];
+    float Color[4];
+    float TexCoord0[2];
+};
+
+uniform UbInstanceData
+{
+    mat4x4 u_Projection;
+    mat4x4 u_View;
+    mat4x4 u_Model;
+};
+
+layout(std430) buffer SbVertices
+{
+    sVertex u_vertices[];
+};
+
+/// TODO: move to a common shader header
+/// TODO: shader preprocessor
+
+vec3 getPosition( int _idx ) { 
+    return vec3(
+        u_vertices[ _idx ].Pos[0],
+        u_vertices[ _idx ].Pos[1],
+        u_vertices[ _idx ].Pos[2]
+    );
+}
+
+vec3 getNormal( int _idx ) {
+    return vec3(
+        u_vertices[ _idx ].Normal[0],
+        u_vertices[ _idx ].Normal[1],
+        u_vertices[ _idx ].Normal[2]
+    );
+}
+
+vec2 getTexCoord0( int _idx ) {
+    return vec2(
+        u_vertices[ _idx ].TexCoord0[0],
+        u_vertices[ _idx ].TexCoord0[1]
+    );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 out gl_PerVertex
 {
@@ -14,6 +65,6 @@ out vec2 TexCoord;
 
 void main()
 {
-    TexCoord = a_TexCoord0;
-    gl_Position = vec4( a_Pos, 1.0 );;
+    TexCoord = getTexCoord0( gl_VertexID );
+    gl_Position = vec4( getPosition( gl_VertexID ), 1.0 );
 }

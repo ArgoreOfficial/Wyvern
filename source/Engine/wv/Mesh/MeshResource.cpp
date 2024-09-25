@@ -91,6 +91,9 @@ void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 		return;
 	}
 
+	if ( m_drawQueue.empty() )
+		return;
+
 	m_pMeshNode->transform.update( nullptr );
 	drawNode( _pGraphicsDevice, m_pMeshNode );
 
@@ -115,7 +118,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 
 			mat->setAsActive( _pGraphicsDevice );
 
-			wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstanceData" );
+			wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
 			if( SbInstanceData ) // TODO: enable gpu instancing on all meshes
 				m_useGPUInstancing = true;
 			else
@@ -139,11 +142,12 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			
 			if( m_useGPUInstancing )
 			{
+				
 				_pGraphicsDevice->bindVertexArray( mesh );
 
 				mat->setInstanceUniforms( mesh );
 
-				wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstanceData" );
+				wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
 				if ( SbInstanceData )
 					SbInstanceData->buffer( matrices.data(), matrices.size() * sizeof( cMatrix4x4f ) );
 

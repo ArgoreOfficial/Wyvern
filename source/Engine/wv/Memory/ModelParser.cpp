@@ -140,10 +140,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 				{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 		};
 		wv::sVertexLayout layout;
-		layout.numElements = (unsigned int)elements.size();
-		layout.elements = new wv::sVertexAttribute[ elements.size() ];
-		memcpy( layout.elements, elements.data(), elements.size() * sizeof( wv::sVertexAttribute ) );
-
+		layout.numElements = 0;
+		
 		wv::sMeshDesc prDesc;
 		prDesc.layout = layout;
 		prDesc.pParentTransform = &_meshNode->transform;

@@ -66,6 +66,8 @@ namespace wv
 
 		wv::Handle handle = 0;
 		cGPUBuffer* pVertexBuffer = nullptr;
+		cGPUBuffer* pVertexPullingBuffer = nullptr;
+
 		cGPUBuffer* pIndexBuffer  = nullptr;
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;

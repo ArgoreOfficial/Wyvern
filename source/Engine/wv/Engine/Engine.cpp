@@ -410,9 +410,14 @@ void wv::cEngine::tick()
 		graphics->bindTextureToSlot( &m_gbuffer->pTextures[ i ], i );
 
 	// render screen quad with deferred shader
-	m_deferredPipeline->use( graphics );
-	graphics->draw( m_screenQuad );
-	
+	{
+		m_deferredPipeline->use( graphics );
+		wv::cGPUBuffer* SbVertices = m_deferredPipeline->getShaderBuffer( "SbVertices" );
+		SbVertices->buffer( m_screenQuad->pVertexBuffer->pData, m_screenQuad->pVertexBuffer->size );
+		
+		graphics->draw( m_screenQuad );
+	}
+
 	if( m_pIRTHandler )
 	{
 		graphics->setRenderTarget( m_pScreenRenderTarget );

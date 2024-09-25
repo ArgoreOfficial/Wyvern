@@ -105,6 +105,8 @@ namespace wv
 		sPipeline* m_activePipeline = nullptr;
 		RenderTarget* m_activeRenderTarget = nullptr;
 
+		wv::Handle m_vaoHandle = 0;
+
 		int m_numTotalUniformBlocks = 0;
 	};
 	

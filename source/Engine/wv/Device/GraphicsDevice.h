@@ -75,7 +75,7 @@ namespace wv
 		[[nodiscard]] uint32_t getCommandBuffer();
 		
 		void submitCommandBuffer( uint32_t& _buffer );
-		void executeCommandBuffer( uint32_t& _index );
+		void executeCommandBuffer( uint32_t _index );
 
 		template<typename R, typename T>
 		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );

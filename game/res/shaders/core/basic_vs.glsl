@@ -1,10 +1,21 @@
 
-layout(location = 0) in vec3 a_Pos;
-layout(location = 1) in vec3 a_Normal;
-layout(location = 2) in vec3 a_Tangent;
-layout(location = 3) in vec4 a_Color;
-layout(location = 4) in vec2 a_TexCoord0;
+///////////////////////////////////////////////////////////////////////////////////////
+// Common Shader Header
+///////////////////////////////////////////////////////////////////////////////////////
 
+struct sInstance
+{
+    mat4x4 Model;
+};
+
+struct sVertex
+{
+    float Pos[3];
+    float Normal[3];
+    float Tangent[3];
+    float Color[4];
+    float TexCoord0[2];
+};
 
 uniform UbInstanceData
 {
@@ -13,10 +24,43 @@ uniform UbInstanceData
     mat4x4 u_Model;
 };
 
-layout(std430) buffer SbInstanceData
+layout(std430) buffer SbInstances
 {
-    mat4x4 u_Models[];
+    sInstance u_instances[];
 };
+
+layout(std430) buffer SbVertices
+{
+    sVertex u_vertices[];
+};
+
+/// TODO: move to a common shader header
+/// TODO: shader preprocessor
+
+vec3 getPosition( int _idx ) { 
+    return vec3(
+        u_vertices[ _idx ].Pos[0],
+        u_vertices[ _idx ].Pos[1],
+        u_vertices[ _idx ].Pos[2]
+    );
+}
+
+vec3 getNormal( int _idx ) {
+    return vec3(
+        u_vertices[ _idx ].Normal[0],
+        u_vertices[ _idx ].Normal[1],
+        u_vertices[ _idx ].Normal[2]
+    );
+}
+
+vec2 getTexCoord0( int _idx ) {
+    return vec2(
+        u_vertices[ _idx ].TexCoord0[0],
+        u_vertices[ _idx ].TexCoord0[1]
+    );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 out gl_PerVertex
 {
@@ -26,14 +70,19 @@ out gl_PerVertex
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 Pos;
+out flat int InstanceID;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void main()
 {
-    mat4x4 model = u_Models[gl_InstanceID];
+    mat4x4 model = u_instances[ gl_InstanceID ].Model;
+    
+    InstanceID = gl_InstanceID;
 
-    TexCoord = a_TexCoord0;
-    Normal = normalize( transpose( inverse( mat3( model ) ) ) * a_Normal );
-    Pos = a_Pos;
-
-    gl_Position = u_Projection * u_View * model * vec4( a_Pos, 1.0 );
+    Pos = getPosition( gl_VertexID );
+    TexCoord = getTexCoord0( gl_VertexID );
+    Normal = getNormal( gl_VertexID );
+    Normal = normalize( transpose( inverse( mat3( model ) ) ) * Normal );
+    gl_Position = u_Projection * u_View * model * vec4( Pos, 1.0 );
 }
