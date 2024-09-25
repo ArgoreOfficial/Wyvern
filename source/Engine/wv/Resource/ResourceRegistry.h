@@ -47,7 +47,7 @@ namespace wv
 			}
 
 			res->incrNumUsers();
-
+			
 			return (T*)res;
 		}
 

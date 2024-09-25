@@ -36,6 +36,9 @@ namespace wv
 		template<typename T> 
 		void buffer( T* _data, size_t _size = sizeof( T ) )
 		{
+			if ( _data == nullptr )
+				return;
+
 			if( _size != size )
 			{
 				if( type == WV_BUFFER_TYPE_DYNAMIC_STORAGE )

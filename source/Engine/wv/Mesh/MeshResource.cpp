@@ -40,9 +40,13 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 {
 	wv::iGraphicsDevice* pGraphicsDevice = wv::cEngine::get()->graphics;
 	uint32_t cmdBuffer = pGraphicsDevice->getCommandBuffer();
+	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
-	for( auto& mesh : _node->meshes )
+	for ( auto& mesh : _node->meshes )
+	{
 		pGraphicsDevice->bufferCommand( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &mesh );
+		pResourceRegistry->unload( mesh->pMaterial );
+	}
 	pGraphicsDevice->submitCommandBuffer( cmdBuffer );
 	
 	for ( auto& child : _node->children )

@@ -42,11 +42,7 @@ namespace wv
 		#ifdef WV_PLATFORM_WINDOWS
 			static HANDLE hConsole = nullptr;
 
-			static std::mutex& getMutex()
-			{
-				static std::mutex PRINT_MUTEX{};
-				return PRINT_MUTEX;
-			}
+			std::mutex& getMutex();
 		#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////

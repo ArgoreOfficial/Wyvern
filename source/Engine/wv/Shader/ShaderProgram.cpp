@@ -25,8 +25,6 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
 	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
 
-
-
 	sShaderProgramDesc vsDesc;
 	vsDesc.source = m_vsSource;
 	vsDesc.type = WV_SHADER_TYPE_VERTEX;
@@ -77,16 +75,22 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 
 void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
-	
+
 }
 
 void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
 {
+	if ( m_pPipeline == nullptr )
+		return;
+
 	_pGraphicsDevice->bindPipeline( m_pPipeline );
 }
 
 wv::cGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
 {
+	if ( m_pPipeline == nullptr )
+		return nullptr;
+
 	if ( m_pPipeline->pVertexProgram )
 	{
 		for( auto& buf : m_pPipeline->pVertexProgram->shaderBuffers )

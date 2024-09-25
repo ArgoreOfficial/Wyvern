@@ -16,10 +16,8 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 #endif
 	wv::Parser parser;
 
-	DEBUG_MATERIAL = _pResourceRegistry->load<cMaterial>( "DebugMaterial.wmat" );
-
-	CUBE_MESH = parser.load( "res/meshes/cube.dae", _pResourceRegistry );
-	SPHERE_MESH = parser.load( "res/meshes/cube.dae", _pResourceRegistry );
+	CUBE_MESH = parser.load( "res/meshes/DebugCube.dae", _pResourceRegistry );
+	SPHERE_MESH = parser.load( "res/meshes/DebugCube.dae", _pResourceRegistry );
 
 }
 
@@ -30,12 +28,6 @@ void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevi
 	
 	if( SPHERE_MESH )
 		_pGraphicsDevice->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
-
-	if( DEBUG_MATERIAL )
-	{
-		DEBUG_MATERIAL->unload( nullptr, _pGraphicsDevice ); /// TODO: fix
-		delete DEBUG_MATERIAL;
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

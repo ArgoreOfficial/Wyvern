@@ -8,6 +8,7 @@
 #include <wv/Math/Triangle.h>
 #include <wv/Memory/FileSystem.h>
 
+#include <wv/Texture/Texture.h>
 #include <wv/Resource/ResourceRegistry.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
@@ -124,7 +125,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 
 		if( md.getFullPath( materialName + ".wmat" ) == "" )
 		{
-			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. Please create it\n", materialName.c_str() );
+			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. One has been created.\n", materialName.c_str() );
 			// materialName = "DefaultMaterial";
 
 			aiString diffusePath;
@@ -136,7 +137,8 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 					{
 						json11::Json::object {
 							{ "name", "u_Albedo" },
-							{ "texture", diffusePath.C_Str() }
+							{ "texture", diffusePath.C_Str() },
+							{ "filtering", wv::eTextureFiltering::WV_TEXTURE_FILTER_LINEAR }
 						}
 					} 
 				}

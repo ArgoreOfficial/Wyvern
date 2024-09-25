@@ -8,6 +8,8 @@
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Mesh/Mesh.h>
 
+#include <wv/Resource/ResourceRegistry.h>
+
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Memory/FileSystem.h>
 
@@ -25,27 +27,16 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 
 	std::string shaderName = root[ "shader" ].string_value();
 
-	m_pPipeline = new cProgramPipeline( shaderName );
-	m_pPipeline->load( _pFileSystem, _pGraphicsDevice );
-
-	while ( !m_pPipeline->isComplete() )
-	{
-		/// TEMPORARY FIX
-		/// TODO: NOT THIS
-	#ifdef WV_PLATFORM_WINDOWS 
-		Sleep( 1 );
-		//_pGraphicsDevice->endRender();
-	#endif
-	}
+	m_pPipeline = cEngine::get()->m_pResourceRegistry->load<cProgramPipeline>( shaderName );
 
 #ifdef WV_PLATFORM_WINDOWS
 	for ( auto& textureObject : root[ "textures" ].array_items() )
 	{
 		std::string uniformName = textureObject[ "name" ].string_value();
 		std::string textureName = textureObject[ "texture" ].string_value();
-		auto filteringObj = textureObject[ "filtering" ];
 		int filtering = 0;
 
+		auto filteringObj = textureObject[ "filtering" ];
 		if ( !textureObject.is_null() )
 			filtering = filteringObj.int_value();
 
@@ -64,16 +55,6 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 		texture->load( _pFileSystem, _pGraphicsDevice );
 		textureVariable.data.texture = texture;
 
-		//m_resourceLoader.addLoad( texture );
-
-		while ( !texture->isComplete() )
-		{
-		#ifdef WV_PLATFORM_WINDOWS 
-			Sleep( 1 );
-			//_pGraphicsDevice->endRender();
-		#endif
-		}
-
 		m_variables.push_back( textureVariable );
 	}
 
@@ -87,6 +68,9 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
+
+	if( m_pPipeline )
+		cEngine::get()->m_pResourceRegistry->unload( m_pPipeline );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +114,9 @@ void wv::cMaterial::setDefaultViewUniforms()
 
 void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 {
+	if ( m_pPipeline == nullptr || !m_pPipeline->isComplete() )
+		return;
+
 	wv::cEngine* app = wv::cEngine::get();
 
 	m_UbInstanceData.model = _mesh->transform.getMatrix();

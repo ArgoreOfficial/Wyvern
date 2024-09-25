@@ -24,7 +24,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 		m_path = _pFileSystem->getFullPath( m_name );
 
 	sTextureDesc desc;
-
+	
 	stbi_set_flip_vertically_on_load( 0 );
 	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &desc.width, &desc.height, &desc.numChannels, 3 ) );
 
@@ -39,14 +39,17 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	m_dataSize = desc.width * desc.numChannels * desc.width * desc.numChannels;
 	
 	desc.filtering = m_filtering;
+	desc.generateMipMaps = true;
 	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	
 	struct
 	{
 		sTexture* tex;
 		void* pData;
-		bool generateMipMaps = false;
+		bool generateMipMaps;
 	} bufferData;
+	bufferData.generateMipMaps = desc.generateMipMaps;
+
 	bufferData.tex = &m_texture;
 	bufferData.pData = m_pData;
 

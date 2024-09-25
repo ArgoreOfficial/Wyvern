@@ -31,8 +31,7 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphic
 		case wv::WV_WORKER_IDLE:
 		{
 			wv::Time::sleepForSeconds( 0.1 );
-			break;
-		}
+		} break;
 
 		case wv::WV_WORKER_WORKING:
 		{

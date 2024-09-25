@@ -804,15 +804,28 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 
 	WV_ASSERT_ERR( "Failed to bind texture\n" );
 
-	GLenum filter = GL_NEAREST;
-	switch ( desc.filtering )
+	GLenum minFilter = GL_NEAREST;
+	GLenum magFilter = GL_NEAREST;
+
+	if ( desc.generateMipMaps )
 	{
-	case WV_TEXTURE_FILTER_NEAREST: filter = GL_NEAREST; break;
-	case WV_TEXTURE_FILTER_LINEAR: filter = GL_LINEAR; break;
+		switch ( desc.filtering )
+		{
+		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST_MIPMAP_NEAREST; break;
+		case WV_TEXTURE_FILTER_LINEAR:  magFilter = GL_LINEAR;  minFilter = GL_LINEAR_MIPMAP_LINEAR; break;
+		}
+	}
+	else
+	{
+		switch ( desc.filtering )
+		{
+		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST; break;
+		case WV_TEXTURE_FILTER_LINEAR:  magFilter = GL_LINEAR;  minFilter = GL_LINEAR; break;
+		}
 	}
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
@@ -824,9 +837,10 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	}
 
 	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
+	WV_ASSERT_ERR( "Failed to create texture\n" );
 
 	sOpenGLTextureData* pPData = new sOpenGLTextureData();
-	pPData->filter = filter;
+	pPData->filter = minFilter;
 	pPData->format = format;
 	pPData->internalFormat = internalFormat;
 	pPData->type = type;
@@ -845,7 +859,15 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 	sOpenGLTextureData* pPData = (sOpenGLTextureData*)_pTexture->pPlatformData;
 
 	glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle );
+	
 	glTexImage2D( GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
+	if ( _generateMipMaps )
+	{
+		glGenerateMipmap( GL_TEXTURE_2D );
+
+		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
+	}
+	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	_pTexture->pData = (uint8_t*)_pData;
@@ -853,13 +875,6 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 #ifdef WV_DEBUG
 	assertGLError( "Failed to buffer Texture data\n" );
 #endif
-
-	if ( _generateMipMaps )
-	{
-		glGenerateMipmap( GL_TEXTURE_2D );
-
-		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
-	}
 }
 
 void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
@@ -880,9 +895,6 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
 void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned int _slot )
 {
 	WV_TRACE();
-
-	if ( _pTexture->textureObjectHandle == 0 )
-		printf( "asd" );
 
 #ifdef WV_SUPPORT_OPENGL
 	/// TODO: some cleaner way of checking version/supported features

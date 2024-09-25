@@ -31,9 +31,9 @@ void wv::cResourceRegistry::initializeEmbeded()
 	// anything loaded in here will always have numUsers of greater than 0
 	// essentially keeping them alive for the enire application lifetime
 
-	load<cMaterial>( "DefaultMaterial.wmat" );
-	load<cMaterial>( "DebugMaterial.wmat" );
-	load<cMaterial>( "DebugTextureMaterial.wmat" );
+	//load<cMaterial>( "DefaultMaterial.wmat" );
+	//load<cMaterial>( "DebugMaterial.wmat" );
+	//load<cMaterial>( "DebugTextureMaterial.wmat" );
 }
 
 void wv::cResourceRegistry::drawMeshInstances()

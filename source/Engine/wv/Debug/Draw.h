@@ -32,8 +32,7 @@ namespace wv
 
 				static sMeshNode* SPHERE_MESH;
 				static sMeshNode* CUBE_MESH;
-				static cMaterial* DEBUG_MATERIAL;
-
+				
 				static std::vector<Sphere> spheres;
 				static std::vector<Transformf> cubes;
 

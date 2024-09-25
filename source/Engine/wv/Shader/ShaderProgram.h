@@ -43,10 +43,10 @@ namespace wv
 	{
 		std::string name;
 
-		sVertexLayout* pVertexLayout;
+		sVertexLayout* pVertexLayout = nullptr;
 
-		sShaderProgram** pVertexProgram;
-		sShaderProgram** pFragmentProgram;
+		sShaderProgram** pVertexProgram = nullptr;
+		sShaderProgram** pFragmentProgram = nullptr;
 
 		bool reflect = true;
 	};
@@ -56,8 +56,8 @@ namespace wv
 	class cProgramPipeline : public iResource
 	{
 	public:
-		cProgramPipeline( const std::string& _name ) :
-			iResource( _name, "" )
+		cProgramPipeline( const std::string& _name, const std::string& _path = "" ) :
+			iResource( _name, _path )
 		{ }
 
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;

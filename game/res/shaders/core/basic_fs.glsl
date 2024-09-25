@@ -37,10 +37,10 @@ vec4 randVec4( int _id )
 void main()
 {
     vec3 normalColor = (Normal / 2.0) + vec3( 0.5 );
-    
+
     o_Albedo = texture( u_Albedo, TexCoord );
     //o_Albedo = randVec4( InstanceID + gl_PrimitiveID + 1 );
-
+    
     o_Normal = vec4( Normal, 1.0 );
     o_Position = vec4( Pos, 1.0 );
     o_RoughnessMetallic = vec4( 1.0 );
