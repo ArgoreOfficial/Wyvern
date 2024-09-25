@@ -490,24 +490,6 @@ void wv::cEngine::shutdownImgui()
 
 void wv::cEngine::createScreenQuad()
 {
-	//wv::sVertexAttribute elements[] = {
-	//	{ 3, wv::WV_FLOAT, false, sizeof( float ) * 3 },
-	//	{ 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }
-	//};
-
-	/// TODO: allow for unique layouts
-	wv::sVertexAttribute elements[] = {
-			{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
-	};
-
-	wv::sVertexLayout layout;
-	layout.elements = elements;
-	layout.numElements = 5;
-
 	std::vector<Vertex> vertices;
 	vertices.push_back( Vertex{ {  3.0f, -1.0f, 0.5f }, {}, {}, {}, { 2.0f, 0.0f } } );
 	vertices.push_back( Vertex{ { -1.0f,  3.0f, 0.5f }, {}, {}, {}, { 0.0f, 2.0f } } );
@@ -519,8 +501,6 @@ void wv::cEngine::createScreenQuad()
 	indices.push_back( 2 );
 	wv::sMeshDesc prDesc;
 	{
-		prDesc.layout = layout;
-
 		prDesc.vertices  = vertices.data();
 		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
 

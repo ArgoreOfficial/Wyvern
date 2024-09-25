@@ -45,8 +45,6 @@ namespace wv
 		Transformf transform;
 		Transformf* pParentTransform = nullptr;
 
-		sVertexLayout layout {};
-
 		void*    vertices     = nullptr;
 		uint32_t sizeVertices = 0;
 

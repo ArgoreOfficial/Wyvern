@@ -702,48 +702,11 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
 	}
 	
-	int offset = 0;
-	int stride = 0;
-	for ( unsigned int i = 0; i < _desc->layout.numElements; i++ )
-	{
-		sVertexAttribute& element = _desc->layout.elements[ i ];
-		stride += element.size;
-	}
-	
-	for ( unsigned int i = 0; i < _desc->layout.numElements; i++ )
-	{
-		sVertexAttribute& element = _desc->layout.elements[ i ];
-
-		GLenum type = GL_FLOAT;
-		switch ( _desc->layout.elements[ i ].type )
-		{
-		case WV_BYTE:           type = GL_BYTE;           break;
-		case WV_UNSIGNED_BYTE:  type = GL_UNSIGNED_BYTE;  break;
-		case WV_SHORT:          type = GL_SHORT;          break;
-		case WV_UNSIGNED_SHORT: type = GL_UNSIGNED_SHORT; break;
-		case WV_INT:            type = GL_INT;            break;
-		case WV_UNSIGNED_INT:   type = GL_UNSIGNED_INT;   break;
-		case WV_FLOAT:          type = GL_FLOAT;          break;
-		#ifndef EMSCRIPTEN // WebGL does not support GL_DOUBLE
-		case WV_DOUBLE:         type = GL_DOUBLE; break;
-		#endif
-		}
-
-		glVertexAttribPointer( i, element.componentCount, type, element.normalized, stride, VPTRi32( offset ) );
-		glEnableVertexAttribArray( i );
-
-		WV_ASSERT_ERR( "ERROR\n" );
-
-		offset += element.size;
-	}
-
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	mesh.pVertexBuffer->stride = stride;
-	
 	if( _desc->pParentTransform != nullptr )
 		_desc->pParentTransform->addChild( &mesh.transform );
 	

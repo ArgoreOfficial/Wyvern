@@ -59,20 +59,8 @@ void wv::Sprite::createQuad()
 		0, 2, 3
 	};
 
-	std::vector<wv::sVertexAttribute> elements = {
-		{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-		{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-		{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-		{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-		{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
-	};
-	wv::sVertexLayout layout;
-	layout.elements = elements.data();
-	layout.numElements = (unsigned int)elements.size();
-
 	wv::sMeshDesc prDesc;
-	prDesc.layout = layout;
-
+	
 	prDesc.vertices     = vertices.data();
 	prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
 

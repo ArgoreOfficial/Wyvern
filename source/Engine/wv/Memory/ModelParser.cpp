@@ -132,18 +132,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 	}
 
 	{ // create primitive
-		std::vector<wv::sVertexAttribute> elements = {
-				{ "a_Pos",       3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-				{ "a_Normal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-				{ "a_Tangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-				{ "a_Color",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-				{ "a_TexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
-		};
-		wv::sVertexLayout layout;
-		layout.numElements = 0;
-		
 		wv::sMeshDesc prDesc;
-		prDesc.layout = layout;
 		prDesc.pParentTransform = &_meshNode->transform;
 
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
