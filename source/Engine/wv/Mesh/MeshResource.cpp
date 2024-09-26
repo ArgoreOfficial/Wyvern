@@ -120,7 +120,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			printf( "Empty Material\n" );
 			mat = _pGraphicsDevice->getEmptyMaterial();
 		}
-
+		wv::cProgramPipeline* pPipeline = mat->getPipeline();
 		mat->setAsActive( _pGraphicsDevice );
 
 		wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
@@ -139,6 +139,11 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			if ( !m_useGPUInstancing )
 			{
 				mat->setInstanceUniforms( mesh );
+
+				wv::cGPUBuffer* UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
+				if( UbInstanceData )
+					_pGraphicsDevice->bufferData( UbInstanceData );
+
 				_pGraphicsDevice->draw( mesh );
 			}
 			else
@@ -165,14 +170,14 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			_pGraphicsDevice->bindVertexBuffer( mesh );
 
 			mat->setInstanceUniforms( mesh );
-
-			wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
+			
+			wv::cGPUBuffer* UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
+			wv::cGPUBuffer* SbInstanceData = pPipeline->getShaderBuffer( "SbInstances" );
 			if ( SbInstanceData )
 				SbInstanceData->buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
-
-			std::vector<cGPUBuffer*>& shaderBuffers = mat->getPipeline()->m_pPipeline->pVertexProgram->shaderBuffers;
-			for ( auto& buf : shaderBuffers )
-				_pGraphicsDevice->bufferData( buf );
+	
+			_pGraphicsDevice->bufferData( SbInstanceData );
+			_pGraphicsDevice->bufferData( UbInstanceData );
 
 			_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
 

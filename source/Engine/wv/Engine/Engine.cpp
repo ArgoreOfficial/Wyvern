@@ -337,14 +337,17 @@ void wv::cEngine::tick()
 		if ( fps > m_maxFps )
 			m_maxFps = fps;
 
-		m_fpsCache[ m_fpsCacheCounter ] = fps;
-		m_fpsCacheCounter++;
-		if ( m_fpsCacheCounter >= FPS_CACHE_NUM )
+		m_timeSinceFPSUpdate += dt;
+		m_fpsAccumulator += fps;
+		m_fpsCounter++;
+
+		if ( m_timeSinceFPSUpdate >= m_fpsUpdateInterval )
 		{
-			m_fpsCacheCounter = 0;
-			for ( int i = 0; i < FPS_CACHE_NUM; i++ )
-				m_averageFps += m_fpsCache[ i ];
-			m_averageFps /= (double)FPS_CACHE_NUM;
+			m_averageFps = m_fpsAccumulator / (double)m_fpsCounter;
+			
+			m_fpsAccumulator = 0.0;
+			m_timeSinceFPSUpdate = 0.0;
+			m_fpsCounter = 0;
 
 			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
@@ -416,9 +419,13 @@ void wv::cEngine::tick()
 	// render screen quad with deferred shader
 	{
 		m_deferredPipeline->use( graphics );
+		wv::cGPUBuffer* UbInstanceData = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
 		wv::cGPUBuffer* SbVertices = m_deferredPipeline->getShaderBuffer( "SbVertices" );
 		SbVertices->buffer( m_screenQuad->pVertexBuffer->pData, m_screenQuad->pVertexBuffer->size );
 		
+		graphics->bufferData( UbInstanceData );
+		graphics->bufferData( SbVertices );
+
 		graphics->draw( m_screenQuad );
 	}
 

@@ -140,9 +140,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	#define FPS_CACHE_NUM 200
-		unsigned int m_fpsCacheCounter = 0;
-		double m_fpsCache[ FPS_CACHE_NUM ] = { 0.0 };
+		unsigned int m_fpsCounter = 0;
+		double m_fpsAccumulator;
+		double m_fpsUpdateInterval = 0.1;
+		double m_timeSinceFPSUpdate = 0.0;
+
 		double m_averageFps = 0.0;
 		double m_maxFps = 0.0;
 

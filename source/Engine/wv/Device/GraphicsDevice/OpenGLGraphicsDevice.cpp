@@ -947,8 +947,13 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh )
 	if ( _pMesh->pMaterial && _pMesh->pMaterial->isComplete() )
 	{
 		wv::cGPUBuffer* SbVertices = _pMesh->pMaterial->getPipeline()->getShaderBuffer( "SbVertices" );
-		if ( SbVertices && _pMesh->pVertexBuffer->pData )
-			SbVertices->buffer( _pMesh->pVertexBuffer->pData, _pMesh->pVertexBuffer->size );
+
+		if( SbVertices && _pMesh->pVertexBuffer->pData )
+		{
+			sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices->pPlatformData;
+			
+			glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, _pMesh->pVertexBuffer->handle, 0, _pMesh->pVertexBuffer->size );
+		}
 	}
 
 	// move?
@@ -980,10 +985,6 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	std::vector<cGPUBuffer*>& shaderBuffers = m_activePipeline->pVertexProgram->shaderBuffers;
-	for ( auto& buf : shaderBuffers )
-		bufferData( buf );
-	
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
