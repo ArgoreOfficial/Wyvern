@@ -45,13 +45,10 @@ void wv::cResourceRegistry::drawMeshInstances()
 wv::iResource* wv::cResourceRegistry::getLoadedResource( const std::string& _name )
 {
 	wv::iResource* res = nullptr;
-	m_mutex.lock();
-
+	
 	auto search = m_resources.find( _name );
 	if ( search != m_resources.end() )
 		res = m_resources[ _name ];
-	
-	m_mutex.unlock();
 	
 	return res;
 }
@@ -64,9 +61,8 @@ void wv::cResourceRegistry::addResource( iResource* _resource )
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource of name '%s' already exists\n", name.c_str() );
 		return;
 	}
-	m_mutex.lock();
+
 	m_resources[ name ] = _resource;
-	m_mutex.unlock();
 }
 
 void wv::cResourceRegistry::findAndRemoveResource( iResource* _resource )

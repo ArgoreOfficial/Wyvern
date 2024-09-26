@@ -27,7 +27,9 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 
 	std::string shaderName = root[ "shader" ].string_value();
 
-	m_pPipeline = cEngine::get()->m_pResourceRegistry->load<cProgramPipeline>( shaderName );
+	cResourceRegistry* pResReg = cEngine::get()->m_pResourceRegistry;
+
+	m_pPipeline = pResReg->load<cProgramPipeline>( shaderName );
 
 #ifdef WV_PLATFORM_WINDOWS
 	for ( auto& textureObject : root[ "textures" ].array_items() )
@@ -51,8 +53,8 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 		textureVariable.name = uniformName;
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 
-		cTextureResource* texture = new cTextureResource( textureName, "", (wv::eTextureFiltering)filtering );
-		texture->load( _pFileSystem, _pGraphicsDevice );
+		cTextureResource* texture = pResReg->load<cTextureResource>( textureName, (wv::eTextureFiltering)filtering );
+		// texture->load( _pFileSystem, _pGraphicsDevice );
 		textureVariable.data.texture = texture;
 
 		m_variables.push_back( textureVariable );
@@ -69,8 +71,18 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphi
 {
 	setComplete( false );
 
+	cResourceRegistry* resReg = cEngine::get()->m_pResourceRegistry;
+
 	if( m_pPipeline )
-		cEngine::get()->m_pResourceRegistry->unload( m_pPipeline );
+		resReg->unload( m_pPipeline );
+
+	for( auto& var : m_variables )
+	{
+		switch( var.type )
+		{
+		case wv::WV_MATERIAL_VARIABLE_TEXTURE: resReg->unload( var.data.texture ); break;
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

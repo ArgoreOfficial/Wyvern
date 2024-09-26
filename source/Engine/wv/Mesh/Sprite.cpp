@@ -61,7 +61,7 @@ void wv::Sprite::createQuad()
 
 	wv::sMeshDesc prDesc;
 	
-	prDesc.vertices     = vertices.data();
+	prDesc.vertices     = (uint8_t*)vertices.data();
 	prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
 
 	prDesc.pIndices32  = indices.data();

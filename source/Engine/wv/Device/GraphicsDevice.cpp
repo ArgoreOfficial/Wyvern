@@ -275,6 +275,8 @@ void wv::iGraphicsDevice::beginRender()
 
 void wv::iGraphicsDevice::endRender()
 {
-	for( uint32_t submittedIndex : m_submittedCommandBuffers )
-		executeCommandBuffer( submittedIndex );
+	
+	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
+		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
+
 }

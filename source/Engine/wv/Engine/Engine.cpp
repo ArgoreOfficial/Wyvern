@@ -505,11 +505,13 @@ void wv::cEngine::createScreenQuad()
 	indices.push_back( 2 );
 	wv::sMeshDesc prDesc;
 	{
-		prDesc.vertices  = vertices.data();
+		prDesc.vertices     = (uint8_t*)vertices.data();
 		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
 
 		prDesc.pIndices32 = indices.data();
 		prDesc.numIndices = indices.size();
+
+		prDesc.deleteData = false;
 	}
 
 	m_screenQuad = graphics->createMesh( &prDesc );

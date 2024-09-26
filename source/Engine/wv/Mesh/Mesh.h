@@ -45,12 +45,14 @@ namespace wv
 		Transformf transform;
 		Transformf* pParentTransform = nullptr;
 
-		void*    vertices     = nullptr;
+		uint8_t* vertices     = nullptr;
 		uint32_t sizeVertices = 0;
 
 		uint16_t* pIndices16 = nullptr;
 		uint32_t* pIndices32 = nullptr;
 		uint32_t  numIndices = 0;
+
+		bool deleteData = true;
 
 		cMaterial* pMaterial = nullptr;
 	};
@@ -64,8 +66,6 @@ namespace wv
 
 		wv::Handle handle = 0;
 		cGPUBuffer* pVertexBuffer = nullptr;
-		cGPUBuffer* pVertexPullingBuffer = nullptr;
-
 		cGPUBuffer* pIndexBuffer  = nullptr;
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;

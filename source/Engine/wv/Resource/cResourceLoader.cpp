@@ -36,12 +36,7 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphic
 		case wv::WV_WORKER_WORKING:
 		{
 			currentlyLoading->load( _pFileSystem, _pGraphicsDevice );
-			_loaderInfo->createQueueMutex.lock();
-			
-			_loaderInfo->createQueue.push( currentlyLoading );
-
 			currentlyLoading = nullptr;
-			_loaderInfo->createQueueMutex.unlock();
 		} break;
 
 		}
@@ -74,17 +69,14 @@ void wv::cResourceLoader::addLoad( iResource* _resource )
 bool wv::cResourceLoader::isWorking()
 {
 	m_info.loadQueueMutex.lock();
-	m_info.createQueueMutex.lock();
-	
-	bool loading = !m_info.loadQueue.empty();
-	bool creating = !m_info.createQueue.empty();
 
+	bool loading = !m_info.loadQueue.empty();
+	
 	bool workingThread = false;
 	for ( auto& worker : m_workers )
 		workingThread = worker->state == WV_WORKER_WORKING;
 	
 	m_info.loadQueueMutex.unlock();
-	m_info.createQueueMutex.unlock();
 
-	return loading || creating || workingThread;
+	return loading || workingThread;
 }

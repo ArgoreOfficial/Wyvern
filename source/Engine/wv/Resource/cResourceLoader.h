@@ -27,9 +27,7 @@ namespace wv
 	struct sLoaderInformation
 	{
 		std::queue<iResource*> loadQueue;
-		std::queue<iResource*> createQueue;
 		std::mutex loadQueueMutex;
-		std::mutex createQueueMutex;
 	};
 
 	class cResourceLoader
@@ -42,6 +40,8 @@ namespace wv
 		{ 
 		#ifndef WV_PLATFORM_PSVITA
 			createWorkers( 5 );
+		#else
+			createWorkers( 1 );
 		#endif
 		}
 

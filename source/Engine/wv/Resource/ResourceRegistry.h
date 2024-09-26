@@ -31,15 +31,16 @@ namespace wv
 		
 		void initializeEmbeded();
 
-		template<typename T, std::enable_if_t<std::is_base_of_v<wv::iResource, T>, bool> = true>
-		T* load( const std::string& _path )
+		template<typename T, typename...Args, std::enable_if_t<std::is_base_of_v<wv::iResource, T>, bool> = true>
+		T* load( const std::string& _path, Args... _args )
 		{
+			m_mutex.lock();
 			iResource* res = getLoadedResource( _path );
 
 			if ( res == nullptr )
 			{
 				std::string fullPath = m_pFileSystem->getFullPath( _path );
-				res = (iResource*)new T( _path, fullPath );
+				res = (iResource*)new T( _path, fullPath, _args... );
 				
 				handleResourceType<T>( (T*)res );
 				m_resourceLoader.addLoad( res );
@@ -48,6 +49,7 @@ namespace wv
 
 			res->incrNumUsers();
 			
+			m_mutex.unlock();
 			return (T*)res;
 		}
 

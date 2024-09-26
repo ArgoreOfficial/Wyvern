@@ -32,6 +32,14 @@ namespace wv
 	class cGPUBuffer
 	{
 	public:
+		~cGPUBuffer()
+		{
+			if( pData )
+			{
+				delete pData;
+				pData = nullptr;
+			}
+		}
 
 		template<typename T> 
 		void buffer( T* _data, size_t _size = sizeof( T ) )
@@ -46,15 +54,11 @@ namespace wv
 					// this may break on platforms that share
 					// ram and vram pointers
 					// in such cases, vmalloc should be implemented here too
-					delete pData;
-					pData = malloc( _size );
+					delete[] pData;
+					pData = new uint8_t[ _size ];
 					allocatedSize = _size;
 					bufferedSize = 0;
 				}
-				/*
-				else
-					Debug::Print( Debug::WV_PRINT_ERROR, "Data size does not match buffer size\n" );	
-				*/
 			}
 
 			size = _size;
@@ -68,7 +72,7 @@ namespace wv
 		eGPUBufferType  type  = WV_BUFFER_TYPE_NONE;
 		eGPUBufferUsage usage = WV_BUFFER_USAGE_NONE;
 
-		void* pData = nullptr;
+		uint8_t* pData = nullptr;
 
 		uint32_t count  = 0;
 		uint32_t stride = 0;

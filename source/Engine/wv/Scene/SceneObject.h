@@ -64,8 +64,13 @@ namespace wv
 				m_loaded = false;
 			}
 
-			for ( size_t i = 0; i < m_children.size(); i++ )
+			for( size_t i = 0; i < m_children.size(); i++ )
+			{
 				m_children[ i ]->onUnload();
+				delete m_children[ i ];
+				m_children[ i ] = nullptr;
+			}
+			m_children.clear();
 		}
 		
 		void onCreate()

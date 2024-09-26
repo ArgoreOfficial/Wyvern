@@ -75,7 +75,8 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 
 void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
-
+	_pFileSystem->unloadMemory( m_fsSource.data );
+	_pFileSystem->unloadMemory( m_vsSource.data );
 }
 
 void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )

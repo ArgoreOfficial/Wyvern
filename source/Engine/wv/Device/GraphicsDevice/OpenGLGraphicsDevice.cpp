@@ -458,6 +458,10 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _pProgram )
 
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteProgram( _pProgram->handle );
+
+	for( auto& buffer : _pProgram->shaderBuffers )
+		destroyGPUBuffer( buffer );
+	
 	WV_ASSERT_ERR( "ERROR\n" );
 	_pProgram->handle = 0;
 #endif
@@ -619,6 +623,7 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
 
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteBuffers( 1, &_buffer->handle );
+
 	if ( _buffer->pData )
 	{
 		delete[] _buffer->pData;
@@ -630,6 +635,8 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
 		delete _buffer->pPlatformData;
 		_buffer->pPlatformData = nullptr;
 	}
+
+	delete _buffer;
 #endif
 }
 
@@ -710,6 +717,15 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	if( _desc->pParentTransform != nullptr )
 		_desc->pParentTransform->addChild( &mesh.transform );
 	
+	if( _desc->deleteData )
+	{
+		if( _desc->vertices )   { delete[] _desc->vertices; }
+		if( _desc->pIndices16 ) { delete[] _desc->pIndices16; }
+		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
+	}
+	/*
+	*/
+
 	return &mesh;
 #else
 	return nullptr;
@@ -883,12 +899,17 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
 
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteTextures( 1, &_pTexture->textureObjectHandle );
-	
-	// textures are not heap allocated
-	/*
-	delete *_texture;
-	*_texture = nullptr;
-	*/
+	if( _pTexture->pData )
+	{
+		delete[] _pTexture->pData;
+		_pTexture->pData = nullptr;
+	}
+
+	if( _pTexture->pPlatformData )
+	{
+		delete _pTexture->pPlatformData;
+		_pTexture->pPlatformData = nullptr;
+	}
 #endif
 }
 

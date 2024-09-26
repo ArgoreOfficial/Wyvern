@@ -162,7 +162,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
 		prDesc.sizeVertices = sizeVertices;
 
-		prDesc.vertices = new wv::Vertex[ vertices.size() ];
+		prDesc.vertices = new uint8_t[ sizeVertices ];
 		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
 
 		prDesc.numIndices = indices.size();
@@ -246,6 +246,6 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 
 	wv::sMeshNode* mesh = new wv::sMeshNode();
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
-
+	
 	return mesh;
 }
