@@ -1,18 +1,14 @@
+#extension GL_ARB_bindless_texture : enable
+
 #if GL_ES 
 precision mediump float;
-#endif
-
-/// TODO: reflect to CPU so binding=0 doesn't need to be used
-#if GL_ES 
-uniform sampler2D u_Albedo;
-#else
-layout(binding = 0) uniform sampler2D u_Albedo;
 #endif
 
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 Pos;
 in flat int InstanceID;
+in flat sampler2D Albedo;
 
 layout(location = 0) out vec4 o_Albedo;
 layout(location = 1) out vec4 o_Normal;
@@ -36,10 +32,10 @@ vec4 randVec4( int _id )
 void main()
 {
     vec3 normalColor = (Normal / 2.0) + vec3( 0.5 );
-
-    o_Albedo = texture( u_Albedo, TexCoord );
-    //o_Albedo = randVec4( InstanceID + gl_PrimitiveID + 1 );
     
+    // o_Albedo = randVec4( InstanceID + gl_PrimitiveID + 1 );
+    o_Albedo = texture( Albedo, TexCoord );
+
     o_Normal = vec4( Normal, 1.0 );
     o_RoughnessMetallic = vec4( 1.0 );
 }

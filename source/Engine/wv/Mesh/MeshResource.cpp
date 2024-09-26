@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 #include <wv/Shader/ShaderProgram.h>
-
+#include <wv/Texture/Texture.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			m_useGPUInstancing = false;
 			
 		wv::cMatrix4x4f basematrix = mesh->transform.getMatrix();
-		std::vector<cMatrix4x4f> matrices;
+		std::vector<sMeshInstanceData> instances;
 
 		for ( auto& transform : m_drawQueue )
 		{
@@ -142,19 +142,33 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 				_pGraphicsDevice->draw( mesh );
 			}
 			else
-				matrices.push_back( mesh->transform.m_matrix );
+			{
+				sMeshInstanceData instanceData;
+				instanceData.model = mesh->transform.m_matrix;
+				
+				for( auto& var : mat->m_variables )
+				{
+					if( var.type != WV_MATERIAL_VARIABLE_TEXTURE )
+						continue;
+
+					if( var.name == "u_Albedo" )
+						instanceData.texturesHandles[ 0 ] = var.data.texture->m_texture.textureHandle;
+				}
+
+				instances.push_back( instanceData );
+			}
 		}
 			
 		if( m_useGPUInstancing )
 		{
 				
-			_pGraphicsDevice->bindVertexArray( mesh );
+			_pGraphicsDevice->bindVertexBuffer( mesh );
 
 			mat->setInstanceUniforms( mesh );
 
 			wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
 			if ( SbInstanceData )
-				SbInstanceData->buffer( matrices.data(), matrices.size() * sizeof( cMatrix4x4f ) );
+				SbInstanceData->buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 
 			std::vector<cGPUBuffer*>& shaderBuffers = mat->getPipeline()->m_pPipeline->pVertexProgram->shaderBuffers;
 			for ( auto& buf : shaderBuffers )
@@ -162,7 +176,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 
 			_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
 
-			matrices.clear();
+			instances.clear();
 		}
 		
 	}

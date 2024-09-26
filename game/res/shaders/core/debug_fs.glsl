@@ -1,3 +1,5 @@
+#extension GL_ARB_bindless_texture : enable
+
 #if GL_ES 
 precision mediump float;
 #endif

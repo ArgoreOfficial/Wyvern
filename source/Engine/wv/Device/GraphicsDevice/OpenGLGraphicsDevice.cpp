@@ -91,8 +91,8 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	switch ( m_graphicsApi )
 	{
 	case WV_GRAPHICS_API_OPENGL:     initRes = gladLoadGLLoader( _desc->loadProc ); break;
-	case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;
-	case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
+	//case WV_GRAPHICS_API_OPENGL_ES1: initRes = gladLoadGLES1Loader( _desc->loadProc ); break;
+	//case WV_GRAPHICS_API_OPENGL_ES2: initRes = gladLoadGLES2Loader( _desc->loadProc ); break;
 	}
 
 	if ( !initRes )
@@ -149,6 +149,13 @@ void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 #ifdef WV_SUPPORT_OPENGL
 	glViewport( 0, 0, _width, _height );
 #endif
+}
+
+void wv::cOpenGLGraphicsDevice::beginRender()
+{
+	iGraphicsDevice::beginRender();
+
+	glBindVertexArray( m_vaoHandle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -648,8 +655,8 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& mesh = *new sMesh();
-	glGenVertexArrays( 1, &mesh.handle );
-	glBindVertexArray( mesh.handle );
+	//glGenVertexArrays( 1, &mesh.handle );
+	//glBindVertexArray( mesh.handle );
 
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -663,8 +670,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	mesh.pVertexBuffer->count = count;
-	
-	glBindBuffer( GL_ARRAY_BUFFER, mesh.pVertexBuffer->handle );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -682,8 +687,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 		mesh.pIndexBuffer = createGPUBuffer( &ibDesc );
 		mesh.pIndexBuffer->count = _desc->numIndices;
-		
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.pIndexBuffer->handle );
 		
 		WV_ASSERT_ERR( "ERROR\n" );
 
@@ -709,9 +712,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
 	}
 	
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindVertexArray( 0 );
-	
 	WV_ASSERT_ERR( "ERROR\n" );
 
 	if( _desc->pParentTransform != nullptr )
@@ -723,8 +723,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		if( _desc->pIndices16 ) { delete[] _desc->pIndices16; }
 		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
 	}
-	/*
-	*/
 
 	return &mesh;
 #else
@@ -817,7 +815,6 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	WV_ASSERT_ERR( "Failed to gen texture\n" );
 
 	glBindTexture( GL_TEXTURE_2D, texture.textureObjectHandle );
-
 	WV_ASSERT_ERR( "Failed to bind texture\n" );
 
 	GLenum minFilter = GL_NEAREST;
@@ -827,7 +824,7 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	{
 		switch ( desc.filtering )
 		{
-		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST_MIPMAP_NEAREST; break;
+		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST_MIPMAP_LINEAR; break;
 		case WV_TEXTURE_FILTER_LINEAR:  magFilter = GL_LINEAR;  minFilter = GL_LINEAR_MIPMAP_LINEAR; break;
 		}
 	}
@@ -884,6 +881,12 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
 	}
 	
+	_pTexture->textureHandle = glGetTextureHandleARB( _pTexture->textureObjectHandle );
+	WV_ASSERT_ERR( "Failed to get texture handle\n" );
+
+	glMakeTextureHandleResidentARB( _pTexture->textureHandle );
+	WV_ASSERT_ERR( "Failed to make texture resident\n" );
+
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	_pTexture->pData = (uint8_t*)_pData;
@@ -898,6 +901,8 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
+	glMakeTextureHandleNonResidentARB( _pTexture->textureHandle );
+
 	glDeleteTextures( 1, &_pTexture->textureObjectHandle );
 	if( _pTexture->pData )
 	{
@@ -937,7 +942,7 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bindVertexArray( sMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh )
 {
 	if ( _pMesh->pMaterial && _pMesh->pMaterial->isComplete() )
 	{
@@ -946,7 +951,8 @@ void wv::cOpenGLGraphicsDevice::bindVertexArray( sMesh* _pMesh )
 			SbVertices->buffer( _pMesh->pVertexBuffer->pData, _pMesh->pVertexBuffer->size );
 	}
 
-	glBindVertexArray( _pMesh->handle );
+	// move?
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _pMesh->pIndexBuffer->handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -970,7 +976,7 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& rMesh = *_pMesh;
 
-	bindVertexArray( _pMesh );
+	bindVertexBuffer( _pMesh );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 
@@ -1006,7 +1012,7 @@ void wv::cOpenGLGraphicsDevice::drawIndexed( uint32_t _numIndices )
 
 	/// TODO: allow for other draw modes
 	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
-
+	
 	glDrawElements( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0 );
 }
 

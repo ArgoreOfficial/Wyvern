@@ -51,6 +51,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		std::vector<sMaterialVariable> m_variables;
 	protected:
 
 		void setDefaultViewUniforms();
@@ -58,7 +59,6 @@ namespace wv
 
 		cProgramPipeline* m_pPipeline = nullptr;
 		//std::vector<Texture*> m_textures;
-		std::vector<sMaterialVariable> m_variables;
 
 		sUbInstanceData m_UbInstanceData;
 

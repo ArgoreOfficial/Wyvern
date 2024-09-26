@@ -49,6 +49,7 @@ namespace wv
 		eTextureFiltering m_filtering;
 
 		wv::Handle textureObjectHandle = 0; // opengl specific
+		uint64_t textureHandle = 0; // opengl specific
 		
 		uint8_t* pData = nullptr;
 		unsigned int dataSize = 0;

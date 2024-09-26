@@ -2,9 +2,12 @@
 // Common Shader Header
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#extension GL_ARB_bindless_texture : require
+
 struct sInstance
 {
     mat4x4 Model;
+    uvec2 TextureHandles[ 4 ];
 };
 
 struct sVertex
@@ -59,12 +62,16 @@ vec2 getTexCoord0( int _idx ) {
     );
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
+sampler2D getAlbedoSampler( int _idx ) {
+    return sampler2D( u_instances[ _idx ].TextureHandles[ 0 ] );
+}
 
 out gl_PerVertex
 {
     vec4 gl_Position;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 out vec2 TexCoord;
 out vec3 Normal;

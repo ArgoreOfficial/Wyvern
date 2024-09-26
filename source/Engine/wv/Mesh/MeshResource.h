@@ -31,6 +31,12 @@ namespace wv
 		cMeshResource* pResource;
 	};
 
+	struct sMeshInstanceData
+	{
+		cMatrix4x4f model;
+		uint64_t texturesHandles[ 4 ] = { 0, 0, 0, 0 };
+	};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cMeshResource : public wv::iResource
@@ -60,10 +66,7 @@ namespace wv
 		void drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node );
 
 		sMeshNode* m_pMeshNode = nullptr;
-
-
-		std::vector<Transformf> m_drawQueue; /// sMeshInstanceData ?
-		std::vector<cMatrix4x4f> m_matrices;
+		std::vector<Transformf> m_drawQueue;
 	};
 
 

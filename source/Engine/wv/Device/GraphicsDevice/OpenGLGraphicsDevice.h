@@ -47,6 +47,8 @@ namespace wv
 		virtual void onResize( int _width, int _height ) override;
 		virtual void setViewport( int _width, int _height ) override;
 
+		virtual void beginRender() override;
+
 		virtual RenderTarget* createRenderTarget( RenderTargetDesc* _desc ) override;
 		virtual void destroyRenderTarget( RenderTarget** _renderTarget ) override;
 
@@ -80,7 +82,7 @@ namespace wv
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     override;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) override;
 
-		virtual void bindVertexArray( sMesh* _pMesh ) override;
+		virtual void bindVertexBuffer( sMesh* _pMesh ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
@@ -106,7 +108,6 @@ namespace wv
 		RenderTarget* m_activeRenderTarget = nullptr;
 
 		wv::Handle m_vaoHandle = 0;
-
 		int m_numTotalUniformBlocks = 0;
 	};
 	

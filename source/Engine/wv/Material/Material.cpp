@@ -139,18 +139,6 @@ void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 	// model transform
 	wv::cGPUBuffer& instanceBlock = *m_pPipeline->getShaderBuffer( "UbInstanceData" );
 	instanceBlock.buffer( &m_UbInstanceData );
-	
-	// bind textures
-	int texSlot = 0;
-	for( int i = 0; i < ( int )m_variables.size(); i++ )
-	{
-		if( m_variables[ i ].type != WV_MATERIAL_VARIABLE_TEXTURE )
-			continue;
-
-		/// TODO: move and change to instance variables
-		app->graphics->bindTextureToSlot( &m_variables[ i ].data.texture->m_texture, texSlot );
-		texSlot++;
-	}
 #endif
 }
 
