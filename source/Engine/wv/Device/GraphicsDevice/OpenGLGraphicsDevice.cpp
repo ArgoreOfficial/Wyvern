@@ -570,7 +570,7 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 		return;
 	}
 
-	if ( buffer.size != buffer.bufferedSize )
+	if ( buffer.size > buffer.bufferedSize )
 	{
 		GLenum usage = getGlBufferUsage( buffer.usage );
 		GLenum target = getGlBufferEnum( buffer.type );
