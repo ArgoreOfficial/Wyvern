@@ -84,6 +84,7 @@ namespace wv
 		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _rBuffer, _type, nullptr, nullptr ); }
 
 		void setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller );
+		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
 
 		virtual void terminate() = 0;
 
@@ -150,7 +151,7 @@ namespace wv
 		std::vector<uint32_t>       m_recordingCommandBuffers;
 		std::vector<uint32_t>       m_submittedCommandBuffers;
 
-		cMaterial* m_emptyMaterial = nullptr;
+		cMaterial* m_pEmptyMaterial = nullptr;
 	};
 	template<typename R, typename T>
 	inline void iGraphicsDevice::bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )

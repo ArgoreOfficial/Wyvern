@@ -56,8 +56,8 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 
 void wv::iGraphicsDevice::initEmbeds()
 {
-	m_emptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
-	m_emptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
+	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 		if( mat )
 		{
 			if( !mat->isComplete() )
-				mat = m_emptyMaterial;
+				mat = m_pEmptyMaterial;
 
 			mat->setAsActive( this );
 			mat->setInstanceUniforms( mesh );

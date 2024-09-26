@@ -115,55 +115,56 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			continue;
 
 		wv::cMaterial* mat = mesh->pMaterial;
-		if ( mat )
+		if ( !mat || !mat->isComplete() )
 		{
-			if ( !mat->isComplete() )
-				continue;
+			printf( "Empty Material\n" );
+			mat = _pGraphicsDevice->getEmptyMaterial();
+		}
 
-			mat->setAsActive( _pGraphicsDevice );
+		mat->setAsActive( _pGraphicsDevice );
+
+		wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
+		if( SbInstanceData ) // TODO: enable gpu instancing on all meshes
+			m_useGPUInstancing = true;
+		else
+			m_useGPUInstancing = false;
+			
+		wv::cMatrix4x4f basematrix = mesh->transform.getMatrix();
+		std::vector<cMatrix4x4f> matrices;
+
+		for ( auto& transform : m_drawQueue )
+		{
+			mesh->transform.m_matrix = basematrix * transform.getMatrix();
+
+			if ( !m_useGPUInstancing )
+			{
+				mat->setInstanceUniforms( mesh );
+				_pGraphicsDevice->draw( mesh );
+			}
+			else
+				matrices.push_back( mesh->transform.m_matrix );
+		}
+			
+		if( m_useGPUInstancing )
+		{
+				
+			_pGraphicsDevice->bindVertexArray( mesh );
+
+			mat->setInstanceUniforms( mesh );
 
 			wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
-			if( SbInstanceData ) // TODO: enable gpu instancing on all meshes
-				m_useGPUInstancing = true;
-			else
-				m_useGPUInstancing = false;
-			
-			wv::cMatrix4x4f basematrix = mesh->transform.getMatrix();
-			std::vector<cMatrix4x4f> matrices;
+			if ( SbInstanceData )
+				SbInstanceData->buffer( matrices.data(), matrices.size() * sizeof( cMatrix4x4f ) );
 
-			for ( auto& transform : m_drawQueue )
-			{
-				mesh->transform.m_matrix = basematrix * transform.getMatrix();
+			std::vector<cGPUBuffer*>& shaderBuffers = mat->getPipeline()->m_pPipeline->pVertexProgram->shaderBuffers;
+			for ( auto& buf : shaderBuffers )
+				_pGraphicsDevice->bufferData( buf );
 
-				if ( !m_useGPUInstancing )
-				{
-					mat->setInstanceUniforms( mesh );
-					_pGraphicsDevice->draw( mesh );
-				}
-				else
-					matrices.push_back( mesh->transform.m_matrix );
-			}
-			
-			if( m_useGPUInstancing )
-			{
-				
-				_pGraphicsDevice->bindVertexArray( mesh );
+			_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
 
-				mat->setInstanceUniforms( mesh );
-
-				wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
-				if ( SbInstanceData )
-					SbInstanceData->buffer( matrices.data(), matrices.size() * sizeof( cMatrix4x4f ) );
-
-				std::vector<cGPUBuffer*>& shaderBuffers = mat->getPipeline()->m_pPipeline->pVertexProgram->shaderBuffers;
-				for ( auto& buf : shaderBuffers )
-					_pGraphicsDevice->bufferData( buf );
-
-				_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
-
-				matrices.clear();
-			}
+			matrices.clear();
 		}
+		
 	}
 
 	for ( auto& childNode : _node->children )
