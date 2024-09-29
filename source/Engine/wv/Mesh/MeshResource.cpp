@@ -116,10 +116,8 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 
 		wv::cMaterial* mat = mesh->pMaterial;
 		if ( !mat || !mat->isComplete() )
-		{
-			printf( "Empty Material\n" );
 			mat = _pGraphicsDevice->getEmptyMaterial();
-		}
+		
 		wv::cProgramPipeline* pPipeline = mat->getPipeline();
 		mat->setAsActive( _pGraphicsDevice );
 

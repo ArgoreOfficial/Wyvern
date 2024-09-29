@@ -118,9 +118,7 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 	int numTextureUnits = 0;
 	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &numTextureUnits );
 
-	glGenVertexArrays( 1, &m_vaoHandle);
-	glBindVertexArray( m_vaoHandle );
-	glBindVertexArray( 0 );
+	glCreateVertexArrays( 1, &m_vaoHandle );
 
 	return true;
 #else
@@ -168,8 +166,7 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 	RenderTargetDesc& desc = *_desc;
 	RenderTarget* target = new RenderTarget();
 	
-	glGenFramebuffers( 1, &target->fbHandle );
-	glBindFramebuffer( GL_FRAMEBUFFER, target->fbHandle );
+	glCreateFramebuffers( 1, &target->fbHandle );
 	
 	target->numTextures = desc.numTextures;
 	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
@@ -184,21 +181,21 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 
 		target->pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
 
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, target->pTextures[ i ].textureObjectHandle, 0 );
-
+		glNamedFramebufferTexture( target->fbHandle, GL_COLOR_ATTACHMENT0 + i, target->pTextures[ i ].textureObjectHandle, 0 );
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
-	glGenRenderbuffers( 1, &target->rbHandle );
-	glBindRenderbuffer( GL_RENDERBUFFER, target->rbHandle );
-	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, desc.width, desc.height );
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
-	
-	glDrawBuffers( desc.numTextures, drawBuffers );
+	glCreateRenderbuffers( 1, &target->rbHandle );
+
+	glNamedRenderbufferStorage( target->rbHandle, GL_DEPTH_COMPONENT24, desc.width, desc.height );
+	glNamedFramebufferRenderbuffer( target->fbHandle, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
+
+	glNamedFramebufferDrawBuffers( target->fbHandle, desc.numTextures, drawBuffers );
+
 	delete[] drawBuffers;
 #ifdef WV_DEBUG
-	int errcode = 0; 
-	errcode = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	int errcode = 0;
+	errcode = glCheckNamedFramebufferStatus( target->fbHandle, GL_FRAMEBUFFER );
 	
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
@@ -228,10 +225,6 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 #endif
 	target->width  = desc.width;
 	target->height = desc.height;
-
-	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	return target;
 #else
@@ -342,17 +335,6 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	program->handle = glCreateShaderProgramv( glType, 1, &sourcePtr );
 	WV_ASSERT_ERR( "Failed create shader program\n" );
 
-	/*
-	int  success = 1;
-	char infoLog[ 512 ];
-	glGetShaderiv( program->handle, GL_COMPILE_STATUS, &success );
-	if( !success )
-	{
-		glGetShaderInfoLog( program->handle, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to compile shader\n %s \n", infoLog );
-	}
-	*/
-
 	int success = 0;
 	char infoLog[ 512 ];
 	glGetProgramiv( program->handle, GL_LINK_STATUS, &success );
@@ -395,10 +377,8 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		
 		WV_ASSERT_ERR( "ERROR\n" );
 
-		glBindBuffer( GL_UNIFORM_BUFFER, buf.handle );
 		allocateBuffer( &buf, buf.size );
 		WV_ASSERT_ERR( "ERROR\n" );
-		glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		
 		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
 		WV_ASSERT_ERR( "ERROR\n" );
@@ -422,8 +402,7 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
 		glGetProgramResourceName( program->handle, GL_SHADER_STORAGE_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
-		WV_ASSERT_ERR( "ERROR\n" );
-
+		
 		// create ssbo
 
 		sGPUBufferDesc ubDesc;
@@ -435,18 +414,12 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
-		glBindBuffer( GL_SHADER_STORAGE_BUFFER, buf.handle );
 		pUBData->bindingIndex = m_numTotalUniformBlocks;
 		pUBData->blockIndex = glGetProgramResourceIndex( program->handle, GL_SHADER_STORAGE_BLOCK, name.data() );
-		glBindBuffer( GL_SHADER_STORAGE_BUFFER, 0 );
-		WV_ASSERT_ERR( "ERROR\n" );
-
-		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
-		WV_ASSERT_ERR( "ERROR\n" );
 		
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
 		glShaderStorageBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
-		WV_ASSERT_ERR( "ERROR\n" );
-
+		
 		m_numTotalUniformBlocks++;
 
 		program->shaderBuffers.push_back( &buf );
@@ -483,8 +456,8 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 #ifdef WV_SUPPORT_OPENGL
 	sPipeline& pipeline = *new sPipeline();
 	
-	glGenProgramPipelines( 1, &pipeline.handle );
-
+	glCreateProgramPipelines( 1, &pipeline.handle );
+	
 	WV_ASSERT_ERR( "Failed to create pipeline\n" );
 	if( pipeline.handle == 0 ) return &pipeline;
 	
@@ -548,17 +521,12 @@ wv::cGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _des
 
 	GLenum target = getGlBufferEnum( buffer.type );
 	
-	//glGenBuffers( 1, &buffer.handle );
-
 	glCreateBuffers( 1, &buffer.handle );
-	glBindBuffer( target, buffer.handle );
-
+	
 	assertGLError( "Failed to create buffer\n" );
 
 	if ( _desc->size > 0 )
 		allocateBuffer( &buffer, _desc->size );
-	
-	glBindBuffer( target, 0 );
 	
 	return &buffer;
 #else 
@@ -585,6 +553,9 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 	{
 		GLenum usage = getGlBufferUsage( buffer.usage );
 		GLenum target = getGlBufferEnum( buffer.type );
+
+		// only way to recreate a buffer on the gpu from what I can tell
+		// no DSA way it seems?
 		glBindBuffer( target, buffer.handle );
 		// glNamedBufferData( buffer.handle, buffer.size, buffer.pData, usage );
 		glBufferData( target, buffer.size, buffer.pData, usage );
@@ -786,7 +757,7 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
-		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // 3 (channels) is not divisible by 4. Set pixel alignment to 1
+		
 		switch ( desc.format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RGB8; break;
@@ -811,11 +782,8 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 		break;
 	}
 
-	glGenTextures( 1, &texture.textureObjectHandle );
-	WV_ASSERT_ERR( "Failed to gen texture\n" );
-
-	glBindTexture( GL_TEXTURE_2D, texture.textureObjectHandle );
-	WV_ASSERT_ERR( "Failed to bind texture\n" );
+	glCreateTextures( GL_TEXTURE_2D, 1, &texture.textureObjectHandle );
+	WV_ASSERT_ERR( "Failed to create texture\n" );
 
 	GLenum minFilter = GL_NEAREST;
 	GLenum magFilter = GL_NEAREST;
@@ -837,10 +805,10 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 		}
 	}
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	glTextureParameteri( texture.textureObjectHandle, GL_TEXTURE_MIN_FILTER, minFilter );
+	glTextureParameteri( texture.textureObjectHandle, GL_TEXTURE_MAG_FILTER, magFilter );
+	glTextureParameteri( texture.textureObjectHandle, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTextureParameteri( texture.textureObjectHandle, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
 	GLenum type = GL_UNSIGNED_BYTE;
 	switch ( desc.format )
@@ -849,7 +817,8 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	case wv::WV_TEXTURE_FORMAT_INT: type = GL_INT; break;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
+	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
+	
 	WV_ASSERT_ERR( "Failed to create texture\n" );
 
 	sOpenGLTextureData* pPData = new sOpenGLTextureData();
@@ -871,12 +840,10 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 {
 	sOpenGLTextureData* pPData = (sOpenGLTextureData*)_pTexture->pPlatformData;
 
-	glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle );
-	
-	glTexImage2D( GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
+	glTextureImage2DEXT( _pTexture->textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
 	if ( _generateMipMaps )
 	{
-		glGenerateMipmap( GL_TEXTURE_2D );
+		glGenerateTextureMipmap( _pTexture->textureObjectHandle );
 
 		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
 	}
@@ -886,8 +853,6 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 
 	glMakeTextureHandleResidentARB( _pTexture->textureHandle );
 	WV_ASSERT_ERR( "Failed to make texture resident\n" );
-
-	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	_pTexture->pData = (uint8_t*)_pData;
 
