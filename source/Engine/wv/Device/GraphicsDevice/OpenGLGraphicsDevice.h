@@ -6,7 +6,7 @@
 #include <wv/Misc/Color.h>
 #include <wv/Graphics/GPUBuffer.h>
 
-#include <unordered_map>
+#include <set>
 
 #include <wv/Device/GraphicsDevice.h>
 
@@ -100,6 +100,8 @@ namespace wv
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
 
+		wv::Handle getBufferBindingIndex();
+
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
@@ -108,7 +110,8 @@ namespace wv
 		RenderTarget* m_activeRenderTarget = nullptr;
 
 		wv::Handle m_vaoHandle = 0;
-		int m_numTotalUniformBlocks = 0;
+
+		std::set<wv::Handle> m_usedBindingIndices;
 	};
 	
 	template<typename ...Args>

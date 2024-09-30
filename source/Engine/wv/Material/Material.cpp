@@ -72,7 +72,7 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphi
 	setComplete( false );
 
 	cResourceRegistry* resReg = cEngine::get()->m_pResourceRegistry;
-
+	
 	if( m_pPipeline )
 		resReg->unload( m_pPipeline );
 

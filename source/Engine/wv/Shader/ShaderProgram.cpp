@@ -75,8 +75,16 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 
 void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
+	setComplete( false );
+
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
+
+	_pGraphicsDevice->destroyPipeline( m_pPipeline );
+
+	m_pPipeline = nullptr;
+	m_vs = nullptr; // destroyed by destroyPipeline
+	m_fs = nullptr;
 }
 
 void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )

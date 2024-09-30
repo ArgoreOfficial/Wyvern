@@ -370,23 +370,19 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
-		pUBData->bindingIndex = m_numTotalUniformBlocks;
+		pUBData->bindingIndex = getBufferBindingIndex();
 
 		pUBData->blockIndex = glGetUniformBlockIndex( program->handle, name.c_str() );
 		glGetActiveUniformBlockiv( program->handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size );
+		WV_ASSERT_ERR( "Failed to get active uniform block\n" );
 		
-		WV_ASSERT_ERR( "ERROR\n" );
-
 		allocateBuffer( &buf, buf.size );
-		WV_ASSERT_ERR( "ERROR\n" );
 		
 		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
-		WV_ASSERT_ERR( "ERROR\n" );
+		WV_ASSERT_ERR( "Failed to bind uniform buffer base\n" );
 		
 		glUniformBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
-		WV_ASSERT_ERR( "ERROR\n" );
-		
-		m_numTotalUniformBlocks++;
+		WV_ASSERT_ERR( "Failed to set uniform buffer binding\n" );
 		
 		program->shaderBuffers.push_back( &buf );
 	}
@@ -414,17 +410,17 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
-		pUBData->bindingIndex = m_numTotalUniformBlocks;
+		pUBData->bindingIndex = getBufferBindingIndex();
 		pUBData->blockIndex = glGetProgramResourceIndex( program->handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
 		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
-		glShaderStorageBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
-		
-		m_numTotalUniformBlocks++;
+		WV_ASSERT_ERR( "Failed to bind storage buffer base\n" );
 
+		glShaderStorageBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
+		WV_ASSERT_ERR( "Failed to set storage buffer binding\n" );
+		
 		program->shaderBuffers.push_back( &buf );
 	}
-
 
 	return program;
 #else
@@ -443,7 +439,8 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _pProgram )
 		destroyGPUBuffer( buffer );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
-	_pProgram->handle = 0;
+
+	delete _pProgram;
 #endif
 }
 
@@ -488,7 +485,13 @@ void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _pPipeline )
 	glDeleteProgramPipelines( 1, &_pPipeline->handle );
 	WV_ASSERT_ERR( "ERROR\n" );
 
-	_pPipeline->handle = 0;
+	destroyProgram( _pPipeline->pVertexProgram );
+	destroyProgram( _pPipeline->pFragmentProgram );
+
+	if( _pPipeline->pPlatformData )
+		delete _pPipeline->pPlatformData;
+	
+	delete _pPipeline;
 #endif
 }
 
@@ -600,6 +603,14 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
+	if( _buffer->pPlatformData )
+	{
+		sOpenGLBufferData* pData = (sOpenGLBufferData*)_buffer->pPlatformData;
+		if( pData->bindingIndex != 0 )
+			m_usedBindingIndices.erase( pData->bindingIndex );
+		
+	}
+
 	glDeleteBuffers( 1, &_buffer->handle );
 
 	if ( _buffer->pData )
@@ -708,12 +719,14 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sMesh& pr = *_pMesh;
-	destroyGPUBuffer( pr.pIndexBuffer );
-	destroyGPUBuffer( pr.pVertexBuffer );
+	sMesh& mesh = *_pMesh;
+	destroyGPUBuffer( mesh.pIndexBuffer );
+	destroyGPUBuffer( mesh.pVertexBuffer );
 
-	glDeleteVertexArrays( 1, &pr.handle );
-	WV_ASSERT_ERR( "ERROR\n" );
+	printf( "destroyed mesh\n" );
+	if( mesh.pPlatformData )
+		delete mesh.pPlatformData;
+
 	delete _pMesh;
 #endif
 }
@@ -1023,4 +1036,15 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 #else
 	return false;
 #endif
+}
+
+wv::Handle wv::cOpenGLGraphicsDevice::getBufferBindingIndex()
+{
+	wv::Handle test = 1;
+	while( m_usedBindingIndices.contains( test ) )
+		test++;
+
+	m_usedBindingIndices.insert( test );
+
+	return test;
 }
