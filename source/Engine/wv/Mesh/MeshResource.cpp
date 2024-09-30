@@ -165,7 +165,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		if( m_useGPUInstancing )
 		{
 				
-			_pGraphicsDevice->bindVertexBuffer( mesh );
+			_pGraphicsDevice->bindVertexBuffer( mesh, pPipeline );
 
 			mat->setInstanceUniforms( mesh );
 			

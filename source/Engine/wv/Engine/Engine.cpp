@@ -419,14 +419,12 @@ void wv::cEngine::tick()
 	// render screen quad with deferred shader
 	{
 		m_deferredPipeline->use( graphics );
-		wv::cGPUBuffer* UbInstanceData = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
-		wv::cGPUBuffer* SbVertices = m_deferredPipeline->getShaderBuffer( "SbVertices" );
-		SbVertices->buffer( m_screenQuad->pVertexBuffer->pData, m_screenQuad->pVertexBuffer->size );
-		
-		graphics->bufferData( UbInstanceData );
-		graphics->bufferData( SbVertices );
 
-		graphics->draw( m_screenQuad );
+		wv::cGPUBuffer* UbInstanceData = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
+		graphics->bufferData( UbInstanceData );
+
+		graphics->bindVertexBuffer( m_screenQuad, m_deferredPipeline );
+		graphics->drawIndexed( m_screenQuad->pIndexBuffer->count );
 	}
 
 	if( m_pIRTHandler )

@@ -82,7 +82,7 @@ namespace wv
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     override;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) override;
 
-		virtual void bindVertexBuffer( sMesh* _pMesh ) override;
+		virtual void bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 

@@ -657,7 +657,9 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 	mesh.pVertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
 	bufferData( mesh.pVertexBuffer );
-	
+	delete[] mesh.pVertexBuffer->pData;
+	mesh.pVertexBuffer->pData = nullptr;
+
 	if ( _desc->numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -688,6 +690,8 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		}
 
 		bufferData( mesh.pIndexBuffer );
+		delete[] mesh.pIndexBuffer->pData;
+		mesh.pIndexBuffer->pData = nullptr;
 	}
 	else
 	{
@@ -723,7 +727,6 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 	destroyGPUBuffer( mesh.pIndexBuffer );
 	destroyGPUBuffer( mesh.pVertexBuffer );
 
-	printf( "destroyed mesh\n" );
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 
@@ -920,19 +923,20 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline )
 {
-	if ( _pMesh->pMaterial && _pMesh->pMaterial->isComplete() )
-	{
-		wv::cGPUBuffer* SbVertices = _pMesh->pMaterial->getPipeline()->getShaderBuffer( "SbVertices" );
+	if( !_pPipeline )
+		return;
 
-		if( SbVertices && _pMesh->pVertexBuffer->pData )
-		{
-			sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices->pPlatformData;
+	wv::cGPUBuffer* SbVertices = _pPipeline->getShaderBuffer( "SbVertices" );
+
+	if( SbVertices && _pMesh->pVertexBuffer )
+	{
+		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices->pPlatformData;
 			
-			glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, _pMesh->pVertexBuffer->handle, 0, _pMesh->pVertexBuffer->size );
-		}
+		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, _pMesh->pVertexBuffer->handle, 0, _pMesh->pVertexBuffer->size );
 	}
+	
 
 	// move?
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _pMesh->pIndexBuffer->handle );
@@ -959,7 +963,7 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& rMesh = *_pMesh;
 
-	bindVertexBuffer( _pMesh );
+	bindVertexBuffer( _pMesh, rMesh.pMaterial->getPipeline() );
 	
 	WV_ASSERT_ERR( "ERROR\n" );
 

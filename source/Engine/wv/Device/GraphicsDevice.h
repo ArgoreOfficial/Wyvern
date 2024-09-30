@@ -121,8 +121,7 @@ namespace wv
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     = 0;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) = 0;
 
-		// temporary until vertex pulling is implemented
-		virtual void bindVertexBuffer( sMesh* _pMesh ) = 0;
+		virtual void bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
