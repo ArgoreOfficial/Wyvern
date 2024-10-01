@@ -283,11 +283,13 @@ void wv::iGraphicsDevice::endRender()
 
 wv::ShaderProgramID wv::iGraphicsDevice::allocateShaderProgramID()
 {
-	return ShaderProgramID( (uint64_t)malloc( 1 ) );
+	return m_shaderPrograms2.allocate();
+	// return ShaderProgramID( (uint64_t)malloc( 1 ) );
 }
 
 void wv::iGraphicsDevice::deallocateShaderProgramID( ShaderProgramID _programID )
 {
+	/*
 	if( _programID == ShaderProgramID_t::InvalidID )
 		return;
 
@@ -297,4 +299,5 @@ void wv::iGraphicsDevice::deallocateShaderProgramID( ShaderProgramID _programID 
 	m_shaderPrograms.erase( _programID );
 	delete &program;
 	delete _programID;
+	*/
 }

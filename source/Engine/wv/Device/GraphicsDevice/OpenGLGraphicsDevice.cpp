@@ -309,7 +309,8 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		return ShaderProgramID_t::InvalidID;
 	}
 
-	sShaderProgram* program = new sShaderProgram();
+	// sShaderProgram* program = new sShaderProgram();
+	sShaderProgram* program = &m_shaderPrograms2.get( id );
 
 	GLenum glType = GL_NONE;
 	{
@@ -424,7 +425,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		program->shaderBuffers.push_back( &buf );
 	}
 
-	m_shaderPrograms[ id ] = program;
+	//m_shaderPrograms[ id ] = program;
 	return id;
 #else
 	return ShaderProgramID_t::InvalidID;
@@ -438,7 +439,7 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 	if( _programID == ShaderProgramID_t::InvalidID )
 		return;
 
-	sShaderProgram& program = *m_shaderPrograms.at( _programID );
+	sShaderProgram& program = m_shaderPrograms2.get( _programID );
 
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteProgram( program.handle );
@@ -467,13 +468,15 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	
 	if ( desc.pVertexProgram )
 	{
-		sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
+		//sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
+		sShaderProgram& vs = m_shaderPrograms2.get( *desc.pVertexProgram );
 		glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle );
 		pipeline.pVertexProgram   = *desc.pVertexProgram;
 	}
 	if ( desc.pFragmentProgram )
 	{
-		sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
+		//sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
+		sShaderProgram& fs = m_shaderPrograms2.get( *desc.pFragmentProgram );
 		glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 		pipeline.pFragmentProgram = *desc.pFragmentProgram;
 	}

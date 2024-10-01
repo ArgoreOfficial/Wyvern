@@ -102,8 +102,8 @@ wv::cGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name 
 
 	iGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
-	sShaderProgram* vs = pGraphics->m_shaderPrograms.at( m_pPipeline->pVertexProgram );
-	sShaderProgram* fs = pGraphics->m_shaderPrograms.at( m_pPipeline->pFragmentProgram );
+	sShaderProgram* vs = &pGraphics->m_shaderPrograms2.get( m_pPipeline->pVertexProgram );
+	sShaderProgram* fs = &pGraphics->m_shaderPrograms2.get( m_pPipeline->pFragmentProgram );
 
 	if ( vs )
 	{

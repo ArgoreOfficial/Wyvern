@@ -11,6 +11,7 @@
 #include <wv/Graphics/CommandBuffer.h>
 
 #include <vector>
+#include <set>
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -41,9 +42,6 @@ namespace wv
 
 	struct iDeviceContext;
 
-	struct sShaderProgramSource;
-	struct sShaderProgram;
-
 	struct sPipelineDesc;
 	struct sPipeline;
 
@@ -56,6 +54,58 @@ namespace wv
 	{
 		GraphicsDriverLoadProc loadProc;
 		iDeviceContext* pContext;
+	};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	template<typename T, typename H>
+	class cObjectContainer
+	{
+	public:
+		cObjectContainer() 
+		{
+			m_pObjectBuffer = new uint8_t[ sizeof( T ) ];
+			m_size = sizeof( T );
+		}
+
+		H allocate() 
+		{
+			uint64_t idx = 1;
+			while( m_ids.contains( (H)idx ) )
+				idx++;
+
+			if( idx * sizeof( T ) >= m_size )
+			{
+				realloc( m_pObjectBuffer, m_size + sizeof( T ) );
+				m_size += sizeof( T );
+			}
+
+
+			uint8_t* base = m_pObjectBuffer + sizeof( T ) * idx;
+			T* obj = new( base ) T();
+
+			m_ids.insert( (H)idx );
+
+			return (H)idx;
+		}
+
+		void deallocate() 
+		{ 
+			/* do deallocation here */ 
+		}
+
+		T& get( H _id )
+		{
+			uint8_t* base = m_pObjectBuffer + sizeof( T ) * (uint64_t)_id;
+			return *(T*)base;
+		}
+
+	private:
+		
+		std::set<H> m_ids;
+		uint8_t* m_pObjectBuffer = nullptr;
+		size_t m_size = 0;
+
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -133,9 +183,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		std::unordered_map<ShaderProgramID, sShaderProgram*> m_shaderPrograms;
+		//std::unordered_map<ShaderProgramID, sShaderProgram*> m_shaderPrograms;
+		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms2;
+
 		ShaderProgramID allocateShaderProgramID();
 		void deallocateShaderProgramID( ShaderProgramID _programID );
+
 
 	protected:
 
