@@ -45,5 +45,7 @@ namespace wv
 
 		void* pPlatformData;
 	};
+	
+	WV_OPAQUE_HANDLE( ShaderProgramID );
 
 }

@@ -13,13 +13,24 @@ typedef unsigned int size_t;
 #define WV_SLASH_HELPER( _f ) /_f
 #define WV_COMMENT WV_SLASH_HELPER(/)
 
+// #define WV_OPAQUE_HANDLE( _c ) typedef struct _c##_t{ static inline _c InvalidID = 0; }* _c
+
+#define WV_OPAQUE_HANDLE( _c ) \
+struct _c##_t; \
+typedef _c##_t* _c; \
+struct _c##_t { static inline _c InvalidID = 0; };
+
+
+#define WV_WEAK_HANDLE( _c ) typedef uint32_t _c
+
 namespace wv
 {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	typedef void* ( *GraphicsDriverLoadProc )( const char* _name );
-	typedef uint32_t Handle;
+	
+	WV_WEAK_HANDLE( Handle );
 	typedef uint64_t UUID;
 
 ///////////////////////////////////////////////////////////////////////////////////////

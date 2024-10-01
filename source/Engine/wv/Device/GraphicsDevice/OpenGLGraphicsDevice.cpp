@@ -293,8 +293,10 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 #endif
 }
 
-wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
+wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
 {
+	ShaderProgramID id = allocateShaderProgramID();
+
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
 
@@ -304,7 +306,7 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	if( source.data->size == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
-		return nullptr;
+		return ShaderProgramID_t::InvalidID;
 	}
 
 	sShaderProgram* program = new sShaderProgram();
@@ -422,25 +424,30 @@ wv::sShaderProgram* wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		program->shaderBuffers.push_back( &buf );
 	}
 
-	return program;
+	m_shaderPrograms[ id ] = program;
+	return id;
 #else
-	return nullptr;
+	return ShaderProgramID_t::InvalidID;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyProgram( sShaderProgram* _pProgram )
+void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 {
 	WV_TRACE();
 
-#ifdef WV_SUPPORT_OPENGL
-	glDeleteProgram( _pProgram->handle );
+	if( _programID == ShaderProgramID_t::InvalidID )
+		return;
 
-	for( auto& buffer : _pProgram->shaderBuffers )
+	sShaderProgram& program = *m_shaderPrograms.at( _programID );
+
+#ifdef WV_SUPPORT_OPENGL
+	glDeleteProgram( program.handle );
+	WV_ASSERT_ERR( "Failed to delete program\n" );
+
+	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
 	
-	WV_ASSERT_ERR( "ERROR\n" );
-
-	delete _pProgram;
+	deallocateShaderProgramID( _programID );
 #endif
 }
 
@@ -460,12 +467,14 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	
 	if ( desc.pVertexProgram )
 	{
-		glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, (*desc.pVertexProgram)->handle );
+		sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
+		glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle );
 		pipeline.pVertexProgram   = *desc.pVertexProgram;
 	}
 	if ( desc.pFragmentProgram )
 	{
-		glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, (*desc.pFragmentProgram)->handle );
+		sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
+		glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 		pipeline.pFragmentProgram = *desc.pFragmentProgram;
 	}
 

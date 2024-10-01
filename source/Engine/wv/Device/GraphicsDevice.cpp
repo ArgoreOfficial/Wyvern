@@ -168,11 +168,11 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
 
 		case WV_GPUTASK_CREATE_PROGRAM: 
-			*outPtr = createProgram( &stream.pop<sShaderProgramDesc>() ); 
+			(ShaderProgramID&)(*outPtr) = createProgram( &stream.pop<sShaderProgramDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_PROGRAM: 
-			destroyProgram( stream.pop<sShaderProgram*>() ); 
+			destroyProgram( stream.pop<ShaderProgramID>() ); 
 			break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
@@ -279,4 +279,22 @@ void wv::iGraphicsDevice::endRender()
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
 
+}
+
+wv::ShaderProgramID wv::iGraphicsDevice::allocateShaderProgramID()
+{
+	return ShaderProgramID( (uint64_t)malloc( 1 ) );
+}
+
+void wv::iGraphicsDevice::deallocateShaderProgramID( ShaderProgramID _programID )
+{
+	if( _programID == ShaderProgramID_t::InvalidID )
+		return;
+
+	sShaderProgram& program = *m_shaderPrograms.at( _programID );
+
+	m_shaderPrograms.at( _programID ) = nullptr;
+	m_shaderPrograms.erase( _programID );
+	delete &program;
+	delete _programID;
 }

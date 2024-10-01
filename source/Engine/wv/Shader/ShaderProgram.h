@@ -33,8 +33,8 @@ namespace wv
 
 		std::string name;
 		
-		sShaderProgram* pVertexProgram;
-		sShaderProgram* pFragmentProgram;
+		ShaderProgramID pVertexProgram;
+		ShaderProgramID pFragmentProgram;
 
 		void* pPlatformData;
 	};
@@ -45,8 +45,8 @@ namespace wv
 
 		sVertexLayout* pVertexLayout = nullptr;
 
-		sShaderProgram** pVertexProgram = nullptr;
-		sShaderProgram** pFragmentProgram = nullptr;
+		ShaderProgramID* pVertexProgram = nullptr;
+		ShaderProgramID* pFragmentProgram = nullptr;
 
 		bool reflect = true;
 	};
@@ -70,8 +70,8 @@ namespace wv
 		sShaderProgramSource m_fsSource{};
 		sShaderProgramSource m_vsSource{};
 
-		sShaderProgram* m_vs = nullptr;
-		sShaderProgram* m_fs = nullptr;
+		ShaderProgramID m_vs = ShaderProgramID_t::InvalidID;
+		ShaderProgramID m_fs = ShaderProgramID_t::InvalidID;
 
 		sPipeline* m_pPipeline = nullptr;
 	private:

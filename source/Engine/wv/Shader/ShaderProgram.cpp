@@ -100,18 +100,23 @@ wv::cGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name 
 	if ( m_pPipeline == nullptr )
 		return nullptr;
 
-	if ( m_pPipeline->pVertexProgram )
+	iGraphicsDevice* pGraphics = cEngine::get()->graphics;
+
+	sShaderProgram* vs = pGraphics->m_shaderPrograms.at( m_pPipeline->pVertexProgram );
+	sShaderProgram* fs = pGraphics->m_shaderPrograms.at( m_pPipeline->pFragmentProgram );
+
+	if ( vs )
 	{
-		for( auto& buf : m_pPipeline->pVertexProgram->shaderBuffers )
+		for( auto& buf : vs->shaderBuffers )
 		{
 			if( buf->name == _name )
 				return buf;
 		}
 	}
 
-	if ( m_pPipeline->pFragmentProgram )
+	if ( fs )
 	{
-		for ( auto& buf : m_pPipeline->pFragmentProgram->shaderBuffers )
+		for ( auto& buf : fs->shaderBuffers )
 		{
 			if ( buf->name == _name )
 				return buf;

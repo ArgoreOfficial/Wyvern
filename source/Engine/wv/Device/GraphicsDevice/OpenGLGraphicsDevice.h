@@ -56,8 +56,8 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
-		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) override;
-		virtual void destroyProgram( sShaderProgram* _pProgram ) override;
+		virtual ShaderProgramID createProgram( sShaderProgramDesc* _desc ) override;
+		virtual void destroyProgram( ShaderProgramID _pProgram ) override;
 
 		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) override;
 		virtual void destroyPipeline( sPipeline* _pPipeline ) override;

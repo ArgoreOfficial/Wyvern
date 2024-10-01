@@ -16,6 +16,8 @@
 #include <mutex>
 #include <shared_mutex>
 
+#include <unordered_map>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -101,8 +103,8 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual sShaderProgram* createProgram( sShaderProgramDesc* _desc ) = 0;
-		virtual void destroyProgram( sShaderProgram* _pProgram ) = 0;
+		virtual ShaderProgramID createProgram( sShaderProgramDesc* _desc ) = 0;
+		virtual void destroyProgram( ShaderProgramID _pProgram ) = 0;
 
 		virtual sPipeline* createPipeline ( sPipelineDesc* _desc ) = 0;
 		virtual void       destroyPipeline( sPipeline* _pPipeline ) = 0;
@@ -131,6 +133,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
+		std::unordered_map<ShaderProgramID, sShaderProgram*> m_shaderPrograms;
+		ShaderProgramID allocateShaderProgramID();
+		void deallocateShaderProgramID( ShaderProgramID _programID );
+
 	protected:
 
 		iGraphicsDevice() { };
@@ -149,6 +155,7 @@ namespace wv
 		std::queue <uint32_t>       m_availableCommandBuffers;
 		std::vector<uint32_t>       m_recordingCommandBuffers;
 		std::vector<uint32_t>       m_submittedCommandBuffers;
+
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
