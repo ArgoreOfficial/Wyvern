@@ -1,10 +1,10 @@
 #pragma once
 
+#include <wv/Types.h>
 #include <wv/Math/Vector2.h>
 
 namespace wv
 {
-	class RenderTarget;
 	class iGraphicsDevice;
 
 	class iIntermediateRenderTargetHandler
@@ -18,7 +18,7 @@ namespace wv
 
 		virtual void draw( iGraphicsDevice* _pGraphics ) = 0;
 
-		RenderTarget* m_pRenderTarget = nullptr;
+		RenderTargetID m_pRenderTarget{};
 
 	};
 }

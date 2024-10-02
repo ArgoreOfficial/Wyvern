@@ -10,9 +10,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class RenderTarget;
-
-	struct RenderTargetDesc
+	struct sRenderTargetDesc
 	{
 		int width = 0;
 		int height = 0;
@@ -23,10 +21,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class RenderTarget
+	struct sRenderTarget
 	{
-
-	public:
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 

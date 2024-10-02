@@ -19,7 +19,7 @@ namespace wv
 	class iIntermediateRenderTargetHandler;
 
 	class iCamera;
-	class RenderTarget;
+	struct sRenderTarget;
 	class cFileSystem;
 	class cSceneRoot;
 	class cModelObject;
@@ -101,10 +101,10 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		sMesh*        m_screenQuad       = nullptr;
+		sMesh* m_screenQuad = nullptr;
 		cPipelineResource* m_deferredPipeline = nullptr;
-		RenderTarget*     m_gbuffer          = nullptr;
-
+		RenderTargetID m_gbuffer{};
+		
 		// engine
 		iDeviceContext*  context  = nullptr;
 		iGraphicsDevice* graphics = nullptr;
@@ -117,7 +117,7 @@ namespace wv
 		iCamera* freeflightCamera = nullptr;
 
 		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
-		RenderTarget* m_pScreenRenderTarget = nullptr;
+		RenderTargetID m_pScreenRenderTarget{};
 
 		cApplicationState* m_pApplicationState = nullptr;
 

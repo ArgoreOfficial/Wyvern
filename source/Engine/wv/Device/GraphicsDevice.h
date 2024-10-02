@@ -2,14 +2,13 @@
 
 #include <wv/Types.h>
 
-#include <wv/Shader/Shader.h>
-#include <wv/Shader/ShaderProgram.h>
-
 #include <wv/Misc/Color.h>
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <wv/Graphics/CommandBuffer.h>
 #include <wv/Device/GraphicsDevice/ObjectContainer.h>
+
+#include <wv/Shader/ShaderProgram.h>
 
 #include <vector>
 #include <queue>
@@ -26,10 +25,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class RenderTarget;
 	class cMaterial;
-
-	struct PipelineDesc;
 
 	struct sMeshDesc;
 	struct sMeshNode;
@@ -38,12 +34,18 @@ namespace wv
 	struct sTextureDesc;
 	struct sTexture;
 
-	struct RenderTargetDesc;
-
 	struct iDeviceContext;
 
-	struct sPipelineDesc;
 	struct sPipeline;
+	struct sPipelineDesc;
+
+	struct sShaderProgram;
+	struct sShaderProgramDesc;
+
+	struct sRenderTarget;
+	struct sRenderTargetDesc;
+
+	struct cPipelineResource;
 
 	struct sGPUBufferDesc;
 
@@ -93,10 +95,10 @@ namespace wv
 		virtual void beginRender();
 		virtual void endRender();
 
-		virtual RenderTarget* createRenderTarget( RenderTargetDesc* _desc ) = 0;
-		virtual void destroyRenderTarget( RenderTarget** _renderTarget ) = 0;
+		virtual RenderTargetID createRenderTarget( sRenderTargetDesc* _desc ) = 0;
+		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
+		virtual void setRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
-		virtual void setRenderTarget( RenderTarget* _target ) = 0;
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
@@ -131,18 +133,19 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 		
 		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
-		cObjectContainer<sPipeline, PipelineID> m_pipelines;
+		cObjectContainer<sPipeline, PipelineID>           m_pipelines;
+		cObjectContainer<sRenderTarget, RenderTargetID>   m_renderTargets;
 
 	protected:
 
-		iGraphicsDevice() { };
+		iGraphicsDevice();
 
 		std::thread::id m_threadID;
 
 		virtual bool initialize( GraphicsDeviceDesc* _desc ) = 0;
 
 		GraphicsAPI    m_graphicsApi = WV_GRAPHICS_API_NONE;
-		GenericVersion m_graphicsApiVersion {};
+		GenericVersion m_graphicsApiVersion{};
 
 		std::mutex m_mutex;
 		bool m_reallocatingCommandBuffers = false;
@@ -151,7 +154,6 @@ namespace wv
 		std::queue <uint32_t>       m_availableCommandBuffers;
 		std::vector<uint32_t>       m_recordingCommandBuffers;
 		std::vector<uint32_t>       m_submittedCommandBuffers;
-
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};

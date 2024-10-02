@@ -154,15 +154,15 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 		switch( taskType )
 		{
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
-			*outPtr = createRenderTarget( &stream.pop<RenderTargetDesc>() ); 
+			*(RenderTargetID*)( outPtr ) = createRenderTarget( &stream.pop<sRenderTargetDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_RENDERTARGET: 
-			destroyRenderTarget( stream.pop<RenderTarget**>() );
+			destroyRenderTarget( stream.pop<RenderTargetID>() );
 			break;
 
 		case WV_GPUTASK_SET_RENDERTARGET: 
-			setRenderTarget( stream.pop<RenderTarget*>() ); 
+			setRenderTarget( stream.pop<RenderTargetID>() );
 			break;
 
 		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
@@ -278,5 +278,10 @@ void wv::iGraphicsDevice::endRender()
 	
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
+
+}
+
+wv::iGraphicsDevice::iGraphicsDevice()
+{
 
 }

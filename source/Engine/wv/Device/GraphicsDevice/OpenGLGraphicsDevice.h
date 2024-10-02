@@ -6,6 +6,8 @@
 #include <wv/Misc/Color.h>
 #include <wv/Graphics/GPUBuffer.h>
 
+#include <wv/RenderTarget/RenderTarget.h>
+
 #include <set>
 
 #include <wv/Device/GraphicsDevice.h>
@@ -49,10 +51,10 @@ namespace wv
 
 		virtual void beginRender() override;
 
-		virtual RenderTarget* createRenderTarget( RenderTargetDesc* _desc ) override;
-		virtual void destroyRenderTarget( RenderTarget** _renderTarget ) override;
+		virtual RenderTargetID createRenderTarget( sRenderTargetDesc* _desc ) override;
+		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) override;
+		virtual void setRenderTarget( RenderTargetID _renderTargetID ) override;
 
-		virtual void setRenderTarget( RenderTarget* _target ) override;
 		virtual void setClearColor( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
@@ -106,8 +108,8 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		/// TODO: remove?
-		PipelineID m_activePipeline;
-		RenderTarget* m_activeRenderTarget = nullptr;
+		PipelineID m_activePipeline{};
+		RenderTargetID m_activeRenderTarget{};
 
 		wv::Handle m_vaoHandle = 0;
 

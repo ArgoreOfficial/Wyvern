@@ -39,7 +39,7 @@
 	#endif
 #else
 	#define WV_VALIDATE_GL( _func )
-	#define WV_ASSERT_ERR( _msg ) 
+	#define WV_ASSERT_GL( _func ) _func
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -158,19 +158,20 @@ void wv::cOpenGLGraphicsDevice::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDesc* _desc )
+wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( sRenderTargetDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	RenderTargetDesc& desc = *_desc;
-	RenderTarget* target = new RenderTarget();
+	sRenderTargetDesc& desc = *_desc;
+	RenderTargetID id = m_renderTargets.allocate();
+	sRenderTarget& target = m_renderTargets.get( id );
 	
-	glCreateFramebuffers( 1, &target->fbHandle );
+	glCreateFramebuffers( 1, &target.fbHandle );
 	
-	target->numTextures = desc.numTextures;
+	target.numTextures = desc.numTextures;
 	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
-	target->pTextures = new sTexture[ desc.numTextures ];
+	target.pTextures = new sTexture[ desc.numTextures ];
 
 	for ( int i = 0; i < desc.numTextures; i++ )
 	{
@@ -179,23 +180,23 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target->pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
+		target.pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
 
-		glNamedFramebufferTexture( target->fbHandle, GL_COLOR_ATTACHMENT0 + i, target->pTextures[ i ].textureObjectHandle, 0 );
+		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, target.pTextures[ i ].textureObjectHandle, 0 );
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
-	glCreateRenderbuffers( 1, &target->rbHandle );
+	glCreateRenderbuffers( 1, &target.rbHandle );
 
-	glNamedRenderbufferStorage( target->rbHandle, GL_DEPTH_COMPONENT24, desc.width, desc.height );
-	glNamedFramebufferRenderbuffer( target->fbHandle, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target->rbHandle );
+	glNamedRenderbufferStorage( target.rbHandle, GL_DEPTH_COMPONENT24, desc.width, desc.height );
+	glNamedFramebufferRenderbuffer( target.fbHandle, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target.rbHandle );
 
-	glNamedFramebufferDrawBuffers( target->fbHandle, desc.numTextures, drawBuffers );
+	glNamedFramebufferDrawBuffers( target.fbHandle, desc.numTextures, drawBuffers );
 
 	delete[] drawBuffers;
 #ifdef WV_DEBUG
 	int errcode = 0;
-	errcode = glCheckNamedFramebufferStatus( target->fbHandle, GL_FRAMEBUFFER );
+	errcode = glCheckNamedFramebufferStatus( target.fbHandle, GL_FRAMEBUFFER );
 	
 	if ( errcode != GL_FRAMEBUFFER_COMPLETE )
 	{
@@ -217,57 +218,56 @@ wv::RenderTarget* wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetDes
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create RenderTarget\n" );
 		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", err );
 
-		destroyRenderTarget( &target );
-		delete target;
-
-		return nullptr;
+		destroyRenderTarget( id );
+		
+		return RenderTargetID{ 0 };
 	}
 #endif
-	target->width  = desc.width;
-	target->height = desc.height;
+	target.width  = desc.width;
+	target.height = desc.height;
 
-	return target;
+	return id;
 #else
-	return nullptr;
+	return RenderTargetID{ 0 };
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTarget** _renderTarget )
+void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	RenderTarget* rt = *_renderTarget;
+	sRenderTarget& rt = m_renderTargets.get( _renderTargetID );
 
-	glDeleteFramebuffers( 1, &rt->fbHandle );
-	glDeleteRenderbuffers( 1, &rt->rbHandle );
+	glDeleteFramebuffers( 1, &rt.fbHandle );
+	glDeleteRenderbuffers( 1, &rt.rbHandle );
 
-	for ( int i = 0; i < rt->numTextures; i++ )
-		destroyTexture( &rt->pTextures[ i ] );
-	
-	*_renderTarget = nullptr;
+	for ( int i = 0; i < rt.numTextures; i++ )
+		destroyTexture( &rt.pTextures[ i ] );
+
+	m_renderTargets.deallocate( _renderTargetID );
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTarget* _target )
+void wv::cOpenGLGraphicsDevice::setRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if ( m_activeRenderTarget == _target )
+	if ( m_activeRenderTarget == _renderTargetID )
 		return;
 
-	unsigned int handle = _target ? _target->fbHandle : 0;
-	
+	sRenderTarget& rt = m_renderTargets.get( _renderTargetID );
+	unsigned int handle = rt.fbHandle;
+
 	glBindFramebuffer( GL_FRAMEBUFFER, handle );
-	if ( _target )
-		glViewport( 0, 0, _target->width, _target->height );
+	glViewport( 0, 0, rt.width, rt.height );
 	
-	m_activeRenderTarget = _target;
+	m_activeRenderTarget = _renderTargetID;
 #endif
 }
 
@@ -420,7 +420,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 	return id;
 #else
-	return ShaderProgramID_t::InvalidID;
+	return ShaderProgramID{ 0 };
 #endif
 }
 
@@ -478,7 +478,7 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 
 	return id;
 #else
-	return PipelineID_t::InvalidID;
+	return PipelineID{ 0 };
 #endif
 }
 

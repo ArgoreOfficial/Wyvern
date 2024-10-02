@@ -81,10 +81,12 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	if( m_pIRTHandler )
 		m_pIRTHandler->create( graphics );
 
-	m_pScreenRenderTarget = new RenderTarget();
-	m_pScreenRenderTarget->width = _desc->windowWidth;
-	m_pScreenRenderTarget->height = _desc->windowHeight;
-	m_pScreenRenderTarget->fbHandle = 0;
+
+	m_pScreenRenderTarget = graphics->m_renderTargets.allocate();
+	sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
+	rt.width = _desc->windowWidth;
+	rt.height = _desc->windowHeight;
+	rt.fbHandle = 0;
 	
 	m_pApplicationState = _desc->pApplicationState;
 
@@ -237,8 +239,10 @@ wv::Vector2i wv::cEngine::getViewportSize()
 {
 	if( m_pIRTHandler )
 	{
-		if( m_pIRTHandler->m_pRenderTarget )
-			return { m_pIRTHandler->m_pRenderTarget->width, m_pIRTHandler->m_pRenderTarget->height };
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_pRenderTarget );
+
+		if( m_pIRTHandler->m_pRenderTarget.isValid() )
+			return { rt.width, rt.height };
 		else
 			return { 1,1 };
 	}
@@ -300,7 +304,7 @@ void wv::cEngine::terminate()
 	freeflightCamera = nullptr;
 
 	graphics->destroyMesh( m_screenQuad );
-	graphics->destroyRenderTarget( &m_gbuffer );
+	graphics->destroyRenderTarget( m_gbuffer );
 
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
@@ -369,12 +373,15 @@ void wv::cEngine::tick()
 	
 
 #ifndef WV_PLATFORM_PSVITA
-	if( !m_gbuffer )
+	if( !m_gbuffer.isValid() )
 		return;
 #endif
 
-	if ( m_pScreenRenderTarget->width == 0 || m_pScreenRenderTarget->height == 0 )
-		return;
+	{
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
+		if ( rt.width == 0 || rt.height == 0 )
+			return;
+	}
 
 #ifdef WV_PLATFORM_PSVITA
 	graphics->setRenderTarget( nullptr );
@@ -404,7 +411,7 @@ void wv::cEngine::tick()
 #ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
 	{
-		if( m_pIRTHandler->m_pRenderTarget )
+		if( m_pIRTHandler->m_pRenderTarget.isValid() )
 			graphics->setRenderTarget( m_pIRTHandler->m_pRenderTarget );
 	}
 	else
@@ -413,8 +420,11 @@ void wv::cEngine::tick()
 	graphics->clearRenderTarget( true, true );
 
 	// bind gbuffer textures to deferred pass
-	for ( int i = 0; i < m_gbuffer->numTextures; i++ )
-		graphics->bindTextureToSlot( &m_gbuffer->pTextures[ i ], i );
+	{
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_gbuffer );
+		for ( int i = 0; i < rt.numTextures; i++ )
+			graphics->bindTextureToSlot( &rt.pTextures[ i ], i );
+	}
 
 	// render screen quad with deferred shader
 	{
@@ -451,8 +461,11 @@ void wv::cEngine::tick()
 			m_pIRTHandler->destroy();
 			m_pIRTHandler->create( graphics );
 
-			if( m_pIRTHandler->m_pRenderTarget )
-				recreateScreenRenderTarget( m_pIRTHandler->m_pRenderTarget->width, m_pIRTHandler->m_pRenderTarget->height );
+			if( m_pIRTHandler->m_pRenderTarget.isValid() )
+			{
+				sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_pRenderTarget );
+				recreateScreenRenderTarget( rt.width, rt.height );
+			}
 		}
 	}
 #endif
@@ -531,7 +544,7 @@ void wv::cEngine::createGBuffer()
 {
 	Vector2i size = getViewportSize();
 
-	RenderTargetDesc rtDesc;
+	sRenderTargetDesc rtDesc;
 	rtDesc.width  = size.x;
 	rtDesc.height = size.y;
 #ifdef WV_PLATFORM_WINDOWS
@@ -551,7 +564,7 @@ void wv::cEngine::createGBuffer()
 #endif
 
 	uint32_t buffer = graphics->getCommandBuffer();
-	graphics->bufferCommand( buffer, WV_GPUTASK_CREATE_RENDERTARGET, &m_gbuffer, &rtDesc );
+	graphics->bufferCommand( buffer, WV_GPUTASK_CREATE_RENDERTARGET, (void**)&m_gbuffer, &rtDesc);
 	graphics->submitCommandBuffer( buffer );
 	graphics->executeCommandBuffer( buffer );
 
@@ -561,14 +574,17 @@ void wv::cEngine::createGBuffer()
 void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 {
 	graphics->onResize( _width, _height );
+	{
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
 
-	// recreate render target
-	m_pScreenRenderTarget->width = _width;
-	m_pScreenRenderTarget->height = _height;
+		// recreate render target
+		rt.width = _width;
+		rt.height = _height;
+	}
 	
-	if( m_gbuffer )
-		graphics->destroyRenderTarget( &m_gbuffer );
-
+	if( m_gbuffer.isValid() )
+		graphics->destroyRenderTarget( m_gbuffer );
+	
 	if( _width == 0 || _height == 0 )
 		return;
 

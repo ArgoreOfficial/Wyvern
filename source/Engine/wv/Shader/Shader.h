@@ -46,5 +46,4 @@ namespace wv
 		void* pPlatformData;
 	};
 	
-	WV_DEFINE_ID( ShaderProgramID );
 }

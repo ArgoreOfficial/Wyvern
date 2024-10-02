@@ -39,8 +39,6 @@ namespace wv
 		void* pPlatformData;
 	};
 
-	WV_DEFINE_ID( PipelineID );
-
 	struct sPipelineDesc
 	{
 		std::string name;
