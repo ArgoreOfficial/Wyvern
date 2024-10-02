@@ -280,24 +280,3 @@ void wv::iGraphicsDevice::endRender()
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
 
 }
-
-wv::ShaderProgramID wv::iGraphicsDevice::allocateShaderProgramID()
-{
-	return m_shaderPrograms2.allocate();
-	// return ShaderProgramID( (uint64_t)malloc( 1 ) );
-}
-
-void wv::iGraphicsDevice::deallocateShaderProgramID( ShaderProgramID _programID )
-{
-	/*
-	if( _programID == ShaderProgramID_t::InvalidID )
-		return;
-
-	sShaderProgram& program = *m_shaderPrograms.at( _programID );
-
-	m_shaderPrograms.at( _programID ) = nullptr;
-	m_shaderPrograms.erase( _programID );
-	delete &program;
-	delete _programID;
-	*/
-}

@@ -295,7 +295,7 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
 {
-	ShaderProgramID id = allocateShaderProgramID();
+	ShaderProgramID id = m_shaderPrograms.allocateID();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
@@ -310,7 +310,9 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
-	sShaderProgram* program = &m_shaderPrograms2.get( id );
+	sShaderProgram& program = m_shaderPrograms.get( id );
+	program.type = type;
+	program.source = source;
 
 	GLenum glType = GL_NONE;
 	{
@@ -335,31 +337,31 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	
 	/// TODO: Use shader objects?
 
-	program->handle = glCreateShaderProgramv( glType, 1, &sourcePtr );
+	program.handle = glCreateShaderProgramv( glType, 1, &sourcePtr );
 	WV_ASSERT_ERR( "Failed create shader program\n" );
 
 	int success = 0;
 	char infoLog[ 512 ];
-	glGetProgramiv( program->handle, GL_LINK_STATUS, &success );
+	glGetProgramiv( program.handle, GL_LINK_STATUS, &success );
 	if ( !success )
 	{
-		glGetProgramInfoLog( program->handle, 512, NULL, infoLog );
+		glGetProgramInfoLog( program.handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
 
 	WV_ASSERT_ERR( "Failed to create program\n" );
 
 	GLint numActiveResources;
-	glGetProgramInterfaceiv( program->handle, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &numActiveResources );
+	glGetProgramInterfaceiv( program.handle, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &numActiveResources );
 
 	for ( GLuint i = 0; i < numActiveResources; i++ )
 	{
 		GLenum props[ 1 ] = { GL_NAME_LENGTH };
 		GLint res[ 1 ];
-		glGetProgramResourceiv( program->handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
+		glGetProgramResourceiv( program.handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
-		glGetProgramResourceName( program->handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
+		glGetProgramResourceName( program.handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
 		WV_ASSERT_ERR( "ERROR\n" );
 
 		// create uniform buffer
@@ -375,8 +377,8 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 		pUBData->bindingIndex = getBufferBindingIndex();
 
-		pUBData->blockIndex = glGetUniformBlockIndex( program->handle, name.c_str() );
-		glGetActiveUniformBlockiv( program->handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size );
+		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
+		glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size );
 		WV_ASSERT_ERR( "Failed to get active uniform block\n" );
 		
 		allocateBuffer( &buf, buf.size );
@@ -384,23 +386,23 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
 		WV_ASSERT_ERR( "Failed to bind uniform buffer base\n" );
 		
-		glUniformBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
+		glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex );
 		WV_ASSERT_ERR( "Failed to set uniform buffer binding\n" );
 		
-		program->shaderBuffers.push_back( &buf );
+		program.shaderBuffers.push_back( &buf );
 	}
 
 	
 	GLint numActiveSSBOs;
-	glGetProgramInterfaceiv( program->handle, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &numActiveSSBOs );
+	glGetProgramInterfaceiv( program.handle, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &numActiveSSBOs );
 	for ( GLuint i = 0; i < numActiveSSBOs; i++ )
 	{
 		GLenum props[ 1 ] = { GL_NAME_LENGTH };
 		GLint res[ 1 ];
-		glGetProgramResourceiv( program->handle, GL_SHADER_STORAGE_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
+		glGetProgramResourceiv( program.handle, GL_SHADER_STORAGE_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
-		glGetProgramResourceName( program->handle, GL_SHADER_STORAGE_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
+		glGetProgramResourceName( program.handle, GL_SHADER_STORAGE_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
 		
 		// create ssbo
 
@@ -414,18 +416,17 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		buf.pPlatformData = pUBData;
 
 		pUBData->bindingIndex = getBufferBindingIndex();
-		pUBData->blockIndex = glGetProgramResourceIndex( program->handle, GL_SHADER_STORAGE_BLOCK, name.data() );
+		pUBData->blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
 		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
 		WV_ASSERT_ERR( "Failed to bind storage buffer base\n" );
 
-		glShaderStorageBlockBinding( program->handle, pUBData->blockIndex, pUBData->bindingIndex );
+		glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex );
 		WV_ASSERT_ERR( "Failed to set storage buffer binding\n" );
 		
-		program->shaderBuffers.push_back( &buf );
+		program.shaderBuffers.push_back( &buf );
 	}
 
-	//m_shaderPrograms[ id ] = program;
 	return id;
 #else
 	return ShaderProgramID_t::InvalidID;
@@ -439,7 +440,7 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 	if( _programID == ShaderProgramID_t::InvalidID )
 		return;
 
-	sShaderProgram& program = m_shaderPrograms2.get( _programID );
+	sShaderProgram& program = m_shaderPrograms.get( _programID );
 
 #ifdef WV_SUPPORT_OPENGL
 	glDeleteProgram( program.handle );
@@ -448,7 +449,7 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
 	
-	deallocateShaderProgramID( _programID );
+	m_shaderPrograms.deallocateID( _programID );
 #endif
 }
 
@@ -469,14 +470,14 @@ wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	if ( desc.pVertexProgram )
 	{
 		//sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
-		sShaderProgram& vs = m_shaderPrograms2.get( *desc.pVertexProgram );
+		sShaderProgram& vs = m_shaderPrograms.get( *desc.pVertexProgram );
 		glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle );
 		pipeline.pVertexProgram   = *desc.pVertexProgram;
 	}
 	if ( desc.pFragmentProgram )
 	{
 		//sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
-		sShaderProgram& fs = m_shaderPrograms2.get( *desc.pFragmentProgram );
+		sShaderProgram& fs = m_shaderPrograms.get( *desc.pFragmentProgram );
 		glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 		pipeline.pFragmentProgram = *desc.pFragmentProgram;
 	}

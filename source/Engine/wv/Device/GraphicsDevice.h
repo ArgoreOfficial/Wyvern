@@ -58,7 +58,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	template<typename T, typename H>
+	template<typename T, typename ID>
 	class cObjectContainer
 	{
 	public:
@@ -68,41 +68,52 @@ namespace wv
 			m_size = sizeof( T );
 		}
 
-		H allocate() 
+		ID allocateID()
 		{
-			uint64_t idx = 1;
-			while( m_ids.contains( (H)idx ) )
-				idx++;
+			uint64_t id = 1; 
+			while( m_IDs.contains( (ID)id ) ) { id++; }
 
-			if( idx * sizeof( T ) >= m_size )
+			uint64_t index = id - 1; // indices are 0 based, handles are 1 based
+			size_t endOffset = sizeof( T ) * index + sizeof( T );
+
+			if( endOffset >= m_size )
 			{
-				realloc( m_pObjectBuffer, m_size + sizeof( T ) );
-				m_size += sizeof( T );
+				m_pObjectBuffer = (uint8_t*)realloc( m_pObjectBuffer, endOffset );
+				m_size = endOffset;
 			}
 
-
-			uint8_t* base = m_pObjectBuffer + sizeof( T ) * idx;
+			T* base = &( (T*)m_pObjectBuffer )[ index ];
 			T* obj = new( base ) T();
 
-			m_ids.insert( (H)idx );
+			m_IDs.insert( (ID)id );
 
-			return (H)idx;
+			return (ID)id;
 		}
 
-		void deallocate() 
+		void deallocateID( ID _id ) 
 		{ 
-			/* do deallocation here */ 
+			if( !m_IDs.contains( _id ) )
+				return;
+
+			m_IDs.erase( _id );
+
+			size_t index = (uint64_t)_id - 1;
+			
+			T& obj = ((T*)m_pObjectBuffer)[ index ];
+			obj.~T();
+
+			memset( &obj, 0, sizeof( T ) );
 		}
 
-		T& get( H _id )
+		T& get( ID _id )
 		{
-			uint8_t* base = m_pObjectBuffer + sizeof( T ) * (uint64_t)_id;
-			return *(T*)base;
+			size_t index = (uint64_t)_id - 1;
+			return ( (T*)m_pObjectBuffer )[ index ];
 		}
 
 	private:
 		
-		std::set<H> m_ids;
+		std::set<ID> m_IDs;
 		uint8_t* m_pObjectBuffer = nullptr;
 		size_t m_size = 0;
 
@@ -184,11 +195,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 		
 		//std::unordered_map<ShaderProgramID, sShaderProgram*> m_shaderPrograms;
-		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms2;
-
-		ShaderProgramID allocateShaderProgramID();
-		void deallocateShaderProgramID( ShaderProgramID _programID );
-
+		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
 
 	protected:
 
