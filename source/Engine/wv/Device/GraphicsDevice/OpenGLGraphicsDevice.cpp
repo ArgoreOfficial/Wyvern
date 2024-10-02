@@ -295,14 +295,14 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
 {
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
 	ShaderProgramID id = m_shaderPrograms.allocate();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
 
-	WV_TRACE();
-
-#ifdef WV_SUPPORT_OPENGL
 	if( source.data->size == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
@@ -426,9 +426,9 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 {
-#ifdef WV_SUPPORT_OPENGL
 	WV_TRACE();
 
+#ifdef WV_SUPPORT_OPENGL
 	if( !_programID.isValid() )
 		return;
 
@@ -447,9 +447,9 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 {
 	WV_TRACE();
 
-	sPipelineDesc& desc = *_desc;
-	
 #ifdef WV_SUPPORT_OPENGL
+	
+	sPipelineDesc& desc = *_desc;
 	PipelineID id = m_pipelines.allocate();
 	sPipeline& pipeline = m_pipelines.get( id );
 	
@@ -584,6 +584,9 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 
 void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _size )
 {
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
 	cGPUBuffer& buffer = *_buffer;
 
 	if ( buffer.pData )
@@ -595,6 +598,7 @@ void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _siz
 	buffer.bufferedSize = buffer.size;
 
 	WV_ASSERT_GL( glNamedBufferData( buffer.handle, _size, 0, usage ) );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -842,6 +846,9 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 
 void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps )
 {
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
 	sOpenGLTextureData* pPData = (sOpenGLTextureData*)_pTexture->pPlatformData;
 
 	glTextureImage2DEXT( _pTexture->textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
@@ -855,9 +862,6 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 	WV_ASSERT_GL( glMakeTextureHandleResidentARB( _pTexture->textureHandle ) );
 	
 	_pTexture->pData = (uint8_t*)_pData;
-
-#ifdef WV_DEBUG
-	assertGLError( "Failed to buffer Texture data\n" );
 #endif
 }
 
@@ -905,6 +909,9 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 
 void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline )
 {
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
 	if( !_pPipeline )
 		return;
 
@@ -920,18 +927,23 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResour
 
 	// move?
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _pMesh->pIndexBuffer->handle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::setFillMode( eFillMode _mode )
 {
+	WV_TRACE();
+
+#ifdef WV_SUPPORT_OPENGL
 	switch ( _mode )
 	{
 	case WV_FILL_MODE_SOLID:     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  break;
 	case WV_FILL_MODE_WIREFRAME: glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  break;
 	case WV_FILL_MODE_POINTS:    glPolygonMode( GL_FRONT_AND_BACK, GL_POINT ); break;
 	}
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -964,10 +976,12 @@ void wv::cOpenGLGraphicsDevice::drawIndexed( uint32_t _numIndices )
 {
 	WV_TRACE();
 
+#ifdef WV_SUPPORT_OPENGL
 	/// TODO: allow for other draw modes
 	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
 	
 	glDrawElements( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0 );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -976,7 +990,9 @@ void wv::cOpenGLGraphicsDevice::drawIndexedInstances( uint32_t _numIndices, uint
 {
 	WV_TRACE();
 
+#ifdef WV_SUPPORT_OPENGL
 	glDrawElementsInstanced( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
