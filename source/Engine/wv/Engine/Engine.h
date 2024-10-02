@@ -28,7 +28,7 @@ namespace wv
 
 	class cApplicationState;
 
-	class cProgramPipeline;
+	class cPipelineResource;
 
 	class cResourceRegistry;
 	class cJoltPhysicsEngine;
@@ -102,7 +102,7 @@ namespace wv
 
 		// deferred rendering
 		sMesh*        m_screenQuad       = nullptr;
-		cProgramPipeline* m_deferredPipeline = nullptr;
+		cPipelineResource* m_deferredPipeline = nullptr;
 		RenderTarget*     m_gbuffer          = nullptr;
 
 		// engine

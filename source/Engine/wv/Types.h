@@ -18,7 +18,7 @@ typedef unsigned int size_t;
 #define WV_OPAQUE_HANDLE( _c ) \
 struct _c##_t; \
 typedef _c##_t* _c; \
-struct _c##_t { static inline _c InvalidID = 0; };
+struct _c##_t { static inline _c InvalidID = 0; }
 
 
 #define WV_WEAK_HANDLE( _c ) typedef uint32_t _c

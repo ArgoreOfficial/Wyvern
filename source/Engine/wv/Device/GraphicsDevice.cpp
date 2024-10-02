@@ -168,7 +168,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
 
 		case WV_GPUTASK_CREATE_PROGRAM: 
-			(ShaderProgramID&)(*outPtr) = createProgram( &stream.pop<sShaderProgramDesc>() );
+			*outPtr = createProgram( &stream.pop<sShaderProgramDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_PROGRAM: 
@@ -180,11 +180,11 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_DESTROY_PIPELINE: 
-			destroyPipeline( stream.pop<sPipeline*>() );
+			destroyPipeline( stream.pop<PipelineID>() );
 			break;
 
 		case WV_GPUTASK_BIND_PIPELINE: 
-			bindPipeline( stream.pop<sPipeline*>() );
+			bindPipeline( stream.pop<PipelineID>() );
 			break;
 
 		case WV_GPUTASK_CREATE_BUFFER:

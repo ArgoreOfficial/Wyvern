@@ -33,9 +33,9 @@
 	#define WV_VALIDATE_GL( _func ) if( _func == nullptr ) { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
 
 	#if WV_HARD_ASSERT
-		#define WV_ASSERT_ERR( _msg ) if( !assertGLError( _msg ) ) throw std::runtime_error( _msg )
+		#define WV_ASSERT_GL( _func ) _func; if( !assertGLError( #_func ) ) throw std::runtime_error( #_func )
 	#else
-		#define WV_ASSERT_ERR( _msg ) assertGLError( _msg ) 
+		#define WV_ASSERT_GL( _func ) _func; assertGLError( #_func )
 	#endif
 #else
 	#define WV_VALIDATE_GL( _func )
@@ -295,7 +295,7 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 
 wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
 {
-	ShaderProgramID id = m_shaderPrograms.allocateID();
+	ShaderProgramID id = m_shaderPrograms.allocate();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
@@ -337,9 +337,8 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	
 	/// TODO: Use shader objects?
 
-	program.handle = glCreateShaderProgramv( glType, 1, &sourcePtr );
-	WV_ASSERT_ERR( "Failed create shader program\n" );
-
+	program.handle = WV_ASSERT_GL( glCreateShaderProgramv( glType, 1, &sourcePtr ) );
+	
 	int success = 0;
 	char infoLog[ 512 ];
 	glGetProgramiv( program.handle, GL_LINK_STATUS, &success );
@@ -348,8 +347,6 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		glGetProgramInfoLog( program.handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n %s \n", infoLog );
 	}
-
-	WV_ASSERT_ERR( "Failed to create program\n" );
 
 	GLint numActiveResources;
 	glGetProgramInterfaceiv( program.handle, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &numActiveResources );
@@ -361,8 +358,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		glGetProgramResourceiv( program.handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
-		glGetProgramResourceName( program.handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
-		WV_ASSERT_ERR( "ERROR\n" );
+		WV_ASSERT_GL( glGetProgramResourceName( program.handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() ) );
 
 		// create uniform buffer
 
@@ -378,16 +374,13 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		pUBData->bindingIndex = getBufferBindingIndex();
 
 		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
-		glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size );
-		WV_ASSERT_ERR( "Failed to get active uniform block\n" );
+		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size ) );
 		
 		allocateBuffer( &buf, buf.size );
 		
-		glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle );
-		WV_ASSERT_ERR( "Failed to bind uniform buffer base\n" );
+		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle ) );
 		
-		glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex );
-		WV_ASSERT_ERR( "Failed to set uniform buffer binding\n" );
+		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
 		
 		program.shaderBuffers.push_back( &buf );
 	}
@@ -418,11 +411,9 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		pUBData->bindingIndex = getBufferBindingIndex();
 		pUBData->blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
-		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle );
-		WV_ASSERT_ERR( "Failed to bind storage buffer base\n" );
-
-		glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex );
-		WV_ASSERT_ERR( "Failed to set storage buffer binding\n" );
+		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle ) );
+		
+		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
 		
 		program.shaderBuffers.push_back( &buf );
 	}
@@ -435,6 +426,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 
 void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 {
+#ifdef WV_SUPPORT_OPENGL
 	WV_TRACE();
 
 	if( _programID == ShaderProgramID_t::InvalidID )
@@ -442,84 +434,85 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 
 	sShaderProgram& program = m_shaderPrograms.get( _programID );
 
-#ifdef WV_SUPPORT_OPENGL
-	glDeleteProgram( program.handle );
-	WV_ASSERT_ERR( "Failed to delete program\n" );
-
+	WV_ASSERT_GL( glDeleteProgram( program.handle ) );
+	
 	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
 	
-	m_shaderPrograms.deallocateID( _programID );
+	m_shaderPrograms.deallocate( _programID );
 #endif
 }
 
-wv::sPipeline* wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
+wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 {
 	WV_TRACE();
 
 	sPipelineDesc& desc = *_desc;
 	
 #ifdef WV_SUPPORT_OPENGL
-	sPipeline& pipeline = *new sPipeline();
+	PipelineID id = m_pipelines.allocate();
+	sPipeline& pipeline = m_pipelines.get( id );
 	
-	glCreateProgramPipelines( 1, &pipeline.handle );
+	WV_ASSERT_GL( glCreateProgramPipelines( 1, &pipeline.handle ) );
 	
-	WV_ASSERT_ERR( "Failed to create pipeline\n" );
-	if( pipeline.handle == 0 ) return &pipeline;
-	
+	if( pipeline.handle == 0 )
+	{
+		m_pipelines.deallocate( id );
+		return PipelineID_t::InvalidID;
+	}
+
 	if ( desc.pVertexProgram )
 	{
 		//sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
 		sShaderProgram& vs = m_shaderPrograms.get( *desc.pVertexProgram );
-		glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle );
+		WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle ) );
 		pipeline.pVertexProgram   = *desc.pVertexProgram;
 	}
 	if ( desc.pFragmentProgram )
 	{
 		//sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
 		sShaderProgram& fs = m_shaderPrograms.get( *desc.pFragmentProgram );
-		glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
+		WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle ) );
 		pipeline.pFragmentProgram = *desc.pFragmentProgram;
 	}
 
-	WV_ASSERT_ERR( "Failed to bind pipeline stages\n" );
-
-	return &pipeline;
+	return id;
 #else
-	return nullptr;
+	return PipelineID_t::InvalidID;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyPipeline( sPipeline* _pPipeline )
+void wv::cOpenGLGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glDeleteProgramPipelines( 1, &_pPipeline->handle );
-	WV_ASSERT_ERR( "ERROR\n" );
+	sPipeline& pipeline = m_pipelines.get( _pipelineID );
 
-	destroyProgram( _pPipeline->pVertexProgram );
-	destroyProgram( _pPipeline->pFragmentProgram );
-
-	if( _pPipeline->pPlatformData )
-		delete _pPipeline->pPlatformData;
+	WV_ASSERT_GL( glDeleteProgramPipelines( 1, &pipeline.handle ) );
 	
-	delete _pPipeline;
+	destroyProgram( pipeline.pVertexProgram );
+	destroyProgram( pipeline.pFragmentProgram );
+
+	if( pipeline.pPlatformData )
+		delete pipeline.pPlatformData;
+
+	m_pipelines.deallocate( _pipelineID );
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::bindPipeline( sPipeline* _pPipeline )
+void wv::cOpenGLGraphicsDevice::bindPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( m_activePipeline == _pPipeline )
+	if( m_activePipeline == _pipelineID )
 		return;
 
-	glBindProgramPipeline( _pPipeline ? _pPipeline->handle : 0 );
-	WV_ASSERT_ERR( "ERROR\n" );
+	sPipeline& pipeline = m_pipelines.get( _pipelineID );
+	WV_ASSERT_GL( glBindProgramPipeline( pipeline.handle ) );
 
-	m_activePipeline = _pPipeline;
+	m_activePipeline = _pipelineID;
 #endif
 }
 
@@ -572,21 +565,18 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 
 		// only way to recreate a buffer on the gpu from what I can tell
 		// no DSA way it seems?
-		glBindBuffer( target, buffer.handle );
+		WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
 		// glNamedBufferData( buffer.handle, buffer.size, buffer.pData, usage );
-		glBufferData( target, buffer.size, buffer.pData, usage );
-		glBindBuffer( target, 0 );
+		WV_ASSERT_GL( glBufferData( target, buffer.size, buffer.pData, usage ) );
+		WV_ASSERT_GL( glBindBuffer( target, 0 ) );
 
 		buffer.bufferedSize = buffer.size;
 	}
 	else
 	{
-		glNamedBufferSubData( buffer.handle, 0, buffer.size, buffer.pData );
+		WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, 0, buffer.size, buffer.pData ) );
 	}
 
-	
-	WV_ASSERT_ERR( "Failed to buffer data\n" );
-	
 #endif
 }
 
@@ -604,9 +594,7 @@ void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _siz
 	buffer.size  = _size;
 	buffer.bufferedSize = buffer.size;
 
-	glNamedBufferData( buffer.handle, _size, 0, usage );
-
-	WV_ASSERT_ERR( "Failed to allocate buffer\n" );
+	WV_ASSERT_GL( glNamedBufferData( buffer.handle, _size, 0, usage ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -650,11 +638,7 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& mesh = *new sMesh();
-	//glGenVertexArrays( 1, &mesh.handle );
-	//glBindVertexArray( mesh.handle );
-
-	WV_ASSERT_ERR( "ERROR\n" );
-
+	
 	sGPUBufferDesc vbDesc;
 	vbDesc.name  = "vbo";
 	vbDesc.type  = WV_BUFFER_TYPE_VERTEX;
@@ -666,8 +650,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	mesh.pVertexBuffer->count = count;
 	
-	WV_ASSERT_ERR( "ERROR\n" );
-
 	mesh.pVertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
 	bufferData( mesh.pVertexBuffer );
 	delete[] mesh.pVertexBuffer->pData;
@@ -685,8 +667,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		mesh.pIndexBuffer = createGPUBuffer( &ibDesc );
 		mesh.pIndexBuffer->count = _desc->numIndices;
 		
-		WV_ASSERT_ERR( "ERROR\n" );
-
 		if ( _desc->pIndices16 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
@@ -711,8 +691,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
 	}
 	
-	WV_ASSERT_ERR( "ERROR\n" );
-
 	if( _desc->pParentTransform != nullptr )
 		_desc->pParentTransform->addChild( &mesh.transform );
 	
@@ -811,9 +789,8 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 		break;
 	}
 
-	glCreateTextures( GL_TEXTURE_2D, 1, &texture.textureObjectHandle );
-	WV_ASSERT_ERR( "Failed to create texture\n" );
-
+	WV_ASSERT_GL( glCreateTextures( GL_TEXTURE_2D, 1, &texture.textureObjectHandle ) );
+	
 	GLenum minFilter = GL_NEAREST;
 	GLenum magFilter = GL_NEAREST;
 
@@ -846,10 +823,8 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	case wv::WV_TEXTURE_FORMAT_INT: type = GL_INT; break;
 	}
 
-	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
+	WV_ASSERT_GL( glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr ) );
 	
-	WV_ASSERT_ERR( "Failed to create texture\n" );
-
 	sOpenGLTextureData* pPData = new sOpenGLTextureData();
 	pPData->filter = minFilter;
 	pPData->format = format;
@@ -872,17 +847,13 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _p
 	glTextureImage2DEXT( _pTexture->textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
 	if ( _generateMipMaps )
 	{
-		glGenerateTextureMipmap( _pTexture->textureObjectHandle );
-
-		WV_ASSERT_ERR( "Failed to generate MipMaps\n" );
+		WV_ASSERT_GL( glGenerateTextureMipmap( _pTexture->textureObjectHandle ) );
 	}
 	
-	_pTexture->textureHandle = glGetTextureHandleARB( _pTexture->textureObjectHandle );
-	WV_ASSERT_ERR( "Failed to get texture handle\n" );
-
-	glMakeTextureHandleResidentARB( _pTexture->textureHandle );
-	WV_ASSERT_ERR( "Failed to make texture resident\n" );
-
+	_pTexture->textureHandle = WV_ASSERT_GL( glGetTextureHandleARB( _pTexture->textureObjectHandle ) );
+	
+	WV_ASSERT_GL( glMakeTextureHandleResidentARB( _pTexture->textureHandle ) );
+	
 	_pTexture->pData = (uint8_t*)_pData;
 
 #ifdef WV_DEBUG
@@ -920,23 +891,19 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		glBindTextureUnit( _slot, _pTexture->textureObjectHandle );
-
-		WV_ASSERT_ERR( "ERROR\n" );
+		WV_ASSERT_GL( glBindTextureUnit( _slot, _pTexture->textureObjectHandle ) );
 	}
 	else
 	{
-		glActiveTexture( GL_TEXTURE0 + _slot );
-		glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle );
-
-		WV_ASSERT_ERR( "ERROR\n" );
+		WV_ASSERT_GL( glActiveTexture( GL_TEXTURE0 + _slot ) );
+		WV_ASSERT_GL( glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle ) );
 	}
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline )
+void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline )
 {
 	if( !_pPipeline )
 		return;
@@ -978,8 +945,6 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 
 	bindVertexBuffer( _pMesh, rMesh.pMaterial->getPipeline() );
 	
-	WV_ASSERT_ERR( "ERROR\n" );
-
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
@@ -987,15 +952,8 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	}
 	else
 	{ 
-	#ifndef EMSCRIPTEN
-		/// this does not work on WebGL
-		wv::Handle vbo = rMesh.pVertexBuffer->handle;
 		size_t numVertices = rMesh.pVertexBuffer->count;
-		glBindVertexBuffer( 0, vbo, 0, rMesh.pVertexBuffer->stride );
 		glDrawArrays( GL_TRIANGLES, 0, numVertices );
-	#else
-		Debug::Print( Debug::WV_PRINT_FATAL, "glBindVertexBuffer is not supported on WebGL. Index Buffer is required\n" );
-	#endif
 	}
 #endif
 }

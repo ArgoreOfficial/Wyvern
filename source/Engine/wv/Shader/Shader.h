@@ -47,5 +47,4 @@ namespace wv
 	};
 	
 	WV_OPAQUE_HANDLE( ShaderProgramID );
-
 }

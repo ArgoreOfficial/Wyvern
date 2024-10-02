@@ -9,9 +9,9 @@
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <wv/Graphics/CommandBuffer.h>
+#include <wv/Device/GraphicsDevice/ObjectContainer.h>
 
 #include <vector>
-#include <set>
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -47,76 +47,12 @@ namespace wv
 
 	struct sGPUBufferDesc;
 
-	
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct GraphicsDeviceDesc
 	{
 		GraphicsDriverLoadProc loadProc;
 		iDeviceContext* pContext;
-	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	template<typename T, typename ID>
-	class cObjectContainer
-	{
-	public:
-		cObjectContainer() 
-		{
-			m_pObjectBuffer = new uint8_t[ sizeof( T ) ];
-			m_size = sizeof( T );
-		}
-
-		ID allocateID()
-		{
-			uint64_t id = 1; 
-			while( m_IDs.contains( (ID)id ) ) { id++; }
-
-			uint64_t index = id - 1; // indices are 0 based, handles are 1 based
-			size_t endOffset = sizeof( T ) * index + sizeof( T );
-
-			if( endOffset >= m_size )
-			{
-				m_pObjectBuffer = (uint8_t*)realloc( m_pObjectBuffer, endOffset );
-				m_size = endOffset;
-			}
-
-			T* base = &( (T*)m_pObjectBuffer )[ index ];
-			T* obj = new( base ) T();
-
-			m_IDs.insert( (ID)id );
-
-			return (ID)id;
-		}
-
-		void deallocateID( ID _id ) 
-		{ 
-			if( !m_IDs.contains( _id ) )
-				return;
-
-			m_IDs.erase( _id );
-
-			size_t index = (uint64_t)_id - 1;
-			
-			T& obj = ((T*)m_pObjectBuffer)[ index ];
-			obj.~T();
-
-			memset( &obj, 0, sizeof( T ) );
-		}
-
-		T& get( ID _id )
-		{
-			size_t index = (uint64_t)_id - 1;
-			return ( (T*)m_pObjectBuffer )[ index ];
-		}
-
-	private:
-		
-		std::set<ID> m_IDs;
-		uint8_t* m_pObjectBuffer = nullptr;
-		size_t m_size = 0;
-
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -165,11 +101,11 @@ namespace wv
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
 		virtual ShaderProgramID createProgram( sShaderProgramDesc* _desc ) = 0;
-		virtual void destroyProgram( ShaderProgramID _pProgram ) = 0;
+		virtual void destroyProgram( ShaderProgramID _programID ) = 0;
 
-		virtual sPipeline* createPipeline ( sPipelineDesc* _desc ) = 0;
-		virtual void       destroyPipeline( sPipeline* _pPipeline ) = 0;
-		virtual void       bindPipeline   ( sPipeline* _pPipeline ) = 0;
+		virtual PipelineID createPipeline ( sPipelineDesc* _desc ) = 0;
+		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
+		virtual void       bindPipeline   ( PipelineID _pipelineID ) = 0;
 
 		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) = 0;
 		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) = 0;
@@ -184,7 +120,7 @@ namespace wv
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     = 0;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) = 0;
 
-		virtual void bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline ) = 0;
+		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
@@ -194,8 +130,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		//std::unordered_map<ShaderProgramID, sShaderProgram*> m_shaderPrograms;
 		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
+		cObjectContainer<sPipeline, PipelineID> m_pipelines;
 
 	protected:
 

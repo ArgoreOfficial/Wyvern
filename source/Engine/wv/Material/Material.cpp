@@ -29,7 +29,7 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 
 	cResourceRegistry* pResReg = cEngine::get()->m_pResourceRegistry;
 
-	m_pPipeline = pResReg->load<cProgramPipeline>( shaderName );
+	m_pPipeline = pResReg->load<cPipelineResource>( shaderName );
 
 #ifdef WV_PLATFORM_WINDOWS
 	for ( auto& textureObject : root[ "textures" ].array_items() )

@@ -6,7 +6,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Device/GraphicsDevice.h>
 
-void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -55,7 +55,7 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_vs, &vsDesc );
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_fs, &fsDesc );
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, &m_pPipeline, &desc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, &m_pipelineID, &desc );
 
 	/// this is disgusting
 	auto cb =
@@ -73,55 +73,48 @@ void wv::cProgramPipeline::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
 }
 
-void wv::cProgramPipeline::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cPipelineResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
 
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
-	_pGraphicsDevice->destroyPipeline( m_pPipeline );
+	_pGraphicsDevice->destroyPipeline( m_pipelineID );
 
-	m_pPipeline = nullptr;
 	m_vs = nullptr; // destroyed by destroyPipeline
 	m_fs = nullptr;
 }
 
-void wv::cProgramPipeline::use( iGraphicsDevice* _pGraphicsDevice )
+void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
 {
-	if ( m_pPipeline == nullptr )
+	if ( m_pipelineID == PipelineID_t::InvalidID )
 		return;
 
-	_pGraphicsDevice->bindPipeline( m_pPipeline );
+	_pGraphicsDevice->bindPipeline( m_pipelineID );
 }
 
-wv::cGPUBuffer* wv::cProgramPipeline::getShaderBuffer( const std::string& _name )
+wv::cGPUBuffer* wv::cPipelineResource::getShaderBuffer( const std::string& _name )
 {
-	if ( m_pPipeline == nullptr )
+	if ( m_pipelineID == PipelineID_t::InvalidID )
 		return nullptr;
 
 	iGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
-	sShaderProgram* vs = &pGraphics->m_shaderPrograms.get( m_pPipeline->pVertexProgram );
-	sShaderProgram* fs = &pGraphics->m_shaderPrograms.get( m_pPipeline->pFragmentProgram );
+	/// this needs to be reworked
 
-	if ( vs )
-	{
-		for( auto& buf : vs->shaderBuffers )
-		{
-			if( buf->name == _name )
-				return buf;
-		}
-	}
+	sPipeline& pipeline = pGraphics->m_pipelines.get( m_pipelineID );
 
-	if ( fs )
-	{
-		for ( auto& buf : fs->shaderBuffers )
-		{
-			if ( buf->name == _name )
-				return buf;
-		}
-	}
+	sShaderProgram& vs = pGraphics->m_shaderPrograms.get( pipeline.pVertexProgram );
+	sShaderProgram& fs = pGraphics->m_shaderPrograms.get( pipeline.pFragmentProgram );
+
+	for( auto& buf : vs.shaderBuffers )
+		if( buf->name == _name )
+			return buf;
+	
+	for ( auto& buf : fs.shaderBuffers )
+		if ( buf->name == _name )
+			return buf;
 
 	return nullptr;
 }

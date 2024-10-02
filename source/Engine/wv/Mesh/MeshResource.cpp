@@ -118,7 +118,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		if ( !mat || !mat->isComplete() )
 			mat = _pGraphicsDevice->getEmptyMaterial();
 		
-		wv::cProgramPipeline* pPipeline = mat->getPipeline();
+		wv::cPipelineResource* pPipeline = mat->getPipeline();
 		mat->setAsActive( _pGraphicsDevice );
 
 		wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );

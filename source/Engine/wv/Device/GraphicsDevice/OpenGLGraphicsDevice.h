@@ -59,9 +59,9 @@ namespace wv
 		virtual ShaderProgramID createProgram( sShaderProgramDesc* _desc ) override;
 		virtual void destroyProgram( ShaderProgramID _pProgram ) override;
 
-		virtual sPipeline* createPipeline( sPipelineDesc* _desc ) override;
-		virtual void destroyPipeline( sPipeline* _pPipeline ) override;
-		virtual void bindPipeline( sPipeline* _pPipeline ) override;
+		virtual PipelineID createPipeline ( sPipelineDesc* _desc ) override;
+		virtual void       destroyPipeline( PipelineID _pipelineID ) override;
+		virtual void       bindPipeline   ( PipelineID _pipelineID ) override;
 
 		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) override;
 		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) override;
@@ -82,7 +82,7 @@ namespace wv
 		virtual void     destroyTexture   ( sTexture* _pTexture )                     override;
 		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) override;
 
-		virtual void bindVertexBuffer( sMesh* _pMesh, cProgramPipeline* _pPipeline ) override;
+		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
@@ -106,7 +106,7 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		/// TODO: remove?
-		sPipeline* m_activePipeline = nullptr;
+		PipelineID m_activePipeline;
 		RenderTarget* m_activeRenderTarget = nullptr;
 
 		wv::Handle m_vaoHandle = 0;

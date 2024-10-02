@@ -39,6 +39,8 @@ namespace wv
 		void* pPlatformData;
 	};
 
+	WV_OPAQUE_HANDLE( PipelineID );
+
 	struct sPipelineDesc
 	{
 		std::string name;
@@ -53,10 +55,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cProgramPipeline : public iResource
+	class cPipelineResource : public iResource
 	{
 	public:
-		cProgramPipeline( const std::string& _name, const std::string& _path = "" ) :
+		cPipelineResource( const std::string& _name, const std::string& _path = "" ) :
 			iResource( _name, _path )
 		{ }
 
@@ -73,7 +75,7 @@ namespace wv
 		ShaderProgramID m_vs = ShaderProgramID_t::InvalidID;
 		ShaderProgramID m_fs = ShaderProgramID_t::InvalidID;
 
-		sPipeline* m_pPipeline = nullptr;
+		PipelineID m_pipelineID = PipelineID_t::InvalidID;
 	private:
 
 	};

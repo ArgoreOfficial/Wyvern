@@ -14,7 +14,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cProgramPipeline;
+	class cPipelineResource;
 	
 	class iGraphicsDevice;
 	class sMesh;
@@ -47,7 +47,7 @@ namespace wv
 		void setMaterialUniforms();
 		void setInstanceUniforms( sMesh* _instance );
 
-		cProgramPipeline* getPipeline() { return m_pPipeline; }
+		cPipelineResource* getPipeline() { return m_pPipeline; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ namespace wv
 		void setDefaultViewUniforms();
 		void setDefaultMeshUniforms( sMesh* _mesh );
 
-		cProgramPipeline* m_pPipeline = nullptr;
+		cPipelineResource* m_pPipeline = nullptr;
 		//std::vector<Texture*> m_textures;
 
 		sUbInstanceData m_UbInstanceData;
