@@ -39,7 +39,7 @@ namespace wv
 		void* pPlatformData;
 	};
 
-	WV_OPAQUE_HANDLE( PipelineID );
+	WV_DEFINE_ID( PipelineID );
 
 	struct sPipelineDesc
 	{
@@ -72,10 +72,10 @@ namespace wv
 		sShaderProgramSource m_fsSource{};
 		sShaderProgramSource m_vsSource{};
 
-		ShaderProgramID m_vs = ShaderProgramID_t::InvalidID;
-		ShaderProgramID m_fs = ShaderProgramID_t::InvalidID;
+		ShaderProgramID m_vs{};
+		ShaderProgramID m_fs{};
 
-		PipelineID m_pipelineID = PipelineID_t::InvalidID;
+		PipelineID m_pipelineID{};
 	private:
 
 	};

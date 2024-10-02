@@ -53,9 +53,9 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 	desc.pFragmentProgram = &m_fs;
 
 	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_vs, &vsDesc );
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, &m_fs, &fsDesc );
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, &m_pipelineID, &desc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, (void**)&m_vs, &vsDesc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, (void**)&m_fs, &fsDesc );
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, (void**)&m_pipelineID, &desc);
 
 	/// this is disgusting
 	auto cb =
@@ -82,13 +82,13 @@ void wv::cPipelineResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* 
 
 	_pGraphicsDevice->destroyPipeline( m_pipelineID );
 
-	m_vs = nullptr; // destroyed by destroyPipeline
-	m_fs = nullptr;
+	m_vs.invalidate(); // destroyed by destroyPipeline
+	m_fs.invalidate();
 }
 
 void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
 {
-	if ( m_pipelineID == PipelineID_t::InvalidID )
+	if ( !m_pipelineID.isValid() )
 		return;
 
 	_pGraphicsDevice->bindPipeline( m_pipelineID );
@@ -96,7 +96,7 @@ void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
 
 wv::cGPUBuffer* wv::cPipelineResource::getShaderBuffer( const std::string& _name )
 {
-	if ( m_pipelineID == PipelineID_t::InvalidID )
+	if ( !m_pipelineID.isValid() )
 		return nullptr;
 
 	iGraphicsDevice* pGraphics = cEngine::get()->graphics;

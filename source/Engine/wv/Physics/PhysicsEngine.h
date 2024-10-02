@@ -49,23 +49,23 @@ namespace wv
 		void terminate();
 
 		void killAllPhysicsBodies();
-		void destroyPhysicsBody( hPhysicsBody& _handle );
+		void destroyPhysicsBody( PhysicsBodyID& _handle );
 
 		void update( double _deltaTime );
 
-		hPhysicsBody createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
+		PhysicsBodyID createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
 		
-		Transformf getBodyTransform      ( hPhysicsBody& _handle );
-		cVector3f   getBodyVelocity       ( hPhysicsBody& _handle );
-		cVector3f   getBodyAngularVelocity( hPhysicsBody& _handle );
+		Transformf getBodyTransform      ( PhysicsBodyID& _handle );
+		cVector3f  getBodyVelocity       ( PhysicsBodyID& _handle );
+		cVector3f  getBodyAngularVelocity( PhysicsBodyID& _handle );
 
-		bool isBodyActive( hPhysicsBody& _handle );
+		bool isBodyActive( PhysicsBodyID& _handle );
 
-		void setBodyTransform      ( hPhysicsBody& _handle, const Transformf& _transform );
-		void setBodyVelocity       ( hPhysicsBody& _handle, const cVector3f& _velocity );
-		void setBodyAngularVelocity( hPhysicsBody& _handle, const cVector3f& _angularVelocity );
+		void setBodyTransform      ( PhysicsBodyID& _handle, const Transformf& _transform );
+		void setBodyVelocity       ( PhysicsBodyID& _handle, const cVector3f& _velocity );
+		void setBodyAngularVelocity( PhysicsBodyID& _handle, const cVector3f& _angularVelocity );
 
-		void setBodyActive( hPhysicsBody& _handle, bool _active );
+		void setBodyActive( PhysicsBodyID& _handle, bool _active );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ namespace wv
 		cJoltContactListener*        tempContactListener        = nullptr;
 		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
-		std::unordered_map<wv::Handle, JPH::Body*> m_bodies;
+		std::unordered_map<wv::PhysicsBodyID, JPH::Body*> m_bodies;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 	};

@@ -45,7 +45,7 @@ namespace wv
 		std::string m_meshPath  = "";
 
 		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
-		hPhysicsBody m_physicsBodyHandle = 0;
+		PhysicsBodyID m_physicsBodyHandle = 0;
 
 	};
 

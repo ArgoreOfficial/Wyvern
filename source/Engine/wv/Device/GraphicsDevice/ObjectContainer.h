@@ -25,7 +25,7 @@ namespace wv
 
 			m_IDs.erase( _id );
 
-			size_t index = (uint64_t)_id - 1;
+			size_t index = _id.value - 1;
 
 			T& obj = ( (T*)m_pObjectBuffer )[ index ];
 			obj.~T();
@@ -38,7 +38,7 @@ namespace wv
 			if( !m_IDs.contains( _id ) )
 				throw std::out_of_range( "Invalid ID" );
 
-			size_t index = (uint64_t)_id - 1;
+			size_t index = _id.value - 1;
 			return ( (T*)m_pObjectBuffer )[ index ];
 		}
 

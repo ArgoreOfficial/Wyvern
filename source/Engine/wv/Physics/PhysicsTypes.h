@@ -8,7 +8,7 @@
 namespace wv
 {
 	
-	DEFINE_UNIQUE_HANDLE( PhysicsBody );
+	WV_DEFINE_ID( PhysicsBodyID );
 
 }
 

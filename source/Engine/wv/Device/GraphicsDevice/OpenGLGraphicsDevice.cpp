@@ -306,7 +306,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	if( source.data->size == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
-		return ShaderProgramID_t::InvalidID;
+		return ShaderProgramID{ 0 };
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
@@ -429,7 +429,7 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 #ifdef WV_SUPPORT_OPENGL
 	WV_TRACE();
 
-	if( _programID == ShaderProgramID_t::InvalidID )
+	if( !_programID.isValid() )
 		return;
 
 	sShaderProgram& program = m_shaderPrograms.get( _programID );
@@ -458,7 +458,7 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 	if( pipeline.handle == 0 )
 	{
 		m_pipelines.deallocate( id );
-		return PipelineID_t::InvalidID;
+		return PipelineID{ 0 };
 	}
 
 	if ( desc.pVertexProgram )
