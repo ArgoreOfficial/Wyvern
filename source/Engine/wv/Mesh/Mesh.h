@@ -7,6 +7,7 @@
 #include <wv/Math/Vector4.h>
 
 #include <wv/Graphics/VertexLayout.h>
+#include <wv/Math/Transform.h>
 
 #include <vector>
 #include <string>
@@ -63,7 +64,7 @@ namespace wv
 	struct sMesh
 	{
 		std::string name;
-		Transformf transform;
+		Transformf transform{};
 
 		wv::Handle handle = 0;
 		GPUBufferID pVertexBuffer{};
@@ -86,7 +87,7 @@ namespace wv
 	{
 		std::string name;
 		Transformf transform;
-		std::vector<sMesh*> meshes;
+		std::vector<MeshID> meshes;
 		std::vector<sMeshNode*> children;
 	};
 

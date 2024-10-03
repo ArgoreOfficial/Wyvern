@@ -102,7 +102,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
-		sMesh* m_screenQuad = nullptr;
+		MeshID m_screenQuad{};
 		cPipelineResource* m_deferredPipeline = nullptr;
 		RenderTargetID m_gbuffer{};
 		

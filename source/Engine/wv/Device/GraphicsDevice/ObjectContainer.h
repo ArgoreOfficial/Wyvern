@@ -14,6 +14,7 @@ namespace wv
 		{
 			m_pObjectBuffer = new uint8_t[ sizeof( T ) ];
 			m_size = sizeof( T );
+			memset( m_pObjectBuffer, 0, m_size );
 		}
 
 		[[nodiscard]] ID allocate();

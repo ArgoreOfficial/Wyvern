@@ -42,7 +42,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh** _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID* _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
 {
 	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
 
@@ -173,7 +173,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::sMesh**
 
 		// buffer
 		uint32_t cmdBuffer = device->getCommandBuffer();
-		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, _outMesh, &prDesc );
+		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, (void**)_outMesh, &prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
 		if( device->getThreadID() == std::this_thread::get_id() )
@@ -199,10 +199,9 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 		wv::Math::degrees( rot.z ) };
 
 	// process all the node's meshes (if any)
+	_meshNode->meshes.assign( _node->mNumMeshes, { 0 } );
 	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
-		_meshNode->meshes.resize( _node->mNumMeshes );
-
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
 		processAssimpMesh( aimesh, _scene, &_meshNode->meshes[ i ], _meshNode, _pResourceRegistry );
 	}

@@ -413,7 +413,8 @@ void wv::cEngine::tick()
 		graphics->bufferData( UbInstanceDataID );
 
 		graphics->bindVertexBuffer( m_screenQuad, m_deferredPipeline );
-		wv::cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( m_screenQuad->pIndexBuffer );
+		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
+		cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.pIndexBuffer );
 		graphics->drawIndexed( ibuffer.count );
 	}
 
@@ -514,8 +515,11 @@ void wv::cEngine::createScreenQuad()
 
 	m_screenQuad = graphics->createMesh( &prDesc );
 	
-	if( m_screenQuad )
-		m_screenQuad->transform.update( nullptr );
+	if( m_screenQuad.isValid() )
+	{
+		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
+		screenQuad.transform.update( nullptr );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

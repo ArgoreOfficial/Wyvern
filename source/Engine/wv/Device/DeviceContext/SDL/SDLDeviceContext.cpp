@@ -162,6 +162,8 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 	mouseEvent.delta.x = _event->xrel;
 	mouseEvent.delta.y = _event->yrel;
 	
+	_device->mousePosition = mouseEvent.position;
+
 	wv::iMouseListener::invoke( mouseEvent );
 }
 #endif
@@ -172,8 +174,12 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 {
 	wv::MouseEvent mouseEvent;
 
+
 	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
-	SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
+	// SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
+	
+	mouseEvent.delta = _device->mousePosition - mouseEvent.position;
+	_device->mousePosition = mouseEvent.position;
 
 	switch ( _event->button )
 	{
@@ -455,6 +461,8 @@ void wv::SDLDeviceContext::pollEvents()
 
 		case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
+
+		ImGui_ImplSDL2_ProcessEvent( &ev );
 	}
 #endif
 }
@@ -504,6 +512,10 @@ void wv::SDLDeviceContext::setMouseLock( bool _lock )
 {
 #ifdef WV_SUPPORT_SDL2
 	SDL_SetRelativeMouseMode( (SDL_bool)_lock );
+
+	if( !_lock )
+		SDL_WarpMouseInWindow( m_windowContext, m_width / 2, m_height / 2 );
+	
 #endif
 }
 

@@ -115,19 +115,19 @@ namespace wv
 		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
 		
-		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
-		virtual void   destroyMesh( sMesh* _pMesh ) = 0;
+		virtual MeshID createMesh( sMeshDesc* _desc ) = 0;
+		virtual void   destroyMesh( MeshID _meshID ) = 0;
 
 		virtual TextureID createTexture    ( sTextureDesc* _pDesc )                    = 0;
 		virtual void      bufferTextureData( TextureID _pTexture, void* _pData, bool _generateMipMaps ) = 0;
 		virtual void      destroyTexture   ( TextureID _pTexture )                     = 0;
 		virtual void      bindTextureToSlot( TextureID _pTexture, unsigned int _slot ) = 0;
 
-		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) = 0;
+		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
-		virtual void draw( sMesh* _pMesh ) = 0;
+		virtual void draw( MeshID _meshID ) = 0;
 		virtual void drawIndexed( uint32_t _numIndices ) = 0;
 		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) = 0;
 
@@ -138,6 +138,9 @@ namespace wv
 		cObjectContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
 		cObjectContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
 		cObjectContainer<sTexture,       TextureID>       m_textures;
+		cObjectContainer<sMesh,          MeshID>          m_meshes;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 

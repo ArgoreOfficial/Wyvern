@@ -70,8 +70,8 @@ namespace wv
 		virtual void        bufferData      ( GPUBufferID _buffer ) override;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) override;
 		
-		virtual sMesh* createMesh ( sMeshDesc* _desc )      override;
-		virtual void   destroyMesh( sMesh* _pMesh ) override;
+		virtual MeshID createMesh ( sMeshDesc* _desc )      override;
+		virtual void   destroyMesh( MeshID _meshID ) override;
 
 		/// TODO: texture handles?
 		/// all gpu objects should be handles tbh
@@ -84,11 +84,11 @@ namespace wv
 		virtual void      destroyTexture   ( TextureID _textureID )                     override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) override;
 
-		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) override;
+		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
-		virtual void draw( sMesh* _pMesh ) override;
+		virtual void draw( MeshID _meshID ) override;
 		virtual void drawIndexed( uint32_t _numIndices ) override;
 		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) override;
 

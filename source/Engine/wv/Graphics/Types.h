@@ -11,5 +11,6 @@ namespace wv
 	WV_DEFINE_ID( ShaderProgramID );
 	WV_DEFINE_ID( GPUBufferID );
 	WV_DEFINE_ID( TextureID );
+	WV_DEFINE_ID( MeshID );
 }
 

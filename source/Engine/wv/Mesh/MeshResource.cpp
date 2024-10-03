@@ -42,10 +42,11 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	uint32_t cmdBuffer = pGraphicsDevice->getCommandBuffer();
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
-	for ( auto& mesh : _node->meshes )
+	for ( auto& meshID : _node->meshes )
 	{
-		pGraphicsDevice->bufferCommand( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &mesh );
-		pResourceRegistry->unload( mesh->pMaterial );
+		pGraphicsDevice->bufferCommand( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
+		wv::sMesh& mesh = pGraphicsDevice->m_meshes.get( meshID );
+		pResourceRegistry->unload( mesh.pMaterial );
 	}
 	pGraphicsDevice->submitCommandBuffer( cmdBuffer );
 	
@@ -98,23 +99,29 @@ void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 	if ( m_drawQueue.empty() )
 		return;
 
-	m_pMeshNode->transform.update( nullptr );
-	drawNode( _pGraphicsDevice, m_pMeshNode );
+	bool recalcMatrices = m_pMeshNode->transform.update( nullptr );
+	drawNode( _pGraphicsDevice, m_pMeshNode, recalcMatrices );
 
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node )
+void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node, bool _recalcMatrices )
 {
 	if ( !_node )
 		return;
 
-	for ( auto& mesh : _node->meshes )
+	auto& meshreg = _pGraphicsDevice->m_meshes;
+
+	for ( auto& meshID : _node->meshes )
 	{
-		if ( mesh == nullptr )
+		if ( !meshID.isValid() )
 			continue;
 
-		wv::cMaterial* mat = mesh->pMaterial;
+		sMesh& mesh = meshreg.get( meshID );
+		mesh.transform.update( &_node->transform, _recalcMatrices );
+
+		wv::cMaterial* mat = mesh.pMaterial;
+
 		if ( !mat || !mat->isComplete() )
 			mat = _pGraphicsDevice->getEmptyMaterial();
 		
@@ -127,27 +134,27 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		else
 			m_useGPUInstancing = false;
 			
-		wv::cMatrix4x4f basematrix = mesh->transform.getMatrix();
+		wv::cMatrix4x4f basematrix = mesh.transform.getMatrix();
 		std::vector<sMeshInstanceData> instances;
 
 		for ( auto& transform : m_drawQueue )
 		{
-			mesh->transform.m_matrix = basematrix * transform.getMatrix();
+			mesh.transform.m_matrix = basematrix * transform.getMatrix();
 
 			if ( !m_useGPUInstancing )
 			{
-				mat->setInstanceUniforms( mesh );
+				mat->setInstanceUniforms( &mesh );
 
 				wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
 				if( UbInstanceData.isValid() )
 					_pGraphicsDevice->bufferData( UbInstanceData );
 
-				_pGraphicsDevice->draw( mesh );
+				_pGraphicsDevice->draw( meshID );
 			}
 			else
 			{
 				sMeshInstanceData instanceData;
-				instanceData.model = mesh->transform.m_matrix;
+				instanceData.model = mesh.transform.m_matrix;
 				
 				for( auto& var : mat->m_variables )
 				{
@@ -171,9 +178,9 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		if( m_useGPUInstancing )
 		{
 				
-			_pGraphicsDevice->bindVertexBuffer( mesh, pPipeline );
+			_pGraphicsDevice->bindVertexBuffer( meshID, pPipeline );
 
-			mat->setInstanceUniforms( mesh );
+			mat->setInstanceUniforms( &mesh );
 			
 			wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
 			wv::GPUBufferID SbInstanceData = pPipeline->getShaderBuffer( "SbInstances" );
@@ -186,7 +193,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			_pGraphicsDevice->bufferData( SbInstanceData );
 			_pGraphicsDevice->bufferData( UbInstanceData );
 
-			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh->pIndexBuffer );
+			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh.pIndexBuffer );
 			_pGraphicsDevice->drawIndexedInstances( ibuffer.count, m_drawQueue.size() );
 
 			instances.clear();
@@ -195,6 +202,6 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 	}
 
 	for ( auto& childNode : _node->children )
-		drawNode( _pGraphicsDevice, childNode );
+		drawNode( _pGraphicsDevice, childNode, _recalcMatrices );
 }
 

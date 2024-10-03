@@ -69,24 +69,26 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 	if( !_node )
 		return;
 
-	for( auto& mesh : _node->meshes )
+	for( auto& meshID : _node->meshes )
 	{
-		if( mesh == nullptr )
+		if( !meshID.isValid() )
 			continue;
 
-		cMaterial* mat = mesh->pMaterial;
+		sMesh& mesh = m_meshes.get( meshID );
+		cMaterial* mat = mesh.pMaterial;
+
 		if( mat )
 		{
 			if( !mat->isComplete() )
 				mat = m_pEmptyMaterial;
 
 			mat->setAsActive( this );
-			mat->setInstanceUniforms( mesh );
-			draw( mesh );
+			mat->setInstanceUniforms( &mesh );
+			draw( meshID );
 		}
 		else
 		{
-			draw( mesh );
+			draw( meshID );
 		}
 	}
 	
@@ -168,7 +170,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
 
 		case WV_GPUTASK_CREATE_PROGRAM: 
-			*(ShaderProgramID*)( outPtr ) = createProgram( &stream.pop<sShaderProgramDesc>() );
+			(ShaderProgramID&)( *outPtr ) = createProgram( &stream.pop<sShaderProgramDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_PROGRAM: 
@@ -176,7 +178,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
-			*(PipelineID*)( outPtr ) = createPipeline( &stream.pop<sPipelineDesc>() );
+			(PipelineID&)( *outPtr ) = createPipeline( &stream.pop<sPipelineDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_PIPELINE: 
@@ -188,7 +190,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_BUFFER:
-			*(GPUBufferID*)( outPtr ) = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
+			(GPUBufferID&)( *outPtr ) = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
 			break;
 
 		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
@@ -204,11 +206,11 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_MESH:
-			*outPtr = createMesh( &stream.pop<sMeshDesc>() );
+			(MeshID&)( *outPtr ) = createMesh( &stream.pop<sMeshDesc>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_MESH:
-			destroyMesh( stream.pop<sMesh*>() );
+			destroyMesh( stream.pop<MeshID>() );
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:

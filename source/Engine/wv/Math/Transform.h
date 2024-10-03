@@ -30,7 +30,7 @@ namespace wv
 		void addChild( Transform<T>* _child );
 		void removeChild( Transform<T>* _child );
 
-		void update( Transform<T>* _parent, bool _recalculateMatrix = true );
+		bool update( Transform<T>* _parent, bool _recalculateMatrix = true );
 
 		inline cVector3<T> forward() { return rotation.eulerToDirection(); }
 
@@ -91,7 +91,7 @@ namespace wv
 	}
 
 	template<typename T>
-	inline void Transform<T>::update( Transform<T>* _parent, bool _recalculateMatrix )
+	inline bool Transform<T>::update( Transform<T>* _parent, bool _recalculateMatrix )
 	{
 
 		bool posChanged = position != m_cachedPosition;
@@ -99,7 +99,7 @@ namespace wv
 		bool sclChanged = scale    != m_cachedScale;
 		bool recalc = posChanged || rotChanged || sclChanged;
 
-		if ( posChanged || rotChanged || sclChanged )
+		if ( recalc )
 		{
 			cMatrix<T, 4, 4> model{ 1 };
 
@@ -125,6 +125,7 @@ namespace wv
 		for( auto& child : m_children )
 			child->update( this, recalc || _recalculateMatrix );
 
+		return recalc;
 	}
 
 }

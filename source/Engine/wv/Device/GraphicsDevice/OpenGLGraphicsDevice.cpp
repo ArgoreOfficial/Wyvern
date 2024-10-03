@@ -639,12 +639,13 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
+wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sMesh& mesh = *new sMesh();
+	MeshID id = m_meshes.allocate();
+	sMesh& mesh = m_meshes.get( id );
 	
 	sGPUBufferDesc vbDesc;
 	vbDesc.name  = "vbo";
@@ -702,9 +703,6 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
 	}
 	
-	if( _desc->pParentTransform != nullptr )
-		_desc->pParentTransform->addChild( &mesh.transform );
-	
 	if( _desc->deleteData )
 	{
 		if( _desc->vertices )   { delete[] _desc->vertices; }
@@ -712,27 +710,28 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
 	}
 
-	return &mesh;
+	return id;
 #else
-	return nullptr;
+	return MeshID{ 0 };
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::destroyMesh( MeshID _meshID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sMesh& mesh = *_pMesh;
+	sMesh& mesh = m_meshes.get( _meshID );
+
 	destroyGPUBuffer( mesh.pIndexBuffer );
 	destroyGPUBuffer( mesh.pVertexBuffer );
 
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 
-	delete _pMesh;
+	m_meshes.deallocate( _meshID );
 #endif
 }
 
@@ -922,7 +921,7 @@ void wv::cOpenGLGraphicsDevice::bindTextureToSlot( TextureID _textureID, unsigne
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline )
+void wv::cOpenGLGraphicsDevice::bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline )
 {
 	WV_TRACE();
 
@@ -931,18 +930,19 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResour
 		return;
 
 	wv::GPUBufferID SbVerticesID = _pPipeline->getShaderBuffer( "SbVertices" );
+	sMesh& mesh = m_meshes.get( _meshID );
 
-	if( SbVerticesID.isValid() && _pMesh->pVertexBuffer.isValid() )
+	if( SbVerticesID.isValid() && mesh.pVertexBuffer.isValid() )
 	{
 		wv::cGPUBuffer& SbVertices = m_gpuBuffers.get( SbVerticesID );
 		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
-		cGPUBuffer& vbuffer = m_gpuBuffers.get( _pMesh->pVertexBuffer );
+		cGPUBuffer& vbuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
 		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, vbuffer.handle, 0, vbuffer.size );
 	}
 	
 	// move?
-	cGPUBuffer& ibuffer = m_gpuBuffers.get( _pMesh->pIndexBuffer );
+	cGPUBuffer& ibuffer = m_gpuBuffers.get( mesh.pIndexBuffer );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
 	
 #endif
@@ -966,14 +966,14 @@ void wv::cOpenGLGraphicsDevice::setFillMode( eFillMode _mode )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
+void wv::cOpenGLGraphicsDevice::draw( MeshID _meshID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sMesh& rMesh = *_pMesh;
+	sMesh& rMesh = m_meshes.get( _meshID );
 
-	bindVertexBuffer( _pMesh, rMesh.pMaterial->getPipeline() );
+	bindVertexBuffer( _meshID, rMesh.pMaterial->getPipeline() );
 	
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )

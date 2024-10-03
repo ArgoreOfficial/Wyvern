@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/Graphics/Types.h>
 #include <wv/Math/Transform.h>
 
 namespace wv
@@ -7,7 +8,6 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class sMesh;
 	class cMaterial;
 	class iGraphicsDevice;
 
@@ -15,14 +15,14 @@ namespace wv
 
 	namespace Internal
 	{
-		static sMesh* S_SPRITE_QUAD = nullptr;
+		static MeshID S_SPRITE_QUAD{};
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct SpriteDesc
 	{
-		sMesh* mesh = nullptr;
+		MeshID mesh{};
 		cMaterial* material = nullptr;
 		cVector3f position{};
 		cVector3f size{ 64.0f, 64.0f, 1.0f };
@@ -53,7 +53,7 @@ namespace wv
 
 		cMaterial* m_material = nullptr;
 		Transformf m_transform;
-		sMesh* m_mesh = nullptr;
+		MeshID m_mesh{};
 
 	};
 

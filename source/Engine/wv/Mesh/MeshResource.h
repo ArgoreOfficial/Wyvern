@@ -63,7 +63,7 @@ namespace wv
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node );
+		void drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node, bool _recalcMatrices );
 
 		sMeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;

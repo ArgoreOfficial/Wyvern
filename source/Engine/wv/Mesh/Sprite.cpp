@@ -22,7 +22,7 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 	sprite->m_transform.setScale( _desc->size );
 	sprite->m_mesh = _desc->mesh;
 
-	if ( !Internal::S_SPRITE_QUAD )
+	if ( !Internal::S_SPRITE_QUAD.isValid() )
 		createQuad();
 	
     return sprite;
@@ -32,7 +32,7 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 
 void wv::Sprite::draw( iGraphicsDevice* _device )
 {
-	if ( !Internal::S_SPRITE_QUAD )
+	if ( !Internal::S_SPRITE_QUAD.isValid() )
 		return;
 	/*
 	sMeshWrapper* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
