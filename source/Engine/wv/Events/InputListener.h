@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Decl.h>
+#include <wv/Misc/Key.h>
 
 #include <vector>
 
@@ -11,7 +12,7 @@ namespace wv
 
 	struct sInputEvent
 	{
-		int key;
+		eKey key;
 		int scancode;
 		int mods;
 

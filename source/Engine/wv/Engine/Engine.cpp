@@ -36,10 +36,6 @@
 #include <fstream>
 #include <vector>
 
-#ifdef WV_SUPPORT_SDL2
-#include <SDL2/SDL_keycode.h>
-#endif
-
 #include <type_traits>
 #include <random>
 
@@ -196,24 +192,7 @@ void wv::cEngine::onInputEvent( sInputEvent _event )
 		case 'R': m_pApplicationState->reloadScene(); break;
 		case 'F': m_drawWireframe ^= 1; break;
 
-		default:
-		{
-			switch ( context->getContextAPI() )
-			{
-			#ifdef WV_SUPPORT_SDL2
-			case WV_DEVICE_CONTEXT_API_SDL:
-				if ( _event.key == SDLK_ESCAPE )
-					context->close();
-				break;
-			#endif
-			#ifdef WV_SUPPORT_GLFW
-			case WV_DEVICE_CONTEXT_API_GLFW:
-				if ( _event.key == GLFW_KEY_ESCAPE )
-					context->close();
-				break;
-			#endif
-			}
-		}
+		case WV_KEY_ESCAPE: context->close(); break;
 		}
 
 	}

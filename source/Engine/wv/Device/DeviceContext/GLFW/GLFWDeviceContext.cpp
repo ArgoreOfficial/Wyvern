@@ -25,7 +25,7 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;
 	inputEvent.repeat = _action == GLFW_REPEAT;
-	inputEvent.key = _key;
+	inputEvent.key = wv::eKey::WV_KEY_UNKNOWN;
 	inputEvent.scancode = _scancode;
 	inputEvent.mods = _mods;
 
