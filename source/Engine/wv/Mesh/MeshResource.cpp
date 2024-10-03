@@ -121,8 +121,8 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		wv::cPipelineResource* pPipeline = mat->getPipeline();
 		mat->setAsActive( _pGraphicsDevice );
 
-		wv::cGPUBuffer* SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
-		if( SbInstanceData ) // TODO: enable gpu instancing on all meshes
+		wv::GPUBufferID SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
+		if( SbInstanceData.isValid() ) // TODO: enable gpu instancing on all meshes
 			m_useGPUInstancing = true;
 		else
 			m_useGPUInstancing = false;
@@ -138,8 +138,8 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			{
 				mat->setInstanceUniforms( mesh );
 
-				wv::cGPUBuffer* UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
-				if( UbInstanceData )
+				wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
+				if( UbInstanceData.isValid() )
 					_pGraphicsDevice->bufferData( UbInstanceData );
 
 				_pGraphicsDevice->draw( mesh );
@@ -169,15 +169,19 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 
 			mat->setInstanceUniforms( mesh );
 			
-			wv::cGPUBuffer* UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
-			wv::cGPUBuffer* SbInstanceData = pPipeline->getShaderBuffer( "SbInstances" );
-			if ( SbInstanceData )
-				SbInstanceData->buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+			wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
+			wv::GPUBufferID SbInstanceData = pPipeline->getShaderBuffer( "SbInstances" );
+			if( SbInstanceData.isValid() )
+			{
+				wv::cGPUBuffer& SbInstanceDataBuffer = _pGraphicsDevice->m_gpuBuffers.get( SbInstanceData );
+				SbInstanceDataBuffer.buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+			}
 	
 			_pGraphicsDevice->bufferData( SbInstanceData );
 			_pGraphicsDevice->bufferData( UbInstanceData );
 
-			_pGraphicsDevice->drawIndexedInstances( mesh->pIndexBuffer->count, m_drawQueue.size() );
+			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh->pIndexBuffer );
+			_pGraphicsDevice->drawIndexedInstances( ibuffer.count, m_drawQueue.size() );
 
 			instances.clear();
 		}

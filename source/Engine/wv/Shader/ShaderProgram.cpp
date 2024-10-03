@@ -94,10 +94,10 @@ void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
 	_pGraphicsDevice->bindPipeline( m_pipelineID );
 }
 
-wv::cGPUBuffer* wv::cPipelineResource::getShaderBuffer( const std::string& _name )
+wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name )
 {
 	if ( !m_pipelineID.isValid() )
-		return nullptr;
+		return GPUBufferID{ GPUBufferID::InvalidID };
 
 	iGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
@@ -108,13 +108,19 @@ wv::cGPUBuffer* wv::cPipelineResource::getShaderBuffer( const std::string& _name
 	sShaderProgram& vs = pGraphics->m_shaderPrograms.get( pipeline.pVertexProgram );
 	sShaderProgram& fs = pGraphics->m_shaderPrograms.get( pipeline.pFragmentProgram );
 
-	for( auto& buf : vs.shaderBuffers )
-		if( buf->name == _name )
-			return buf;
+	for( GPUBufferID bufID : vs.shaderBuffers )
+	{
+		cGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		if( buf.name == _name )
+			return bufID;
+	}
 	
-	for ( auto& buf : fs.shaderBuffers )
-		if ( buf->name == _name )
-			return buf;
+	for( GPUBufferID bufID : fs.shaderBuffers )
+	{
+		cGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		if ( buf.name == _name )
+			return bufID;
+	}
 
-	return nullptr;
+	return GPUBufferID{ GPUBufferID::InvalidID };
 }

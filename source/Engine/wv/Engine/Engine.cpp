@@ -409,11 +409,12 @@ void wv::cEngine::tick()
 	{
 		m_deferredPipeline->use( graphics );
 
-		wv::cGPUBuffer* UbInstanceData = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
-		graphics->bufferData( UbInstanceData );
+		wv::GPUBufferID UbInstanceDataID = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
+		graphics->bufferData( UbInstanceDataID );
 
 		graphics->bindVertexBuffer( m_screenQuad, m_deferredPipeline );
-		graphics->drawIndexed( m_screenQuad->pIndexBuffer->count );
+		wv::cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( m_screenQuad->pIndexBuffer );
+		graphics->drawIndexed( ibuffer.count );
 	}
 
 	if( m_pIRTHandler )

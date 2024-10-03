@@ -1,0 +1,14 @@
+#pragma once
+
+#include <wv/Types.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+namespace wv
+{
+	WV_DEFINE_ID( PipelineID );
+	WV_DEFINE_ID( RenderTargetID );
+	WV_DEFINE_ID( ShaderProgramID );
+	WV_DEFINE_ID( GPUBufferID );
+}
+

@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <wv/Graphics/Types.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -40,7 +42,7 @@ namespace wv
 		eShaderProgramType type;
 		sShaderProgramSource source;
 
-		std::vector<cGPUBuffer*> shaderBuffers;
+		std::vector<GPUBufferID> shaderBuffers;
 		std::vector<sUniform> textureUniforms;
 
 		void* pPlatformData;

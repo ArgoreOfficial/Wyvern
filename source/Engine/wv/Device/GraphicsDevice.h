@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 
 #include <wv/Misc/Color.h>
 #include <wv/Graphics/GPUBuffer.h>
@@ -109,10 +110,10 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) = 0;
 
-		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) = 0;
-		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) = 0;
-		virtual void        bufferData      ( cGPUBuffer* _buffer ) = 0;
-		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) = 0;
+		virtual GPUBufferID createGPUBuffer ( sGPUBufferDesc* _desc ) = 0;
+		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size ) = 0;
+		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
+		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
 		
 		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
 		virtual void   destroyMesh( sMesh* _pMesh ) = 0;
@@ -133,8 +134,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 		
 		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
-		cObjectContainer<sPipeline, PipelineID>           m_pipelines;
-		cObjectContainer<sRenderTarget, RenderTargetID>   m_renderTargets;
+		cObjectContainer<sPipeline,      PipelineID>      m_pipelines;
+		cObjectContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
+		cObjectContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
 
 	protected:
 

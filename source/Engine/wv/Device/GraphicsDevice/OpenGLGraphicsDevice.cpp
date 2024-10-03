@@ -366,7 +366,8 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		ubDesc.name  = name;
 		ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-		cGPUBuffer& buf = *createGPUBuffer( &ubDesc );
+		GPUBufferID bufID = createGPUBuffer( &ubDesc );
+		cGPUBuffer& buf = m_gpuBuffers.get( bufID );
 
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
@@ -376,13 +377,13 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size ) );
 		
-		allocateBuffer( &buf, buf.size );
+		allocateBuffer( bufID, buf.size );
 		
 		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle ) );
 		
 		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
 		
-		program.shaderBuffers.push_back( &buf );
+		program.shaderBuffers.push_back( bufID );
 	}
 
 	
@@ -403,7 +404,8 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		ubDesc.name = name;
 		ubDesc.type = WV_BUFFER_TYPE_DYNAMIC_STORAGE;
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-		cGPUBuffer& buf = *createGPUBuffer( &ubDesc );
+		GPUBufferID bufID = createGPUBuffer( &ubDesc );
+		cGPUBuffer& buf = m_gpuBuffers.get( bufID );
 
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
@@ -415,7 +417,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		
 		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
 		
-		program.shaderBuffers.push_back( &buf );
+		program.shaderBuffers.push_back( bufID );
 	}
 
 	return id;
@@ -518,12 +520,14 @@ void wv::cOpenGLGraphicsDevice::bindPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _desc )
+wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = *new cGPUBuffer();
+	GPUBufferID id = m_gpuBuffers.allocate();
+	cGPUBuffer& buffer = m_gpuBuffers.get( id );
+
 	buffer.type  = _desc->type;
 	buffer.usage = _desc->usage;
 	buffer.name  = _desc->name;
@@ -535,22 +539,22 @@ wv::cGPUBuffer* wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _des
 	assertGLError( "Failed to create buffer\n" );
 
 	if ( _desc->size > 0 )
-		allocateBuffer( &buffer, _desc->size );
+		allocateBuffer( id, _desc->size );
 	
-	return &buffer;
+	return id;
 #else 
-	return nullptr;
+	return GPUBufferID{ 0 };
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
+void wv::cOpenGLGraphicsDevice::bufferData( GPUBufferID _buffer )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = *_buffer;
+	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
 
 	if ( buffer.pData == nullptr || buffer.size == 0 )
 	{
@@ -582,12 +586,12 @@ void wv::cOpenGLGraphicsDevice::bufferData( cGPUBuffer* _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _size )
+void wv::cOpenGLGraphicsDevice::allocateBuffer( GPUBufferID _buffer, size_t _size )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = *_buffer;
+	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
 
 	if ( buffer.pData )
 		delete[] buffer.pData;
@@ -603,34 +607,32 @@ void wv::cOpenGLGraphicsDevice::allocateBuffer( cGPUBuffer* _buffer, size_t _siz
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( cGPUBuffer* _buffer )
+void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( _buffer->pPlatformData )
+	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
+
+	if( buffer.pPlatformData )
 	{
-		sOpenGLBufferData* pData = (sOpenGLBufferData*)_buffer->pPlatformData;
+		sOpenGLBufferData* pData = (sOpenGLBufferData*)buffer.pPlatformData;
 		if( pData->bindingIndex != 0 )
 			m_usedBindingIndices.erase( pData->bindingIndex );
-		
+
+		delete buffer.pPlatformData;
+		buffer.pPlatformData = nullptr;
 	}
 
-	glDeleteBuffers( 1, &_buffer->handle );
+	glDeleteBuffers( 1, &buffer.handle );
 
-	if ( _buffer->pData )
+	if ( buffer.pData )
 	{
-		delete[] _buffer->pData;
-		_buffer->pData = nullptr;
+		delete[] buffer.pData;
+		buffer.pData = nullptr;
 	}
 
-	if ( _buffer->pPlatformData )
-	{
-		delete _buffer->pPlatformData;
-		_buffer->pPlatformData = nullptr;
-	}
-
-	delete _buffer;
+	m_gpuBuffers.deallocate( _buffer );
 #endif
 }
 
@@ -649,15 +651,16 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size  = _desc->sizeVertices;
 	mesh.pVertexBuffer = createGPUBuffer( &vbDesc );
+	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
 	mesh.pMaterial = _desc->pMaterial;
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
-	mesh.pVertexBuffer->count = count;
+	vertexBuffer.count = count;
 	
-	mesh.pVertexBuffer->buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
+	vertexBuffer.buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
 	bufferData( mesh.pVertexBuffer );
-	delete[] mesh.pVertexBuffer->pData;
-	mesh.pVertexBuffer->pData = nullptr;
+	delete[] vertexBuffer.pData;
+	vertexBuffer.pData = nullptr;
 
 	if ( _desc->numIndices > 0 )
 	{
@@ -668,27 +671,30 @@ wv::sMesh* wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		ibDesc.type  = WV_BUFFER_TYPE_INDEX;
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
+
 		mesh.pIndexBuffer = createGPUBuffer( &ibDesc );
-		mesh.pIndexBuffer->count = _desc->numIndices;
+		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.pIndexBuffer );
+
+		indexBuffer.count = _desc->numIndices;
 		
 		if ( _desc->pIndices16 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
 
 			allocateBuffer( mesh.pIndexBuffer, bufferSize );
-			mesh.pIndexBuffer->buffer( _desc->pIndices16, bufferSize );
+			indexBuffer.buffer( _desc->pIndices16, bufferSize );
 		}
 		else if ( _desc->pIndices32 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
 
 			allocateBuffer( mesh.pIndexBuffer, bufferSize );
-			mesh.pIndexBuffer->buffer( _desc->pIndices32, bufferSize );
+			indexBuffer.buffer( _desc->pIndices32, bufferSize );
 		}
 
 		bufferData( mesh.pIndexBuffer );
-		delete[] mesh.pIndexBuffer->pData;
-		mesh.pIndexBuffer->pData = nullptr;
+		delete[] indexBuffer.pData;
+		indexBuffer.pData = nullptr;
 	}
 	else
 	{
@@ -915,18 +921,21 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( sMesh* _pMesh, cPipelineResour
 	if( !_pPipeline )
 		return;
 
-	wv::cGPUBuffer* SbVertices = _pPipeline->getShaderBuffer( "SbVertices" );
+	wv::GPUBufferID SbVerticesID = _pPipeline->getShaderBuffer( "SbVertices" );
 
-	if( SbVertices && _pMesh->pVertexBuffer )
+	if( SbVerticesID.isValid() && _pMesh->pVertexBuffer.isValid() )
 	{
-		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices->pPlatformData;
-			
-		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, _pMesh->pVertexBuffer->handle, 0, _pMesh->pVertexBuffer->size );
+		wv::cGPUBuffer& SbVertices = m_gpuBuffers.get( SbVerticesID );
+		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
+	
+		cGPUBuffer& vbuffer = m_gpuBuffers.get( _pMesh->pVertexBuffer );
+		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, vbuffer.handle, 0, vbuffer.size );
 	}
 	
-
 	// move?
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _pMesh->pIndexBuffer->handle );
+	cGPUBuffer& ibuffer = m_gpuBuffers.get( _pMesh->pIndexBuffer );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
+	
 #endif
 }
 
@@ -960,12 +969,13 @@ void wv::cOpenGLGraphicsDevice::draw( sMesh* _pMesh )
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		drawIndexed( rMesh.pIndexBuffer->count );
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.pIndexBuffer );
+		drawIndexed( buffer.count );
 	}
 	else
 	{ 
-		size_t numVertices = rMesh.pVertexBuffer->count;
-		glDrawArrays( GL_TRIANGLES, 0, numVertices );
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.pVertexBuffer );
+		glDrawArrays( GL_TRIANGLES, 0, buffer.count );
 	}
 #endif
 }

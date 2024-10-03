@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 #include <wv/Math/Vector2.h>
 
 namespace wv

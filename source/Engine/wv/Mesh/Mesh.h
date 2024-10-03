@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 #include <wv/Math/Vector2.h>
 #include <wv/Math/Vector3.h>
 #include <wv/Math/Vector4.h>
@@ -65,8 +66,8 @@ namespace wv
 		Transformf transform;
 
 		wv::Handle handle = 0;
-		cGPUBuffer* pVertexBuffer = nullptr;
-		cGPUBuffer* pIndexBuffer  = nullptr;
+		GPUBufferID pVertexBuffer{};
+		GPUBufferID pIndexBuffer{};
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		

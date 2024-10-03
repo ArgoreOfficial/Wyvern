@@ -137,7 +137,8 @@ void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 
 #elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
-	wv::cGPUBuffer& instanceBlock = *m_pPipeline->getShaderBuffer( "UbInstanceData" );
+	wv::GPUBufferID instanceBlockID = m_pPipeline->getShaderBuffer( "UbInstanceData" );
+	wv::cGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
 	instanceBlock.buffer( &m_UbInstanceData );
 #endif
 }

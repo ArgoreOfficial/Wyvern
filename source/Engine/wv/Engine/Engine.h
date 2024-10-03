@@ -6,6 +6,7 @@
 #include <wv/Math/Vector2.h>
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 
 namespace wv
 {

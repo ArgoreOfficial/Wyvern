@@ -65,10 +65,10 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID ) override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) override;
 
-		virtual cGPUBuffer* createGPUBuffer ( sGPUBufferDesc* _desc ) override;
-		virtual void        allocateBuffer  ( cGPUBuffer* _buffer, size_t _size ) override;
-		virtual void        bufferData      ( cGPUBuffer* _buffer ) override;
-		virtual void        destroyGPUBuffer( cGPUBuffer* _buffer ) override;
+		virtual GPUBufferID createGPUBuffer ( sGPUBufferDesc* _desc ) override;
+		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size ) override;
+		virtual void        bufferData      ( GPUBufferID _buffer ) override;
+		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) override;
 		
 		virtual sMesh* createMesh ( sMeshDesc* _desc )      override;
 		virtual void   destroyMesh( sMesh* _pMesh ) override;

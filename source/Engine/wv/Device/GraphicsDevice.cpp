@@ -188,19 +188,19 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_BUFFER:
-			*outPtr = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
+			*(GPUBufferID*)( outPtr ) = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
 			break;
 
 		case WV_GPUTASK_ALLOCATE_BUFFER:
-			allocateBuffer( (cGPUBuffer*)outPtr, stream.pop<size_t>() );
+			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() );
 			break;
 
 		case WV_GPUTASK_BUFFER_DATA:
-			bufferData( stream.pop<cGPUBuffer*>() );
+			bufferData( stream.pop<GPUBufferID>() );
 			break;
 
 		case WV_GPUTASK_DESTROY_BUFFER:
-			destroyGPUBuffer( stream.pop<cGPUBuffer*>() );
+			destroyGPUBuffer( stream.pop<GPUBufferID>() );
 			break;
 
 		case WV_GPUTASK_CREATE_MESH:

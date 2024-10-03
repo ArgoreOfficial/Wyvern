@@ -65,7 +65,7 @@ namespace wv
 		
 		void use( iGraphicsDevice* _pGraphicsDevice );
 
-		cGPUBuffer* getShaderBuffer( const std::string& _name );
+		GPUBufferID getShaderBuffer( const std::string& _name );
 
 		sShaderProgramSource m_fsSource{};
 		sShaderProgramSource m_vsSource{};
