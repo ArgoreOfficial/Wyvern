@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 #include <wv/Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -73,16 +74,8 @@ namespace wv
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 
-		int getWidth ( void ) { return m_texture.width; }
-		int getHeight( void ) { return m_texture.height; }
-		int getNumChannels( void ) { return m_texture.numChannels; }
-
-		uint8_t*     getData    ( void ) { return m_texture.pData; }
-		unsigned int getDataSize( void ) { return m_texture.dataSize; }
-
-		sTexture m_texture;
+		TextureID m_textureID;
 	private:
-		
 
 		eTextureFiltering m_filtering;
 		uint8_t* m_pData = nullptr;

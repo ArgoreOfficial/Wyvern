@@ -44,25 +44,27 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	
 	struct
 	{
-		sTexture* tex;
+		TextureID* tex;
 		void* pData;
 		bool generateMipMaps;
 	} bufferData;
 	bufferData.generateMipMaps = desc.generateMipMaps;
 
-	bufferData.tex = &m_texture;
+	bufferData.tex = &m_textureID;
 	bufferData.pData = m_pData;
 	m_pData = nullptr; // move ownership
 
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)&m_texture, &desc ); // hack
+	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)&m_textureID, &desc ); // hack
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) 
 		{ 
 			cTextureResource* tex = (cTextureResource*)_c;
+			sTexture& texObject = wv::cEngine::get()->graphics->m_textures.get( tex->m_textureID );
+
 			tex->setComplete( true ); 
-			stbi_image_free( tex->m_texture.pData );
-			tex->m_texture.pData = nullptr;
+			stbi_image_free( texObject.pData );
+			texObject.pData = nullptr;
 		};
 
 	_pGraphicsDevice->setCommandBufferCallback( cmdBuffer, onCompleteCallback, (void*)this );
@@ -85,5 +87,5 @@ void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _
 	}
 
 	m_dataSize = 0;
-	_pGraphicsDevice->destroyTexture( &m_texture );
+	_pGraphicsDevice->destroyTexture( m_textureID );
 }

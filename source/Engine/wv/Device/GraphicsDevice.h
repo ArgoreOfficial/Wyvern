@@ -118,10 +118,10 @@ namespace wv
 		virtual sMesh* createMesh( sMeshDesc* _desc ) = 0;
 		virtual void   destroyMesh( sMesh* _pMesh ) = 0;
 
-		virtual sTexture createTexture    ( sTextureDesc* _pDesc )                    = 0;
-		virtual void     bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps ) = 0;
-		virtual void     destroyTexture   ( sTexture* _pTexture )                     = 0;
-		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) = 0;
+		virtual TextureID createTexture    ( sTextureDesc* _pDesc )                    = 0;
+		virtual void      bufferTextureData( TextureID _pTexture, void* _pData, bool _generateMipMaps ) = 0;
+		virtual void      destroyTexture   ( TextureID _pTexture )                     = 0;
+		virtual void      bindTextureToSlot( TextureID _pTexture, unsigned int _slot ) = 0;
 
 		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) = 0;
 
@@ -137,6 +137,7 @@ namespace wv
 		cObjectContainer<sPipeline,      PipelineID>      m_pipelines;
 		cObjectContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
 		cObjectContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
+		cObjectContainer<sTexture,       TextureID>       m_textures;
 
 	protected:
 

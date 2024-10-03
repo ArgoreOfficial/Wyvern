@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 #include <wv/Texture/Texture.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ namespace wv
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 
-		wv::sTexture* pTextures = nullptr;
+		wv::TextureID* pTextures = nullptr;
 		int numTextures = 0;
 
 		int width = 0;

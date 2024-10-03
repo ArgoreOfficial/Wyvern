@@ -171,7 +171,7 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( sRenderTargetD
 	
 	target.numTextures = desc.numTextures;
 	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
-	target.pTextures = new sTexture[ desc.numTextures ];
+	target.pTextures = new TextureID[ desc.numTextures ];
 
 	for ( int i = 0; i < desc.numTextures; i++ )
 	{
@@ -181,8 +181,9 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( sRenderTargetD
 		std::string texname = "buffer_tex" + std::to_string( i );
 
 		target.pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
+		sTexture& tex = m_textures.get( target.pTextures[ i ] );
 
-		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, target.pTextures[ i ].textureObjectHandle, 0 );
+		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
 	}
 
@@ -245,7 +246,7 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTarge
 	glDeleteRenderbuffers( 1, &rt.rbHandle );
 
 	for ( int i = 0; i < rt.numTextures; i++ )
-		destroyTexture( &rt.pTextures[ i ] );
+		destroyTexture( rt.pTextures[ i ] );
 
 	m_renderTargets.deallocate( _renderTargetID );
 #endif
@@ -735,7 +736,7 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( sMesh* _pMesh )
 #endif
 }
 
-wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
+wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 {
 	WV_TRACE();
 
@@ -744,7 +745,8 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	GLenum format = GL_RED;
 
 	sTextureDesc& desc = *_pDesc;
-	sTexture texture;
+	TextureID id = m_textures.allocate();
+	sTexture& texture = m_textures.get( id );
 	
 	switch ( desc.channels )
 	{
@@ -845,68 +847,75 @@ wv::sTexture wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	texture.width  = desc.width;
 	texture.height = desc.height;
 	
-	return texture;
-	// Debug::Print( Debug::WV_PRINT_DEBUG, "Created texture %s\n", _pTexture->getName().c_str() );
+	return id;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps )
+void wv::cOpenGLGraphicsDevice::bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sOpenGLTextureData* pPData = (sOpenGLTextureData*)_pTexture->pPlatformData;
+	sTexture& tex = m_textures.get( _textureID );
 
-	glTextureImage2DEXT( _pTexture->textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, _pTexture->width, _pTexture->height, 0, pPData->format, pPData->type, _pData );
+	sOpenGLTextureData* pPData = (sOpenGLTextureData*)tex.pPlatformData;
+
+	glTextureImage2DEXT( tex.textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, tex.width, tex.height, 0, pPData->format, pPData->type, _pData );
 	if ( _generateMipMaps )
 	{
-		WV_ASSERT_GL( glGenerateTextureMipmap( _pTexture->textureObjectHandle ) );
+		WV_ASSERT_GL( glGenerateTextureMipmap( tex.textureObjectHandle ) );
 	}
 	
-	_pTexture->textureHandle = WV_ASSERT_GL( glGetTextureHandleARB( _pTexture->textureObjectHandle ) );
+	tex.textureHandle = WV_ASSERT_GL( glGetTextureHandleARB( tex.textureObjectHandle ) );
 	
-	WV_ASSERT_GL( glMakeTextureHandleResidentARB( _pTexture->textureHandle ) );
+	WV_ASSERT_GL( glMakeTextureHandleResidentARB( tex.textureHandle ) );
 	
-	_pTexture->pData = (uint8_t*)_pData;
+	tex.pData = (uint8_t*)_pData;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyTexture( sTexture* _pTexture )
+void wv::cOpenGLGraphicsDevice::destroyTexture( TextureID _textureID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glMakeTextureHandleNonResidentARB( _pTexture->textureHandle );
+	sTexture& tex = m_textures.get( _textureID );
 
-	glDeleteTextures( 1, &_pTexture->textureObjectHandle );
-	if( _pTexture->pData )
+	glMakeTextureHandleNonResidentARB( tex.textureHandle );
+
+	glDeleteTextures( 1, &tex.textureObjectHandle );
+	if( tex.pData )
 	{
-		delete[] _pTexture->pData;
-		_pTexture->pData = nullptr;
+		delete[] tex.pData;
+		tex.pData = nullptr;
 	}
 
-	if( _pTexture->pPlatformData )
+	if( tex.pPlatformData )
 	{
-		delete _pTexture->pPlatformData;
-		_pTexture->pPlatformData = nullptr;
+		delete tex.pPlatformData;
+		tex.pPlatformData = nullptr;
 	}
+
+	m_textures.deallocate( _textureID );
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::bindTextureToSlot( sTexture* _pTexture, unsigned int _slot )
+void wv::cOpenGLGraphicsDevice::bindTextureToSlot( TextureID _textureID, unsigned int _slot )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
+	sTexture& tex = m_textures.get( _textureID );
+
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		WV_ASSERT_GL( glBindTextureUnit( _slot, _pTexture->textureObjectHandle ) );
+		WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
 	}
 	else
 	{
 		WV_ASSERT_GL( glActiveTexture( GL_TEXTURE0 + _slot ) );
-		WV_ASSERT_GL( glBindTexture( GL_TEXTURE_2D, _pTexture->textureObjectHandle ) );
+		WV_ASSERT_GL( glBindTexture( GL_TEXTURE_2D, tex.textureObjectHandle ) );
 	}
 #endif
 }

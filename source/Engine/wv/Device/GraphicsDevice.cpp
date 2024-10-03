@@ -191,7 +191,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			*(GPUBufferID*)( outPtr ) = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
 			break;
 
-		case WV_GPUTASK_ALLOCATE_BUFFER:
+		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
 			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() );
 			break;
 
@@ -212,23 +212,23 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
-			(sTexture&)*outPtr = createTexture( &stream.pop<sTextureDesc>() );
+			(TextureID&)( *outPtr ) = createTexture( &stream.pop<sTextureDesc>() );
 			break;
 
-		case WV_GPUTASK_BUFFER_TEXTURE_DATA:
+		case WV_GPUTASK_BUFFER_TEXTURE_DATA: // struct { TextureID tex; void* pData; bool generateMipMaps; };
 		{
-			sTexture* tex = stream.pop<sTexture*>();
+			TextureID& tex = *stream.pop<TextureID*>();
 			void* pData = stream.pop<void*>();
 			bool generateMipMaps = stream.pop<bool>();
 			bufferTextureData( tex, pData, generateMipMaps );
 		} break;
 
 		case WV_GPUTASK_DESTROY_TEXTURE:
-			destroyTexture( stream.pop<sTexture*>() );
+			destroyTexture( stream.pop<TextureID>() );
 			break;
 
-		case WV_GPUTASK_BIND_TEXTURE:
-			bindTextureToSlot( (sTexture*)outPtr, stream.pop<unsigned int>() );
+		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
+			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() );
 			break;
 		}
 	}

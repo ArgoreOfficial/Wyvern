@@ -402,7 +402,7 @@ void wv::cEngine::tick()
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.get( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
-			graphics->bindTextureToSlot( &rt.pTextures[ i ], i );
+			graphics->bindTextureToSlot( rt.pTextures[ i ], i );
 	}
 
 	// render screen quad with deferred shader

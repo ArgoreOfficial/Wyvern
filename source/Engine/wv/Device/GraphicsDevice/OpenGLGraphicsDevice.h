@@ -79,10 +79,10 @@ namespace wv
 		// Index > Ref > Pointer
 		//          - graphics man 2024
 
-		virtual sTexture createTexture    ( sTextureDesc* _pDesc )                    override;
-		virtual void     bufferTextureData( sTexture* _pTexture, void* _pData, bool _generateMipMaps ) override;
-		virtual void     destroyTexture   ( sTexture* _pTexture )                     override;
-		virtual void     bindTextureToSlot( sTexture* _pTexture, unsigned int _slot ) override;
+		virtual TextureID createTexture    ( sTextureDesc* _pDesc )                    override;
+		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
+		virtual void      destroyTexture   ( TextureID _textureID )                     override;
+		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) override;
 
 		virtual void bindVertexBuffer( sMesh* _pMesh, cPipelineResource* _pPipeline ) override;
 

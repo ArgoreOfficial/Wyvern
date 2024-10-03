@@ -155,7 +155,13 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 						continue;
 
 					if( var.name == "u_Albedo" )
-						instanceData.texturesHandles[ 0 ] = var.data.texture->m_texture.textureHandle;
+					{
+						if( var.data.texture->m_textureID.isValid() )
+						{
+							sTexture& tex = _pGraphicsDevice->m_textures.get( var.data.texture->m_textureID );
+							instanceData.texturesHandles[ 0 ] = tex.textureHandle;
+						}
+					}
 				}
 
 				instances.push_back( instanceData );
