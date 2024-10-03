@@ -461,8 +461,9 @@ void wv::SDLDeviceContext::pollEvents()
 
 		case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
-
+	#ifdef WV_SUPPORT_IMGUI
 		ImGui_ImplSDL2_ProcessEvent( &ev );
+	#endif
 	}
 #endif
 }
