@@ -558,6 +558,8 @@ wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( GPUBufferID _bufferI
 	if ( _desc->size > 0 )
 		allocateBuffer( _bufferID, _desc->size );
 	
+	buffer.complete = true;
+
 	return _bufferID;
 #else 
 	return GPUBufferID::InvalidID;
@@ -675,7 +677,8 @@ wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( TextureID _textureID, sT
 
 	sTextureDesc& desc = *_pDesc;
 	sTexture& texture = m_textures.get( _textureID );
-	
+	texture.numChannels = desc.numChannels;
+
 	switch ( desc.channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:

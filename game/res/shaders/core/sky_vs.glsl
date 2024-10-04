@@ -8,6 +8,8 @@ struct sInstance
 {
     mat4x4 Model;
     uvec2 TextureHandles[ 4 ];
+    int HasAlpha;
+    int padding0[3];
 };
 
 struct sVertex

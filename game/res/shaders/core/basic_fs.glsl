@@ -9,6 +9,7 @@ in vec3 Normal;
 in vec3 Pos;
 in flat int InstanceID;
 in flat sampler2D Albedo;
+in flat int HasAlpha;
 
 layout(location = 0) out vec4 o_Albedo;
 layout(location = 1) out vec4 o_Normal;
@@ -29,13 +30,39 @@ vec4 randVec4( int _id )
     );
 }
 
+bool shouldDiscardAlpha( float _alpha )
+{
+    if( _alpha <= 0.01 )
+        return true;
+
+    if( _alpha < 1.0 )
+    {
+        float threshold_matrix[4][4] = {
+            { 1.0  / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0},
+            { 13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0},
+            { 4.0  / 17.0, 12.0 / 17.0,  2.0 / 17.0, 10.0 / 17.0},
+            { 16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0}
+        };
+
+        if( _alpha - threshold_matrix[ int( gl_FragCoord.x ) % 4 ][ int( gl_FragCoord.y ) % 4 ] < 0.001 )
+            return true;
+        
+    }
+
+    return false;
+}
+
 void main()
 {
     vec3 normalColor = (Normal / 2.0) + vec3( 0.5 );
     
     // o_Albedo = randVec4( InstanceID + gl_PrimitiveID + 1 );
-    o_Albedo = texture( Albedo, TexCoord );
+    vec4 color = texture( Albedo, TexCoord );
 
+    if( HasAlpha == 1 && shouldDiscardAlpha( color.a ))
+        discard;
+
+    o_Albedo = color;
     o_Normal = vec4( Normal, 1.0 );
     o_RoughnessMetallic = vec4( 1.0 );
 }

@@ -26,7 +26,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	sTextureDesc desc;
 	
 	stbi_set_flip_vertically_on_load( 0 );
-	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &desc.width, &desc.height, &desc.numChannels, 3 ) );
+	m_pData = reinterpret_cast<uint8_t*>( stbi_load( m_path.c_str(), &desc.width, &desc.height, &desc.numChannels, 0 ) );
 
 	if ( !m_pData )
 	{
@@ -40,6 +40,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	
 	desc.filtering = m_filtering;
 	desc.generateMipMaps = true;
+	desc.channels = (TextureChannels)desc.numChannels;
 	CmdBufferID cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	
 	struct
@@ -54,7 +55,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	bufferData.pData = m_pData;
 	m_pData = nullptr; // move ownership
 
-	m_textureID = _pGraphicsDevice->cmdCreateTexture( cmdBuffer, desc ); // hack
+	m_textureID = _pGraphicsDevice->cmdCreateTexture( cmdBuffer, desc );
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) 

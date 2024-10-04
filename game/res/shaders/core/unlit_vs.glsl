@@ -8,6 +8,8 @@ struct sInstance
 {
     mat4x4 Model;
     uvec2 TextureHandles[ 4 ];
+    int HasAlpha;
+    int padding0[3];
 };
 
 struct sVertex
@@ -77,6 +79,7 @@ out vec2 TexCoord;
 out vec3 Normal;
 out vec3 Pos;
 out flat sampler2D Albedo;
+out flat int HasAlpha;
 
 void main()
 {
@@ -85,6 +88,7 @@ void main()
     Pos = getPosition( gl_VertexID );
 
     Albedo = getAlbedoSampler( gl_InstanceID );
+    HasAlpha = u_instances[ gl_InstanceID ].HasAlpha;
 
     gl_Position = u_Projection * u_View * u_Model * vec4( Pos, 1.0 );
 }

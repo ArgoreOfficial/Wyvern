@@ -80,7 +80,8 @@ namespace wv
 		int32_t  allocatedSize = 0;
 
 		int32_t bufferedSize = 0;
-		
+		bool complete = false;
+
 		void* pPlatformData = nullptr;
 
 	};

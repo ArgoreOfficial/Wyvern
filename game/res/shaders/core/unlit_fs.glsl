@@ -8,6 +8,7 @@ in vec2 TexCoord;
 in vec3 Normal;
 in vec3 Pos;
 in flat sampler2D Albedo;
+in flat int HasAlpha;
 
 layout(location = 0) out vec4 o_Albedo;
 layout(location = 1) out vec4 o_Normal;

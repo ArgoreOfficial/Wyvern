@@ -170,6 +170,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 						{
 							sTexture& tex = _pGraphicsDevice->m_textures.get( var.data.texture->m_textureID );
 							instanceData.texturesHandles[ 0 ] = tex.textureHandle;
+							instanceData.hasAlpha = tex.numChannels == 4;
 						}
 					}
 				}
@@ -190,10 +191,13 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			if( SbInstanceData.isValid() )
 			{
 				wv::cGPUBuffer& SbInstanceDataBuffer = _pGraphicsDevice->m_gpuBuffers.get( SbInstanceData );
-				SbInstanceDataBuffer.buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+				if ( SbInstanceDataBuffer.complete )
+				{
+					SbInstanceDataBuffer.buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+					_pGraphicsDevice->bufferData( SbInstanceData );
+				}
 			}
 	
-			_pGraphicsDevice->bufferData( SbInstanceData );
 			_pGraphicsDevice->bufferData( UbInstanceData );
 
 			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh.indexBufferID );

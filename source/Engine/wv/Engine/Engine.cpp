@@ -534,14 +534,8 @@ void wv::cEngine::createGBuffer()
 #ifdef WV_PLATFORM_WINDOWS
 	sTextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE },
-	#ifdef EMSCRIPTEN
-		// WebGL doesn't seem to support FLOAT R, RG, or RGB
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT },
-		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_FLOAT }
-	#else
 		{ wv::WV_TEXTURE_CHANNELS_RGB, wv::WV_TEXTURE_FORMAT_FLOAT },
 		{ wv::WV_TEXTURE_CHANNELS_RG,  wv::WV_TEXTURE_FORMAT_FLOAT }
-	#endif
 	};
 	rtDesc.pTextureDescs = texDescs;
 	rtDesc.numTextures = 3;
