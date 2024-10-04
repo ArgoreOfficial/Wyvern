@@ -10,6 +10,9 @@ namespace wv
     template<typename T, typename Tag>
     struct sStrongID
     {
+        sStrongID( void )        : value{ InvalidID } { }
+        sStrongID( const T& _v ) : value{ _v }        { }
+
         static constexpr T InvalidID = 0;
         T value = InvalidID;
 

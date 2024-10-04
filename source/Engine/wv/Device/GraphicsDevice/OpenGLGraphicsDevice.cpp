@@ -306,12 +306,13 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 #endif
 }
 
-wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc* _desc )
+wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	ShaderProgramID id = m_shaderPrograms.allocate();
+	if( !_shaderID.isValid() )
+		_shaderID = m_shaderPrograms.allocate();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
@@ -323,7 +324,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
-	sShaderProgram& program = m_shaderPrograms.get( id );
+	sShaderProgram& program = m_shaderPrograms.get( _shaderID );
 	program.type = type;
 	program.source = source;
 
@@ -431,9 +432,9 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		program.shaderBuffers.push_back( bufID );
 	}
 
-	return id;
+	return _shaderID;
 #else
-	return ShaderProgramID{ 0 };
+	return ShaderProgramID::InvalidID;
 #endif
 }
 

@@ -169,9 +169,18 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 
 		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
 
-		case WV_GPUTASK_CREATE_PROGRAM: 
-			(ShaderProgramID&)( *outPtr ) = createProgram( &stream.pop<sShaderProgramDesc>() );
+		case WV_GPUTASK_CREATE_PROGRAM:
+		{
+			struct sDescData
+			{
+				ShaderProgramID id;
+				sShaderProgramDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
+			createProgram( descData.id, &descData.desc );
+
 			break;
+		}
 
 		case WV_GPUTASK_DESTROY_PROGRAM: 
 			destroyProgram( stream.pop<ShaderProgramID>() ); 
@@ -253,6 +262,21 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( uint32_t& _rBuffer, const sShaderProgramDesc& _desc )
+{
+	ShaderProgramID id = m_shaderPrograms.allocate();
+	struct
+	{
+		ShaderProgramID id;
+		sShaderProgramDesc desc;
+	} desc;
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _rBuffer, WV_GPUTASK_CREATE_PROGRAM, &desc );
+	return id;
+}
 
 void wv::iGraphicsDevice::setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {

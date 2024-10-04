@@ -53,8 +53,9 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 	desc.pFragmentProgram = &m_fs;
 
 	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, (void**)&m_vs, &vsDesc );
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PROGRAM, (void**)&m_fs, &fsDesc );
+	m_vs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, vsDesc );
+	m_fs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, fsDesc );
+	
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, (void**)&m_pipelineID, &desc);
 
 	/// this is disgusting

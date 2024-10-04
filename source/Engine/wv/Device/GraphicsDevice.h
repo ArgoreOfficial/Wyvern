@@ -85,6 +85,8 @@ namespace wv
 		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _rBuffer, _type, nullptr, _pInfo ); }
 		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _rBuffer, _type, nullptr, nullptr ); }
 
+		ShaderProgramID cmdCreateProgram( uint32_t& _rBuffer, const sShaderProgramDesc& _desc );
+
 		void setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
 
@@ -103,7 +105,7 @@ namespace wv
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual ShaderProgramID createProgram( sShaderProgramDesc* _desc ) = 0;
+		virtual ShaderProgramID createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) = 0;
 		virtual void destroyProgram( ShaderProgramID _programID ) = 0;
 
 		virtual PipelineID createPipeline ( sPipelineDesc* _desc ) = 0;
