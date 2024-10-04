@@ -185,7 +185,7 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetID
 	
 	target.numTextures = desc.numTextures;
 	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
-	target.pTextures = new TextureID[ desc.numTextures ];
+	target.pTextureIDs = new TextureID[ desc.numTextures ];
 
 	for ( int i = 0; i < desc.numTextures; i++ )
 	{
@@ -194,8 +194,8 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetID
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target.pTextures[ i ] = createTexture( 0, &desc.pTextureDescs[ i ] );
-		sTexture& tex = m_textures.get( target.pTextures[ i ] );
+		target.pTextureIDs[ i ] = createTexture( 0, &desc.pTextureDescs[ i ] );
+		sTexture& tex = m_textures.get( target.pTextureIDs[ i ] );
 
 		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
@@ -260,7 +260,7 @@ void wv::cOpenGLGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTarge
 	glDeleteRenderbuffers( 1, &rt.rbHandle );
 
 	for ( int i = 0; i < rt.numTextures; i++ )
-		destroyTexture( rt.pTextures[ i ] );
+		destroyTexture( rt.pTextureIDs[ i ] );
 
 	m_renderTargets.deallocate( _renderTargetID );
 #endif
@@ -308,13 +308,13 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 #endif
 }
 
-wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc )
+wv::ProgramID wv::cOpenGLGraphicsDevice::createProgram( ProgramID _programID, sProgramDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( !_shaderID.isValid() )
-		_shaderID = m_shaderPrograms.allocate();
+	if( !_programID.isValid() )
+		_programID = m_programs.allocate();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
@@ -322,11 +322,11 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _s
 	if( source.data->size == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
-		return ShaderProgramID{ 0 };
+		return ProgramID::InvalidID;
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
-	sShaderProgram& program = m_shaderPrograms.get( _shaderID );
+	sProgram& program = m_programs.get( _programID );
 	program.type = type;
 	program.source = source;
 
@@ -434,13 +434,13 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _s
 		program.shaderBuffers.push_back( bufID );
 	}
 
-	return _shaderID;
+	return _programID;
 #else
 	return ShaderProgramID::InvalidID;
 #endif
 }
 
-void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
+void wv::cOpenGLGraphicsDevice::destroyProgram( ProgramID _programID )
 {
 	WV_TRACE();
 
@@ -448,14 +448,14 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 	if( !_programID.isValid() )
 		return;
 
-	sShaderProgram& program = m_shaderPrograms.get( _programID );
+	sProgram& program = m_programs.get( _programID );
 
 	WV_ASSERT_GL( glDeleteProgram( program.handle ) );
 	
 	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
 	
-	m_shaderPrograms.deallocate( _programID );
+	m_programs.deallocate( _programID );
 #endif
 }
 
@@ -470,30 +470,23 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( PipelineID _pipelineID
 		_pipelineID = m_pipelines.allocate();
 
 	sPipeline& pipeline = m_pipelines.get( _pipelineID );
-	
+	pipeline.vertexProgramID   = desc.vertexProgramID;
+	pipeline.fragmentProgramID = desc.fragmentProgramID;
+
 	WV_ASSERT_GL( glCreateProgramPipelines( 1, &pipeline.handle ) );
 	
 	if( pipeline.handle == 0 )
 	{
 		m_pipelines.deallocate( _pipelineID );
-		return PipelineID{ 0 };
+		return PipelineID::InvalidID;
 	}
 
-	if ( desc.pVertexProgram )
-	{
-		//sShaderProgram& vs = *m_shaderPrograms.at( *desc.pVertexProgram );
-		sShaderProgram& vs = m_shaderPrograms.get( *desc.pVertexProgram );
-		WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT, vs.handle ) );
-		pipeline.pVertexProgram   = *desc.pVertexProgram;
-	}
-	if ( desc.pFragmentProgram )
-	{
-		//sShaderProgram& fs = *m_shaderPrograms.at( *desc.pFragmentProgram );
-		sShaderProgram& fs = m_shaderPrograms.get( *desc.pFragmentProgram );
-		WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle ) );
-		pipeline.pFragmentProgram = *desc.pFragmentProgram;
-	}
-
+	sProgram& vs = m_programs.get( desc.vertexProgramID );
+	sProgram& fs = m_programs.get( desc.fragmentProgramID );
+	
+	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle ) );
+	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle ) );
+	
 	return _pipelineID;
 #else
 	return PipelineID::InvalidID;
@@ -509,8 +502,8 @@ void wv::cOpenGLGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 
 	WV_ASSERT_GL( glDeleteProgramPipelines( 1, &pipeline.handle ) );
 	
-	destroyProgram( pipeline.pVertexProgram );
-	destroyProgram( pipeline.pFragmentProgram );
+	destroyProgram( pipeline.vertexProgramID );
+	destroyProgram( pipeline.fragmentProgramID );
 
 	if( pipeline.pPlatformData )
 		delete pipeline.pPlatformData;
@@ -567,12 +560,12 @@ wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( GPUBufferID _bufferI
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::bufferData( GPUBufferID _buffer )
+void wv::cOpenGLGraphicsDevice::bufferData( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
+	cGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 
 	if ( buffer.pData == nullptr || buffer.size == 0 )
 	{
@@ -604,12 +597,12 @@ void wv::cOpenGLGraphicsDevice::bufferData( GPUBufferID _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::allocateBuffer( GPUBufferID _buffer, size_t _size )
+void wv::cOpenGLGraphicsDevice::allocateBuffer( GPUBufferID _bufferID, size_t _size )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
+	cGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 
 	if ( buffer.pData )
 		delete[] buffer.pData;
@@ -625,12 +618,12 @@ void wv::cOpenGLGraphicsDevice::allocateBuffer( GPUBufferID _buffer, size_t _siz
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
+void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	cGPUBuffer& buffer = m_gpuBuffers.get( _buffer );
+	cGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 
 	if( buffer.pPlatformData )
 	{
@@ -657,7 +650,7 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
 		buffer.pData = nullptr;
 	}
 
-	m_gpuBuffers.deallocate( _buffer );
+	m_gpuBuffers.deallocate( _bufferID );
 #endif
 }
 
@@ -679,15 +672,15 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _de
 	vbDesc.type  = WV_BUFFER_TYPE_VERTEX;
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size  = _desc->sizeVertices;
-	mesh.pVertexBuffer = createGPUBuffer( 0, &vbDesc );
-	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
+	mesh.vertexBufferID = createGPUBuffer( 0, &vbDesc );
+	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.vertexBufferID );
 	mesh.pMaterial = _desc->pMaterial;
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	vertexBuffer.count = count;
 	
 	vertexBuffer.buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
-	bufferData( mesh.pVertexBuffer );
+	bufferData( mesh.vertexBufferID );
 	delete[] vertexBuffer.pData;
 	vertexBuffer.pData = nullptr;
 
@@ -701,8 +694,8 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _de
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
 
-		mesh.pIndexBuffer = createGPUBuffer( 0, &ibDesc );
-		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.pIndexBuffer );
+		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
+		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
 
 		indexBuffer.count = _desc->numIndices;
 		
@@ -710,18 +703,18 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _de
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
 
-			allocateBuffer( mesh.pIndexBuffer, bufferSize );
+			allocateBuffer( mesh.indexBufferID, bufferSize );
 			indexBuffer.buffer( _desc->pIndices16, bufferSize );
 		}
 		else if ( _desc->pIndices32 )
 		{
 			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
 
-			allocateBuffer( mesh.pIndexBuffer, bufferSize );
+			allocateBuffer( mesh.indexBufferID, bufferSize );
 			indexBuffer.buffer( _desc->pIndices32, bufferSize );
 		}
 
-		bufferData( mesh.pIndexBuffer );
+		bufferData( mesh.indexBufferID );
 		delete[] indexBuffer.pData;
 		indexBuffer.pData = nullptr;
 	}
@@ -754,8 +747,8 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( MeshID _meshID )
 #ifdef WV_SUPPORT_OPENGL
 	sMesh& mesh = m_meshes.get( _meshID );
 
-	destroyGPUBuffer( mesh.pIndexBuffer );
-	destroyGPUBuffer( mesh.pVertexBuffer );
+	destroyGPUBuffer( mesh.indexBufferID );
+	destroyGPUBuffer( mesh.vertexBufferID );
 
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
@@ -963,17 +956,17 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( MeshID _meshID, cPipelineResou
 	wv::GPUBufferID SbVerticesID = _pPipeline->getShaderBuffer( "SbVertices" );
 	sMesh& mesh = m_meshes.get( _meshID );
 
-	if( SbVerticesID.isValid() && mesh.pVertexBuffer.isValid() )
+	if( SbVerticesID.isValid() && mesh.vertexBufferID.isValid() )
 	{
 		wv::cGPUBuffer& SbVertices = m_gpuBuffers.get( SbVerticesID );
 		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
-		cGPUBuffer& vbuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
+		cGPUBuffer& vbuffer = m_gpuBuffers.get( mesh.vertexBufferID );
 		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle, 0, vbuffer.size );
 	}
 	
 	// move?
-	cGPUBuffer& ibuffer = m_gpuBuffers.get( mesh.pIndexBuffer );
+	cGPUBuffer& ibuffer = m_gpuBuffers.get( mesh.indexBufferID );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
 	
 #endif
@@ -1009,12 +1002,12 @@ void wv::cOpenGLGraphicsDevice::draw( MeshID _meshID )
 	/// TODO: change GL_TRIANGLES
 	if ( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.pIndexBuffer );
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.indexBufferID );
 		drawIndexed( buffer.count );
 	}
 	else
 	{ 
-		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.pVertexBuffer );
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
 		glDrawArrays( GL_TRIANGLES, 0, buffer.count );
 	}
 #endif

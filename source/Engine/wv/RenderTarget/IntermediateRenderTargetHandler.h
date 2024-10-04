@@ -19,7 +19,7 @@ namespace wv
 
 		virtual void draw( iGraphicsDevice* _pGraphics ) = 0;
 
-		RenderTargetID m_pRenderTarget{};
+		RenderTargetID m_renderTarget{};
 
 	};
 }

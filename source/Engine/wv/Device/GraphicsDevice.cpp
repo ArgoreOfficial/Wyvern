@@ -162,7 +162,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<ShaderProgramID, sShaderProgramDesc>>();
+			auto descData = stream.pop<sCmdCreateDesc<ProgramID, sProgramDesc>>();
 			createProgram( descData.id, &descData.desc );
 		} break;
 
@@ -202,7 +202,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		case WV_GPUTASK_DESTROY_MESH:         destroyMesh        ( stream.pop<MeshID>() );          break;
 		case WV_GPUTASK_DESTROY_BUFFER:       destroyGPUBuffer   ( stream.pop<GPUBufferID>() );     break;
 		case WV_GPUTASK_DESTROY_PIPELINE:     destroyPipeline    ( stream.pop<PipelineID>() );      break;
-		case WV_GPUTASK_DESTROY_PROGRAM:      destroyProgram     ( stream.pop<ShaderProgramID>() ); break;
+		case WV_GPUTASK_DESTROY_PROGRAM:      destroyProgram     ( stream.pop<ProgramID>() ); break;
 		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() );  break;
 
 		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
@@ -236,9 +236,9 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc )
+wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
 {
-	ShaderProgramID id = m_shaderPrograms.allocate();
+	ProgramID id = m_programs.allocate();
 	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
 	return id;
 }

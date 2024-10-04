@@ -40,8 +40,8 @@ namespace wv
 	struct sPipeline;
 	struct sPipelineDesc;
 
-	struct sShaderProgram;
-	struct sShaderProgramDesc;
+	struct sProgram;
+	struct sProgramDesc;
 
 	struct sRenderTarget;
 	struct sRenderTargetDesc;
@@ -89,12 +89,12 @@ namespace wv
 		template<typename ID, typename T>
 		void bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
 
-		ShaderProgramID cmdCreateProgram     ( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
-		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+		ProgramID cmdCreateProgram     ( CmdBufferID _bufferID, const sProgramDesc&      _desc );
+		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc&     _desc );
 		RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
-		GPUBufferID     cmdCreateGPUBuffer   ( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
-		MeshID          cmdCreateMesh        ( CmdBufferID _bufferID, const sMeshDesc& _desc );
-		TextureID       cmdCreateTexture     ( CmdBufferID _bufferID, const sTextureDesc& _desc );
+		GPUBufferID     cmdCreateGPUBuffer   ( CmdBufferID _bufferID, const sGPUBufferDesc&    _desc );
+		MeshID          cmdCreateMesh        ( CmdBufferID _bufferID, const sMeshDesc&         _desc );
+		TextureID       cmdCreateTexture     ( CmdBufferID _bufferID, const sTextureDesc&      _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
@@ -111,11 +111,11 @@ namespace wv
 		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID ) = 0;
 
-		virtual void setClearColor( const wv::cColor& _color ) = 0;
+		virtual void setClearColor    ( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual ShaderProgramID createProgram ( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) = 0;
-		virtual void            destroyProgram( ShaderProgramID _programID ) = 0;
+		virtual ProgramID createProgram ( ProgramID _programID, sProgramDesc* _desc ) = 0;
+		virtual void      destroyProgram( ProgramID _programID ) = 0;
 
 		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) = 0;
 		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
@@ -144,12 +144,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		cObjectHandleContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
-		cObjectHandleContainer<sPipeline,      PipelineID>      m_pipelines;
-		cObjectHandleContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
-		cObjectHandleContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
-		cObjectHandleContainer<sTexture,       TextureID>       m_textures;
-		cObjectHandleContainer<sMesh,          MeshID>          m_meshes;
+		cObjectHandleContainer<sProgram,      ProgramID>      m_programs;
+		cObjectHandleContainer<sPipeline,     PipelineID>     m_pipelines;
+		cObjectHandleContainer<sRenderTarget, RenderTargetID> m_renderTargets;
+		cObjectHandleContainer<cGPUBuffer,    GPUBufferID>    m_gpuBuffers;
+		cObjectHandleContainer<sTexture,      TextureID>      m_textures;
+		cObjectHandleContainer<sMesh,         MeshID>         m_meshes;
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 

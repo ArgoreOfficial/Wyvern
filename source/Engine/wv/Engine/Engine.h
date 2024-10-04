@@ -118,7 +118,7 @@ namespace wv
 		iCamera* freeflightCamera = nullptr;
 
 		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
-		RenderTargetID m_pScreenRenderTarget{};
+		RenderTargetID m_screenRenderTarget{};
 
 		cApplicationState* m_pApplicationState = nullptr;
 

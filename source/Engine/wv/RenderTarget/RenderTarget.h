@@ -27,7 +27,7 @@ namespace wv
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;
 
-		wv::TextureID* pTextures = nullptr;
+		wv::TextureID* pTextureIDs = nullptr;
 		int numTextures = 0;
 
 		int width = 0;

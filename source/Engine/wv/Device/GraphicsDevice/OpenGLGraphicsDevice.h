@@ -53,24 +53,24 @@ namespace wv
 
 		virtual void beginRender() override;
 
-		virtual RenderTargetID createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) override;
-		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) override;
-		virtual void setRenderTarget( RenderTargetID _renderTargetID ) override;
+		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) override;
+		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) override;
+		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID ) override;
 
-		virtual void setClearColor( const wv::cColor& _color ) override;
+		virtual void setClearColor    ( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
-		virtual ShaderProgramID createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) override;
-		virtual void destroyProgram( ShaderProgramID _pProgram ) override;
+		virtual ProgramID createProgram ( ProgramID _programID, sProgramDesc* _desc ) override;
+		virtual void      destroyProgram( ProgramID _programID ) override;
 
 		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) override;
 		virtual void       destroyPipeline( PipelineID _pipelineID ) override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) override;
 
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) override;
-		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size ) override;
-		virtual void        bufferData      ( GPUBufferID _buffer ) override;
-		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) override;
+		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size ) override;
+		virtual void        bufferData      ( GPUBufferID _bufferID ) override;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID ) override;
 		
 		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc )      override;
 		virtual void   destroyMesh( MeshID _meshID ) override;
@@ -102,7 +102,7 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		/// TODO: remove?
-		PipelineID m_activePipeline{};
+		PipelineID     m_activePipeline{};
 		RenderTargetID m_activeRenderTarget{};
 
 		wv::Handle m_vaoHandle = 0;

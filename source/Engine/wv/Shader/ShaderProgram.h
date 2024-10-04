@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 
 #include <wv/Resource/Resource.h>
 
@@ -30,11 +31,9 @@ namespace wv
 	struct sPipeline
 	{
 		wv::Handle handle;
-
 		std::string name;
-		
-		ShaderProgramID pVertexProgram;
-		ShaderProgramID pFragmentProgram;
+		ProgramID vertexProgramID{};
+		ProgramID fragmentProgramID{};
 
 		void* pPlatformData;
 	};
@@ -42,11 +41,9 @@ namespace wv
 	struct sPipelineDesc
 	{
 		std::string name;
-
 		sVertexLayout* pVertexLayout = nullptr;
-
-		ShaderProgramID* pVertexProgram = nullptr;
-		ShaderProgramID* pFragmentProgram = nullptr;
+		ProgramID vertexProgramID{};
+		ProgramID fragmentProgramID{};
 
 		bool reflect = true;
 	};
@@ -63,18 +60,16 @@ namespace wv
 		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
 		
-		void use( iGraphicsDevice* _pGraphicsDevice );
+		void bind( iGraphicsDevice* _pGraphicsDevice );
 
+		PipelineID  getPipelineID() { return m_pipelineID; }
 		GPUBufferID getShaderBuffer( const std::string& _name );
 
 		sShaderProgramSource m_fsSource{};
 		sShaderProgramSource m_vsSource{};
 
-		ShaderProgramID m_vs{};
-		ShaderProgramID m_fs{};
-
-		PipelineID m_pipelineID{};
 	private:
+		PipelineID m_pipelineID{};
 
 	};
 

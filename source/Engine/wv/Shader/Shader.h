@@ -16,7 +16,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct Memory;
-	struct sShaderProgram;
+	struct sProgram;
 
 	enum eShaderProgramType
 	{
@@ -29,13 +29,13 @@ namespace wv
 		Memory* data;
 	};
 
-	struct sShaderProgramDesc
+	struct sProgramDesc
 	{
 		eShaderProgramType type;
 		sShaderProgramSource source;
 	};
 
-	struct sShaderProgram
+	struct sProgram
 	{
 		Handle handle;
 

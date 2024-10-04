@@ -25,11 +25,11 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
 	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
 
-	sShaderProgramDesc vsDesc;
+	sProgramDesc vsDesc;
 	vsDesc.source = m_vsSource;
 	vsDesc.type = WV_SHADER_TYPE_VERTEX;
 
-	sShaderProgramDesc fsDesc;
+	sProgramDesc fsDesc;
 	fsDesc.source = m_fsSource;
 	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
@@ -48,23 +48,19 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 	layout.elements = attributes;
 	layout.numElements = 5;
 
-	desc.pVertexLayout    = &layout;
-	desc.pVertexProgram   = &m_vs;
-	desc.pFragmentProgram = &m_fs;
+	desc.pVertexLayout = &layout;
 
 	CmdBufferID cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	m_vs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, vsDesc );
-	m_fs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, fsDesc );
+	desc.vertexProgramID   = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, vsDesc );
+	desc.fragmentProgramID = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, fsDesc );
+
 	m_pipelineID = _pGraphicsDevice->cmdCreatePipeline( cmdBuffer, desc );
 
-	/// this is disgusting
-	auto cb =
-		[]( void* _c ) 
+	auto cb = []( void* _c ) 
 		{ 
 			iResource* res = (iResource*)_c;
 			res->setComplete( true ); 
 		};
-
 	_pGraphicsDevice->setCommandBufferCallback( cmdBuffer, cb, (void*)this );
 
 	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
@@ -81,12 +77,9 @@ void wv::cPipelineResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* 
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
 	_pGraphicsDevice->destroyPipeline( m_pipelineID );
-
-	m_vs.invalidate(); // destroyed by destroyPipeline
-	m_fs.invalidate();
 }
 
-void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
+void wv::cPipelineResource::bind( iGraphicsDevice* _pGraphicsDevice )
 {
 	if ( !m_pipelineID.isValid() )
 		return;
@@ -105,8 +98,8 @@ wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name
 
 	sPipeline& pipeline = pGraphics->m_pipelines.get( m_pipelineID );
 
-	sShaderProgram& vs = pGraphics->m_shaderPrograms.get( pipeline.pVertexProgram );
-	sShaderProgram& fs = pGraphics->m_shaderPrograms.get( pipeline.pFragmentProgram );
+	sProgram& vs = pGraphics->m_programs.get( pipeline.vertexProgramID );
+	sProgram& fs = pGraphics->m_programs.get( pipeline.fragmentProgramID );
 
 	for( GPUBufferID bufID : vs.shaderBuffers )
 	{
@@ -122,5 +115,5 @@ wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name
 			return bufID;
 	}
 
-	return GPUBufferID{ GPUBufferID::InvalidID };
+	return GPUBufferID::InvalidID;
 }

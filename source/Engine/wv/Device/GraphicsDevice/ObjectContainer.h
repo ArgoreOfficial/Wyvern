@@ -47,6 +47,8 @@ namespace wv
 			return ( (T*)m_pObjectBuffer )[ index ];
 		}
 
+		size_t numIDs() { return m_IDs.size(); }
+
 	private:
 
 		std::set<ID> m_IDs;

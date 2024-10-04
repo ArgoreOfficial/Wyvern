@@ -78,8 +78,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		m_pIRTHandler->create( graphics );
 
 
-	m_pScreenRenderTarget = graphics->m_renderTargets.allocate();
-	sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
+	m_screenRenderTarget = graphics->m_renderTargets.allocate();
+	sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
 	rt.width = _desc->windowWidth;
 	rt.height = _desc->windowHeight;
 	rt.fbHandle = 0;
@@ -113,7 +113,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	}
 #endif
 	
-	graphics->setRenderTarget( m_pScreenRenderTarget );
+	graphics->setRenderTarget( m_screenRenderTarget );
 	graphics->setClearColor( wv::Color::Black );
 
 	initImgui();
@@ -218,9 +218,9 @@ wv::Vector2i wv::cEngine::getViewportSize()
 {
 	if( m_pIRTHandler )
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_pRenderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_renderTarget );
 
-		if( m_pIRTHandler->m_pRenderTarget.isValid() )
+		if( m_pIRTHandler->m_renderTarget.isValid() )
 			return { rt.width, rt.height };
 		else
 			return { 1,1 };
@@ -357,7 +357,7 @@ void wv::cEngine::tick()
 #endif
 
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
 		if ( rt.width == 0 || rt.height == 0 )
 			return;
 	}
@@ -390,11 +390,11 @@ void wv::cEngine::tick()
 #ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
 	{
-		if( m_pIRTHandler->m_pRenderTarget.isValid() )
-			graphics->setRenderTarget( m_pIRTHandler->m_pRenderTarget );
+		if( m_pIRTHandler->m_renderTarget.isValid() )
+			graphics->setRenderTarget( m_pIRTHandler->m_renderTarget );
 	}
 	else
-		graphics->setRenderTarget( m_pScreenRenderTarget );
+		graphics->setRenderTarget( m_screenRenderTarget );
 	
 	graphics->clearRenderTarget( true, true );
 
@@ -402,25 +402,25 @@ void wv::cEngine::tick()
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.get( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
-			graphics->bindTextureToSlot( rt.pTextures[ i ], i );
+			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
 
 	// render screen quad with deferred shader
 	{
-		m_deferredPipeline->use( graphics );
+		m_deferredPipeline->bind( graphics );
 
 		wv::GPUBufferID UbInstanceDataID = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
 		graphics->bufferData( UbInstanceDataID );
 
 		graphics->bindVertexBuffer( m_screenQuad, m_deferredPipeline );
 		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.pIndexBuffer );
+		cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
 		graphics->drawIndexed( ibuffer.count );
 	}
 
 	if( m_pIRTHandler )
 	{
-		graphics->setRenderTarget( m_pScreenRenderTarget );
+		graphics->setRenderTarget( m_screenRenderTarget );
 		graphics->clearRenderTarget( true, true );
 		m_pIRTHandler->draw( graphics );
 	}
@@ -442,9 +442,9 @@ void wv::cEngine::tick()
 			m_pIRTHandler->destroy();
 			m_pIRTHandler->create( graphics );
 
-			if( m_pIRTHandler->m_pRenderTarget.isValid() )
+			if( m_pIRTHandler->m_renderTarget.isValid() )
 			{
-				sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_pRenderTarget );
+				sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_renderTarget );
 				recreateScreenRenderTarget( rt.width, rt.height );
 			}
 		}
@@ -559,7 +559,7 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 {
 	graphics->onResize( _width, _height );
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_pScreenRenderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
 
 		// recreate render target
 		rt.width = _width;

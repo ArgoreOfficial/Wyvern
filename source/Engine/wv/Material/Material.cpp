@@ -89,7 +89,7 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphi
 
 void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
 {
-	m_pPipeline->use( _device );
+	m_pPipeline->bind( _device );
 	setMaterialUniforms();
 }
 

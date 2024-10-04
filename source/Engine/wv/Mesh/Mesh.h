@@ -67,8 +67,8 @@ namespace wv
 		Transformf transform{};
 
 		wv::Handle handle = 0;
-		GPUBufferID pVertexBuffer{};
-		GPUBufferID pIndexBuffer{};
+		GPUBufferID vertexBufferID{};
+		GPUBufferID indexBufferID{};
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
