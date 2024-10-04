@@ -86,6 +86,9 @@ namespace wv
 		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
 		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char>( _bufferID, _type, nullptr ); }
 
+		template<typename ID, typename T>
+		void bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
+
 		ShaderProgramID cmdCreateProgram     ( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
 		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc& _desc );
 		RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
@@ -104,15 +107,15 @@ namespace wv
 		virtual void beginRender();
 		virtual void endRender();
 
-		virtual RenderTargetID createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
-		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
-		virtual void setRenderTarget( RenderTargetID _renderTargetID ) = 0;
+		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
+		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
+		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID ) = 0;
 
 		virtual void setClearColor( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-		virtual ShaderProgramID createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) = 0;
-		virtual void destroyProgram( ShaderProgramID _programID ) = 0;
+		virtual ShaderProgramID createProgram ( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) = 0;
+		virtual void            destroyProgram( ShaderProgramID _programID ) = 0;
 
 		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) = 0;
 		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
@@ -123,7 +126,7 @@ namespace wv
 		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
 		
-		virtual MeshID createMesh( MeshID _meshID, sMeshDesc* _desc ) = 0;
+		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc ) = 0;
 		virtual void   destroyMesh( MeshID _meshID ) = 0;
 
 		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    = 0;
@@ -178,5 +181,12 @@ namespace wv
 		m_mutex.lock();
 		m_commandBuffers[ _bufferID.value ].push<T>( _type, _pInfo );
 		m_mutex.unlock();
+	}
+
+	template<typename ID, typename T>
+	inline void iGraphicsDevice::bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
+	{
+		sCmdCreateDesc<ID, T> desc{ _id, _desc };
+		bufferCommand( _bufferID, _task, &desc );
 	}
 }

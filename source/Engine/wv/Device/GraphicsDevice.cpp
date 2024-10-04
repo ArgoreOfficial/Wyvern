@@ -239,54 +239,42 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc )
 {
 	ShaderProgramID id = m_shaderPrograms.allocate();
-	sCmdCreateDesc<ShaderProgramID, sShaderProgramDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
 	return id;
 }
 
 wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.allocate();
-	sCmdCreateDesc<PipelineID, sPipelineDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
 	return id;
 }
 
 wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.allocate();
-	sCmdCreateDesc<RenderTargetID, sRenderTargetDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
 	return id;
 }
 
 wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.allocate();
-	sCmdCreateDesc<GPUBufferID, sGPUBufferDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
 	return id;
 }
 
 wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
 	MeshID  id = m_meshes.allocate();
-	sCmdCreateDesc<MeshID, sMeshDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_MESH, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
 	return id;
 }
 
 wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.allocate();
-	sCmdCreateDesc<TextureID, sTextureDesc> desc{ id, _desc };
-
-	bufferCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, &desc );
+	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
 	return id;
 }
 
