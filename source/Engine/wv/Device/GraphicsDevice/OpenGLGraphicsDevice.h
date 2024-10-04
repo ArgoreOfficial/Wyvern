@@ -19,13 +19,19 @@ namespace wv
 
 #ifdef WV_SUPPORT_OPENGL
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 	WV_DEFINE_ID( BufferBindingIndex );
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sOpenGLBufferData
 	{
 		wv::Handle blockIndex = 0;
 		BufferBindingIndex bindingIndex{};
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sOpenGLTextureData
 	{
@@ -98,6 +104,8 @@ namespace wv
 		bool assertGLError( const std::string _msg, Args..._args );
 		bool getError( std::string* _out );
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
 
@@ -109,7 +117,9 @@ namespace wv
 		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_uniformBindingIndices;
 		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_ssboBindingIndices;
 	};
-	
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 	template<typename ...Args>
 	inline bool cOpenGLGraphicsDevice::assertGLError( const std::string _msg, Args ..._args )
 	{
@@ -122,4 +132,5 @@ namespace wv
 
 		return false;
 	}
+
 }

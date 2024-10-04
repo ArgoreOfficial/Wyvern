@@ -54,6 +54,8 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 	return device;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::iGraphicsDevice::initEmbeds()
 {
 	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
@@ -241,12 +243,16 @@ wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, cons
 	return id;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.allocate();
 	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
 	return id;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
@@ -255,12 +261,16 @@ wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _buff
 	return id;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.allocate();
 	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
 	return id;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
@@ -269,12 +279,16 @@ wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMes
 	return id;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.allocate();
 	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
 	return id;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
@@ -284,6 +298,8 @@ void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::F
 	buffer.callbacker = _caller;
 	m_mutex.unlock();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::beginRender()
 {
@@ -305,6 +321,8 @@ void wv::iGraphicsDevice::endRender()
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iGraphicsDevice::iGraphicsDevice()
 {

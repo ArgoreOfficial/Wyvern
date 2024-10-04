@@ -79,7 +79,7 @@ namespace wv
 
 		[[nodiscard]] CmdBufferID getCommandBuffer();
 		
-		void submitCommandBuffer( CmdBufferID _bufferID );
+		void submitCommandBuffer ( CmdBufferID _bufferID );
 		void executeCommandBuffer( CmdBufferID _bufferID );
 
 		template<typename T>
@@ -89,7 +89,7 @@ namespace wv
 		template<typename ID, typename T>
 		void bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
 
-		ProgramID cmdCreateProgram     ( CmdBufferID _bufferID, const sProgramDesc&      _desc );
+		ProgramID       cmdCreateProgram     ( CmdBufferID _bufferID, const sProgramDesc&      _desc );
 		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc&     _desc );
 		RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
 		GPUBufferID     cmdCreateGPUBuffer   ( CmdBufferID _bufferID, const sGPUBufferDesc&    _desc );
@@ -97,15 +97,18 @@ namespace wv
 		TextureID       cmdCreateTexture     ( CmdBufferID _bufferID, const sTextureDesc&      _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
+		
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 		virtual void terminate() = 0;
 
-		virtual void onResize( int _width, int _height ) = 0;
+		virtual void onResize   ( int _width, int _height ) = 0;
 		virtual void setViewport( int _width, int _height ) = 0;
 
 		virtual void beginRender();
-		virtual void endRender();
+		virtual void endRender  ();
 
 		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
 		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
@@ -139,7 +142,7 @@ namespace wv
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
 		virtual void draw( MeshID _meshID ) = 0;
-		virtual void drawIndexed( uint32_t _numIndices ) = 0;
+		virtual void drawIndexed         ( uint32_t _numIndices ) = 0;
 		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +177,8 @@ namespace wv
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
 	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )

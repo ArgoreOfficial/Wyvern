@@ -27,6 +27,8 @@
 #include <fstream>
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 #define WV_HARD_ASSERT 0
 
 #ifdef WV_DEBUG
@@ -134,6 +136,8 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cOpenGLGraphicsDevice::terminate()
 {
 	WV_TRACE();
@@ -156,6 +160,8 @@ void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 	glViewport( 0, 0, _width, _height );
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::beginRender()
 {
@@ -308,6 +314,8 @@ void wv::cOpenGLGraphicsDevice::clearRenderTarget( bool _color, bool _depth )
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::ProgramID wv::cOpenGLGraphicsDevice::createProgram( ProgramID _programID, sProgramDesc* _desc )
 {
 	WV_TRACE();
@@ -440,6 +448,8 @@ wv::ProgramID wv::cOpenGLGraphicsDevice::createProgram( ProgramID _programID, sP
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cOpenGLGraphicsDevice::destroyProgram( ProgramID _programID )
 {
 	WV_TRACE();
@@ -458,6 +468,8 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ProgramID _programID )
 	m_programs.deallocate( _programID );
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( PipelineID _pipelineID, sPipelineDesc* _desc )
 {
@@ -493,6 +505,8 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( PipelineID _pipelineID
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cOpenGLGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
@@ -511,6 +525,8 @@ void wv::cOpenGLGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 	m_pipelines.deallocate( _pipelineID );
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::bindPipeline( PipelineID _pipelineID )
 {
@@ -757,6 +773,8 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( MeshID _meshID )
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( TextureID _textureID, sTextureDesc* _pDesc )
 {
 	WV_TRACE();
@@ -874,6 +892,8 @@ wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( TextureID _textureID, sT
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cOpenGLGraphicsDevice::bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
 {
 	WV_TRACE();
@@ -896,6 +916,8 @@ void wv::cOpenGLGraphicsDevice::bufferTextureData( TextureID _textureID, void* _
 	tex.pData = (uint8_t*)_pData;
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::destroyTexture( TextureID _textureID )
 {
@@ -922,6 +944,8 @@ void wv::cOpenGLGraphicsDevice::destroyTexture( TextureID _textureID )
 	m_textures.deallocate( _textureID );
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cOpenGLGraphicsDevice::bindTextureToSlot( TextureID _textureID, unsigned int _slot )
 {
