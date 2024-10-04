@@ -167,7 +167,7 @@ namespace wv
 		std::mutex m_mutex;
 		bool m_reallocatingCommandBuffers = false;
 
-		std::vector<cCommandBuffer> m_commandBuffers;
+		cObjectHandleContainer<cCommandBuffer, CmdBufferID> m_commandBuffers;
 		std::queue <CmdBufferID>    m_availableCommandBuffers;
 		std::vector<CmdBufferID>    m_recordingCommandBuffers;
 		std::vector<CmdBufferID>    m_submittedCommandBuffers;
@@ -179,7 +179,7 @@ namespace wv
 	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
 	{
 		m_mutex.lock();
-		m_commandBuffers[ _bufferID.value ].push<T>( _type, _pInfo );
+		m_commandBuffers.get( _bufferID ).push<T>( _type, _pInfo );
 		m_mutex.unlock();
 	}
 

@@ -44,13 +44,10 @@ namespace wv
 	class cCommandBuffer
 	{
 	public:
-		cCommandBuffer( const CmdBufferID& _index, const size_t& _initialSize ) :
-			m_index ( _index )
+		cCommandBuffer( const size_t& _initialSize )
 		{ 
 			m_buffer.allocate( _initialSize );
 		}
-
-		CmdBufferID getIndex() { return m_index; }
 
 		void flush()
 		{
@@ -68,10 +65,9 @@ namespace wv
 		wv::cMemoryStream& getBuffer() { return m_buffer; }
 		size_t             getNumCommands() { return m_numCommands; }
 		
-
 		wv::Function<void, void*> callback;
 		void* callbacker = nullptr;
-		CmdBufferID m_index = CmdBufferID::InvalidID;
+
 	private:
 		wv::cMemoryStream m_buffer;
 		size_t m_numCommands = 0;

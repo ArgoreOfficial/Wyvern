@@ -22,17 +22,15 @@ namespace wv
 			m_maxIDs = _maxIDs;
 		}
 
-		[[nodiscard]] ID allocate();
+		template<typename...Args>
+		[[nodiscard]] ID allocate( Args... _args );
 
 		void deallocate( ID _id )
 		{
 			m_mutex.lock();
 			if( !m_IDs.contains( _id ) )
-			{
-				m_mutex.unlock();
-				return;
-			}
-
+				throw std::out_of_range( "Cannot deallocate Invalid ID" );
+			
 			m_IDs.erase( _id );
 
 			size_t index = _id.value - 1;
@@ -69,7 +67,8 @@ namespace wv
 	};
 
 	template<typename T, typename ID>
-	inline ID cObjectHandleContainer<T, ID>::allocate()
+	template<typename... Args>
+	inline ID cObjectHandleContainer<T, ID>::allocate( Args... _args )
 	{
 		m_mutex.lock();
 		if( m_maxIDs != 0 && m_IDs.size() >= m_maxIDs )
@@ -94,7 +93,7 @@ namespace wv
 		}
 
 		T* base = &( (T*)m_pObjectBuffer )[ index ];
-		T* obj = new( base ) T();
+		T* obj = new( base ) T( _args... );
 
 		m_IDs.insert( (ID)id );
 

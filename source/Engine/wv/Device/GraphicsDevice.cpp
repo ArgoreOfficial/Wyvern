@@ -104,15 +104,13 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 {
 	m_mutex.lock();
-	m_reallocatingCommandBuffers = m_availableCommandBuffers.size() == 0;
-
-	if( m_reallocatingCommandBuffers )
+	
+	if( m_availableCommandBuffers.size() == 0 )
 	{
-		cCommandBuffer buffer( m_commandBuffers.size(), 128 );
-		m_commandBuffers.push_back( buffer );
-		m_availableCommandBuffers.push( m_commandBuffers.size() - 1 );
+		CmdBufferID id = m_commandBuffers.allocate( 128 );
+		m_availableCommandBuffers.push( id );
 	}
-
+	
 	CmdBufferID bufferIndex = m_availableCommandBuffers.front();
 	m_availableCommandBuffers.pop();
 	m_recordingCommandBuffers.push_back( bufferIndex );
@@ -145,7 +143,7 @@ void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
 void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 {
 	m_mutex.lock();
-	cCommandBuffer& buffer = m_commandBuffers[ _bufferID.value ];
+	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
 	cMemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.getNumCommands(); i++ )
@@ -281,8 +279,9 @@ wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, cons
 void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	m_mutex.lock();
-	m_commandBuffers[ _bufferID.value ].callback = _func;
-	m_commandBuffers[ _bufferID.value ].callbacker = _caller;
+	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
+	buffer.callback = _func;
+	buffer.callbacker = _caller;
 	m_mutex.unlock();
 }
 
