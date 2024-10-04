@@ -133,12 +133,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		cObjectContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
-		cObjectContainer<sPipeline,      PipelineID>      m_pipelines;
-		cObjectContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
-		cObjectContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
-		cObjectContainer<sTexture,       TextureID>       m_textures;
-		cObjectContainer<sMesh,          MeshID>          m_meshes;
+		cObjectHandleContainer<sShaderProgram, ShaderProgramID> m_shaderPrograms;
+		cObjectHandleContainer<sPipeline,      PipelineID>      m_pipelines;
+		cObjectHandleContainer<sRenderTarget,  RenderTargetID>  m_renderTargets;
+		cObjectHandleContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
+		cObjectHandleContainer<sTexture,       TextureID>       m_textures;
+		cObjectHandleContainer<sMesh,          MeshID>          m_meshes;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

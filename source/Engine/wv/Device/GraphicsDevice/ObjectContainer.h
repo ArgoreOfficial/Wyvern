@@ -7,10 +7,10 @@
 namespace wv
 {
 	template<typename T, typename ID>
-	class cObjectContainer
+	class cObjectHandleContainer
 	{
 	public:
-		cObjectContainer()
+		cObjectHandleContainer()
 		{
 			m_pObjectBuffer = new uint8_t[ sizeof( T ) ];
 			m_size = sizeof( T );
@@ -52,7 +52,7 @@ namespace wv
 	};
 
 	template<typename T, typename ID>
-	inline ID cObjectContainer<T, ID>::allocate()
+	inline ID cObjectHandleContainer<T, ID>::allocate()
 	{
 		uint64_t id = 1;
 		while( m_IDs.contains( (ID)id ) ) 

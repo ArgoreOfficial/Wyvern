@@ -151,9 +151,13 @@ void wv::cOpenGLGraphicsDevice::setViewport( int _width, int _height )
 
 void wv::cOpenGLGraphicsDevice::beginRender()
 {
+	WV_TRACE();
+	
 	iGraphicsDevice::beginRender();
 
+#ifdef WV_SUPPORT_OPENGL
 	glBindVertexArray( m_vaoHandle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
