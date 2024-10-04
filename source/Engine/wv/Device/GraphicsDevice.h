@@ -58,6 +58,9 @@ namespace wv
 		iDeviceContext* pContext;
 	};
 
+	template<typename T, typename D>
+	struct sCmdCreateDesc{ T id; D desc; };
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iGraphicsDevice
@@ -83,12 +86,12 @@ namespace wv
 		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
 		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char>( _bufferID, _type, nullptr ); }
 
-		ShaderProgramID cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
-		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
-		RenderTargetID cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
-		GPUBufferID cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
-		MeshID cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc );
-		TextureID cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc );
+		ShaderProgramID cmdCreateProgram     ( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
+		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+		RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
+		GPUBufferID     cmdCreateGPUBuffer   ( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
+		MeshID          cmdCreateMesh        ( CmdBufferID _bufferID, const sMeshDesc& _desc );
+		TextureID       cmdCreateTexture     ( CmdBufferID _bufferID, const sTextureDesc& _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }

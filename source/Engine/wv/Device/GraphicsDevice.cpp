@@ -156,113 +156,39 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		{
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
 		{
-			struct sDescData
-			{
-				RenderTargetID id;
-				sRenderTargetDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
-
+			auto descData = stream.pop<sCmdCreateDesc<RenderTargetID, sRenderTargetDesc>>();
 			createRenderTarget( descData.id, &descData.desc );
-
-			break;
-		}
-
-		case WV_GPUTASK_DESTROY_RENDERTARGET: 
-			destroyRenderTarget( stream.pop<RenderTargetID>() ); 
-			break;
-		case WV_GPUTASK_SET_RENDERTARGET: 
-			setRenderTarget( stream.pop<RenderTargetID>() ); 
-			break;
+		} break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
-			struct sDescData
-			{
-				ShaderProgramID id;
-				sShaderProgramDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
+			auto descData = stream.pop<sCmdCreateDesc<ShaderProgramID, sShaderProgramDesc>>();
 			createProgram( descData.id, &descData.desc );
-			
-			break;
-		} 
-
-		case WV_GPUTASK_DESTROY_PROGRAM: destroyProgram( stream.pop<ShaderProgramID>() ); break;
+		} break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
 		{
-			struct sDescData
-			{
-				PipelineID id;
-				sPipelineDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
+			auto descData = stream.pop<sCmdCreateDesc<PipelineID, sPipelineDesc>>();
 			createPipeline( descData.id, &descData.desc );
-			
-			break;
-		}
-		case WV_GPUTASK_DESTROY_PIPELINE: 
-			destroyPipeline( stream.pop<PipelineID>() ); 
-			break;
-		case WV_GPUTASK_BIND_PIPELINE: 
-			bindPipeline( stream.pop<PipelineID>() ); 
-			break;
-
+		} break;
+		
 		case WV_GPUTASK_CREATE_BUFFER:
 		{
-			struct sDescData
-			{
-				GPUBufferID id;
-				sGPUBufferDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
+			auto descData = stream.pop<sCmdCreateDesc<GPUBufferID, sGPUBufferDesc>>();
 			createGPUBuffer( descData.id, &descData.desc );
-
-			break;
-		}
-
-		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
-			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() );
-			break;
-
-		case WV_GPUTASK_BUFFER_DATA:
-			bufferData( stream.pop<GPUBufferID>() );
-			break;
-
-		case WV_GPUTASK_DESTROY_BUFFER:
-			destroyGPUBuffer( stream.pop<GPUBufferID>() );
-			break;
+		} break;
 
 		case WV_GPUTASK_CREATE_MESH:
 		{
-			struct sDescData
-			{
-				MeshID id;
-				sMeshDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
+			auto descData = stream.pop<sCmdCreateDesc<MeshID, sMeshDesc>>();
 			createMesh( descData.id, &descData.desc );
-
-			break;
-		}
-
-		case WV_GPUTASK_DESTROY_MESH:
-			destroyMesh( stream.pop<MeshID>() );
-			break;
+		} break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
 		{
-			struct sDescData
-			{
-				TextureID id;
-				sTextureDesc desc;
-			} descData;
-			descData = stream.pop<sDescData>();
+			auto descData = stream.pop<sCmdCreateDesc<TextureID, sTextureDesc>>();
 			createTexture( descData.id, &descData.desc );
-
-			break;
-		}
+		} break;
 
 		case WV_GPUTASK_BUFFER_TEXTURE_DATA: // struct { TextureID tex; void* pData; bool generateMipMaps; };
 		{
@@ -270,16 +196,23 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			void* pData = stream.pop<void*>();
 			bool generateMipMaps = stream.pop<bool>();
 			bufferTextureData( tex, pData, generateMipMaps );
-			
-			break;
-		} 
+		} break;
 
-		case WV_GPUTASK_DESTROY_TEXTURE:
-			destroyTexture( stream.pop<TextureID>() );
-			break;
+		case WV_GPUTASK_DESTROY_TEXTURE:      destroyTexture     ( stream.pop<TextureID>() );       break;
+		case WV_GPUTASK_DESTROY_MESH:         destroyMesh        ( stream.pop<MeshID>() );          break;
+		case WV_GPUTASK_DESTROY_BUFFER:       destroyGPUBuffer   ( stream.pop<GPUBufferID>() );     break;
+		case WV_GPUTASK_DESTROY_PIPELINE:     destroyPipeline    ( stream.pop<PipelineID>() );      break;
+		case WV_GPUTASK_DESTROY_PROGRAM:      destroyProgram     ( stream.pop<ShaderProgramID>() ); break;
+		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() );  break;
 
+		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
+		case WV_GPUTASK_BUFFER_DATA:      bufferData     ( stream.pop<GPUBufferID>() );    break;
+		case WV_GPUTASK_BIND_PIPELINE:    bindPipeline   ( stream.pop<PipelineID>() );     break;
+		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
+			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() ); 
+			break;
 		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
-			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() );
+			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
 			break;
 		}
 	}
@@ -306,14 +239,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc )
 {
 	ShaderProgramID id = m_shaderPrograms.allocate();
-
-	struct
-	{
-		ShaderProgramID id;
-		sShaderProgramDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<ShaderProgramID, sShaderProgramDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, &desc );
 	return id;
@@ -322,14 +248,7 @@ wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID
 wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.allocate();
-
-	struct
-	{
-		PipelineID id;
-		sPipelineDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<PipelineID, sPipelineDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, &desc );
 	return id;
@@ -338,14 +257,7 @@ wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, co
 wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.allocate();
-
-	struct
-	{
-		RenderTargetID id;
-		sRenderTargetDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<RenderTargetID, sRenderTargetDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, &desc );
 	return id;
@@ -354,14 +266,7 @@ wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _buff
 wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.allocate();
-
-	struct
-	{
-		GPUBufferID id;
-		sGPUBufferDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<GPUBufferID, sGPUBufferDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, &desc );
 	return id;
@@ -370,14 +275,7 @@ wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, 
 wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
 	MeshID  id = m_meshes.allocate();
-
-	struct
-	{
-		MeshID id;
-		sMeshDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<MeshID, sMeshDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_MESH, &desc );
 	return id;
@@ -386,14 +284,7 @@ wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMes
 wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.allocate();
-
-	struct
-	{
-		TextureID id;
-		sTextureDesc desc;
-	} desc;
-	desc.id = id;
-	desc.desc = _desc;
+	sCmdCreateDesc<TextureID, sTextureDesc> desc{ id, _desc };
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, &desc );
 	return id;
