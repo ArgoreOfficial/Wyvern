@@ -194,7 +194,7 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetID
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target.pTextures[ i ] = createTexture( &desc.pTextureDescs[ i ] );
+		target.pTextures[ i ] = createTexture( 0, &desc.pTextureDescs[ i ] );
 		sTexture& tex = m_textures.get( target.pTextures[ i ] );
 
 		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
@@ -759,7 +759,7 @@ void wv::cOpenGLGraphicsDevice::destroyMesh( MeshID _meshID )
 #endif
 }
 
-wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
+wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( TextureID _textureID, sTextureDesc* _pDesc )
 {
 	WV_TRACE();
 
@@ -767,9 +767,11 @@ wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
+	if( !_textureID.isValid() )
+		_textureID = m_textures.allocate();
+
 	sTextureDesc& desc = *_pDesc;
-	TextureID id = m_textures.allocate();
-	sTexture& texture = m_textures.get( id );
+	sTexture& texture = m_textures.get( _textureID );
 	
 	switch ( desc.channels )
 	{
@@ -870,7 +872,7 @@ wv::TextureID wv::cOpenGLGraphicsDevice::createTexture( sTextureDesc* _pDesc )
 	texture.width  = desc.width;
 	texture.height = desc.height;
 	
-	return id;
+	return _textureID;
 #endif
 }
 

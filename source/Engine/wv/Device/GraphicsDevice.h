@@ -89,6 +89,8 @@ namespace wv
 		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
 		RenderTargetID cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
 		GPUBufferID cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
+		
+		TextureID cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
@@ -123,10 +125,10 @@ namespace wv
 		virtual MeshID createMesh( sMeshDesc* _desc ) = 0;
 		virtual void   destroyMesh( MeshID _meshID ) = 0;
 
-		virtual TextureID createTexture    ( sTextureDesc* _pDesc )                    = 0;
-		virtual void      bufferTextureData( TextureID _pTexture, void* _pData, bool _generateMipMaps ) = 0;
-		virtual void      destroyTexture   ( TextureID _pTexture )                     = 0;
-		virtual void      bindTextureToSlot( TextureID _pTexture, unsigned int _slot ) = 0;
+		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    = 0;
+		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
+		virtual void      destroyTexture   ( TextureID _textureID )                     = 0;
+		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) = 0;
 

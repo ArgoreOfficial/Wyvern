@@ -54,7 +54,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	bufferData.pData = m_pData;
 	m_pData = nullptr; // move ownership
 
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_TEXTURE, (void**)&m_textureID, &desc ); // hack
+	m_textureID = _pGraphicsDevice->cmdCreateTexture( cmdBuffer, desc ); // hack
 	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) 

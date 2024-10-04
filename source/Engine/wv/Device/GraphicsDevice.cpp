@@ -170,9 +170,11 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		}
 
 		case WV_GPUTASK_DESTROY_RENDERTARGET: 
-			destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
+			destroyRenderTarget( stream.pop<RenderTargetID>() ); 
+			break;
 		case WV_GPUTASK_SET_RENDERTARGET: 
-			setRenderTarget( stream.pop<RenderTargetID>() ); break;
+			setRenderTarget( stream.pop<RenderTargetID>() ); 
+			break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
@@ -183,9 +185,9 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			} descData;
 			descData = stream.pop<sDescData>();
 			createProgram( descData.id, &descData.desc );
-
+			
 			break;
-		}
+		} 
 
 		case WV_GPUTASK_DESTROY_PROGRAM: destroyProgram( stream.pop<ShaderProgramID>() ); break;
 
@@ -201,9 +203,12 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			
 			break;
 		}
-		case WV_GPUTASK_DESTROY_PIPELINE: destroyPipeline( stream.pop<PipelineID>() ); break;
-
-		case WV_GPUTASK_BIND_PIPELINE: bindPipeline( stream.pop<PipelineID>() ); break;
+		case WV_GPUTASK_DESTROY_PIPELINE: 
+			destroyPipeline( stream.pop<PipelineID>() ); 
+			break;
+		case WV_GPUTASK_BIND_PIPELINE: 
+			bindPipeline( stream.pop<PipelineID>() ); 
+			break;
 
 		case WV_GPUTASK_CREATE_BUFFER:
 		{
@@ -239,8 +244,17 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
-			(TextureID&)( *outPtr ) = createTexture( &stream.pop<sTextureDesc>() );
+		{
+			struct sDescData
+			{
+				TextureID id;
+				sTextureDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
+			createTexture( descData.id, &descData.desc );
+
 			break;
+		}
 
 		case WV_GPUTASK_BUFFER_TEXTURE_DATA: // struct { TextureID tex; void* pData; bool generateMipMaps; };
 		{
@@ -340,6 +354,22 @@ wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, 
 	desc.desc = _desc;
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, &desc );
+	return id;
+}
+
+wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
+{
+	TextureID id = m_textures.allocate();
+
+	struct
+	{
+		TextureID id;
+		sTextureDesc desc;
+	} desc;
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, &desc );
 	return id;
 }
 

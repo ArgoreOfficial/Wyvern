@@ -75,13 +75,7 @@ namespace wv
 		virtual MeshID createMesh ( sMeshDesc* _desc )      override;
 		virtual void   destroyMesh( MeshID _meshID ) override;
 
-		/// TODO: texture handles?
-		/// all gpu objects should be handles tbh
-		 
-		// Index > Ref > Pointer
-		//          - graphics man 2024
-
-		virtual TextureID createTexture    ( sTextureDesc* _pDesc )                    override;
+		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    override;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
 		virtual void      destroyTexture   ( TextureID _textureID )                     override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) override;
