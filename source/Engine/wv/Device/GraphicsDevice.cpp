@@ -328,3 +328,111 @@ wv::iGraphicsDevice::iGraphicsDevice()
 {
 
 }
+
+wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
+{
+	WV_TRACE();
+
+	if( !_meshID.isValid() )
+		_meshID = m_meshes.allocate();
+
+	sMesh& mesh = m_meshes.get( _meshID );
+
+	sGPUBufferDesc vbDesc;
+	vbDesc.name = "vbo";
+	vbDesc.type = WV_BUFFER_TYPE_VERTEX;
+	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
+	vbDesc.size = _desc->sizeVertices;
+	mesh.vertexBufferID = createGPUBuffer( 0, &vbDesc );
+	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.vertexBufferID );
+	mesh.pMaterial = _desc->pMaterial;
+
+	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
+	vertexBuffer.count = count;
+
+	vertexBuffer.buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
+	bufferData( mesh.vertexBufferID );
+	delete[] vertexBuffer.pData;
+	vertexBuffer.pData = nullptr;
+
+	if( _desc->numIndices > 0 )
+	{
+		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
+
+		sGPUBufferDesc ibDesc;
+		ibDesc.name = "ebo";
+		ibDesc.type = WV_BUFFER_TYPE_INDEX;
+		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
+
+		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
+		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
+		indexBuffer.count = _desc->numIndices;
+
+		if( _desc->pIndices16 )
+		{
+			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
+
+			allocateBuffer( mesh.indexBufferID, bufferSize );
+			indexBuffer.buffer( _desc->pIndices16, bufferSize );
+		}
+		else if( _desc->pIndices32 )
+		{
+			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
+
+			allocateBuffer( mesh.indexBufferID, bufferSize );
+			indexBuffer.buffer( _desc->pIndices32, bufferSize );
+		}
+
+		bufferData( mesh.indexBufferID );
+		delete[] indexBuffer.pData;
+		indexBuffer.pData = nullptr;
+	}
+	else
+	{
+		mesh.drawType = WV_MESH_DRAW_TYPE_VERTICES;
+	}
+
+	if( _desc->deleteData )
+	{
+		if( _desc->vertices ) { delete[] _desc->vertices; }
+		if( _desc->pIndices16 ) { delete[] _desc->pIndices16; }
+		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
+	}
+
+	mesh.complete = true;
+
+	return _meshID;
+}
+
+void wv::iGraphicsDevice::destroyMesh( MeshID _meshID )
+{
+	WV_TRACE();
+
+	sMesh& mesh = m_meshes.get( _meshID );
+
+	destroyGPUBuffer( mesh.indexBufferID );
+	destroyGPUBuffer( mesh.vertexBufferID );
+
+	if( mesh.pPlatformData )
+		delete mesh.pPlatformData;
+
+	m_meshes.deallocate( _meshID );
+}
+
+void wv::iGraphicsDevice::draw( MeshID _meshID )
+{
+	sMesh& rMesh = m_meshes.get( _meshID );
+
+	bindVertexBuffer( _meshID, rMesh.pMaterial->getPipeline() );
+
+	if( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
+	{
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.indexBufferID );
+		drawIndexed( buffer.count );
+	}
+	else
+	{
+		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
+		draw( 0, buffer.count );
+	}
+}

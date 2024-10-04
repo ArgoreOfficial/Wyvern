@@ -39,6 +39,7 @@ namespace wv
 			obj.~T();
 
 			memset( &obj, 0, sizeof( T ) );
+
 			m_mutex.unlock();
 		}
 

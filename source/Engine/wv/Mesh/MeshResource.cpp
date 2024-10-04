@@ -197,7 +197,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			_pGraphicsDevice->bufferData( UbInstanceData );
 
 			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh.indexBufferID );
-			_pGraphicsDevice->drawIndexedInstances( ibuffer.count, m_drawQueue.size() );
+			_pGraphicsDevice->drawIndexedInstanced( ibuffer.count, m_drawQueue.size() );
 
 			instances.clear();
 		}

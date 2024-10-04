@@ -111,39 +111,41 @@ namespace wv
 		virtual void endRender  ();
 
 		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
-		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
-		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID ) = 0;
+		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID )                           = 0;
+		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID )                           = 0;
 
 		virtual void setClearColor    ( const wv::cColor& _color ) = 0;
 		virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
 		virtual ProgramID createProgram ( ProgramID _programID, sProgramDesc* _desc ) = 0;
-		virtual void      destroyProgram( ProgramID _programID ) = 0;
+		virtual void      destroyProgram( ProgramID _programID )                      = 0;
 
 		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) = 0;
-		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
-		virtual void       bindPipeline   ( PipelineID _pipelineID ) = 0;
+		virtual void       destroyPipeline( PipelineID _pipelineID )                       = 0;
+		virtual void       bindPipeline   ( PipelineID _pipelineID )                       = 0;
 
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
-		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size ) = 0;
-		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
-		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
+		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size )            = 0;
+		virtual void        bufferData      ( GPUBufferID _buffer )                          = 0;
+		virtual void        destroyGPUBuffer( GPUBufferID _buffer )                          = 0;
 		
-		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc ) = 0;
-		virtual void   destroyMesh( MeshID _meshID ) = 0;
+		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc );
+		virtual void   destroyMesh( MeshID _meshID );
 
-		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    = 0;
+		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                = 0;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-		virtual void      destroyTexture   ( TextureID _textureID )                     = 0;
-		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
+		virtual void      destroyTexture   ( TextureID _textureID )                                      = 0;
+		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  = 0;
 
 		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
-		virtual void draw( MeshID _meshID ) = 0;
-		virtual void drawIndexed         ( uint32_t _numIndices ) = 0;
-		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) = 0;
+		void draw( MeshID _meshID );
+
+		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
+		virtual void drawIndexed         ( uint32_t _numIndices )                         = 0;
+		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
@@ -171,9 +173,9 @@ namespace wv
 		bool m_reallocatingCommandBuffers = false;
 
 		cObjectHandleContainer<cCommandBuffer, CmdBufferID> m_commandBuffers;
-		std::queue <CmdBufferID>    m_availableCommandBuffers;
-		std::vector<CmdBufferID>    m_recordingCommandBuffers;
-		std::vector<CmdBufferID>    m_submittedCommandBuffers;
+		std::queue <CmdBufferID> m_availableCommandBuffers;
+		std::vector<CmdBufferID> m_recordingCommandBuffers;
+		std::vector<CmdBufferID> m_submittedCommandBuffers;
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};

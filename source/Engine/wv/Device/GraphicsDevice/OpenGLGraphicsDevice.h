@@ -49,50 +49,47 @@ namespace wv
 	{
 	public:
 
-		cOpenGLGraphicsDevice();
+		 cOpenGLGraphicsDevice();
 		~cOpenGLGraphicsDevice() { }
 
 		virtual void terminate() override;
 
-		virtual void onResize( int _width, int _height ) override;
+		virtual void onResize   ( int _width, int _height ) override;
 		virtual void setViewport( int _width, int _height ) override;
 
 		virtual void beginRender() override;
 
 		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) override;
-		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) override;
-		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID ) override;
+		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID )                           override;
+		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID )                           override;
 
 		virtual void setClearColor    ( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
 		virtual ProgramID createProgram ( ProgramID _programID, sProgramDesc* _desc ) override;
-		virtual void      destroyProgram( ProgramID _programID ) override;
+		virtual void      destroyProgram( ProgramID _programID )                      override;
 
 		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) override;
-		virtual void       destroyPipeline( PipelineID _pipelineID ) override;
-		virtual void       bindPipeline   ( PipelineID _pipelineID ) override;
+		virtual void       destroyPipeline( PipelineID _pipelineID )                       override;
+		virtual void       bindPipeline   ( PipelineID _pipelineID )                       override;
 
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) override;
-		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size ) override;
-		virtual void        bufferData      ( GPUBufferID _bufferID ) override;
-		virtual void        destroyGPUBuffer( GPUBufferID _bufferID ) override;
+		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size )          override;
+		virtual void        bufferData      ( GPUBufferID _bufferID )                        override;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        override;
 		
-		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc )      override;
-		virtual void   destroyMesh( MeshID _meshID ) override;
-
-		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    override;
+		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                override;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
-		virtual void      destroyTexture   ( TextureID _textureID )                     override;
-		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) override;
+		virtual void      destroyTexture   ( TextureID _textureID )                                      override;
+		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
 		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
-		virtual void draw( MeshID _meshID ) override;
-		virtual void drawIndexed( uint32_t _numIndices ) override;
-		virtual void drawIndexedInstances( uint32_t _numIndices, uint32_t _numInstances ) override;
+		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) override;
+		virtual void drawIndexed         ( uint32_t _numIndices )                         override;
+		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,10 +105,6 @@ namespace wv
 
 		GraphicsAPI    m_graphicsApi;
 		GenericVersion m_graphicsApiVersion;
-
-		/// TODO: remove?
-		PipelineID     m_activePipeline{};
-		RenderTargetID m_activeRenderTarget{};
 
 		wv::Handle m_vaoHandle = 0;
 		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_uniformBindingIndices;
