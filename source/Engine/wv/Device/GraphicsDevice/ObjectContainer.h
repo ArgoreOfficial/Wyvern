@@ -10,11 +10,15 @@ namespace wv
 	class cObjectHandleContainer
 	{
 	public:
-		cObjectHandleContainer()
+		cObjectHandleContainer() {};
+		cObjectHandleContainer( size_t _maxIDs ) : m_maxIDs{ _maxIDs } {};
+
+		void setMaxIDs( size_t _maxIDs )
 		{
-			m_pObjectBuffer = new uint8_t[ sizeof( T ) ];
-			m_size = sizeof( T );
-			memset( m_pObjectBuffer, 0, m_size );
+			if( _maxIDs < m_IDs.size() )
+				return;
+
+			m_maxIDs = _maxIDs;
 		}
 
 		[[nodiscard]] ID allocate();
@@ -48,12 +52,16 @@ namespace wv
 		std::set<ID> m_IDs;
 		uint8_t* m_pObjectBuffer = nullptr;
 		size_t m_size = 0;
+		size_t m_maxIDs = 0;
 
 	};
 
 	template<typename T, typename ID>
 	inline ID cObjectHandleContainer<T, ID>::allocate()
 	{
+		if( m_maxIDs != 0 && m_IDs.size() >= m_maxIDs )
+			throw std::runtime_error( "Cannot allocate more IDs" );
+
 		uint64_t id = 1;
 		while( m_IDs.contains( (ID)id ) ) 
 			id++;

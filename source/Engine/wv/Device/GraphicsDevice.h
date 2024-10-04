@@ -139,7 +139,7 @@ namespace wv
 		cObjectHandleContainer<cGPUBuffer,     GPUBufferID>     m_gpuBuffers;
 		cObjectHandleContainer<sTexture,       TextureID>       m_textures;
 		cObjectHandleContainer<sMesh,          MeshID>          m_meshes;
-
+		
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:

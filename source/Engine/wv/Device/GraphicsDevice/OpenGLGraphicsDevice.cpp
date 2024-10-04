@@ -120,6 +120,14 @@ bool wv::cOpenGLGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 
 	glCreateVertexArrays( 1, &m_vaoHandle );
 
+	int maxUniformBindings = 0;
+	glGetIntegerv( GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBindings );
+	m_uniformBindingIndices.setMaxIDs( maxUniformBindings );
+
+	int maxSSBOBindings = 0;
+	glGetIntegerv( GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxSSBOBindings );
+	m_ssboBindingIndices.setMaxIDs( maxSSBOBindings );
+
 	return true;
 #else
 	return false;
@@ -377,16 +385,15 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
-		pUBData->bindingIndex = getBufferBindingIndex();
+		pUBData->bindingIndex = m_uniformBindingIndices.allocate();
 
 		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &buf.size ) );
 		
 		allocateBuffer( bufID, buf.size );
 		
-		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex, buf.handle ) );
-		
-		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
+		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex.value, buf.handle ) );
+		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex.value ) );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -415,12 +422,11 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( sShaderProgramDesc
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
 		buf.pPlatformData = pUBData;
 
-		pUBData->bindingIndex = getBufferBindingIndex();
+		pUBData->bindingIndex = m_ssboBindingIndices.allocate();
 		pUBData->blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
-		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex, buf.handle ) );
-		
-		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex ) );
+		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex.value, buf.handle ) );
+		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex.value ) );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -622,9 +628,16 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
 	if( buffer.pPlatformData )
 	{
 		sOpenGLBufferData* pData = (sOpenGLBufferData*)buffer.pPlatformData;
-		if( pData->bindingIndex != 0 )
-			m_usedBindingIndices.erase( pData->bindingIndex );
-
+		{
+			if( pData->bindingIndex.isValid() )
+			{
+				switch( buffer.type )
+				{
+				case WV_BUFFER_TYPE_DYNAMIC_STORAGE: m_ssboBindingIndices.deallocate( pData->bindingIndex );    break;
+				case WV_BUFFER_TYPE_UNIFORM:         m_uniformBindingIndices.deallocate( pData->bindingIndex ); break;
+				}
+			}
+		}
 		delete buffer.pPlatformData;
 		buffer.pPlatformData = nullptr;
 	}
@@ -942,7 +955,7 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( MeshID _meshID, cPipelineResou
 		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
 		cGPUBuffer& vbuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
-		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex, vbuffer.handle, 0, vbuffer.size );
+		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle, 0, vbuffer.size );
 	}
 	
 	// move?
@@ -1050,15 +1063,4 @@ bool wv::cOpenGLGraphicsDevice::getError( std::string* _out )
 #else
 	return false;
 #endif
-}
-
-wv::Handle wv::cOpenGLGraphicsDevice::getBufferBindingIndex()
-{
-	wv::Handle test = 1;
-	while( m_usedBindingIndices.contains( test ) )
-		test++;
-
-	m_usedBindingIndices.insert( test );
-
-	return test;
 }
