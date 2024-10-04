@@ -382,7 +382,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _s
 		ubDesc.name  = name;
 		ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-		GPUBufferID bufID = createGPUBuffer( &ubDesc );
+		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
 		cGPUBuffer& buf = m_gpuBuffers.get( bufID );
 
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
@@ -419,7 +419,7 @@ wv::ShaderProgramID wv::cOpenGLGraphicsDevice::createProgram( ShaderProgramID _s
 		ubDesc.name = name;
 		ubDesc.type = WV_BUFFER_TYPE_DYNAMIC_STORAGE;
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-		GPUBufferID bufID = createGPUBuffer( &ubDesc );
+		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
 		cGPUBuffer& buf = m_gpuBuffers.get( bufID );
 
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
@@ -536,13 +536,15 @@ void wv::cOpenGLGraphicsDevice::bindPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _desc )
+wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( GPUBufferID _bufferID, sGPUBufferDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	GPUBufferID id = m_gpuBuffers.allocate();
-	cGPUBuffer& buffer = m_gpuBuffers.get( id );
+	if( !_bufferID.isValid() )
+		_bufferID = m_gpuBuffers.allocate();
+
+	cGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 
 	buffer.type  = _desc->type;
 	buffer.usage = _desc->usage;
@@ -555,11 +557,11 @@ wv::GPUBufferID wv::cOpenGLGraphicsDevice::createGPUBuffer( sGPUBufferDesc* _des
 	assertGLError( "Failed to create buffer\n" );
 
 	if ( _desc->size > 0 )
-		allocateBuffer( id, _desc->size );
+		allocateBuffer( _bufferID, _desc->size );
 	
-	return id;
+	return _bufferID;
 #else 
-	return GPUBufferID{ 0 };
+	return GPUBufferID::InvalidID;
 #endif
 }
 
@@ -674,7 +676,7 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 	vbDesc.type  = WV_BUFFER_TYPE_VERTEX;
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size  = _desc->sizeVertices;
-	mesh.pVertexBuffer = createGPUBuffer( &vbDesc );
+	mesh.pVertexBuffer = createGPUBuffer( 0, &vbDesc );
 	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.pVertexBuffer );
 	mesh.pMaterial = _desc->pMaterial;
 
@@ -696,7 +698,7 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
 
-		mesh.pIndexBuffer = createGPUBuffer( &ibDesc );
+		mesh.pIndexBuffer = createGPUBuffer( 0, &ibDesc );
 		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.pIndexBuffer );
 
 		indexBuffer.count = _desc->numIndices;

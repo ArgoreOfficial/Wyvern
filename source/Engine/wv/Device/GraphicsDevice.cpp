@@ -169,9 +169,10 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			break;
 		}
 
-		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
-
-		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
+		case WV_GPUTASK_DESTROY_RENDERTARGET: 
+			destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
+		case WV_GPUTASK_SET_RENDERTARGET: 
+			setRenderTarget( stream.pop<RenderTargetID>() ); break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
@@ -200,17 +201,22 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			
 			break;
 		}
-		case WV_GPUTASK_DESTROY_PIPELINE: 
-			destroyPipeline( stream.pop<PipelineID>() );
-			break;
+		case WV_GPUTASK_DESTROY_PIPELINE: destroyPipeline( stream.pop<PipelineID>() ); break;
 
-		case WV_GPUTASK_BIND_PIPELINE: 
-			bindPipeline( stream.pop<PipelineID>() );
-			break;
+		case WV_GPUTASK_BIND_PIPELINE: bindPipeline( stream.pop<PipelineID>() ); break;
 
 		case WV_GPUTASK_CREATE_BUFFER:
-			(GPUBufferID&)( *outPtr ) = createGPUBuffer( &stream.pop<sGPUBufferDesc>() );
+		{
+			struct sDescData
+			{
+				GPUBufferID id;
+				sGPUBufferDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
+			createGPUBuffer( descData.id, &descData.desc );
+
 			break;
+		}
 
 		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
 			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() );
@@ -318,6 +324,22 @@ wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _buff
 	desc.desc = _desc;
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, &desc );
+	return id;
+}
+
+wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
+{
+	GPUBufferID id = m_gpuBuffers.allocate();
+
+	struct
+	{
+		GPUBufferID id;
+		sGPUBufferDesc desc;
+	} desc;
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, &desc );
 	return id;
 }
 

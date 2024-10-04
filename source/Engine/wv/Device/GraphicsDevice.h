@@ -88,6 +88,7 @@ namespace wv
 		ShaderProgramID cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
 		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
 		RenderTargetID cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
+		GPUBufferID cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
@@ -114,7 +115,7 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) = 0;
 
-		virtual GPUBufferID createGPUBuffer ( sGPUBufferDesc* _desc ) = 0;
+		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
 		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size ) = 0;
 		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
