@@ -151,8 +151,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 	for( size_t i = 0; i < buffer.getNumCommands(); i++ )
 	{
 		eGPUTaskType taskType = stream.pop<eGPUTaskType>();
-		void** outPtr = stream.pop<void**>();
-
+		
 		switch( taskType )
 		{
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
@@ -271,7 +270,9 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			void* pData = stream.pop<void*>();
 			bool generateMipMaps = stream.pop<bool>();
 			bufferTextureData( tex, pData, generateMipMaps );
-		} break;
+			
+			break;
+		} 
 
 		case WV_GPUTASK_DESTROY_TEXTURE:
 			destroyTexture( stream.pop<TextureID>() );

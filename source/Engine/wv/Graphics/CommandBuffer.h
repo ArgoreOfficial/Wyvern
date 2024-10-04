@@ -61,17 +61,9 @@ namespace wv
 			callbacker = nullptr;
 		}
 
-		template<typename R, typename T> 
-		void push( const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
-
 		template<typename T> 
-		void push( const eGPUTaskType& _type, T* _pInfo ) { 
-			push<T, T>( _type, nullptr, _pInfo );
-		}
-		
-		void push( const eGPUTaskType& _type ) { 
-			push<char, char>( _type, nullptr, nullptr );
-		}
+		void push( const eGPUTaskType& _type, T* _pInfo );
+		void push( const eGPUTaskType& _type ) { push<std::nullptr_t>( _type, nullptr ); }
 
 		wv::cMemoryStream& getBuffer() { return m_buffer; }
 		size_t             getNumCommands() { return m_numCommands; }
@@ -87,15 +79,13 @@ namespace wv
 
 	};
 
-	template<typename R, typename T>
-	inline void cCommandBuffer::push( const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
+	template<typename T>
+	inline void cCommandBuffer::push( const eGPUTaskType& _type, T* _pInfo )
 	{
 		m_numCommands++;
 		m_buffer.push( _type );
-		m_buffer.push( _ppReturn );
 		m_buffer.push( *_pInfo, sizeof( T ) );
 	}
 
-	
 }
 

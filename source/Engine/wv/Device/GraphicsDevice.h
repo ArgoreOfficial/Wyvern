@@ -79,11 +79,9 @@ namespace wv
 		void submitCommandBuffer( CmdBufferID _bufferID );
 		void executeCommandBuffer( CmdBufferID _bufferID );
 
-		template<typename R, typename T>
-		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
 		template<typename T>
-		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _bufferID, _type, nullptr, _pInfo ); }
-		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char, char>( _bufferID, _type, nullptr, nullptr ); }
+		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
+		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char>( _bufferID, _type, nullptr ); }
 
 		ShaderProgramID cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
 		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
@@ -171,11 +169,11 @@ namespace wv
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
 
-	template<typename R, typename T>
-	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
+	template<typename T>
+	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
 	{
 		m_mutex.lock();
-		m_commandBuffers[ _bufferID.value ].push<R, T>( _type, _ppReturn, _pInfo );
+		m_commandBuffers[ _bufferID.value ].push<T>( _type, _pInfo );
 		m_mutex.unlock();
 	}
 }
