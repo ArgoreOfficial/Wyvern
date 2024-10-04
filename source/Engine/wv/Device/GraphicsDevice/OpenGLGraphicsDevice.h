@@ -53,7 +53,7 @@ namespace wv
 
 		virtual void beginRender() override;
 
-		virtual RenderTargetID createRenderTarget( sRenderTargetDesc* _desc ) override;
+		virtual RenderTargetID createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) override;
 		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) override;
 		virtual void setRenderTarget( RenderTargetID _renderTargetID ) override;
 

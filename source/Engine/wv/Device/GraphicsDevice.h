@@ -87,6 +87,7 @@ namespace wv
 
 		ShaderProgramID cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
 		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+		RenderTargetID cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
@@ -99,7 +100,7 @@ namespace wv
 		virtual void beginRender();
 		virtual void endRender();
 
-		virtual RenderTargetID createRenderTarget( sRenderTargetDesc* _desc ) = 0;
+		virtual RenderTargetID createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
 		virtual void destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 		virtual void setRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
@@ -166,6 +167,7 @@ namespace wv
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
+
 	template<typename R, typename T>
 	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
 	{

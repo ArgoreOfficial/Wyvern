@@ -170,14 +170,16 @@ void wv::cOpenGLGraphicsDevice::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( sRenderTargetDesc* _desc )
+wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	sRenderTargetDesc& desc = *_desc;
-	RenderTargetID id = m_renderTargets.allocate();
-	sRenderTarget& target = m_renderTargets.get( id );
+	if( !_renderTargetID.isValid() )
+		_renderTargetID = m_renderTargets.allocate();
+
+	sRenderTarget& target = m_renderTargets.get( _renderTargetID );
 	
 	glCreateFramebuffers( 1, &target.fbHandle );
 	
@@ -231,17 +233,17 @@ wv::RenderTargetID wv::cOpenGLGraphicsDevice::createRenderTarget( sRenderTargetD
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create RenderTarget\n" );
 		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", err );
 
-		destroyRenderTarget( id );
+		destroyRenderTarget( _renderTargetID );
 		
-		return RenderTargetID{ 0 };
+		return RenderTargetID::InvalidID;
 	}
 #endif
 	target.width  = desc.width;
 	target.height = desc.height;
 
-	return id;
+	return _renderTargetID;
 #else
-	return RenderTargetID{ 0 };
+	return RenderTargetID::InvalidID;
 #endif
 }
 

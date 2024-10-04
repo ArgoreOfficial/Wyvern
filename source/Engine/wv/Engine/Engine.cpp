@@ -548,7 +548,7 @@ void wv::cEngine::createGBuffer()
 #endif
 
 	CmdBufferID buffer = graphics->getCommandBuffer();
-	graphics->bufferCommand( buffer, WV_GPUTASK_CREATE_RENDERTARGET, (void**)&m_gbuffer, &rtDesc);
+	m_gbuffer = graphics->cmdCreateRenderTarget( buffer, rtDesc );
 	graphics->submitCommandBuffer( buffer );
 	graphics->executeCommandBuffer( buffer );
 

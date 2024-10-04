@@ -156,18 +156,22 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		switch( taskType )
 		{
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
-			*(RenderTargetID*)( outPtr ) = createRenderTarget( &stream.pop<sRenderTargetDesc>() );
-			break;
+		{
+			struct sDescData
+			{
+				RenderTargetID id;
+				sRenderTargetDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
 
-		case WV_GPUTASK_DESTROY_RENDERTARGET: 
-			destroyRenderTarget( stream.pop<RenderTargetID>() );
-			break;
+			createRenderTarget( descData.id, &descData.desc );
 
-		case WV_GPUTASK_SET_RENDERTARGET: 
-			setRenderTarget( stream.pop<RenderTargetID>() );
 			break;
+		}
 
-		//case WV_GPUTASK_CLEAR_RENDERTARGET: break
+		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
+
+		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
@@ -182,27 +186,18 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			break;
 		}
 
-		case WV_GPUTASK_DESTROY_PROGRAM: 
-			destroyProgram( stream.pop<ShaderProgramID>() ); 
-			break;
+		case WV_GPUTASK_DESTROY_PROGRAM: destroyProgram( stream.pop<ShaderProgramID>() ); break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
 		{
-			if( outPtr )
+			struct sDescData
 			{
-				(PipelineID&)( *outPtr ) = createPipeline( PipelineID::InvalidID, &stream.pop<sPipelineDesc>() );
-			}
-			else
-			{
-				struct sDescData
-				{
-					PipelineID id;
-					sPipelineDesc desc;
-				} descData;
-				descData = stream.pop<sDescData>();
-				createPipeline( descData.id, &descData.desc );
-			}
-
+				PipelineID id;
+				sPipelineDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
+			createPipeline( descData.id, &descData.desc );
+			
 			break;
 		}
 		case WV_GPUTASK_DESTROY_PIPELINE: 
@@ -281,6 +276,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc )
 {
 	ShaderProgramID id = m_shaderPrograms.allocate();
+
 	struct
 	{
 		ShaderProgramID id;
@@ -302,11 +298,26 @@ wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, co
 		PipelineID id;
 		sPipelineDesc desc;
 	} desc;
-	
 	desc.id = id;
 	desc.desc = _desc;
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, &desc );
+	return id;
+}
+
+wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
+{
+	RenderTargetID id = m_renderTargets.allocate();
+
+	struct
+	{
+		RenderTargetID id;
+		sRenderTargetDesc desc;
+	} desc;
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, &desc );
 	return id;
 }
 
