@@ -89,7 +89,7 @@ namespace wv
 		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
 		RenderTargetID cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
 		GPUBufferID cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
-		
+		MeshID cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc );
 		TextureID cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
@@ -122,7 +122,7 @@ namespace wv
 		virtual void        bufferData      ( GPUBufferID _buffer ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) = 0;
 		
-		virtual MeshID createMesh( sMeshDesc* _desc ) = 0;
+		virtual MeshID createMesh( MeshID _meshID, sMeshDesc* _desc ) = 0;
 		virtual void   destroyMesh( MeshID _meshID ) = 0;
 
 		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    = 0;

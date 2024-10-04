@@ -72,7 +72,7 @@ namespace wv
 		virtual void        bufferData      ( GPUBufferID _buffer ) override;
 		virtual void        destroyGPUBuffer( GPUBufferID _buffer ) override;
 		
-		virtual MeshID createMesh ( sMeshDesc* _desc )      override;
+		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc )      override;
 		virtual void   destroyMesh( MeshID _meshID ) override;
 
 		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                    override;

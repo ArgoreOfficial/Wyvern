@@ -118,6 +118,9 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			continue;
 
 		sMesh& mesh = meshreg.get( meshID );
+		if( !mesh.complete )
+			continue;
+
 		mesh.transform.update( &_node->transform, _recalcMatrices );
 
 		wv::cMaterial* mat = mesh.pMaterial;

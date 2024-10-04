@@ -236,8 +236,17 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 			break;
 
 		case WV_GPUTASK_CREATE_MESH:
-			(MeshID&)( *outPtr ) = createMesh( &stream.pop<sMeshDesc>() );
+		{
+			struct sDescData
+			{
+				MeshID id;
+				sMeshDesc desc;
+			} descData;
+			descData = stream.pop<sDescData>();
+			createMesh( descData.id, &descData.desc );
+
 			break;
+		}
 
 		case WV_GPUTASK_DESTROY_MESH:
 			destroyMesh( stream.pop<MeshID>() );
@@ -354,6 +363,22 @@ wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, 
 	desc.desc = _desc;
 
 	bufferCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, &desc );
+	return id;
+}
+
+wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
+{
+	MeshID  id = m_meshes.allocate();
+
+	struct
+	{
+		MeshID id;
+		sMeshDesc desc;
+	} desc;
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_MESH, &desc );
 	return id;
 }
 

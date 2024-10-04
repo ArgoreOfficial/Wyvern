@@ -173,7 +173,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 		// buffer
 		wv::CmdBufferID cmdBuffer = device->getCommandBuffer();
-		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, (void**)_outMesh, &prDesc );
+		*_outMesh = device->cmdCreateMesh( cmdBuffer, prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
 		if( device->getThreadID() == std::this_thread::get_id() )

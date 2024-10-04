@@ -77,6 +77,8 @@ namespace wv
 		// remove?
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
+		
+		bool complete = false;
 
 		void* pPlatformData = nullptr;
 	};

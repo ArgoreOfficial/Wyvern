@@ -663,13 +663,16 @@ void wv::cOpenGLGraphicsDevice::destroyGPUBuffer( GPUBufferID _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
+wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	MeshID id = m_meshes.allocate();
-	sMesh& mesh = m_meshes.get( id );
+	
+	if( !_meshID.isValid() )
+		_meshID = m_meshes.allocate();
+
+	sMesh& mesh = m_meshes.get( _meshID );
 	
 	sGPUBufferDesc vbDesc;
 	vbDesc.name  = "vbo";
@@ -734,9 +737,11 @@ wv::MeshID wv::cOpenGLGraphicsDevice::createMesh( sMeshDesc* _desc )
 		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
 	}
 
-	return id;
+	mesh.complete = true;
+
+	return _meshID;
 #else
-	return MeshID{ 0 };
+	return MeshID::InvalidID;
 #endif
 }
 

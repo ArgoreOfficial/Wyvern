@@ -513,7 +513,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.deleteData = false;
 	}
 
-	m_screenQuad = graphics->createMesh( &prDesc );
+	m_screenQuad = graphics->createMesh( 0, &prDesc );
 	
 	if( m_screenQuad.isValid() )
 	{
