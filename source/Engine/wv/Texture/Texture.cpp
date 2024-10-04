@@ -40,7 +40,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pG
 	
 	desc.filtering = m_filtering;
 	desc.generateMipMaps = true;
-	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	CmdBufferID cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	
 	struct
 	{

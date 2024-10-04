@@ -39,7 +39,7 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGrap
 static void unloadMeshNode( wv::sMeshNode* _node )
 {
 	wv::iGraphicsDevice* pGraphicsDevice = wv::cEngine::get()->graphics;
-	uint32_t cmdBuffer = pGraphicsDevice->getCommandBuffer();
+	wv::CmdBufferID cmdBuffer = pGraphicsDevice->getCommandBuffer();
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )

@@ -63,7 +63,7 @@ namespace wv
 		virtual ShaderProgramID createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) override;
 		virtual void destroyProgram( ShaderProgramID _pProgram ) override;
 
-		virtual PipelineID createPipeline ( sPipelineDesc* _desc ) override;
+		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) override;
 		virtual void       destroyPipeline( PipelineID _pipelineID ) override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) override;
 

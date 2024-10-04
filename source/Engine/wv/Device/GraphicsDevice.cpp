@@ -101,7 +101,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-uint32_t wv::iGraphicsDevice::getCommandBuffer()
+wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 {
 	m_mutex.lock();
 	m_reallocatingCommandBuffers = m_availableCommandBuffers.size() == 0;
@@ -113,7 +113,7 @@ uint32_t wv::iGraphicsDevice::getCommandBuffer()
 		m_availableCommandBuffers.push( m_commandBuffers.size() - 1 );
 	}
 
-	uint32_t bufferIndex = m_availableCommandBuffers.front();
+	CmdBufferID bufferIndex = m_availableCommandBuffers.front();
 	m_availableCommandBuffers.pop();
 	m_recordingCommandBuffers.push_back( bufferIndex );
 
@@ -123,16 +123,16 @@ uint32_t wv::iGraphicsDevice::getCommandBuffer()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::submitCommandBuffer( uint32_t& _buffer )
+void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
 {
 	m_mutex.lock();
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
 	{
-		if( m_recordingCommandBuffers[ i ] != _buffer )
+		if( m_recordingCommandBuffers[ i ] != _bufferID )
 			continue;
 
 		m_recordingCommandBuffers.erase( m_recordingCommandBuffers.begin() + i );
-		m_submittedCommandBuffers.push_back( _buffer );
+		m_submittedCommandBuffers.push_back( _bufferID );
 
 		m_mutex.unlock();
 		return;
@@ -142,10 +142,10 @@ void wv::iGraphicsDevice::submitCommandBuffer( uint32_t& _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
+void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 {
 	m_mutex.lock();
-	cCommandBuffer& buffer = m_commandBuffers[ _index ];
+	cCommandBuffer& buffer = m_commandBuffers[ _bufferID.value ];
 	cMemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.getNumCommands(); i++ )
@@ -187,9 +187,24 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 			break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
-			(PipelineID&)( *outPtr ) = createPipeline( &stream.pop<sPipelineDesc>() );
-			break;
+		{
+			if( outPtr )
+			{
+				(PipelineID&)( *outPtr ) = createPipeline( PipelineID::InvalidID, &stream.pop<sPipelineDesc>() );
+			}
+			else
+			{
+				struct sDescData
+				{
+					PipelineID id;
+					sPipelineDesc desc;
+				} descData;
+				descData = stream.pop<sDescData>();
+				createPipeline( descData.id, &descData.desc );
+			}
 
+			break;
+		}
 		case WV_GPUTASK_DESTROY_PIPELINE: 
 			destroyPipeline( stream.pop<PipelineID>() );
 			break;
@@ -246,8 +261,8 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 	{
-		uint32_t submittedIndex = m_submittedCommandBuffers[ i ];
-		if( submittedIndex != _index )
+		CmdBufferID submittedIndex = m_submittedCommandBuffers[ i ];
+		if( submittedIndex != _bufferID )
 			continue;
 
 		m_submittedCommandBuffers.erase( m_submittedCommandBuffers.begin() + i );
@@ -263,7 +278,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( uint32_t _index )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( uint32_t& _rBuffer, const sShaderProgramDesc& _desc )
+wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc )
 {
 	ShaderProgramID id = m_shaderPrograms.allocate();
 	struct
@@ -274,15 +289,32 @@ wv::ShaderProgramID wv::iGraphicsDevice::cmdCreateProgram( uint32_t& _rBuffer, c
 	desc.id = id;
 	desc.desc = _desc;
 
-	bufferCommand( _rBuffer, WV_GPUTASK_CREATE_PROGRAM, &desc );
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, &desc );
 	return id;
 }
 
-void wv::iGraphicsDevice::setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller )
+wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
+{
+	PipelineID id = m_pipelines.allocate();
+
+	struct
+	{
+		PipelineID id;
+		sPipelineDesc desc;
+	} desc;
+	
+	desc.id = id;
+	desc.desc = _desc;
+
+	bufferCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, &desc );
+	return id;
+}
+
+void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	m_mutex.lock();
-	m_commandBuffers[ _buffer ].callback = _func;
-	m_commandBuffers[ _buffer ].callbacker = _caller;
+	m_commandBuffers[ _bufferID.value ].callback = _func;
+	m_commandBuffers[ _bufferID.value ].callbacker = _caller;
 	m_mutex.unlock();
 }
 

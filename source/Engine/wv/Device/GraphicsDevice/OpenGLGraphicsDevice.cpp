@@ -457,21 +457,23 @@ void wv::cOpenGLGraphicsDevice::destroyProgram( ShaderProgramID _programID )
 #endif
 }
 
-wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
+wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( PipelineID _pipelineID, sPipelineDesc* _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
 	
 	sPipelineDesc& desc = *_desc;
-	PipelineID id = m_pipelines.allocate();
-	sPipeline& pipeline = m_pipelines.get( id );
+	if( !_pipelineID.isValid() )
+		_pipelineID = m_pipelines.allocate();
+
+	sPipeline& pipeline = m_pipelines.get( _pipelineID );
 	
 	WV_ASSERT_GL( glCreateProgramPipelines( 1, &pipeline.handle ) );
 	
 	if( pipeline.handle == 0 )
 	{
-		m_pipelines.deallocate( id );
+		m_pipelines.deallocate( _pipelineID );
 		return PipelineID{ 0 };
 	}
 
@@ -490,9 +492,9 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( sPipelineDesc* _desc )
 		pipeline.pFragmentProgram = *desc.pFragmentProgram;
 	}
 
-	return id;
+	return _pipelineID;
 #else
-	return PipelineID{ 0 };
+	return PipelineID::InvalidID;
 #endif
 }
 

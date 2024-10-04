@@ -74,20 +74,21 @@ namespace wv
 
 		std::thread::id getThreadID() { return m_threadID; }
 
-		[[nodiscard]] uint32_t getCommandBuffer();
+		[[nodiscard]] CmdBufferID getCommandBuffer();
 		
-		void submitCommandBuffer( uint32_t& _buffer );
-		void executeCommandBuffer( uint32_t _index );
+		void submitCommandBuffer( CmdBufferID _bufferID );
+		void executeCommandBuffer( CmdBufferID _bufferID );
 
 		template<typename R, typename T>
-		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
+		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo );
 		template<typename T>
-		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _rBuffer, _type, nullptr, _pInfo ); }
-		void bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type ) { bufferCommand<char, char>( _rBuffer, _type, nullptr, nullptr ); }
+		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo ) { bufferCommand<T, T>( _bufferID, _type, nullptr, _pInfo ); }
+		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char, char>( _bufferID, _type, nullptr, nullptr ); }
 
-		ShaderProgramID cmdCreateProgram( uint32_t& _rBuffer, const sShaderProgramDesc& _desc );
+		ShaderProgramID cmdCreateProgram( CmdBufferID _bufferID, const sShaderProgramDesc& _desc );
+		PipelineID cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
 
-		void setCommandBufferCallback( uint32_t& _buffer, wv::Function<void, void*>::fptr_t _func, void* _caller );
+		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
 
 		virtual void terminate() = 0;
@@ -108,7 +109,7 @@ namespace wv
 		virtual ShaderProgramID createProgram( ShaderProgramID _shaderID, sShaderProgramDesc* _desc ) = 0;
 		virtual void destroyProgram( ShaderProgramID _programID ) = 0;
 
-		virtual PipelineID createPipeline ( sPipelineDesc* _desc ) = 0;
+		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) = 0;
 		virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
 		virtual void       bindPipeline   ( PipelineID _pipelineID ) = 0;
 
@@ -159,17 +160,17 @@ namespace wv
 		bool m_reallocatingCommandBuffers = false;
 
 		std::vector<cCommandBuffer> m_commandBuffers;
-		std::queue <uint32_t>       m_availableCommandBuffers;
-		std::vector<uint32_t>       m_recordingCommandBuffers;
-		std::vector<uint32_t>       m_submittedCommandBuffers;
+		std::queue <CmdBufferID>    m_availableCommandBuffers;
+		std::vector<CmdBufferID>    m_recordingCommandBuffers;
+		std::vector<CmdBufferID>    m_submittedCommandBuffers;
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
 	template<typename R, typename T>
-	inline void iGraphicsDevice::bufferCommand( uint32_t& _rBuffer, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
+	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, R** _ppReturn, T* _pInfo )
 	{
 		m_mutex.lock();
-		m_commandBuffers[ _rBuffer ].push<R, T>( _type, _ppReturn, _pInfo );
+		m_commandBuffers[ _bufferID.value ].push<R, T>( _type, _ppReturn, _pInfo );
 		m_mutex.unlock();
 	}
 }

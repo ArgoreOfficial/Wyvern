@@ -52,11 +52,10 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 	desc.pVertexProgram   = &m_vs;
 	desc.pFragmentProgram = &m_fs;
 
-	uint32_t cmdBuffer = _pGraphicsDevice->getCommandBuffer();
+	CmdBufferID cmdBuffer = _pGraphicsDevice->getCommandBuffer();
 	m_vs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, vsDesc );
 	m_fs = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, fsDesc );
-	
-	_pGraphicsDevice->bufferCommand( cmdBuffer, WV_GPUTASK_CREATE_PIPELINE, (void**)&m_pipelineID, &desc);
+	m_pipelineID = _pGraphicsDevice->cmdCreatePipeline( cmdBuffer, desc );
 
 	/// this is disgusting
 	auto cb =
@@ -97,7 +96,7 @@ void wv::cPipelineResource::use( iGraphicsDevice* _pGraphicsDevice )
 
 wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name )
 {
-	if ( !m_pipelineID.isValid() )
+	if ( !m_complete )
 		return GPUBufferID{ GPUBufferID::InvalidID };
 
 	iGraphicsDevice* pGraphics = cEngine::get()->graphics;

@@ -547,7 +547,7 @@ void wv::cEngine::createGBuffer()
 	rtDesc.numTextures = 3;
 #endif
 
-	uint32_t buffer = graphics->getCommandBuffer();
+	CmdBufferID buffer = graphics->getCommandBuffer();
 	graphics->bufferCommand( buffer, WV_GPUTASK_CREATE_RENDERTARGET, (void**)&m_gbuffer, &rtDesc);
 	graphics->submitCommandBuffer( buffer );
 	graphics->executeCommandBuffer( buffer );

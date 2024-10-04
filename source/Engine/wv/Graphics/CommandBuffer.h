@@ -7,6 +7,8 @@
 
 namespace wv
 {
+	WV_DEFINE_ID( CmdBufferID );
+
 	enum eGPUTaskType : uint8_t
 	{
 		WV_GPUTASK_NONE = 0,
@@ -42,13 +44,13 @@ namespace wv
 	class cCommandBuffer
 	{
 	public:
-		cCommandBuffer( const uint32_t& _index, const size_t& _initialSize ) :
+		cCommandBuffer( const CmdBufferID& _index, const size_t& _initialSize ) :
 			m_index ( _index )
 		{ 
 			m_buffer.allocate( _initialSize );
 		}
 
-		uint32_t getIndex() { return m_index; }
+		CmdBufferID getIndex() { return m_index; }
 
 		void flush()
 		{
@@ -77,7 +79,7 @@ namespace wv
 
 		wv::Function<void, void*> callback;
 		void* callbacker = nullptr;
-		uint32_t m_index = -1;
+		CmdBufferID m_index = CmdBufferID::InvalidID;
 	private:
 		wv::cMemoryStream m_buffer;
 		size_t m_numCommands = 0;
@@ -93,5 +95,7 @@ namespace wv
 		m_buffer.push( _ppReturn );
 		m_buffer.push( *_pInfo, sizeof( T ) );
 	}
+
+	
 }
 

@@ -172,7 +172,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 		prDesc.pMaterial = material;
 
 		// buffer
-		uint32_t cmdBuffer = device->getCommandBuffer();
+		wv::CmdBufferID cmdBuffer = device->getCommandBuffer();
 		device->bufferCommand( cmdBuffer, wv::WV_GPUTASK_CREATE_MESH, (void**)_outMesh, &prDesc );
 		device->submitCommandBuffer( cmdBuffer );
 
