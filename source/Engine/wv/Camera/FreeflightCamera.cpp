@@ -35,7 +35,7 @@ void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
 		ctx->setMouseLock( m_freecam_enabled );
 	}
 
-	m_rotate = { -(float)_event.delta.x, (float)_event.delta.y };
+	m_rotate += { -(float)_event.delta.x, (float)_event.delta.y };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ void wv::FreeflightCamera::update( double _delta_time )
 
 	if (m_freecam_enabled)
 	{
-		m_transform.rotation.y += m_rotate.x * 0.1f;
-		m_transform.rotation.x -= m_rotate.y * 0.1f;
+		m_transform.rotation.y += m_rotate.x * 0.08f;
+		m_transform.rotation.x -= m_rotate.y * 0.08f;
 	}
 
 	if ( m_transform.rotation.x > 89.0f )
@@ -85,10 +85,7 @@ void wv::FreeflightCamera::update( double _delta_time )
 	float pitch = Math::radians( m_transform.rotation.x );
 	float roll  = 0.0f;
 
-	// TODO: change to wv::matrix
-
 	// forward
-	
 	cMatrix4x4f rot_forward( 1.0f );
 	rot_forward = Matrix::rotateY( rot_forward, yaw );
 	rot_forward = Matrix::rotateX( rot_forward, pitch );
@@ -98,10 +95,8 @@ void wv::FreeflightCamera::update( double _delta_time )
 	// right
 	cMatrix4x4f rot_right( 1.0f );
 	rot_right = Matrix::rotateY( rot_right, yaw );
-	//rot_right = Matrix::rotateX( rot_right, pitch );
-
 	cVector4f right = cVector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
-
+	
 	// up
 	cVector4f up = cVector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
 
