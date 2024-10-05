@@ -125,9 +125,9 @@ namespace wv
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       = 0;
 
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
-		virtual void        allocateBuffer  ( GPUBufferID _buffer, size_t _size )            = 0;
-		virtual void        bufferData      ( GPUBufferID _buffer )                          = 0;
-		virtual void        destroyGPUBuffer( GPUBufferID _buffer )                          = 0;
+		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size )            = 0;
+		virtual void        bufferData      ( GPUBufferID _bufferID )                          = 0;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                          = 0;
 		
 		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc );
 		virtual void   destroyMesh( MeshID _meshID );

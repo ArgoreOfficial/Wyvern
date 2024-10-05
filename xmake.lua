@@ -12,6 +12,8 @@ set_version( "0.0.1" )
 set_symbols "debug"
 set_optimize "none"
 
+add_rules("plugin.vsxmake.autoupdate")
+
 if is_mode( "Package" ) then
     set_runtimes "MT"
 else

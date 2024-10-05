@@ -12,8 +12,8 @@ in flat sampler2D Albedo;
 in flat int HasAlpha;
 
 layout(location = 0) out vec4 o_Albedo;
-layout(location = 1) out vec4 o_Normal;
-layout(location = 2) out vec4 o_RoughnessMetallic;
+layout(location = 1) out vec2 o_Normal;
+layout(location = 2) out vec2 o_RoughnessMetallic;
 
 float randf(vec2 p)
 {
@@ -52,6 +52,22 @@ bool shouldDiscardAlpha( float _alpha )
     return false;
 }
 
+vec2 OctWrap( vec2 v )
+{
+    vec2 w = 1.0 - abs( v.yx );
+    if (v.x < 0.0) w.x = -w.x;
+    if (v.y < 0.0) w.y = -w.y;
+    return w;
+}
+
+vec2 encodeNormalOct( vec3 n )
+{
+    n /= ( abs( n.x ) + abs( n.y ) + abs( n.z ) );
+    n.xy = n.z > 0.0 ? n.xy : OctWrap( n.xy );
+    n.xy = n.xy * 0.5 + 0.5;
+    return n.xy;
+}
+
 void main()
 {
     vec3 normalColor = (Normal / 2.0) + vec3( 0.5 );
@@ -63,6 +79,6 @@ void main()
         discard;
 
     o_Albedo = color;
-    o_Normal = vec4( Normal, 1.0 );
-    o_RoughnessMetallic = vec4( 1.0 );
+    o_Normal = encodeNormalOct( Normal );
+    o_RoughnessMetallic = vec2( 1.0 );
 }
