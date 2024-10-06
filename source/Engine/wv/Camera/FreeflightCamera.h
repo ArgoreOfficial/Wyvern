@@ -2,8 +2,7 @@
 
 #include <wv/Camera/Camera.h>
 
-#include <wv/Events/MouseListener.h>
-#include <wv/Events/InputListener.h>
+#include <wv/Events/Events.h>
 
 #include <wv/Math/Transform.h>
 #include <wv/Math/Vector3.h>
@@ -16,7 +15,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class FreeflightCamera : public iCamera, public iMouseListener, public iInputListener
+	class FreeflightCamera : public iCamera
 	{
 
 	public:
@@ -26,8 +25,8 @@ namespace wv
 		~FreeflightCamera() {}
 
 		void onCreate() override;
-		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( sInputEvent _event ) override;
+
+		void handleInput();
 		void update( double _delta_time ) override;
 	
 		void resetVelocity() { m_velocity = { 0.0f, 0.0f, 0.0f }; }
@@ -35,6 +34,9 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
+
+		cMouseEventListener m_mouseListener;
+		cInputEventListener m_inputListener;
 
 		wv::cVector3f m_move;
 		wv::Vector2f m_rotate;

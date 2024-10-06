@@ -27,6 +27,7 @@
 #include <wv/Engine/EngineReflect.h>
 
 #include <wv/Engine/ApplicationState.h>
+#include <wv/Events/Dispatcher.h>
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Draw.h>
@@ -174,27 +175,29 @@ void wv::cEngine::onResize( int _width, int _height )
 	recreateScreenRenderTarget( _width, _height );
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cEngine::onMouseEvent( MouseEvent _event )
+void wv::cEngine::handleInput()
 {
-	m_mousePosition = _event.position;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cEngine::onInputEvent( sInputEvent _event )
-{
-	if ( _event.buttondown )
+	sMouseEvent mouseEvent;
+	if ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		switch ( _event.key )
+		m_mousePosition = mouseEvent.position;
+	}
+	
+
+	sInputEvent inputEvent;
+	if ( m_inputListener.pollEvent( inputEvent ) )
+	{
+		if ( inputEvent.buttondown )
 		{
-		case 'R': m_pApplicationState->reloadScene(); break;
-		case 'F': m_drawWireframe ^= 1; break;
+			switch ( inputEvent.key )
+			{
+			case 'R': m_pApplicationState->reloadScene(); break;
+			case 'F': m_drawWireframe ^= 1; break;
 
-		case WV_KEY_ESCAPE: context->close(); break;
+			case WV_KEY_ESCAPE: context->close(); break;
+			}
+
 		}
-
 	}
 }
 
@@ -232,16 +235,8 @@ wv::Vector2i wv::cEngine::getViewportSize()
 void wv::cEngine::run()
 {
 	// Subscribe to user input event
-	subscribeMouseEvents();
-	subscribeInputEvent();
-	
-	/*
-	 * Cameras have to be made after the event is subscribed to
-	 * to get the correct event callback order
-	 * 
-	 * This is because events are called in the order that they 
-	 * were subscribed in
-	 */
+	m_inputListener.hook();
+	m_mouseListener.hook();
 
 	orbitCamera = new OrbitCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = new FreeflightCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
@@ -312,7 +307,8 @@ void wv::cEngine::tick()
 	/// ------------------ update ------------------ ///
 
 	context->pollEvents();
-	
+	handleInput();
+
 #ifdef WV_PLATFORM_WINDOWS
 	// refresh fps display only on windows
 	{
@@ -348,8 +344,7 @@ void wv::cEngine::tick()
 	
 	currentCamera->update( dt );
 
-	/// ------------------ render ------------------ ///
-	
+	/// ------------------ render ------------------ ///	
 
 #ifndef WV_PLATFORM_PSVITA
 	if( !m_gbuffer.isValid() )

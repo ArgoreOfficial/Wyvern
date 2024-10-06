@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wv/Events/MouseListener.h>
-#include <wv/Events/InputListener.h>
+#include <wv/Events/Events.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -67,7 +66,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cEngine : iMouseListener, iInputListener
+	class cEngine
 	{
 
 	public:
@@ -79,8 +78,7 @@ namespace wv
 		static wv::Handle getUniqueHandle();
 
 		void onResize( int _width, int _height );
-		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( sInputEvent _event ) override;
+		void handleInput();
 
 		void setSize( int _width, int _height, bool _notify = true );
 		void setDrawWireframe( bool _enabled ) { m_drawWireframe = _enabled; }
@@ -152,6 +150,8 @@ namespace wv
 		bool m_drawWireframe = false;
 
 		wv::Vector2i m_mousePosition;
+		cMouseEventListener m_mouseListener;
+		cInputEventListener m_inputListener;
 
 		static cEngine* s_pInstance; 
 	};

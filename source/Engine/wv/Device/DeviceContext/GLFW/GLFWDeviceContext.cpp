@@ -3,9 +3,7 @@
 #include <stdio.h>
 
 #include <wv/Engine/Engine.h>
-#include <wv/Events/InputListener.h>
-#include <wv/Events/MouseListener.h>
-#include <wv/Events/WindowListener.h>
+#include <wv/Events/Events.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -29,7 +27,7 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 	inputEvent.scancode = _scancode;
 	inputEvent.mods = _mods;
 
-	wv::iInputListener::invoke( inputEvent );
+	wv::cInputEventDispatcher::post( inputEvent );
 }
 #endif
 
@@ -38,14 +36,14 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 #ifdef WV_SUPPORT_GLFW
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
-	wv::MouseEvent mouseEvent;
+	wv::sMouseEvent mouseEvent;
 
 	mouseEvent.position = wv::Vector2i{ (int)xpos, (int)ypos };
 
 	wv::Vector2i oldPos = wv::cEngine::get()->getMousePosition();
 	mouseEvent.delta = wv::Vector2i{ (int)xpos - oldPos.x, (int)ypos - oldPos.y };
 	
-	wv::iMouseListener::invoke( mouseEvent );
+	wv::cMouseEventDispatcher::post( mouseEvent );
 }
 #endif
 
@@ -54,7 +52,7 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 #ifdef WV_SUPPORT_GLFW
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
-	wv::MouseEvent mouseEvent;
+	wv::sMouseEvent mouseEvent;
 
 	double xpos, ypos;
 	glfwGetCursorPos( _window, &xpos, &ypos );
@@ -62,15 +60,15 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 	switch ( _button )
 	{
-	case GLFW_MOUSE_BUTTON_LEFT:   mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
-	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
-	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
+	case GLFW_MOUSE_BUTTON_LEFT:   mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
+	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
+	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
 	}
 	
 	mouseEvent.buttondown = _action == GLFW_PRESS;
 	mouseEvent.buttonup = _action == GLFW_RELEASE;
 
-	wv::iMouseListener::invoke( mouseEvent );
+	wv::cMouseEventDispatcher::post( mouseEvent );
 }
 #endif
 
@@ -84,7 +82,7 @@ void windowFocusCallback(GLFWwindow* _window, int _focused)
 		? wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED
 		: wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
 
-	wv::iWindowListener::invoke( windowEvent );
+	wv::cWindowEventDispatcher::post( windowEvent );
 }
 #endif
 
@@ -100,7 +98,7 @@ void onResizeCallback( GLFWwindow* window, int _width, int _height )
 	windowEvent.size.x = _width;
 	windowEvent.size.y = _height;
 
-	wv::iWindowListener::invoke( windowEvent );
+	wv::cWindowEventDispatcher::post( windowEvent );
 }
 #endif
 

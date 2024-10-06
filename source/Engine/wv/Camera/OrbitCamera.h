@@ -2,8 +2,7 @@
 
 #include <wv/Camera/Camera.h>
 
-#include <wv/Events/MouseListener.h>
-#include <wv/Events/InputListener.h>
+#include <wv/Events/Events.h>
 
 #include <wv/Math/Transform.h>
 #include <wv/Math/Vector3.h>
@@ -16,7 +15,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class OrbitCamera : public iCamera, public iMouseListener, public iInputListener
+	class OrbitCamera : public iCamera
 	{
 	public:
 
@@ -25,19 +24,20 @@ namespace wv
 		~OrbitCamera( void );
 
 		void onCreate() override;
-		void onMouseEvent( MouseEvent _event ) override;
-		void onInputEvent( sInputEvent _event ) override;
+
+		void handleInput();
 		void update( double _delta_time ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
 
+		cMouseEventListener m_mouseListener;
+		cInputEventListener m_inputListener;
+
 		wv::Vector2f m_rotate;
 
-		wv::Vector2i m_old_mouse_pos;
 		bool m_input_enabled = false;
-
 		float r = 0.0f;
 
 	};

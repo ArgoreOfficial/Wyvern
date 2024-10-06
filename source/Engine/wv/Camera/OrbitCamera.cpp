@@ -23,50 +23,40 @@ wv::OrbitCamera::~OrbitCamera( void )
 
 void wv::OrbitCamera::onCreate()
 {
-	subscribeMouseEvents();
-	subscribeInputEvent();
+	m_inputListener.hook();
+	m_mouseListener.hook();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OrbitCamera::onMouseEvent( MouseEvent _event )
+void wv::OrbitCamera::handleInput()
 {
-	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
-	
-	if ( (_event.buttondown || _event.buttonup) && _event.button == MouseEvent::WV_MOUSE_BUTTON_LEFT )
+	sMouseEvent mouseEvent;
+	if ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		m_old_mouse_pos = _event.position;
-		m_input_enabled = _event.buttondown;
+		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 
-		// reset input
-		m_rotate = { 0.0f, 0.0f };
-		
-		return;
+		if ( ( mouseEvent.buttondown || mouseEvent.buttonup ) && mouseEvent.button == sMouseEvent::WV_MOUSE_BUTTON_LEFT )
+		{
+			m_input_enabled = mouseEvent.buttondown;
+
+			// reset input
+			m_rotate = { 0.0f, 0.0f };
+
+			return;
+		}
+
+		if ( !m_input_enabled )
+			return;
+
+		m_rotate = wv::Vector2f( (float)mouseEvent.delta.x, (float)mouseEvent.delta.y );
 	}
-
-	if ( !m_input_enabled )
-		return;
-
-	int delta_x = _event.position.x - m_old_mouse_pos.x;
-	int delta_y = _event.position.y - m_old_mouse_pos.y;
-	m_old_mouse_pos = _event.position;
-
-	m_rotate = wv::Vector2f( (float)delta_x, (float)delta_y );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OrbitCamera::onInputEvent( sInputEvent _event )
-{
-
-	/// scroll?
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OrbitCamera::update( double _delta_time )
 {
+	handleInput();
+
 	m_transform.rotation.y -= m_rotate.x * 0.4f;
 	m_transform.rotation.x -= m_rotate.y * 0.4f;
 

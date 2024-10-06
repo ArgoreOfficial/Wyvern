@@ -3,9 +3,7 @@
 #include <stdio.h>
 
 #include <wv/Engine/Engine.h>
-#include <wv/Events/InputListener.h>
-#include <wv/Events/MouseListener.h>
-#include <wv/Events/WindowListener.h>
+#include <wv/Events/Events.h>
 
 #include <wv/Math/Vector2.h>
 
@@ -21,6 +19,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 #endif
+
+#include <wv/Events/Dispatcher.h>
 
 static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 {
@@ -148,7 +148,7 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 
 	inputEvent.key = sdlToWVKey( _event->keysym.sym );
 	
-	wv::iInputListener::invoke( inputEvent );
+	wv::cInputEventDispatcher::post( inputEvent );
 }
 #endif
 
@@ -156,7 +156,7 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 #ifdef WV_SUPPORT_SDL2
 void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
-	wv::MouseEvent mouseEvent;
+	wv::sMouseEvent mouseEvent;
 	mouseEvent.position.x = _event->x;
 	mouseEvent.position.y = _event->y;
 	mouseEvent.delta.x = _event->xrel;
@@ -164,7 +164,7 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 	
 	_device->mousePosition = mouseEvent.position;
 
-	wv::iMouseListener::invoke( mouseEvent );
+	wv::cMouseEventDispatcher::post( mouseEvent );
 }
 #endif
 
@@ -172,7 +172,7 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 #ifdef WV_SUPPORT_SDL2
 void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _event )
 {
-	wv::MouseEvent mouseEvent;
+	wv::sMouseEvent mouseEvent;
 
 
 	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
@@ -183,15 +183,15 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 
 	switch ( _event->button )
 	{
-	case 1: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
-	case 3: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
-	case 2: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
+	case 1: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
+	case 3: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
+	case 2: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
 	}
 
 	mouseEvent.buttondown = _event->type == SDL_MOUSEBUTTONDOWN;
 	mouseEvent.buttonup   = _event->type == SDL_MOUSEBUTTONUP;
 
-	wv::iMouseListener::invoke( mouseEvent );
+	wv::cMouseEventDispatcher::post( mouseEvent );
 }
 #endif
 
@@ -199,6 +199,8 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 #ifdef WV_SUPPORT_SDL2
 void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 {
+	wv::sWindowEvent windowEvent;
+
 	switch ( _event->event )
 	{
 		case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED: 
@@ -207,29 +209,24 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 			SDL_GetWindowSize( _window, &w, &h );
 			wv::cEngine::get()->onResize( w, h );
 
-			wv::sWindowEvent windowEvent;
 			windowEvent.type = wv::sWindowEvent::WV_WINDOW_RESIZED;
 			windowEvent.size.x = w;
 			windowEvent.size.y = h;
-
-			wv::iWindowListener::invoke( windowEvent );
 			break;
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_GAINED:
 		{
-			wv::sWindowEvent windowEvent;
 			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED;
-			wv::iWindowListener::invoke( windowEvent );
 			break;
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_LOST:
 		{
-			wv::sWindowEvent windowEvent;
 			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
-			wv::iWindowListener::invoke( windowEvent );
 			break;
 		}
 	}
+
+	wv::cWindowEventDispatcher::post( windowEvent );
 }
 #endif
 

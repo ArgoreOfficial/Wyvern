@@ -19,55 +19,59 @@ wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _nea
 
 void wv::FreeflightCamera::onCreate()
 {
-	subscribeMouseEvents();
-	subscribeInputEvent();
+	m_inputListener.hook();
+	m_mouseListener.hook();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::FreeflightCamera::onMouseEvent( MouseEvent _event )
+void wv::FreeflightCamera::handleInput()
 {
-	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
-	
-	if ( _event.buttondown && _event.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
+	sMouseEvent mouseEvent;
+	if( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		m_freecam_enabled = !m_freecam_enabled;
-		ctx->setMouseLock( m_freecam_enabled );
+		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+
+		if ( mouseEvent.buttondown && mouseEvent.button == sMouseEvent::WV_MOUSE_BUTTON_RIGHT )
+		{
+			m_freecam_enabled = !m_freecam_enabled;
+			ctx->setMouseLock( m_freecam_enabled );
+		}
+
+		m_rotate += { -(float)mouseEvent.delta.x, (float)mouseEvent.delta.y };
 	}
 
-	m_rotate += { -(float)_event.delta.x, (float)_event.delta.y };
-}
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::FreeflightCamera::onInputEvent( sInputEvent _event )
-{
-	int button_delta = _event.buttondown ? 1 : -1;
-
-	if ( !_event.repeat )
+	sInputEvent inputEvent;
+	if ( m_inputListener.pollEvent( inputEvent ) )
 	{
-		/// TODO: change to WV_KEY
-		switch ( _event.key )
+		int button_delta = inputEvent.buttondown ? 1 : -1;
+
+		if ( !inputEvent.repeat )
 		{
-		case 'W': m_move.z += -button_delta; break;
-		case 'S': m_move.z += button_delta;  break;
-		case 'A': m_move.x += -button_delta; break;
-		case 'D': m_move.x += button_delta;  break;
-		case 'E': m_move.y += button_delta;  break; // up
-		case 'Q': m_move.y += -button_delta; break; // down
+			/// TODO: change to WV_KEY
+			switch ( inputEvent.key )
+			{
+			case 'W': m_move.z += -button_delta; break;
+			case 'S': m_move.z +=  button_delta;  break;
+			case 'A': m_move.x += -button_delta; break;
+			case 'D': m_move.x +=  button_delta;  break;
+			case 'E': m_move.y +=  button_delta;  break; // up
+			case 'Q': m_move.y += -button_delta; break; // down
 
-		case WV_KEY_LEFT_SHIFT:
-			m_speed += button_delta * 1000.0f;
-			break;
+			case WV_KEY_LEFT_SHIFT:
+				m_speed += button_delta * 1000.0f;
+				break;
 
+			}
 		}
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::FreeflightCamera::update( double _delta_time )
 {
+	handleInput();
+
 	m_velocity *= 1.0f - (float)_delta_time * 10.0f;
 
 	if (m_freecam_enabled)
