@@ -49,6 +49,8 @@ void cDemoWindow::spawnBalls( int _count )
 	sceneRoot->onLoad();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void cDemoWindow::spawnCubes( int _count )
 {
 	wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
@@ -68,6 +70,8 @@ void cDemoWindow::spawnCubes( int _count )
 	sceneRoot->onCreate();
 	sceneRoot->onLoad();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 {
@@ -95,6 +99,8 @@ void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	sceneRoot->onCreate();
 	sceneRoot->onLoad();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void cDemoWindow::updateImpl( double _deltaTime )
 {

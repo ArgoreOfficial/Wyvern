@@ -75,7 +75,6 @@ static GLenum getGlBufferUsage( wv::eGPUBufferUsage _usage )
 wv::cOpenGLGraphicsDevice::cOpenGLGraphicsDevice()
 {
 	WV_TRACE();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +470,6 @@ wv::PipelineID wv::cOpenGLGraphicsDevice::createPipeline( PipelineID _pipelineID
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	
 	sPipelineDesc& desc = *_desc;
 	if( !_pipelineID.isValid() )
 		_pipelineID = m_pipelines.allocate();
@@ -599,7 +597,6 @@ void wv::cOpenGLGraphicsDevice::bufferData( GPUBufferID _bufferID )
 	{
 		WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, 0, buffer.size, buffer.pData ) );
 	}
-
 #endif
 }
 
@@ -882,7 +879,6 @@ void wv::cOpenGLGraphicsDevice::bindVertexBuffer( MeshID _meshID, cPipelineResou
 	// move?
 	cGPUBuffer& ibuffer = m_gpuBuffers.get( mesh.indexBufferID );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
-	
 #endif
 }
 

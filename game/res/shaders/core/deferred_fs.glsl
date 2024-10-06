@@ -53,6 +53,6 @@ void main()
         shading = max( 0.0, shadingDot * 0.5 + 0.5 );
     }
 
-    // FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
-    FragColor = vec4( normal * 0.5 + 0.5, 1.0 );
+    FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
+    //FragColor = vec4( normal * 0.5 + 0.5, 1.0 );
 }
