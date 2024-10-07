@@ -1,8 +1,8 @@
 #include "IntermediateRenderTargetHandler.h"
 
 #include <wv/Engine/Engine.h>
-#include <wv/Device/GraphicsDevice.h>
-#include <wv/RenderTarget/RenderTarget.h>
+#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/RenderTarget.h>
 
 void wv::iIntermediateRenderTargetHandler::destroy()
 {

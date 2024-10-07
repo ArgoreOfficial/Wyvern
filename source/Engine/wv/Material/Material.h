@@ -14,9 +14,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cPipelineResource;
+	class cShaderResource;
 	
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 	class sMesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -39,15 +39,15 @@ namespace wv
 			iResource( _name, _path )
 		{ }
 
-		void load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
-		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+		void load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
 
-		void setAsActive( iGraphicsDevice* _device );
+		void setAsActive( iLowLevelGraphics* _device );
 
 		void setMaterialUniforms();
 		void setInstanceUniforms( sMesh* _instance );
 
-		cPipelineResource* getPipeline() { return m_pPipeline; }
+		cShaderResource* getShader() { return m_pShader; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,10 +57,8 @@ namespace wv
 		void setDefaultViewUniforms();
 		void setDefaultMeshUniforms( sMesh* _mesh );
 
-		cPipelineResource* m_pPipeline = nullptr;
-		//std::vector<Texture*> m_textures;
-
-		sUbInstanceData m_UbInstanceData;
+		cShaderResource* m_pShader = nullptr;
+		sUbInstanceData m_UbInstanceData{};
 
 	};
 

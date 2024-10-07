@@ -24,7 +24,7 @@ namespace wv
 		void onDestroyImpl() override { };
 
 		void updateImpl( double _deltaTime )                                  override { };
-		void drawImpl  ( iDeviceContext* _context, iGraphicsDevice* _device ) override { };
+		void drawImpl  ( iDeviceContext* _context, iLowLevelGraphics* _device ) override { };
 
 		std::string m_sourcePath = "";
 	};

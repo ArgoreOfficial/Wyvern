@@ -13,16 +13,16 @@
 namespace wv
 {
 	class iResource;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 	class cMeshResource;
 
 	class cResourceRegistry
 	{
 	public:
-		cResourceRegistry( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ):
+		cResourceRegistry( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ):
 			m_pFileSystem{ _pFileSystem },
-			m_pGraphicsDevice{ _pGraphicsDevice },
-			m_resourceLoader{_pFileSystem, _pGraphicsDevice }
+			m_pLowLevelGraphics{ _pLowLevelGraphics },
+			m_resourceLoader{_pFileSystem, _pLowLevelGraphics }
 		{
 			
 		}
@@ -59,7 +59,7 @@ namespace wv
 
 			if( _res->getNumUsers() == 0 )
 			{
-				_res->unload( m_pFileSystem, m_pGraphicsDevice );
+				_res->unload( m_pFileSystem, m_pLowLevelGraphics );
 				removeResource( _res->getName() );
 			}
 		}
@@ -84,7 +84,7 @@ namespace wv
 		cResourceLoader m_resourceLoader;
 
 		cFileSystem* m_pFileSystem;
-		iGraphicsDevice* m_pGraphicsDevice;
+		iLowLevelGraphics* m_pLowLevelGraphics;
 
 		std::unordered_map<std::string, iResource*> m_resources;
 		std::mutex m_mutex;

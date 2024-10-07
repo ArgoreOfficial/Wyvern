@@ -39,7 +39,7 @@ void wv::cResourceRegistry::initializeEmbeded()
 void wv::cResourceRegistry::drawMeshInstances()
 {
 	for ( auto& meshRes : m_meshes )
-		meshRes->drawInstances( m_pGraphicsDevice );
+		meshRes->drawInstances( m_pLowLevelGraphics );
 }
 
 wv::iResource* wv::cResourceRegistry::getLoadedResource( const std::string& _name )

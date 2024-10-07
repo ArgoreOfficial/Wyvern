@@ -2,7 +2,7 @@
 
 #include <wv/Math/Transform.h>
 #include <wv/Math/Triangle.h>
-#include <wv/Mesh/Mesh.h>
+#include <wv/Graphics/Mesh.h>
 #include <wv/Types.h>
 
 #include <string>
@@ -51,8 +51,8 @@ namespace wv
 			iResource( _name, _path )
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
-		void unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) override;
+		void load  ( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
 
 		sMeshInstance createInstance();
 		void destroyInstance( sMeshInstance& _instance );
@@ -61,14 +61,14 @@ namespace wv
 		
 		void addToDrawQueue( sMeshInstance& _instance );
 
-		void drawInstances( iGraphicsDevice* _pGraphicsDevice );
+		void drawInstances( iLowLevelGraphics* _pLowLevelGraphics );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node, bool _recalcMatrices );
+		void drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node, bool _recalcMatrices );
 
 		sMeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;

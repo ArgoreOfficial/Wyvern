@@ -49,15 +49,14 @@ void wv::FreeflightCamera::handleInput()
 
 		if ( !inputEvent.repeat )
 		{
-			/// TODO: change to WV_KEY
 			switch ( inputEvent.key )
 			{
-			case 'W': m_move.z += -button_delta; break;
-			case 'S': m_move.z +=  button_delta;  break;
-			case 'A': m_move.x += -button_delta; break;
-			case 'D': m_move.x +=  button_delta;  break;
-			case 'E': m_move.y +=  button_delta;  break; // up
-			case 'Q': m_move.y += -button_delta; break; // down
+			case 'W' /* WV_KEY_W */: m_move.z += -button_delta; break;
+			case 'S' /* WV_KEY_S */: m_move.z +=  button_delta; break;
+			case 'A' /* WV_KEY_A */: m_move.x += -button_delta; break;
+			case 'D' /* WV_KEY_D */: m_move.x +=  button_delta; break;
+			case 'E' /* WV_KEY_E */: m_move.y +=  button_delta; break; // up
+			case 'Q' /* WV_KEY_Q */: m_move.y += -button_delta; break; // down
 
 			case WV_KEY_LEFT_SHIFT:
 				m_speed += button_delta * 1000.0f;

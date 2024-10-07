@@ -13,22 +13,19 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 	class AudioDevice;
 
 	class iIntermediateRenderTargetHandler;
 
 	class iCamera;
-	struct sRenderTarget;
 	class cFileSystem;
 	class cSceneRoot;
 	class cModelObject;
 	class iMaterial;
-	class sMesh;
-
+	
 	class cApplicationState;
-
-	class cPipelineResource;
+	class cShaderResource;
 
 	class cResourceRegistry;
 	class cJoltPhysicsEngine;
@@ -46,9 +43,9 @@ namespace wv
 
 		struct
 		{
-			iDeviceContext*  pContext;
-			iGraphicsDevice* pGraphics;
-			AudioDevice*     pAudio;
+			iDeviceContext*    pContext;
+			iLowLevelGraphics* pGraphics;
+			AudioDevice*       pAudio;
 		} device;
 
 		struct
@@ -101,13 +98,13 @@ namespace wv
 
 		// deferred rendering
 		MeshID m_screenQuad{};
-		cPipelineResource* m_deferredPipeline = nullptr;
+		cShaderResource* m_pDeferredShader = nullptr;
 		RenderTargetID m_gbuffer{};
 		
 		// engine
-		iDeviceContext*  context  = nullptr;
-		iGraphicsDevice* graphics = nullptr;
-		AudioDevice*     audio    = nullptr;
+		iDeviceContext*    context  = nullptr;
+		iLowLevelGraphics* graphics = nullptr;
+		AudioDevice*       audio    = nullptr;
 
 		// camera 
 		/// TODO: move to applicationstate

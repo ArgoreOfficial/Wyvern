@@ -113,7 +113,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		template<typename T, size_t RowA, size_t ColA_RowB, size_t ColB>
-		cMatrix<T, RowA, ColB> multiply( cMatrix<T, RowA, ColA_RowB> _a, cMatrix<T, ColA_RowB, ColB> _b )
+		cMatrix<T, RowA, ColB> multiply( const cMatrix<T, RowA, ColA_RowB>& _a, const cMatrix<T, ColA_RowB, ColB>& _b )
 		{
 			cMatrix<T, RowA, ColB> res;
 			for( size_t row = 0; row < RowA; row++ )

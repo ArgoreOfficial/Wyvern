@@ -5,7 +5,7 @@
 
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Memory/FileSystem.h>
 
@@ -69,19 +69,19 @@ bool cSandbox::create( void )
 	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
 
 	// create graphics device
-	wv::GraphicsDeviceDesc deviceDesc;
-	deviceDesc.loadProc = deviceContext->getLoadProc();
-	deviceDesc.pContext = deviceContext;
+	wv::sLowLevelGraphicsDesc lowLevelGraphicsDesc;
+	lowLevelGraphicsDesc.loadProc = deviceContext->getLoadProc();
+	lowLevelGraphicsDesc.pContext = deviceContext;
 	
-	wv::iGraphicsDevice* graphicsDevice = wv::iGraphicsDevice::createGraphicsDevice( &deviceDesc );
-	if ( !graphicsDevice )
+	wv::iLowLevelGraphics* pLowLevelGraphics = wv::iLowLevelGraphics::createGraphics( &lowLevelGraphicsDesc );
+	if ( !pLowLevelGraphics )
 	{
 		wv::Debug::Print( "Graphics Device was nullptr\n" );
 		return false;
 	}
 
 	engineDesc.device.pContext = deviceContext;
-	engineDesc.device.pGraphics = graphicsDevice;
+	engineDesc.device.pGraphics = pLowLevelGraphics;
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing Audio Device\n" );
 	engineDesc.device.pAudio = new wv::AudioDevice( nullptr );

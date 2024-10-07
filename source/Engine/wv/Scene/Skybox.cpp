@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Material/Material.h>
@@ -56,7 +56,7 @@ void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	
-	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "res/meshes/skysphere.dae" )->createInstance();
+	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "res/meshes/skysphere.glb" )->createInstance();
 	m_transform.addChild( &m_mesh.transform );
 }
 
@@ -84,7 +84,7 @@ void wv::cSkyboxObject::updateImpl( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
+void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iLowLevelGraphics* _device )
 {
 	/// TODO: remove raw gl calls
 #ifdef WV_SUPPORT_OPENGL

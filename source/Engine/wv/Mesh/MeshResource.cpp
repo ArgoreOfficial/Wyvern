@@ -2,13 +2,13 @@
 
 #include <wv/Memory/ModelParser.h>
 #include <wv/Engine/Engine.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Material/Material.h>
 
 #include <glad/glad.h>
-#include <wv/Shader/ShaderProgram.h>
-#include <wv/Texture/Texture.h>
+#include <wv/Shader/ShaderResource.h>
+#include <wv/Texture/TextureResource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	cEngine* app = cEngine::get();
 
@@ -38,17 +38,17 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGrap
 
 static void unloadMeshNode( wv::sMeshNode* _node )
 {
-	wv::iGraphicsDevice* pGraphicsDevice = wv::cEngine::get()->graphics;
-	wv::CmdBufferID cmdBuffer = pGraphicsDevice->getCommandBuffer();
+	wv::iLowLevelGraphics* pLowLevelGraphics = wv::cEngine::get()->graphics;
+	wv::CmdBufferID cmdBuffer = pLowLevelGraphics->getCommandBuffer();
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
 	{
-		pGraphicsDevice->cmd( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
-		wv::sMesh& mesh = pGraphicsDevice->m_meshes.get( meshID );
+		pLowLevelGraphics->cmd( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
+		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.get( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 	}
-	pGraphicsDevice->submitCommandBuffer( cmdBuffer );
+	pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
 	
 	for ( auto& child : _node->children )
 		unloadMeshNode( child );
@@ -56,7 +56,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	delete _node;
 }
 
-void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	unloadMeshNode( m_pMeshNode );
 }
@@ -88,7 +88,7 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
+void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if ( m_pMeshNode == nullptr )
 	{
@@ -100,17 +100,17 @@ void wv::cMeshResource::drawInstances( iGraphicsDevice* _pGraphicsDevice )
 		return;
 
 	bool recalcMatrices = m_pMeshNode->transform.update( nullptr );
-	drawNode( _pGraphicsDevice, m_pMeshNode, recalcMatrices );
+	drawNode( _pLowLevelGraphics, m_pMeshNode, recalcMatrices );
 
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* _node, bool _recalcMatrices )
+void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node, bool _recalcMatrices )
 {
 	if ( !_node )
 		return;
 
-	auto& meshreg = _pGraphicsDevice->m_meshes;
+	auto& meshreg = _pLowLevelGraphics->m_meshes;
 
 	for ( auto& meshID : _node->meshes )
 	{
@@ -121,17 +121,15 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 		if( !mesh.complete )
 			continue;
 
-		mesh.transform.update( &_node->transform, _recalcMatrices );
-
 		wv::cMaterial* mat = mesh.pMaterial;
 
 		if ( !mat || !mat->isComplete() )
-			mat = _pGraphicsDevice->getEmptyMaterial();
+			mat = _pLowLevelGraphics->getEmptyMaterial();
 		
-		wv::cPipelineResource* pPipeline = mat->getPipeline();
-		mat->setAsActive( _pGraphicsDevice );
+		wv::cShaderResource* pShader = mat->getShader();
+		mat->setAsActive( _pLowLevelGraphics );
 
-		wv::GPUBufferID SbInstanceData = mat->getPipeline()->getShaderBuffer( "SbInstances" );
+		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
 		if( SbInstanceData.isValid() ) // TODO: enable gpu instancing on all meshes
 			m_useGPUInstancing = true;
 		else
@@ -142,22 +140,17 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 
 		for ( auto& transform : m_drawQueue )
 		{
-			mesh.transform.m_matrix = basematrix * transform.getMatrix();
+			auto matrix = basematrix * transform.getMatrix();
 
 			if ( !m_useGPUInstancing )
 			{
 				mat->setInstanceUniforms( &mesh );
-
-				wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
-				if( UbInstanceData.isValid() )
-					_pGraphicsDevice->bufferData( UbInstanceData );
-
-				_pGraphicsDevice->draw( meshID );
+				_pLowLevelGraphics->draw( meshID );
 			}
 			else
 			{
 				sMeshInstanceData instanceData;
-				instanceData.model = mesh.transform.m_matrix;
+				instanceData.model = matrix;
 				
 				for( auto& var : mat->m_variables )
 				{
@@ -168,7 +161,7 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 					{
 						if( var.data.texture->m_textureID.isValid() )
 						{
-							sTexture& tex = _pGraphicsDevice->m_textures.get( var.data.texture->m_textureID );
+							sTexture& tex = _pLowLevelGraphics->m_textures.get( var.data.texture->m_textureID );
 							instanceData.texturesHandles[ 0 ] = tex.textureHandle;
 							instanceData.hasAlpha = tex.numChannels == 4;
 						}
@@ -181,27 +174,13 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 			
 		if( m_useGPUInstancing )
 		{
-				
-			_pGraphicsDevice->bindVertexBuffer( meshID, pPipeline );
+			_pLowLevelGraphics->bindVertexBuffer( meshID, pShader );
 
 			mat->setInstanceUniforms( &mesh );
+			_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
-			wv::GPUBufferID UbInstanceData = pPipeline->getShaderBuffer( "UbInstanceData" );
-			wv::GPUBufferID SbInstanceData = pPipeline->getShaderBuffer( "SbInstances" );
-			if( SbInstanceData.isValid() )
-			{
-				wv::cGPUBuffer& SbInstanceDataBuffer = _pGraphicsDevice->m_gpuBuffers.get( SbInstanceData );
-				if ( SbInstanceDataBuffer.complete )
-				{
-					SbInstanceDataBuffer.buffer( instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
-					_pGraphicsDevice->bufferData( SbInstanceData );
-				}
-			}
-	
-			_pGraphicsDevice->bufferData( UbInstanceData );
-
-			wv::cGPUBuffer& ibuffer = _pGraphicsDevice->m_gpuBuffers.get( mesh.indexBufferID );
-			_pGraphicsDevice->drawIndexedInstanced( ibuffer.count, m_drawQueue.size() );
+			wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
+			_pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size() );
 
 			instances.clear();
 		}
@@ -209,6 +188,6 @@ void wv::cMeshResource::drawNode( iGraphicsDevice* _pGraphicsDevice, sMeshNode* 
 	}
 
 	for ( auto& childNode : _node->children )
-		drawNode( _pGraphicsDevice, childNode, _recalcMatrices );
+		drawNode( _pLowLevelGraphics, childNode, _recalcMatrices );
 }
 

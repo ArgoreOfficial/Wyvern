@@ -2,11 +2,11 @@
 
 #include <wv/Resource/Resource.h>
 #include <wv/Memory/FileSystem.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Misc/Time.h>
 
-void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphicsDevice, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
+void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iLowLevelGraphics* _pLowLevelGraphics, wv::sLoaderInformation* _loaderInfo, wv::sLoadWorker* _worker )
 {
 	wv::iResource* currentlyLoading = nullptr;
 
@@ -35,7 +35,7 @@ void threadedLoad( wv::cFileSystem* _pFileSystem, wv::iGraphicsDevice* _pGraphic
 
 		case wv::WV_WORKER_WORKING:
 		{
-			currentlyLoading->load( _pFileSystem, _pGraphicsDevice );
+			currentlyLoading->load( _pFileSystem, _pLowLevelGraphics );
 			currentlyLoading = nullptr;
 		} break;
 
@@ -48,7 +48,7 @@ void wv::cResourceLoader::createWorkers( int _count )
 	for ( int i = 0; i < _count; i++ )
 	{
 		sLoadWorker* worker = new sLoadWorker();
-		worker->thread = std::thread( threadedLoad, m_pFileSystem, m_pGraphicsDevice, &m_info, worker );
+		worker->thread = std::thread( threadedLoad, m_pFileSystem, m_pLowLevelGraphics, &m_info, worker );
 		m_workers.push_back( worker );
 	}
 }

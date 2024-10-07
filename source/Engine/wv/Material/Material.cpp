@@ -1,13 +1,13 @@
 #include "Material.h"
 
-#include <wv/Texture/Texture.h>
+#include <wv/Texture/TextureResource.h>
 #include <wv/Camera/Camera.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
 #include <wv/Mesh/MeshResource.h>
-#include <wv/Mesh/Mesh.h>
-
+#include <wv/Graphics/Mesh.h>
+#include <wv/Shader/ShaderResource.h>
 #include <wv/Resource/ResourceRegistry.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cMaterial::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if ( m_path == "" )
 		m_path = _pFileSystem->getFullPath( m_name + ".wmat" );
@@ -29,9 +29,8 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 
 	cResourceRegistry* pResReg = cEngine::get()->m_pResourceRegistry;
 
-	m_pPipeline = pResReg->load<cPipelineResource>( shaderName );
+	m_pShader = pResReg->load<cShaderResource>( shaderName );
 
-#ifdef WV_PLATFORM_WINDOWS
 	for ( auto& textureObject : root[ "textures" ].array_items() )
 	{
 		std::string uniformName = textureObject[ "name" ].string_value();
@@ -54,27 +53,24 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphics
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 
 		cTextureResource* texture = pResReg->load<cTextureResource>( textureName, (wv::eTextureFiltering)filtering );
-		// texture->load( _pFileSystem, _pGraphicsDevice );
 		textureVariable.data.texture = texture;
 
 		m_variables.push_back( textureVariable );
 	}
-
-#endif
 
 	setComplete( true );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cMaterial::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	setComplete( false );
 
 	cResourceRegistry* resReg = cEngine::get()->m_pResourceRegistry;
 	
-	if( m_pPipeline )
-		resReg->unload( m_pPipeline );
+	if( m_pShader )
+		resReg->unload( m_pShader );
 
 	for( auto& var : m_variables )
 	{
@@ -87,9 +83,9 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphi
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setAsActive( iGraphicsDevice* _device )
+void wv::cMaterial::setAsActive( iLowLevelGraphics* _device )
 {
-	m_pPipeline->bind( _device );
+	m_pShader->bind( _device );
 	setMaterialUniforms();
 }
 
@@ -126,7 +122,7 @@ void wv::cMaterial::setDefaultViewUniforms()
 
 void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 {
-	if ( m_pPipeline == nullptr || !m_pPipeline->isComplete() )
+	if ( m_pShader == nullptr || !m_pShader->isComplete() )
 		return;
 
 	wv::cEngine* app = wv::cEngine::get();
@@ -137,9 +133,10 @@ void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 
 #elif defined( WV_PLATFORM_WINDOWS )
 	// model transform
-	wv::GPUBufferID instanceBlockID = m_pPipeline->getShaderBuffer( "UbInstanceData" );
-	wv::cGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
-	instanceBlock.buffer( &m_UbInstanceData );
+	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbInstanceData" );
+	wv::sGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
+	
+	app->graphics->bufferSubData( instanceBlockID, &m_UbInstanceData, sizeof( sUbInstanceData ), 0 );
 #endif
 }
 

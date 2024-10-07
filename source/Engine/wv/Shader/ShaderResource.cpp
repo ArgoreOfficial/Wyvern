@@ -1,12 +1,12 @@
-#include "ShaderProgram.h"
+#include "ShaderResource.h"
 
 #include <wv/Memory/FileSystem.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Engine/Engine.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
-void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -50,49 +50,49 @@ void wv::cPipelineResource::load( cFileSystem* _pFileSystem, iGraphicsDevice* _p
 
 	desc.pVertexLayout = &layout;
 
-	CmdBufferID cmdBuffer = _pGraphicsDevice->getCommandBuffer();
-	desc.vertexProgramID   = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, vsDesc );
-	desc.fragmentProgramID = _pGraphicsDevice->cmdCreateProgram( cmdBuffer, fsDesc );
+	CmdBufferID cmdBuffer = _pLowLevelGraphics->getCommandBuffer();
+	desc.vertexProgramID   = _pLowLevelGraphics->cmdCreateProgram( cmdBuffer, vsDesc );
+	desc.fragmentProgramID = _pLowLevelGraphics->cmdCreateProgram( cmdBuffer, fsDesc );
 
-	m_pipelineID = _pGraphicsDevice->cmdCreatePipeline( cmdBuffer, desc );
+	m_pipelineID = _pLowLevelGraphics->cmdCreatePipeline( cmdBuffer, desc );
 
 	auto cb = []( void* _c ) 
 		{ 
 			iResource* res = (iResource*)_c;
 			res->setComplete( true ); 
 		};
-	_pGraphicsDevice->setCommandBufferCallback( cmdBuffer, cb, (void*)this );
+	_pLowLevelGraphics->setCommandBufferCallback( cmdBuffer, cb, (void*)this );
 
-	_pGraphicsDevice->submitCommandBuffer( cmdBuffer );
+	_pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
 
-	if( _pGraphicsDevice->getThreadID() == std::this_thread::get_id() )
-		_pGraphicsDevice->executeCommandBuffer( cmdBuffer );
+	if( _pLowLevelGraphics->getThreadID() == std::this_thread::get_id() )
+		_pLowLevelGraphics->executeCommandBuffer( cmdBuffer );
 }
 
-void wv::cPipelineResource::unload( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice )
+void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	setComplete( false );
 
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
-	_pGraphicsDevice->destroyPipeline( m_pipelineID );
+	_pLowLevelGraphics->destroyPipeline( m_pipelineID );
 }
 
-void wv::cPipelineResource::bind( iGraphicsDevice* _pGraphicsDevice )
+void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if ( !m_pipelineID.isValid() )
 		return;
 
-	_pGraphicsDevice->bindPipeline( m_pipelineID );
+	_pLowLevelGraphics->bindPipeline( m_pipelineID );
 }
 
-wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name )
+wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
 {
 	if ( !m_complete )
 		return GPUBufferID{ GPUBufferID::InvalidID };
 
-	iGraphicsDevice* pGraphics = cEngine::get()->graphics;
+	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
 
 	/// this needs to be reworked
 
@@ -103,14 +103,14 @@ wv::GPUBufferID wv::cPipelineResource::getShaderBuffer( const std::string& _name
 
 	for( GPUBufferID bufID : vs.shaderBuffers )
 	{
-		cGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		sGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
 		if( buf.name == _name )
 			return bufID;
 	}
 	
 	for( GPUBufferID bufID : fs.shaderBuffers )
 	{
-		cGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		sGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
 		if ( buf.name == _name )
 			return bufID;
 	}

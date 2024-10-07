@@ -9,7 +9,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cMaterial;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ namespace wv
 		static Sprite* create( SpriteDesc* _desc );
 
 		Transformf& getTransform() { return m_transform; }
-		void draw( iGraphicsDevice* _device );
+		void draw( iLowLevelGraphics* _device );
 		cMaterial* getMaterial() { return m_material; }
 
 ///////////////////////////////////////////////////////////////////////////////////////

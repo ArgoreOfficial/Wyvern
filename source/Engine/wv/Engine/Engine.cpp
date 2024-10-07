@@ -5,13 +5,12 @@
 #endif
 
 #include <wv/Material/Material.h>
-#include <wv/Texture/Texture.h>
 
 #include <wv/Camera/FreeflightCamera.h>
 #include <wv/Camera/OrbitCamera.h>
 
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Device/AudioDevice.h>
 
 #include <wv/Memory/FileSystem.h>
@@ -20,9 +19,10 @@
 #include <wv/Physics/PhysicsEngine.h>
 #include <wv/Mesh/MeshResource.h>
 
-#include <wv/RenderTarget/RenderTarget.h>
+#include <wv/Graphics/RenderTarget.h>
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
 #include <wv/Resource/ResourceRegistry.h>
+#include <wv/Shader/ShaderResource.h>
 
 #include <wv/Engine/EngineReflect.h>
 
@@ -106,8 +106,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
-		m_deferredPipeline = new cPipelineResource( "deferred" );
-		m_deferredPipeline->load( m_pFileSystem, graphics );
+		m_pDeferredShader = new cShaderResource( "deferred" );
+		m_pDeferredShader->load( m_pFileSystem, graphics );
 		
 		createScreenQuad();
 		createGBuffer();
@@ -402,14 +402,11 @@ void wv::cEngine::tick()
 
 	// render screen quad with deferred shader
 	{
-		m_deferredPipeline->bind( graphics );
+		m_pDeferredShader->bind( graphics );
 
-		wv::GPUBufferID UbInstanceDataID = m_deferredPipeline->getShaderBuffer( "UbInstanceData" );
-		graphics->bufferData( UbInstanceDataID );
-
-		graphics->bindVertexBuffer( m_screenQuad, m_deferredPipeline );
+		graphics->bindVertexBuffer( m_screenQuad, m_pDeferredShader );
 		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		cGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
+		sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
 		graphics->drawIndexed( ibuffer.count );
 	}
 

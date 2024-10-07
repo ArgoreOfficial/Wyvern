@@ -7,9 +7,9 @@
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <wv/Graphics/CommandBuffer.h>
-#include <wv/Device/GraphicsDevice/ObjectContainer.h>
+#include <wv/Graphics/ObjectHandleContainer.h>
+#include <wv/Graphics/Pipeline.h>
 
-#include <wv/Shader/ShaderProgram.h>
 
 #include <vector>
 #include <queue>
@@ -26,33 +26,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	class iDeviceContext;
+	class cShaderResource;
 	class cMaterial;
-
-	struct sMeshDesc;
-	struct sMeshNode;
-	struct sMesh;
-	
-	struct sTextureDesc;
-	struct sTexture;
-
-	struct iDeviceContext;
-
-	struct sPipeline;
-	struct sPipelineDesc;
-
-	struct sProgram;
-	struct sProgramDesc;
-
-	struct sRenderTarget;
-	struct sRenderTargetDesc;
-
-	struct cPipelineResource;
-
-	struct sGPUBufferDesc;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct GraphicsDeviceDesc
+	struct sLowLevelGraphicsDesc
 	{
 		GraphicsDriverLoadProc loadProc;
 		iDeviceContext* pContext;
@@ -63,13 +43,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iGraphicsDevice
+	class iLowLevelGraphics
 	{
 	public:
 
-		virtual ~iGraphicsDevice() { };
+		virtual ~iLowLevelGraphics() { };
 
-		static iGraphicsDevice* createGraphicsDevice( GraphicsDeviceDesc* _desc );
+		static iLowLevelGraphics* createGraphics( sLowLevelGraphicsDesc* _desc );
 
 		void initEmbeds();
 
@@ -125,9 +105,9 @@ namespace wv
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       = 0;
 
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
-		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size )            = 0;
-		virtual void        bufferData      ( GPUBufferID _bufferID )                          = 0;
-		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                          = 0;
+		virtual void        bufferData      ( GPUBufferID _bufferID, void* _pData, size_t _size ) = 0;
+		virtual void        bufferSubData   ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) = 0;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        = 0;
 		
 		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc );
 		virtual void   destroyMesh( MeshID _meshID );
@@ -137,7 +117,7 @@ namespace wv
 		virtual void      destroyTexture   ( TextureID _textureID )                                      = 0;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  = 0;
 
-		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) = 0;
+		virtual void bindVertexBuffer( MeshID _meshID, cShaderResource* _pShader ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
@@ -152,7 +132,7 @@ namespace wv
 		cObjectHandleContainer<sProgram,      ProgramID>      m_programs;
 		cObjectHandleContainer<sPipeline,     PipelineID>     m_pipelines;
 		cObjectHandleContainer<sRenderTarget, RenderTargetID> m_renderTargets;
-		cObjectHandleContainer<cGPUBuffer,    GPUBufferID>    m_gpuBuffers;
+		cObjectHandleContainer<sGPUBuffer,    GPUBufferID>    m_gpuBuffers;
 		cObjectHandleContainer<sTexture,      TextureID>      m_textures;
 		cObjectHandleContainer<sMesh,         MeshID>         m_meshes;
 		
@@ -160,22 +140,23 @@ namespace wv
 
 	protected:
 
-		iGraphicsDevice();
+		iLowLevelGraphics();
 
 		std::thread::id m_threadID;
 
-		virtual bool initialize( GraphicsDeviceDesc* _desc ) = 0;
+		virtual bool initialize( sLowLevelGraphicsDesc* _desc ) = 0;
 
 		GraphicsAPI    m_graphicsApi = WV_GRAPHICS_API_NONE;
 		GenericVersion m_graphicsApiVersion{};
 
 		std::mutex m_mutex;
-		bool m_reallocatingCommandBuffers = false;
-
+		
 		cObjectHandleContainer<cCommandBuffer, CmdBufferID> m_commandBuffers;
 		std::queue <CmdBufferID> m_availableCommandBuffers;
 		std::vector<CmdBufferID> m_recordingCommandBuffers;
 		std::vector<CmdBufferID> m_submittedCommandBuffers;
+
+		GPUBufferID m_vertexBuffer;
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};
@@ -183,14 +164,14 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline void iGraphicsDevice::cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
+	inline void iLowLevelGraphics::cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
 	{
 		std::scoped_lock lock( m_mutex );
 		m_commandBuffers.get( _bufferID ).push<T>( _type, _pInfo );
 	}
 
 	template<typename ID, typename T>
-	inline ID iGraphicsDevice::cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
+	inline ID iLowLevelGraphics::cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
 	{
 		sCmdCreateDesc<ID, T> desc{ _id, _desc };
 		cmd( _bufferID, _task, &desc );

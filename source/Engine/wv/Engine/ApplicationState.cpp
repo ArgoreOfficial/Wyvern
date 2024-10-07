@@ -45,7 +45,7 @@ void wv::cApplicationState::update( double _deltaTime )
 	m_pCurrentScene->m_transform.update( nullptr );
 }
 
-void wv::cApplicationState::draw( iDeviceContext* _pContext, iGraphicsDevice* _pDevice )
+void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 {
 	if( !m_pCurrentScene )
 		return;

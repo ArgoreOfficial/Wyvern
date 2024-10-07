@@ -1,6 +1,6 @@
 #include "Draw.h"
 
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Material/Material.h>
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Memory/ModelParser.h>
@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice, cResourceRegistry* _pResourceRegistry )
+void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_PLATFORM_PSVITA
 	return;
@@ -21,18 +21,18 @@ void wv::Debug::Draw::Internal::initDebugDraw( iGraphicsDevice* _pGraphicsDevice
 
 }
 
-void wv::Debug::Draw::Internal::deinitDebugDraw( iGraphicsDevice* _pGraphicsDevice )
+void wv::Debug::Draw::Internal::deinitDebugDraw( iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if( CUBE_MESH )
-		_pGraphicsDevice->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pLowLevelGraphics->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
 	
 	if( SPHERE_MESH )
-		_pGraphicsDevice->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pLowLevelGraphics->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
+void wv::Debug::Draw::Internal::drawDebug( iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if( SPHERE_MESH )
 	{
@@ -41,7 +41,7 @@ void wv::Debug::Draw::Internal::drawDebug( iGraphicsDevice* _pGraphicsDevice )
 			SPHERE_MESH->transform.position = spheres[ i ].position;
 			SPHERE_MESH->transform.scale = wv::cVector3f{ spheres[ i ].radius };
 			SPHERE_MESH->transform.update( nullptr );
-			_pGraphicsDevice->drawNode( SPHERE_MESH );
+			_pLowLevelGraphics->drawNode( SPHERE_MESH );
 		}
 	}
 

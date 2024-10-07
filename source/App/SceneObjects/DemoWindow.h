@@ -42,7 +42,7 @@ protected:
 	void onDestroyImpl() override { };
 
 	virtual void updateImpl( double _deltaTime ) override;
-	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) override;
+	virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;
 
 	int m_numToSpawn = 10;
 	int m_numSpawned = 0;

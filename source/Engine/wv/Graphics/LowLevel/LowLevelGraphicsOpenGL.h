@@ -1,16 +1,15 @@
 #pragma once
 
 #include <wv/Types.h>
-#include <wv/Shader/Shader.h>
-#include <wv/Shader/ShaderProgram.h>
+#include <wv/Graphics/Pipeline.h>
 #include <wv/Misc/Color.h>
 #include <wv/Graphics/GPUBuffer.h>
 
-#include <wv/RenderTarget/RenderTarget.h>
+#include <wv/Graphics/RenderTarget.h>
 
 #include <set>
 
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,12 +44,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cOpenGLGraphicsDevice : public iGraphicsDevice
+	class cLowLevelGraphicsOpenGL : public iLowLevelGraphics
 	{
 	public:
 
-		 cOpenGLGraphicsDevice();
-		~cOpenGLGraphicsDevice() { }
+		 cLowLevelGraphicsOpenGL();
+		~cLowLevelGraphicsOpenGL() { }
 
 		virtual void terminate() override;
 
@@ -73,17 +72,17 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID )                       override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       override;
 
-		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) override;
-		virtual void        allocateBuffer  ( GPUBufferID _bufferID, size_t _size )          override;
-		virtual void        bufferData      ( GPUBufferID _bufferID )                        override;
-		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        override;
+		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc )                    override;
+		virtual void        bufferData      ( GPUBufferID _bufferID, void* _pData, size_t _size )               override;
+		virtual void        bufferSubData   ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                                           override;
 		
 		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                override;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
 		virtual void      destroyTexture   ( TextureID _textureID )                                      override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
-		virtual void bindVertexBuffer( MeshID _meshID, cPipelineResource* _pPipeline ) override;
+		virtual void bindVertexBuffer( MeshID _meshID, cShaderResource* _pShader ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
@@ -95,7 +94,7 @@ namespace wv
 
 	protected:
 
-		virtual bool initialize( GraphicsDeviceDesc* _desc ) override;
+		virtual bool initialize( sLowLevelGraphicsDesc* _desc ) override;
 
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );
@@ -114,7 +113,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename ...Args>
-	inline bool cOpenGLGraphicsDevice::assertGLError( const std::string _msg, Args ..._args )
+	inline bool cLowLevelGraphicsOpenGL::assertGLError( const std::string _msg, Args ..._args )
 	{
 		std::string error;
 		if ( !getError( &error ) )

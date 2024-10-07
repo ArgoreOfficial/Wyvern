@@ -9,7 +9,7 @@ namespace wv
 {
 	class iResource;
 	class cFileSystem;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 
 	enum eLoadWorkerState
 	{
@@ -34,9 +34,9 @@ namespace wv
 	{
 	public:
 
-		cResourceLoader( cFileSystem* _pFileSystem, iGraphicsDevice* _pGraphicsDevice ) : 
+		cResourceLoader( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) : 
 			m_pFileSystem{ _pFileSystem },
-			m_pGraphicsDevice{ _pGraphicsDevice }
+			m_pLowLevelGraphics{ _pLowLevelGraphics }
 		{ 
 		#ifndef WV_PLATFORM_PSVITA
 			createWorkers( 5 );
@@ -53,7 +53,7 @@ namespace wv
 
 	private:
 		cFileSystem* m_pFileSystem;
-		iGraphicsDevice* m_pGraphicsDevice;
+		iLowLevelGraphics* m_pLowLevelGraphics;
 
 		sLoaderInformation m_info;
 		std::vector<sLoadWorker*> m_workers;

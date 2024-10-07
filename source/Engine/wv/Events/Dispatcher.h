@@ -52,7 +52,7 @@ namespace wv
 		}
 
 		m_hooks[ _handle ].hooked = true;
-		m_hooks[ _handle ].currentEventCounter = m_events.size() - 1;
+		m_hooks[ _handle ].currentEventCounter = m_events.size();
 
 		return _handle;
 	}

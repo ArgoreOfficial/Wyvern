@@ -15,7 +15,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +109,7 @@ namespace wv
 			}
 		}
 
-		void draw( iDeviceContext* _context, iGraphicsDevice* _device ) 
+		void draw( iDeviceContext* _context, iLowLevelGraphics* _device ) 
 		{
 			if( m_loaded && m_created )
 				drawImpl( _context, _device );
@@ -131,7 +131,7 @@ namespace wv
 		virtual void onDestroyImpl() = 0;
 
 		virtual void updateImpl( double _deltaTime ) = 0;
-		virtual void drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device ) = 0;
+		virtual void drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;
 
 		uint64_t    m_uuid;
 		std::string m_name;

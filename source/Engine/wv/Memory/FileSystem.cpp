@@ -2,7 +2,7 @@
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/Engine/Engine.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Graphics/Uniform.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -22,16 +22,21 @@
 #include <filesystem>
 #endif
 
-#ifdef WV_PLATFORM_PSVITA
+#if defined( WV_PLATFORM_PSVITA )
 #include "LowLevel/PSVitaFileSystem.h"
+#elif defined( WV_PLATFORM_WINDOWS )
+#include "LowLevel/WindowsFileSystem.h"
 #endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cFileSystem::cFileSystem()
 {
-#ifdef WV_PLATFORM_PSVITA
+#if defined( WV_PLATFORM_PSVITA )
 	m_pLowLevel = new cPSVitaFileSystem();
+#elif defined( WV_PLATFORM_WINDOWS )
+	m_pLowLevel = new cWindowsFileSystem();
 #endif
 	addDirectory( "" );
 }
@@ -55,58 +60,36 @@ wv::cFileSystem::~cFileSystem()
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef WV_PLATFORM_PSVITA
-#define BUFFER_SIZE 1024 * 8
 #define ERROR_PREFIX "Error:"
 #endif
 
 wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
-#ifdef WV_PLATFORM_WINDOWS
-	std::ifstream in( _path, std::ios::binary );
-	if ( !in.is_open() )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load '%s'\n", _path.c_str() );
-		return {};
-	}
+	std::scoped_lock( m_mutex );
 
-	std::vector<char> buf{ std::istreambuf_iterator<char>( in ), {} };
-
+	FileID file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
+	uint64_t size = m_pLowLevel->getFileSize( file );
 	
-	Memory* mem = new Memory();
-	mem->data = new unsigned char[ buf.size() ];
-	mem->size = static_cast<unsigned int>( buf.size() );
-
-	memcpy( mem->data, buf.data(), buf.size() );
-	
-	m_mutex.lock();
-	m_loadedMemory.push_back( mem );
-
-	Debug::Print( "Loaded file '%s'\n", _path.c_str() );
-	m_mutex.unlock();
-
-	return mem;
-#elif defined( WV_PLATFORM_PSVITA )
-	char buffer[ 1024 * 4 ];
-
-	wv::Handle file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
-	int size = m_pLowLevel->readFile( file, buffer, sizeof( buffer ) );
-	m_pLowLevel->closeFile( file );
-
-	if( strncmp( buffer, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
-	{
-		printf( "%s\n", buffer );
-		return nullptr;
-	}
-
 	Memory* mem = new Memory();
 	mem->data = new unsigned char[ size ];
-	mem->size = static_cast< unsigned int >( size );
-	memcpy( mem->data, buffer, size );
+	mem->size = static_cast<unsigned int>( size );
+
+	m_loadedMemory.push_back( mem );
+
+	m_pLowLevel->readFile( file, mem->data, size );
+	m_pLowLevel->closeFile( file );
+
+	Debug::Print( "Loaded file '%s'\n", _path.c_str() );
+
+#ifdef WV_PLATFORM_PSVITA
+	if( strncmp( mem->data, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
+	{
+		printf( "%s\n", mem->data );
+		return nullptr;
+	}
+#endif
 
 	return mem;
-#else
-	return nullptr;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +99,8 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 	if ( !_memory )
 		return;
 
-	m_mutex.lock();
-	
+	std::scoped_lock( m_mutex );
+
 	for ( int i = 0; i < (int)m_loadedMemory.size(); i++ )
 	{
 		if ( m_loadedMemory[ i ] != _memory )
@@ -126,8 +109,6 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 		m_loadedMemory.erase( m_loadedMemory.begin() + i );
 		break;
 	}
-
-	m_mutex.unlock();
 
 	delete _memory->data;
 	*_memory = {};

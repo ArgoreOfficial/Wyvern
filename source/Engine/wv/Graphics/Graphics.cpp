@@ -1,21 +1,21 @@
-#include "GraphicsDevice.h"
+#include "Graphics.h"
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Trace.h>
 
 #include <wv/Material/Material.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Mesh/Mesh.h>
-#include <wv/RenderTarget/RenderTarget.h>
+#include <wv/Graphics/Mesh.h>
+#include <wv/Graphics/RenderTarget.h>
 
 #include <wv/Engine/Engine.h>
 #include <wv/Resource/ResourceRegistry.h>
 
+
 #if defined( WV_SUPPORT_OPENGL )
-#include <wv/Device/GraphicsDevice/OpenGLGraphicsDevice.h>
+#include <wv/Graphics/LowLevel/LowLevelGraphicsOpenGL.h>
 #elif defined( WV_PLATFORM_PSVITA )
-#include <wv/Device/GraphicsDevice/PSVitaGraphicsDevice.h>
+#include <wv/Graphics/LowLevel/PSVitaGraphicsDevice.h>
 #endif
 
 #include <exception>
@@ -24,17 +24,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDesc* _desc )
+wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsDesc* _desc )
 {
 
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Graphics Device\n" );
 
-	iGraphicsDevice* device = nullptr;
+	iLowLevelGraphics* device = nullptr;
 #ifdef WV_PLATFORM_PSVITA
 	device = new cPSVitaGraphicsDevice();
 #else
 #ifdef WV_SUPPORT_OPENGL
-	device = new cOpenGLGraphicsDevice();
+	device = new cLowLevelGraphicsOpenGL();
 #endif
 #endif
 
@@ -56,7 +56,7 @@ wv::iGraphicsDevice* wv::iGraphicsDevice::createGraphicsDevice( GraphicsDeviceDe
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::initEmbeds()
+void wv::iLowLevelGraphics::initEmbeds()
 {
 	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
@@ -64,7 +64,7 @@ void wv::iGraphicsDevice::initEmbeds()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
+void wv::iLowLevelGraphics::drawNode( sMeshNode* _node )
 {
 	WV_TRACE();
 
@@ -101,7 +101,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
+wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 {
 	std::scoped_lock lock( m_mutex );
 	
@@ -120,7 +120,7 @@ wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
+void wv::iLowLevelGraphics::submitCommandBuffer( CmdBufferID _bufferID )
 {
 	std::scoped_lock lock( m_mutex );
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
@@ -137,7 +137,7 @@ void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
+void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 {
 	std::scoped_lock lock( m_mutex );
 
@@ -202,11 +202,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() );  break;
 
 		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
-		case WV_GPUTASK_BUFFER_DATA:      bufferData     ( stream.pop<GPUBufferID>() );    break;
 		case WV_GPUTASK_BIND_PIPELINE:    bindPipeline   ( stream.pop<PipelineID>() );     break;
-		case WV_GPUTASK_ALLOCATE_BUFFER: // struct { GPUBufferID id; size_t size; };
-			allocateBuffer( stream.pop<GPUBufferID>(), stream.pop<size_t>() ); 
-			break;
 		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
 			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
 			break;
@@ -231,7 +227,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
+wv::ProgramID wv::iLowLevelGraphics::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
 {
 	ProgramID id = m_programs.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
@@ -239,7 +235,7 @@ wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, cons
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
+wv::PipelineID wv::iLowLevelGraphics::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
@@ -247,7 +243,7 @@ wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, co
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
+wv::RenderTargetID wv::iLowLevelGraphics::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
@@ -255,7 +251,7 @@ wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _buff
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
+wv::GPUBufferID wv::iLowLevelGraphics::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
@@ -263,7 +259,7 @@ wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
+wv::MeshID wv::iLowLevelGraphics::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
 	MeshID  id = m_meshes.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
@@ -271,7 +267,7 @@ wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMes
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
+wv::TextureID wv::iLowLevelGraphics::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.allocate();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
@@ -279,7 +275,7 @@ wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, cons
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
+void wv::iLowLevelGraphics::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	std::scoped_lock lock( m_mutex );
 	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
@@ -289,7 +285,7 @@ void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::F
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::beginRender()
+void wv::iLowLevelGraphics::beginRender()
 {
 	while( m_recordingCommandBuffers.size() > 0 )
 	{
@@ -302,7 +298,7 @@ void wv::iGraphicsDevice::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iGraphicsDevice::endRender()
+void wv::iLowLevelGraphics::endRender()
 {
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
@@ -310,12 +306,12 @@ void wv::iGraphicsDevice::endRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iGraphicsDevice::iGraphicsDevice()
+wv::iLowLevelGraphics::iLowLevelGraphics()
 {
 
 }
 
-wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
+wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
 	if( !_meshID.isValid() )
 		_meshID = m_meshes.allocate();
@@ -328,17 +324,14 @@ wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size = _desc->sizeVertices;
 	mesh.vertexBufferID = createGPUBuffer( 0, &vbDesc );
-	cGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.vertexBufferID );
+	sGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.vertexBufferID );
 	mesh.pMaterial = _desc->pMaterial;
 
 	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
 	vertexBuffer.count = count;
 
-	vertexBuffer.buffer( (uint8_t*)_desc->vertices, _desc->sizeVertices );
-	bufferData( mesh.vertexBufferID );
-	delete[] vertexBuffer.pData;
-	vertexBuffer.pData = nullptr;
-
+	bufferData( mesh.vertexBufferID, _desc->vertices, _desc->sizeVertices );
+	
 	if( _desc->numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -348,28 +341,28 @@ wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		ibDesc.type = WV_BUFFER_TYPE_INDEX;
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
-		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
-		cGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
-		indexBuffer.count = _desc->numIndices;
+		void* indices = nullptr;
+		size_t indicesSize = 0;
 
 		if( _desc->pIndices16 )
 		{
-			const size_t bufferSize = _desc->numIndices * sizeof( uint16_t );
-
-			allocateBuffer( mesh.indexBufferID, bufferSize );
-			indexBuffer.buffer( _desc->pIndices16, bufferSize );
+			indicesSize = _desc->numIndices * sizeof( uint16_t );
+			indices = _desc->pIndices16;
 		}
 		else if( _desc->pIndices32 )
 		{
-			const size_t bufferSize = _desc->numIndices * sizeof( uint32_t );
-
-			allocateBuffer( mesh.indexBufferID, bufferSize );
-			indexBuffer.buffer( _desc->pIndices32, bufferSize );
+			indicesSize = _desc->numIndices * sizeof( uint32_t );
+			indices = _desc->pIndices32;
 		}
 
-		bufferData( mesh.indexBufferID );
-		delete[] indexBuffer.pData;
-		indexBuffer.pData = nullptr;
+		ibDesc.size = indicesSize;
+		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
+
+		sGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
+		indexBuffer.count = _desc->numIndices;
+
+		bufferSubData( mesh.indexBufferID, indices, indicesSize, 0 );
+
 	}
 	else
 	{
@@ -388,7 +381,7 @@ wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	return _meshID;
 }
 
-void wv::iGraphicsDevice::destroyMesh( MeshID _meshID )
+void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 {
 	sMesh& mesh = m_meshes.get( _meshID );
 
@@ -401,20 +394,20 @@ void wv::iGraphicsDevice::destroyMesh( MeshID _meshID )
 	m_meshes.deallocate( _meshID );
 }
 
-void wv::iGraphicsDevice::draw( MeshID _meshID )
+void wv::iLowLevelGraphics::draw( MeshID _meshID )
 {
 	sMesh& rMesh = m_meshes.get( _meshID );
 
-	bindVertexBuffer( _meshID, rMesh.pMaterial->getPipeline() );
+	bindVertexBuffer( _meshID, rMesh.pMaterial->getShader() );
 
 	if( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
-		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.indexBufferID );
+		sGPUBuffer& buffer = m_gpuBuffers.get( rMesh.indexBufferID );
 		drawIndexed( buffer.count );
 	}
 	else
 	{
-		cGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
+		sGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
 		draw( 0, buffer.count );
 	}
 }

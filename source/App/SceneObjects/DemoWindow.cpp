@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Engine/ApplicationState.h>
 #include <wv/Scene/SceneRoot.h>
@@ -109,7 +109,7 @@ void cDemoWindow::updateImpl( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cDemoWindow::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
+void cDemoWindow::drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Wyvern Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize );

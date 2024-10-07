@@ -2,7 +2,7 @@
 
 #include <wv/Types.h>
 #include <wv/Graphics/Types.h>
-#include <wv/Texture/Texture.h>
+#include <wv/Graphics/Texture.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

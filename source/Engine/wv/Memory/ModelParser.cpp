@@ -3,12 +3,12 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Material/Material.h>
 #include <wv/Debug/Print.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Math/Triangle.h>
 #include <wv/Memory/FileSystem.h>
 
-#include <wv/Texture/Texture.h>
+#include <wv/Texture/TextureResource.h>
 #include <wv/Resource/ResourceRegistry.h>
 
 #include <wv/Auxiliary/json/json11.hpp>
@@ -44,7 +44,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID* _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
 {
-	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
+	wv::iLowLevelGraphics* device = wv::cEngine::get()->graphics;
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -185,7 +185,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::iGraphicsDevice* _pGraphicsDevice, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::iLowLevelGraphics* _pLowLevelGraphics, wv::cResourceRegistry* _pResourceRegistry )
 {
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
@@ -210,7 +210,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	for( unsigned int i = 0; i < _node->mNumChildren; i++ )
 	{
 		wv::sMeshNode* meshNode = new wv::sMeshNode();
-		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pGraphicsDevice, _pResourceRegistry );
+		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pLowLevelGraphics, _pResourceRegistry );
 
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
@@ -241,7 +241,7 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 		return nullptr;
 	}
 
-	wv::iGraphicsDevice* device = wv::cEngine::get()->graphics;
+	wv::iLowLevelGraphics* device = wv::cEngine::get()->graphics;
 
 	wv::sMeshNode* mesh = new wv::sMeshNode();
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );

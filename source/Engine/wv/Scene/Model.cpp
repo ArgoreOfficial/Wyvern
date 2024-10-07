@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Memory/FileSystem.h>
@@ -75,12 +75,12 @@ void wv::cModelObject::onUnloadImpl()
 
 void wv::cModelObject::updateImpl( double _deltaTime )
 {
-
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cModelObject::drawImpl( iDeviceContext* _context, iGraphicsDevice* _device )
+void wv::cModelObject::drawImpl( iDeviceContext* _context, iLowLevelGraphics* _device )
 {
 	m_mesh.draw();
 }

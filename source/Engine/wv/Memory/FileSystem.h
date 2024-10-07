@@ -44,7 +44,7 @@ namespace wv
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		cLowLevelFileSystem* m_pLowLevel = nullptr;
+		iLowLevelFileSystem* m_pLowLevel = nullptr;
 	private:
 
 

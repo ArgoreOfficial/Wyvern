@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Device/GraphicsDevice.h>
+#include <wv/Graphics/Graphics.h>
 
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Material/Material.h>
@@ -143,7 +143,7 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iGraphicsDevice* _device )
+void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
 {
 	m_mesh.draw();
 }

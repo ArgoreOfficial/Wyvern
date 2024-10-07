@@ -11,7 +11,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iGraphicsDevice;
+	class iLowLevelGraphics;
 	class cSceneRoot;
 	class cFileSystem;
 
@@ -24,7 +24,7 @@ namespace wv
 		void onDestroy();
 
 		void update( double _deltaTime );
-		void draw  ( iDeviceContext* _pContext, iGraphicsDevice* _pDevice );
+		void draw  ( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
 
 		void reloadScene();
 

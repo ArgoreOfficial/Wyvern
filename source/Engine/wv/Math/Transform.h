@@ -111,10 +111,14 @@ namespace wv
 
 			model = Matrix::scale( model, scale );
 
+			m_cachedPosition = position;
+			m_cachedRotation = rotation;
+			m_cachedScale = scale;
+
 			m_localMatrix = model;
 		}
 
-		if ( _recalculateMatrix )
+		if ( _recalculateMatrix || recalc )
 		{
 			if( _parent != nullptr )
 				m_matrix = m_localMatrix * _parent->getMatrix();
@@ -125,7 +129,7 @@ namespace wv
 		for( auto& child : m_children )
 			child->update( this, recalc || _recalculateMatrix );
 
-		return recalc;
+		return _recalculateMatrix || recalc;
 	}
 
 }

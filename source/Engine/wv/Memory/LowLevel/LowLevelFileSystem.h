@@ -2,8 +2,10 @@
 
 #include <wv/Types.h>
 
+
 namespace wv
-{
+{    
+    typedef wv::sStrongID<uint64_t, struct FileID_t> FileID;
     
     enum eOpenMode
     {
@@ -12,16 +14,17 @@ namespace wv
         WV_OPEN_MODE_READWRITE,
     };
       
-    class cLowLevelFileSystem
+    class iLowLevelFileSystem
     {
     public:
-        cLowLevelFileSystem() { };
-        virtual ~cLowLevelFileSystem() { }
+        iLowLevelFileSystem() { };
+        virtual ~iLowLevelFileSystem() { }
 
-        virtual wv::Handle openFile ( const char* _path, const eOpenMode& _mode )             = 0;
-        virtual int        readFile ( wv::Handle& _file, char* _buffer, const size_t& _size ) = 0;
-        virtual void       writeFile( wv::Handle& _file, char* _buffer, const size_t& _size ) = 0;
-        virtual void       closeFile( wv::Handle& _file )                                     = 0;
+        virtual FileID   openFile   ( const char* _path, const eOpenMode& _mode )             = 0;
+        virtual uint64_t getFileSize( FileID& _file )                                     = 0;
+        virtual int      readFile   ( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+        virtual void     writeFile  ( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+        virtual void     closeFile  ( FileID& _file )                                     = 0;
     };
 
 }
