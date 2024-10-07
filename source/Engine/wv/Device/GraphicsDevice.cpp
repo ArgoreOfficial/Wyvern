@@ -95,9 +95,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 	}
 	
 	for( auto& childNode : _node->children )
-	{
 		drawNode( childNode );
-	}
 }
 
 
@@ -105,7 +103,7 @@ void wv::iGraphicsDevice::drawNode( sMeshNode* _node )
 
 wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 {
-	m_mutex.lock();
+	std::scoped_lock lock( m_mutex );
 	
 	if( m_availableCommandBuffers.size() == 0 )
 	{
@@ -117,7 +115,6 @@ wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 	m_availableCommandBuffers.pop();
 	m_recordingCommandBuffers.push_back( bufferIndex );
 
-	m_mutex.unlock();
 	return bufferIndex;
 }
 
@@ -125,7 +122,7 @@ wv::CmdBufferID wv::iGraphicsDevice::getCommandBuffer()
 
 void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
 {
-	m_mutex.lock();
+	std::scoped_lock lock( m_mutex );
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
 	{
 		if( m_recordingCommandBuffers[ i ] != _bufferID )
@@ -134,21 +131,20 @@ void wv::iGraphicsDevice::submitCommandBuffer( CmdBufferID _bufferID )
 		m_recordingCommandBuffers.erase( m_recordingCommandBuffers.begin() + i );
 		m_submittedCommandBuffers.push_back( _bufferID );
 
-		m_mutex.unlock();
 		return;
 	}
-	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 {
-	m_mutex.lock();
+	std::scoped_lock lock( m_mutex );
+
 	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
 	cMemoryStream& stream = buffer.getBuffer();
 
-	for( size_t i = 0; i < buffer.getNumCommands(); i++ )
+	for( size_t i = 0; i < buffer.numCommands(); i++ )
 	{
 		eGPUTaskType taskType = stream.pop<eGPUTaskType>();
 		
@@ -231,7 +227,6 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 		buffer.callback( buffer.callbacker );
 
 	buffer.flush();
-	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -239,8 +234,7 @@ void wv::iGraphicsDevice::executeCommandBuffer( CmdBufferID _bufferID )
 wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
 {
 	ProgramID id = m_programs.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -248,8 +242,7 @@ wv::ProgramID wv::iGraphicsDevice::cmdCreateProgram( CmdBufferID _bufferID, cons
 wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -257,8 +250,7 @@ wv::PipelineID wv::iGraphicsDevice::cmdCreatePipeline( CmdBufferID _bufferID, co
 wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -266,8 +258,7 @@ wv::RenderTargetID wv::iGraphicsDevice::cmdCreateRenderTarget( CmdBufferID _buff
 wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -275,8 +266,7 @@ wv::GPUBufferID wv::iGraphicsDevice::cmdCreateGPUBuffer( CmdBufferID _bufferID, 
 wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
 	MeshID  id = m_meshes.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -284,19 +274,17 @@ wv::MeshID wv::iGraphicsDevice::cmdCreateMesh( CmdBufferID _bufferID, const sMes
 wv::TextureID wv::iGraphicsDevice::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.allocate();
-	bufferCmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
-	return id;
+	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iGraphicsDevice::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
-	m_mutex.lock();
+	std::scoped_lock lock( m_mutex );
 	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
 	buffer.callback = _func;
 	buffer.callbacker = _caller;
-	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -316,10 +304,8 @@ void wv::iGraphicsDevice::beginRender()
 
 void wv::iGraphicsDevice::endRender()
 {
-	
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -331,8 +317,6 @@ wv::iGraphicsDevice::iGraphicsDevice()
 
 wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
-	WV_TRACE();
-
 	if( !_meshID.isValid() )
 		_meshID = m_meshes.allocate();
 
@@ -406,8 +390,6 @@ wv::MeshID wv::iGraphicsDevice::createMesh( MeshID _meshID, sMeshDesc* _desc )
 
 void wv::iGraphicsDevice::destroyMesh( MeshID _meshID )
 {
-	WV_TRACE();
-
 	sMesh& mesh = m_meshes.get( _meshID );
 
 	destroyGPUBuffer( mesh.indexBufferID );

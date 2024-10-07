@@ -83,11 +83,11 @@ namespace wv
 		void executeCommandBuffer( CmdBufferID _bufferID );
 
 		template<typename T>
-		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
-		void bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type ) { bufferCommand<char>( _bufferID, _type, nullptr ); }
+		void cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
+		void cmd( CmdBufferID _bufferID, const eGPUTaskType& _type ) { cmd<char>( _bufferID, _type, nullptr ); }
 
 		template<typename ID, typename T>
-		void bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
+		ID cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
 
 		ProgramID       cmdCreateProgram     ( CmdBufferID _bufferID, const sProgramDesc&      _desc );
 		PipelineID      cmdCreatePipeline    ( CmdBufferID _bufferID, const sPipelineDesc&     _desc );
@@ -183,17 +183,17 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline void iGraphicsDevice::bufferCommand( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
+	inline void iGraphicsDevice::cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
 	{
-		m_mutex.lock();
+		std::scoped_lock lock( m_mutex );
 		m_commandBuffers.get( _bufferID ).push<T>( _type, _pInfo );
-		m_mutex.unlock();
 	}
 
 	template<typename ID, typename T>
-	inline void iGraphicsDevice::bufferCmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
+	inline ID iGraphicsDevice::cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
 	{
 		sCmdCreateDesc<ID, T> desc{ _id, _desc };
-		bufferCommand( _bufferID, _task, &desc );
+		cmd( _bufferID, _task, &desc );
+		return _id;
 	}
 }

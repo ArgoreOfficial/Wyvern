@@ -27,7 +27,8 @@ namespace wv
 
 		void deallocate( ID _id )
 		{
-			m_mutex.lock();
+			std::scoped_lock lock( m_mutex );
+
 			if( !m_IDs.contains( _id ) )
 				throw std::out_of_range( "Cannot deallocate Invalid ID" );
 			
@@ -39,19 +40,16 @@ namespace wv
 			obj.~T();
 
 			memset( &obj, 0, sizeof( T ) );
-
-			m_mutex.unlock();
 		}
 
 		T& get( ID _id )
 		{
-			m_mutex.lock();
+			std::scoped_lock lock( m_mutex );
 			if( !m_IDs.contains( _id ) )
 				throw std::out_of_range( "Invalid ID" );
 
 			size_t index = _id.value - 1;
-			m_mutex.unlock();
-
+			
 			return ( (T*)m_pObjectBuffer )[ index ];
 		}
 
@@ -71,7 +69,7 @@ namespace wv
 	template<typename... Args>
 	inline ID cObjectHandleContainer<T, ID>::allocate( Args... _args )
 	{
-		m_mutex.lock();
+		std::scoped_lock lock( m_mutex );
 		if( m_maxIDs != 0 && m_IDs.size() >= m_maxIDs )
 			throw std::runtime_error( "Cannot allocate more IDs" );
 
@@ -98,7 +96,6 @@ namespace wv
 
 		m_IDs.insert( (ID)id );
 
-		m_mutex.unlock();
 		return (ID)id;
 	}
 }

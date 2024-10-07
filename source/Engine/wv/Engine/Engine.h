@@ -142,8 +142,8 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		unsigned int m_fpsCounter = 0;
-		double m_fpsAccumulator;
-		double m_fpsUpdateInterval = 0.1;
+		double m_fpsAccumulator     = 0.0;
+		double m_fpsUpdateInterval  = 0.5;
 		double m_timeSinceFPSUpdate = 0.0;
 
 		double m_averageFps = 0.0;
@@ -151,19 +151,9 @@ namespace wv
 
 		bool m_drawWireframe = false;
 
-		/*
-		 * technically not a singleton but getting a reference 
-		 * to the application can sometimes be very useful.
-		 * 
-		 * this will have to change in case multiple applications 
-		 * are to be supported
-		 * 
-		 * might remove
-		 */
-		static cEngine* s_pInstance; 
-
 		wv::Vector2i m_mousePosition;
 
+		static cEngine* s_pInstance; 
 	};
 
 }

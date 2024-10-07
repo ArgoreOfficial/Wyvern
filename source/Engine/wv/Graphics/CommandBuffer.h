@@ -70,7 +70,7 @@ namespace wv
 		void push( const eGPUTaskType& _type ) { push<std::nullptr_t>( _type, nullptr ); }
 
 		wv::cMemoryStream& getBuffer() { return m_buffer; }
-		size_t             getNumCommands() { return m_numCommands; }
+		size_t numCommands() { return m_numCommands; }
 		
 		wv::Function<void, void*> callback;
 		void* callbacker = nullptr;

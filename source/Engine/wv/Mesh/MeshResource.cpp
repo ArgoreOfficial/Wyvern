@@ -44,7 +44,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 
 	for ( auto& meshID : _node->meshes )
 	{
-		pGraphicsDevice->bufferCommand( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
+		pGraphicsDevice->cmd( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
 		wv::sMesh& mesh = pGraphicsDevice->m_meshes.get( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 	}
