@@ -108,6 +108,9 @@ namespace wv
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        = 0;
 		
+		virtual void bindBuffer     ( GPUBufferID _bufferID )                        = 0;
+		virtual void bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex ) = 0;
+
 		virtual void bufferData   ( GPUBufferID _bufferID, void* _pData, size_t _size )               = 0;
 		virtual void bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) = 0;
 
@@ -161,6 +164,7 @@ namespace wv
 		std::vector<CmdBufferID> m_submittedCommandBuffers;
 
 		GPUBufferID m_vertexBuffer{};
+		GPUBufferID m_indexBuffer{};
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};

@@ -32,9 +32,9 @@
 	#define WV_VALIDATE_GL( _func ) if( _func == nullptr ) { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
 
 	#if WV_HARD_ASSERT
-		#define WV_ASSERT_GL( _func ) _func; if( !assertGLError( #_func ) ) throw std::runtime_error( #_func )
+		#define WV_ASSERT_GL( _func ) _func; if( !assertGLError( #_func "\n" ) ) throw std::runtime_error( #_func )
 	#else
-		#define WV_ASSERT_GL( _func ) _func; assertGLError( #_func )
+		#define WV_ASSERT_GL( _func ) _func; assertGLError( #_func "\n" )
 	#endif
 #else
 	#define WV_VALIDATE_GL( _func )
@@ -599,6 +599,26 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
+{
+	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	GLenum target = getGlBufferEnum( buffer.type );
+
+	WV_ASSERT_GL( glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.handle ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
+{
+	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	GLenum target = getGlBufferEnum( buffer.type );
+
+	WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _bindingIndex, buffer.handle ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
 {
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
@@ -832,11 +852,8 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _indexBufferID, 
 	wv::sGPUBuffer& SbVertices = m_gpuBuffers.get( _vertexPullBufferID );
 	sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
-	sGPUBuffer& vbuffer = m_gpuBuffers.get( m_vertexBuffer );
-	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle );
-	
-	sGPUBuffer& ibuffer = m_gpuBuffers.get( _indexBufferID );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
+	bindBufferIndex( m_vertexBuffer, pData->bindingIndex.value );
+	bindBuffer( _indexBufferID );
 #endif
 }
 

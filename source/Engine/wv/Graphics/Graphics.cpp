@@ -60,13 +60,17 @@ void wv::iLowLevelGraphics::initEmbeds()
 	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
 
-	sGPUBufferDesc desc;
-	desc.name  = "MonolithVBO";
-	desc.type  = WV_BUFFER_TYPE_VERTEX;
-	desc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	desc.size  = 0;
+	sGPUBufferDesc mvbDesc{};
+	mvbDesc.name  = "mvb";
+	mvbDesc.type  = WV_BUFFER_TYPE_VERTEX;
+	mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+	m_vertexBuffer = createGPUBuffer( 0, &mvbDesc );
 
-	m_vertexBuffer = createGPUBuffer( 0, &desc );
+	sGPUBufferDesc mibDesc{};
+	mibDesc.name  = "mib";
+	mibDesc.type  = WV_BUFFER_TYPE_INDEX;
+	mibDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+	m_indexBuffer = createGPUBuffer( 0, &mibDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -323,15 +327,8 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	if( !_meshID.isValid() )
 		_meshID = m_meshes.allocate();
 
-	sMesh& mesh = m_meshes.get( _meshID );
-
-	sGPUBufferDesc vbDesc;
-	vbDesc.name = "vbo";
-	vbDesc.type = WV_BUFFER_TYPE_VERTEX;
-	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
-	vbDesc.size = _desc->sizeVertices;
-	
-	mesh.pMaterial = _desc->pMaterial;
+	sMesh mesh{};
+	mesh.pMaterial   = _desc->pMaterial;
 	mesh.numVertices = _desc->sizeVertices / sizeof( Vertex );
 
 	{ // add to monolith vbo
@@ -403,6 +400,7 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	}
 
 	mesh.complete = true;
+	m_meshes.get( _meshID ) = mesh;
 
 	return _meshID;
 }
