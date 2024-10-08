@@ -335,7 +335,6 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	mesh.numVertices = _desc->sizeVertices / sizeof( Vertex );
 
 	{ // add to monolith vbo
-
 		sGPUBuffer& oldMvb = m_gpuBuffers.get( m_vertexBuffer );
 
 		// create new buffer

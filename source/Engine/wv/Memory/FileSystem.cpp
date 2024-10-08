@@ -65,7 +65,7 @@ wv::cFileSystem::~cFileSystem()
 
 wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
-	std::scoped_lock( m_mutex );
+	std::scoped_lock lock( m_mutex );
 
 	FileID file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
 	uint64_t size = m_pLowLevel->getFileSize( file );
@@ -99,7 +99,7 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 	if ( !_memory )
 		return;
 
-	std::scoped_lock( m_mutex );
+	std::scoped_lock lock( m_mutex );
 
 	for ( int i = 0; i < (int)m_loadedMemory.size(); i++ )
 	{

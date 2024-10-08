@@ -117,7 +117,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		if ( !meshID.isValid() )
 			continue;
 
-		sMesh& mesh = meshreg.get( meshID );
+		sMesh mesh = meshreg.get( meshID ); // get copy, incase mesh object container reallocated
 		if( !mesh.complete )
 			continue;
 
