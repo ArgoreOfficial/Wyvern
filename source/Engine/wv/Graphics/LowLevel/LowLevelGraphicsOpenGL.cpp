@@ -833,7 +833,7 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _indexBufferID, 
 	sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
 	sGPUBuffer& vbuffer = m_gpuBuffers.get( m_vertexBuffer );
-	glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle, 0, vbuffer.size );
+	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle );
 	
 	sGPUBuffer& ibuffer = m_gpuBuffers.get( _indexBufferID );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
