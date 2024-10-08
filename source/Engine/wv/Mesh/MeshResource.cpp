@@ -183,7 +183,16 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
 			wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
-			_pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
+
+			sDrawIndexIndirectCmd drawCmd;
+			drawCmd.count         = ibuffer.count;
+			drawCmd.instanceCount = m_drawQueue.size();
+			drawCmd.firstIndex    = mesh.baseIndex;
+			drawCmd.baseVertex    = mesh.baseVertex;
+			drawCmd.baseInstance  = 0;
+			
+			// _pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
+			_pLowLevelGraphics->drawIndexedIndirect( drawCmd );
 
 			instances.clear();
 		}

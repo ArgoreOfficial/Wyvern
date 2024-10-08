@@ -832,7 +832,7 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
+			WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
 	}
 	else
 	{
@@ -907,6 +907,15 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 #ifdef WV_SUPPORT_OPENGL
 	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cLowLevelGraphicsOpenGL::drawIndexedIndirect( sDrawIndexIndirectCmd _cmd )
+{
+	WV_TRACE();
+
+	glDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, &_cmd );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -97,6 +97,7 @@ namespace wv
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) override;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         override;
 		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) override;
+		virtual void drawIndexedIndirect( sDrawIndexIndirectCmd _cmd ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

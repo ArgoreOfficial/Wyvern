@@ -71,6 +71,9 @@ namespace wv
 		int32_t baseVertex  = 0;
 		int32_t numVertices = 0;
 
+		int32_t baseIndex  = 0;
+		int32_t numIndices = 0;
+
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
 		cMaterial* pMaterial = nullptr;
