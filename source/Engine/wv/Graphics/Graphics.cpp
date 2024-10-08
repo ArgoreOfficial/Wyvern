@@ -330,15 +330,10 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	vbDesc.type = WV_BUFFER_TYPE_VERTEX;
 	vbDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 	vbDesc.size = _desc->sizeVertices;
-	mesh.vertexBufferID = createGPUBuffer( 0, &vbDesc );
-	sGPUBuffer& vertexBuffer = m_gpuBuffers.get( mesh.vertexBufferID );
-	mesh.pMaterial = _desc->pMaterial;
-
-	uint32_t count = _desc->sizeVertices / sizeof( Vertex );
-	vertexBuffer.count = count;
-
-	bufferData( mesh.vertexBufferID, _desc->vertices, _desc->sizeVertices );
 	
+	mesh.pMaterial = _desc->pMaterial;
+	mesh.numVertices = _desc->sizeVertices / sizeof( Vertex );
+
 	{ // add to monolith vbo
 
 		sGPUBuffer& oldMvb = m_gpuBuffers.get( m_vertexBuffer );
@@ -418,8 +413,7 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 	sMesh& mesh = m_meshes.get( _meshID );
 
 	destroyGPUBuffer( mesh.indexBufferID );
-	destroyGPUBuffer( mesh.vertexBufferID );
-
+	
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 

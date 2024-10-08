@@ -66,20 +66,15 @@ namespace wv
 		std::string name;
 		Transformf transform{};
 
-		wv::Handle handle = 0;
-		GPUBufferID vertexBufferID{};
 		GPUBufferID indexBufferID{};
 
-		int32_t baseVertex = 0;
+		int32_t baseVertex  = 0;
+		int32_t numVertices = 0;
 
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
 		cMaterial* pMaterial = nullptr;
 
-		// remove?
-		std::vector<Vertex> vertices;
-		std::vector<unsigned int> indices;
-		
 		bool complete = false;
 
 		void* pPlatformData = nullptr;
