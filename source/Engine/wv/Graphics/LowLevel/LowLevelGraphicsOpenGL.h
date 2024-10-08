@@ -72,23 +72,28 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID )                       override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       override;
 
-		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc )                    override;
-		virtual void        bufferData      ( GPUBufferID _bufferID, void* _pData, size_t _size )               override;
-		virtual void        bufferSubData   ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
-		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                                           override;
+
+		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) override;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        override;
 		
+		virtual void bufferData   ( GPUBufferID _bufferID, void* _pData, size_t _size )               override;
+		virtual void bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
+
+		virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) override;
+
+
 		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                override;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
 		virtual void      destroyTexture   ( TextureID _textureID )                                      override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
-		virtual void bindVertexBuffer( MeshID _meshID, cShaderResource* _pShader ) override;
+		virtual void bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) override;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         override;
-		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances ) override;
+		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

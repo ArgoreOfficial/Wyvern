@@ -48,7 +48,6 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 	}
 
 	device->m_threadID = std::this_thread::get_id();
-
 	_desc->pContext->m_graphicsApiVersion = device->m_graphicsApiVersion;
 	
 	return device;
@@ -60,6 +59,14 @@ void wv::iLowLevelGraphics::initEmbeds()
 {
 	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+
+	sGPUBufferDesc desc;
+	desc.name  = "MonolithVBO";
+	desc.type  = WV_BUFFER_TYPE_VERTEX;
+	desc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+	desc.size  = 0;
+
+	m_vertexBuffer = createGPUBuffer( 0, &desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -332,6 +339,31 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 
 	bufferData( mesh.vertexBufferID, _desc->vertices, _desc->sizeVertices );
 	
+	{ // add to monolith vbo
+
+		sGPUBuffer& oldMvb = m_gpuBuffers.get( m_vertexBuffer );
+
+		// create new buffer
+		sGPUBufferDesc mvbDesc;
+		mvbDesc.name = "MonolithVBO";
+		mvbDesc.type = WV_BUFFER_TYPE_VERTEX;
+		mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+		mvbDesc.size = oldMvb.size + _desc->sizeVertices;
+		GPUBufferID mvb = createGPUBuffer( 0, &mvbDesc );
+		
+		// buffer data
+		if( oldMvb.size > 0 )
+			copyBufferSubData( m_vertexBuffer, mvb, 0, 0, oldMvb.size );
+
+		bufferSubData( mvb, _desc->vertices, _desc->sizeVertices, oldMvb.size );
+		
+		mesh.baseVertex = oldMvb.size / sizeof( Vertex );
+
+		// destroy and replace handle
+		destroyGPUBuffer( m_vertexBuffer );
+		m_vertexBuffer = mvb;
+	}
+
 	if( _desc->numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -396,9 +428,13 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 
 void wv::iLowLevelGraphics::draw( MeshID _meshID )
 {
+	/*
+ 
 	sMesh& rMesh = m_meshes.get( _meshID );
 
-	bindVertexBuffer( _meshID, rMesh.pMaterial->getShader() );
+	wv::GPUBufferID SbVerticesID = rMesh.pMaterial->getShader()->getShaderBuffer( "SbVertices" );
+
+	bindVertexBuffer( rMesh.indexBufferID, SbVerticesID );
 
 	if( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
 	{
@@ -410,4 +446,5 @@ void wv::iLowLevelGraphics::draw( MeshID _meshID )
 		sGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
 		draw( 0, buffer.count );
 	}
+	*/
 }

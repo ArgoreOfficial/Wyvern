@@ -174,13 +174,16 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			
 		if( m_useGPUInstancing )
 		{
-			_pLowLevelGraphics->bindVertexBuffer( meshID, pShader );
+			wv::GPUBufferID SbVerticesID = pShader->getShaderBuffer( "SbVertices" );
 
+			if( SbVerticesID.isValid() )
+				_pLowLevelGraphics->bindVertexBuffer( mesh.indexBufferID, SbVerticesID );
+			
 			mat->setInstanceUniforms( &mesh );
 			_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
 			wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
-			_pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size() );
+			_pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
 
 			instances.clear();
 		}

@@ -70,6 +70,8 @@ namespace wv
 		GPUBufferID vertexBufferID{};
 		GPUBufferID indexBufferID{};
 
+		int32_t baseVertex = 0;
+
 		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
 		cMaterial* pMaterial = nullptr;

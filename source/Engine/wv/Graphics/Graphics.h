@@ -104,10 +104,14 @@ namespace wv
 		virtual void       destroyPipeline( PipelineID _pipelineID )                       = 0;
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       = 0;
 
+
 		virtual GPUBufferID createGPUBuffer ( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
-		virtual void        bufferData      ( GPUBufferID _bufferID, void* _pData, size_t _size ) = 0;
-		virtual void        bufferSubData   ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) = 0;
 		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )                        = 0;
+		
+		virtual void bufferData   ( GPUBufferID _bufferID, void* _pData, size_t _size )               = 0;
+		virtual void bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) = 0;
+
+		virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) = 0;
 		
 		virtual MeshID createMesh ( MeshID _meshID, sMeshDesc* _desc );
 		virtual void   destroyMesh( MeshID _meshID );
@@ -117,7 +121,7 @@ namespace wv
 		virtual void      destroyTexture   ( TextureID _textureID )                                      = 0;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  = 0;
 
-		virtual void bindVertexBuffer( MeshID _meshID, cShaderResource* _pShader ) = 0;
+		virtual void bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
@@ -125,7 +129,7 @@ namespace wv
 
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         = 0;
-		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances ) = 0;
+		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
@@ -156,7 +160,7 @@ namespace wv
 		std::vector<CmdBufferID> m_recordingCommandBuffers;
 		std::vector<CmdBufferID> m_submittedCommandBuffers;
 
-		GPUBufferID m_vertexBuffer;
+		GPUBufferID m_vertexBuffer{};
 
 		cMaterial* m_pEmptyMaterial = nullptr;
 	};

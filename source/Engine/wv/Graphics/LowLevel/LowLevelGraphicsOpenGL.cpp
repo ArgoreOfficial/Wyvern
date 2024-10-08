@@ -567,28 +567,6 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _buffe
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
-{
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
-
-	GLenum usage  = getGlBufferUsage( buffer.usage );
-	GLenum target = getGlBufferEnum ( buffer.type );
-
-	WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
-	WV_ASSERT_GL( glBufferData( target, _size, _pData, usage ) );
-	WV_ASSERT_GL( glBindBuffer( target, 0 ) );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
-{
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
-	WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, _base, _size, _pData ); );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
@@ -617,6 +595,36 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 
 	m_gpuBuffers.deallocate( _bufferID );
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
+{
+	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+
+	GLenum usage  = getGlBufferUsage( buffer.usage );
+	GLenum target = getGlBufferEnum ( buffer.type );
+
+	WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
+	WV_ASSERT_GL( glBufferData( target, _size, _pData, usage ) );
+	WV_ASSERT_GL( glBindBuffer( target, 0 ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
+{
+	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, _base, _size, _pData ); );
+}
+
+void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
+{
+	sGPUBuffer& rb = m_gpuBuffers.get( _readBufferID );
+	sGPUBuffer& wb = m_gpuBuffers.get( _writeBufferID );
+
+	WV_ASSERT_GL( glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -816,28 +824,18 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( MeshID _meshID, cShaderResource* _pShader )
+void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( !_pShader )
-		return;
-
-	wv::GPUBufferID SbVerticesID = _pShader->getShaderBuffer( "SbVertices" );
-	sMesh& mesh = m_meshes.get( _meshID );
-
-	if( SbVerticesID.isValid() && mesh.vertexBufferID.isValid() )
-	{
-		wv::sGPUBuffer& SbVertices = m_gpuBuffers.get( SbVerticesID );
-		sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
+	wv::sGPUBuffer& SbVertices = m_gpuBuffers.get( _vertexPullBufferID );
+	sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
-		sGPUBuffer& vbuffer = m_gpuBuffers.get( mesh.vertexBufferID );
-		glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle, 0, vbuffer.size );
-	}
+	sGPUBuffer& vbuffer = m_gpuBuffers.get( m_vertexBuffer );
+	glBindBufferRange( GL_SHADER_STORAGE_BUFFER, pData->bindingIndex.value, vbuffer.handle, 0, vbuffer.size );
 	
-	// move?
-	sGPUBuffer& ibuffer = m_gpuBuffers.get( mesh.indexBufferID );
+	sGPUBuffer& ibuffer = m_gpuBuffers.get( _indexBufferID );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibuffer.handle );
 #endif
 }
@@ -885,12 +883,12 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexed( uint32_t _numIndices )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances )
+void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glDrawElementsInstanced( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances );
+	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
 #endif
 }
 

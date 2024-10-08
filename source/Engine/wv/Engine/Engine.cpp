@@ -403,9 +403,12 @@ void wv::cEngine::tick()
 	// render screen quad with deferred shader
 	{
 		m_pDeferredShader->bind( graphics );
+		
+		wv::GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
 
-		graphics->bindVertexBuffer( m_screenQuad, m_pDeferredShader );
 		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
+		graphics->bindVertexBuffer( screenQuad.indexBufferID, SbVerticesID );
+		
 		sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
 		graphics->drawIndexed( ibuffer.count );
 	}
