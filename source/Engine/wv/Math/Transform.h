@@ -40,8 +40,10 @@ namespace wv
 		cVector3<T> rotation{ 0, 0, 0 };
 		cVector3<T> scale   { 1, 1, 1 };
 
+		Transform<T>* pParent;
 
 		cMatrix<T, 4, 4> m_matrix{ 1 };
+
 	private:
 
 		cMatrix<T, 4, 4> m_localMatrix{ 1 };
@@ -72,6 +74,7 @@ namespace wv
 				return;
 		
 		m_children.push_back( _child );
+		_child->pParent = this;
 	}
 
 	template<typename T>
@@ -125,6 +128,9 @@ namespace wv
 			else
 				m_matrix = m_localMatrix;
 		}
+		else
+			m_matrix = m_localMatrix;
+
 
 		for( auto& child : m_children )
 			child->update( this, recalc || _recalculateMatrix );

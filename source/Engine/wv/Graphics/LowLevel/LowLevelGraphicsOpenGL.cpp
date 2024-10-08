@@ -126,6 +126,8 @@ bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 	glGetIntegerv( GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxSSBOBindings );
 	m_ssboBindingIndices.setMaxIDs( maxSSBOBindings );
 
+	glCreateBuffers( 1, &drawIndirectHandle );
+	
 	return true;
 #else
 	return false;
@@ -604,7 +606,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
-	WV_ASSERT_GL( glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.handle ) );
+	WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -832,7 +834,7 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-		WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
+			WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
 	}
 	else
 	{
@@ -844,7 +846,7 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID )
+void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBufferID )
 {
 	WV_TRACE();
 
@@ -853,7 +855,7 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _indexBufferID, 
 	sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
 	bindBufferIndex( m_vertexBuffer, pData->bindingIndex.value );
-	bindBuffer( _indexBufferID );
+	bindBuffer( m_indexBuffer );
 #endif
 }
 
@@ -905,8 +907,21 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
+	WV_ASSERT_GL( glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex ) );
 #endif
+}
+
+void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( void )
+{
+
+	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle ) );
+	
+	WV_ASSERT_GL( glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndirectCmd ) * m_drawlist.size(), m_drawlist.data(), GL_DYNAMIC_DRAW ) );
+	WV_ASSERT_GL( glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, m_drawlist.size(), 0 ) );
+	
+	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 ) );
+	
+	m_drawlist.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -198,22 +198,25 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 		wv::Math::degrees( rot.y ),
 		wv::Math::degrees( rot.z ) };
 
+	_meshNode->transform.update( _meshNode->transform.pParent );
+
 	// process all the node's meshes (if any)
 	_meshNode->meshes.assign( _node->mNumMeshes, { 0 } );
 	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
 		processAssimpMesh( aimesh, _scene, &_meshNode->meshes[ i ], _meshNode, _pResourceRegistry );
+
 	}
 
 	// then do the same for each of its children
 	for( unsigned int i = 0; i < _node->mNumChildren; i++ )
 	{
 		wv::sMeshNode* meshNode = new wv::sMeshNode();
-		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pLowLevelGraphics, _pResourceRegistry );
-
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
+
+		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pLowLevelGraphics, _pResourceRegistry );
 	}
 }
 #endif

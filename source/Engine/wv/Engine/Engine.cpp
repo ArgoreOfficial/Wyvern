@@ -234,6 +234,7 @@ wv::Vector2i wv::cEngine::getViewportSize()
 
 void wv::cEngine::run()
 {
+
 	// Subscribe to user input event
 	m_inputListener.hook();
 	m_mouseListener.hook();
@@ -406,11 +407,11 @@ void wv::cEngine::tick()
 		
 		wv::GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
 
-		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		graphics->bindVertexBuffer( screenQuad.indexBufferID, SbVerticesID );
+		sMesh screenQuad = graphics->m_meshes.get( m_screenQuad );
+		graphics->bindVertexBuffer( SbVerticesID );
 		
-		sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
-		graphics->drawIndexed( ibuffer.count );
+		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
+		graphics->drawIndexed( screenQuad.numIndices );
 	}
 
 	if( m_pIRTHandler )
@@ -509,12 +510,6 @@ void wv::cEngine::createScreenQuad()
 	}
 
 	m_screenQuad = graphics->createMesh( 0, &prDesc );
-	
-	if( m_screenQuad.isValid() )
-	{
-		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		screenQuad.transform.update( nullptr );
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

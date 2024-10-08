@@ -99,13 +99,12 @@ void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 	if ( m_drawQueue.empty() )
 		return;
 
-	bool recalcMatrices = m_pMeshNode->transform.update( nullptr );
-	drawNode( _pLowLevelGraphics, m_pMeshNode, recalcMatrices );
+	drawNode( _pLowLevelGraphics, m_pMeshNode );
 
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node, bool _recalcMatrices )
+void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node )
 {
 	if ( !_node )
 		return;
@@ -176,14 +175,23 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		{
 			wv::GPUBufferID SbVerticesID = pShader->getShaderBuffer( "SbVertices" );
 
-			if( SbVerticesID.isValid() )
-				_pLowLevelGraphics->bindVertexBuffer( mesh.indexBufferID, SbVerticesID );
+			if ( SbVerticesID.isValid() )
+			{
+				_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
+				
+				mat->setInstanceUniforms( &mesh );
+				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
-			mat->setInstanceUniforms( &mesh );
-			_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+				sDrawIndirectCmd drawCmd;
+				drawCmd.count         = mesh.numIndices;
+				drawCmd.instanceCount = instances.size();
+				drawCmd.firstIndex    = mesh.baseIndex;
+				drawCmd.baseVertex    = mesh.baseVertex;
+				drawCmd.baseInstance  = 0;
 			
-			wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
-			_pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
+				_pLowLevelGraphics->m_drawlist.push_back( drawCmd );
+				_pLowLevelGraphics->multiDrawIndirect();
+			}
 
 			instances.clear();
 		}
@@ -191,6 +199,6 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 	}
 
 	for ( auto& childNode : _node->children )
-		drawNode( _pLowLevelGraphics, childNode, _recalcMatrices );
+		drawNode( _pLowLevelGraphics, childNode );
 }
 

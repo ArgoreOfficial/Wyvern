@@ -30,6 +30,8 @@ namespace wv
 	class cShaderResource;
 	class cMaterial;
 
+	WV_DEFINE_ID( DrawListID );
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sLowLevelGraphicsDesc
@@ -42,6 +44,15 @@ namespace wv
 	struct sCmdCreateDesc{ T id; D desc; };
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+	struct sDrawIndirectCmd
+	{
+		unsigned int  count;
+		unsigned int  instanceCount;
+		unsigned int  firstIndex;
+		int           baseVertex;
+		unsigned int  baseInstance;
+	};
 
 	class iLowLevelGraphics
 	{
@@ -124,7 +135,7 @@ namespace wv
 		virtual void      destroyTexture   ( TextureID _textureID )                                      = 0;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  = 0;
 
-		virtual void bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID ) = 0;
+		virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) = 0;
 
 		virtual void setFillMode( eFillMode _mode ) = 0;
 
@@ -133,6 +144,7 @@ namespace wv
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         = 0;
 		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) = 0;
+		virtual void multiDrawIndirect   ( void ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
@@ -143,11 +155,18 @@ namespace wv
 		cObjectHandleContainer<sTexture,      TextureID>      m_textures;
 		cObjectHandleContainer<sMesh,         MeshID>         m_meshes;
 		
+		std::vector<sDrawIndirectCmd> m_drawlist;
+		uint32_t drawIndirectHandle = 0;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 
 		iLowLevelGraphics();
+
+		// returns base vertex
+		size_t pushVertexBuffer( void* _vertices, size_t _size );
+		// returns base index
+		size_t pushIndexBuffer( void* _indices,  size_t _size );
 
 		std::thread::id m_threadID;
 

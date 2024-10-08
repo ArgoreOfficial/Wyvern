@@ -322,6 +322,56 @@ wv::iLowLevelGraphics::iLowLevelGraphics()
 
 }
 
+size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
+{
+	sGPUBuffer& old = m_gpuBuffers.get( m_vertexBuffer );
+	size_t base = old.size / sizeof( Vertex );
+
+	// create new buffer
+	sGPUBufferDesc desc;
+	desc.name  = old.name;
+	desc.type  = old.type;
+	desc.usage = old.usage;
+	desc.size  = old.size + _size;
+	GPUBufferID mvb = createGPUBuffer( 0, &desc );
+
+	if( old.size > 0 ) // copy old data
+		copyBufferSubData( m_vertexBuffer, mvb, 0, 0, old.size );
+
+	bufferSubData( mvb, _vertices, _size, old.size );
+
+	// destroy and replace handle
+	destroyGPUBuffer( m_vertexBuffer );
+	m_vertexBuffer = mvb;
+
+	return base;
+}
+
+size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
+{
+	sGPUBuffer& old = m_gpuBuffers.get( m_indexBuffer );
+	size_t base = old.size / sizeof( unsigned int );
+
+	// create new buffer
+	sGPUBufferDesc desc;
+	desc.name  = old.name;
+	desc.type  = old.type;
+	desc.usage = old.usage;
+	desc.size  = old.size + _size;
+	GPUBufferID buf = createGPUBuffer( 0, &desc );
+
+	if( old.size > 0 ) // copy old data
+		copyBufferSubData( m_indexBuffer, buf, 0, 0, old.size );
+
+	bufferSubData( buf, _indices, _size, old.size );
+
+	// destroy and replace handle
+	destroyGPUBuffer( m_indexBuffer );
+	m_indexBuffer = buf;
+
+	return base;
+}
+
 wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
 	if( !_meshID.isValid() )
@@ -329,32 +379,9 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 
 	sMesh mesh{};
 	mesh.pMaterial   = _desc->pMaterial;
-	mesh.numVertices = _desc->sizeVertices / sizeof( Vertex );
-
-	{ // add to monolith vbo
-		sGPUBuffer& oldMvb = m_gpuBuffers.get( m_vertexBuffer );
-
-		// create new buffer
-		sGPUBufferDesc mvbDesc;
-		mvbDesc.name = "MonolithVBO";
-		mvbDesc.type = WV_BUFFER_TYPE_VERTEX;
-		mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-		mvbDesc.size = oldMvb.size + _desc->sizeVertices;
-		GPUBufferID mvb = createGPUBuffer( 0, &mvbDesc );
-		
-		// buffer data
-		if( oldMvb.size > 0 )
-			copyBufferSubData( m_vertexBuffer, mvb, 0, 0, oldMvb.size );
-
-		bufferSubData( mvb, _desc->vertices, _desc->sizeVertices, oldMvb.size );
-		
-		mesh.baseVertex = oldMvb.size / sizeof( Vertex );
-
-		// destroy and replace handle
-		destroyGPUBuffer( m_vertexBuffer );
-		m_vertexBuffer = mvb;
-	}
-
+	mesh.numVertices = _desc->sizeVertices / sizeof( Vertex ); 
+	mesh.baseVertex  = pushVertexBuffer( _desc->vertices, _desc->sizeVertices );
+	
 	if( _desc->numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -379,12 +406,8 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		}
 
 		ibDesc.size = indicesSize;
-		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
-
-		sGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
-		indexBuffer.count = _desc->numIndices;
-
-		bufferSubData( mesh.indexBufferID, indices, indicesSize, 0 );
+		mesh.baseIndex = pushIndexBuffer( indices, indicesSize );
+		mesh.numIndices = _desc->numIndices;
 
 	}
 	else
@@ -399,6 +422,10 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
 	}
 
+	// mesh.transform.update( _desc->pParentTransform );
+	if( _desc->pParentTransform )
+		mesh.transform.m_matrix = _desc->pParentTransform->m_matrix;
+
 	mesh.complete = true;
 	m_meshes.get( _meshID ) = mesh;
 
@@ -409,8 +436,8 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 {
 	sMesh& mesh = m_meshes.get( _meshID );
 
-	destroyGPUBuffer( mesh.indexBufferID );
-	
+	// destroy vertex and index data
+
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 

@@ -21,7 +21,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	WV_DEFINE_ID( BufferBindingIndex );
-
+	
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sOpenGLBufferData
@@ -90,13 +90,15 @@ namespace wv
 		virtual void      destroyTexture   ( TextureID _textureID )                                      override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
-		virtual void bindVertexBuffer( GPUBufferID _indexBufferID, GPUBufferID _vertexPullBufferID ) override;
+		virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) override;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         override;
 		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) override;
+
+		virtual void multiDrawIndirect( void ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
