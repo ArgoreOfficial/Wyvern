@@ -406,8 +406,8 @@ void wv::cEngine::tick()
 		
 		wv::GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
 
-		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		graphics->bindVertexBuffer( screenQuad.indexBufferID, SbVerticesID );
+		sMesh screenQuad = graphics->m_meshes.get( m_screenQuad );
+		graphics->bindVertexBuffer( SbVerticesID );
 		
 		sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
 		graphics->drawIndexed( ibuffer.count );

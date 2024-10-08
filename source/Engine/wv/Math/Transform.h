@@ -125,6 +125,9 @@ namespace wv
 			else
 				m_matrix = m_localMatrix;
 		}
+		else
+			m_matrix = m_localMatrix;
+
 
 		for( auto& child : m_children )
 			child->update( this, recalc || _recalculateMatrix );

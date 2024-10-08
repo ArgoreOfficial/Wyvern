@@ -176,23 +176,27 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		{
 			wv::GPUBufferID SbVerticesID = pShader->getShaderBuffer( "SbVertices" );
 
-			if( SbVerticesID.isValid() )
-				_pLowLevelGraphics->bindVertexBuffer( mesh.indexBufferID, SbVerticesID );
+			if ( SbVerticesID.isValid() )
+			{
+				_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
 			
-			mat->setInstanceUniforms( &mesh );
-			_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+				mat->setInstanceUniforms( &mesh );
+				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
-			wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
+				wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
 
-			sDrawIndexIndirectCmd drawCmd;
-			drawCmd.count         = ibuffer.count;
-			drawCmd.instanceCount = m_drawQueue.size();
-			drawCmd.firstIndex    = mesh.baseIndex;
-			drawCmd.baseVertex    = mesh.baseVertex;
-			drawCmd.baseInstance  = 0;
+				sDrawIndirectCmd drawCmd;
+				drawCmd.count         = ibuffer.count;
+				drawCmd.instanceCount = instances.size();
+				drawCmd.firstIndex    = mesh.baseIndex;
+				drawCmd.baseVertex    = mesh.baseVertex;
+				drawCmd.baseInstance  = 0;
 			
-			// _pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
-			_pLowLevelGraphics->drawIndexedIndirect( drawCmd );
+				_pLowLevelGraphics->m_drawlist.push_back( drawCmd );
+				_pLowLevelGraphics->multiDrawIndirect();
+
+				// _pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
+			}
 
 			instances.clear();
 		}
