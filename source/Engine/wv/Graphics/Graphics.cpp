@@ -406,13 +406,8 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		}
 
 		ibDesc.size = indicesSize;
-		mesh.indexBufferID = createGPUBuffer( 0, &ibDesc );
-
-		sGPUBuffer& indexBuffer = m_gpuBuffers.get( mesh.indexBufferID );
-		indexBuffer.count = _desc->numIndices;
-
-		bufferSubData( mesh.indexBufferID, indices, indicesSize, 0 );
 		mesh.baseIndex = pushIndexBuffer( indices, indicesSize );
+		mesh.numIndices = _desc->numIndices;
 
 	}
 	else
@@ -428,6 +423,8 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	}
 
 	mesh.complete = true;
+	mesh.transform.update( _desc->pParentTransform );
+	
 	m_meshes.get( _meshID ) = mesh;
 
 	return _meshID;
@@ -437,8 +434,8 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 {
 	sMesh& mesh = m_meshes.get( _meshID );
 
-	destroyGPUBuffer( mesh.indexBufferID );
-	
+	// destroy vertex and index data
+
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 

@@ -204,6 +204,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	{
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
 		processAssimpMesh( aimesh, _scene, &_meshNode->meshes[ i ], _meshNode, _pResourceRegistry );
+
 	}
 
 	// then do the same for each of its children
@@ -214,6 +215,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
+		meshNode->transform.update( &_meshNode->transform );
 	}
 }
 #endif

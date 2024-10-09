@@ -409,8 +409,8 @@ void wv::cEngine::tick()
 		sMesh screenQuad = graphics->m_meshes.get( m_screenQuad );
 		graphics->bindVertexBuffer( SbVerticesID );
 		
-		sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
-		graphics->drawIndexed( ibuffer.count );
+		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
+		graphics->drawIndexed( screenQuad.numIndices );
 	}
 
 	if( m_pIRTHandler )

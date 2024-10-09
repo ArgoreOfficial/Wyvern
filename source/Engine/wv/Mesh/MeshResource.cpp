@@ -26,6 +26,19 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void updateMeshNodeTransform( wv::iLowLevelGraphics* _pLowLevelGraphics, wv::sMeshNode* _pNode )
+{
+	for( auto& id : _pNode->meshes )
+	{
+		wv::sMesh& mesh = _pLowLevelGraphics->m_meshes.get( id );
+		mesh.transform.update( &_pNode->transform );
+	}
+
+	for( auto& node : _pNode->children )
+		updateMeshNodeTransform( _pLowLevelGraphics, node );
+	
+}
+
 void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	cEngine* app = cEngine::get();
@@ -99,8 +112,10 @@ void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 	if ( m_drawQueue.empty() )
 		return;
 
+
 	bool recalcMatrices = m_pMeshNode->transform.update( nullptr );
-	drawNode( _pLowLevelGraphics, m_pMeshNode, recalcMatrices );
+
+	drawNode( _pLowLevelGraphics, m_pMeshNode, false );
 
 	m_drawQueue.clear();
 }
@@ -179,14 +194,12 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			if ( SbVerticesID.isValid() )
 			{
 				_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
-			
+				
 				mat->setInstanceUniforms( &mesh );
 				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
-				wv::sGPUBuffer& ibuffer = _pLowLevelGraphics->m_gpuBuffers.get( mesh.indexBufferID );
-
 				sDrawIndirectCmd drawCmd;
-				drawCmd.count         = ibuffer.count;
+				drawCmd.count         = mesh.numIndices;
 				drawCmd.instanceCount = instances.size();
 				drawCmd.firstIndex    = mesh.baseIndex;
 				drawCmd.baseVertex    = mesh.baseVertex;
@@ -194,8 +207,6 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			
 				_pLowLevelGraphics->m_drawlist.push_back( drawCmd );
 				_pLowLevelGraphics->multiDrawIndirect();
-
-				// _pLowLevelGraphics->drawIndexedInstanced( ibuffer.count, m_drawQueue.size(), mesh.baseVertex );
 			}
 
 			instances.clear();

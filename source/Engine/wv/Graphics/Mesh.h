@@ -66,8 +66,6 @@ namespace wv
 		std::string name;
 		Transformf transform{};
 
-		GPUBufferID indexBufferID{};
-
 		int32_t baseVertex  = 0;
 		int32_t numVertices = 0;
 
