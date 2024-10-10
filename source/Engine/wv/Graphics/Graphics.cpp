@@ -422,9 +422,11 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
 	}
 
+	// mesh.transform.update( _desc->pParentTransform );
+	if( _desc->pParentTransform )
+		mesh.transform.m_matrix = _desc->pParentTransform->m_matrix;
+
 	mesh.complete = true;
-	mesh.transform.update( _desc->pParentTransform );
-	
 	m_meshes.get( _meshID ) = mesh;
 
 	return _meshID;

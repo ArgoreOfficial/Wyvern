@@ -510,12 +510,6 @@ void wv::cEngine::createScreenQuad()
 	}
 
 	m_screenQuad = graphics->createMesh( 0, &prDesc );
-	
-	if( m_screenQuad.isValid() )
-	{
-		sMesh& screenQuad = graphics->m_meshes.get( m_screenQuad );
-		screenQuad.transform.update( nullptr );
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

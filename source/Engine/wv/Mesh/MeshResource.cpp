@@ -26,19 +26,6 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void updateMeshNodeTransform( wv::iLowLevelGraphics* _pLowLevelGraphics, wv::sMeshNode* _pNode )
-{
-	for( auto& id : _pNode->meshes )
-	{
-		wv::sMesh& mesh = _pLowLevelGraphics->m_meshes.get( id );
-		mesh.transform.update( &_pNode->transform );
-	}
-
-	for( auto& node : _pNode->children )
-		updateMeshNodeTransform( _pLowLevelGraphics, node );
-	
-}
-
 void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	cEngine* app = cEngine::get();
@@ -112,15 +99,12 @@ void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 	if ( m_drawQueue.empty() )
 		return;
 
-
-	bool recalcMatrices = m_pMeshNode->transform.update( nullptr );
-
-	drawNode( _pLowLevelGraphics, m_pMeshNode, false );
+	drawNode( _pLowLevelGraphics, m_pMeshNode );
 
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node, bool _recalcMatrices )
+void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node )
 {
 	if ( !_node )
 		return;
@@ -215,6 +199,6 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 	}
 
 	for ( auto& childNode : _node->children )
-		drawNode( _pLowLevelGraphics, childNode, _recalcMatrices );
+		drawNode( _pLowLevelGraphics, childNode );
 }
 

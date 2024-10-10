@@ -68,7 +68,7 @@ namespace wv
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node, bool _recalcMatrices );
+		void drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node );
 
 		sMeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;
