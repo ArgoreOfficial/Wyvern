@@ -234,6 +234,7 @@ wv::Vector2i wv::cEngine::getViewportSize()
 
 void wv::cEngine::run()
 {
+
 	// Subscribe to user input event
 	m_inputListener.hook();
 	m_mouseListener.hook();
