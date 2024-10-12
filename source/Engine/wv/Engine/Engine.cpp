@@ -427,7 +427,7 @@ void wv::cEngine::tick()
 #endif
 
 #ifdef WV_SUPPORT_IMGUI
-	//context->renderImGui();
+	context->renderImGui();
 #endif
 
 	graphics->endRender();
