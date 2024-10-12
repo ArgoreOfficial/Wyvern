@@ -28,7 +28,7 @@ void wv::FreeflightCamera::onCreate()
 void wv::FreeflightCamera::handleInput()
 {
 	sMouseEvent mouseEvent;
-	if( m_mouseListener.pollEvent( mouseEvent ) )
+	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
 		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 
@@ -43,7 +43,7 @@ void wv::FreeflightCamera::handleInput()
 
 
 	sInputEvent inputEvent;
-	if ( m_inputListener.pollEvent( inputEvent ) )
+	while ( m_inputListener.pollEvent( inputEvent ) )
 	{
 		int button_delta = inputEvent.buttondown ? 1 : -1;
 

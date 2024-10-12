@@ -178,14 +178,14 @@ void wv::cEngine::onResize( int _width, int _height )
 void wv::cEngine::handleInput()
 {
 	sMouseEvent mouseEvent;
-	if ( m_mouseListener.pollEvent( mouseEvent ) )
+	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
 		m_mousePosition = mouseEvent.position;
 	}
 	
 
 	sInputEvent inputEvent;
-	if ( m_inputListener.pollEvent( inputEvent ) )
+	while ( m_inputListener.pollEvent( inputEvent ) )
 	{
 		if ( inputEvent.buttondown )
 		{

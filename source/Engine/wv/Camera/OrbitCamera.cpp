@@ -30,7 +30,7 @@ void wv::OrbitCamera::onCreate()
 void wv::OrbitCamera::handleInput()
 {
 	sMouseEvent mouseEvent;
-	if ( m_mouseListener.pollEvent( mouseEvent ) )
+	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
 		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
 
