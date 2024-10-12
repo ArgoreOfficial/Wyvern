@@ -386,8 +386,19 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		
 
 		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
-		
-		pUBData->bindingIndex = m_uniformBindingIndices.allocate();
+	
+		if ( m_uniformBindingNameMap.contains( name ) )
+		{
+			BufferBindingIndex index = m_uniformBindingNameMap.at( name );
+			pUBData->bindingIndex = index;
+			m_uniformBindingIndices.get( index )++; // increase num users
+		}
+		else
+		{
+			BufferBindingIndex index = m_uniformBindingIndices.allocate();
+			pUBData->bindingIndex = index;
+			m_uniformBindingNameMap[ name ] = index;
+		}
 
 		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size ) );
@@ -583,7 +594,14 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 				switch( buffer.type )
 				{
 				case WV_BUFFER_TYPE_DYNAMIC: m_ssboBindingIndices.deallocate( pData->bindingIndex );    break;
-				case WV_BUFFER_TYPE_UNIFORM: m_uniformBindingIndices.deallocate( pData->bindingIndex ); break;
+				case WV_BUFFER_TYPE_UNIFORM: 
+				{
+					uint8_t idx = m_uniformBindingIndices.get( pData->bindingIndex )--;
+					if( idx == 0 )
+						m_uniformBindingIndices.deallocate( pData->bindingIndex ); 
+
+					break;
+				}
 				}
 			}
 		}

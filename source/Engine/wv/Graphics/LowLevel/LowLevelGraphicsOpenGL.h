@@ -20,7 +20,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	WV_DEFINE_ID( BufferBindingIndex );
+	typedef wv::sStrongID<uint8_t, struct BufferBindingIndex_t> BufferBindingIndex;
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,6 +118,8 @@ namespace wv
 		wv::Handle m_vaoHandle = 0;
 		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_uniformBindingIndices;
 		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_ssboBindingIndices;
+
+		std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
