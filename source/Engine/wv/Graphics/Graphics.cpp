@@ -286,6 +286,19 @@ wv::TextureID wv::iLowLevelGraphics::cmdCreateTexture( CmdBufferID _bufferID, co
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void wv::iLowLevelGraphics::cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances )
+{
+	sDrawList& drawList = m_drawLists.get( _drawListID );
+	_cmd.firstInstance = drawList.instances.size();
+
+	for ( auto& instance : _instances )
+		drawList.instances.push_back( instance );
+	
+	drawList.cmds.push_back( _cmd );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::iLowLevelGraphics::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	std::scoped_lock lock( m_mutex );

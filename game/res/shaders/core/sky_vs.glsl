@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #extension GL_ARB_bindless_texture : require
+#extension GL_ARB_shader_draw_parameters : enable
 
 struct sInstance
 {
@@ -82,12 +83,14 @@ out flat sampler2D Albedo;
 
 void main()
 {
+    int instanceID = gl_InstanceID;
+    
     TexCoord = getTexCoord0( gl_VertexID );
     Normal = vec3( 0.0 );
     Pos = getPosition( gl_VertexID );
 
-    Albedo = getAlbedoSampler( gl_InstanceID );
+    Albedo = getAlbedoSampler( instanceID );
 
-    vec4 p = u_Projection * mat4x4( mat3x3( u_View ) )* u_Model * vec4( Pos, 1.0 );
+    vec4 p = u_Projection * mat4x4( mat3x3( u_View ) ) * u_Model * vec4( Pos, 1.0 );
     gl_Position = p.xyww;
 }

@@ -9,7 +9,7 @@
 #include <wv/Graphics/CommandBuffer.h>
 #include <wv/Graphics/ObjectHandleContainer.h>
 #include <wv/Graphics/Pipeline.h>
-
+#include <wv/Graphics/DrawList.h>
 
 #include <vector>
 #include <queue>
@@ -30,8 +30,6 @@ namespace wv
 	class cShaderResource;
 	class cMaterial;
 
-	WV_DEFINE_ID( DrawListID );
-	
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sLowLevelGraphicsDesc
@@ -44,15 +42,6 @@ namespace wv
 	struct sCmdCreateDesc{ T id; D desc; };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-	struct sDrawIndirectCmd
-	{
-		unsigned int  count;
-		unsigned int  instanceCount;
-		unsigned int  firstIndex;
-		int           baseVertex;
-		unsigned int  baseInstance;
-	};
 
 	class iLowLevelGraphics
 	{
@@ -86,6 +75,8 @@ namespace wv
 		GPUBufferID     cmdCreateGPUBuffer   ( CmdBufferID _bufferID, const sGPUBufferDesc&    _desc );
 		MeshID          cmdCreateMesh        ( CmdBufferID _bufferID, const sMeshDesc&         _desc );
 		TextureID       cmdCreateTexture     ( CmdBufferID _bufferID, const sTextureDesc&      _desc );
+
+		void cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances );
 
 		void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 		
@@ -144,7 +135,7 @@ namespace wv
 		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
 		virtual void drawIndexed         ( uint32_t _numIndices )                         = 0;
 		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) = 0;
-		virtual void multiDrawIndirect   ( void ) = 0;
+		virtual void multiDrawIndirect   ( DrawListID _drawListID ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
@@ -155,10 +146,13 @@ namespace wv
 		cObjectHandleContainer<sTexture,      TextureID>      m_textures;
 		cObjectHandleContainer<sMesh,         MeshID>         m_meshes;
 		
-		std::vector<sDrawIndirectCmd> m_drawlist;
+		std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
+
+		cObjectHandleContainer<sDrawList, DrawListID> m_drawLists;
+		std::unordered_map<PipelineID, DrawListID> m_pipelineDrawListMap;
+
 		uint32_t drawIndirectHandle = 0;
 
-		std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
@@ -170,9 +164,9 @@ namespace wv
 		// returns base index
 		size_t pushIndexBuffer( void* _indices,  size_t _size );
 
-		std::thread::id m_threadID;
-
 		virtual bool initialize( sLowLevelGraphicsDesc* _desc ) = 0;
+
+		std::thread::id m_threadID;
 
 		GraphicsAPI    m_graphicsApi = WV_GRAPHICS_API_NONE;
 		GenericVersion m_graphicsApiVersion{};

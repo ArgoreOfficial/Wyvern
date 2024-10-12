@@ -126,7 +126,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			mat = _pLowLevelGraphics->getEmptyMaterial();
 		
 		wv::cShaderResource* pShader = mat->getShader();
-		mat->setAsActive( _pLowLevelGraphics );
+		//mat->setAsActive( _pLowLevelGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
 		if( SbInstanceData.isValid() ) // TODO: enable gpu instancing on all meshes
@@ -177,20 +177,19 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 
 			if ( SbVerticesID.isValid() )
 			{
-				_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
+				//_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
 				
-				mat->setInstanceUniforms( &mesh );
-				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
+				//_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
 			
-				sDrawIndirectCmd drawCmd;
-				drawCmd.count         = mesh.numIndices;
+				sDrawIndexedIndirectCommand drawCmd;
+				drawCmd.indexCount    = mesh.numIndices;
 				drawCmd.instanceCount = instances.size();
 				drawCmd.firstIndex    = mesh.baseIndex;
-				drawCmd.baseVertex    = mesh.baseVertex;
-				drawCmd.baseInstance  = 0;
-			
-				_pLowLevelGraphics->m_drawlist.push_back( drawCmd );
-				_pLowLevelGraphics->multiDrawIndirect();
+				drawCmd.vertexOffset  = mesh.baseVertex;
+				drawCmd.firstInstance = 0;
+							
+				DrawListID drawListID = _pLowLevelGraphics->m_pipelineDrawListMap.at( pShader->getPipelineID() );
+				_pLowLevelGraphics->cmdDrawIndexedIndirect( drawListID, drawCmd, instances );
 			}
 
 			instances.clear();

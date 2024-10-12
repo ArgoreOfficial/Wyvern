@@ -377,7 +377,34 @@ void wv::cEngine::tick()
 
 		m_pApplicationState->draw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
-	
+
+		GPUBufferID viewBufferID = currentCamera->getBufferID();
+
+		for ( auto& pair : graphics->m_pipelineDrawListMap )
+		{
+			PipelineID pipelineID = pair.first;
+			DrawListID drawListID = pair.second;
+			sDrawList& drawList = graphics->m_drawLists.get( drawListID );
+
+			if ( drawList.cmds.empty() || !drawList.instanceBufferID.isValid() )
+				continue;
+
+			graphics->bindPipeline( pipelineID );
+			graphics->bindVertexBuffer( drawList.vertexBufferID );
+
+			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.get( drawList.instanceBufferID );
+			graphics->bufferData( drawList.instanceBufferID, drawList.instances.data(), drawList.instances.size() * sizeof( sMeshInstanceData ) );
+			graphics->bindBufferIndex( drawList.instanceBufferID, instanceBuffer.bindingIndex.value );
+
+			sGPUBuffer viewBuffer = graphics->m_gpuBuffers.get( drawList.viewDataBufferID );
+			graphics->bindBufferIndex( viewBufferID, viewBuffer.bindingIndex.value );
+			
+			graphics->multiDrawIndirect( drawListID );
+			drawList.instances.clear();
+			drawList.cmds.clear();
+		}
+
+
 	#ifdef WV_DEBUG
 		Debug::Draw::Internal::drawDebug( graphics );
 	#endif

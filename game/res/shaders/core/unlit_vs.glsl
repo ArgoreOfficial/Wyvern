@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #extension GL_ARB_bindless_texture : require
+#extension GL_ARB_shader_draw_parameters : enable
 
 struct sInstance
 {
@@ -83,12 +84,14 @@ out flat int HasAlpha;
 
 void main()
 {
+    int instanceID = gl_InstanceID + gl_BaseInstanceARB;
+
     TexCoord = getTexCoord0( gl_VertexID );
     Normal = vec3( 0.0 );
     Pos = getPosition( gl_VertexID );
 
-    Albedo = getAlbedoSampler( gl_InstanceID );
-    HasAlpha = u_instances[ gl_InstanceID ].HasAlpha;
+    Albedo = getAlbedoSampler( instanceID );
+    HasAlpha = u_instances[ instanceID ].HasAlpha;
 
     gl_Position = u_Projection * u_View * u_Model * vec4( Pos, 1.0 );
 }

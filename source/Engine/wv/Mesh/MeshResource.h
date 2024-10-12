@@ -33,15 +33,6 @@ namespace wv
 		cMeshResource* pResource;
 	};
 
-	struct sMeshInstanceData
-	{
-		cMatrix4x4f model;                              // 64 bytes
-		uint64_t texturesHandles[ 4 ] = { 0, 0, 0, 0 }; // 32 bytes
-		int32_t hasAlpha = 0;
-
-		uint8_t padding0[ 12 ] = { 0 };
-	};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cMeshResource : public wv::iResource

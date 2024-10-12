@@ -499,6 +499,29 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle ) );
 	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle ) );
 	
+	DrawListID drawListID = m_drawLists.allocate();
+	m_pipelineDrawListMap[ _pipelineID ] = drawListID;
+	
+	sDrawList drawList;
+	drawList.pipeline = _pipelineID;
+
+	// get camera data binding index
+	// I really don't like this
+
+	for ( GPUBufferID bufID : vs.shaderBuffers )
+	{
+		sGPUBuffer buf = m_gpuBuffers.get( bufID );
+
+		if ( buf.name == "UbInstanceData" )
+			drawList.viewDataBufferID = bufID;
+		else if ( buf.name == "SbInstances" )
+			drawList.instanceBufferID = bufID;
+		else if ( buf.name == "SbVertices" )
+			drawList.vertexBufferID = bufID;
+	}
+
+	m_drawLists.get( drawListID ) = drawList;
+
 	return _pipelineID;
 #else
 	return PipelineID::InvalidID;
@@ -516,6 +539,10 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 
 	WV_ASSERT_GL( glDeleteProgramPipelines( 1, &pipeline.handle ) );
 	
+	DrawListID drawListID = m_pipelineDrawListMap.at( _pipelineID );
+	m_drawLists.deallocate( drawListID );
+	m_pipelineDrawListMap.erase( _pipelineID );
+
 	destroyProgram( pipeline.vertexProgramID );
 	destroyProgram( pipeline.fragmentProgramID );
 
@@ -922,17 +949,17 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 #endif
 }
 
-void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( void )
+void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
 {
+	sDrawList& drawList = m_drawLists.get( _drawListID );
 
 	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle ) );
 	
-	WV_ASSERT_GL( glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndirectCmd ) * m_drawlist.size(), m_drawlist.data(), GL_DYNAMIC_DRAW ) );
-	WV_ASSERT_GL( glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, m_drawlist.size(), 0 ) );
+	WV_ASSERT_GL( glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW ) );
+
+	WV_ASSERT_GL( glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, drawList.cmds.size(), 0 ) );
 	
 	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 ) );
-	
-	m_drawlist.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
