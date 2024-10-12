@@ -396,8 +396,6 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
 		buf.pPlatformData = pUBData;
 
-		// allocateBuffer( bufID, buf.size );
-		
 		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex.value, buf.handle ) );
 		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex.value ) );
 		
@@ -637,14 +635,14 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 
 void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer buffer = m_gpuBuffers.get( _bufferID );
 	WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, _base, _size, _pData ); );
 }
 
 void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
 {
-	sGPUBuffer& rb = m_gpuBuffers.get( _readBufferID );
-	sGPUBuffer& wb = m_gpuBuffers.get( _writeBufferID );
+	sGPUBuffer rb = m_gpuBuffers.get( _readBufferID );
+	sGPUBuffer wb = m_gpuBuffers.get( _writeBufferID );
 
 	WV_ASSERT_GL( glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size ) );
 }

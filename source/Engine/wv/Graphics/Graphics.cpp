@@ -87,7 +87,7 @@ void wv::iLowLevelGraphics::drawNode( sMeshNode* _node )
 		if( !meshID.isValid() )
 			continue;
 
-		sMesh& mesh = m_meshes.get( meshID );
+		sMesh mesh = m_meshes.get( meshID );
 		cMaterial* mat = mesh.pMaterial;
 
 		if( mat )
@@ -324,7 +324,7 @@ wv::iLowLevelGraphics::iLowLevelGraphics()
 
 size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 {
-	sGPUBuffer& old = m_gpuBuffers.get( m_vertexBuffer );
+	sGPUBuffer old = m_gpuBuffers.get( m_vertexBuffer );
 	size_t base = old.size / sizeof( Vertex );
 
 	// create new buffer
@@ -349,7 +349,7 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 
 size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 {
-	sGPUBuffer& old = m_gpuBuffers.get( m_indexBuffer );
+	sGPUBuffer old = m_gpuBuffers.get( m_indexBuffer );
 	size_t base = old.size / sizeof( unsigned int );
 
 	// create new buffer
