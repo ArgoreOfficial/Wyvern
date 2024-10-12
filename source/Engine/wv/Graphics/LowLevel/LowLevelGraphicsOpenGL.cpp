@@ -384,31 +384,29 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 		
-
-		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
-	
+		BufferBindingIndex index;
 		if ( m_uniformBindingNameMap.contains( name ) )
 		{
-			BufferBindingIndex index = m_uniformBindingNameMap.at( name );
-			pUBData->bindingIndex = index;
+			index = m_uniformBindingNameMap.at( name );
 			m_uniformBindingIndices.get( index )++; // increase num users
 		}
 		else
 		{
-			BufferBindingIndex index = m_uniformBindingIndices.allocate();
-			pUBData->bindingIndex = index;
+			index = m_uniformBindingIndices.allocate();
 			m_uniformBindingNameMap[ name ] = index;
 		}
 
-		pUBData->blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
-		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, pUBData->blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size ) );
+		wv::Handle blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
+		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size ) );
 		
 		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
 		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
-		buf.pPlatformData = pUBData;
+		
+		buf.bindingIndex = index;
+		buf.blockIndex = blockIndex;
 
-		WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, pUBData->bindingIndex.value, buf.handle ) );
-		WV_ASSERT_GL( glUniformBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex.value ) );
+		//WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, buf.bindingIndex.value, buf.handle ) );
+		WV_ASSERT_GL( glUniformBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value ) );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -436,14 +434,11 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
 		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
 
-		sOpenGLBufferData* pUBData = new sOpenGLBufferData();
-		buf.pPlatformData = pUBData;
-
-		pUBData->bindingIndex = m_ssboBindingIndices.allocate();
-		pUBData->blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
+		buf.bindingIndex = m_ssboBindingIndices.allocate();
+		buf.blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
-		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, pUBData->bindingIndex.value, buf.handle ) );
-		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, pUBData->blockIndex, pUBData->bindingIndex.value ) );
+		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, buf.bindingIndex.value, buf.handle ) );
+		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value ) );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -585,20 +580,20 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 #ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 
-	if( buffer.pPlatformData )
+	//if( buffer.pPlatformData )
 	{
-		sOpenGLBufferData* pData = (sOpenGLBufferData*)buffer.pPlatformData;
+		//sOpenGLBufferData* pData = (sOpenGLBufferData*)buffer.pPlatformData;
 		{
-			if( pData->bindingIndex.isValid() )
+			if( buffer.bindingIndex.isValid() )
 			{
 				switch( buffer.type )
 				{
-				case WV_BUFFER_TYPE_DYNAMIC: m_ssboBindingIndices.deallocate( pData->bindingIndex );    break;
+				case WV_BUFFER_TYPE_DYNAMIC: m_ssboBindingIndices.deallocate( buffer.bindingIndex );    break;
 				case WV_BUFFER_TYPE_UNIFORM: 
 				{
-					uint8_t idx = m_uniformBindingIndices.get( pData->bindingIndex )--;
+					uint8_t idx = m_uniformBindingIndices.get( buffer.bindingIndex )--;
 					if( idx == 0 )
-						m_uniformBindingIndices.deallocate( pData->bindingIndex ); 
+						m_uniformBindingIndices.deallocate( buffer.bindingIndex );
 
 					break;
 				}
@@ -632,7 +627,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
-	WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _bindingIndex, buffer.handle ) );
+	WV_ASSERT_GL( glBindBufferBase( target, _bindingIndex, buffer.handle ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -868,9 +863,9 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBuffe
 
 #ifdef WV_SUPPORT_OPENGL
 	wv::sGPUBuffer& SbVertices = m_gpuBuffers.get( _vertexPullBufferID );
-	sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
+	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
-	bindBufferIndex( m_vertexBuffer, pData->bindingIndex.value );
+	bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
 	bindBuffer( m_indexBuffer );
 #endif
 }

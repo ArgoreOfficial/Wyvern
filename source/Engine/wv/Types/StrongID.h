@@ -22,6 +22,7 @@ namespace wv
         bool operator==( const sStrongID<T, Tag>& _other ) const { return value == _other.value; }
         bool operator> ( const sStrongID<T, Tag>& _other ) const { return value > _other.value; }
         bool operator< ( const sStrongID<T, Tag>& _other ) const { return value < _other.value; }
+
     };
 
 }

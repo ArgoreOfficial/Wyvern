@@ -2,6 +2,8 @@
 
 #include <wv/Types.h>
 
+#include <wv/Math/Matrix.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -12,6 +14,8 @@ namespace wv
 	WV_DEFINE_ID( GPUBufferID );
 	WV_DEFINE_ID( TextureID );
 	WV_DEFINE_ID( MeshID );
+
+	WV_DEFINE_ID( BufferBindingIndex );
 
 	struct sMeshDesc;
 	struct sMeshNode;
@@ -30,6 +34,21 @@ namespace wv
 	struct sRenderTarget;
 
 	struct sGPUBufferDesc;
+
+	/// TODO: move
+	struct sUbInstanceData
+	{
+		cMatrix4x4f projection;
+		cMatrix4x4f view;
+		cMatrix4x4f model;
+	};
+
+	enum eFillMode
+	{
+		WV_FILL_MODE_SOLID,
+		WV_FILL_MODE_WIREFRAME,
+		WV_FILL_MODE_POINTS
+	};
 
 }
 

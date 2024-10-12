@@ -93,7 +93,18 @@ void wv::cMaterial::setAsActive( iLowLevelGraphics* _device )
 
 void wv::cMaterial::setMaterialUniforms()
 {
-	setDefaultViewUniforms(); // sets projection and view matrices
+	if ( m_pShader == nullptr || !m_pShader->isComplete() )
+		return;
+
+	wv::cEngine* app = wv::cEngine::get();
+
+	// model transform
+	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbInstanceData" );
+	wv::sGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
+
+	GPUBufferID id = app->currentCamera->getBufferID();
+
+	app->graphics->bindBufferIndex( id, instanceBlock.bindingIndex.value );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -105,38 +116,8 @@ void wv::cMaterial::setInstanceUniforms( sMesh* _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setDefaultViewUniforms()
-{
-	wv::cEngine* app = wv::cEngine::get();
-	wv::iDeviceContext* ctx = app->context;
-	
-	m_UbInstanceData.projection = wv::cMatrix4x4f( 1.0f );
-	m_UbInstanceData.view       = wv::cMatrix4x4f( 1.0f );
-	m_UbInstanceData.model      = wv::cMatrix4x4f( 1.0f );
-
-	m_UbInstanceData.projection = app->currentCamera->getProjectionMatrix();
-	m_UbInstanceData.view = app->currentCamera->getViewMatrix();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
 {
-	if ( m_pShader == nullptr || !m_pShader->isComplete() )
-		return;
-
-	wv::cEngine* app = wv::cEngine::get();
-
-	m_UbInstanceData.model = _mesh->transform.getMatrix();
-
-#if defined( WV_PLATFORM_PSVITA )
-
-#elif defined( WV_PLATFORM_WINDOWS )
-	// model transform
-	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbInstanceData" );
-	wv::sGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
 	
-	app->graphics->bufferSubData( instanceBlockID, &m_UbInstanceData, sizeof( sUbInstanceData ), 0 );
-#endif
 }
 

@@ -62,7 +62,7 @@ void wv::iLowLevelGraphics::initEmbeds()
 
 	sGPUBufferDesc mvbDesc{};
 	mvbDesc.name  = "mvb";
-	mvbDesc.type  = WV_BUFFER_TYPE_VERTEX;
+	mvbDesc.type  = WV_BUFFER_TYPE_DYNAMIC;
 	mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 	m_vertexBuffer = createGPUBuffer( 0, &mvbDesc );
 

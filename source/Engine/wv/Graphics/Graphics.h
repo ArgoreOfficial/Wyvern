@@ -31,7 +31,7 @@ namespace wv
 	class cMaterial;
 
 	WV_DEFINE_ID( DrawListID );
-
+	
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct sLowLevelGraphicsDesc
@@ -157,6 +157,8 @@ namespace wv
 		
 		std::vector<sDrawIndirectCmd> m_drawlist;
 		uint32_t drawIndirectHandle = 0;
+
+		std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:

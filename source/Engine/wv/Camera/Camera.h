@@ -5,11 +5,16 @@
 #include <wv/Math/Vector2.h>
 
 #include <wv/Decl.h>
+#include <wv/Graphics/Types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	class iLowLevelGraphics;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,12 +36,16 @@ namespace wv
 		virtual void onCreate() { }
 		virtual void update( double _delta_time ) { m_transform.update( nullptr ); }
 
+		bool beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode );
+
 		cMatrix4x4f getProjectionMatrix( void );
 
 		cMatrix4x4f getViewMatrix( void );
 
 		Transformf& getTransform( void ) { return m_transform; }
 		cVector3f getViewDirection();
+
+		GPUBufferID getBufferID() { return m_uniformBufferID; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +59,8 @@ namespace wv
 		cMatrix4x4f getOrthographicMatrix( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+		GPUBufferID m_uniformBufferID;
 
 		float m_near = 0.01f;
 		float m_far  = 100.0f;

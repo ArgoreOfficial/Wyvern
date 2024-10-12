@@ -365,23 +365,23 @@ void wv::cEngine::tick()
 #endif
 
 	graphics->beginRender();
-	graphics->clearRenderTarget( true, true );
-
+	
 #ifdef WV_SUPPORT_IMGUI
 	context->newImGuiFrame();
 	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
 #endif // WV_SUPPORT_IMGUI
 	
-	if( m_drawWireframe ) graphics->setFillMode( WV_FILL_MODE_WIREFRAME );
+	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
+	{
+		graphics->clearRenderTarget( true, true );
 
-	m_pApplicationState->draw( context, graphics );
-	m_pResourceRegistry->drawMeshInstances();
-
-	if( m_drawWireframe ) graphics->setFillMode( WV_FILL_MODE_SOLID );
-
-#ifdef WV_DEBUG
-	Debug::Draw::Internal::drawDebug( graphics );
-#endif
+		m_pApplicationState->draw( context, graphics );
+		m_pResourceRegistry->drawMeshInstances();
+	
+	#ifdef WV_DEBUG
+		Debug::Draw::Internal::drawDebug( graphics );
+	#endif
+	}
 
 #ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
@@ -402,6 +402,7 @@ void wv::cEngine::tick()
 	}
 
 	// render screen quad with deferred shader
+	if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 	{
 		m_pDeferredShader->bind( graphics );
 		
@@ -416,14 +417,17 @@ void wv::cEngine::tick()
 
 	if( m_pIRTHandler )
 	{
-		graphics->setRenderTarget( m_screenRenderTarget );
-		graphics->clearRenderTarget( true, true );
-		m_pIRTHandler->draw( graphics );
+		if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
+		{
+			graphics->setRenderTarget( m_screenRenderTarget );
+			graphics->clearRenderTarget( true, true );
+			m_pIRTHandler->draw( graphics );
+		}
 	}
 #endif
 
 #ifdef WV_SUPPORT_IMGUI
-	context->renderImGui();
+	//context->renderImGui();
 #endif
 
 	graphics->endRender();

@@ -6,6 +6,7 @@
 #include <wv/Material/MaterialVariable.h>
 #include <wv/Math/Matrix.h>
 #include <wv/Resource/Resource.h>
+#include <wv/Graphics/Types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,15 +19,6 @@ namespace wv
 	
 	class iLowLevelGraphics;
 	class sMesh;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	struct sUbInstanceData
-	{
-		cMatrix4x4f projection;
-		cMatrix4x4f view;
-		cMatrix4x4f model;
-	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +46,6 @@ namespace wv
 		std::vector<sMaterialVariable> m_variables;
 	protected:
 
-		void setDefaultViewUniforms();
 		void setDefaultMeshUniforms( sMesh* _mesh );
 
 		cShaderResource* m_pShader = nullptr;

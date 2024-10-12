@@ -2,6 +2,7 @@
 
 #include <wv/Debug/Print.h>
 #include <wv/Types.h>
+#include <wv/Graphics/Types.h>
 
 namespace wv
 {
@@ -39,10 +40,12 @@ namespace wv
 		uint32_t count  = 0;
 		uint32_t stride = 0;
 		int32_t  size   = 0;
+
+		wv::Handle blockIndex = 0;
+		BufferBindingIndex bindingIndex{};
 		
 		bool complete = false;
 
 		void* pPlatformData = nullptr;
-
 	};
 }

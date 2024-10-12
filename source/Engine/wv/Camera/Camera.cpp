@@ -2,6 +2,8 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
+#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GPUBuffer.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -11,10 +13,37 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_near{ _near },
 	m_far{ _far }
 {
-	
+	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
+
+	sGPUBufferDesc ubDesc;
+	ubDesc.name  = "UbInstanceData";
+	ubDesc.size  = sizeof( sUbInstanceData );
+	ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
+	ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+
+	m_uniformBufferID = pGraphics->createGPUBuffer( 0, &ubDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::iCamera::beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode )
+{
+	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.contains( "UbInstanceData" ) )
+		return false;
+
+	_pLowLevelGraphics->setFillMode( _fillMode );
+
+	sUbInstanceData instanceData;
+	instanceData.projection = getProjectionMatrix();
+	instanceData.view       = getViewMatrix();
+	instanceData.model      = wv::cMatrix4x4f( 1.0f );
+
+	/// TODO: rename UbInstanceData to UbCameraData?
+	BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbInstanceData" );
+	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( sUbInstanceData ), 0 );
+
+	return true;
+}
 
 wv::cMatrix4x4f wv::iCamera::getProjectionMatrix( void )
 {
