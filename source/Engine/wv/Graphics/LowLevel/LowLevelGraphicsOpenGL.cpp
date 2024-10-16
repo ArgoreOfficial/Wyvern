@@ -26,23 +26,32 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#define WV_HARD_ASSERT 1
-
 #ifdef WV_DEBUG
 	#define WV_VALIDATE_GL( _func ) if( _func == nullptr ) { Debug::Print( Debug::WV_PRINT_FATAL, "Missing function '%s'\n", #_func ); }
-
-	#if WV_HARD_ASSERT
-		#define WV_ASSERT_GL( _func ) _func; if( !assertGLError( #_func "\n" ) ) throw std::runtime_error( #_func )
-	#else
-		#define WV_ASSERT_GL( _func ) _func; assertGLError( #_func "\n" )
-	#endif
 #else
 	#define WV_VALIDATE_GL( _func )
-	#define WV_ASSERT_GL( _func ) _func
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef WV_SUPPORT_OPENGL
+#ifdef WV_DEBUG
+void glMessageCallback( GLenum _source, GLenum _type, GLuint _id, GLenum _severity, GLsizei _length, GLchar const* _message, void const* _userData )
+{
+	wv::Debug::PrintLevel printLevel = [ _severity ]()
+		{
+			switch( _severity )
+			{
+			case GL_DEBUG_SEVERITY_NOTIFICATION: return wv::Debug::WV_PRINT_INFO;
+			case GL_DEBUG_SEVERITY_LOW:          return wv::Debug::WV_PRINT_DEBUG;
+			case GL_DEBUG_SEVERITY_MEDIUM:       return wv::Debug::WV_PRINT_WARN;
+			case GL_DEBUG_SEVERITY_HIGH:         return wv::Debug::WV_PRINT_ERROR;
+			}
+		}( );
+	
+	wv::Debug::Print( printLevel, "%s\n", _message );
+}
+#endif
 static GLenum getGlBufferEnum( wv::eGPUBufferType _type )
 {
 	switch ( _type )
@@ -102,6 +111,12 @@ bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 	Debug::Print( Debug::WV_PRINT_INFO, "Intialized Graphics Device\n" );
 	Debug::Print( Debug::WV_PRINT_INFO, "  %s\n", glGetString( GL_VERSION ) );
 
+#ifdef WV_DEBUG
+	glEnable( GL_DEBUG_OUTPUT );
+	glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+	glDebugMessageCallback( glMessageCallback, nullptr );
+	glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE );
+#endif
 	/// TODO: make configurable
 	//glEnable( GL_MULTISAMPLE );
 	//glEnable( GL_BLEND );
@@ -354,7 +369,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 	
 	/// TODO: Use shader objects?
 
-	program.handle = WV_ASSERT_GL( glCreateShaderProgramv( glType, 1, &sourcePtr ) );
+	program.handle = glCreateShaderProgramv( glType, 1, &sourcePtr );
 	
 	int success = 0;
 	char infoLog[ 512 ];
@@ -375,7 +390,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		glGetProgramResourceiv( program.handle, GL_UNIFORM_BLOCK, i, std::size( props ), props, std::size( res ), nullptr, res );
 
 		std::string name( (GLuint)res[ 0 ] - 1, '\0' );
-		WV_ASSERT_GL( glGetProgramResourceName( program.handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() ) );
+		glGetProgramResourceName( program.handle, GL_UNIFORM_BLOCK, i, name.capacity() + 1, nullptr, name.data() );
 
 		// create uniform buffer
 
@@ -397,7 +412,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		}
 
 		wv::Handle blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
-		WV_ASSERT_GL( glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size ) );
+		glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size );
 		
 		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
 		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
@@ -406,7 +421,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		buf.blockIndex = blockIndex;
 
 		//WV_ASSERT_GL( glBindBufferBase( GL_UNIFORM_BUFFER, buf.bindingIndex.value, buf.handle ) );
-		WV_ASSERT_GL( glUniformBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value ) );
+		glUniformBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -437,8 +452,8 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		buf.bindingIndex = m_ssboBindingIndices.allocate();
 		buf.blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
-		WV_ASSERT_GL( glBindBufferBase( GL_SHADER_STORAGE_BUFFER, buf.bindingIndex.value, buf.handle ) );
-		WV_ASSERT_GL( glShaderStorageBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value ) );
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, buf.bindingIndex.value, buf.handle );
+		glShaderStorageBlockBinding( program.handle, buf.blockIndex, buf.bindingIndex.value );
 		
 		program.shaderBuffers.push_back( bufID );
 	}
@@ -461,7 +476,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyProgram( ProgramID _programID )
 
 	sProgram& program = m_programs.get( _programID );
 
-	WV_ASSERT_GL( glDeleteProgram( program.handle ) );
+	glDeleteProgram( program.handle );
 	
 	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
@@ -485,7 +500,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 	pipeline.vertexProgramID   = desc.vertexProgramID;
 	pipeline.fragmentProgramID = desc.fragmentProgramID;
 
-	WV_ASSERT_GL( glCreateProgramPipelines( 1, &pipeline.handle ) );
+	glCreateProgramPipelines( 1, &pipeline.handle );
 	
 	if( pipeline.handle == 0 )
 	{
@@ -496,8 +511,8 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 	sProgram& vs = m_programs.get( desc.vertexProgramID );
 	sProgram& fs = m_programs.get( desc.fragmentProgramID );
 	
-	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle ) );
-	WV_ASSERT_GL( glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle ) );
+	glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle );
+	glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 	
 	DrawListID drawListID = m_drawLists.allocate();
 	m_pipelineDrawListMap[ _pipelineID ] = drawListID;
@@ -537,7 +552,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 #ifdef WV_SUPPORT_OPENGL
 	sPipeline& pipeline = m_pipelines.get( _pipelineID );
 
-	WV_ASSERT_GL( glDeleteProgramPipelines( 1, &pipeline.handle ) );
+	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
 	DrawListID drawListID = m_pipelineDrawListMap.at( _pipelineID );
 	m_drawLists.deallocate( drawListID );
@@ -561,7 +576,7 @@ void wv::cLowLevelGraphicsOpenGL::bindPipeline( PipelineID _pipelineID )
 
 #ifdef WV_SUPPORT_OPENGL
 	sPipeline& pipeline = m_pipelines.get( _pipelineID );
-	WV_ASSERT_GL( glBindProgramPipeline( pipeline.handle ) );
+	glBindProgramPipeline( pipeline.handle );
 #endif
 }
 
@@ -583,12 +598,12 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _buffe
 
 	GLenum target = getGlBufferEnum( buffer.type );
 	
-	WV_ASSERT_GL( glCreateBuffers( 1, &buffer.handle ) );
+	glCreateBuffers( 1, &buffer.handle );
 	
 	GLenum usage = getGlBufferUsage( buffer.usage );
 	buffer.size = _desc->size;
 	
-	WV_ASSERT_GL( glNamedBufferData( buffer.handle, _desc->size, 0, usage ) );
+	glNamedBufferData( buffer.handle, _desc->size, 0, usage );
 		
 	buffer.complete = true;
 
@@ -644,7 +659,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
-	WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
+	glBindBuffer( target, buffer.handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -654,7 +669,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_
 	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
-	WV_ASSERT_GL( glBindBufferBase( target, _bindingIndex, buffer.handle ) );
+	glBindBufferBase( target, _bindingIndex, buffer.handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -666,9 +681,9 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 	GLenum usage  = getGlBufferUsage( buffer.usage );
 	GLenum target = getGlBufferEnum ( buffer.type );
 
-	WV_ASSERT_GL( glBindBuffer( target, buffer.handle ) );
-	WV_ASSERT_GL( glBufferData( target, _size, _pData, usage ) );
-	WV_ASSERT_GL( glBindBuffer( target, 0 ) );
+	glBindBuffer( target, buffer.handle );
+	glBufferData( target, _size, _pData, usage );
+	glBindBuffer( target, 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -676,7 +691,7 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
 	sGPUBuffer buffer = m_gpuBuffers.get( _bufferID );
-	WV_ASSERT_GL( glNamedBufferSubData( buffer.handle, _base, _size, _pData ); );
+	glNamedBufferSubData( buffer.handle, _base, _size, _pData );
 }
 
 void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
@@ -684,7 +699,7 @@ void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, 
 	sGPUBuffer rb = m_gpuBuffers.get( _readBufferID );
 	sGPUBuffer wb = m_gpuBuffers.get( _writeBufferID );
 
-	WV_ASSERT_GL( glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size ) );
+	glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -757,7 +772,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 		break;
 	}
 
-	WV_ASSERT_GL( glCreateTextures( GL_TEXTURE_2D, 1, &texture.textureObjectHandle ) );
+	glCreateTextures( GL_TEXTURE_2D, 1, &texture.textureObjectHandle );
 	
 	GLenum minFilter = GL_NEAREST;
 	GLenum magFilter = GL_NEAREST;
@@ -791,7 +806,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	case wv::WV_TEXTURE_FORMAT_INT: type = GL_INT; break;
 	}
 
-	WV_ASSERT_GL( glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr ) );
+	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
 	
 	sOpenGLTextureData* pPData = new sOpenGLTextureData();
 	pPData->filter = minFilter;
@@ -820,13 +835,11 @@ void wv::cLowLevelGraphicsOpenGL::bufferTextureData( TextureID _textureID, void*
 
 	glTextureImage2DEXT( tex.textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, tex.width, tex.height, 0, pPData->format, pPData->type, _pData );
 	if ( _generateMipMaps )
-	{
-		WV_ASSERT_GL( glGenerateTextureMipmap( tex.textureObjectHandle ) );
-	}
+		glGenerateTextureMipmap( tex.textureObjectHandle );
 	
-	tex.textureHandle = WV_ASSERT_GL( glGetTextureHandleARB( tex.textureObjectHandle ) );
+	tex.textureHandle = glGetTextureHandleARB( tex.textureObjectHandle );
 	
-	WV_ASSERT_GL( glMakeTextureHandleResidentARB( tex.textureHandle ) );
+	glMakeTextureHandleResidentARB( tex.textureHandle );
 	
 	tex.pData = (uint8_t*)_pData;
 #endif
@@ -872,12 +885,12 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
 	{
-			WV_ASSERT_GL( glBindTextureUnit( _slot, tex.textureObjectHandle ) );
+		glBindTextureUnit( _slot, tex.textureObjectHandle );
 	}
 	else
 	{
-		WV_ASSERT_GL( glActiveTexture( GL_TEXTURE0 + _slot ) );
-		WV_ASSERT_GL( glBindTexture( GL_TEXTURE_2D, tex.textureObjectHandle ) );
+		glActiveTexture( GL_TEXTURE0 + _slot );
+		glBindTexture( GL_TEXTURE_2D, tex.textureObjectHandle );
 	}
 #endif
 }
@@ -945,7 +958,7 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	WV_ASSERT_GL( glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex ) );
+	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
 #endif
 }
 
@@ -953,13 +966,10 @@ void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
 {
 	sDrawList& drawList = m_drawLists.get( _drawListID );
 
-	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle ) );
-	
-	WV_ASSERT_GL( glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW ) );
-
-	WV_ASSERT_GL( glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, drawList.cmds.size(), 0 ) );
-	
-	WV_ASSERT_GL( glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 ) );
+	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle );
+	glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW );
+	glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, drawList.cmds.size(), 0 );
+	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
