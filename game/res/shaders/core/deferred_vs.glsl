@@ -13,7 +13,7 @@ struct sVertex
     float TexCoord0[2];
 };
 
-uniform UbInstanceData
+uniform UbCameraData
 {
     mat4x4 u_Projection;
     mat4x4 u_View;

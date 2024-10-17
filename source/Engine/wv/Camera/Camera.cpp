@@ -16,8 +16,8 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
 
 	sGPUBufferDesc ubDesc;
-	ubDesc.name  = "UbInstanceData";
-	ubDesc.size  = sizeof( sUbInstanceData );
+	ubDesc.name  = "UbCameraData";
+	ubDesc.size  = sizeof( sUbCameraData );
 	ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 	ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 
@@ -28,19 +28,19 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 
 bool wv::iCamera::beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode )
 {
-	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.contains( "UbInstanceData" ) )
+	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.contains( "UbCameraData" ) )
 		return false;
 
 	_pLowLevelGraphics->setFillMode( _fillMode );
 
-	sUbInstanceData instanceData;
+	sUbCameraData instanceData;
 	instanceData.projection = getProjectionMatrix();
 	instanceData.view       = getViewMatrix();
 	instanceData.model      = wv::cMatrix4x4f( 1.0f );
 
-	/// TODO: rename UbInstanceData to UbCameraData?
-	BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbInstanceData" );
-	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( sUbInstanceData ), 0 );
+	/// TODO: rename UbCameraData to UbCameraData?
+	BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbCameraData" );
+	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( sUbCameraData ), 0 );
 
 	return true;
 }

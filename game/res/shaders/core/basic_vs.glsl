@@ -22,7 +22,7 @@ struct sVertex
     float TexCoord0[2];
 };
 
-uniform UbInstanceData
+uniform UbCameraData
 {
     mat4x4 u_Projection;
     mat4x4 u_View;
@@ -89,18 +89,20 @@ void main()
 {
     int instanceID = gl_InstanceID + gl_BaseInstanceARB;
 
+    vec3 localPos = getPosition( gl_VertexID );
+
     mat4x4 model = u_instances[ instanceID ].Model;
     Albedo = getAlbedoSampler( instanceID );
     HasAlpha = u_instances[ instanceID ].HasAlpha;
     
     InstanceID = instanceID;
 
-    Pos = getPosition( gl_VertexID );
 
     TexCoord = getTexCoord0( gl_VertexID );
     
     Normal = getNormal( gl_VertexID );
     Normal = normalize( transpose( inverse( mat3( model ) ) ) * Normal );
     
-    gl_Position = u_Projection * u_View * model * vec4( Pos, 1.0 );
+    gl_Position = u_Projection * u_View * model * vec4( localPos, 1.0 );
+    Pos = (u_View * model * vec4( localPos, 1.0 )).xyz;
 }

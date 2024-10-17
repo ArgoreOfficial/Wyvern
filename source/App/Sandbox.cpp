@@ -111,6 +111,11 @@ bool cSandbox::create( void )
 	// create engine
 	m_pEngine = new wv::cEngine( &engineDesc );
 
+	// set fog params 
+	/// TODO: move to scene
+	m_pEngine->m_fogParams.colorDensity = { 0.85f, 0.f, 0.f, 0.15f };
+	m_pEngine->m_fogParams.isEnabled = 0;
+
 	if( !wv::cEngine::get() )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Couldn't create Engine\n" );

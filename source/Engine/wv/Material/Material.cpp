@@ -99,7 +99,7 @@ void wv::cMaterial::setMaterialUniforms()
 	wv::cEngine* app = wv::cEngine::get();
 
 	// model transform
-	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbInstanceData" );
+	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbCameraData" );
 	wv::sGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.get( instanceBlockID );
 
 	GPUBufferID id = app->currentCamera->getBufferID();

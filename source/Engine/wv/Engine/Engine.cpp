@@ -432,8 +432,13 @@ void wv::cEngine::tick()
 	if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 	{
 		m_pDeferredShader->bind( graphics );
-		
-		wv::GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
+
+		GPUBufferID UbFogParams  = m_pDeferredShader->getShaderBuffer( "UbFogParams" );
+		GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
+		sGPUBuffer fogParamBuffer = graphics->m_gpuBuffers.get( UbFogParams );
+
+		graphics->bufferSubData( UbFogParams, &m_fogParams, sizeof( m_fogParams ), 0 );
+		graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
 
 		sMesh screenQuad = graphics->m_meshes.get( m_screenQuad );
 		graphics->bindVertexBuffer( SbVerticesID );

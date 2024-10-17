@@ -5,7 +5,7 @@ layout(location = 2) in vec3 a_Tangent;
 layout(location = 3) in vec4 a_Color;
 layout(location = 4) in vec2 a_TexCoord0;
 
-uniform UbInstanceData
+uniform UbCameraData
 {
     mat4x4 u_Projection;
     mat4x4 u_View;

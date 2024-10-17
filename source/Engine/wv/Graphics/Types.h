@@ -36,7 +36,7 @@ namespace wv
 	struct sGPUBufferDesc;
 
 	/// TODO: move
-	struct sUbInstanceData
+	struct sUbCameraData
 	{
 		cMatrix4x4f projection;
 		cMatrix4x4f view;

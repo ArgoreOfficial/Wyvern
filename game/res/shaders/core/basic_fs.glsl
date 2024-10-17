@@ -80,5 +80,5 @@ void main()
 
     o_Albedo = color;
     o_Normal = encodeNormalOct( Normal );
-    o_RoughnessMetallic = vec2( 1.0 );
+    o_RoughnessMetallic = vec2( Pos.z, gl_FragCoord.z * gl_FragCoord.w );
 }

@@ -49,7 +49,7 @@ namespace wv
 		void setDefaultMeshUniforms( sMesh* _mesh );
 
 		cShaderResource* m_pShader = nullptr;
-		sUbInstanceData m_UbInstanceData{};
+		sUbCameraData m_UbCameraData{};
 
 	};
 

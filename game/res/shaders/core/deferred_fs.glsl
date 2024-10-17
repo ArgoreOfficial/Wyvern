@@ -1,4 +1,5 @@
 #extension GL_ARB_bindless_texture : enable
+#extension GL_ARB_shader_image_load_store: require
 
 #if GL_ES 
 precision mediump float;
@@ -14,6 +15,20 @@ layout(binding = 0) uniform sampler2D u_Albedo;
 layout(binding = 1) uniform sampler2D u_Normal;
 layout(binding = 2) uniform sampler2D u_RoughnessMetallic;
 #endif
+
+uniform UbFogParams
+{
+	vec4 fog_colorDensity;
+    int fog_isEnabled;
+};
+
+float getFogFactor(float _fogCoordinate)
+{
+	float result = 0.0;
+    result = exp(-pow(fog_colorDensity.a * _fogCoordinate, 2.0));
+	result = 1.0 - clamp(result, 0.0, 1.0);
+	return result;
+}
 
 in vec2 TexCoord;
 out vec4 FragColor;
@@ -53,6 +68,19 @@ void main()
         shading = max( 0.0, shadingDot * 0.5 + 0.5 );
     }
 
-    FragColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 );
+
+    // temporary storage for depth lol
+    vec4 rm = texture( u_RoughnessMetallic, TexCoord );
+    float fogCoordinate = abs( rm.x );
+
+    vec4 outColor = vec4( texture( u_Albedo, TexCoord ).rgb * shading, 1.0 ); // albedo color
+
+    if( fog_isEnabled == 1 ) // add fog
+    {
+        outColor = mix(outColor, vec4(fog_colorDensity.rgb, 1.0), getFogFactor(fogCoordinate));
+    }
+
     //FragColor = vec4( normal * 0.5 + 0.5, 1.0 );
+    
+    FragColor = outColor;
 }

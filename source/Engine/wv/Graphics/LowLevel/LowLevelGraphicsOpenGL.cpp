@@ -527,7 +527,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 	{
 		sGPUBuffer buf = m_gpuBuffers.get( bufID );
 
-		if ( buf.name == "UbInstanceData" )
+		if ( buf.name == "UbCameraData" )
 			drawList.viewDataBufferID = bufID;
 		else if ( buf.name == "SbInstances" )
 			drawList.instanceBufferID = bufID;

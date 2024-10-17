@@ -122,6 +122,12 @@ namespace wv
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 
+		struct sFogParams
+		{
+			wv::cVector4f colorDensity{};
+			int isEnabled = 0;
+		} m_fogParams;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
