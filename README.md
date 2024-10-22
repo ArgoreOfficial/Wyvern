@@ -23,12 +23,9 @@ aka these are things that I _want_ to implement, not a timeline
 ---
 * Direct3D and Vulkan Backend
 * (Homebrew) Console support, such as Xbox/Xbox 360, PlayStation®3, etc.
-  * a large portion of the configurable pipeline in Wyvern is to allow for easy implementation of more involved platforms, although this is not a priority
 * Proper Editor (Likely using wxWidgets or Qt), and through that:
   * and through that, SceneGraphs, Prefabs, runtime Materials, and so on.
-* Built-in Physics engine, likely Bullet, PhysX, or Havok. Potentially a custom one but unlikely 
-* More versatile materials and graphics
-  * Currently only basic shading exists and Material properties have to be hardcoded in C++ 
+* More versatile materials  
 
 ## Building
 Wyvern uses the free and open-source build tool [xmake](https://github.com/xmake-io/xmake).  
