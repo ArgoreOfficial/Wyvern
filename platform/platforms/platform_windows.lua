@@ -1,3 +1,4 @@
+includes "../toolchains/i686-w64-mingw32.lua"  -- win32 toolchain
 
 function load_platform_windows()
     set_languages( "c17", "cxx20" )
@@ -14,6 +15,9 @@ function load_platform_windows()
 
     if( is_arch( "x64" ) ) then
         add_requires( "glfw" )
+        -- x86 compiler for w64
+    elseif is_arch( "x86" ) and os.arch() == "x64" then
+        set_toolchains( "i686-w64-mingw32" )
     end
 
     add_defines( "WV_SUPPORT_OPENGL", "WV_SUPPORT_OPENGLES" )
@@ -44,3 +48,10 @@ function target_platform_windows( target )
     import(root.."platform.support.imgui")(target) 
     import(root.."platform.support.joltphysics")(target) 
 end
+
+table.insert( PLATFORMS, { 
+    plat="windows",
+    arch={ "x64", "x86"  },
+    load=load_platform_windows,
+    target=target_platform_windows
+} )

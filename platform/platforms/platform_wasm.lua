@@ -23,3 +23,10 @@ function target_platform_wasm( target )
 
     target:add( "packages", "assimp" )
 end
+
+table.insert( PLATFORMS, { 
+    plat="wasm",
+    arch={ "wasm32" },
+    load=load_platform_wasm,
+    target=target_platform_wasm
+} )

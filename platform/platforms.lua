@@ -1,32 +1,10 @@
-includes "platform_3ds.lua"
-includes "platform_windows.lua"
-includes "platform_wasm.lua"
-includes "platform_linux.lua"
 
-local has_vitasdk = os.getenv("SCE_PSP2_SDK_DIR") ~= nil
-
-if has_vitasdk then
-    includes "platform_psvita.lua"
-    includes "toolchains/psvita.lua"  -- sce psvita toolchain
-end
-
-includes "toolchains/i686-w64-mingw32.lua"  -- win32 toolchain
-includes "toolchains/3ds_arm-none-eabi.lua" -- 3ds toolchain
-
-local PLATFORMS = {
-    { plat="windows", arch={ "x64", "x86"  }, load=load_platform_windows, target=target_platform_windows },
-    { plat="linux",   arch={ "x86_64"      }, load=load_platform_linux,   target=target_platform_linux   },
-    { plat="wasm",    arch={ "wasm32"      }, load=load_platform_wasm,    target=target_platform_wasm    },
-    { plat="3ds",     arch={ "3ds-arm"     }, load=load_platform_3ds,     target=target_platform_3ds     },
-    { plat="psvita",  arch={ "psvita"      }, load=load_platform_psvita,  target=target_platform_psvita, run=run_platform_psvita  }
+PLATFORMS = {
+    -- { plat="3ds",     arch={ "3ds-arm"     }, load=load_platform_3ds,     target=target_platform_3ds     },
+    -- { plat="psvita",  arch={ "psvita"      }, load=load_platform_psvita,  target=target_platform_psvita, run=run_platform_psvita  }
 }
 
 function load_platform()
-
-    -- x86 compiler for w64
-    if is_arch( "x86" ) and os.arch() == "x64" then
-        set_toolchains( "i686-w64-mingw32" )
-    end
 
     -- configure modes
     if is_mode("Debug") then
@@ -41,6 +19,11 @@ function load_platform()
         set_symbols "none"
         set_optimize "fastest"
         set_strip "all"
+    end
+
+    local rpath = "./platform/platforms/"
+    for _, file in ipairs(os.files(rpath .. "*.lua"), path.basename) do
+        includes( file )
     end
 
     for i=1,#PLATFORMS do 

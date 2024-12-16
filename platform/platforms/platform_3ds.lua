@@ -1,4 +1,4 @@
-includes "toolchains/3ds_arm-none-eabi.lua"
+includes "../toolchains/3ds_arm-none-eabi.lua" -- 3ds toolchain
 
 rule("3ds.picasso")
     set_extensions( ".pica" )
