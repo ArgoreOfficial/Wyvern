@@ -99,8 +99,8 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		wv::Handle m_vaoHandle = 0;
-		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_uniformBindingIndices;
-		cObjectHandleContainer<uint8_t, BufferBindingIndex> m_ssboBindingIndices;
+		arx::unordered_array<BufferBindingIndex, uint8_t> m_uniformBindingIndices;
+		arx::unordered_array<BufferBindingIndex, uint8_t> m_ssboBindingIndices;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@
 
 void wv::iIntermediateRenderTargetHandler::destroy()
 {
-	if( !m_renderTarget.isValid() )
+	if( !m_renderTarget.is_valid() )
 		return;
 
 	wv::cEngine::get()->graphics->destroyRenderTarget( m_renderTarget );

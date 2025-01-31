@@ -47,7 +47,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	for ( auto& meshID : _node->meshes )
 	{
 		pLowLevelGraphics->cmd( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
-		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.get( meshID );
+		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 	}
 	pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
@@ -115,10 +115,10 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 
 	for ( auto& meshID : _node->meshes )
 	{
-		if ( !meshID.isValid() )
+		if ( !meshID.is_valid() )
 			continue;
 
-		sMesh mesh = meshreg.get( meshID ); // get copy, incase mesh object container reallocated
+		sMesh mesh = meshreg.at( meshID ); // get copy, incase mesh object container reallocated
 		if( !mesh.complete )
 			continue;
 
@@ -131,7 +131,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		//mat->setAsActive( _pLowLevelGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
-		if( SbInstanceData.isValid() ) // TODO: enable gpu instancing on all meshes
+		if( SbInstanceData.is_valid() ) // TODO: enable gpu instancing on all meshes
 			m_useGPUInstancing = true;
 		else
 			m_useGPUInstancing = false;
@@ -160,9 +160,9 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 
 					if( var.name == "u_Albedo" )
 					{
-						if( var.data.texture->m_textureID.isValid() )
+						if( var.data.texture->m_textureID.is_valid() )
 						{
-							sTexture& tex = _pLowLevelGraphics->m_textures.get( var.data.texture->m_textureID );
+							sTexture& tex = _pLowLevelGraphics->m_textures.at( var.data.texture->m_textureID );
 							instanceData.texturesHandles[ 0 ] = tex.textureHandle;
 							instanceData.hasAlpha = tex.numChannels == 4;
 						}
@@ -177,7 +177,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		{
 			wv::GPUBufferID SbVerticesID = pShader->getShaderBuffer( "SbVertices" );
 
-			if ( SbVerticesID.isValid() )
+			if ( SbVerticesID.is_valid() )
 			{
 				//_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
 				

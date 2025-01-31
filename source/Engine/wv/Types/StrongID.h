@@ -17,7 +17,7 @@ namespace wv
         T value = InvalidID;
 
         inline void invalidate() { value = InvalidID; }
-        inline bool isValid() const { return value != InvalidID; }
+        inline bool is_valid() const { return value != InvalidID; }
 
         bool operator==( const sStrongID<T, Tag>& _other ) const { return value == _other.value; }
         bool operator> ( const sStrongID<T, Tag>& _other ) const { return value > _other.value; }
@@ -41,5 +41,3 @@ namespace std
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-#define WV_DEFINE_ID( _c ) typedef wv::sStrongID<uint16_t, struct _c##_t> _c

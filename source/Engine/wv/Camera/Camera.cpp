@@ -21,7 +21,7 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 	ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 	ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 
-	m_uniformBufferID = pGraphics->createGPUBuffer( 0, &ubDesc );
+	m_uniformBufferID = pGraphics->createGPUBuffer( {}, &ubDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

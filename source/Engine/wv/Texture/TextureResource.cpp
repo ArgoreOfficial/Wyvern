@@ -62,7 +62,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	auto onCompleteCallback = []( void* _c ) 
 		{ 
 			cTextureResource* tex = (cTextureResource*)_c;
-			sTexture& texObject = wv::cEngine::get()->graphics->m_textures.get( tex->m_textureID );
+			sTexture& texObject = wv::cEngine::get()->graphics->m_textures.at( tex->m_textureID );
 
 			tex->setComplete( true ); 
 			stbi_image_free( texObject.pData );

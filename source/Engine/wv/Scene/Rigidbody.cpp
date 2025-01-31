@@ -131,7 +131,7 @@ void wv::cRigidbody::updateImpl( double _deltaTime )
 
 	wv::cJoltPhysicsEngine* pPhysics = wv::cEngine::get()->m_pPhysicsEngine;
 
-	if( m_physicsBodyHandle.isValid() && pPhysics->isBodyActive( m_physicsBodyHandle ) )
+	if( m_physicsBodyHandle.is_valid() && pPhysics->isBodyActive( m_physicsBodyHandle ) )
 	{
 		Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
 		m_transform.position = t.position;

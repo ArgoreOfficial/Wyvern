@@ -23,7 +23,10 @@ target( PROJECT_NAME )
         "**.hpp" 
     )
     add_files( "**.cpp" )
-    add_includedirs( "../Engine", "./" )
+    add_includedirs( 
+        "../Engine", 
+        "./",
+        "../../libs/arx/include" )
 
     target_platform()
 target_end()

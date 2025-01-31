@@ -135,11 +135,11 @@ bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 
 	int maxUniformBindings = 0;
 	glGetIntegerv( GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBindings );
-	m_uniformBindingIndices.setMaxIDs( maxUniformBindings );
+	//m_uniformBindingIndices.setMaxIDs( maxUniformBindings );
 
 	int maxSSBOBindings = 0;
 	glGetIntegerv( GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxSSBOBindings );
-	m_ssboBindingIndices.setMaxIDs( maxSSBOBindings );
+	//m_ssboBindingIndices.setMaxIDs( maxSSBOBindings );
 
 	glCreateBuffers( 1, &drawIndirectHandle );
 	
@@ -195,10 +195,10 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 
 #ifdef WV_SUPPORT_OPENGL
 	sRenderTargetDesc& desc = *_desc;
-	if( !_renderTargetID.isValid() )
-		_renderTargetID = m_renderTargets.allocate();
+	if( !_renderTargetID.is_valid() )
+		_renderTargetID = m_renderTargets.emplace();
 
-	sRenderTarget& target = m_renderTargets.get( _renderTargetID );
+	sRenderTarget& target = m_renderTargets.at( _renderTargetID );
 	
 	glCreateFramebuffers( 1, &target.fbHandle );
 	
@@ -213,8 +213,8 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target.pTextureIDs[ i ] = createTexture( 0, &desc.pTextureDescs[ i ] );
-		sTexture& tex = m_textures.get( target.pTextureIDs[ i ] );
+		target.pTextureIDs[ i ] = createTexture( {}, &desc.pTextureDescs[ i ] );
+		sTexture& tex = m_textures.at( target.pTextureIDs[ i ] );
 
 		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
 		drawBuffers[ i ] = GL_COLOR_ATTACHMENT0 + i;
@@ -273,7 +273,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyRenderTarget( RenderTargetID _renderTar
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sRenderTarget& rt = m_renderTargets.get( _renderTargetID );
+	sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
 
 	glDeleteFramebuffers( 1, &rt.fbHandle );
 	glDeleteRenderbuffers( 1, &rt.rbHandle );
@@ -281,7 +281,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyRenderTarget( RenderTargetID _renderTar
 	for ( int i = 0; i < rt.numTextures; i++ )
 		destroyTexture( rt.pTextureIDs[ i ] );
 
-	m_renderTargets.deallocate( _renderTargetID );
+	m_renderTargets.erase( _renderTargetID );
 #endif
 }
 
@@ -292,7 +292,7 @@ void wv::cLowLevelGraphicsOpenGL::setRenderTarget( RenderTargetID _renderTargetI
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sRenderTarget& rt = m_renderTargets.get( _renderTargetID );
+	sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
 	unsigned int handle = rt.fbHandle;
 
 	glBindFramebuffer( GL_FRAMEBUFFER, handle );
@@ -329,8 +329,8 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( !_programID.isValid() )
-		_programID = m_programs.allocate();
+	if( !_programID.is_valid() )
+		_programID = m_programs.emplace();
 
 	eShaderProgramType&   type   = _desc->type;
 	sShaderProgramSource& source = _desc->source;
@@ -342,7 +342,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
-	sProgram& program = m_programs.get( _programID );
+	sProgram& program = m_programs.at( _programID );
 	program.type = type;
 	program.source = source;
 
@@ -403,19 +403,19 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		if ( m_uniformBindingNameMap.contains( name ) )
 		{
 			index = m_uniformBindingNameMap.at( name );
-			m_uniformBindingIndices.get( index )++; // increase num users
+			m_uniformBindingIndices.at( index )++; // increase num users
 		}
 		else
 		{
-			index = m_uniformBindingIndices.allocate();
+			index = m_uniformBindingIndices.emplace();
 			m_uniformBindingNameMap[ name ] = index;
 		}
 
 		wv::Handle blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size );
 		
-		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
-		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
+		GPUBufferID bufID = createGPUBuffer( {}, &ubDesc );
+		sGPUBuffer& buf = m_gpuBuffers.at( bufID );
 		
 		buf.bindingIndex = index;
 		buf.blockIndex = blockIndex;
@@ -446,10 +446,10 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 		ubDesc.size = 0;
 
-		GPUBufferID bufID = createGPUBuffer( 0, &ubDesc );
-		sGPUBuffer& buf = m_gpuBuffers.get( bufID );
+		GPUBufferID bufID = createGPUBuffer( {}, &ubDesc );
+		sGPUBuffer& buf = m_gpuBuffers.at( bufID );
 
-		buf.bindingIndex = m_ssboBindingIndices.allocate();
+		buf.bindingIndex = m_ssboBindingIndices.emplace();
 		buf.blockIndex = glGetProgramResourceIndex( program.handle, GL_SHADER_STORAGE_BLOCK, name.data() );
 		
 		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, buf.bindingIndex.value, buf.handle );
@@ -471,17 +471,17 @@ void wv::cLowLevelGraphicsOpenGL::destroyProgram( ProgramID _programID )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( !_programID.isValid() )
+	if( !_programID.is_valid() )
 		return;
 
-	sProgram& program = m_programs.get( _programID );
+	sProgram& program = m_programs.at( _programID );
 
 	glDeleteProgram( program.handle );
 	
 	for( auto& buffer : program.shaderBuffers )
 		destroyGPUBuffer( buffer );
 	
-	m_programs.deallocate( _programID );
+	m_programs.erase( _programID );
 #endif
 }
 
@@ -493,10 +493,10 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 
 #ifdef WV_SUPPORT_OPENGL
 	sPipelineDesc& desc = *_desc;
-	if( !_pipelineID.isValid() )
-		_pipelineID = m_pipelines.allocate();
+	if( !_pipelineID.is_valid() )
+		_pipelineID = m_pipelines.emplace();
 
-	sPipeline& pipeline = m_pipelines.get( _pipelineID );
+	sPipeline& pipeline = m_pipelines.at( _pipelineID );
 	pipeline.vertexProgramID   = desc.vertexProgramID;
 	pipeline.fragmentProgramID = desc.fragmentProgramID;
 
@@ -504,17 +504,17 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 	
 	if( pipeline.handle == 0 )
 	{
-		m_pipelines.deallocate( _pipelineID );
+		m_pipelines.erase( _pipelineID );
 		return PipelineID::InvalidID;
 	}
 
-	sProgram& vs = m_programs.get( desc.vertexProgramID );
-	sProgram& fs = m_programs.get( desc.fragmentProgramID );
+	sProgram& vs = m_programs.at( desc.vertexProgramID );
+	sProgram& fs = m_programs.at( desc.fragmentProgramID );
 	
 	glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle );
 	glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 	
-	DrawListID drawListID = m_drawLists.allocate();
+	DrawListID drawListID = m_drawLists.emplace();
 	m_pipelineDrawListMap[ _pipelineID ] = drawListID;
 	
 	sDrawList drawList;
@@ -525,7 +525,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 
 	for ( GPUBufferID bufID : vs.shaderBuffers )
 	{
-		sGPUBuffer buf = m_gpuBuffers.get( bufID );
+		sGPUBuffer buf = m_gpuBuffers.at( bufID );
 
 		if ( buf.name == "UbCameraData" )
 			drawList.viewDataBufferID = bufID;
@@ -535,7 +535,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 			drawList.vertexBufferID = bufID;
 	}
 
-	m_drawLists.get( drawListID ) = drawList;
+	m_drawLists.at( drawListID ) = drawList;
 
 	return _pipelineID;
 #else
@@ -550,12 +550,12 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sPipeline& pipeline = m_pipelines.get( _pipelineID );
+	sPipeline& pipeline = m_pipelines.at( _pipelineID );
 
 	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
 	DrawListID drawListID = m_pipelineDrawListMap.at( _pipelineID );
-	m_drawLists.deallocate( drawListID );
+	m_drawLists.erase( drawListID );
 	m_pipelineDrawListMap.erase( _pipelineID );
 
 	destroyProgram( pipeline.vertexProgramID );
@@ -564,7 +564,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 	if( pipeline.pPlatformData )
 		delete pipeline.pPlatformData;
 
-	m_pipelines.deallocate( _pipelineID );
+	m_pipelines.erase( _pipelineID );
 #endif
 }
 
@@ -575,7 +575,7 @@ void wv::cLowLevelGraphicsOpenGL::bindPipeline( PipelineID _pipelineID )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sPipeline& pipeline = m_pipelines.get( _pipelineID );
+	sPipeline& pipeline = m_pipelines.at( _pipelineID );
 	glBindProgramPipeline( pipeline.handle );
 #endif
 }
@@ -587,10 +587,10 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _buffe
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	if( !_bufferID.isValid() )
-		_bufferID = m_gpuBuffers.allocate();
+	if( !_bufferID.is_valid() )
+		_bufferID = m_gpuBuffers.emplace();
 
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 
 	buffer.type  = _desc->type;
 	buffer.usage = _desc->usage;
@@ -620,22 +620,22 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 
 	//if( buffer.pPlatformData )
 	{
 		//sOpenGLBufferData* pData = (sOpenGLBufferData*)buffer.pPlatformData;
 		{
-			if( buffer.bindingIndex.isValid() )
+			if( buffer.bindingIndex.is_valid() )
 			{
 				switch( buffer.type )
 				{
-				case WV_BUFFER_TYPE_DYNAMIC: m_ssboBindingIndices.deallocate( buffer.bindingIndex );    break;
+				case WV_BUFFER_TYPE_DYNAMIC: m_ssboBindingIndices.erase( buffer.bindingIndex );    break;
 				case WV_BUFFER_TYPE_UNIFORM: 
 				{
-					uint8_t idx = m_uniformBindingIndices.get( buffer.bindingIndex )--;
+					uint8_t idx = m_uniformBindingIndices.at( buffer.bindingIndex )--;
 					if( idx == 0 )
-						m_uniformBindingIndices.deallocate( buffer.bindingIndex );
+						m_uniformBindingIndices.erase( buffer.bindingIndex );
 
 					break;
 				}
@@ -648,7 +648,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 
 	glDeleteBuffers( 1, &buffer.handle );
 
-	m_gpuBuffers.deallocate( _bufferID );
+	m_gpuBuffers.erase( _bufferID );
 #endif
 }
 
@@ -656,7 +656,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 
 void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 {
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
 	glBindBuffer( target, buffer.handle );
@@ -666,7 +666,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 
 void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
 {
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
 	glBindBufferBase( target, _bindingIndex, buffer.handle );
@@ -676,7 +676,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_
 
 void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
 {
-	sGPUBuffer& buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 
 	GLenum usage  = getGlBufferUsage( buffer.usage );
 	GLenum target = getGlBufferEnum ( buffer.type );
@@ -690,14 +690,14 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 
 void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
-	sGPUBuffer buffer = m_gpuBuffers.get( _bufferID );
+	sGPUBuffer buffer = m_gpuBuffers.at( _bufferID );
 	glNamedBufferSubData( buffer.handle, _base, _size, _pData );
 }
 
 void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
 {
-	sGPUBuffer rb = m_gpuBuffers.get( _readBufferID );
-	sGPUBuffer wb = m_gpuBuffers.get( _writeBufferID );
+	sGPUBuffer rb = m_gpuBuffers.at( _readBufferID );
+	sGPUBuffer wb = m_gpuBuffers.at( _writeBufferID );
 
 	glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size );
 }
@@ -712,11 +712,11 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
-	if( !_textureID.isValid() )
-		_textureID = m_textures.allocate();
+	if( !_textureID.is_valid() )
+		_textureID = m_textures.emplace();
 
 	sTextureDesc& desc = *_pDesc;
-	sTexture& texture = m_textures.get( _textureID );
+	sTexture& texture = m_textures.at( _textureID );
 	texture.numChannels = desc.numChannels;
 
 	switch ( desc.channels )
@@ -829,7 +829,7 @@ void wv::cLowLevelGraphicsOpenGL::bufferTextureData( TextureID _textureID, void*
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sTexture& tex = m_textures.get( _textureID );
+	sTexture& tex = m_textures.at( _textureID );
 
 	sOpenGLTextureData* pPData = (sOpenGLTextureData*)tex.pPlatformData;
 
@@ -852,7 +852,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyTexture( TextureID _textureID )
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sTexture& tex = m_textures.get( _textureID );
+	sTexture& tex = m_textures.at( _textureID );
 
 	glMakeTextureHandleNonResidentARB( tex.textureHandle );
 
@@ -869,7 +869,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyTexture( TextureID _textureID )
 		tex.pPlatformData = nullptr;
 	}
 
-	m_textures.deallocate( _textureID );
+	m_textures.erase( _textureID );
 #endif
 }
 
@@ -880,7 +880,7 @@ void wv::cLowLevelGraphicsOpenGL::bindTextureToSlot( TextureID _textureID, unsig
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sTexture& tex = m_textures.get( _textureID );
+	sTexture& tex = m_textures.at( _textureID );
 
 	/// TODO: some cleaner way of checking version/supported features
 	if ( m_graphicsApiVersion.major == 4 && m_graphicsApiVersion.minor >= 5 ) // if OpenGL 4.5 or higher
@@ -902,7 +902,7 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBuffe
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	wv::sGPUBuffer& SbVertices = m_gpuBuffers.get( _vertexPullBufferID );
+	wv::sGPUBuffer& SbVertices = m_gpuBuffers.at( _vertexPullBufferID );
 	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 	
 	bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
@@ -964,7 +964,7 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 
 void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
 {
-	sDrawList& drawList = m_drawLists.get( _drawListID );
+	sDrawList& drawList = m_drawLists.at( _drawListID );
 
 	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle );
 	glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW );

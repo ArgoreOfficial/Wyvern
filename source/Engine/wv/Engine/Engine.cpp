@@ -79,8 +79,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 		m_pIRTHandler->create( graphics );
 
 
-	m_screenRenderTarget = graphics->m_renderTargets.allocate();
-	sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
+	m_screenRenderTarget = graphics->m_renderTargets.emplace();
+	sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 	rt.width = _desc->windowWidth;
 	rt.height = _desc->windowHeight;
 	rt.fbHandle = 0;
@@ -221,9 +221,9 @@ wv::Vector2i wv::cEngine::getViewportSize()
 {
 	if( m_pIRTHandler )
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_renderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
 
-		if( m_pIRTHandler->m_renderTarget.isValid() )
+		if( m_pIRTHandler->m_renderTarget.is_valid() )
 			return { rt.width, rt.height };
 		else
 			return { 1,1 };
@@ -348,12 +348,12 @@ void wv::cEngine::tick()
 	/// ------------------ render ------------------ ///	
 
 #ifndef WV_PLATFORM_PSVITA
-	if( !m_gbuffer.isValid() )
+	if( !m_gbuffer.is_valid() )
 		return;
 #endif
 
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 		if ( rt.width == 0 || rt.height == 0 )
 			return;
 	}
@@ -384,19 +384,19 @@ void wv::cEngine::tick()
 		{
 			PipelineID pipelineID = pair.first;
 			DrawListID drawListID = pair.second;
-			sDrawList& drawList = graphics->m_drawLists.get( drawListID );
+			sDrawList& drawList = graphics->m_drawLists.at( drawListID );
 
-			if ( drawList.cmds.empty() || !drawList.instanceBufferID.isValid() )
+			if ( drawList.cmds.empty() || !drawList.instanceBufferID.is_valid() )
 				continue;
 
 			graphics->bindPipeline( pipelineID );
 			graphics->bindVertexBuffer( drawList.vertexBufferID );
 
-			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.get( drawList.instanceBufferID );
+			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.at( drawList.instanceBufferID );
 			graphics->bufferData( drawList.instanceBufferID, drawList.instances.data(), drawList.instances.size() * sizeof( sMeshInstanceData ) );
 			graphics->bindBufferIndex( drawList.instanceBufferID, instanceBuffer.bindingIndex.value );
 
-			sGPUBuffer viewBuffer = graphics->m_gpuBuffers.get( drawList.viewDataBufferID );
+			sGPUBuffer viewBuffer = graphics->m_gpuBuffers.at( drawList.viewDataBufferID );
 			graphics->bindBufferIndex( viewBufferID, viewBuffer.bindingIndex.value );
 			
 			graphics->multiDrawIndirect( drawListID );
@@ -413,7 +413,7 @@ void wv::cEngine::tick()
 #ifndef WV_PLATFORM_PSVITA
 	if( m_pIRTHandler )
 	{
-		if( m_pIRTHandler->m_renderTarget.isValid() )
+		if( m_pIRTHandler->m_renderTarget.is_valid() )
 			graphics->setRenderTarget( m_pIRTHandler->m_renderTarget );
 	}
 	else
@@ -423,7 +423,7 @@ void wv::cEngine::tick()
 
 	// bind gbuffer textures to deferred pass
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_gbuffer );
+		sRenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
 			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
@@ -435,15 +435,15 @@ void wv::cEngine::tick()
 
 		GPUBufferID UbFogParams  = m_pDeferredShader->getShaderBuffer( "UbFogParams" );
 		GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
-		sGPUBuffer fogParamBuffer = graphics->m_gpuBuffers.get( UbFogParams );
+		sGPUBuffer fogParamBuffer = graphics->m_gpuBuffers.at( UbFogParams );
 
 		graphics->bufferSubData( UbFogParams, &m_fogParams, sizeof( m_fogParams ), 0 );
 		graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
 
-		sMesh screenQuad = graphics->m_meshes.get( m_screenQuad );
+		sMesh screenQuad = graphics->m_meshes.at( m_screenQuad );
 		graphics->bindVertexBuffer( SbVerticesID );
 		
-		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.get( screenQuad.indexBufferID );
+		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
 		graphics->drawIndexed( screenQuad.numIndices );
 	}
 
@@ -474,9 +474,9 @@ void wv::cEngine::tick()
 			m_pIRTHandler->destroy();
 			m_pIRTHandler->create( graphics );
 
-			if( m_pIRTHandler->m_renderTarget.isValid() )
+			if( m_pIRTHandler->m_renderTarget.is_valid() )
 			{
-				sRenderTarget& rt = graphics->m_renderTargets.get( m_pIRTHandler->m_renderTarget );
+				sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
 				recreateScreenRenderTarget( rt.width, rt.height );
 			}
 		}
@@ -545,7 +545,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.deleteData = false;
 	}
 
-	m_screenQuad = graphics->createMesh( 0, &prDesc );
+	m_screenQuad = graphics->createMesh( {}, &prDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -579,14 +579,14 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 {
 	graphics->onResize( _width, _height );
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.get( m_screenRenderTarget );
+		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 
 		// recreate render target
 		rt.width = _width;
 		rt.height = _height;
 	}
 	
-	if( m_gbuffer.isValid() )
+	if( m_gbuffer.is_valid() )
 		graphics->destroyRenderTarget( m_gbuffer );
 	
 	if( _width == 0 || _height == 0 )

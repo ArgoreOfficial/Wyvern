@@ -81,7 +81,7 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* 
 
 void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )
 {
-	if ( !m_pipelineID.isValid() )
+	if ( !m_pipelineID.is_valid() )
 		return;
 
 	_pLowLevelGraphics->bindPipeline( m_pipelineID );
@@ -96,21 +96,21 @@ wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
 
 	/// this needs to be reworked
 
-	sPipeline& pipeline = pGraphics->m_pipelines.get( m_pipelineID );
+	sPipeline& pipeline = pGraphics->m_pipelines.at( m_pipelineID );
 
-	sProgram& vs = pGraphics->m_programs.get( pipeline.vertexProgramID );
-	sProgram& fs = pGraphics->m_programs.get( pipeline.fragmentProgramID );
+	sProgram& vs = pGraphics->m_programs.at( pipeline.vertexProgramID );
+	sProgram& fs = pGraphics->m_programs.at( pipeline.fragmentProgramID );
 
 	for( GPUBufferID bufID : vs.shaderBuffers )
 	{
-		sGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		sGPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
 		if( buf.name == _name )
 			return bufID;
 	}
 	
 	for( GPUBufferID bufID : fs.shaderBuffers )
 	{
-		sGPUBuffer& buf = pGraphics->m_gpuBuffers.get( bufID );
+		sGPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
 		if ( buf.name == _name )
 			return bufID;
 	}

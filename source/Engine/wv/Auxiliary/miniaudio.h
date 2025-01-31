@@ -27895,7 +27895,7 @@ static ma_result ma_device_init_by_type__alsa(ma_device* pDevice, const ma_devic
                 Excess channels use defaults. Do an initial fill with defaults, overwrite the first pChmap->channels, validate to ensure there are no duplicate
                 channels. If validation fails, fall back to defaults.
                 */
-                ma_bool32 isValid = MA_TRUE;
+                ma_bool32 is_valid = MA_TRUE;
 
                 /* Fill with defaults. */
                 ma_channel_map_init_standard(ma_standard_channel_map_alsa, internalChannelMap, ma_countof(internalChannelMap), internalChannels);
@@ -27906,18 +27906,18 @@ static ma_result ma_device_init_by_type__alsa(ma_device* pDevice, const ma_devic
                 }
 
                 /* Validate. */
-                for (i = 0; i < internalChannels && isValid; ++i) {
+                for (i = 0; i < internalChannels && is_valid; ++i) {
                     ma_uint32 j;
                     for (j = i+1; j < internalChannels; ++j) {
                         if (internalChannelMap[i] == internalChannelMap[j]) {
-                            isValid = MA_FALSE;
+                            is_valid = MA_FALSE;
                             break;
                         }
                     }
                 }
 
                 /* If our channel map is invalid, fall back to defaults. */
-                if (!isValid) {
+                if (!is_valid) {
                     ma_channel_map_init_standard(ma_standard_channel_map_alsa, internalChannelMap, ma_countof(internalChannelMap), internalChannels);
                 }
             }

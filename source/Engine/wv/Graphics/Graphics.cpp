@@ -64,13 +64,13 @@ void wv::iLowLevelGraphics::initEmbeds()
 	mvbDesc.name  = "mvb";
 	mvbDesc.type  = WV_BUFFER_TYPE_DYNAMIC;
 	mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_vertexBuffer = createGPUBuffer( 0, &mvbDesc );
+	m_vertexBuffer = createGPUBuffer( {}, &mvbDesc );
 
 	sGPUBufferDesc mibDesc{};
 	mibDesc.name  = "mib";
 	mibDesc.type  = WV_BUFFER_TYPE_INDEX;
 	mibDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_indexBuffer = createGPUBuffer( 0, &mibDesc );
+	m_indexBuffer = createGPUBuffer( {}, &mibDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -84,10 +84,10 @@ void wv::iLowLevelGraphics::drawNode( sMeshNode* _node )
 
 	for( auto& meshID : _node->meshes )
 	{
-		if( !meshID.isValid() )
+		if( !meshID.is_valid() )
 			continue;
 
-		sMesh mesh = m_meshes.get( meshID );
+		sMesh mesh = m_meshes.at( meshID );
 		cMaterial* mat = mesh.pMaterial;
 
 		if( mat )
@@ -118,7 +118,7 @@ wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 	
 	if( m_availableCommandBuffers.size() == 0 )
 	{
-		CmdBufferID id = m_commandBuffers.allocate( 128 );
+		CmdBufferID id = m_commandBuffers.emplace( cCommandBuffer{ 128 } );
 		m_availableCommandBuffers.push( id );
 	}
 	
@@ -152,7 +152,7 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 {
 	std::scoped_lock lock( m_mutex );
 
-	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
+	cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
 	cMemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.numCommands(); i++ )
@@ -240,7 +240,7 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 
 wv::ProgramID wv::iLowLevelGraphics::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
 {
-	ProgramID id = m_programs.allocate();
+	ProgramID id = m_programs.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
 }
 
@@ -248,7 +248,7 @@ wv::ProgramID wv::iLowLevelGraphics::cmdCreateProgram( CmdBufferID _bufferID, co
 
 wv::PipelineID wv::iLowLevelGraphics::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
-	PipelineID id = m_pipelines.allocate();
+	PipelineID id = m_pipelines.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
 }
 
@@ -256,7 +256,7 @@ wv::PipelineID wv::iLowLevelGraphics::cmdCreatePipeline( CmdBufferID _bufferID, 
 
 wv::RenderTargetID wv::iLowLevelGraphics::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
-	RenderTargetID id = m_renderTargets.allocate();
+	RenderTargetID id = m_renderTargets.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
 }
 
@@ -264,7 +264,7 @@ wv::RenderTargetID wv::iLowLevelGraphics::cmdCreateRenderTarget( CmdBufferID _bu
 
 wv::GPUBufferID wv::iLowLevelGraphics::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
-	GPUBufferID id = m_gpuBuffers.allocate();
+	GPUBufferID id = m_gpuBuffers.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
 }
 
@@ -272,7 +272,7 @@ wv::GPUBufferID wv::iLowLevelGraphics::cmdCreateGPUBuffer( CmdBufferID _bufferID
 
 wv::MeshID wv::iLowLevelGraphics::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
-	MeshID  id = m_meshes.allocate();
+	MeshID  id = m_meshes.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
 }
 
@@ -280,7 +280,7 @@ wv::MeshID wv::iLowLevelGraphics::cmdCreateMesh( CmdBufferID _bufferID, const sM
 
 wv::TextureID wv::iLowLevelGraphics::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
-	TextureID id = m_textures.allocate();
+	TextureID id = m_textures.emplace();
 	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
 }
 
@@ -288,7 +288,7 @@ wv::TextureID wv::iLowLevelGraphics::cmdCreateTexture( CmdBufferID _bufferID, co
 
 void wv::iLowLevelGraphics::cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances )
 {
-	sDrawList& drawList = m_drawLists.get( _drawListID );
+	sDrawList& drawList = m_drawLists.at( _drawListID );
 	_cmd.firstInstance = drawList.instances.size();
 
 	for ( auto& instance : _instances )
@@ -302,7 +302,7 @@ void wv::iLowLevelGraphics::cmdDrawIndexedIndirect( DrawListID _drawListID, sDra
 void wv::iLowLevelGraphics::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	std::scoped_lock lock( m_mutex );
-	cCommandBuffer& buffer = m_commandBuffers.get( _bufferID );
+	cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
 	buffer.callback = _func;
 	buffer.callbacker = _caller;
 }
@@ -337,7 +337,7 @@ wv::iLowLevelGraphics::iLowLevelGraphics()
 
 size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 {
-	sGPUBuffer old = m_gpuBuffers.get( m_vertexBuffer );
+	sGPUBuffer old = m_gpuBuffers.at( m_vertexBuffer );
 	size_t base = old.size / sizeof( Vertex );
 
 	// create new buffer
@@ -346,7 +346,7 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 	desc.type  = old.type;
 	desc.usage = old.usage;
 	desc.size  = old.size + _size;
-	GPUBufferID mvb = createGPUBuffer( 0, &desc );
+	GPUBufferID mvb = createGPUBuffer( {}, &desc );
 
 	if( old.size > 0 ) // copy old data
 		copyBufferSubData( m_vertexBuffer, mvb, 0, 0, old.size );
@@ -362,7 +362,7 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 
 size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 {
-	sGPUBuffer old = m_gpuBuffers.get( m_indexBuffer );
+	sGPUBuffer old = m_gpuBuffers.at( m_indexBuffer );
 	size_t base = old.size / sizeof( unsigned int );
 
 	// create new buffer
@@ -371,7 +371,7 @@ size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 	desc.type  = old.type;
 	desc.usage = old.usage;
 	desc.size  = old.size + _size;
-	GPUBufferID buf = createGPUBuffer( 0, &desc );
+	GPUBufferID buf = createGPUBuffer( {}, &desc );
 
 	if( old.size > 0 ) // copy old data
 		copyBufferSubData( m_indexBuffer, buf, 0, 0, old.size );
@@ -387,8 +387,8 @@ size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 
 wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
-	if( !_meshID.isValid() )
-		_meshID = m_meshes.allocate();
+	if( !_meshID.is_valid() )
+		_meshID = m_meshes.emplace();
 
 	sMesh mesh{};
 	mesh.pMaterial   = _desc->pMaterial;
@@ -440,21 +440,21 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 		mesh.transform.m_matrix = _desc->pParentTransform->m_matrix;
 
 	mesh.complete = true;
-	m_meshes.get( _meshID ) = mesh;
+	m_meshes.at( _meshID ) = mesh;
 
 	return _meshID;
 }
 
 void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 {
-	sMesh& mesh = m_meshes.get( _meshID );
+	sMesh& mesh = m_meshes.at( _meshID );
 
 	// destroy vertex and index data
 
 	if( mesh.pPlatformData )
 		delete mesh.pPlatformData;
 
-	m_meshes.deallocate( _meshID );
+	m_meshes.erase( _meshID );
 }
 
 void wv::iLowLevelGraphics::draw( MeshID _meshID )
