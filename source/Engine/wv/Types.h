@@ -1,9 +1,10 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdexcept>
+#include <string>
 
 #include <wv/Types/StrongID.h>
-#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,8 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T> static const char* typeStr() { return "unknown type"; }
-#define WV_DEFINE_TYPE_STR( _type ) template<> static const char* typeStr<_type>() { return #_type; }
+
+#define WV_DEFINE_TYPE_STR( _type ) template<> const char* typeStr<_type>() { return #_type; }
 
 	WV_DEFINE_TYPE_STR( char )
 	WV_DEFINE_TYPE_STR( unsigned char )

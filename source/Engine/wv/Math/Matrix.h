@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <type_traits>
 #include <array>
+#include <cstring>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,22 +57,22 @@ namespace wv
 
 		void setRow( const size_t& _r, std::array<T, C> _v );
 
-	#ifndef WV_PLATFORM_PSVITA
+	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
 		cVector4<T>& right( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 0 ] ); }
 
-	#ifndef WV_PLATFORM_PSVITA
+	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
 		cVector4<T>& up   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 1 ] ); }
 
-	#ifndef WV_PLATFORM_PSVITA
+	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
 		cVector4<T>& at   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 2 ] ); }
 
-	#ifndef WV_PLATFORM_PSVITA
+	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
 		cVector4<T>& pos  ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 3 ] ); }
@@ -324,7 +325,7 @@ namespace wv
 	template<typename T, size_t R, size_t C>
 	inline cMatrix<T, R, C>& cMatrix<T, R, C>::operator=( const cMatrix<T, R, C>& _o )
 	{
-		std::memcpy( &m, &_o.m, sizeof( m ) );
+		memcpy( &m, &_o.m, sizeof( m ) );
 		return ( *this );
 	}
 

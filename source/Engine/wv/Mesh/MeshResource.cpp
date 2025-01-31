@@ -6,7 +6,9 @@
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Material/Material.h>
 
+#ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>
+#endif
 #include <wv/Shader/ShaderResource.h>
 #include <wv/Texture/TextureResource.h>
 

@@ -22,6 +22,7 @@
 
 #include <wv/Events/Dispatcher.h>
 
+#ifdef WV_SUPPORT_SDL2
 static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 {
 
@@ -134,7 +135,7 @@ static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 
 	return wv::eKey::WV_KEY_UNKNOWN;
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////
 #ifdef WV_SUPPORT_SDL2
 void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )

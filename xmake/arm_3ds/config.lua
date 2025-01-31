@@ -1,6 +1,4 @@
 function on_load( _target )
-    print("target 3ds")
-    
     local DEVKITPRO = import( "modules.find_devkitpro" ).find_devkitpro()
     local DEVKITARM = path.join( DEVKITPRO, "devkitARM" )
     local BINDIR = path.join( DEVKITARM, "bin" )

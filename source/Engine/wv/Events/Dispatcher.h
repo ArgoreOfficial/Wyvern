@@ -7,6 +7,12 @@ namespace wv
 {
 	struct sHook
 	{
+		sHook() = default;
+		sHook( bool _hooked, int _currentEventCounter ) : 
+			hooked{ _hooked }, 
+			currentEventCounter{ _currentEventCounter } 
+		{ }
+		
 		bool hooked = false;
 		int currentEventCounter = 0;
 	};

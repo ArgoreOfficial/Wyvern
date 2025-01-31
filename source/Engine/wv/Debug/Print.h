@@ -30,6 +30,7 @@ namespace wv
 				"TRACE"
 			};
 
+		#ifdef WV_PLATFORM_WINDOWS
 			static int LEVEL_COL[] = {
 				7,   // info
 				11,  // debug
@@ -39,11 +40,10 @@ namespace wv
 				13   // trace
 			};
 			
-		#ifdef WV_PLATFORM_WINDOWS
 			static HANDLE hConsole = nullptr;
+		#endif
 
 			std::mutex& getMutex();
-		#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////
 

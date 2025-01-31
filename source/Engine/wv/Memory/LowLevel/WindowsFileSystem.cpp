@@ -1,11 +1,12 @@
 #include "WindowsFileSystem.h"
-
+#ifdef WV_PLATFORM_WINDOWS
 #include <Windows.h>
-
 OVERLAPPED ol = { 0 };
+#endif
 
 std::string GetLastErrorAsString()
 {
+#ifdef WV_PLATFORM_WINDOWS
 	//Get the error message ID, if any.
 	DWORD errorMessageID = ::GetLastError();
 	if( errorMessageID == 0 )
@@ -27,10 +28,14 @@ std::string GetLastErrorAsString()
 	LocalFree( messageBuffer );
 
 	return message;
+#else
+	return "";
+#endif
 }
 
 wv::FileID wv::cWindowsFileSystem::openFile( const char* _path, const eOpenMode& _mode )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	DWORD desiredAccess = 0;
 	DWORD shareMode = 0;
 
@@ -60,39 +65,53 @@ wv::FileID wv::cWindowsFileSystem::openFile( const char* _path, const eOpenMode&
 		return FileID::InvalidID;
 
 	return FileID( reinterpret_cast<uint64_t>( hFile ) );
+#else
+	FileID::InvalidID;
+#endif
 }
 
 uint64_t wv::cWindowsFileSystem::getFileSize( FileID& _file )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
 
 	LARGE_INTEGER size{};
 	GetFileSizeEx( hFile, &size );
 
 	return size.QuadPart;
+#else
+	return 0;
+#endif
 }
 
 int wv::cWindowsFileSystem::readFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
 
 	unsigned long bytesRead = 0;
 	(void)ReadFile( hFile, _buffer, _size, &bytesRead, &ol );
 
 	return bytesRead;
+#else
+	return 0;
+#endif
 }
 
 void wv::cWindowsFileSystem::writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
-
+#endif
 }
 
 void wv::cWindowsFileSystem::closeFile( FileID& _file )
 {
+#ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
 	CloseHandle( hFile );
 
 	_file.value = FileID::InvalidID;
+#endif
 }
 

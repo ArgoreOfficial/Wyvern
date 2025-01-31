@@ -53,11 +53,10 @@ rule_end()
 
 function load()
     set_languages( "c17", "cxx17" )
-    --add_requires( "glm" )
-    --"glfw", "libsdl", "assimp"
-    print("load 3ds")
-    set_toolchains( "arm-none-eabi" )
+    add_defines( "WV_C17", "WV_CPP17" )
+    add_defines( "WV_PLATFORM_3DS" )
 
+    set_toolchains( "arm-none-eabi" )
 end
 
 PLATFORMS[ "arm_3ds" ] = { 

@@ -85,6 +85,9 @@ namespace wv
 		cVector3<T>& operator -=( const cVector3<T>& _other );
 		cVector3<T>  operator + ( const cVector3<T>& _other ) const;
 		cVector3<T>  operator - ( const cVector3<T>& _other ) const;
+		bool         operator ==( const cVector3<T>& _other ) const;
+		bool         operator !=( const cVector3<T>& _other ) const { return !( *this == _other ); }
+
 		cVector3<T>  operator - ( void ) const;
 		cVector3<T>  operator * ( const T& _scalar ) const;
 		cVector3<T>& operator *=( const T& _scalar );
@@ -140,6 +143,14 @@ namespace wv
 	inline cVector3<T> cVector3<T>::operator-( const cVector3<T>& _other ) const
 	{
 		return cVector3<T>( x - _other.x, y - _other.y, z - _other.z );
+	}
+
+	template<typename T>
+	inline bool cVector3<T>::operator==( const cVector3<T>& _other ) const
+	{
+		return x == _other.x
+			&& y == _other.y
+			&& z == _other.z;
 	}
 
 	template<typename T>
