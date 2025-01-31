@@ -20,7 +20,7 @@ end
 
 set_allowedarchs( "x64", "x86", "x86_64", "wasm32", "psvita", "arm_3ds" )
 
-includes( "platform/platforms.lua" )
+includes( "xmake/platforms.lua" )
 init_platform()
 
 includes( "source/Engine" )

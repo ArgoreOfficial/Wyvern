@@ -22,7 +22,7 @@ function init_platform()
         set_strip "all"
     end
 
-    for _, filepath in ipairs( os.dirs("platform/*"), path.translate ) do
+    for _, filepath in ipairs( os.dirs("xmake/*"), path.translate ) do
         local split = path.split( filepath )
         local arch_name = split[ #split ]
 
