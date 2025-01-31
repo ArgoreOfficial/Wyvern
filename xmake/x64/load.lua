@@ -1,4 +1,4 @@
-includes "../toolchains/i686-w64-mingw32.lua"  -- win32 toolchain
+--includes "../toolchains/i686-w64-mingw32.lua"  -- win32 toolchain
 
 function load()
     set_languages( "c17", "cxx20" )

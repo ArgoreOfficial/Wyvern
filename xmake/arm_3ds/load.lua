@@ -1,4 +1,4 @@
-includes "../toolchains/3ds_arm-none-eabi.lua" -- 3ds toolchain
+includes "toolchains/arm-none-eabi.lua" -- 3ds toolchain
 
 rule("3ds.picasso")
     set_extensions( ".pica" )
@@ -52,10 +52,12 @@ rule("3ds.package")
 rule_end()
 
 function load()
+    set_languages( "c17", "cxx17" )
     --add_requires( "glm" )
     --"glfw", "libsdl", "assimp"
     print("load 3ds")
     set_toolchains( "arm-none-eabi" )
+
 end
 
 PLATFORMS[ "arm_3ds" ] = { 

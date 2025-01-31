@@ -1,9 +1,7 @@
 
-PLATFORMS = {
-    -- { plat="3ds",     arch={ "3ds-arm"     }, load=load_platform_3ds,     target=target_platform_3ds     },
-    -- { plat="psvita",  arch={ "psvita"      }, load=load_platform_psvita,  target=target_platform_psvita, run=run_platform_psvita  }
-}
+PLATFORMS = {}
 
+add_moduledirs( "./" )
 
 function init_platform()
 
@@ -53,8 +51,6 @@ function init_platform()
     end)
 end
 
-add_moduledirs( "./" )
-
 function target_platform(_root)
     on_load(function( _target )
         local config = import( "core.project.config" )
@@ -81,24 +77,4 @@ function target_platform(_root)
             p.on_run( _target )
         end
     end)
-end
-
-
--- 3ds
-function init_platform_3ds( target )
-    if target:is_arch( "3DS-ARM" ) then
-        target:add( "files", "source/**.pica", {rule = "3ds.picasso"} )
-        target:add( "rules", "3ds.package" )
-        target:set( "extension", ".elf" )
-
-        target:add( "includedirs", {
-            "D:/dev/3ds/include",
-            "C:/devkitpro/libctru/include",
-            "D:/dev/3ds/build",
-            "C:/devkitPro/devkitARM/arm-none-eabi/include"
-        })
-
-        target:add( "linkdirs", "C:/devkitPro/libctru/lib" )
-        target:add( "links", "citro3d", "citro2d", "ctru", "m" )
-    end
 end
