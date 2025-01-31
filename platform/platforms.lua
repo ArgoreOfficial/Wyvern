@@ -4,7 +4,8 @@ PLATFORMS = {
     -- { plat="psvita",  arch={ "psvita"      }, load=load_platform_psvita,  target=target_platform_psvita, run=run_platform_psvita  }
 }
 
-function load_platform()
+
+function init_platform()
 
     -- configure modes
     if is_mode("Debug") then
@@ -21,14 +22,18 @@ function load_platform()
         set_strip "all"
     end
 
-    local rpath = "./platform/platforms/"
-    for _, file in ipairs(os.files(rpath .. "*.lua"), path.basename) do
-        includes( file )
-    end
+    for _, filepath in ipairs( os.dirs("platform/*"), path.translate ) do
+        local split = path.split( filepath )
+        local arch_name = split[ #split ]
 
-    for i=1,#PLATFORMS do 
-        if is_arch(table.unpack(PLATFORMS[i].arch)) and PLATFORMS[ i ].load ~= nil then
-            PLATFORMS[i].load()
+        if is_arch( arch_name ) then
+            includes( path.join( filepath, "load.lua" ) )
+
+            if PLATFORMS[ arch_name ].load then
+                add_moduledirs( filepath )
+                PLATFORMS[ arch_name ].load()
+            end
+            break
         end
     end
 
@@ -48,23 +53,39 @@ function load_platform()
     end)
 end
 
+add_moduledirs( "./" )
 
 function target_platform(_root)
-    for i=1,#PLATFORMS do 
-        if is_arch(table.unpack(PLATFORMS[i].arch)) then 
-            if PLATFORMS[ i ].load ~= nil then
-                on_load(PLATFORMS[i].target)
+    on_load(function( _target )
+        local config = import( "core.project.config" )
+        local option = import( "core.base.option" )
+
+        local p = import("get_platform_module")()
+        if p.on_load then
+            if option.get( "verbose" ) then
+                print( "on_load", config.arch() )
             end
-            if PLATFORMS[ i ].run ~= nil then
-                on_run( PLATFORMS[ i ].run )
-            end
+            p.on_load( _target )
         end
-    end
+    end)
+
+    on_run(function( _target )
+        local config = import( "core.project.config" )
+        local option = import( "core.base.option" )
+
+        local p = import("get_platform_module")()
+        if p.on_run then
+            if option.get( "verbose" ) then
+                print( "on_run", config.arch() )
+            end
+            p.on_run( _target )
+        end
+    end)
 end
 
 
 -- 3ds
-function init_platform( target )
+function init_platform_3ds( target )
     if target:is_arch( "3DS-ARM" ) then
         target:add( "files", "source/**.pica", {rule = "3ds.picasso"} )
         target:add( "rules", "3ds.package" )

@@ -53,12 +53,12 @@ namespace wv
 
 	#ifdef WV_SUPPORT_SDL2
 		SDL_Window* m_windowContext = nullptr;
-	#endif
-		uint64_t m_performanceCounter = 0;
-
 	#ifdef WV_SUPPORT_OPENGL 
 		SDL_GLContext m_glContext = nullptr;
 	#endif
+	#endif
+		uint64_t m_performanceCounter = 0;
+
 
 	};
 }

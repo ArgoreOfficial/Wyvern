@@ -51,24 +51,15 @@ rule("3ds.package")
     end)
 rule_end()
 
-function load_platform_3ds()
+function load()
     --add_requires( "glm" )
     --"glfw", "libsdl", "assimp"
     print("load 3ds")
     set_toolchains( "arm-none-eabi" )
 end
 
-function target_platform_3ds( target )
-    local root = "../"
-
-    print("target 3ds")
-    
-    -- add supports
-    target:add( "deps", "GLAD" )
-    --import(root.."platform.support.glm"   )(target)
-    --import(root.."platform.support.glfw"  )(target)
-    --import(root.."platform.support.assimp")(target)
-    --import(root.."platform.support.libsdl")(target) 
-
-    
-end
+PLATFORMS[ "arm_3ds" ] = { 
+    plat="3ds",
+    arch={ "arm_3ds", "arm_3ds"  },
+    load=load
+}
