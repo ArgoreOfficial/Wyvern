@@ -29,7 +29,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef LOAD_WPR
+#ifdef WV_SUPPORT_ASSIMP
 std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _type, const std::string& _rootDir )
 {
 	aiString path;
@@ -225,6 +225,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 
 wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pResourceRegistry )
 {
+#ifdef WV_SUPPORT_ASSIMP
 	cFileSystem md;
 	std::string path = std::string( _path );
 	Memory* meshMem = md.loadMemory( path );
@@ -250,4 +251,7 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
 	
 	return mesh;
+#else
+	return nullptr;
+#endif
 }

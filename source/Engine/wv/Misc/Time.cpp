@@ -17,6 +17,8 @@ void wv::Time::sleepForSeconds( double _seconds )
 	xtime t;
 	t.sec = _seconds;
 	_Thrd_sleep( &t );
+#elif WV_PLATFORM_3DS
+
 #else
 #error sleep_for not implemented on this platform
 #endif

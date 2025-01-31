@@ -62,9 +62,9 @@ void wv::Sprite::createQuad()
 	wv::sMeshDesc prDesc;
 	
 	prDesc.vertices     = (uint8_t*)vertices.data();
-	prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
+	prDesc.sizeVertices = static_cast<uint32_t>( vertices.size() * sizeof( Vertex ) );
 
-	prDesc.pIndices32  = indices.data();
+	prDesc.pIndices32 = reinterpret_cast<uint32_t*>( indices.data() );
 	prDesc.numIndices = indices.size();
 
 	Internal::S_SPRITE_QUAD = app->graphics->createMesh( {}, &prDesc );

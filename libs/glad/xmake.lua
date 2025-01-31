@@ -8,6 +8,8 @@
 
 ]]--
 
+if is_arch( "x64" ) then
+
 target "GLAD" 
     set_group( "Dependencies" )
     
@@ -16,3 +18,5 @@ target "GLAD"
     add_includedirs( "include/", {public = true} )
     set_objectdir "../../build/obj"
 target_end()
+
+end

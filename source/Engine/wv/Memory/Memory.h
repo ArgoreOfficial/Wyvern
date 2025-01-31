@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <fstream>
 #include <stdio.h>
+#include <cstring>
 
 #include <wv/Debug/Print.h>
 

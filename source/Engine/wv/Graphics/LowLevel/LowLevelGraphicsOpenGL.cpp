@@ -460,7 +460,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 
 	return _programID;
 #else
-	return ShaderProgramID::InvalidID;
+	return ProgramID::InvalidID;
 #endif
 }
 
@@ -656,26 +656,31 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 
 void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
 	glBindBuffer( target, buffer.handle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 	GLenum target = getGlBufferEnum( buffer.type );
 
 	glBindBufferBase( target, _bindingIndex, buffer.handle );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 
 	GLenum usage  = getGlBufferUsage( buffer.usage );
@@ -684,22 +689,27 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 	glBindBuffer( target, buffer.handle );
 	glBufferData( target, _size, _pData, usage );
 	glBindBuffer( target, 0 );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer buffer = m_gpuBuffers.at( _bufferID );
 	glNamedBufferSubData( buffer.handle, _base, _size, _pData );
+#endif
 }
 
 void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sGPUBuffer rb = m_gpuBuffers.at( _readBufferID );
 	sGPUBuffer wb = m_gpuBuffers.at( _writeBufferID );
 
 	glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -964,12 +974,13 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 
 void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
 {
+#ifdef WV_SUPPORT_OPENGL
 	sDrawList& drawList = m_drawLists.at( _drawListID );
-
 	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle );
 	glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW );
 	glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, drawList.cmds.size(), 0 );
 	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

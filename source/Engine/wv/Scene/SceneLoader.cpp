@@ -1,4 +1,4 @@
-
+#ifdef WAWO
 #include <string>
 #include <unordered_map>
 
@@ -77,3 +77,4 @@ void dothing()
 	printf( "\n%f\n", codeword );
 	printf( "%s.\n", decoding( arr, codeword, encodeString.size() ).c_str() );
 }
+#endif

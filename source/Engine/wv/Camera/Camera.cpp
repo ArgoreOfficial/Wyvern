@@ -28,7 +28,7 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 
 bool wv::iCamera::beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode )
 {
-	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.contains( "UbCameraData" ) )
+	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.count( "UbCameraData" ) )
 		return false;
 
 	_pLowLevelGraphics->setFillMode( _fillMode );

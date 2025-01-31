@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/Debug/Print.h>
+#include <cstring>
 
 namespace wv
 {
