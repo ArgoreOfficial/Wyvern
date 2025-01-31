@@ -1,5 +1,11 @@
-# The Wyvern Game Engine
-<sup>Copyright © 2023-2024 Argore</sup>
+
+<p align="center">
+  <img width="256" height="256" src="resources/icon.png">
+</p>
+<p align="center"><sup>Logo by Kurenai_Chi </sup></p>
+<h1 align="center">Wyvern</h1>
+
+<sup>Copyright © 2023-2025 Argore</sup>
 
 | Platform         | Support  | Comment |
 | :--------------: | :------: | :-----: |
