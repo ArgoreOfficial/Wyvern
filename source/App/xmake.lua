@@ -27,6 +27,6 @@ target( PROJECT_NAME )
         "../Engine", 
         "./",
         "../../libs/arx/include" )
-
+    
     target_platform()
 target_end()

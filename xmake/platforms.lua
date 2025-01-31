@@ -77,4 +77,30 @@ function target_platform(_root)
             p.on_run( _target )
         end
     end)
+
+    after_build(function( _target )
+        local config = import( "core.project.config" )
+        local option = import( "core.base.option" )
+
+        local p = import("get_platform_module")()
+        if p.after_build then
+            if option.get( "verbose" ) then
+                print( "after_build", config.arch() )
+            end
+            p.after_build( _target )
+        end
+    end)
+
+    after_link(function( _target )
+        local config = import( "core.project.config" )
+        local option = import( "core.base.option" )
+
+        local p = import("get_platform_module")()
+        if p.after_link then
+            if option.get( "verbose" ) then
+                print( "after_link", config.arch() )
+            end
+            p.after_link( _target )
+        end
+    end)
 end

@@ -20,8 +20,10 @@ target "Wyvern"
         set_basename("Wyvern_$(mode)_$(arch)")
     end
     
+    set_prefixname("lib")
+
     -- set_targetdir "../../build"
-    
+    set_targetdir "../../game"
     set_objectdir "../../build/obj" 
 
     add_headerfiles( 
