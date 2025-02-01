@@ -34,17 +34,6 @@ void wv::JobSystem::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Job* wv::JobSystem::createJob( Job::JobFunction_t _pFunction, void* _pData )
-{
-	Job* job = new Job();
-	job->pFunction = _pFunction;
-	job->pData = _pData;
-	job->ppCounter = nullptr;
-	return job;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::JobSystem::run( Job** _ppJobs, size_t _numJobs, JobCounter** _ppCounter )
 {
 	if ( _ppCounter && (*_ppCounter) == nullptr )
@@ -88,7 +77,6 @@ void wv::JobSystem::waitForAndFreeCounter( JobCounter** _ppCounter, int _value )
 {
 	waitForCounter( _ppCounter, _value );
 	freeCounter( _ppCounter );
-	printf( "done!\n" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -151,15 +139,10 @@ wv::JobCounter* wv::JobSystem::_allocateCounter()
 
 void wv::JobSystem::_executeJob( Job* _pJob )
 {
-	_pJob->pFunction( _pJob, nullptr );
+	_pJob->pFunction( _pJob, _pJob->pData );
 
 	if ( _pJob->ppCounter && *_pJob->ppCounter )
-	{
 		( *_pJob->ppCounter )->value--;
-		
-		int val = ( *_pJob->ppCounter )->value;
-		printf( "Done Executing %i\n", val );
-	}
-
+	
 	delete _pJob;
 }

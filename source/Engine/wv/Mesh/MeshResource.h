@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <mutex>
 
 #include <stdint.h>
 
@@ -61,6 +62,7 @@ namespace wv
 	private:
 		void drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node );
 
+		std::mutex m_mutex{};
 		sMeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;
 	};

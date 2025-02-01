@@ -9,8 +9,6 @@
 
 #include <wv/Memory/FileSystem.h>
 
-#include <wv/Scene/SceneRoot.h>
-
 #include "SceneObjects/DemoWindow.h"
 
 #ifdef WV_PLATFORM_PSVITA
@@ -105,7 +103,7 @@ bool cSandbox::create( void )
 	engineDesc.pApplicationState = appState;
 
 	// load scenes
-	wv::cSceneRoot* scene = appState->loadScene( fileSystem, "res/scenes/playground.json" );
+	wv::Scene* scene = appState->loadScene( fileSystem, "res/scenes/playground.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine

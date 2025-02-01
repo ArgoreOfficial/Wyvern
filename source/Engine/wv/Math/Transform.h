@@ -40,7 +40,7 @@ namespace wv
 		Vector3<T> rotation{ 0, 0, 0 };
 		Vector3<T> scale   { 1, 1, 1 };
 
-		Transform<T>* pParent;
+		Transform<T>* pParent = nullptr;
 
 		Matrix<T, 4, 4> m_matrix{ 1 };
 

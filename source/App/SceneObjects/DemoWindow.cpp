@@ -5,7 +5,7 @@
 #include <wv/Graphics/Graphics.h>
 
 #include <wv/Engine/ApplicationState.h>
-#include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Scene.h>
 #include <wv/Scene/Rigidbody.h>
 #include <wv/Scene/Model.h>
 #include <wv/Memory/FileSystem.h>
@@ -33,7 +33,7 @@ cDemoWindow::~cDemoWindow()
 
 void cDemoWindow::spawnBalls( int _count )
 {
-	wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
 
 	for ( int i = 0; i < m_numToSpawn; i++ )
 	{
@@ -53,7 +53,7 @@ void cDemoWindow::spawnBalls( int _count )
 
 void cDemoWindow::spawnCubes( int _count )
 {
-	wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
 
 	for ( int i = 0; i < m_numToSpawn; i++ )
 	{
@@ -75,7 +75,7 @@ void cDemoWindow::spawnCubes( int _count )
 
 void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 {
-	wv::cSceneRoot* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* scene = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
 
 	for( int x = -_halfX; x < _halfX; x++ )
 	{
@@ -89,20 +89,20 @@ void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 				
 				wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "res/meshes/cube.dae", boxDesc );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
-				sceneRoot->addChild( rb );
+				scene->addChild( rb );
 
 				m_numSpawned++;
 			}
 		}
 	}
 
-	sceneRoot->onCreate();
-	sceneRoot->onLoad();
+	scene->onCreate();
+	scene->onLoad();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cDemoWindow::updateImpl( double _deltaTime )
+void cDemoWindow::onUpdate( double _deltaTime )
 {
 
 }

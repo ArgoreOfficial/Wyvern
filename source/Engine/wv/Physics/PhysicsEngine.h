@@ -9,6 +9,7 @@
 #include <wv/Physics/PhysicsTypes.h>
 
 #include <unordered_map>
+#include <mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +92,7 @@ namespace wv
 		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::PhysicsBodyID, JPH::Body*> m_bodies;
+		std::mutex m_mutex;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
 	};

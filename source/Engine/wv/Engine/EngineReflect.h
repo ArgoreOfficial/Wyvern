@@ -1,6 +1,5 @@
 #pragma once
 
-#include <wv/Scene/SceneRoot.h>
 #include <wv/Scene/Model.h>
 #include <wv/Scene/Rigidbody.h>
 #include <wv/Scene/Skybox.h>

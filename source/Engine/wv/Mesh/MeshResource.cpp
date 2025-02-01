@@ -85,6 +85,8 @@ void wv::cMeshResource::destroyInstance( sMeshInstance& _instance )
 
 void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 {
+	std::scoped_lock lock{ m_mutex };
+
 	m_drawQueue.push_back( _instance.transform );
 }
 

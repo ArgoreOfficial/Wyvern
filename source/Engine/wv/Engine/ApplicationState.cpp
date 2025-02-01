@@ -1,7 +1,7 @@
 #include "ApplicationState.h"
 
 #include <wv/Debug/Print.h>
-#include <wv/Scene/SceneRoot.h>
+#include <wv/Scene/Scene.h>
 
 #include <wv/Reflection/Reflection.h>
 #include <wv/Memory/FileSystem.h>
@@ -41,8 +41,7 @@ void wv::cApplicationState::update( double _deltaTime )
 		m_pNextScene = nullptr;
 	}
 
-	m_pCurrentScene->update( _deltaTime );
-	m_pCurrentScene->m_transform.update( nullptr );
+	m_pCurrentScene->onUpdate( _deltaTime );
 }
 
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
@@ -50,7 +49,7 @@ void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* 
 	if( !m_pCurrentScene )
 		return;
 	
-	m_pCurrentScene->draw( _pContext, _pDevice );
+	m_pCurrentScene->onDraw( _pContext, _pDevice );
 }
 
 void wv::cApplicationState::reloadScene()
@@ -102,14 +101,14 @@ wv::iSceneObject* parseSceneObject( const wv::Json& _json )
 	for( auto& childJson : _json[ "children" ].array_items() )
 	{
 		wv::iSceneObject* childObj = parseSceneObject( childJson );
-		if( childObj != nullptr )
-			obj->addChild( childObj );
+		if ( childObj != nullptr )
+			obj->m_transform.addChild( &childObj->m_transform );
 	}
 
 	return obj;
 }
 
-wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
+wv::Scene* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Loading scene '%s'\n", _path.c_str() );
 
@@ -124,7 +123,7 @@ wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, con
 	std::string err;
 	wv::Json root = wv::Json::parse( src, err );
 
-	wv::cSceneRoot* scene = new wv::cSceneRoot( root[ "name" ].string_value(), _path);
+	wv::Scene* scene = new wv::Scene( root[ "name" ].string_value(), _path );
 	
 	for( auto& objJson : root[ "scene" ].array_items() )
 		scene->addChild( parseSceneObject( objJson ) );
@@ -132,7 +131,7 @@ wv::cSceneRoot* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, con
 	return scene;
 }
 
-int wv::cApplicationState::addScene( cSceneRoot* _pScene )
+int wv::cApplicationState::addScene( Scene* _pScene )
 {
 	if( !_pScene )
 	{

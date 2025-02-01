@@ -12,7 +12,7 @@ namespace wv
 
 	class iDeviceContext;
 	class iLowLevelGraphics;
-	class cSceneRoot;
+	class Scene;
 	class cFileSystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -28,12 +28,12 @@ namespace wv
 
 		void reloadScene();
 
-		wv::cSceneRoot* loadScene( cFileSystem* _pFileSystem, const std::string& _path );
+		wv::Scene* loadScene( cFileSystem* _pFileSystem, const std::string& _path );
 
 		/// <returns>scene index</returns>
-		int addScene( cSceneRoot* _pScene );
+		int addScene( Scene* _pScene );
 
-		wv::cSceneRoot* getCurrentScene() { return m_pCurrentScene; }
+		wv::Scene* getCurrentScene() { return m_pCurrentScene; }
 
 		void switchToScene( const std::string& _name );
 		void switchToScene( int _index );
@@ -42,10 +42,10 @@ namespace wv
 
 	private:
 
-		std::vector<cSceneRoot*> m_scenes;
+		std::vector<Scene*> m_scenes;
 
-		cSceneRoot* m_pNextScene = nullptr;
-		cSceneRoot* m_pCurrentScene = nullptr;
+		Scene* m_pNextScene = nullptr;
+		Scene* m_pCurrentScene = nullptr;
 
 	};
 

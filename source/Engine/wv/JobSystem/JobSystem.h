@@ -22,9 +22,10 @@ struct Job
 {
 	typedef void( *JobFunction_t )( Job*, void* );
 
-	JobFunction_t pFunction;
-	void* pData = nullptr;
-	JobCounter** ppCounter = nullptr;
+	std::string   name      = "";
+	JobFunction_t pFunction = nullptr;
+	void*         pData     = nullptr;
+	JobCounter**  ppCounter = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,25 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
-	Job* createJob( Job::JobFunction_t _pFunction, void* _pData = nullptr );
+	Job* createJob( Job::JobFunction_t _pFunction, void* _pData = nullptr )
+	{
+		Job* job = new Job();
+		job->name = "";
+		job->pFunction = _pFunction;
+		job->pData = _pData;
+		job->ppCounter = nullptr;
+		return job;
+	}
+
+	Job* createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData = nullptr )
+	{
+		Job* job = new Job();
+		job->name = _name;
+		job->pFunction = _pFunction;
+		job->pData = _pData;
+		job->ppCounter = nullptr;
+		return job;
+	}
 
 	void run( Job** _ppJobs, size_t _numJobs = 1, JobCounter** _ppCounter = nullptr );
 	void waitForCounter( JobCounter** _ppCounter, int _value );

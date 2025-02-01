@@ -73,7 +73,7 @@ void wv::cModelObject::onUnloadImpl()
 	m_mesh.destroy();
 }
 
-void wv::cModelObject::updateImpl( double _deltaTime )
+void wv::cModelObject::onUpdate( double _deltaTime )
 {
 	
 }

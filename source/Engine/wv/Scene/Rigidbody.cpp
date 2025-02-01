@@ -125,7 +125,7 @@ void wv::cRigidbody::onUnloadImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cRigidbody::updateImpl( double _deltaTime )
+void wv::cRigidbody::onUpdate( double _deltaTime )
 {
 #ifdef WV_SUPPORT_PHYSICS
 

@@ -98,7 +98,7 @@ void wv::cJoltPhysicsEngine::init()
 	JPH::RegisterTypes();
 
 	m_pTempAllocator = new JPH::TempAllocatorImpl( 10 * 1024 * 1024 );
-	m_pJobSystem     = new JPH::JobSystemThreadPool( JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
+	m_pPhysicsJobSystem     = new JPH::JobSystemThreadPool( JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
 
 	m_pBroadPhaseLayer               = new cBroadPhaseLayer();
 	m_pObjectVsBroadPhaseLayerFilter = new cObjectVsBroadPhaseLayerFilter();
@@ -198,7 +198,7 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	}
 
 	if( collisionSteps > 0 )
-		m_pPhysicsSystem->Update( wv::Math::max( (float)_deltaTime, m_timestep ), collisionSteps, m_pTempAllocator, m_pJobSystem );
+		m_pPhysicsSystem->Update( wv::Math::max( (float)_deltaTime, m_timestep ), collisionSteps, m_pTempAllocator, m_pPhysicsJobSystem );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -206,6 +206,8 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 
 wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
 {
+	std::scoped_lock lock{ m_mutex };
+
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Shape* shape = nullptr;
 	JPH::RVec3 pos = WVtoJPH( _desc->transform.position );

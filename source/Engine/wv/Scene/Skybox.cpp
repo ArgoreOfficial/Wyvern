@@ -77,7 +77,7 @@ void wv::cSkyboxObject::onDestroyImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::updateImpl( double _deltaTime )
+void wv::cSkyboxObject::onUpdate( double _deltaTime )
 {
 	
 }

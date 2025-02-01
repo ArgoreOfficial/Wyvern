@@ -38,7 +38,7 @@ namespace wv
 		void onCreateImpl() override { };
 		void onDestroyImpl() override { };
 
-		virtual void updateImpl( double _deltaTime ) override;
+		virtual void onUpdate( double _deltaTime ) override;
 		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;
 
 		sMeshInstance m_mesh;
