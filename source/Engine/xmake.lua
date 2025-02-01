@@ -20,7 +20,9 @@ target "Wyvern"
         set_basename("Wyvern_$(mode)_$(arch)")
     end
     
-    set_prefixname("lib")
+    if not is_arch( "x64" ) then
+        set_prefixname("lib")
+    end
 
     -- set_targetdir "../../build"
     set_targetdir "../../game"

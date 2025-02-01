@@ -1,6 +1,12 @@
 function on_load( target )
     -- add supports
     target:add( "deps", "GLAD" )
+
+    if is_mode( "Package" ) then
+        target:set( "runtimes", "MT" )
+    else
+        target:set( "runtimes", "MTd" )
+    end
     
     if target:is_arch( "x64" ) then
         import( "support.glfw"  )(target)
@@ -14,7 +20,6 @@ function on_load( target )
         
         target:add( "linkdirs", "C:/msys64/mingw32/bin/" )
         target:add( "linkdirs", "C:/msys64/mingw32/lib/" )
-
     end
 
     import( "support.assimp" )( target )
