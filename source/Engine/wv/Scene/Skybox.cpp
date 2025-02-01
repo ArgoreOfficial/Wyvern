@@ -37,9 +37,9 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 	std::string name = json[ "name" ].string_value();
 
 	wv::Json tfm = json[ "transform" ];
-	cVector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
-	cVector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
-	cVector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
+	Vector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
+	Vector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
+	Vector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
 
 	Transformf transform;
 	transform.setPosition( pos );

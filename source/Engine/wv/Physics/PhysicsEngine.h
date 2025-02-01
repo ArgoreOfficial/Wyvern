@@ -4,15 +4,7 @@
 
 #include <wv/Types.h>
 
-#ifdef WV_SUPPORT_JOLT_PHYSICS
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/BodyID.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#endif // WV_SUPPORT_JOLT_PHYSICS
-
 #include <wv/Math/Transform.h>
-#include <wv/Physics/BroadPhaseLayer.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
 
 #include <wv/Physics/PhysicsTypes.h>
 
@@ -35,7 +27,13 @@ namespace wv
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
 	class cJoltContactListener;
 	class cJoltBodyActivationListener;
+	
+	class cBroadPhaseLayer;
+	class cObjectVsBroadPhaseLayerFilter;
+	class cObjectLayerPairFilter;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
+
+	struct iPhysicsBodyDesc;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,14 +54,14 @@ namespace wv
 		PhysicsBodyID createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
 		
 		Transformf getBodyTransform      ( PhysicsBodyID& _handle );
-		cVector3f  getBodyVelocity       ( PhysicsBodyID& _handle );
-		cVector3f  getBodyAngularVelocity( PhysicsBodyID& _handle );
+		Vector3f  getBodyVelocity       ( PhysicsBodyID& _handle );
+		Vector3f  getBodyAngularVelocity( PhysicsBodyID& _handle );
 
 		bool isBodyActive( PhysicsBodyID& _handle );
 
 		void setBodyTransform      ( PhysicsBodyID& _handle, const Transformf& _transform );
-		void setBodyVelocity       ( PhysicsBodyID& _handle, const cVector3f& _velocity );
-		void setBodyAngularVelocity( PhysicsBodyID& _handle, const cVector3f& _angularVelocity );
+		void setBodyVelocity       ( PhysicsBodyID& _handle, const Vector3f& _velocity );
+		void setBodyAngularVelocity( PhysicsBodyID& _handle, const Vector3f& _angularVelocity );
 
 		void setBodyActive( PhysicsBodyID& _handle, bool _active );
 

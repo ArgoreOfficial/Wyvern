@@ -24,9 +24,9 @@ namespace wv
 
 	struct Vertex
 	{
-		wv::cVector3f position;
-		wv::cVector3f normal;
-		wv::cVector3f tangent;
+		wv::Vector3f position;
+		wv::Vector3f normal;
+		wv::Vector3f tangent;
 		wv::cVector4f color;
 		wv::Vector2f  texCoord0;
 	};
@@ -66,6 +66,9 @@ namespace wv
 		std::string name;
 		Transformf transform{};
 
+		GPUBufferID vertexBufferID{};
+		GPUBufferID indexBufferID{};
+
 		int32_t baseVertex  = 0;
 		int32_t numVertices = 0;
 
@@ -93,7 +96,7 @@ namespace wv
 
 	struct sMeshInstanceData
 	{
-		cMatrix4x4f model;                              // 64 bytes
+		Matrix4x4f model;                              // 64 bytes
 		uint64_t texturesHandles[ 4 ] = { 0, 0, 0, 0 }; // 32 bytes
 		int32_t hasAlpha = 0;
 

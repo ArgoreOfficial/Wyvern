@@ -13,7 +13,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template< typename T >
-	class cVector3
+	class Vector3
 	{
 
 	public:
@@ -22,16 +22,16 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		cVector3( void )                                  : x(  0 ), y(  0 ), z(  0 ) { }
-		cVector3( const T& _t )                           : x( _t ), y( _t ), z( _t ) { }
-		cVector3( const T& _x, const T& _y, const T& _z ) : x( _x ), y( _y ), z( _z ) { }
+		Vector3( void )                                  : x(  0 ), y(  0 ), z(  0 ) { }
+		Vector3( const T& _t )                           : x( _t ), y( _t ), z( _t ) { }
+		Vector3( const T& _x, const T& _y, const T& _z ) : x( _x ), y( _y ), z( _z ) { }
 
 		T length( void )                      const { return std::sqrt( x * x + y * y + z * z ); }
-		T dot   ( const cVector3<T>& _other ) const { return x * _other.x + y * _other.y + z * _other.z; }
+		T dot   ( const Vector3<T>& _other ) const { return x * _other.x + y * _other.y + z * _other.z; }
 
-		cVector3<T> cross( const cVector3<T>& _other ) const
+		Vector3<T> cross( const Vector3<T>& _other ) const
 		{
-			return cVector3<T>(
+			return Vector3<T>(
 				y * _other.z - z * _other.y,
 				z * _other.x - x * _other.z,
 				x * _other.y - y * _other.x
@@ -49,14 +49,14 @@ namespace wv
 				*this *= _magnitude;
 		}
 
-		cVector3<T> normalized()
+		Vector3<T> normalized()
 		{
-			cVector3 vec = *this;
+			Vector3 vec = *this;
 			vec.normalize();
 			return vec;
 		}
 
-		static inline cVector3<T> eulerToDirection( cVector3<T> _vec )
+		static inline Vector3<T> eulerToDirection( Vector3<T> _vec )
 		{
 			T pitch = wv::Math::radians( _vec.x );
 			T yaw   = wv::Math::radians( _vec.y );
@@ -68,46 +68,46 @@ namespace wv
 			);
 		}
 
-		static inline cVector3<T> directionToEuler( cVector3<T> _vec )
+		static inline Vector3<T> directionToEuler( Vector3<T> _vec )
 		{
-			return cVector3<T>(
+			return Vector3<T>(
 				wv::Math::degrees( std::asin( -_vec.y ) ),         // pitch
 				wv::Math::degrees( std::atan2( _vec.x, _vec.z ) ), // yaw
 				0
 			);
 		}
 
-		inline cVector3<T> eulerToDirection() { return cVector3<T>::eulerToDirection( *this ); }
-		inline cVector3<T> directionToEuler() { return cVector3<T>::directionToEuler( *this ); }
+		inline Vector3<T> eulerToDirection() { return Vector3<T>::eulerToDirection( *this ); }
+		inline Vector3<T> directionToEuler() { return Vector3<T>::directionToEuler( *this ); }
 
-		cVector3<T>& operator = ( const cVector3<T>& _other );
-		cVector3<T>& operator +=( const cVector3<T>& _other );
-		cVector3<T>& operator -=( const cVector3<T>& _other );
-		cVector3<T>  operator + ( const cVector3<T>& _other ) const;
-		cVector3<T>  operator - ( const cVector3<T>& _other ) const;
-		bool         operator ==( const cVector3<T>& _other ) const;
-		bool         operator !=( const cVector3<T>& _other ) const { return !( *this == _other ); }
+		Vector3<T>& operator = ( const Vector3<T>& _other );
+		Vector3<T>& operator +=( const Vector3<T>& _other );
+		Vector3<T>& operator -=( const Vector3<T>& _other );
+		Vector3<T>  operator + ( const Vector3<T>& _other ) const;
+		Vector3<T>  operator - ( const Vector3<T>& _other ) const;
+		bool        operator ==( const Vector3<T>& _other ) const;
+		bool        operator !=( const Vector3<T>& _other ) const { return !( *this == _other ); }
 
-		cVector3<T>  operator - ( void ) const;
-		cVector3<T>  operator * ( const T& _scalar ) const;
-		cVector3<T>& operator *=( const T& _scalar );
-		cVector3<T>  operator / ( const T& _scalar ) const;
-		cVector3<T>& operator /=( const T& _scalar );
+		Vector3<T>  operator - ( void ) const;
+		Vector3<T>  operator * ( const T& _scalar ) const;
+		Vector3<T>& operator *=( const T& _scalar );
+		Vector3<T>  operator / ( const T& _scalar ) const;
+		Vector3<T>& operator /=( const T& _scalar );
 
 	#ifdef WV_CPP20
-		auto operator<=>( const cVector3<T>& ) const = default;
+		auto operator<=>( const Vector3<T>& ) const = default;
 	#endif
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	typedef cVector3<float>  cVector3f;
-	typedef cVector3<double> cVector3d;
+	typedef Vector3<float>  Vector3f;
+	typedef Vector3<double> Vector3d;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline cVector3<T>& cVector3<T>::operator=( const cVector3<T>& _other )
+	inline Vector3<T>& Vector3<T>::operator=( const Vector3<T>& _other )
 	{
 		x = _other.x;
 		y = _other.y;
@@ -116,7 +116,7 @@ namespace wv
 	}
 
 	template< typename T >
-	inline cVector3<T>& cVector3<T>::operator+=( const cVector3<T>& _other )
+	inline Vector3<T>& Vector3<T>::operator+=( const Vector3<T>& _other )
 	{
 		x += _other.x;
 		y += _other.y;
@@ -125,7 +125,7 @@ namespace wv
 	}
 
 	template<typename T>
-	inline cVector3<T>& cVector3<T>::operator-=( const cVector3<T>& _other )
+	inline Vector3<T>& Vector3<T>::operator-=( const Vector3<T>& _other )
 	{
 		x -= _other.x;
 		y -= _other.y;
@@ -133,20 +133,20 @@ namespace wv
 		return *this;
 	}
 
-	template< typename T >
-	inline cVector3<T> cVector3<T>::operator+( const cVector3<T>& _other ) const
+	template<typename T>
+	inline Vector3<T> Vector3<T>::operator+( const Vector3<T>& _other ) const
 	{
-		return cVector3<T>( x + _other.x, y + _other.y, z + _other.z );
+		return Vector3<T>( x + _other.x, y + _other.y, z + _other.z );
 	}
 
 	template<typename T>
-	inline cVector3<T> cVector3<T>::operator-( const cVector3<T>& _other ) const
+	inline Vector3<T> Vector3<T>::operator-( const Vector3<T>& _other ) const
 	{
-		return cVector3<T>( x - _other.x, y - _other.y, z - _other.z );
+		return Vector3<T>( x - _other.x, y - _other.y, z - _other.z );
 	}
 
 	template<typename T>
-	inline bool cVector3<T>::operator==( const cVector3<T>& _other ) const
+	inline bool Vector3<T>::operator==( const Vector3<T>& _other ) const
 	{
 		return x == _other.x
 			&& y == _other.y
@@ -154,19 +154,19 @@ namespace wv
 	}
 
 	template<typename T>
-	inline cVector3<T> cVector3<T>::operator-( void ) const
+	inline Vector3<T> Vector3<T>::operator-( void ) const
 	{
-		return cVector3<T>( -x, -y, -z );
+		return Vector3<T>( -x, -y, -z );
 	}
 
 	template< typename T >
-	inline cVector3<T> wv::cVector3<T>::operator*( const T& _scalar ) const
+	inline Vector3<T> wv::Vector3<T>::operator*( const T& _scalar ) const
 	{
-		return cVector3<T>( x * _scalar, y * _scalar, z * _scalar );
+		return Vector3<T>( x * _scalar, y * _scalar, z * _scalar );
 	}
 
 	template< typename T >
-	inline cVector3<T>& wv::cVector3<T>::operator*=( const T& _scalar )
+	inline Vector3<T>& wv::Vector3<T>::operator*=( const T& _scalar )
 	{
 		x *= _scalar;
 		y *= _scalar;
@@ -175,13 +175,13 @@ namespace wv
 	}
 
 	template< typename T >
-	inline cVector3<T> wv::cVector3<T>::operator/( const T& _scalar ) const
+	inline Vector3<T> wv::Vector3<T>::operator/( const T& _scalar ) const
 	{
-		return cVector3<T>( x / _scalar, y / _scalar, z / _scalar );
+		return Vector3<T>( x / _scalar, y / _scalar, z / _scalar );
 	}
 
 	template< typename T >
-	inline cVector3<T>& wv::cVector3<T>::operator/=( const T& _scalar )
+	inline Vector3<T>& wv::Vector3<T>::operator/=( const T& _scalar )
 	{
 		x /= _scalar;
 		y /= _scalar;

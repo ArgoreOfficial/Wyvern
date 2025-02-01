@@ -123,7 +123,7 @@ void wv::AudioDevice::unloadAudio( Audio* _audio )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AudioDevice::setListenerPosition( cVector3f _position )
+void wv::AudioDevice::setListenerPosition( Vector3f _position )
 {
 #ifdef WV_SUPPORT_MINIAUDIO
 	ma_engine_listener_set_position( m_engine, 0, _position.x, _position.y, _position.z );
@@ -132,7 +132,7 @@ void wv::AudioDevice::setListenerPosition( cVector3f _position )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AudioDevice::setListenerDirection( cVector3f _direction )
+void wv::AudioDevice::setListenerDirection( Vector3f _direction )
 {
 #ifdef WV_SUPPORT_MINIAUDIO
 	ma_engine_listener_set_direction( m_engine, 0, _direction.x, _direction.y, _direction.z );

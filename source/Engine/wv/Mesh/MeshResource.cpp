@@ -136,7 +136,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 		else
 			m_useGPUInstancing = false;
 			
-		wv::cMatrix4x4f basematrix = mesh.transform.getMatrix();
+		wv::Matrix4x4f basematrix = mesh.transform.getMatrix();
 		std::vector<sMeshInstanceData> instances;
 
 		for ( auto& transform : m_drawQueue )
@@ -146,7 +146,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			if ( !m_useGPUInstancing )
 			{
 				mat->setInstanceUniforms( &mesh );
-				_pLowLevelGraphics->draw( meshID );
+				// _pLowLevelGraphics->draw( meshID );
 			}
 			else
 			{

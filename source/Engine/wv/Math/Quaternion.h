@@ -15,23 +15,23 @@ namespace wv
 
 	public:
 
-		cVector3<T> v;
+		Vector3<T> v;
 		T s;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		cQuaternion( void )                                               : v( {} ),         s( 1.0 ) { }
-		cQuaternion( const cVector3<T>& _v, const T& _s )                 : v( _v ),         s(  _s ) { }
+		cQuaternion( const Vector3<T>& _v, const T& _s )                 : v( _v ),         s(  _s ) { }
 		cQuaternion( const T& _x, const T& _y, const T& _z, const T& _s ) : v( _x, _y, _z ), s(  _s ) { }
 
-		static cVector3<T> rotateVector( const cVector3<T>& _v, const cVector3<T>& _axis, const T& _angle );
+		static Vector3<T> rotateVector( const Vector3<T>& _v, const Vector3<T>& _axis, const T& _angle );
 
-		static cQuaternion<T> fromAxisAngle( const cVector3<T>& _axis, const T& _angle );
+		static cQuaternion<T> fromAxisAngle( const Vector3<T>& _axis, const T& _angle );
 
 		void normalize ( void );
 		void toUnitNorm( void );
 
-		void rotate( const cVector3<T>& _axis, const T& _angle );
+		void rotate( const Vector3<T>& _axis, const T& _angle );
 
 		T norm( void );
 
@@ -60,10 +60,10 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline cVector3<T> cQuaternion<T>::rotateVector( const cVector3<T>& _v, const cVector3<T>& _axis, const T& _angle )
+	inline Vector3<T> cQuaternion<T>::rotateVector( const Vector3<T>& _v, const Vector3<T>& _axis, const T& _angle )
 	{
 		cQuaternion<T> pure{ _v, 0 };
-		cVector3<T> axis = _axis;
+		Vector3<T> axis = _axis;
 
 		axis.normalize();
 
@@ -77,7 +77,7 @@ namespace wv
 	}
 
 	template<typename T>
-	inline cQuaternion<T> cQuaternion<T>::fromAxisAngle( const cVector3<T>& _axis, const T& _angle )
+	inline cQuaternion<T> cQuaternion<T>::fromAxisAngle( const Vector3<T>& _axis, const T& _angle )
 	{
 		T factor = std::sin( _angle / 2.0 );
 
@@ -113,7 +113,7 @@ namespace wv
 	}
 	
 	template<typename T>
-	inline void cQuaternion<T>::rotate( const cVector3<T>& _axis, const T& _angle )
+	inline void cQuaternion<T>::rotate( const Vector3<T>& _axis, const T& _angle )
 	{
 		cQuaternion<T> _other = cQuaternion<T>::fromAxisAngle( _axis, _angle );
 		( *this ) *= _other;
@@ -152,7 +152,7 @@ namespace wv
 		cQuaternion<T> conjugateValue = conjugate();
 		T scale = conjugateValue.s * absoluteValue;
 
-		cVector3<T> imaginary = conjugateValue.v * absoluteValue;
+		Vector3<T> imaginary = conjugateValue.v * absoluteValue;
 		return cQuaternion<T>( imaginary, scale );
 	}
 
@@ -170,7 +170,7 @@ namespace wv
 	template<typename T>
 	inline cQuaternion<T> cQuaternion<T>::operator+( const cQuaternion<T>& _other ) const
 	{
-		cVector3<T> imaginary = v + _other.v;
+		Vector3<T> imaginary = v + _other.v;
 		T scale              = s + _other.s;
 
 		return cQuaternion<T>{ imaginary, scale };
@@ -179,7 +179,7 @@ namespace wv
 	template<typename T>
 	inline cQuaternion<T> cQuaternion<T>::operator-( const cQuaternion<T>& _other ) const
 	{
-		cVector3<T> imaginary = v - _other.v;
+		Vector3<T> imaginary = v - _other.v;
 		T scale              = s - _other.s;
 
 		return cQuaternion<T>{ imaginary, scale };
@@ -206,7 +206,7 @@ namespace wv
 	template<typename T>
 	inline cQuaternion<T> cQuaternion<T>::operator*( const cQuaternion<T>& _other ) const
 	{
-		cVector3<T> imaginary = ( _other.v * s ) + ( v * _other.s ) + v.cross( _other.v );
+		Vector3<T> imaginary = ( _other.v * s ) + ( v * _other.s ) + v.cross( _other.v );
 		T scale              = ( s * _other.s ) - v.dot( _other.v );
 
 		return cQuaternion<T>{ imaginary, scale };
@@ -223,7 +223,7 @@ namespace wv
 	template<typename T>
 	inline cQuaternion<T> cQuaternion<T>::operator*( const T& _scalar ) const
 	{
-		cVector3<T> imaginary = v * _scalar;
+		Vector3<T> imaginary = v * _scalar;
 		T scale              = s * _scalar;
 
 		return cQuaternion<T>( imaginary, scale );

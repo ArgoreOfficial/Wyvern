@@ -38,12 +38,12 @@ namespace wv
 
 		bool beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode );
 
-		cMatrix4x4f getProjectionMatrix( void );
+		Matrix4x4f getProjectionMatrix( void );
 
-		cMatrix4x4f getViewMatrix( void );
+		Matrix4x4f getViewMatrix( void );
 
 		Transformf& getTransform( void ) { return m_transform; }
-		cVector3f getViewDirection();
+		Vector3f getViewDirection();
 
 		GPUBufferID getBufferID() { return m_uniformBufferID; }
 
@@ -55,8 +55,8 @@ namespace wv
 
 	protected:
 
-		cMatrix4x4f getPerspectiveMatrix( void );
-		cMatrix4x4f getOrthographicMatrix( void );
+		Matrix4x4f getPerspectiveMatrix( void );
+		Matrix4x4f getOrthographicMatrix( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

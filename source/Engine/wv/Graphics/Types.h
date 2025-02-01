@@ -38,9 +38,9 @@ namespace wv
 	/// TODO: move
 	struct sUbCameraData
 	{
-		cMatrix4x4f projection;
-		cMatrix4x4f view;
-		cMatrix4x4f model;
+		Matrix4x4f projection;
+		Matrix4x4f view;
+		Matrix4x4f model;
 	};
 
 	enum eFillMode

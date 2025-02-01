@@ -33,9 +33,9 @@ namespace wv
 	
 	using Json = json11::Json; // dummy
 
-	static cVector3f jsonToVec3( const Json::array& _arr )
+	static Vector3f jsonToVec3( const Json::array& _arr )
 	{
-		return cVector3f(
+		return Vector3f(
 			static_cast<float>( _arr[ 0 ].number_value() ),
 			static_cast<float>( _arr[ 1 ].number_value() ),
 			static_cast<float>( _arr[ 2 ].number_value() )

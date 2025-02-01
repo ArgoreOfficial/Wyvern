@@ -89,29 +89,29 @@ void wv::FreeflightCamera::update( double _delta_time )
 	float roll  = 0.0f;
 
 	// forward
-	cMatrix4x4f rot_forward( 1.0f );
-	rot_forward = Matrix::rotateY( rot_forward, yaw );
-	rot_forward = Matrix::rotateX( rot_forward, pitch );
+	Matrix4x4f rot_forward( 1.0f );
+	rot_forward = MatrixUtil::rotateY( rot_forward, yaw );
+	rot_forward = MatrixUtil::rotateX( rot_forward, pitch );
 
 	cVector4f forward = cVector4f{ 0.0f, 0.0f, -1.0f, 1.0f } * rot_forward;
 	
 	// right
-	cMatrix4x4f rot_right( 1.0f );
-	rot_right = Matrix::rotateY( rot_right, yaw );
+	Matrix4x4f rot_right( 1.0f );
+	rot_right = MatrixUtil::rotateY( rot_right, yaw );
 	cVector4f right = cVector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
 	
 	// up
 	cVector4f up = cVector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
 
-	cVector3f move = {};
+	Vector3f move = {};
 	if ( m_freecam_enabled )
 	{
-		move += cVector3f{ forward.x, forward.y, forward.z } * -m_move.z;
-		move += cVector3f{ right.x, right.y, right.z } * m_move.x;
-		move += cVector3f{ up.x, up.y, up.z } * m_move.y;
+		move += Vector3f{ forward.x, forward.y, forward.z } * -m_move.z;
+		move += Vector3f{ right.x, right.y, right.z } * m_move.x;
+		move += Vector3f{ up.x, up.y, up.z } * m_move.y;
 	}
 
-	cVector3f acceleration = move * m_speed;
+	Vector3f acceleration = move * m_speed;
 
 	m_transform.position += m_velocity * (float)_delta_time + acceleration * 0.5f * (float)_delta_time * (float)_delta_time;
 	m_velocity += acceleration * (float)_delta_time;

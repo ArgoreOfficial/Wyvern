@@ -18,39 +18,39 @@ namespace wv
 
 	public:
 
-		inline void setPosition( wv::cVector3<T> _position ) { position = _position; }
-		inline void setRotation( wv::cVector3<T> _rotation ) { rotation = _rotation; }
-		inline void setScale   ( wv::cVector3<T> _scale )    { scale = _scale; }
+		inline void setPosition( wv::Vector3<T> _position ) { position = _position; }
+		inline void setRotation( wv::Vector3<T> _rotation ) { rotation = _rotation; }
+		inline void setScale   ( wv::Vector3<T> _scale )    { scale = _scale; }
 		
-		inline void translate( wv::cVector3<T> _translation ) { position += _translation; }
-		inline void rotate   ( wv::cVector3<T> _rotation )    { rotation += _rotation; }
+		inline void translate( wv::Vector3<T> _translation ) { position += _translation; }
+		inline void rotate   ( wv::Vector3<T> _rotation )    { rotation += _rotation; }
 		
-		inline cMatrix<T, 4, 4> getMatrix() { return m_matrix; }
+		inline Matrix<T, 4, 4> getMatrix() { return m_matrix; }
 
 		void addChild( Transform<T>* _child );
 		void removeChild( Transform<T>* _child );
 
 		bool update( Transform<T>* _parent, bool _recalculateMatrix = true );
 
-		inline cVector3<T> forward() { return rotation.eulerToDirection(); }
+		inline Vector3<T> forward() { return rotation.eulerToDirection(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		cVector3<T> position{ 0, 0, 0 };
-		cVector3<T> rotation{ 0, 0, 0 };
-		cVector3<T> scale   { 1, 1, 1 };
+		Vector3<T> position{ 0, 0, 0 };
+		Vector3<T> rotation{ 0, 0, 0 };
+		Vector3<T> scale   { 1, 1, 1 };
 
 		Transform<T>* pParent;
 
-		cMatrix<T, 4, 4> m_matrix{ 1 };
+		Matrix<T, 4, 4> m_matrix{ 1 };
 
 	private:
 
-		cMatrix<T, 4, 4> m_localMatrix{ 1 };
+		Matrix<T, 4, 4> m_localMatrix{ 1 };
 
-		cVector3<T> m_cachedPosition{ 0, 0, 0 };
-		cVector3<T> m_cachedRotation{ 0, 0, 0 };
-		cVector3<T> m_cachedScale{ 1, 1, 1 };
+		Vector3<T> m_cachedPosition{ 0, 0, 0 };
+		Vector3<T> m_cachedRotation{ 0, 0, 0 };
+		Vector3<T> m_cachedScale{ 1, 1, 1 };
 
 		std::vector<Transform<T>*> m_children;
     };
@@ -104,15 +104,15 @@ namespace wv
 
 		if ( recalc )
 		{
-			cMatrix<T, 4, 4> model{ 1 };
+			Matrix<T, 4, 4> model{ 1 };
 
-			model = Matrix::translate( model, position );
+			model = MatrixUtil::translate( model, position );
 
-			model = Matrix::rotateZ( model, Math::radians( rotation.z ) );
-			model = Matrix::rotateY( model, Math::radians( rotation.y ) );
-			model = Matrix::rotateX( model, Math::radians( rotation.x ) );
+			model = MatrixUtil::rotateZ( model, Math::radians( rotation.z ) );
+			model = MatrixUtil::rotateY( model, Math::radians( rotation.y ) );
+			model = MatrixUtil::rotateX( model, Math::radians( rotation.x ) );
 
-			model = Matrix::scale( model, scale );
+			model = MatrixUtil::scale( model, scale );
 
 			m_cachedPosition = position;
 			m_cachedRotation = rotation;

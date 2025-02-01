@@ -56,8 +56,6 @@ public:
 
 	void initEmbeds();
 
-	void drawNode( sMeshNode* _node );
-
 	std::thread::id getThreadID() { return m_threadID; }
 
 	[[nodiscard]] CmdBufferID getCommandBuffer();
@@ -132,8 +130,6 @@ public:
 	virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) = 0;
 
 	virtual void setFillMode( eFillMode _mode ) = 0;
-
-	void draw( MeshID _meshID );
 
 	virtual void draw( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
 	virtual void drawIndexed( uint32_t _numIndices ) = 0;

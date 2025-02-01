@@ -38,9 +38,9 @@ namespace wv
 		cMouseEventListener m_mouseListener;
 		cInputEventListener m_inputListener;
 
-		wv::cVector3f m_move;
+		wv::Vector3f m_move;
 		wv::Vector2f m_rotate;
-		wv::cVector3f m_velocity;
+		wv::Vector3f m_velocity;
 
 		bool m_freecam_enabled = false;
 

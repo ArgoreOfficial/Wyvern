@@ -75,43 +75,6 @@ void wv::iLowLevelGraphics::initEmbeds()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iLowLevelGraphics::drawNode( sMeshNode* _node )
-{
-	WV_TRACE();
-
-	if( !_node )
-		return;
-
-	for( auto& meshID : _node->meshes )
-	{
-		if( !meshID.is_valid() )
-			continue;
-
-		sMesh mesh = m_meshes.at( meshID );
-		cMaterial* mat = mesh.pMaterial;
-
-		if( mat )
-		{
-			if( !mat->isComplete() )
-				mat = m_pEmptyMaterial;
-
-			mat->setAsActive( this );
-			mat->setInstanceUniforms( &mesh );
-			draw( meshID );
-		}
-		else
-		{
-			draw( meshID );
-		}
-	}
-	
-	for( auto& childNode : _node->children )
-		drawNode( childNode );
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 {
 	std::scoped_lock lock( m_mutex );
@@ -455,27 +418,4 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 		delete mesh.pPlatformData;
 
 	m_meshes.erase( _meshID );
-}
-
-void wv::iLowLevelGraphics::draw( MeshID _meshID )
-{
-	/*
- 
-	sMesh& rMesh = m_meshes.get( _meshID );
-
-	wv::GPUBufferID SbVerticesID = rMesh.pMaterial->getShader()->getShaderBuffer( "SbVertices" );
-
-	bindVertexBuffer( rMesh.indexBufferID, SbVerticesID );
-
-	if( rMesh.drawType == WV_MESH_DRAW_TYPE_INDICES )
-	{
-		sGPUBuffer& buffer = m_gpuBuffers.get( rMesh.indexBufferID );
-		drawIndexed( buffer.count );
-	}
-	else
-	{
-		sGPUBuffer& buffer = m_gpuBuffers.get( rMesh.vertexBufferID );
-		draw( 0, buffer.count );
-	}
-	*/
 }
