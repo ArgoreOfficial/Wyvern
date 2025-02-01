@@ -78,10 +78,10 @@ namespace wv
 		unsigned int m_steps       = 0;
 
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
-		JPH::TempAllocatorImpl*   m_pTempAllocator = nullptr;
-		JPH::JobSystemThreadPool* m_pJobSystem     = nullptr;
-		JPH::PhysicsSystem*       m_pPhysicsSystem = nullptr;
-		JPH::BodyInterface*       m_pBodyInterface = nullptr;
+		JPH::TempAllocatorImpl*   m_pTempAllocator    = nullptr;
+		JPH::JobSystemThreadPool* m_pPhysicsJobSystem = nullptr;
+		JPH::PhysicsSystem*       m_pPhysicsSystem    = nullptr;
+		JPH::BodyInterface*       m_pBodyInterface    = nullptr;
 
 		cBroadPhaseLayer*               m_pBroadPhaseLayer               = nullptr;
 		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;

@@ -29,6 +29,7 @@ namespace wv
 
 	class cResourceRegistry;
 	class cJoltPhysicsEngine;
+	class JobSystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -121,6 +122,8 @@ namespace wv
 		cFileSystem*        m_pFileSystem       = nullptr;
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
+		JobSystem*          m_pJobSystem        = nullptr;
+
 
 		struct sFogParams
 		{

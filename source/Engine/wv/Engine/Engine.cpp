@@ -13,6 +13,8 @@
 #include <wv/Graphics/Graphics.h>
 #include <wv/Device/AudioDevice.h>
 
+#include <wv/JobSystem/JobSystem.h>
+
 #include <wv/Memory/FileSystem.h>
 #include <wv/Memory/ModelParser.h>
 
@@ -23,6 +25,7 @@
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Shader/ShaderResource.h>
+
 
 #include <wv/Engine/EngineReflect.h>
 
@@ -95,6 +98,9 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = new cResourceRegistry( m_pFileSystem, graphics );
 	m_pResourceRegistry->initializeEmbeded();
+
+	m_pJobSystem = new JobSystem();
+	m_pJobSystem->initialize( 16 );
 
 	graphics->initEmbeds();
 
@@ -232,6 +238,7 @@ wv::Vector2i wv::cEngine::getViewportSize()
 	return { context->getWidth(), context->getHeight() };
 }
 
+
 void wv::cEngine::run()
 {
 
@@ -271,7 +278,16 @@ void wv::cEngine::terminate()
 {
 	currentCamera = nullptr;
 	
-	m_pPhysicsEngine->terminate();
+	m_pJobSystem->terminate();
+	delete m_pJobSystem;
+	m_pJobSystem = nullptr;
+
+	if ( m_pPhysicsEngine )
+	{
+		m_pPhysicsEngine->terminate();
+		delete m_pPhysicsEngine;
+		m_pPhysicsEngine = nullptr;
+	}
 
 	delete orbitCamera;
 	delete freeflightCamera;

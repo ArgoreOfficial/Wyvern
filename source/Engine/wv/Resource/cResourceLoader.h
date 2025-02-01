@@ -39,7 +39,7 @@ namespace wv
 			m_pLowLevelGraphics{ _pLowLevelGraphics }
 		{ 
 		#ifndef WV_PLATFORM_PSVITA
-			createWorkers( 5 );
+			createWorkers( 2 );
 		#else
 			createWorkers( 1 );
 		#endif
