@@ -100,7 +100,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pResourceRegistry->initializeEmbeded();
 
 	m_pJobSystem = new JobSystem();
-	m_pJobSystem->initialize( 3 );
+	m_pJobSystem->initialize( 5 );
 
 	graphics->initEmbeds();
 

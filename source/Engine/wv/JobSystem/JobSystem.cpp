@@ -34,6 +34,18 @@ void wv::JobSystem::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData )
+{
+	Job* job = new Job();
+	job->name = _name;
+	job->pFunction = _pFunction;
+	job->pData = _pData;
+	job->ppCounter = nullptr;
+	return job;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::JobSystem::run( Job** _ppJobs, size_t _numJobs, JobCounter** _ppCounter )
 {
 	if ( _ppCounter && (*_ppCounter) == nullptr )

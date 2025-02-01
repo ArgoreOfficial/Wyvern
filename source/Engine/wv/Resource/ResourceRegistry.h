@@ -3,12 +3,14 @@
 #include <wv/Debug/Print.h>
 
 #include <wv/Memory/FileSystem.h>
-#include <wv/Resource/cResourceLoader.h>
 #include <wv/Resource/Resource.h>
 
 #include <string>
 #include <unordered_map>
 #include <mutex>
+
+#include <wv/JobSystem/JobSystem.h>
+#include <wv/Engine/Engine.h>
 
 namespace wv
 {
@@ -21,8 +23,7 @@ namespace wv
 	public:
 		cResourceRegistry( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ):
 			m_pFileSystem{ _pFileSystem },
-			m_pLowLevelGraphics{ _pLowLevelGraphics },
-			m_resourceLoader{_pFileSystem, _pLowLevelGraphics }
+			m_pLowLevelGraphics{ _pLowLevelGraphics }
 		{
 			
 		}
@@ -30,6 +31,13 @@ namespace wv
 		~cResourceRegistry();
 		
 		void initializeEmbeded();
+
+		struct LoadData
+		{
+			iResource* resource = nullptr;
+			wv::cFileSystem* pFileSystem = nullptr;
+			wv::iLowLevelGraphics* pLowLevelGraphics = nullptr;
+		};
 
 		template<typename T, typename...Args, std::enable_if_t<std::is_base_of_v<wv::iResource, T>, bool> = true>
 		T* load( const std::string& _path, Args... _args )
@@ -43,7 +51,20 @@ namespace wv
 				res = (iResource*)new T( _path, fullPath, _args... );
 				
 				handleResourceType<T>( (T*)res );
-				m_resourceLoader.addLoad( res );
+
+				Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+					{
+						LoadData* loadData = (LoadData*)_pData;
+
+						loadData->resource->load( loadData->pFileSystem, loadData->pLowLevelGraphics );
+						delete _pData;
+					};
+
+				JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+				LoadData* loadData = new LoadData{ res, m_pFileSystem, m_pLowLevelGraphics };
+				Job* job = pJobSystem->createJob( fptr, loadData );
+				pJobSystem->run( &job );
+
 				addResource( res );
 			}
 
@@ -69,7 +90,7 @@ namespace wv
 
 		iResource* getLoadedResource( const std::string& _name );
 
-		bool isWorking() { return m_resourceLoader.isWorking(); }
+		bool isWorking() { false; }
 
 	protected:
 
@@ -80,8 +101,6 @@ namespace wv
 		 
 		void findAndRemoveResource( iResource* _resource );
 		void removeResource( const std::string& _name );
-
-		cResourceLoader m_resourceLoader;
 
 		cFileSystem* m_pFileSystem;
 		iLowLevelGraphics* m_pLowLevelGraphics;

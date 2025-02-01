@@ -79,12 +79,12 @@ void wv::cResourceRegistry::findAndRemoveResource( iResource* _resource )
 
 void wv::cResourceRegistry::removeResource( const std::string& _name )
 {
-	m_mutex.lock();
+	std::scoped_lock lock{ m_mutex };
+
 	auto search = m_resources.find( _name );
 	if ( search == m_resources.end() )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot unload resource '%s'. It does not exist\n", _name.c_str() );
-		m_mutex.unlock();
 		return;
 	}
 
@@ -100,6 +100,4 @@ void wv::cResourceRegistry::removeResource( const std::string& _name )
 
 	delete m_resources[ _name ];
 	m_resources.erase( _name );
-	
-	m_mutex.unlock();
 }
