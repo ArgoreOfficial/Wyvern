@@ -80,14 +80,14 @@ namespace wv
 		JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
 
 		std::vector<_Ty> userDatas{ m_sceneObjects.size() };
-		std::vector<JobSystem::JobID> jobs{};
+		std::vector<Job*> jobs{};
 
 		JobCounter* counter = nullptr;
 
 		for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
 		{
 			userDatas[ i ] = _Ty{ m_sceneObjects[ i ], _args... };
-			JobSystem::JobID job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
+			Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
 			jobs.push_back( job );
 		}
 
