@@ -173,12 +173,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 		prDesc.deleteData = true;
 
 		// buffer
-		wv::CmdBufferID cmdBuffer = device->getCommandBuffer();
-		*_outMesh = device->cmdCreateMesh( cmdBuffer, prDesc );
-		device->submitCommandBuffer( cmdBuffer );
-
-		if( device->getThreadID() == std::this_thread::get_id() )
-			device->executeCommandBuffer( cmdBuffer );
+		*_outMesh = device->createMesh( prDesc );
 	}
 
 	wv::cFileSystem filesystem;

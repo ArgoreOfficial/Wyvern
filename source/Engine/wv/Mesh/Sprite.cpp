@@ -67,6 +67,6 @@ void wv::Sprite::createQuad()
 	prDesc.pIndices32 = reinterpret_cast<uint32_t*>( indices.data() );
 	prDesc.numIndices = indices.size();
 
-	Internal::S_SPRITE_QUAD = app->graphics->_createMesh( {}, &prDesc );
+	Internal::S_SPRITE_QUAD = app->graphics->createMesh( prDesc );
 	
 }

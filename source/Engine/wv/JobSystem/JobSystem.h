@@ -52,6 +52,7 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
+	void deleteAll();
 	void deleteAllJobs();
 	void deleteAllCounters();
 

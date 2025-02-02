@@ -33,6 +33,13 @@ void wv::JobSystem::terminate()
 		m_workers[ i ]->thread.join();
 	}
 
+	deleteAll();
+}
+
+void wv::JobSystem::deleteAll()
+{
+	waitForAllJobs();
+
 	deleteAllJobs();
 	deleteAllCounters();
 }
@@ -65,7 +72,7 @@ void wv::JobSystem::deleteAllCounters()
 void wv::JobSystem::waitForAllJobs()
 {
 	Job* nextJob = _getNextJob();
-	while ( nextJob )
+	while ( nextJob || !m_jobQueue.empty() )
 	{
 		_executeJob( nextJob );
 		nextJob = _getNextJob();

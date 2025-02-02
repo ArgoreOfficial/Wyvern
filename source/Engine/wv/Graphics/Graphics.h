@@ -64,32 +64,45 @@ public:
 	void initEmbeds();
 
 	std::thread::id getThreadID() const { return m_threadID; }
+	void assertMainThread() {
+		if ( std::this_thread::get_id() != getThreadID() )
+			throw std::runtime_error( "Callstack not on render thread" );
+	}
 
-	[[nodiscard]] CmdBufferID getCommandBuffer();
+	void executeCommandBuffer();
 
-	void submitCommandBuffer( CmdBufferID _bufferID );
-	void executeCommandBuffer( CmdBufferID _bufferID );
-
+private:
 	template<typename T>
 	void cmd( const eGPUTaskType& _type, T* _pInfo );
 	void cmd( const eGPUTaskType& _type ) { cmd<char>( _type, nullptr ); }
+public:
 
 	template<typename ID, typename T>
 	ID cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc );
 
-	ProgramID       createProgram( const sProgramDesc& _desc );
-	void            destroyProgram( ProgramID _programID );
+	ProgramID createProgram( const sProgramDesc& _desc );
+	void      destroyProgram( ProgramID _programID );
 
-	PipelineID      createPipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+	PipelineID createPipeline( const sPipelineDesc& _desc );
+	void       destroyPipeline( PipelineID _pipelineID );
 
-	RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
-	GPUBufferID     cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
-	MeshID          cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc );
-	TextureID       cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc );
+	RenderTargetID createRenderTarget( const sRenderTargetDesc& _desc );
+	void           destroyRenderTarget( RenderTargetID _renderTargetID );
+
+	GPUBufferID createGPUBuffer( const sGPUBufferDesc& _desc );
+	void        destroyGPUBuffer( GPUBufferID _bufferID );
+
+	MeshID createMesh( const sMeshDesc& _desc );
+	void   destroyMesh( MeshID _meshID );
+
+	TextureID createTexture( const sTextureDesc& _desc );
+	void      destroyTexture( TextureID _textureID );
+	void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps );
+	virtual void      _bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 	void cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances );
 
-	void queueAddCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
+	void queueAddCallback( wv::Function<void, void*>::fptr_t _func, void* _caller );
 
 	cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
 
@@ -105,23 +118,14 @@ public:
 	virtual void beginRender();
 	virtual void endRender();
 
-	virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) = 0;
-	virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 	virtual void           setRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
 	virtual void setClearColor( const wv::cColor& _color ) = 0;
 	virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-	virtual ProgramID _createProgram( ProgramID _programID, const sProgramDesc& _desc ) = 0;
-	virtual void      _destroyProgram( ProgramID _programID ) = 0;
 
-	virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) = 0;
-	virtual void       _destroyPipeline( PipelineID _pipelineID ) = 0;
 	virtual void       bindPipeline( PipelineID _pipelineID ) = 0;
 
-
-	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) = 0;
-	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
 
 	virtual void bindBuffer( GPUBufferID _bufferID ) = 0;
 	virtual void bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex ) = 0;
@@ -131,13 +135,6 @@ public:
 
 	virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) = 0;
 
-	virtual MeshID _createMesh( MeshID _meshID, sMeshDesc* _desc );
-	virtual void   _destroyMesh( MeshID _meshID );
-
-	virtual TextureID _createTexture( TextureID _textureID,const sTextureDesc& _desc ) = 0;
-	virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-	virtual void      _destroyTexture( TextureID _textureID ) = 0;
-	virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 	virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) = 0;
 
@@ -169,6 +166,26 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 protected:
+	virtual ProgramID _createProgram( ProgramID _programID, const sProgramDesc& _desc ) = 0;
+	virtual void      _destroyProgram( ProgramID _programID ) = 0;
+	
+	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) = 0;
+	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
+	
+	virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) = 0;
+	virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
+
+	virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) = 0;
+	virtual void       _destroyPipeline( PipelineID _pipelineID ) = 0;
+	
+	virtual MeshID _createMesh( MeshID _meshID, const sMeshDesc& _desc );
+	virtual void   _destroyMesh( MeshID _meshID );
+	
+	virtual TextureID _createTexture( TextureID _textureID,const sTextureDesc& _desc ) = 0;
+	virtual void      _destroyTexture( TextureID _textureID ) = 0;
+
+	virtual void      _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
+	
 
 	iLowLevelGraphics();
 

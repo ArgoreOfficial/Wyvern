@@ -42,22 +42,10 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	desc.filtering = m_filtering;
 	desc.generateMipMaps = true;
 	desc.channels = (TextureChannels)desc.numChannels;
-	CmdBufferID cmdBuffer = _pLowLevelGraphics->getCommandBuffer();
 	
-	struct
-	{
-		TextureID* tex;
-		void* pData;
-		bool generateMipMaps;
-	} bufferData;
-	bufferData.generateMipMaps = desc.generateMipMaps;
-
-	bufferData.tex = &m_textureID;
-	bufferData.pData = m_pData;
+	m_textureID = _pLowLevelGraphics->createTexture( desc );
+	_pLowLevelGraphics->bufferTextureData( m_textureID, m_pData, desc.generateMipMaps );
 	m_pData = nullptr; // move ownership
-
-	m_textureID = _pLowLevelGraphics->cmdCreateTexture( cmdBuffer, desc );
-	_pLowLevelGraphics->cmd( WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) 
 		{ 
@@ -69,11 +57,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 			texObject.pData = nullptr;
 		};
 
-	_pLowLevelGraphics->queueAddCallback( cmdBuffer, onCompleteCallback, (void*)this );
-
-	_pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
-	if ( _pLowLevelGraphics->getThreadID() == std::this_thread::get_id() )
-		_pLowLevelGraphics->executeCommandBuffer( cmdBuffer );
+	_pLowLevelGraphics->queueAddCallback( onCompleteCallback, (void*)this );
 
 #else
 	printf( "wv::cTextureResource::load unimplemented\n" );
@@ -89,5 +73,5 @@ void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics*
 	}
 
 	m_dataSize = 0;
-	_pLowLevelGraphics->_destroyTexture( m_textureID );
+	_pLowLevelGraphics->destroyTexture( m_textureID );
 }

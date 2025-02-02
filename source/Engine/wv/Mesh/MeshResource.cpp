@@ -41,16 +41,14 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLo
 static void unloadMeshNode( wv::sMeshNode* _node )
 {
 	wv::iLowLevelGraphics* pLowLevelGraphics = wv::cEngine::get()->graphics;
-	wv::CmdBufferID cmdBuffer = pLowLevelGraphics->getCommandBuffer();
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
 	{
-		pLowLevelGraphics->cmd( wv::WV_GPUTASK_DESTROY_MESH, &meshID );
+		pLowLevelGraphics->destroyMesh( meshID );
 		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 	}
-	pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
 	
 	for ( auto& child : _node->children )
 		unloadMeshNode( child );

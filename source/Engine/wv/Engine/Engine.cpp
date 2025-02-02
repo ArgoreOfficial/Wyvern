@@ -291,8 +291,8 @@ void wv::cEngine::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	graphics->_destroyMesh( m_screenQuad );
-	graphics->_destroyRenderTarget( m_gbuffer );
+	graphics->destroyMesh( m_screenQuad );
+	graphics->destroyRenderTarget( m_gbuffer );
 
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
@@ -442,7 +442,7 @@ void wv::cEngine::tick()
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
-			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
+			graphics->_bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
 
 	// render screen quad with deferred shader
@@ -562,7 +562,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.deleteData = false;
 	}
 
-	m_screenQuad = graphics->_createMesh( {}, &prDesc );
+	m_screenQuad = graphics->createMesh( prDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -584,10 +584,8 @@ void wv::cEngine::createGBuffer()
 	rtDesc.numTextures = 3;
 #endif
 
-	CmdBufferID buffer = graphics->getCommandBuffer();
-	m_gbuffer = graphics->cmdCreateRenderTarget( buffer, rtDesc );
-	graphics->submitCommandBuffer( buffer );
-	graphics->executeCommandBuffer( buffer );
+	m_gbuffer = graphics->createRenderTarget( rtDesc );
+	graphics->executeCommandBuffer();
 
 
 }
@@ -604,7 +602,7 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 	}
 	
 	if( m_gbuffer.is_valid() )
-		graphics->_destroyRenderTarget( m_gbuffer );
+		graphics->destroyRenderTarget( m_gbuffer );
 	
 	if( _width == 0 || _height == 0 )
 		return;
