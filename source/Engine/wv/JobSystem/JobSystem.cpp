@@ -25,11 +25,44 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 
 void wv::JobSystem::terminate()
 {
+	waitForAllJobs();
+
 	for ( size_t i = 0; i < m_workers.size(); i++ )
 	{
 		m_workers[ i ]->alive = false;
 		m_workers[ i ]->thread.join();
 	}
+
+	deleteAllJobs();
+	deleteAllCounters();
+}
+
+void wv::JobSystem::deleteAllJobs()
+{
+	for ( size_t i = 0; i < m_jobPool.size(); i++ )
+		WV_FREE( m_jobPool[ i ] );
+
+	while ( !m_availableJobs.empty() )
+		m_availableJobs.pop();
+}
+
+void wv::JobSystem::deleteAllCounters()
+{
+	for ( size_t i = 0; i < m_counterPool.size(); i++ )
+		WV_FREE( m_counterPool[ i ] );
+	
+	while ( !m_availableCounters.empty() )
+		m_availableCounters.pop();
+}
+
+void wv::JobSystem::waitForAllJobs()
+{
+	Job* nextJob = _getNextJob();
+	while ( nextJob )
+	{
+		_executeJob( nextJob );
+		nextJob = _getNextJob();
+	} 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +78,6 @@ wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t 
 	job->pFunction = _pFunction;
 	job->pData = _pData;
 	job->ppCounter = _ppCounter;
-
 
 	return job;
 }

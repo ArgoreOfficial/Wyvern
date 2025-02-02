@@ -160,7 +160,7 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID& _handle )
+void wv::cJoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	if( !m_bodies.contains( _handle ) )

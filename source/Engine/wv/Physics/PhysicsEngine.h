@@ -48,7 +48,7 @@ namespace wv
 		void terminate();
 
 		void killAllPhysicsBodies();
-		void destroyPhysicsBody( PhysicsBodyID& _handle );
+		void destroyPhysicsBody( PhysicsBodyID _handle );
 
 		void update( double _deltaTime );
 

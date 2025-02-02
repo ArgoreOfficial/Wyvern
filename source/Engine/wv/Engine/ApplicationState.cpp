@@ -65,6 +65,10 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene->onUnload();
 	m_pCurrentScene->onDestroy();
 
+	cEngine::get()->m_pJobSystem->waitForAllJobs();
+	cEngine::get()->m_pJobSystem->deleteAllJobs();
+	cEngine::get()->m_pJobSystem->deleteAllCounters();
+
 	wv::MemoryTracker::dump();
 
 	int index = -1;

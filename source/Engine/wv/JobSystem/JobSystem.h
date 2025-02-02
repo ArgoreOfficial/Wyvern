@@ -52,6 +52,11 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
+	void deleteAllJobs();
+	void deleteAllCounters();
+
+	void waitForAllJobs();
+
 	[[nodiscard]] Job* createJob( const std::string& _name, Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr );
 	[[nodiscard]] Job* createJob( Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr )
 	{

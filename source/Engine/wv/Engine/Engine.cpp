@@ -279,10 +279,6 @@ void wv::cEngine::terminate()
 {
 	currentCamera = nullptr;
 	
-	m_pJobSystem->terminate();
-	WV_FREE( m_pJobSystem );
-	m_pJobSystem = nullptr;
-
 	if ( m_pPhysicsEngine )
 	{
 		m_pPhysicsEngine->terminate();
@@ -305,6 +301,10 @@ void wv::cEngine::terminate()
 	context->terminate();
 	graphics->terminate();
 	
+	m_pJobSystem->terminate();
+	WV_FREE( m_pJobSystem );
+	m_pJobSystem = nullptr;
+
 	WV_FREE( context );
 	WV_FREE( graphics );
 }
