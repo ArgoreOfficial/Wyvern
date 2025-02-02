@@ -111,13 +111,19 @@ private:
 	static inline std::vector<Entry> m_entries{};
 	static inline std::mutex m_mutex{};
 
-	// #ifdef WV_TRACK_MEMORY
+#ifdef WV_TRACK_MEMORY
 #define WV_NEW( _Ty, ... ) wv::MemoryTracker::track_new<_Ty>( #_Ty, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
 #define WV_NEW_ARR( _Ty, _count ) wv::MemoryTracker::track_new_arr<_Ty>( _count, #_Ty , __FILE__, __LINE__, __FUNCTION__ )
 
 #define WV_FREE( _ptr ) wv::MemoryTracker::track_free( _ptr )
 #define WV_RELINQUISH( _ptr ) wv::MemoryTracker::relinquish( _ptr )
+#else
+#define WV_NEW( _Ty, ... ) new _Ty( __VA_ARGS__ )
+#define WV_NEW_ARR( _Ty, _count ) new _Ty[ _count ]
 
+#define WV_FREE( _ptr ) free( _ptr )
+#define WV_RELINQUISH( _ptr ) ( void )( _ptr )
+#endif
 };
 
 class cMemoryStream

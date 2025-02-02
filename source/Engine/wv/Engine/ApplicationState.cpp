@@ -62,8 +62,8 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
-	m_pCurrentScene->onDestroy();
 	m_pCurrentScene->onUnload();
+	m_pCurrentScene->onDestroy();
 
 	wv::MemoryTracker::dump();
 

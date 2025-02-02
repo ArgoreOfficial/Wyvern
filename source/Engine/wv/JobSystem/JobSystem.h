@@ -53,14 +53,14 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
-	[[nodiscard]] JobID createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData = nullptr );
-	[[nodiscard]] JobID createJob( Job::JobFunction_t _pFunction, void* _pData = nullptr )
+	[[nodiscard]] JobID createJob( const std::string& _name, Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr );
+	[[nodiscard]] JobID createJob( Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr )
 	{
-		return createJob( "", _pFunction, _pData );
+		return createJob( "", _pFunction, _ppCounter, _pData );
 	}
 
 
-	void run( JobID* _pJobs, size_t _numJobs = 1, JobCounter** _ppCounter = nullptr );
+	void run( JobID* _pJobs, size_t _numJobs = 1 );
 	void waitForCounter( JobCounter** _ppCounter, int _value );
 	void waitForAndFreeCounter( JobCounter** _ppCounter, int _value );
 

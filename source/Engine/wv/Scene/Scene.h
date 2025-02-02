@@ -87,11 +87,11 @@ namespace wv
 		for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
 		{
 			userDatas[ i ] = _Ty{ m_sceneObjects[ i ], _args... };
-			JobSystem::JobID job = pJobSystem->createJob( _name, _fptr, &userDatas[ i ] );
+			JobSystem::JobID job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
 			jobs.push_back( job );
 		}
 
-		pJobSystem->run( jobs.data(), jobs.size(), &counter );
+		pJobSystem->run( jobs.data(), jobs.size() );
 		pJobSystem->waitForAndFreeCounter( &counter, 0 );
 	}
 

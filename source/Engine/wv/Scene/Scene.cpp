@@ -70,9 +70,6 @@ void wv::Scene::onUnload()
 		};
 
 	_runJobs<JobData>( "onUnload", fptr, false );
-
-	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
-		WV_FREE( m_sceneObjects[ i ] );
 }
 
 void wv::Scene::onCreate()
@@ -105,6 +102,9 @@ void wv::Scene::onDestroy()
 		};
 
 	_runJobs<JobData>( "onDestroy", fptr, false );
+
+	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
+		WV_FREE( m_sceneObjects[ i ] );
 	
 }
 
