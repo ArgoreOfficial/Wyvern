@@ -57,7 +57,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	m_pData = nullptr; // move ownership
 
 	m_textureID = _pLowLevelGraphics->cmdCreateTexture( cmdBuffer, desc );
-	_pLowLevelGraphics->cmd( cmdBuffer, WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
+	_pLowLevelGraphics->cmd( WV_GPUTASK_BUFFER_TEXTURE_DATA, &bufferData );
 
 	auto onCompleteCallback = []( void* _c ) 
 		{ 
@@ -69,7 +69,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 			texObject.pData = nullptr;
 		};
 
-	_pLowLevelGraphics->setCommandBufferCallback( cmdBuffer, onCompleteCallback, (void*)this );
+	_pLowLevelGraphics->queueAddCallback( cmdBuffer, onCompleteCallback, (void*)this );
 
 	_pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
 	if ( _pLowLevelGraphics->getThreadID() == std::this_thread::get_id() )
@@ -89,5 +89,5 @@ void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics*
 	}
 
 	m_dataSize = 0;
-	_pLowLevelGraphics->destroyTexture( m_textureID );
+	_pLowLevelGraphics->_destroyTexture( m_textureID );
 }

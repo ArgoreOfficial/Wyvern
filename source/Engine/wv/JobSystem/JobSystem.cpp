@@ -39,18 +39,25 @@ void wv::JobSystem::terminate()
 
 void wv::JobSystem::deleteAllJobs()
 {
+	std::scoped_lock lock{ m_jobPoolMutex };
+
 	for ( size_t i = 0; i < m_jobPool.size(); i++ )
 		WV_FREE( m_jobPool[ i ] );
+	m_jobPool.clear();
 
 	while ( !m_availableJobs.empty() )
 		m_availableJobs.pop();
+
 }
 
 void wv::JobSystem::deleteAllCounters()
 {
+	std::scoped_lock lock{ m_counterPoolMutex };
+	
 	for ( size_t i = 0; i < m_counterPool.size(); i++ )
 		WV_FREE( m_counterPool[ i ] );
-	
+	m_counterPool.clear();
+
 	while ( !m_availableCounters.empty() )
 		m_availableCounters.pop();
 }

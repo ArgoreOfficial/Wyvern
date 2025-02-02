@@ -51,17 +51,17 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 	desc.pVertexLayout = &layout;
 
 	CmdBufferID cmdBuffer = _pLowLevelGraphics->getCommandBuffer();
-	desc.vertexProgramID   = _pLowLevelGraphics->cmdCreateProgram( cmdBuffer, vsDesc );
-	desc.fragmentProgramID = _pLowLevelGraphics->cmdCreateProgram( cmdBuffer, fsDesc );
+	desc.vertexProgramID   = _pLowLevelGraphics->createProgram( vsDesc );
+	desc.fragmentProgramID = _pLowLevelGraphics->createProgram( fsDesc );
 
-	m_pipelineID = _pLowLevelGraphics->cmdCreatePipeline( cmdBuffer, desc );
+	m_pipelineID = _pLowLevelGraphics->createPipeline( cmdBuffer, desc );
 
 	auto cb = []( void* _c ) 
 		{ 
 			iResource* res = (iResource*)_c;
 			res->setComplete( true ); 
 		};
-	_pLowLevelGraphics->setCommandBufferCallback( cmdBuffer, cb, (void*)this );
+	_pLowLevelGraphics->queueAddCallback( cmdBuffer, cb, (void*)this );
 
 	_pLowLevelGraphics->submitCommandBuffer( cmdBuffer );
 
@@ -76,7 +76,7 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* 
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
-	_pLowLevelGraphics->destroyPipeline( m_pipelineID );
+	_pLowLevelGraphics->_destroyPipeline( m_pipelineID );
 }
 
 void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )

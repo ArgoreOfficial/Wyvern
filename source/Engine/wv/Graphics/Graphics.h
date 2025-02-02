@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <queue>
+#include <deque>
 #include <thread>
 #include <mutex>
 #include <shared_mutex>
@@ -44,6 +45,12 @@ struct sLowLevelGraphicsDesc
 template<typename T, typename D>
 struct sCmdCreateDesc { T id; D desc; };
 
+struct CreateCallback
+{
+	void* caller = nullptr;
+	wv::Function<void, void*>::fptr_t func{};
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class iLowLevelGraphics
@@ -56,7 +63,7 @@ public:
 
 	void initEmbeds();
 
-	std::thread::id getThreadID() { return m_threadID; }
+	std::thread::id getThreadID() const { return m_threadID; }
 
 	[[nodiscard]] CmdBufferID getCommandBuffer();
 
@@ -64,14 +71,17 @@ public:
 	void executeCommandBuffer( CmdBufferID _bufferID );
 
 	template<typename T>
-	void cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo );
-	void cmd( CmdBufferID _bufferID, const eGPUTaskType& _type ) { cmd<char>( _bufferID, _type, nullptr ); }
+	void cmd( const eGPUTaskType& _type, T* _pInfo );
+	void cmd( const eGPUTaskType& _type ) { cmd<char>( _type, nullptr ); }
 
 	template<typename ID, typename T>
-	ID cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc );
+	ID cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc );
 
-	ProgramID       cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc );
-	PipelineID      cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+	ProgramID       createProgram( const sProgramDesc& _desc );
+	void            destroyProgram( ProgramID _programID );
+
+	PipelineID      createPipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc );
+
 	RenderTargetID  cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc );
 	GPUBufferID     cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc );
 	MeshID          cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc );
@@ -79,7 +89,7 @@ public:
 
 	void cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances );
 
-	void setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
+	void queueAddCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller );
 
 	cMaterial* getEmptyMaterial() { return m_pEmptyMaterial; }
 
@@ -87,29 +97,31 @@ public:
 
 	virtual void terminate() = 0;
 
+	//virtual void update() = 0;
+
 	virtual void onResize( int _width, int _height ) = 0;
 	virtual void setViewport( int _width, int _height ) = 0;
 
 	virtual void beginRender();
 	virtual void endRender();
 
-	virtual RenderTargetID createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) = 0;
-	virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
+	virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) = 0;
+	virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 	virtual void           setRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
 	virtual void setClearColor( const wv::cColor& _color ) = 0;
 	virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
 
-	virtual ProgramID createProgram( ProgramID _programID, sProgramDesc* _desc ) = 0;
-	virtual void      destroyProgram( ProgramID _programID ) = 0;
+	virtual ProgramID _createProgram( ProgramID _programID, const sProgramDesc& _desc ) = 0;
+	virtual void      _destroyProgram( ProgramID _programID ) = 0;
 
-	virtual PipelineID createPipeline( PipelineID _pipelineID, sPipelineDesc* _desc ) = 0;
-	virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
+	virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) = 0;
+	virtual void       _destroyPipeline( PipelineID _pipelineID ) = 0;
 	virtual void       bindPipeline( PipelineID _pipelineID ) = 0;
 
 
-	virtual GPUBufferID createGPUBuffer( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) = 0;
-	virtual void        destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
+	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) = 0;
+	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
 
 	virtual void bindBuffer( GPUBufferID _bufferID ) = 0;
 	virtual void bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex ) = 0;
@@ -119,12 +131,12 @@ public:
 
 	virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) = 0;
 
-	virtual MeshID createMesh( MeshID _meshID, sMeshDesc* _desc );
-	virtual void   destroyMesh( MeshID _meshID );
+	virtual MeshID _createMesh( MeshID _meshID, sMeshDesc* _desc );
+	virtual void   _destroyMesh( MeshID _meshID );
 
-	virtual TextureID createTexture( TextureID _textureID, sTextureDesc* _pDesc ) = 0;
+	virtual TextureID _createTexture( TextureID _textureID,const sTextureDesc& _desc ) = 0;
 	virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-	virtual void      destroyTexture( TextureID _textureID ) = 0;
+	virtual void      _destroyTexture( TextureID _textureID ) = 0;
 	virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 	virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) = 0;
@@ -144,6 +156,8 @@ public:
 	arx::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
 	arx::unordered_array<TextureID,      sTexture>      m_textures;
 	arx::unordered_array<MeshID,         sMesh>         m_meshes;
+
+	std::queue<std::pair<ProgramID, sProgramDesc>> m_programCreateQueue;
 
 	std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 
@@ -172,10 +186,7 @@ protected:
 
 	std::mutex m_mutex;
 
-	arx::unordered_array<CmdBufferID, cCommandBuffer> m_commandBuffers;
-	std::queue <CmdBufferID> m_availableCommandBuffers;
-	std::vector<CmdBufferID> m_recordingCommandBuffers;
-	std::vector<CmdBufferID> m_submittedCommandBuffers;
+	cCommandBuffer m_createDestroyCommandBuffer{ 128 };
 
 	GPUBufferID m_vertexBuffer{};
 	GPUBufferID m_indexBuffer{};
@@ -186,17 +197,17 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-inline void iLowLevelGraphics::cmd( CmdBufferID _bufferID, const eGPUTaskType& _type, T* _pInfo )
+inline void iLowLevelGraphics::cmd( const eGPUTaskType& _type, T* _pInfo )
 {
 	std::scoped_lock lock( m_mutex );
-	m_commandBuffers.at( _bufferID ).push<T>( _type, _pInfo );
+	m_createDestroyCommandBuffer.push<T>( _type, _pInfo );
 }
 
 template<typename ID, typename T>
-inline ID iLowLevelGraphics::cmdCreateCommand( CmdBufferID _bufferID, eGPUTaskType _task, ID _id, const T& _desc )
+inline ID iLowLevelGraphics::cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc )
 {
 	sCmdCreateDesc<ID, T> desc{ _id, _desc };
-	cmd( _bufferID, _task, &desc );
+	cmd( _task, &desc );
 	return _id;
 }
 }

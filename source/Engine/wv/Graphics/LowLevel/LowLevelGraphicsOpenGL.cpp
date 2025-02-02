@@ -189,12 +189,11 @@ void wv::cLowLevelGraphicsOpenGL::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc )
+wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::_createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sRenderTargetDesc& desc = *_desc;
 	if( !_renderTargetID.is_valid() )
 		_renderTargetID = m_renderTargets.emplace();
 
@@ -202,19 +201,19 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 	
 	glCreateFramebuffers( 1, &target.fbHandle );
 	
-	target.numTextures = desc.numTextures;
+	target.numTextures = _desc.numTextures;
 
-	GLenum* drawBuffers = WV_NEW_ARR( GLenum, desc.numTextures );
-	target.pTextureIDs = WV_NEW_ARR( TextureID, desc.numTextures );
+	GLenum* drawBuffers = WV_NEW_ARR( GLenum, _desc.numTextures );
+	target.pTextureIDs = WV_NEW_ARR( TextureID, _desc.numTextures );
 
-	for ( int i = 0; i < desc.numTextures; i++ )
+	for ( int i = 0; i < _desc.numTextures; i++ )
 	{
-		desc.pTextureDescs[ i ].width = desc.width;
-		desc.pTextureDescs[ i ].height = desc.height;
+		_desc.pTextureDescs[ i ].width  = _desc.width;
+		_desc.pTextureDescs[ i ].height = _desc.height;
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target.pTextureIDs[ i ] = createTexture( {}, &desc.pTextureDescs[ i ] );
+		target.pTextureIDs[ i ] = _createTexture( {}, _desc.pTextureDescs[ i ] );
 		sTexture& tex = m_textures.at( target.pTextureIDs[ i ] );
 
 		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
@@ -223,10 +222,10 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 
 	glCreateRenderbuffers( 1, &target.rbHandle );
 
-	glNamedRenderbufferStorage( target.rbHandle, GL_DEPTH_COMPONENT24, desc.width, desc.height );
+	glNamedRenderbufferStorage( target.rbHandle, GL_DEPTH_COMPONENT24, _desc.width, _desc.height );
 	glNamedFramebufferRenderbuffer( target.fbHandle, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, target.rbHandle );
 
-	glNamedFramebufferDrawBuffers( target.fbHandle, desc.numTextures, drawBuffers );
+	glNamedFramebufferDrawBuffers( target.fbHandle, _desc.numTextures, drawBuffers );
 
 	WV_FREE( drawBuffers );
 #ifdef WV_DEBUG
@@ -253,13 +252,13 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create RenderTarget\n" );
 		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", err );
 
-		destroyRenderTarget( _renderTargetID );
+		_destroyRenderTarget( _renderTargetID );
 		
 		return RenderTargetID::InvalidID;
 	}
 #endif
-	target.width  = desc.width;
-	target.height = desc.height;
+	target.width  = _desc.width;
+	target.height = _desc.height;
 
 	return _renderTargetID;
 #else
@@ -269,7 +268,7 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::destroyRenderTarget( RenderTargetID _renderTargetID )
+void wv::cLowLevelGraphicsOpenGL::_destroyRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 
@@ -280,7 +279,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyRenderTarget( RenderTargetID _renderTar
 	glDeleteRenderbuffers( 1, &rt.rbHandle );
 
 	for ( int i = 0; i < rt.numTextures; i++ )
-		destroyTexture( rt.pTextureIDs[ i ] );
+		_destroyTexture( rt.pTextureIDs[ i ] );
 
 	m_renderTargets.erase( _renderTargetID );
 #endif
@@ -325,7 +324,7 @@ void wv::cLowLevelGraphicsOpenGL::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, sProgramDesc* _desc )
+wv::ProgramID wv::cLowLevelGraphicsOpenGL::_createProgram( ProgramID _programID, const sProgramDesc& _desc )
 {
 	WV_TRACE();
 
@@ -333,8 +332,8 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 	if( !_programID.is_valid() )
 		_programID = m_programs.emplace();
 
-	eShaderProgramType&   type   = _desc->type;
-	sShaderProgramSource& source = _desc->source;
+	eShaderProgramType   type   = _desc.type;
+	sShaderProgramSource source = _desc.source;
 
 	if( source.data->size == 0 )
 	{
@@ -415,7 +414,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		wv::Handle blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size );
 		
-		GPUBufferID bufID = createGPUBuffer( {}, &ubDesc );
+		GPUBufferID bufID = _createGPUBuffer( {}, ubDesc );
 		sGPUBuffer& buf = m_gpuBuffers.at( bufID );
 		
 		buf.bindingIndex = index;
@@ -447,7 +446,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 		ubDesc.size = 0;
 
-		GPUBufferID bufID = createGPUBuffer( {}, &ubDesc );
+		GPUBufferID bufID = _createGPUBuffer( {}, ubDesc );
 		sGPUBuffer& buf = m_gpuBuffers.at( bufID );
 
 		buf.bindingIndex = m_ssboBindingIndices.emplace();
@@ -467,7 +466,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::createProgram( ProgramID _programID, 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::destroyProgram( ProgramID _programID )
+void wv::cLowLevelGraphicsOpenGL::_destroyProgram( ProgramID _programID )
 {
 	WV_TRACE();
 
@@ -480,7 +479,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyProgram( ProgramID _programID )
 	glDeleteProgram( program.handle );
 	
 	for( auto& buffer : program.shaderBuffers )
-		destroyGPUBuffer( buffer );
+		_destroyGPUBuffer( buffer );
 	
 	m_programs.erase( _programID );
 #endif
@@ -488,18 +487,17 @@ void wv::cLowLevelGraphicsOpenGL::destroyProgram( ProgramID _programID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipelineID, sPipelineDesc* _desc )
+wv::PipelineID wv::cLowLevelGraphicsOpenGL::_createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc )
 {
 	WV_TRACE();
 
 #ifdef WV_SUPPORT_OPENGL
-	sPipelineDesc& desc = *_desc;
 	if( !_pipelineID.is_valid() )
 		_pipelineID = m_pipelines.emplace();
 
 	sPipeline& pipeline = m_pipelines.at( _pipelineID );
-	pipeline.vertexProgramID   = desc.vertexProgramID;
-	pipeline.fragmentProgramID = desc.fragmentProgramID;
+	pipeline.vertexProgramID   = _desc.vertexProgramID;
+	pipeline.fragmentProgramID = _desc.fragmentProgramID;
 
 	glCreateProgramPipelines( 1, &pipeline.handle );
 	
@@ -509,8 +507,8 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 		return PipelineID::InvalidID;
 	}
 
-	sProgram& vs = m_programs.at( desc.vertexProgramID );
-	sProgram& fs = m_programs.at( desc.fragmentProgramID );
+	sProgram& vs = m_programs.at( _desc.vertexProgramID );
+	sProgram& fs = m_programs.at( _desc.fragmentProgramID );
 	
 	glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle );
 	glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
@@ -546,7 +544,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::createPipeline( PipelineID _pipeline
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
+void wv::cLowLevelGraphicsOpenGL::_destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 
@@ -559,8 +557,8 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 	m_drawLists.erase( drawListID );
 	m_pipelineDrawListMap.erase( _pipelineID );
 
-	destroyProgram( pipeline.vertexProgramID );
-	destroyProgram( pipeline.fragmentProgramID );
+	_destroyProgram( pipeline.vertexProgramID );
+	_destroyProgram( pipeline.fragmentProgramID );
 
 	if( pipeline.pPlatformData )
 		WV_FREE( pipeline.pPlatformData );
@@ -583,7 +581,7 @@ void wv::cLowLevelGraphicsOpenGL::bindPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _bufferID, sGPUBufferDesc* _desc )
+wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::_createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	WV_TRACE();
 
@@ -593,18 +591,18 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _buffe
 
 	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
 
-	buffer.type  = _desc->type;
-	buffer.usage = _desc->usage;
-	buffer.name  = _desc->name;
+	buffer.type  = _desc.type;
+	buffer.usage = _desc.usage;
+	buffer.name  = _desc.name;
 
 	GLenum target = getGlBufferEnum( buffer.type );
 	
 	glCreateBuffers( 1, &buffer.handle );
 	
 	GLenum usage = getGlBufferUsage( buffer.usage );
-	buffer.size = _desc->size;
+	buffer.size = _desc.size;
 	
-	glNamedBufferData( buffer.handle, _desc->size, 0, usage );
+	glNamedBufferData( buffer.handle, _desc.size, 0, usage );
 		
 	buffer.complete = true;
 
@@ -616,7 +614,7 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::createGPUBuffer( GPUBufferID _buffe
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
+void wv::cLowLevelGraphicsOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 
@@ -715,7 +713,7 @@ void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, sTextureDesc* _pDesc )
+wv::TextureID wv::cLowLevelGraphicsOpenGL::_createTexture( TextureID _textureID, const sTextureDesc& _desc )
 {
 	WV_TRACE();
 
@@ -726,15 +724,14 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	if( !_textureID.is_valid() )
 		_textureID = m_textures.emplace();
 
-	sTextureDesc& desc = *_pDesc;
 	sTexture& texture = m_textures.at( _textureID );
-	texture.numChannels = desc.numChannels;
+	texture.numChannels = _desc.numChannels;
 
-	switch ( desc.channels )
+	switch ( _desc.channels )
 	{
 	case wv::WV_TEXTURE_CHANNELS_R:
 		format = GL_RED;
-		switch ( desc.format )
+		switch ( _desc.format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_R8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_R32F; break;
@@ -746,7 +743,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RG:
 		format = GL_RG;
-		switch ( desc.format )
+		switch ( _desc.format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RG8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RG32F; break;
@@ -759,7 +756,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	case wv::WV_TEXTURE_CHANNELS_RGB:
 		format = GL_RGB;
 		
-		switch ( desc.format )
+		switch ( _desc.format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RGB8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGB32F; break;
@@ -771,7 +768,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 		break;
 	case wv::WV_TEXTURE_CHANNELS_RGBA:
 		format = GL_RGBA;
-		switch ( desc.format )
+		switch ( _desc.format )
 		{
 		case wv::WV_TEXTURE_FORMAT_BYTE: internalFormat = GL_RGBA8; break;
 		case wv::WV_TEXTURE_FORMAT_FLOAT: internalFormat = GL_RGBA32F; break;
@@ -788,9 +785,9 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	GLenum minFilter = GL_NEAREST;
 	GLenum magFilter = GL_NEAREST;
 
-	if ( desc.generateMipMaps )
+	if ( _desc.generateMipMaps )
 	{
-		switch ( desc.filtering )
+		switch ( _desc.filtering )
 		{
 		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST_MIPMAP_LINEAR; break;
 		case WV_TEXTURE_FILTER_LINEAR:  magFilter = GL_LINEAR;  minFilter = GL_LINEAR_MIPMAP_LINEAR; break;
@@ -798,7 +795,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	}
 	else
 	{
-		switch ( desc.filtering )
+		switch ( _desc.filtering )
 		{
 		case WV_TEXTURE_FILTER_NEAREST: magFilter = GL_NEAREST; minFilter = GL_NEAREST; break;
 		case WV_TEXTURE_FILTER_LINEAR:  magFilter = GL_LINEAR;  minFilter = GL_LINEAR; break;
@@ -811,13 +808,13 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	glTextureParameteri( texture.textureObjectHandle, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
 	GLenum type = GL_UNSIGNED_BYTE;
-	switch ( desc.format )
+	switch ( _desc.format )
 	{
 	case wv::WV_TEXTURE_FORMAT_FLOAT: type = GL_FLOAT; break;
 	case wv::WV_TEXTURE_FORMAT_INT: type = GL_INT; break;
 	}
 
-	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
+	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, _desc.width, _desc.height, 0, format, type, nullptr );
 	
 	sOpenGLTextureData* pPData = WV_NEW( sOpenGLTextureData );
 	pPData->filter = minFilter;
@@ -826,8 +823,8 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 	pPData->type = type;
 
 	texture.pPlatformData = pPData;
-	texture.width  = desc.width;
-	texture.height = desc.height;
+	texture.width  = _desc.width;
+	texture.height = _desc.height;
 	
 	return _textureID;
 #endif
@@ -858,7 +855,7 @@ void wv::cLowLevelGraphicsOpenGL::bufferTextureData( TextureID _textureID, void*
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::destroyTexture( TextureID _textureID )
+void wv::cLowLevelGraphicsOpenGL::_destroyTexture( TextureID _textureID )
 {
 	WV_TRACE();
 

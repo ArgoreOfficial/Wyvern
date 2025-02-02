@@ -64,13 +64,13 @@ void wv::iLowLevelGraphics::initEmbeds()
 	mvbDesc.name  = "mvb";
 	mvbDesc.type  = WV_BUFFER_TYPE_DYNAMIC;
 	mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_vertexBuffer = createGPUBuffer( {}, &mvbDesc );
+	m_vertexBuffer = _createGPUBuffer( {}, mvbDesc );
 
 	sGPUBufferDesc mibDesc{};
 	mibDesc.name  = "mib";
 	mibDesc.type  = WV_BUFFER_TYPE_INDEX;
 	mibDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_indexBuffer = createGPUBuffer( {}, &mibDesc );
+	m_indexBuffer = _createGPUBuffer( {}, mibDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ void wv::iLowLevelGraphics::initEmbeds()
 wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 {
 	std::scoped_lock lock( m_mutex );
-	
+	/*
 	if( m_availableCommandBuffers.size() == 0 )
 	{
 		CmdBufferID id = m_commandBuffers.emplace( cCommandBuffer{ 128 } );
@@ -90,6 +90,8 @@ wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 	m_recordingCommandBuffers.push_back( bufferIndex );
 
 	return bufferIndex;
+	*/
+	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +99,7 @@ wv::CmdBufferID wv::iLowLevelGraphics::getCommandBuffer()
 void wv::iLowLevelGraphics::submitCommandBuffer( CmdBufferID _bufferID )
 {
 	std::scoped_lock lock( m_mutex );
+	/*
 	for( size_t i = 0; i < m_recordingCommandBuffers.size(); i++ )
 	{
 		if( m_recordingCommandBuffers[ i ] != _bufferID )
@@ -107,6 +110,7 @@ void wv::iLowLevelGraphics::submitCommandBuffer( CmdBufferID _bufferID )
 
 		return;
 	}
+	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -115,8 +119,18 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 {
 	std::scoped_lock lock( m_mutex );
 
-	cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
+	//cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
+	cCommandBuffer& buffer = m_createDestroyCommandBuffer;
 	cMemoryStream& stream = buffer.getBuffer();
+
+	/*
+	while ( !m_programCreateQueue.empty() )
+	{
+		auto pair = m_programCreateQueue.front();
+		m_programCreateQueue.pop();
+		_createProgram( pair.first, pair.second );
+	}
+	*/
 
 	for( size_t i = 0; i < buffer.numCommands(); i++ )
 	{
@@ -127,37 +141,37 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
 		{
 			auto descData = stream.pop<sCmdCreateDesc<RenderTargetID, sRenderTargetDesc>>();
-			createRenderTarget( descData.id, &descData.desc );
+			_createRenderTarget( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
 			auto descData = stream.pop<sCmdCreateDesc<ProgramID, sProgramDesc>>();
-			createProgram( descData.id, &descData.desc );
+			_createProgram( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
 		{
 			auto descData = stream.pop<sCmdCreateDesc<PipelineID, sPipelineDesc>>();
-			createPipeline( descData.id, &descData.desc );
+			_createPipeline( descData.id, descData.desc );
 		} break;
 		
 		case WV_GPUTASK_CREATE_BUFFER:
 		{
 			auto descData = stream.pop<sCmdCreateDesc<GPUBufferID, sGPUBufferDesc>>();
-			createGPUBuffer( descData.id, &descData.desc );
+			_createGPUBuffer( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_MESH:
 		{
 			auto descData = stream.pop<sCmdCreateDesc<MeshID, sMeshDesc>>();
-			createMesh( descData.id, &descData.desc );
+			_createMesh( descData.id, &descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
 		{
 			auto descData = stream.pop<sCmdCreateDesc<TextureID, sTextureDesc>>();
-			createTexture( descData.id, &descData.desc );
+			_createTexture( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_BUFFER_TEXTURE_DATA: // struct { TextureID tex; void* pData; bool generateMipMaps; };
@@ -168,21 +182,27 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 			bufferTextureData( tex, pData, generateMipMaps );
 		} break;
 
-		case WV_GPUTASK_DESTROY_TEXTURE:      destroyTexture     ( stream.pop<TextureID>() );       break;
-		case WV_GPUTASK_DESTROY_MESH:         destroyMesh        ( stream.pop<MeshID>() );          break;
-		case WV_GPUTASK_DESTROY_BUFFER:       destroyGPUBuffer   ( stream.pop<GPUBufferID>() );     break;
-		case WV_GPUTASK_DESTROY_PIPELINE:     destroyPipeline    ( stream.pop<PipelineID>() );      break;
-		case WV_GPUTASK_DESTROY_PROGRAM:      destroyProgram     ( stream.pop<ProgramID>() ); break;
-		case WV_GPUTASK_DESTROY_RENDERTARGET: destroyRenderTarget( stream.pop<RenderTargetID>() );  break;
+		case WV_GPUTASK_DESTROY_TEXTURE:      _destroyTexture     ( stream.pop<TextureID>()      ); break;
+		case WV_GPUTASK_DESTROY_MESH:         _destroyMesh        ( stream.pop<MeshID>()         ); break;
+		case WV_GPUTASK_DESTROY_BUFFER:       _destroyGPUBuffer   ( stream.pop<GPUBufferID>()    ); break;
+		case WV_GPUTASK_DESTROY_PIPELINE:     _destroyPipeline    ( stream.pop<PipelineID>()     ); break;
+		case WV_GPUTASK_DESTROY_PROGRAM:      _destroyProgram     ( stream.pop<ProgramID>()      ); break;
+		case WV_GPUTASK_DESTROY_RENDERTARGET: _destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
 
 		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
 		case WV_GPUTASK_BIND_PIPELINE:    bindPipeline   ( stream.pop<PipelineID>() );     break;
 		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
 			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
 			break;
+
+		case WV_GPUTASK_CALLBACK:
+			CreateCallback cb = stream.pop<CreateCallback>();
+			cb.func( cb.caller );
+			break;
 		}
 	}
 
+	/*
 	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 	{
 		CmdBufferID submittedIndex = m_submittedCommandBuffers[ i ];
@@ -192,27 +212,46 @@ void wv::iLowLevelGraphics::executeCommandBuffer( CmdBufferID _bufferID )
 		m_submittedCommandBuffers.erase( m_submittedCommandBuffers.begin() + i );
 		m_availableCommandBuffers.push( submittedIndex );
 	}
-
-	if( buffer.callback.m_fptr )
-		buffer.callback( buffer.callbacker );
+	*/
 
 	buffer.flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::iLowLevelGraphics::cmdCreateProgram( CmdBufferID _bufferID, const sProgramDesc& _desc )
+wv::ProgramID wv::iLowLevelGraphics::createProgram( const sProgramDesc& _desc )
 {
 	ProgramID id = m_programs.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PROGRAM, id, _desc );
+
+	if ( std::this_thread::get_id() == getThreadID() )
+		_createProgram( id, _desc );
+	else
+		return cmdCreateCommand( WV_GPUTASK_CREATE_PROGRAM, id, _desc );
+	
+	return id;
+}
+
+void wv::iLowLevelGraphics::destroyProgram( ProgramID _programID )
+{
+	if ( std::this_thread::get_id() == getThreadID() )
+		_destroyProgram( _programID );
+	else
+		return cmd( WV_GPUTASK_DESTROY_PROGRAM, &_programID );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::iLowLevelGraphics::cmdCreatePipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
+wv::PipelineID wv::iLowLevelGraphics::createPipeline( CmdBufferID _bufferID, const sPipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_PIPELINE, id, _desc );
+
+	if ( std::this_thread::get_id() == getThreadID() )
+		_createPipeline( id, _desc );
+	else
+		return cmdCreateCommand( WV_GPUTASK_CREATE_PIPELINE, id, _desc );
+
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +259,7 @@ wv::PipelineID wv::iLowLevelGraphics::cmdCreatePipeline( CmdBufferID _bufferID, 
 wv::RenderTargetID wv::iLowLevelGraphics::cmdCreateRenderTarget( CmdBufferID _bufferID, const sRenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
+	return cmdCreateCommand( WV_GPUTASK_CREATE_RENDERTARGET, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +267,7 @@ wv::RenderTargetID wv::iLowLevelGraphics::cmdCreateRenderTarget( CmdBufferID _bu
 wv::GPUBufferID wv::iLowLevelGraphics::cmdCreateGPUBuffer( CmdBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_BUFFER, id, _desc );
+	return cmdCreateCommand( WV_GPUTASK_CREATE_BUFFER, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +275,7 @@ wv::GPUBufferID wv::iLowLevelGraphics::cmdCreateGPUBuffer( CmdBufferID _bufferID
 wv::MeshID wv::iLowLevelGraphics::cmdCreateMesh( CmdBufferID _bufferID, const sMeshDesc& _desc )
 {
 	MeshID  id = m_meshes.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_MESH, id, _desc );
+	return cmdCreateCommand( WV_GPUTASK_CREATE_MESH, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -244,7 +283,7 @@ wv::MeshID wv::iLowLevelGraphics::cmdCreateMesh( CmdBufferID _bufferID, const sM
 wv::TextureID wv::iLowLevelGraphics::cmdCreateTexture( CmdBufferID _bufferID, const sTextureDesc& _desc )
 {
 	TextureID id = m_textures.emplace();
-	return cmdCreateCommand( _bufferID, WV_GPUTASK_CREATE_TEXTURE, id, _desc );
+	return cmdCreateCommand( WV_GPUTASK_CREATE_TEXTURE, id, _desc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -262,18 +301,17 @@ void wv::iLowLevelGraphics::cmdDrawIndexedIndirect( DrawListID _drawListID, sDra
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iLowLevelGraphics::setCommandBufferCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
+void wv::iLowLevelGraphics::queueAddCallback( CmdBufferID _bufferID, wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
-	std::scoped_lock lock( m_mutex );
-	cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
-	buffer.callback = _func;
-	buffer.callbacker = _caller;
+	CreateCallback cb{ _caller, _func };
+	cmd( WV_GPUTASK_CALLBACK, &cb );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iLowLevelGraphics::beginRender()
 {
+	/*
 	while( m_recordingCommandBuffers.size() > 0 )
 	{
 		wv::Time::sleepForSeconds( 0.01 );
@@ -281,14 +319,16 @@ void wv::iLowLevelGraphics::beginRender()
 
 	if( m_recordingCommandBuffers.size() > 0 )
 		throw std::runtime_error( "recording one or more command buffers across frames" );
+	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iLowLevelGraphics::endRender()
 {
-	for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
-		executeCommandBuffer( m_submittedCommandBuffers[ i ] );
+	//for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
+	//	executeCommandBuffer( m_submittedCommandBuffers[ i ] );
+	executeCommandBuffer( 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -309,7 +349,7 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 	desc.type  = old.type;
 	desc.usage = old.usage;
 	desc.size  = old.size + _size;
-	GPUBufferID mvb = createGPUBuffer( {}, &desc );
+	GPUBufferID mvb = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
 		copyBufferSubData( m_vertexBuffer, mvb, 0, 0, old.size );
@@ -317,7 +357,7 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 	bufferSubData( mvb, _vertices, _size, old.size );
 
 	// destroy and replace handle
-	destroyGPUBuffer( m_vertexBuffer );
+	_destroyGPUBuffer( m_vertexBuffer );
 	m_vertexBuffer = mvb;
 
 	return base;
@@ -334,7 +374,7 @@ size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 	desc.type  = old.type;
 	desc.usage = old.usage;
 	desc.size  = old.size + _size;
-	GPUBufferID buf = createGPUBuffer( {}, &desc );
+	GPUBufferID buf = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
 		copyBufferSubData( m_indexBuffer, buf, 0, 0, old.size );
@@ -342,13 +382,13 @@ size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 	bufferSubData( buf, _indices, _size, old.size );
 
 	// destroy and replace handle
-	destroyGPUBuffer( m_indexBuffer );
+	_destroyGPUBuffer( m_indexBuffer );
 	m_indexBuffer = buf;
 
 	return base;
 }
 
-wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
+wv::MeshID wv::iLowLevelGraphics::_createMesh( MeshID _meshID, sMeshDesc* _desc )
 {
 	if( !_meshID.is_valid() )
 		_meshID = m_meshes.emplace();
@@ -408,7 +448,7 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 	return _meshID;
 }
 
-void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
+void wv::iLowLevelGraphics::_destroyMesh( MeshID _meshID )
 {
 	sMesh& mesh = m_meshes.at( _meshID );
 

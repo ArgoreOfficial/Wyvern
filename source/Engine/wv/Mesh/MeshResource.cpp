@@ -46,7 +46,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 
 	for ( auto& meshID : _node->meshes )
 	{
-		pLowLevelGraphics->cmd( cmdBuffer, wv::WV_GPUTASK_DESTROY_MESH, &meshID );
+		pLowLevelGraphics->cmd( wv::WV_GPUTASK_DESTROY_MESH, &meshID );
 		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 	}

@@ -46,31 +46,31 @@ namespace wv
 
 		virtual void beginRender() override;
 
-		virtual RenderTargetID createRenderTarget ( RenderTargetID _renderTargetID, sRenderTargetDesc* _desc ) override;
-		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID )                           override;
+		virtual RenderTargetID _createRenderTarget ( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) override;
+		virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID )                           override;
 		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID )                           override;
 
 		virtual void setClearColor    ( const wv::cColor& _color ) override;
 		virtual void clearRenderTarget( bool _color, bool _depth ) override;
 
-		virtual ProgramID createProgram ( ProgramID _programID, sProgramDesc* _desc ) override;
-		virtual void      destroyProgram( ProgramID _programID )                      override;
+		virtual ProgramID _createProgram ( ProgramID _programID, const sProgramDesc& _desc ) override;
+		virtual void      _destroyProgram( ProgramID _programID )                      override;
 
-		virtual PipelineID createPipeline ( PipelineID _pipelineID, sPipelineDesc* _desc ) override;
-		virtual void       destroyPipeline( PipelineID _pipelineID )                       override;
+		virtual PipelineID _createPipeline ( PipelineID _pipelineID, const sPipelineDesc& _desc ) override;
+		virtual void       _destroyPipeline( PipelineID _pipelineID )                       override;
 		virtual void       bindPipeline   ( PipelineID _pipelineID )                       override;
 
-		virtual GPUBufferID createGPUBuffer( GPUBufferID _bufferID, sGPUBufferDesc* _desc ) override;
-		virtual void destroyGPUBuffer ( GPUBufferID _bufferID ) override;
+		virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) override;
+		virtual void _destroyGPUBuffer ( GPUBufferID _bufferID ) override;
 		virtual void bindBuffer       ( GPUBufferID _bufferID ) override;
 		virtual void bindBufferIndex  ( GPUBufferID _bufferID, int32_t _bindingIndex ) override;
 		virtual void bufferData       ( GPUBufferID _bufferID, void* _pData, size_t _size ) override;
 		virtual void bufferSubData    ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
 		virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) override;
 
-		virtual TextureID createTexture    ( TextureID _textureID, sTextureDesc* _pDesc )                override;
+		virtual TextureID _createTexture   ( TextureID _textureID, const sTextureDesc& _desc )          override;
 		virtual void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
-		virtual void      destroyTexture   ( TextureID _textureID )                                      override;
+		virtual void      _destroyTexture  ( TextureID _textureID )                                      override;
 		virtual void      bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
 		virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) override;

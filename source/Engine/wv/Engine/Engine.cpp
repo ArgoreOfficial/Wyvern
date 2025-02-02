@@ -291,8 +291,8 @@ void wv::cEngine::terminate()
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
-	graphics->destroyMesh( m_screenQuad );
-	graphics->destroyRenderTarget( m_gbuffer );
+	graphics->_destroyMesh( m_screenQuad );
+	graphics->_destroyRenderTarget( m_gbuffer );
 
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
@@ -446,7 +446,7 @@ void wv::cEngine::tick()
 	}
 
 	// render screen quad with deferred shader
-	if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
+	if ( m_pDeferredShader->isComplete() && currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 	{
 		m_pDeferredShader->bind( graphics );
 
@@ -562,7 +562,7 @@ void wv::cEngine::createScreenQuad()
 		prDesc.deleteData = false;
 	}
 
-	m_screenQuad = graphics->createMesh( {}, &prDesc );
+	m_screenQuad = graphics->_createMesh( {}, &prDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -604,7 +604,7 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 	}
 	
 	if( m_gbuffer.is_valid() )
-		graphics->destroyRenderTarget( m_gbuffer );
+		graphics->_destroyRenderTarget( m_gbuffer );
 	
 	if( _width == 0 || _height == 0 )
 		return;

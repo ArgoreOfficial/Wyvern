@@ -79,6 +79,9 @@ namespace wv
 
 		void unload( iResource* _res )
 		{
+			if ( !_res )
+				return;
+
 			_res->decrNumUsers();
 
 			if( _res->getNumUsers() == 0 )
