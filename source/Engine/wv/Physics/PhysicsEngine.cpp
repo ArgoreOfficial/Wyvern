@@ -312,6 +312,8 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle 
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
@@ -333,6 +335,8 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _han
 	return {};
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 {
@@ -383,6 +387,8 @@ void wv::cJoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, con
 	body->SetAngularVelocity( vel );
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cJoltPhysicsEngine::setBodyActive( PhysicsBodyID& _handle, bool _active )
 {

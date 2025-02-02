@@ -27,6 +27,8 @@ wv::cModelObject::~cModelObject()
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::cModelObject* wv::cModelObject::parseInstance( sParseData& _data )
 {
 	wv::Json& json = _data.json;
@@ -68,10 +70,14 @@ void wv::cModelObject::onLoadImpl()
 	m_transform.addChild( &m_mesh.transform );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::cModelObject::onUnloadImpl()
 {
 	m_mesh.destroy();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cModelObject::onUpdate( double _deltaTime )
 {
