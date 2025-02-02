@@ -72,17 +72,25 @@ protected:
 	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker );
 
 	Job* _getNextJob();
+	
 	JobCounter* _allocateCounter();
+	Job* _allocateJob();
+
+	void _freeCounter( JobCounter* _counter );
+	void _freeJob( Job* _job );
 
 	void _executeJob( Job* _job );
 
 	std::mutex m_queueMutex{};
-	std::mutex m_poolMutex{};
+	std::mutex m_jobPoolMutex{};
+	std::mutex m_counterPoolMutex{};
+
+	std::vector<JobCounter*> m_counterPool{};
+	std::queue <JobCounter*> m_availableCounters{};
 
 	std::vector<Job*> m_jobPool{};
-
-	std::queue<Job*> m_availableJobs{};
-	std::deque<Job*> m_jobQueue{};
+	std::queue <Job*> m_availableJobs{};
+	std::deque <Job*> m_jobQueue{};
 
 
 	std::vector<Worker*> m_workers;

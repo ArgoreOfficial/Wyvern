@@ -39,17 +39,7 @@ wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t 
 	if ( _ppCounter && ( *_ppCounter ) == nullptr )
 		*_ppCounter = _allocateCounter();
 
-	Job* job = nullptr;
-
-	m_poolMutex.lock();
-	if ( m_availableJobs.empty() )
-		job = WV_NEW( Job );
-	else
-	{
-		job = m_availableJobs.front();
-		m_availableJobs.pop();
-	}
-	m_poolMutex.unlock();
+	Job* job = _allocateJob();
 
 	job->name = _name;
 	job->pFunction = _pFunction;
@@ -121,8 +111,7 @@ void wv::JobSystem::freeCounter( JobCounter** _ppCounter )
 	if ( counter.value > 0 )
 		waitForCounter( _ppCounter, 0 );
 	
-	WV_FREE( *_ppCounter );
-	*_ppCounter = nullptr;
+	_freeCounter( *_ppCounter );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -156,9 +145,62 @@ wv::Job* wv::JobSystem::_getNextJob()
 
 wv::JobCounter* wv::JobSystem::_allocateCounter()
 {
-	JobCounter* newCounter = WV_NEW( JobCounter );
-	newCounter->value = 0;
-	return newCounter;
+	std::scoped_lock lock{ m_counterPoolMutex };
+
+	wv::JobCounter* counter = nullptr;
+	if ( m_availableCounters.empty() )
+	{
+		counter = WV_NEW( JobCounter );
+		m_counterPool.push_back( counter );
+	}
+	else
+	{
+		counter = m_availableCounters.front();
+		m_availableCounters.pop();
+	}
+
+	return counter;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::Job* wv::JobSystem::_allocateJob()
+{
+	std::scoped_lock lock{ m_jobPoolMutex };
+
+	wv::Job* job = nullptr;
+	if ( m_availableJobs.empty() )
+	{
+		job = WV_NEW( Job );
+		m_jobPool.push_back( job );
+	}
+	else
+	{
+		job = m_availableJobs.front();
+		m_availableJobs.pop();
+	}
+
+	return job;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::_freeCounter( JobCounter* _counter )
+{
+	m_counterPoolMutex.lock();
+	_counter->value = 0;
+	m_availableCounters.push( _counter );
+	m_counterPoolMutex.unlock();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::_freeJob( Job* _job )
+{
+	m_jobPoolMutex.lock();
+	*_job = {};
+	m_availableJobs.push( _job );
+	m_jobPoolMutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -174,8 +216,5 @@ void wv::JobSystem::_executeJob( Job* _job )
 			counter->value--;
 	}
 
-	//memset( _job, 0, sizeof( Job ) ); // do this?
-	m_poolMutex.lock();
-	m_availableJobs.push( _job );
-	m_poolMutex.unlock();
+	_freeJob( _job );
 }
