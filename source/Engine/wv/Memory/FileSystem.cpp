@@ -71,7 +71,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	uint64_t size = m_pLowLevel->getFileSize( file );
 	
 	Memory* mem = WV_NEW( Memory );
-	mem->data = new unsigned char[ size ];
+	mem->data = WV_NEW_ARR( unsigned char, size );
 	mem->size = static_cast<unsigned int>( size );
 
 	m_loadedMemory.push_back( mem );

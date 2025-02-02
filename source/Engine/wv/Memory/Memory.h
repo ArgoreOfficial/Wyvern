@@ -23,13 +23,27 @@ public:
 		void* ptr;
 		const char* typestr;
 		size_t size;
+		size_t count;
 		const char* file;
 		uint32_t line;
 		const char* func;
 	};
 
-	template<typename _Ty, typename... _Args>
-	static _Ty* track_new( const char* _typestr, const char* _file, uint32_t _line, const char* _func, _Args... _args );
+	static void addEntry( void* _ptr, size_t _size, size_t _count, const char* _typestr, const char* _file, uint32_t _line, const char* _func )
+	{
+		Entry entry;
+		entry.ptr = _ptr;
+		entry.typestr = _typestr;
+		entry.size = _size;
+		entry.count = _count;
+		entry.file = _file;
+		entry.line = _line;
+		entry.func = _func;
+
+		m_mutex.lock();
+		m_entries.push_back( entry );
+		m_mutex.unlock();
+	}
 
 	// relinquish ownership from the tracker
 	template<typename _Ty>
@@ -52,6 +66,22 @@ public:
 		m_mutex.unlock();
 	}
 
+	template<typename _Ty, typename... _Args>
+	static _Ty* track_new( const char* _typestr, const char* _file, uint32_t _line, const char* _func, _Args ..._args )
+	{
+		_Ty* ptr = new _Ty( _args... );
+		wv::MemoryTracker::addEntry( ptr, sizeof( _Ty ), 1, _typestr, _file, _line, _func );
+		return ptr;
+	}
+
+	template<typename _Ty>
+	static _Ty* track_new_arr( size_t _count, const char* _typestr, const char* _file, uint32_t _line, const char* _func )
+	{
+		_Ty* ptr = new _Ty[ _count ];
+		wv::MemoryTracker::addEntry( ptr, sizeof( _Ty ), _count, _typestr, _file, _line, _func );
+		return ptr;
+	}
+
 	template<typename _Ty>
 	static void track_free( _Ty* _ptr )
 	{
@@ -63,10 +93,16 @@ public:
 	static void dump()
 	{
 		std::scoped_lock lock{ m_mutex };
+		
+		printf( "------- Allocations : %llu ------- \n", m_entries.size() );
 		for ( size_t i = 0; i < m_entries.size(); i++ )
 		{
 			Entry& entry = m_entries[ i ];
-			printf( "[%p] %-32s %s %i\n", entry.ptr, entry.typestr, entry.file, entry.line );
+			std::string typestr = entry.typestr;
+			if ( entry.count > 1 )
+				typestr += "[" + std::to_string( entry.count ) + "]";
+			
+			printf( "[%p] %-32s %s %i\n", entry.ptr, typestr.c_str(), entry.file, entry.line);
 		}
 	}
 
@@ -77,6 +113,8 @@ private:
 
 	// #ifdef WV_TRACK_MEMORY
 #define WV_NEW( _Ty, ... ) wv::MemoryTracker::track_new<_Ty>( #_Ty, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
+#define WV_NEW_ARR( _Ty, _count ) wv::MemoryTracker::track_new_arr<_Ty>( _count, #_Ty , __FILE__, __LINE__, __FUNCTION__ )
+
 #define WV_FREE( _ptr ) wv::MemoryTracker::track_free( _ptr )
 #define WV_RELINQUISH( _ptr ) wv::MemoryTracker::relinquish( _ptr )
 
@@ -150,26 +188,6 @@ inline T& cMemoryStream::pop( const size_t& _size )
 	T* ptr = reinterpret_cast<T*>( m_pData );
 	m_pData += _size;
 	return *ptr;
-}
-
-template<typename _Ty, typename ..._Args>
-inline _Ty* MemoryTracker::track_new( const char* _typestr, const char* _file, uint32_t _line, const char* _func, _Args ..._args )
-{
-	_Ty* obj = new _Ty( _args... );
-
-	Entry entry;
-	entry.ptr = obj;
-	entry.typestr = _typestr;
-	entry.size = sizeof( _Ty );
-	entry.file = _file;
-	entry.line = _line;
-	entry.func = _func;
-
-	m_mutex.lock();
-	m_entries.push_back( entry );
-	m_mutex.unlock();
-
-	return obj;
 }
 
 }

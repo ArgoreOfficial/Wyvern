@@ -103,11 +103,8 @@ void wv::JobSystem::freeCounter( JobCounter** _ppCounter )
 
 	JobCounter& counter = **_ppCounter;
 	if ( counter.value > 0 )
-	{
-		// warning: counter has jobs running
-		return;
-	}
-
+		waitForCounter( _ppCounter, 0 );
+	
 	WV_FREE( *_ppCounter );
 	*_ppCounter = nullptr;
 }

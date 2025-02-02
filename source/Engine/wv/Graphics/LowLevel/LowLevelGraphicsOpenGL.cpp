@@ -203,8 +203,9 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 	glCreateFramebuffers( 1, &target.fbHandle );
 	
 	target.numTextures = desc.numTextures;
-	GLenum* drawBuffers = new GLenum[ desc.numTextures ];
-	target.pTextureIDs = new TextureID[ desc.numTextures ];
+
+	GLenum* drawBuffers = WV_NEW_ARR( GLenum, desc.numTextures );
+	target.pTextureIDs = WV_NEW_ARR( TextureID, desc.numTextures );
 
 	for ( int i = 0; i < desc.numTextures; i++ )
 	{
@@ -227,7 +228,7 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::createRenderTarget( RenderTarget
 
 	glNamedFramebufferDrawBuffers( target.fbHandle, desc.numTextures, drawBuffers );
 
-	delete[] drawBuffers;
+	WV_FREE( drawBuffers );
 #ifdef WV_DEBUG
 	int errcode = 0;
 	errcode = glCheckNamedFramebufferStatus( target.fbHandle, GL_FRAMEBUFFER );

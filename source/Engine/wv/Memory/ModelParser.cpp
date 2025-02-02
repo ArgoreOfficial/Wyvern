@@ -162,14 +162,15 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
 		prDesc.sizeVertices = sizeVertices;
 
-		prDesc.vertices = new uint8_t[ sizeVertices ];
+		prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
 		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
 
 		prDesc.numIndices = indices.size();
-		prDesc.pIndices32 = new uint32_t[ indices.size() ];
+		prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
 		memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
 
 		prDesc.pMaterial = material;
+		prDesc.deleteData = true;
 
 		// buffer
 		wv::CmdBufferID cmdBuffer = device->getCommandBuffer();

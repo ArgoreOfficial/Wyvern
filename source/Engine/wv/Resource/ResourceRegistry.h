@@ -50,9 +50,6 @@ namespace wv
 			if ( res == nullptr )
 			{
 				std::string fullPath = m_pFileSystem->getFullPath( _path );
-				//res = (iResource*)new T( _path, fullPath, _args... );
-				//T* tres = new T( _path, fullPath, _args... );
-				
 				T* tres = WV_NEW( T,  _path, fullPath, _args... );
 				res = (iResource*)tres;
 
@@ -67,7 +64,7 @@ namespace wv
 					};
 
 				JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
-				LoadData* loadData = new LoadData{ res, m_pFileSystem, m_pLowLevelGraphics };
+				LoadData* loadData = WV_NEW( LoadData, res, m_pFileSystem, m_pLowLevelGraphics );
 				Job* job = pJobSystem->createJob( fptr, loadData );
 				pJobSystem->run( &job );
 

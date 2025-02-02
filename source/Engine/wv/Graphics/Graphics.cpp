@@ -393,9 +393,9 @@ wv::MeshID wv::iLowLevelGraphics::createMesh( MeshID _meshID, sMeshDesc* _desc )
 
 	if( _desc->deleteData )
 	{
-		if( _desc->vertices ) { delete[] _desc->vertices; }
-		if( _desc->pIndices16 ) { delete[] _desc->pIndices16; }
-		if( _desc->pIndices32 ) { delete[] _desc->pIndices32; }
+		if( _desc->vertices )   { WV_FREE( _desc->vertices ); }
+		if( _desc->pIndices16 ) { WV_FREE( _desc->pIndices16 ); }
+		if( _desc->pIndices32 ) { WV_FREE( _desc->pIndices32 ); }
 	}
 
 	// mesh.transform.update( _desc->pParentTransform );

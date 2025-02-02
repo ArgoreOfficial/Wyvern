@@ -41,7 +41,7 @@ void wv::cMemoryStream::allocate( size_t _size )
 		deallocate();
 	}
 
-	m_pAllocatedData = new uint8_t[ _size ];
+	m_pAllocatedData = WV_NEW_ARR( uint8_t, _size );
 	m_allocatedSize = _size;
 
 	m_pData = m_pAllocatedData;
@@ -54,7 +54,7 @@ void wv::cMemoryStream::deallocate()
 	if( !m_pAllocatedData )
 		return;
 
-	delete[] m_pAllocatedData;
+	WV_FREE( m_pAllocatedData );
 
 	m_pAllocatedData = nullptr;
 	m_pData          = nullptr;
@@ -65,7 +65,7 @@ void wv::cMemoryStream::deallocate()
 
 void wv::cMemoryStream::reallocate( size_t _newSize )
 {
-	uint8_t* pOldData = new uint8_t[ m_size ];
+	uint8_t* pOldData = WV_NEW_ARR( uint8_t, m_size );
 	size_t   oldSize  = m_size;
 
 	memcpy( pOldData, m_pData, m_size );
@@ -74,5 +74,5 @@ void wv::cMemoryStream::reallocate( size_t _newSize )
 	allocate( _newSize );
 	push( *pOldData, oldSize );
 
-	delete[] pOldData;
+	WV_FREE( pOldData );
 }
