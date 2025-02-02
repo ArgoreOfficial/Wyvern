@@ -212,7 +212,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	// then do the same for each of its children
 	for( unsigned int i = 0; i < _node->mNumChildren; i++ )
 	{
-		wv::sMeshNode* meshNode = new wv::sMeshNode();
+		wv::sMeshNode* meshNode = WV_NEW( wv::sMeshNode );
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
 
@@ -247,7 +247,7 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 
 	wv::iLowLevelGraphics* device = wv::cEngine::get()->graphics;
 
-	wv::sMeshNode* mesh = new wv::sMeshNode();
+	wv::sMeshNode* mesh = WV_NEW( wv::sMeshNode );
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
 	
 	return mesh;

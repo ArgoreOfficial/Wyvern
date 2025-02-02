@@ -47,7 +47,7 @@ wv::cModelObject* wv::cModelObject::parseInstance( sParseData& _data )
 	wv::Json data = json[ "data" ];
 	std::string meshPath = data["path"].string_value();
 	
-	cModelObject* model = new wv::cModelObject( uuid, name, meshPath );
+	cModelObject* model = WV_NEW( wv::cModelObject, uuid, name, meshPath );
 	model->m_transform = transform;
 	return model;
 }

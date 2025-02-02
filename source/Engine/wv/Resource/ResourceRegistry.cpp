@@ -98,6 +98,7 @@ void wv::cResourceRegistry::removeResource( const std::string& _name )
 		break;
 	}
 
-	delete m_resources[ _name ];
+	//delete m_resources[ _name ];
+	WV_FREE( m_resources[ _name ] );
 	m_resources.erase( _name );
 }

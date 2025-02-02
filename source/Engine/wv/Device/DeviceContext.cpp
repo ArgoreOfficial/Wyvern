@@ -7,6 +7,8 @@
 #include <wv/Device/DeviceContext/PSVita/PSVitaDeviceContext.h>
 #endif
 
+#include <wv/Memory/Memory.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
@@ -25,7 +27,7 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 	#endif
 
 	#ifdef WV_SUPPORT_SDL2
-	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext (); break;
+	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext(); break;
 	#endif
 	}
 #endif // WV_PLATFORM_PSVITA
@@ -35,7 +37,7 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 		wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing Device Context\n" );
 		if ( !context->initialize( _desc ) )
 		{
-			delete context;
+			WV_FREE( context );
 			return nullptr;
 		}
 

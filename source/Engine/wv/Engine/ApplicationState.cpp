@@ -5,6 +5,7 @@
 
 #include <wv/Reflection/Reflection.h>
 #include <wv/Memory/FileSystem.h>
+#include <wv/Memory/Memory.h>
 
 #include <wv/Engine/Engine.h>
 
@@ -21,7 +22,7 @@ void wv::cApplicationState::onDestroy()
 	for( auto& scene : m_scenes )
 	{
 		scene->onDestroy();
-		delete scene;
+		WV_FREE( scene );
 	}
 
 	m_scenes.clear();
@@ -63,7 +64,9 @@ void wv::cApplicationState::reloadScene()
 
 	m_pCurrentScene->onDestroy();
 	m_pCurrentScene->onUnload();
-	
+
+	wv::MemoryTracker::dump();
+
 	int index = -1;
 	for( size_t i = 0; i < m_scenes.size(); i++ )
 	{
@@ -74,7 +77,7 @@ void wv::cApplicationState::reloadScene()
 		}
 	}
 
-	delete m_pCurrentScene;
+	WV_FREE( m_pCurrentScene );
 
 	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
@@ -123,7 +126,7 @@ wv::Scene* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const st
 	std::string err;
 	wv::Json root = wv::Json::parse( src, err );
 
-	wv::Scene* scene = new wv::Scene( root[ "name" ].string_value(), _path );
+	wv::Scene* scene = WV_NEW( wv::Scene, root[ "name" ].string_value(), _path );
 	
 	for( auto& objJson : root[ "scene" ].array_items() )
 		scene->addChild( parseSceneObject( objJson ) );

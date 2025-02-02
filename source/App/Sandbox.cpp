@@ -8,6 +8,7 @@
 #include <wv/Graphics/Graphics.h>
 
 #include <wv/Memory/FileSystem.h>
+#include <wv/Memory/Memory.h>
 
 #include "SceneObjects/DemoWindow.h"
 
@@ -82,10 +83,10 @@ bool cSandbox::create( void )
 	engineDesc.device.pGraphics = pLowLevelGraphics;
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing Audio Device\n" );
-	engineDesc.device.pAudio = new wv::AudioDevice( nullptr );
+	engineDesc.device.pAudio = WV_NEW( wv::AudioDevice, nullptr );
 
 	// create modules
-	wv::cFileSystem* fileSystem = new wv::cFileSystem();
+	wv::cFileSystem* fileSystem = WV_NEW( wv::cFileSystem );
 
 	// set up load directories
 	fileSystem->addDirectory( "res/" );
@@ -99,7 +100,7 @@ bool cSandbox::create( void )
 	
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
-	wv::cApplicationState* appState = new wv::cApplicationState();
+	wv::cApplicationState* appState = WV_NEW( wv::cApplicationState );
 	engineDesc.pApplicationState = appState;
 
 	// load scenes
@@ -107,7 +108,7 @@ bool cSandbox::create( void )
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine
-	m_pEngine = new wv::cEngine( &engineDesc );
+	m_pEngine = WV_NEW( wv::cEngine, &engineDesc );
 
 	// set fog params 
 	/// TODO: move to scene

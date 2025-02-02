@@ -31,10 +31,10 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 
 	iLowLevelGraphics* device = nullptr;
 #ifdef WV_PLATFORM_PSVITA
-	device = new cPSVitaGraphicsDevice();
+	device = WV_NEW( cPSVitaGraphicsDevice );
 #else
 #ifdef WV_SUPPORT_OPENGL
-	device = new cLowLevelGraphicsOpenGL();
+	device = WV_NEW( cLowLevelGraphicsOpenGL );
 #endif
 #endif
 
@@ -43,7 +43,7 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 
 	if( !device->initialize( _desc ) )
 	{
-		delete device;
+		WV_FREE( device );
 		return nullptr;
 	}
 
@@ -57,7 +57,7 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 
 void wv::iLowLevelGraphics::initEmbeds()
 {
-	m_pEmptyMaterial = new cMaterial( "empty", "res/materials/EmptyMaterial.wmat" );
+	m_pEmptyMaterial = WV_NEW( cMaterial, "empty", "res/materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
 
 	sGPUBufferDesc mvbDesc{};
@@ -415,7 +415,7 @@ void wv::iLowLevelGraphics::destroyMesh( MeshID _meshID )
 	// destroy vertex and index data
 
 	if( mesh.pPlatformData )
-		delete mesh.pPlatformData;
+		WV_FREE( mesh.pPlatformData );
 
 	m_meshes.erase( _meshID );
 }

@@ -1,6 +1,6 @@
 #include "JobSystem.h"
 
-#include <atomic>
+#include <wv/Memory/Memory.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 {
 	for ( int i = 0; i < _numWorkers; i++ )
 	{
-		JobSystem::Worker* worker = new JobSystem::Worker();
+		JobSystem::Worker* worker = WV_NEW( JobSystem::Worker );
 		worker->thread = std::thread( _workerThread, this, worker );
 		m_workers.push_back( worker );
 	}
@@ -36,7 +36,7 @@ void wv::JobSystem::terminate()
 
 wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData )
 {
-	Job* job = new Job();
+	Job* job = WV_NEW( Job );
 	job->name = _name;
 	job->pFunction = _pFunction;
 	job->pData = _pData;
@@ -108,7 +108,7 @@ void wv::JobSystem::freeCounter( JobCounter** _ppCounter )
 		return;
 	}
 
-	delete *_ppCounter;
+	WV_FREE( *_ppCounter );
 	*_ppCounter = nullptr;
 }
 
@@ -142,7 +142,7 @@ wv::Job* wv::JobSystem::_getNextJob()
 
 wv::JobCounter* wv::JobSystem::_allocateCounter()
 {
-	JobCounter* newCounter = new JobCounter();
+	JobCounter* newCounter = WV_NEW( JobCounter );
 	newCounter->value = 0;
 	return newCounter;
 }
@@ -156,5 +156,5 @@ void wv::JobSystem::_executeJob( Job* _pJob )
 	if ( _pJob->ppCounter && *_pJob->ppCounter )
 		( *_pJob->ppCounter )->value--;
 	
-	delete _pJob;
+	WV_FREE( _pJob );
 }

@@ -2,6 +2,7 @@
 #include "Sandbox.h"
 
 #include <wv/Debug/Trace.h>
+#include <wv/Memory/Memory.h>
 
 #include <stdio.h>
 #include <exception>
@@ -19,7 +20,7 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 int main()
 {
 	wv::Trace::sTrace::printEnabled = false;
-
+	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
 	cSandbox sandbox{};

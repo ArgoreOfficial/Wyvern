@@ -16,7 +16,7 @@ wv::Sprite::~Sprite()
 
 wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 {
-	Sprite* sprite = new Sprite();
+	Sprite* sprite = WV_NEW( Sprite );
 	sprite->m_material = _desc->material;
 	sprite->m_transform.setPosition( _desc->position );
 	sprite->m_transform.setScale( _desc->size );

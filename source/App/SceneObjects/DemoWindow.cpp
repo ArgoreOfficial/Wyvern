@@ -37,11 +37,11 @@ void cDemoWindow::spawnBalls( int _count )
 
 	for ( int i = 0; i < m_numToSpawn; i++ )
 	{
-		wv::sPhysicsSphereDesc* sphereDesc = new wv::sPhysicsSphereDesc();
+		wv::sPhysicsSphereDesc* sphereDesc = WV_NEW( wv::sPhysicsSphereDesc );
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
 
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "ball", "res/meshes/ant.dae", sphereDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball", "res/meshes/ant.dae", sphereDesc );
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
@@ -57,11 +57,11 @@ void cDemoWindow::spawnCubes( int _count )
 
 	for ( int i = 0; i < m_numToSpawn; i++ )
 	{
-		wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+		wv::sPhysicsBoxDesc* boxDesc = WV_NEW( wv::sPhysicsBoxDesc );
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 		
-		wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "res/meshes/termite.dae", boxDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "res/meshes/termite.dae", boxDesc );
 		rb->m_transform.position.y = 1.0f;
 		sceneRoot->addChild( rb );
 		
@@ -83,11 +83,11 @@ void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 		{
 			for( int z = -_halfZ; z < _halfZ; z++ )
 			{
-				wv::sPhysicsBoxDesc* boxDesc = new wv::sPhysicsBoxDesc();
+				wv::sPhysicsBoxDesc* boxDesc = WV_NEW( wv::sPhysicsBoxDesc );
 				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 				
-				wv::cRigidbody* rb = new wv::cRigidbody( wv::cEngine::getUniqueUUID(), "cube", "res/meshes/cube.dae", boxDesc );
+				wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "res/meshes/cube.dae", boxDesc );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
 				scene->addChild( rb );
 

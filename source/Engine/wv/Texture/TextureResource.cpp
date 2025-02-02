@@ -33,7 +33,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	if ( !m_pData )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", m_path.c_str() );
-		delete m_pData;
+		WV_FREE( m_pData );
 		return;
 	}
 
@@ -84,7 +84,7 @@ void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics*
 {
 	if( m_pData )
 	{
-		delete m_pData;
+		WV_FREE( m_pData );
 		m_pData = nullptr;
 	}
 

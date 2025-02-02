@@ -4,6 +4,8 @@
 #include <wv/Reflection/Reflection.h>
 #include <wv/Engine/Engine.h>
 
+#include <wv/Memory/Memory.h>
+
 #include <string>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -18,14 +20,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	
-	static cDemoWindow* createInstance( void ) { return new cDemoWindow( wv::cEngine::getUniqueUUID(), "cDemoWindow" ); }
+	static cDemoWindow* createInstance( void ) { return WV_NEW( cDemoWindow, wv::cEngine::getUniqueUUID(), "cDemoWindow" ); }
 	static cDemoWindow* parseInstance( wv::sParseData& _data ) 
 	{ 
 		wv::Json& json = _data.json;
 		wv::UUID    uuid = json[ "uuid" ].int_value();
 		std::string name = json[ "name" ].string_value();
 
-		return new cDemoWindow( uuid, name ); 
+		return WV_NEW( cDemoWindow, uuid, name );
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////

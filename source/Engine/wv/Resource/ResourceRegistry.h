@@ -3,6 +3,7 @@
 #include <wv/Debug/Print.h>
 
 #include <wv/Memory/FileSystem.h>
+#include <wv/Memory/Memory.h>
 #include <wv/Resource/Resource.h>
 
 #include <string>
@@ -11,6 +12,7 @@
 
 #include <wv/JobSystem/JobSystem.h>
 #include <wv/Engine/Engine.h>
+
 
 namespace wv
 {
@@ -48,16 +50,20 @@ namespace wv
 			if ( res == nullptr )
 			{
 				std::string fullPath = m_pFileSystem->getFullPath( _path );
-				res = (iResource*)new T( _path, fullPath, _args... );
+				//res = (iResource*)new T( _path, fullPath, _args... );
+				//T* tres = new T( _path, fullPath, _args... );
 				
-				handleResourceType<T>( (T*)res );
+				T* tres = WV_NEW( T,  _path, fullPath, _args... );
+				res = (iResource*)tres;
+
+				handleResourceType<T>( tres );
 
 				Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
 					{
 						LoadData* loadData = (LoadData*)_pData;
 
 						loadData->resource->load( loadData->pFileSystem, loadData->pLowLevelGraphics );
-						delete _pData;
+						WV_FREE( _pData );
 					};
 
 				JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;

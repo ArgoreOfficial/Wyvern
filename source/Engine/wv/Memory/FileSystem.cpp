@@ -34,9 +34,9 @@
 wv::cFileSystem::cFileSystem()
 {
 #if defined( WV_PLATFORM_PSVITA )
-	m_pLowLevel = new cPSVitaFileSystem();
+	m_pLowLevel = WV_NEW( cPSVitaFileSystem );
 #elif defined( WV_PLATFORM_WINDOWS )
-	m_pLowLevel = new cWindowsFileSystem();
+	m_pLowLevel = WV_NEW( cWindowsFileSystem );
 #endif
 	addDirectory( "" );
 }
@@ -52,7 +52,7 @@ wv::cFileSystem::~cFileSystem()
 
 	if( m_pLowLevel )
 	{
-		delete m_pLowLevel;
+		WV_FREE( m_pLowLevel );
 		m_pLowLevel = nullptr;
 	}
 }
@@ -70,7 +70,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	FileID file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
 	uint64_t size = m_pLowLevel->getFileSize( file );
 	
-	Memory* mem = new Memory();
+	Memory* mem = WV_NEW( Memory );
 	mem->data = new unsigned char[ size ];
 	mem->size = static_cast<unsigned int>( size );
 
@@ -110,9 +110,9 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 		break;
 	}
 
-	delete _memory->data;
+	WV_FREE( _memory->data );
 	*_memory = {};
-	delete _memory;
+	WV_FREE( _memory );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

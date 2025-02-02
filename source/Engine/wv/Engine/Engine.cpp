@@ -91,15 +91,15 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pApplicationState = _desc->pApplicationState;
 
 	/// TODO: move to descriptor
-	m_pPhysicsEngine = new cJoltPhysicsEngine();
+	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
 
 	m_pFileSystem = _desc->systems.pFileSystem;
-	m_pResourceRegistry = new cResourceRegistry( m_pFileSystem, graphics );
+	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
 	m_pResourceRegistry->initializeEmbeded();
 
-	m_pJobSystem = new JobSystem();
+	m_pJobSystem = WV_NEW( JobSystem );
 	m_pJobSystem->initialize( 5 );
 
 	graphics->initEmbeds();
@@ -112,7 +112,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
-		m_pDeferredShader = new cShaderResource( "deferred" );
+		m_pDeferredShader = WV_NEW( cShaderResource, "deferred" );
 		m_pDeferredShader->load( m_pFileSystem, graphics );
 		
 		createScreenQuad();
@@ -246,8 +246,8 @@ void wv::cEngine::run()
 	m_inputListener.hook();
 	m_mouseListener.hook();
 
-	orbitCamera = new OrbitCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	freeflightCamera = new FreeflightCamera( iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	orbitCamera = WV_NEW( OrbitCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	freeflightCamera = WV_NEW( FreeflightCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onCreate();
 	freeflightCamera->onCreate();
 
@@ -270,6 +270,7 @@ void wv::cEngine::run()
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
 	m_pApplicationState->onDestroy();
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -279,18 +280,18 @@ void wv::cEngine::terminate()
 	currentCamera = nullptr;
 	
 	m_pJobSystem->terminate();
-	delete m_pJobSystem;
+	WV_FREE( m_pJobSystem );
 	m_pJobSystem = nullptr;
 
 	if ( m_pPhysicsEngine )
 	{
 		m_pPhysicsEngine->terminate();
-		delete m_pPhysicsEngine;
+		WV_FREE( m_pPhysicsEngine );
 		m_pPhysicsEngine = nullptr;
 	}
 
-	delete orbitCamera;
-	delete freeflightCamera;
+	WV_FREE( orbitCamera );
+	WV_FREE( freeflightCamera );
 	orbitCamera = nullptr;
 	freeflightCamera = nullptr;
 
@@ -299,13 +300,13 @@ void wv::cEngine::terminate()
 
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
-	delete m_pFileSystem;
+	WV_FREE( m_pFileSystem );
 
 	context->terminate();
 	graphics->terminate();
 	
-	delete context;
-	delete graphics;
+	WV_FREE( context );
+	WV_FREE( graphics );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

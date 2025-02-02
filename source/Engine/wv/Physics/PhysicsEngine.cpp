@@ -29,6 +29,7 @@
 
 #include <wv/Camera/Camera.h>
 #include <wv/Physics/PhysicsListeners.h>
+#include <wv/Memory/Memory.h>
 
 #include <stdarg.h>
 #include <cstdarg>
@@ -93,34 +94,33 @@ void wv::cJoltPhysicsEngine::init()
 	JPH::Trace = traceImpl;
 	JPH_IF_ENABLE_ASSERTS( JPH::AssertFailed = AssertFailedImpl; )
 
-	JPH::Factory::sInstance = new JPH::Factory();
+	JPH::Factory::sInstance = WV_NEW( JPH::Factory );
 
 	JPH::RegisterTypes();
 
-	m_pTempAllocator = new JPH::TempAllocatorImpl( 10 * 1024 * 1024 );
-	m_pPhysicsJobSystem     = new JPH::JobSystemThreadPool( JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
+	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, 10 * 1024 * 1024 );
+	m_pPhysicsJobSystem = WV_NEW( JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
 
-	m_pBroadPhaseLayer               = new cBroadPhaseLayer();
-	m_pObjectVsBroadPhaseLayerFilter = new cObjectVsBroadPhaseLayerFilter();
-	m_pObjectLayerPairFilter         = new cObjectLayerPairFilter();
+	m_pBroadPhaseLayer               = WV_NEW( cBroadPhaseLayer );
+	m_pObjectVsBroadPhaseLayerFilter = WV_NEW( cObjectVsBroadPhaseLayerFilter );
+	m_pObjectLayerPairFilter         = WV_NEW( cObjectLayerPairFilter );
 
-	m_pPhysicsSystem = new JPH::PhysicsSystem();
+	m_pPhysicsSystem = WV_NEW( JPH::PhysicsSystem );
 	m_pPhysicsSystem->Init(
 		m_maxBodies, m_numBodyMutexes, m_maxBodyPairs, m_maxContactConstraints,
 		*m_pBroadPhaseLayer, 
 		*m_pObjectVsBroadPhaseLayerFilter, 
 		*m_pObjectLayerPairFilter );
 
-	tempContactListener = new cJoltContactListener();
-	tempBodyActivationListener = new cJoltBodyActivationListener();
+	tempContactListener        = WV_NEW( cJoltContactListener );
+	tempBodyActivationListener = WV_NEW( cJoltBodyActivationListener );
 
 	m_pPhysicsSystem->SetContactListener( tempContactListener );
 	m_pPhysicsSystem->SetBodyActivationListener( tempBodyActivationListener );
 
 	m_pBodyInterface = &m_pPhysicsSystem->GetBodyInterface();
 
-
-	sPhysicsSphereDesc* ballDesc = new sPhysicsSphereDesc();
+	sPhysicsSphereDesc* ballDesc = WV_NEW( sPhysicsSphereDesc );
 	ballDesc->kind = WV_PHYSICS_KINEMATIC;
 	ballDesc->radius = 1.0f;
 
@@ -138,7 +138,7 @@ void wv::cJoltPhysicsEngine::terminate()
 	JPH::UnregisterTypes();
 
 	// Destroy the factory
-	delete JPH::Factory::sInstance;
+	WV_FREE( JPH::Factory::sInstance );
 	JPH::Factory::sInstance = nullptr;
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
@@ -219,13 +219,13 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	{
 		sPhysicsBoxDesc* desc = static_cast< sPhysicsBoxDesc* >( _desc );
 		JPH::RVec3 halfExtent = WVtoJPH( desc->halfExtent );
-		shape = new JPH::BoxShape( halfExtent );
+		shape = WV_NEW( JPH::BoxShape, halfExtent );
 	} break;
 
 	case WV_PHYSICS_SPHERE:
 	{
 		sPhysicsSphereDesc* desc = static_cast< sPhysicsSphereDesc* >( _desc );
-		shape = new JPH::SphereShape( desc->radius );
+		shape = WV_NEW( JPH::SphereShape, desc->radius );
 	} break;
 
 	default: Debug::Print( Debug::WV_PRINT_ERROR, "Physics shape unimplemented" ); break;
@@ -248,6 +248,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	settings.mFriction = 0.5f;
 	settings.mRestitution = 0.5f;
 
+	WV_RELINQUISH( shape ); // body interface takes ownership of shape 
 	JPH::Body* body = m_pBodyInterface->CreateBody( settings );
 	if( !body )
 	{
@@ -259,7 +260,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	wv::PhysicsBodyID handle{ 0 };
 
 	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-	
+
 	// setup constraint
 	/*
 	if( m_cameraCollider != 0 )

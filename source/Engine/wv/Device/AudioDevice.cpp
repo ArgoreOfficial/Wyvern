@@ -4,6 +4,8 @@
 #include <wv/Debug/Print.h>
 #include <string>
 
+#include <wv/Memory/Memory.h>
+
 #ifdef WV_PLATFORM_WASM
 //#define MA_AUDIO_WORKLETS_THREAD_STACK_SIZE 81920
 #include <emscripten/webaudio.h>
@@ -17,7 +19,7 @@
 wv::AudioDevice::AudioDevice( AudioDeviceDesc* _desc )
 {
 #ifdef WV_SUPPORT_MINIAUDIO
-	m_engine = new ma_engine();
+	m_engine = WV_NEW( ma_engine );
 	initialize();
 #endif
 }
@@ -92,7 +94,7 @@ wv::Audio* wv::AudioDevice::loadAudio3D( const char* _path )
 		return nullptr;
 
 	std::string path = std::string{ "res/audio/" } + _path;
-	Audio* audio = new Audio();
+	Audio* audio = WV_NEW( Audio );
 	
 	ma_result res = ma_sound_init_from_file( m_engine, path.c_str(), MA_SOUND_FLAG_DECODE, nullptr, nullptr, &audio->sound );
 	

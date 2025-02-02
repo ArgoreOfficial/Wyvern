@@ -55,7 +55,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	for ( auto& child : _node->children )
 		unloadMeshNode( child );
 	
-	delete _node;
+	WV_FREE( _node );
 }
 
 void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )

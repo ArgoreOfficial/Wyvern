@@ -35,6 +35,7 @@ namespace wv
 
 	public:
 
+		Sprite() { };
 		~Sprite();
 
 		static Sprite* create( SpriteDesc* _desc );
@@ -47,7 +48,6 @@ namespace wv
 
 	private:
 
-		Sprite() { };
 
 		static void createQuad();
 

@@ -46,7 +46,7 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 	transform.setRotation( rot );
 	transform.setScale( scl );
 
-	cSkyboxObject* skysphere = new cSkyboxObject( uuid, name );
+	cSkyboxObject* skysphere = WV_NEW( cSkyboxObject, uuid, name );
 	skysphere->m_transform = transform;
 
 	return skysphere;

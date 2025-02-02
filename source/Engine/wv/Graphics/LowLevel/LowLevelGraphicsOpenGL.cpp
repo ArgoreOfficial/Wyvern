@@ -562,7 +562,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyPipeline( PipelineID _pipelineID )
 	destroyProgram( pipeline.fragmentProgramID );
 
 	if( pipeline.pPlatformData )
-		delete pipeline.pPlatformData;
+		WV_FREE( pipeline.pPlatformData );
 
 	m_pipelines.erase( _pipelineID );
 #endif
@@ -642,7 +642,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 				}
 			}
 		}
-		delete buffer.pPlatformData;
+		WV_FREE( buffer.pPlatformData );
 		buffer.pPlatformData = nullptr;
 	}
 
@@ -818,7 +818,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::createTexture( TextureID _textureID, 
 
 	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, desc.width, desc.height, 0, format, type, nullptr );
 	
-	sOpenGLTextureData* pPData = new sOpenGLTextureData();
+	sOpenGLTextureData* pPData = WV_NEW( sOpenGLTextureData );
 	pPData->filter = minFilter;
 	pPData->format = format;
 	pPData->internalFormat = internalFormat;
@@ -875,7 +875,7 @@ void wv::cLowLevelGraphicsOpenGL::destroyTexture( TextureID _textureID )
 
 	if( tex.pPlatformData )
 	{
-		delete tex.pPlatformData;
+		WV_FREE( tex.pPlatformData );
 		tex.pPlatformData = nullptr;
 	}
 
