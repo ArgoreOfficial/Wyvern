@@ -42,7 +42,7 @@ void wv::Scene::removeChild( iSceneObject* _node )
 
 void wv::Scene::onLoad()
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			wv::iSceneObject* obj = data->pObject;
@@ -58,7 +58,7 @@ void wv::Scene::onLoad()
 
 void wv::Scene::onUnload()
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			wv::iSceneObject* obj = data->pObject;
@@ -77,7 +77,7 @@ void wv::Scene::onUnload()
 
 void wv::Scene::onCreate()
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			wv::iSceneObject* obj = data->pObject;
@@ -93,7 +93,7 @@ void wv::Scene::onCreate()
 
 void wv::Scene::onDestroy()
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			wv::iSceneObject* obj = data->pObject;
@@ -110,7 +110,7 @@ void wv::Scene::onDestroy()
 
 void wv::Scene::onUpdate( double _deltaTime )
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			UpdateData* updateData = (UpdateData*)_pData;
 			wv::iSceneObject* obj = updateData->pObject;
@@ -132,7 +132,7 @@ void wv::Scene::onUpdate( double _deltaTime )
 
 void wv::Scene::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 {
-	Job::JobFunction_t fptr = []( Job* _pJob, void* _pData )
+	Job::JobFunction_t fptr = []( const Job _job, void* _pData )
 		{
 			DrawData* data = (DrawData*)_pData;
 			wv::iSceneObject* obj = data->pObject;

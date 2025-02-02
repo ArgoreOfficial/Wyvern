@@ -34,19 +34,24 @@ void wv::JobSystem::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData )
+wv::JobSystem::JobID wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData )
 {
-	Job* job = WV_NEW( Job );
-	job->name = _name;
-	job->pFunction = _pFunction;
-	job->pData = _pData;
-	job->ppCounter = nullptr;
-	return job;
+
+	Job job{};
+	job.name = _name;
+	job.pFunction = _pFunction;
+	job.pData = _pData;
+	job.ppCounter = nullptr;
+
+	m_queueMutex.lock();
+	JobID id = m_jobPool.emplace( job );
+	m_queueMutex.unlock();
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::run( Job** _ppJobs, size_t _numJobs, JobCounter** _ppCounter )
+void wv::JobSystem::run( JobID* _pJobs, size_t _numJobs, JobCounter** _ppCounter )
 {
 	if ( _ppCounter && (*_ppCounter) == nullptr )
 		*_ppCounter = _allocateCounter();
@@ -54,10 +59,12 @@ void wv::JobSystem::run( Job** _ppJobs, size_t _numJobs, JobCounter** _ppCounter
 
 	for ( size_t i = 0; i < _numJobs; i++ )
 	{
-		std::scoped_lock lock{ m_queueMutex };
+		m_queueMutex.lock();
+		Job& job = m_jobPool.at( _pJobs[ i ] );
+		job.ppCounter = _ppCounter;
 
-		_ppJobs[ i ]->ppCounter = _ppCounter;
-		m_jobQueue.push_back( _ppJobs[ i ] );
+		m_jobQueue.push_back( _pJobs[ i ] );
+		m_queueMutex.unlock();
 		
 		if ( _ppCounter && *_ppCounter )
 			( *_ppCounter )->value++;
@@ -77,8 +84,8 @@ void wv::JobSystem::waitForCounter( JobCounter** _ppCounter, int _value )
 	JobCounter& counter = **_ppCounter;
 	while ( counter.value != _value )
 	{
-		Job* nextJob = _getNextJob();
-		if ( nextJob )
+		JobID nextJob = _getNextJob();
+		if ( nextJob.is_valid() )
 			_executeJob( nextJob );
 	}
 }
@@ -115,22 +122,22 @@ void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Wo
 {
 	while ( _pWorker->alive )
 	{
-		wv::Job* nextJob = _pJobSystem->_getNextJob();
-		if ( nextJob )
+		JobID nextJob = _pJobSystem->_getNextJob();
+		if ( nextJob.is_valid() )
 			_pJobSystem->_executeJob( nextJob );
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Job* wv::JobSystem::_getNextJob()
+wv::JobSystem::JobID wv::JobSystem::_getNextJob()
 {
 	std::scoped_lock lock{ m_queueMutex };
 
 	if ( m_jobQueue.empty() )
-		return nullptr;
+		return JobID::InvalidID;
 
-	Job* job = m_jobQueue.back();
+	JobID job = m_jobQueue.back();
 	m_jobQueue.pop_back();
 	return job;
 }
@@ -146,12 +153,21 @@ wv::JobCounter* wv::JobSystem::_allocateCounter()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::_executeJob( Job* _pJob )
+void wv::JobSystem::_executeJob( JobID _job )
 {
-	_pJob->pFunction( _pJob, _pJob->pData );
+	m_queueMutex.lock();
+	Job job = m_jobPool.at( _job );
+	m_queueMutex.unlock();
 
-	if ( _pJob->ppCounter && *_pJob->ppCounter )
-		( *_pJob->ppCounter )->value--;
-	
-	WV_FREE( _pJob );
+	job.pFunction( job, job.pData );
+
+	if ( job.ppCounter && *job.ppCounter )
+	{
+		JobCounter* counter = *job.ppCounter;
+		counter->value--;
+	}
+
+	m_queueMutex.lock();
+	m_jobPool.erase( _job );
+	m_queueMutex.unlock();
 }

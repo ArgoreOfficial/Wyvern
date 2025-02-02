@@ -1,5 +1,9 @@
 #pragma once
 
+#include <arx/unordered_array.hpp>
+
+#include <wv/Types.h>
+
 #include <deque>
 #include <mutex>
 #include <vector>
@@ -20,7 +24,7 @@ struct JobCounter
 
 struct Job
 {
-	typedef void( *JobFunction_t )( Job*, void* );
+	typedef void( *JobFunction_t )( const Job, void* );
 
 	std::string   name      = "";
 	JobFunction_t pFunction = nullptr;
@@ -40,20 +44,23 @@ public:
 		std::atomic_bool alive{ true };
 	};
 
+	typedef arx::strong_type<uint16_t, struct JobID_t> JobID;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	JobSystem();
-	
+
 	void initialize( size_t _numWorkers );
 	void terminate();
 
-	[[nodiscard]] Job* createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData = nullptr );
-	[[nodiscard]] Job* createJob( Job::JobFunction_t _pFunction, void* _pData = nullptr ) { 
+	[[nodiscard]] JobID createJob( const std::string& _name, Job::JobFunction_t _pFunction, void* _pData = nullptr );
+	[[nodiscard]] JobID createJob( Job::JobFunction_t _pFunction, void* _pData = nullptr )
+	{
 		return createJob( "", _pFunction, _pData );
 	}
 
 
-	void run( Job** _ppJobs, size_t _numJobs = 1, JobCounter** _ppCounter = nullptr );
+	void run( JobID* _pJobs, size_t _numJobs = 1, JobCounter** _ppCounter = nullptr );
 	void waitForCounter( JobCounter** _ppCounter, int _value );
 	void waitForAndFreeCounter( JobCounter** _ppCounter, int _value );
 
@@ -65,13 +72,17 @@ protected:
 
 	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker );
 
-	Job* _getNextJob();
+	JobID _getNextJob();
 	JobCounter* _allocateCounter();
 
-	void _executeJob( Job* _pJob );
+	void _executeJob( JobID _job );
 
 	std::mutex m_queueMutex{};
-	std::deque<Job*> m_jobQueue{};
+
+	arx::unordered_array<JobID, Job> m_jobPool{};
+	std::deque<JobID> m_jobQueue{};
+
+
 	std::vector<Worker*> m_workers;
 
 };
