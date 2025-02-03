@@ -19,8 +19,6 @@ function load()
     elseif is_arch( "x86" ) and os.arch() == "x64" then
         set_toolchains( "i686-w64-mingw32" )
     end
-
-    --add_defines( "WV_SUPPORT_OPENGL", "WV_SUPPORT_OPENGLES" )
 end
 
 PLATFORMS[ "x64" ] = { 
