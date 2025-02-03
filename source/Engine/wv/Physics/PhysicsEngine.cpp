@@ -118,8 +118,6 @@ void wv::cJoltPhysicsEngine::init()
 	m_pPhysicsSystem->SetContactListener( tempContactListener );
 	m_pPhysicsSystem->SetBodyActivationListener( tempBodyActivationListener );
 
-	m_pBodyInterface = &m_pPhysicsSystem->GetBodyInterface();
-
 #else
 	wv::Debug::Print( Debug::WV_PRINT_ERROR, "Jolt Physics is not supported on this platform\n" );
 #endif // WV_SUPPORT_JOLT_PHYSICS
@@ -152,10 +150,13 @@ void wv::cJoltPhysicsEngine::terminate()
 void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
+	std::scoped_lock lock{ m_mutex };
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+
 	for( auto& body : m_bodies )
 	{
-		m_pBodyInterface->RemoveBody ( body.second->GetID() );
-		m_pBodyInterface->DestroyBody( body.second->GetID() );
+		bodyInterface.RemoveBody ( body.second );
+		bodyInterface.DestroyBody( body.second );
 	}
 
 	m_bodies.clear();
@@ -167,15 +168,19 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 void wv::cJoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
+	std::scoped_lock lock{ m_mutex };
+
 	if( !m_bodies.contains( _handle ) )
 	{
 		wv::Debug::Print( Debug::WV_PRINT_ERROR, "No Physics Body with Handle %i\n", _handle );
 		return;
 	}
 
-	JPH::Body* body = m_bodies.at( _handle );
-	m_pBodyInterface->RemoveBody ( body->GetID() );
-	m_pBodyInterface->DestroyBody( body->GetID() );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
+
+	bodyInterface.RemoveBody ( body );
+	bodyInterface.DestroyBody( body );
 	m_bodies.erase( _handle );
 	_handle.invalidate();
 #endif // WV_SUPPORT_JOLT_PHYSICS
@@ -212,6 +217,8 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	std::scoped_lock lock{ m_mutex };
+
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
 
 	JPH::Shape* shape = nullptr;
 	JPH::RVec3 pos = WVtoJPH( _desc->transform.position );
@@ -253,7 +260,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	settings.mRestitution = 0.5f;
 
 	WV_RELINQUISH( shape ); // body interface takes ownership of shape 
-	JPH::Body* body = m_pBodyInterface->CreateBody( settings );
+	JPH::Body* body = bodyInterface.CreateBody( settings );
 	if( !body )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Too many Rigidbodies!\n" );
@@ -263,7 +270,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	JPH::BodyID id = body->GetID();
 	wv::PhysicsBodyID handle{ 0 };
 
-	m_pBodyInterface->AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
+	bodyInterface.AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
 
 	// setup constraint
 	/*
@@ -283,7 +290,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 		handle.value = cEngine::getUniqueHandle(); 
 	} while( m_bodies.contains( handle ) );
 
-	m_bodies[ handle ] = body;
+	m_bodies[ handle ] = id;
 	return handle;
 #else
 	return 0;
@@ -295,10 +302,13 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
-	
-	JPH::RVec3 pos = body->GetPosition();
-	JPH::Vec3  rot = body->GetRotation().GetEulerAngles(); /// TODO: change to quaternion
+	//std::scoped_lock lock{ m_mutex };
+
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
+
+	JPH::RVec3 pos = bodyInterface.GetPosition( body );
+	JPH::Vec3  rot = bodyInterface.GetRotation( body ).GetEulerAngles(); /// TODO: change to quaternion
 
 	Transformf transform{};
 	transform.position = Vector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
@@ -321,20 +331,25 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle 
 wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
-	
-	return JPHtoWV( body->GetLinearVelocity() );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
+
+	return JPHtoWV( bodyInterface.GetLinearVelocity( body ) );
 #else
 	return {};
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
 
-	return JPHtoWV( body->GetAngularVelocity() );
+
+	return JPHtoWV( bodyInterface.GetAngularVelocity( body ) );
 #else
 	return {};
 #endif
@@ -345,9 +360,11 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _han
 bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	return m_bodies.at( _handle )->IsActive();
-#endif
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	return bodyInterface.IsActive( m_bodies.at( _handle ) );
+#else
 	return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +372,8 @@ bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 void wv::cJoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Transformf& _transform )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot{
@@ -364,7 +382,7 @@ void wv::cJoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Tra
 		wv::Math::radians( _transform.rotation.z )
 	};
 	
-	m_pBodyInterface->SetPositionAndRotation( body->GetID(), pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate );
+	bodyInterface.SetPositionAndRotation( body, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -373,10 +391,11 @@ void wv::cJoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Tra
 void wv::cJoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vector3f& _velocity )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
 	JPH::Vec3 vel = WVtoJPH( _velocity );
 	
-	body->SetLinearVelocity( WVtoJPH( _velocity ) );
+	bodyInterface.SetLinearVelocity( body, WVtoJPH( _velocity ) );
 #endif
 }
 
@@ -385,10 +404,11 @@ void wv::cJoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vect
 void wv::cJoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, const Vector3f& _angularVelocity )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
 	JPH::Vec3 vel = WVtoJPH( _angularVelocity );
 
-	body->SetAngularVelocity( vel );
+	bodyInterface.SetAngularVelocity( body, vel );
 #endif
 }
 
@@ -397,11 +417,12 @@ void wv::cJoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, con
 void wv::cJoltPhysicsEngine::setBodyActive( PhysicsBodyID& _handle, bool _active )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::Body* body = m_bodies.at( _handle );
+	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
+	JPH::BodyID body = m_bodies.at( _handle );
 	
 	if( _active )
-		m_pBodyInterface->ActivateBody( body->GetID() );
+		bodyInterface.ActivateBody( body );
 	else
-		m_pBodyInterface->DeactivateBody( body->GetID() );
+		bodyInterface.DeactivateBody( body );
 #endif
 }

@@ -19,6 +19,10 @@ namespace JPH { class JobSystemThreadPool; }
 namespace JPH { class PhysicsSystem; }
 namespace JPH { class BodyInterface; }
 namespace JPH { class Body; }
+
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyID.h>
+
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -55,8 +59,8 @@ namespace wv
 		PhysicsBodyID createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
 		
 		Transformf getBodyTransform      ( PhysicsBodyID& _handle );
-		Vector3f  getBodyVelocity       ( PhysicsBodyID& _handle );
-		Vector3f  getBodyAngularVelocity( PhysicsBodyID& _handle );
+		Vector3f   getBodyVelocity       ( PhysicsBodyID& _handle );
+		Vector3f   getBodyAngularVelocity( PhysicsBodyID& _handle );
 
 		bool isBodyActive( PhysicsBodyID& _handle );
 
@@ -82,8 +86,7 @@ namespace wv
 		JPH::TempAllocatorImpl*   m_pTempAllocator    = nullptr;
 		JPH::JobSystemThreadPool* m_pPhysicsJobSystem = nullptr;
 		JPH::PhysicsSystem*       m_pPhysicsSystem    = nullptr;
-		JPH::BodyInterface*       m_pBodyInterface    = nullptr;
-
+		
 		cBroadPhaseLayer*               m_pBroadPhaseLayer               = nullptr;
 		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
 		cObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
@@ -91,7 +94,7 @@ namespace wv
 		cJoltContactListener*        tempContactListener        = nullptr;
 		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
-		std::unordered_map<wv::PhysicsBodyID, JPH::Body*> m_bodies;
+		std::unordered_map<wv::PhysicsBodyID, JPH::BodyID> m_bodies;
 		std::mutex m_mutex;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
