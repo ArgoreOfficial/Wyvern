@@ -124,7 +124,7 @@ public:
 		
 		if( m_entries.empty() )
 		{
-			wv::Debug::Print( "No allocated memory" );
+			wv::Debug::Print( "No allocated memory\n" );
 			return;
 		}
 

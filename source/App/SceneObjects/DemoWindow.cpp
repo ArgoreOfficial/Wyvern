@@ -41,7 +41,7 @@ void cDemoWindow::spawnBalls( int _count )
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
 
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball", "meshes/ant.dae", sphereDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball", "meshes/sphere.dae", sphereDesc );
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
@@ -61,7 +61,7 @@ void cDemoWindow::spawnCubes( int _count )
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 		
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "meshes/termite.dae", boxDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "meshes/cube.dae", boxDesc );
 		rb->m_transform.position.y = 1.0f;
 		sceneRoot->addChild( rb );
 		
