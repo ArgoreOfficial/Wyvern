@@ -64,6 +64,8 @@ int main()
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
 	
+	wv::MemoryTracker::dump();
+
 #ifdef WV_PLATFORM_3DS
 	while( true ) {}
 #endif

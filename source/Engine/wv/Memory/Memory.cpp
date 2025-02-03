@@ -54,7 +54,7 @@ void wv::cMemoryStream::deallocate()
 	if( !m_pAllocatedData )
 		return;
 
-	WV_FREE( m_pAllocatedData );
+	WV_FREE_ARR( m_pAllocatedData );
 
 	m_pAllocatedData = nullptr;
 	m_pData          = nullptr;

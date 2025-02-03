@@ -477,9 +477,9 @@ wv::MeshID wv::iLowLevelGraphics::_createMesh( MeshID _meshID, const sMeshDesc& 
 
 	if( _desc.deleteData )
 	{
-		if( _desc.vertices )   { WV_FREE( _desc.vertices ); }
-		if( _desc.pIndices16 ) { WV_FREE( _desc.pIndices16 ); }
-		if( _desc.pIndices32 ) { WV_FREE( _desc.pIndices32 ); }
+		if( _desc.vertices )   { WV_FREE_ARR( _desc.vertices ); }
+		if( _desc.pIndices16 ) { WV_FREE_ARR( _desc.pIndices16 ); }
+		if( _desc.pIndices32 ) { WV_FREE_ARR( _desc.pIndices32 ); }
 	}
 
 	// mesh.transform.update( _desc.pParentTransform );

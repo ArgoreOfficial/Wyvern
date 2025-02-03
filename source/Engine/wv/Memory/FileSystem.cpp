@@ -110,7 +110,7 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 		break;
 	}
 
-	WV_FREE( _memory->data );
+	WV_FREE_ARR( _memory->data );
 	*_memory = {};
 	WV_FREE( _memory );
 }

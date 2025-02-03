@@ -232,7 +232,7 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::_createRenderTarget( RenderTarge
 
 	glNamedFramebufferDrawBuffers( target.fbHandle, _desc.numTextures, drawBuffers );
 
-	WV_FREE( drawBuffers );
+	WV_FREE_ARR( drawBuffers );
 #ifdef WV_DEBUG
 	int errcode = 0;
 	errcode = glCheckNamedFramebufferStatus( target.fbHandle, GL_FRAMEBUFFER );
@@ -286,6 +286,9 @@ void wv::cLowLevelGraphicsOpenGL::_destroyRenderTarget( RenderTargetID _renderTa
 
 	for ( int i = 0; i < rt.numTextures; i++ )
 		_destroyTexture( rt.pTextureIDs[ i ] );
+
+	if( rt.pTextureIDs )
+		WV_FREE_ARR( rt.pTextureIDs );
 
 	m_renderTargets.erase( _renderTargetID );
 #endif
@@ -352,7 +355,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::_createProgram( ProgramID _programID,
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
-	sProgram& program = m_programs.at( _programID );
+	sProgram program{};
 	program.type = type;
 	program.source = source;
 
@@ -467,6 +470,8 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::_createProgram( ProgramID _programID,
 		
 		program.shaderBuffers.push_back( bufID );
 	}
+
+	m_programs.at( _programID ) = program;
 
 	return _programID;
 #else
