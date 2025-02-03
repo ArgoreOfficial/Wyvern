@@ -47,6 +47,8 @@ void glMessageCallback( GLenum _source, GLenum _type, GLuint _id, GLenum _severi
 			case GL_DEBUG_SEVERITY_MEDIUM:       return wv::Debug::WV_PRINT_WARN;
 			case GL_DEBUG_SEVERITY_HIGH:         return wv::Debug::WV_PRINT_ERROR;
 			}
+
+			return wv::Debug::WV_PRINT_INFO;
 		}( );
 	
 	wv::Debug::Print( printLevel, "%s\n", _message );
