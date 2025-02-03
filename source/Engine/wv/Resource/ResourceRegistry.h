@@ -36,6 +36,11 @@ namespace wv
 
 		struct LoadData
 		{
+			LoadData( iResource* _resource, wv::cFileSystem* _pFileSystem, wv::iLowLevelGraphics* _pLowLevelGraphics ) : 
+				resource{ _resource },
+				pFileSystem{ _pFileSystem },
+				pLowLevelGraphics{ _pLowLevelGraphics }
+			{}
 			iResource* resource = nullptr;
 			wv::cFileSystem* pFileSystem = nullptr;
 			wv::iLowLevelGraphics* pLowLevelGraphics = nullptr;

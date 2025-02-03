@@ -1,9 +1,9 @@
 function on_load( target )
     -- add supports
-    target:add( "deps", "GLAD" )
+    --target:add( "deps", "GLAD" )
 
     if target:is_arch( "x64" ) then
-        import( "support.glfw"  )(target)
+        --import( "support.glfw"  )(target)
 
         -- icon resource
         target:add( "files", "$(projectdir)\\resources/resource.rc" )
@@ -16,8 +16,8 @@ function on_load( target )
         target:add( "linkdirs", "C:/msys64/mingw32/lib/" )
     end
 
-    import( "support.assimp" )( target )
-    import( "support.libsdl" )( target ) 
-    import( "support.imgui" )( target ) 
-    import( "support.joltphysics" )( target ) 
+    --import( "support.assimp" )( target )
+    --import( "support.libsdl" )( target ) 
+    --import( "support.imgui" )( target ) 
+    --import( "support.joltphysics" )( target ) 
 end

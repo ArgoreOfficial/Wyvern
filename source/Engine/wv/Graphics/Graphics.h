@@ -25,8 +25,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv
-{
+namespace wv {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,8 +64,12 @@ public:
 
 	std::thread::id getThreadID() const { return m_threadID; }
 	void assertMainThread() {
-		if ( std::this_thread::get_id() != getThreadID() )
+		if( std::this_thread::get_id() != getThreadID() )
+	#ifdef __cpp_exceptions
 			throw std::runtime_error( "Callstack not on render thread" );
+	#else
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Callstack not on render thread" );
+	#endif
 	}
 
 	void executeCommandBuffer();
@@ -147,12 +150,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	arx::unordered_array<ProgramID,      sProgram>      m_programs;
-	arx::unordered_array<PipelineID,     sPipeline>     m_pipelines;
+	arx::unordered_array<ProgramID, sProgram>      m_programs;
+	arx::unordered_array<PipelineID, sPipeline>     m_pipelines;
 	arx::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
-	arx::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
-	arx::unordered_array<TextureID,      sTexture>      m_textures;
-	arx::unordered_array<MeshID,         sMesh>         m_meshes;
+	arx::unordered_array<GPUBufferID, sGPUBuffer>    m_gpuBuffers;
+	arx::unordered_array<TextureID, sTexture>      m_textures;
+	arx::unordered_array<MeshID, sMesh>         m_meshes;
 
 	std::queue<std::pair<ProgramID, sProgramDesc>> m_programCreateQueue;
 
@@ -168,24 +171,24 @@ public:
 protected:
 	virtual ProgramID _createProgram( ProgramID _programID, const sProgramDesc& _desc ) = 0;
 	virtual void      _destroyProgram( ProgramID _programID ) = 0;
-	
+
 	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) = 0;
 	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
-	
+
 	virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) = 0;
 	virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
 	virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) = 0;
 	virtual void       _destroyPipeline( PipelineID _pipelineID ) = 0;
-	
+
 	virtual MeshID _createMesh( MeshID _meshID, const sMeshDesc& _desc );
 	virtual void   _destroyMesh( MeshID _meshID );
-	
-	virtual TextureID _createTexture( TextureID _textureID,const sTextureDesc& _desc ) = 0;
+
+	virtual TextureID _createTexture( TextureID _textureID, const sTextureDesc& _desc ) = 0;
 	virtual void      _destroyTexture( TextureID _textureID ) = 0;
 
 	virtual void      _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-	
+
 
 	iLowLevelGraphics();
 

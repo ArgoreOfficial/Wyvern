@@ -37,7 +37,7 @@ bool cSandbox::create( void )
 #endif
 
 	// create device context
-	wv::ContextDesc ctxDesc;
+	wv::ContextDesc ctxDesc{};
 
 #ifdef EMSCRIPTEN /// WebGL only supports OpenGL ES 2.0/3.0
 	ctxDesc.deviceApi = wv::WV_DEVICE_CONTEXT_API_SDL;
@@ -45,8 +45,12 @@ bool cSandbox::create( void )
 	ctxDesc.graphicsApiVersion.major = 3;
 	ctxDesc.graphicsApiVersion.minor = 0;
 #elif defined( WV_PLATFORM_WINDOWS )
+#ifdef WV_SUPPORT_SDL
 	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_SDL;
+#endif
+#ifdef WV_SUPPORT_OPENGL
 	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+#endif
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
 #elif defined( WV_PLATFORM_PSVITA )
@@ -63,7 +67,10 @@ bool cSandbox::create( void )
 
 	wv::iDeviceContext* deviceContext = wv::iDeviceContext::getDeviceContext( &ctxDesc );
 	if ( !deviceContext )
+	{
+		wv::Debug::Print( "Device Context was nullptr\n" );
 		return false;
+	}
 
 	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
 

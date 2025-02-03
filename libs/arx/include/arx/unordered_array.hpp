@@ -58,8 +58,10 @@ public:
 	size_t size ( void ) { return m_size; }
 
 	void lock( const _Kty& _key ) { 
+	#ifdef __cpp_exceptions
 		if( m_lockedkeys.find( _key ) == m_lockedkeys.end() )
 			throw std::runtime_error( "Attemping to lock already locked key" );
+	#endif
 
 		m_lockedkeys.insert( _key ); 
 		m_sharedMutex.lock_shared(); 
@@ -92,8 +94,10 @@ inline _Kty unordered_array<_Kty, _Ty>::emplace( const Args&... _args ) {
 
 		_Ty* newptr = (_Ty*)realloc( m_pBuffer, key * sizeof( _Ty ) );
 
+	#ifdef __cpp_exceptions
 		if( newptr == nullptr )
 			throw std::runtime_error( "failed to reallocate buffer" );
+	#endif
 			
 		m_pBuffer = newptr;
 		m_size = key;

@@ -9,6 +9,8 @@
 #undef max 
 #endif
 
+#include <wv/Console/Console.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -16,13 +18,18 @@ namespace wv
 	namespace Debug
 	{
 
+
 		namespace Internal
 		{
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
 			static const char* LEVEL_STR[] = {
+			#ifndef WV_PLATFORM_3DS
 				"          ", // info
+			#else
+				"> ", // info
+			#endif
 				"DEBUG",
 				" WARN",
 				"ERROR",
@@ -78,6 +85,9 @@ namespace wv
 		template<typename... Args>
 		inline void Print( const char* _str, Args... _args )
 		{
+			if( !wv::Console::isInitialized() )
+				wv::Console::initialize();
+
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().lock();
 		#endif
@@ -92,11 +102,13 @@ namespace wv
 		template<typename... Args>
 		inline void Print( PrintLevel _printLevel, const char* _str, Args... _args )
 		{
+			if( !wv::Console::isInitialized() )
+				wv::Console::initialize();
+
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().lock();
 		#endif
 
-			
 			bool skip = false;
 		#ifndef WV_DEBUG
 			skip |= _printLevel == WV_PRINT_DEBUG;

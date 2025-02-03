@@ -854,6 +854,8 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::_createTexture( TextureID _textureID,
 	texture.height = _desc.height;
 	
 	return _textureID;
+#else
+	return TextureID::InvalidID;
 #endif
 }
 

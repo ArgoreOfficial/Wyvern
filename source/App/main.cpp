@@ -15,12 +15,17 @@ WV_PSVITA_THREAD( "Sandbox" );
 WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 #endif
 
+#include <wv/Console/Console.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
 	wv::Trace::sTrace::printEnabled = false;
-	
+
+	if( !wv::Console::isInitialized() )
+		wv::Console::initialize();
+
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
 	cSandbox sandbox{};
@@ -60,5 +65,9 @@ int main()
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
 	
+#ifdef WV_PLATFORM_3DS
+	while( true ) {}
+#endif
+
 	return 0;
 }

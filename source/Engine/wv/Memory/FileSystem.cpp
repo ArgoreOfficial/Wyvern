@@ -1,10 +1,10 @@
 #include <wv/Memory/FileSystem.h>
 
-#ifdef WV_PLATFORM_WINDOWS
 #include <wv/Engine/Engine.h>
 #include <wv/Graphics/Graphics.h>
 #include <wv/Graphics/Uniform.h>
 
+#ifdef WV_PLATFORM_WINDOWS
 #define STB_IMAGE_IMPLEMENTATION
 #include <wv/Auxiliary/stb_image.h>
 #endif

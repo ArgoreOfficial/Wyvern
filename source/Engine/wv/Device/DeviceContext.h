@@ -46,7 +46,7 @@ namespace wv
 		int width = 640;
 		bool allowResize = false;
 
-		DeviceContextAPI deviceApi;
+		DeviceContextAPI deviceApi = WV_DEVICE_CONTEXT_API_NONE;
 		GraphicsAPI graphicsApi;
 		GenericVersion graphicsApiVersion;
 	};

@@ -206,9 +206,9 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 
 wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
 {
+#ifdef WV_SUPPORT_JOLT_PHYSICS
 	std::scoped_lock lock{ m_mutex };
 
-#ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::Shape* shape = nullptr;
 	JPH::RVec3 pos = WVtoJPH( _desc->transform.position );
 	JPH::RVec3 rot = WVtoJPH( _desc->transform.rotation );

@@ -110,10 +110,13 @@ private:
 
 	static inline std::vector<Entry> m_entries{};
 	static inline std::mutex m_mutex{};
-
 #ifndef WV_TRACK_MEMORY 
 #ifdef WV_DEBUG
+
+#ifndef WV_PLATFORM_3DS
 #define WV_TRACK_MEMORY 1
+#endif
+
 #endif
 #endif
 
