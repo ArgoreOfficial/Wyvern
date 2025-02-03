@@ -29,7 +29,9 @@ public:
 		kOnEnter    = 1 << 2,
 		kOnExit     = 1 << 3,
 		kOnUpdate   = 1 << 4,
-		kOnDraw     = 1 << 5
+		kOnDraw     = 1 << 5,
+
+		kAll = kOnLoad | kOnUnload | kOnEnter | kOnExit | kOnUpdate | kOnDraw
 	};
 
 	virtual FunctionFlags getFunctionFlags() = 0;
