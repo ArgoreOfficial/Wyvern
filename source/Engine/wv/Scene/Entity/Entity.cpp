@@ -13,7 +13,7 @@ wv::Entity::~Entity()
 {
 	for ( size_t i = 0; i < m_components.size(); i++ )
 	{
-		delete m_components[ i ];
+		WV_FREE( m_components[ i ] );
 		m_components[ i ] = nullptr;
 	}
 

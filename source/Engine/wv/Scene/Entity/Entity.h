@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include <wv/Memory/Memory.h>
 #include <wv/Scene/SceneObject.h>
 #include <wv/Reflection/Reflection.h>
 
@@ -21,7 +22,7 @@ public:
 	void addComponent( _Args... _args ) {
 		static_assert( std::is_base_of_v<IComponent, _Ty>, "Type must be a component" );
 
-		_Ty* comp = new _Ty{ _args... };
+		_Ty* comp = WV_NEW( _Ty, _args... );
 		comp->registerUpdatable();
 		m_components.push_back( comp );
 
@@ -32,11 +33,14 @@ public:
 		wv::UUID    uuid = json[ "uuid" ].int_value();
 		std::string name = json[ "name" ].string_value();
 
-		return new Entity( uuid, name );
+		return WV_NEW( Entity, uuid, name );
 	}
 
 	template<typename _Ty>
-	void getComponent() { }
+	void getComponent()
+	{
+		throw std::runtime_error( "unimplemented" );
+	}
 
 protected:
 
