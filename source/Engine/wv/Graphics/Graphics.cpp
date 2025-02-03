@@ -20,8 +20,6 @@
 
 #include <exception>
 
-#include <wv/Misc/Time.h>
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsDesc* _desc )

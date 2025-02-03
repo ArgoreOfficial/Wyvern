@@ -1,0 +1,12 @@
+#ifdef WV_PLATFORM_3DS
+
+#include "3DSThread.h"
+
+#include <3ds.h>
+
+void wv::Thread::sleepFor( uint64_t _nanoseconds )
+{
+	svcSleepThread( _nanoseconds );
+}
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
+
+#ifdef _MSC_VER
 #pragma warning( disable : 4267 )
+#endif
 
 #include <cstring>
 #include <stdint.h>
@@ -160,4 +163,6 @@ inline void unordered_array<_Kty, _Ty>::clear() {
 
 }
 
+#ifdef _MSC_VER
 #pragma warning( default : 4267 )
+#endif

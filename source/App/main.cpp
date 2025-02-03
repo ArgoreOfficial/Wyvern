@@ -3,6 +3,7 @@
 
 #include <wv/Debug/Trace.h>
 #include <wv/Memory/Memory.h>
+#include <wv/Platform/Console.h>
 
 #include <stdio.h>
 #include <exception>
@@ -14,8 +15,6 @@
 WV_PSVITA_THREAD( "Sandbox" );
 WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 #endif
-
-#include <wv/Console/Console.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

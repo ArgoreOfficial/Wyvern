@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wv/Platform/Console.h>
+
 #include <stdio.h>
 #include <mutex>
 
@@ -8,8 +10,6 @@
 #undef min // these need to be undefined to keep ::min and ::max functions from not dying...
 #undef max 
 #endif
-
-#include <wv/Console/Console.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
