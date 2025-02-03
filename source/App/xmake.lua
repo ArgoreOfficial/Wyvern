@@ -1,6 +1,6 @@
 --[[
 
-    Copyright (C) 2023-2024 Argore 
+    Copyright (C) 2023-2025 Argore 
 
 ]]--
 
@@ -26,7 +26,7 @@ target( PROJECT_NAME )
     add_includedirs( 
         "../Engine", 
         "./",
-        "../../libs/arx/include" )
+        "../../libs/ArX/include" )
     
     target_platform()
 target_end()

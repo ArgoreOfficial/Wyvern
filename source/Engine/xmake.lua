@@ -1,6 +1,6 @@
 --[[
 
-    Copyright (C) 2023-2024 Argore 
+    Copyright (C) 2023-2025 Argore 
 
 ]]--
 
@@ -33,7 +33,7 @@ target "Wyvern"
         "**.hpp" 
     )
     add_files( "**.cpp" )
-    add_includedirs( "./", "../../libs/arx/include" )
+    add_includedirs( "./", "../../libs/ArX/include" )
     
     if is_arch( "psvita" ) and has_vitasdk then 
         add_rules( "vitaCg" )
