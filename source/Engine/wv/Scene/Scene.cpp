@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Scene::addChild( iSceneObject* _node, bool _triggerLoadAndCreate )
+void wv::Scene::addChild( IEntity* _node, bool _triggerLoadAndCreate )
 {
 	if ( !_node )
 		return;
@@ -23,7 +23,7 @@ void wv::Scene::addChild( iSceneObject* _node, bool _triggerLoadAndCreate )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Scene::removeChild( iSceneObject* _node )
+void wv::Scene::removeChild( IEntity* _node )
 {
 	if ( !_node )
 		return;
@@ -45,7 +45,7 @@ void wv::Scene::onLoad()
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
-			wv::iSceneObject* obj = data->pObject;
+			wv::IEntity* obj = data->pObject;
 			if ( !obj->m_loaded )
 			{
 				obj->onLoadImpl();
@@ -61,7 +61,7 @@ void wv::Scene::onUnload()
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
-			wv::iSceneObject* obj = data->pObject;
+			wv::IEntity* obj = data->pObject;
 			if ( obj->m_loaded )
 			{
 				obj->onUnloadImpl();
@@ -77,7 +77,7 @@ void wv::Scene::onCreate()
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
-			wv::iSceneObject* obj = data->pObject;
+			wv::IEntity* obj = data->pObject;
 			if ( !obj->m_created )
 			{
 				obj->onCreateImpl();
@@ -93,7 +93,7 @@ void wv::Scene::onDestroy()
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
-			wv::iSceneObject* obj = data->pObject;
+			wv::IEntity* obj = data->pObject;
 			if ( obj->m_created )
 			{
 				obj->onDestroyImpl();
@@ -113,7 +113,7 @@ void wv::Scene::onUpdate( double _deltaTime )
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			UpdateData* updateData = (UpdateData*)_pData;
-			wv::iSceneObject* obj = updateData->pObject;
+			wv::IEntity* obj = updateData->pObject;
 
 			if ( obj->m_loaded && obj->m_created )
 				obj->onUpdate( updateData->deltaTime );
@@ -135,7 +135,7 @@ void wv::Scene::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
 			DrawData* data = (DrawData*)_pData;
-			wv::iSceneObject* obj = data->pObject;
+			wv::IEntity* obj = data->pObject;
 
 			if ( obj->m_loaded && obj->m_created )
 				obj->drawImpl( data->pContext, data->pDevice );

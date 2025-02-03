@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) :
-	iSceneObject{ _uuid, _name },
+	IEntity{ _uuid, _name },
 	m_meshPath{ _meshPath },
 	m_pPhysicsBodyDesc{ _bodyDesc }
 {

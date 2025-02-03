@@ -22,15 +22,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iSceneObject
+	class IEntity
 	{
 	public:
 		friend class Scene;
 
-		iSceneObject( const UUID& _uuid, const std::string& _name );
-		virtual ~iSceneObject() = 0;
+		IEntity( const UUID& _uuid, const std::string& _name );
+		virtual ~IEntity() = 0;
 
-		wv::iSceneObject* getChildByUUID( const wv::UUID& _uuid );
+		wv::IEntity* getChildByUUID( const wv::UUID& _uuid );
 
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }

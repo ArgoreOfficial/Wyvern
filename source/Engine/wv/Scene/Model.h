@@ -21,7 +21,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cModelObject : public iSceneObject
+	class cModelObject : public IEntity
 	{
 
 	public:

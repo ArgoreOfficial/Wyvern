@@ -31,6 +31,8 @@ namespace wv
 	class cJoltPhysicsEngine;
 	class JobSystem;
 
+	class UpdateManager;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct EngineDesc
@@ -123,8 +125,7 @@ namespace wv
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 		JobSystem*          m_pJobSystem        = nullptr;
-
-
+		
 		struct sFogParams
 		{
 			wv::cVector4f colorDensity{};

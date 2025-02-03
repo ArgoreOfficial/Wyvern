@@ -110,12 +110,12 @@ bool cSandbox::create( void )
 	wv::cApplicationState* appState = WV_NEW( wv::cApplicationState );
 	engineDesc.pApplicationState = appState;
 
+	// create engine
+	m_pEngine = WV_NEW( wv::cEngine, &engineDesc );
+
 	// load scenes
 	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
-
-	// create engine
-	m_pEngine = WV_NEW( wv::cEngine, &engineDesc );
 
 	// set fog params 
 	/// TODO: move to scene

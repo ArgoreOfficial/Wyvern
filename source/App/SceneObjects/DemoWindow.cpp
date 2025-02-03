@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 cDemoWindow::cDemoWindow( const uint64_t& _uuid, const std::string& _name ) :
-	iSceneObject{ _uuid, _name }
+	IEntity{ _uuid, _name }
 {
 	
 }

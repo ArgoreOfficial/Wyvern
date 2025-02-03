@@ -22,7 +22,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cRigidbody : public iSceneObject
+	class cRigidbody : public IEntity
 	{
 	public:
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );

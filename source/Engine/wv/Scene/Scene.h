@@ -29,8 +29,8 @@ namespace wv
 		std::string getSourcePath( void ) { return m_sourcePath; }
 		std::string getName      ( void ) { return m_name; }
 
-		void addChild( iSceneObject* _node, bool _triggerLoadAndCreate = false );
-		void removeChild( iSceneObject* _node );
+		void addChild( IEntity* _node, bool _triggerLoadAndCreate = false );
+		void removeChild( IEntity* _node );
 		
 		void onLoad();
 		void onUnload();
@@ -47,20 +47,20 @@ namespace wv
 
 		struct UpdateData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			double deltaTime;
 		};
 
 		struct DrawData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			iDeviceContext* pContext;
 			iLowLevelGraphics* pDevice;
 		};
 
 		struct JobData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			bool b;
 		};
 
@@ -70,7 +70,7 @@ namespace wv
 		std::string m_name = "Scene";
 		std::string m_sourcePath = "";
 
-		std::vector<iSceneObject*> m_sceneObjects;
+		std::vector<IEntity*> m_sceneObjects;
 
 	};
 

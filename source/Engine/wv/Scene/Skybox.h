@@ -20,7 +20,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cSkyboxObject : public iSceneObject
+	class cSkyboxObject : public IEntity
 	{
 
 	public:

@@ -111,6 +111,20 @@
         "path": ""
       },
       "children": []
+    },
+    {
+      "uuid": 2874621,
+      "name": "ScriptTest",
+      "type": "Entity",
+      "transform": {
+        "pos": [0,0,0],
+        "rot": [0,0,0],
+        "scl": [1,1,1]
+      },
+      "data": {
+        "path": ""
+      },
+      "children": []
     }
   ]
 }

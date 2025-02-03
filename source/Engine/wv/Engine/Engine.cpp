@@ -26,7 +26,6 @@
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Shader/ShaderResource.h>
 
-
 #include <wv/Engine/EngineReflect.h>
 
 #include <wv/Engine/ApplicationState.h>
@@ -89,6 +88,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	rt.fbHandle = 0;
 	
 	m_pApplicationState = _desc->pApplicationState;
+	m_pApplicationState->initialize();
 
 	/// TODO: move to descriptor
 	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
@@ -293,13 +293,6 @@ void wv::cEngine::terminate()
 
 	currentCamera = nullptr;
 	
-	if ( m_pPhysicsEngine )
-	{
-		m_pPhysicsEngine->terminate();
-		WV_FREE( m_pPhysicsEngine );
-		m_pPhysicsEngine = nullptr;
-	}
-
 	if( orbitCamera )
 	{
 		WV_FREE( orbitCamera );
@@ -327,8 +320,16 @@ void wv::cEngine::terminate()
 	
 	if( m_pApplicationState )
 	{
+		m_pApplicationState->terminate();
 		WV_FREE( m_pApplicationState );
 		m_pApplicationState = nullptr;
+	}
+
+	if ( m_pPhysicsEngine )
+	{
+		m_pPhysicsEngine->terminate();
+		WV_FREE( m_pPhysicsEngine );
+		m_pPhysicsEngine = nullptr;
 	}
 
 	if( audio )

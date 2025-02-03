@@ -8,11 +8,27 @@
 #include <wv/Memory/Memory.h>
 
 #include <wv/Engine/Engine.h>
+#include <wv/Events/UpdateManager.h>
+
+void wv::cApplicationState::initialize()
+{
+	m_pUpdateManager = WV_NEW( UpdateManager );
+}
+
+void wv::cApplicationState::terminate()
+{
+	if ( m_pUpdateManager )
+	{
+		WV_FREE( m_pUpdateManager );
+	}
+}
 
 void wv::cApplicationState::onCreate()
 {
 	for( auto& scene : m_scenes )
 		scene->onCreate();
+
+	m_pUpdateManager->onEnter();
 }
 
 void wv::cApplicationState::onDestroy()
@@ -24,6 +40,8 @@ void wv::cApplicationState::onDestroy()
 		scene->onDestroy();
 		WV_FREE( scene );
 	}
+
+	m_pUpdateManager->onExit();
 
 	m_scenes.clear();
 }
@@ -43,6 +61,7 @@ void wv::cApplicationState::update( double _deltaTime )
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
+	m_pUpdateManager->onUpdate( _deltaTime );
 }
 
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
@@ -51,6 +70,7 @@ void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* 
 		return;
 	
 	m_pCurrentScene->onDraw( _pContext, _pDevice );
+	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }
 
 void wv::cApplicationState::reloadScene()
@@ -67,8 +87,6 @@ void wv::cApplicationState::reloadScene()
 
 	cEngine::get()->m_pJobSystem->deleteAll();
 	
-	wv::MemoryTracker::dump();
-
 	int index = -1;
 	for( size_t i = 0; i < m_scenes.size(); i++ )
 	{
@@ -88,14 +106,14 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene->onLoad();
 }
 
-wv::iSceneObject* parseSceneObject( const wv::Json& _json )
+wv::IEntity* parseSceneObject( const wv::Json& _json )
 {
 	std::string objTypeName = _json[ "type" ].string_value();
 
 	wv::sParseData parseData; /// TODO: fix
 	parseData.json = _json;
 
-	wv::iSceneObject* obj = ( wv::iSceneObject* )wv::cReflectionRegistry::parseInstance( objTypeName, parseData );
+	wv::IEntity* obj = ( wv::IEntity* )wv::cReflectionRegistry::parseInstance( objTypeName, parseData );
 
 	if( !obj )
 	{
@@ -105,7 +123,7 @@ wv::iSceneObject* parseSceneObject( const wv::Json& _json )
 
 	for( auto& childJson : _json[ "children" ].array_items() )
 	{
-		wv::iSceneObject* childObj = parseSceneObject( childJson );
+		wv::IEntity* childObj = parseSceneObject( childJson );
 		if ( childObj != nullptr )
 			obj->m_transform.addChild( &childObj->m_transform );
 	}
@@ -181,6 +199,20 @@ void wv::cApplicationState::switchToScene( const std::string& _name )
 
 void wv::cApplicationState::switchToScene( int _index )
 {
-	// any error here is the users fault
+	if ( _index < 0 || _index > m_scenes.size() )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot switch to scene %i. Out of range\n", _index );
+		return;
+	}
+
 	m_pNextScene = m_scenes[ _index ];
+}
+
+wv::cApplicationState* wv::getAppState()
+{
+	cEngine* engine = cEngine::get();
+	if ( !engine )
+		return nullptr;
+
+	return engine->m_pApplicationState;
 }
