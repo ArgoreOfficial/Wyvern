@@ -38,7 +38,7 @@ namespace wv
 			if( m_createInstance.m_fptr )
 				return m_createInstance();
 
-			printf( "%s::createInstance not implemented!\n", m_name.c_str() );
+			wv::Debug::Print( "%s::createInstance not implemented!\n", m_name.c_str() );
 			return nullptr;
 		}
 
@@ -47,7 +47,7 @@ namespace wv
 			if( m_parseInstance.m_fptr )
 				return m_parseInstance( _data );
 
-			printf( "%s::parseInstance not implemented!\n", m_name.c_str() );
+			wv::Debug::Print( "%s::parseInstance not implemented!\n", m_name.c_str() );
 			return nullptr;
 		}
 
@@ -69,8 +69,8 @@ namespace wv
 			cReflectionRegistry::reflectClass( _name, static_cast< iClassOperator* >( &classReflection ) );
 			
 		#ifdef WV_DEBUG
-			if( classReflection.m_createInstance.m_fptr ) printf( "    ::createInstance\n" );
-			if( classReflection.m_parseInstance.m_fptr  ) printf( "    ::parseInstance\n" );
+			if( classReflection.m_createInstance.m_fptr ) wv::Debug::Print( "    ::createInstance\n" );
+			if( classReflection.m_parseInstance.m_fptr  ) wv::Debug::Print( "    ::parseInstance\n" );
 		#endif
 
 		}

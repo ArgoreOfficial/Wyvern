@@ -25,7 +25,7 @@ namespace wv
 	///////////////////////////////////////////////////////////////////////////////////////
 
 			static const char* LEVEL_STR[] = {
-			#ifndef WV_PLATFORM_3DS
+			#ifdef WV_WIDE_PRINT
 				"          ", // info
 			#else
 				"> ", // info
@@ -37,18 +37,14 @@ namespace wv
 				"TRACE"
 			};
 
-		#ifdef WV_PLATFORM_WINDOWS
-			static int LEVEL_COL[] = {
-				7,   // info
-				11,  // debug
-				14,  // warning
-				4,   // error
-				12,  // fatal
-				13   // trace
+			static const wv::Console::Color LEVEL_COL[] = {
+				Console::White,           // info
+				Console::Bright_Cyan,     // debug
+				Console::Bright_Yellow,   // warning
+				Console::Red,             // error
+				Console::Bright_Red,      // fatal
+				Console::Bright_Magenta   // trace
 			};
-			
-			static HANDLE hConsole = nullptr;
-		#endif
 
 			std::mutex& getMutex();
 
@@ -56,15 +52,11 @@ namespace wv
 
 			static inline void SetPrintLevelColor( int _level )
 			{
-			#ifdef WV_PLATFORM_WINDOWS
-				if( !hConsole )
-					hConsole = GetStdHandle( STD_OUTPUT_HANDLE );
+				if( _level >= 0 )
+					wv::Console::setForegroundColor( LEVEL_COL[ _level ] );
+				else
+					wv::Console::setForegroundColor( Console::White );
 
-				if( _level < 0 )
-					_level = 0; // default print
-
-				SetConsoleTextAttribute( hConsole, LEVEL_COL[ _level ] );
-			#endif
 			}
 		}
 
