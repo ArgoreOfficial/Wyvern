@@ -302,13 +302,17 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	//std::scoped_lock lock{ m_mutex };
-
-	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
 	JPH::BodyID body = m_bodies.at( _handle );
+	JPH::RVec3 pos;
+	JPH::Vec3  rot;
 
-	JPH::RVec3 pos = bodyInterface.GetPosition( body );
-	JPH::Vec3  rot = bodyInterface.GetRotation( body ).GetEulerAngles(); /// TODO: change to quaternion
+	const JPH::BodyLockInterface& lockInterface = m_pPhysicsSystem->GetBodyLockInterface();
+	JPH::Vec3 angularVelocity;
+	{
+		JPH::BodyLockRead lock( lockInterface, body );
+		pos = lock.GetBody().GetPosition();
+		rot = lock.GetBody().GetRotation().GetEulerAngles(); /// TODO: change to quaternion
+	}
 
 	Transformf transform{};
 	transform.position = Vector3f{ pos.GetX(), pos.GetY(), pos.GetZ() };
@@ -345,11 +349,16 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
 	JPH::BodyID body = m_bodies.at( _handle );
+	
+	const JPH::BodyLockInterface& lockInterface = m_pPhysicsSystem->GetBodyLockInterface();
+	JPH::Vec3 angularVelocity;
+	{
+		JPH::BodyLockRead lock( lockInterface, body );
+		angularVelocity = lock.GetBody().GetAngularVelocity();
+	}
 
-
-	return JPHtoWV( bodyInterface.GetAngularVelocity( body ) );
+	return JPHtoWV( angularVelocity );
 #else
 	return {};
 #endif
@@ -360,8 +369,13 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _han
 bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
-	return bodyInterface.IsActive( m_bodies.at( _handle ) );
+	JPH::BodyID body = m_bodies.at( _handle );
+	const JPH::BodyLockInterface& lockInterface = m_pPhysicsSystem->GetBodyLockInterface();
+	JPH::Vec3 angularVelocity;
+	{
+		JPH::BodyLockRead lock( lockInterface, body );
+		return lock.GetBody().IsActive();
+	}
 #else
 	return false;
 #endif

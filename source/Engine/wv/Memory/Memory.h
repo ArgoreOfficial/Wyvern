@@ -61,8 +61,10 @@ public:
 	template<typename _Ty>
 	static void relinquish( _Ty* _ptr ) 
 	{
+		m_mutex.lock();
 		std::vector<Entry>::iterator itr = _getEntry( _ptr );
 		relinquish<_Ty>( itr );
+		m_mutex.unlock();
 	}
 
 	template<typename _Ty, typename... _Args>
