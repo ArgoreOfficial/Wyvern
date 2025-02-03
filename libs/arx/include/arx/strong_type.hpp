@@ -26,6 +26,8 @@ struct strong_type
 	_Ty  operator- ( const strong_type<_Ty, _Tag>& _other ) const { return value - _other.value; }
 	_Ty  operator+ ( const strong_type<_Ty, _Tag>& _other ) const { return value + _other.value; }
 
+	operator _Ty() const { return value; }
+
 	static constexpr _Ty InvalidID = static_cast<_Ty>( -1 );
 	_Ty value;
 };
