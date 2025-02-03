@@ -107,7 +107,7 @@ void wv::cRigidbody::onLoadImpl()
 	if ( m_meshPath == "" )
 	{
 		Debug::Print( Debug::WV_PRINT_WARN, "No mesh path provided, defaulting to cube\n" );
-		m_meshPath = "res/meshes/cube.dae";
+		m_meshPath = "meshes/cube.dae";
 	}
 	
 	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( m_meshPath )->createInstance();

@@ -18,7 +18,7 @@
 void wv::cMaterial::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if ( m_path == "" )
-		m_path = _pFileSystem->getFullPath( m_name + ".wmat" );
+		m_path = m_name + ".wmat";
 
 	std::string jsonSource = _pFileSystem->loadString( m_path );
 

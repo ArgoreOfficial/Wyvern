@@ -145,7 +145,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 			};
 			
 
-			std::ofstream file( "res/materials/" + materialName + ".wmat" );
+			std::ofstream file( "materials/" + materialName + ".wmat" );
 			file << newMaterial.dump();
 			file.close();
 

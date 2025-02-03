@@ -25,7 +25,7 @@ target "Wyvern"
     end
 
     -- set_targetdir "../../build"
-    set_targetdir "../../game"
+    set_targetdir "../../game/$(plat)"
     set_objectdir "../../build/obj" 
 
     add_headerfiles( 

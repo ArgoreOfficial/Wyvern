@@ -67,9 +67,16 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 {
 	std::scoped_lock lock( m_mutex );
 
-	FileID file = m_pLowLevel->openFile( _path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
+	std::string path = getFullPath( _path );
+	if( path == "" )
+		return nullptr;
+
+	FileID file = m_pLowLevel->openFile( path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
+	if( !file.is_valid() )
+		return nullptr;
+
 	uint64_t size = m_pLowLevel->getFileSize( file );
-	
+
 	Memory* mem = WV_NEW( Memory );
 	mem->data = WV_NEW_ARR( unsigned char, size );
 	mem->size = static_cast<unsigned int>( size );
@@ -79,7 +86,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	m_pLowLevel->readFile( file, mem->data, size );
 	m_pLowLevel->closeFile( file );
 
-	Debug::Print( "Loaded file '%s'\n", _path.c_str() );
+	Debug::Print( "Loaded file '%s'\n", path.c_str() );
 
 #ifdef WV_PLATFORM_PSVITA
 	if( strncmp( mem->data, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
@@ -119,7 +126,8 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 
 std::string wv::cFileSystem::loadString( const std::string& _path )
 {
-	Memory* mem = loadMemory( _path );
+	std::string path = getFullPath( _path );
+	Memory* mem = loadMemory( path );
 
 	if ( !mem )
 		return "";

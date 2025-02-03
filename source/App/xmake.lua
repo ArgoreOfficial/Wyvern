@@ -15,7 +15,7 @@ target( PROJECT_NAME )
         set_basename(PROJECT_NAME .. "_$(mode)_$(arch)")
     end
 
-    set_targetdir "../../game"
+    set_targetdir "../../game/$(plat)"
     set_objectdir "../../build/obj"
 
     add_headerfiles( 

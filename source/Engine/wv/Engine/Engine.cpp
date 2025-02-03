@@ -338,18 +338,6 @@ void wv::cEngine::terminate()
 		audio = nullptr;
 	}
 
-	if( m_pFileSystem )
-	{
-		WV_FREE( m_pFileSystem );
-		m_pFileSystem = nullptr;
-	}
-
-	if( m_pResourceRegistry )
-	{
-		WV_FREE( m_pResourceRegistry );
-		m_pResourceRegistry = nullptr;
-	}
-
 	if( context )
 	{
 		context->terminate();
@@ -369,6 +357,18 @@ void wv::cEngine::terminate()
 		m_pJobSystem->terminate();
 		WV_FREE( m_pJobSystem );
 		m_pJobSystem = nullptr;
+	}
+
+	if( m_pResourceRegistry )
+	{
+		WV_FREE( m_pResourceRegistry );
+		m_pResourceRegistry = nullptr;
+	}
+
+	if( m_pFileSystem )
+	{
+		WV_FREE( m_pFileSystem );
+		m_pFileSystem = nullptr;
 	}
 
 }

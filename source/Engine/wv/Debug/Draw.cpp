@@ -22,8 +22,8 @@ void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGrap
 #endif
 	wv::Parser parser;
 
-	CUBE_MESH = parser.load( "res/meshes/DebugCube.dae", _pResourceRegistry );
-	SPHERE_MESH = parser.load( "res/meshes/DebugCube.dae", _pResourceRegistry );
+	CUBE_MESH = parser.load( "meshes/DebugCube.dae", _pResourceRegistry );
+	SPHERE_MESH = parser.load( "meshes/DebugCube.dae", _pResourceRegistry );
 
 }
 

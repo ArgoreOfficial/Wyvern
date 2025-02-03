@@ -21,7 +21,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	}
 
 	if ( m_path == "" )
-		m_path = _pFileSystem->getFullPath( m_name );
+		m_path = m_name;
 
 	sTextureDesc desc;
 	wv::Memory* mem = _pFileSystem->loadMemory( m_path );

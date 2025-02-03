@@ -94,7 +94,7 @@ wv::Audio* wv::AudioDevice::loadAudio3D( const char* _path )
 	if ( !m_enabled )
 		return nullptr;
 
-	std::string path = std::string{ "res/audio/" } + _path;
+	std::string path = std::string{ "audio/" } + _path;
 	Audio* audio = WV_NEW( Audio );
 	
 	ma_result res = ma_sound_init_from_file( m_engine, path.c_str(), MA_SOUND_FLAG_DECODE, nullptr, nullptr, &audio->sound );

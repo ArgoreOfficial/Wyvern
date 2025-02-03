@@ -55,7 +55,7 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 
 void wv::iLowLevelGraphics::initEmbeds()
 {
-	m_pEmptyMaterial = WV_NEW( cMaterial, "empty", "res/materials/EmptyMaterial.wmat" );
+	m_pEmptyMaterial = WV_NEW( cMaterial, "empty", "materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
 
 	sGPUBufferDesc mvbDesc{};

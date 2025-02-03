@@ -96,12 +96,12 @@ bool cSandbox::create( void )
 	wv::cFileSystem* fileSystem = WV_NEW( wv::cFileSystem );
 
 	// set up load directories
-	fileSystem->addDirectory( "res/" );
-	fileSystem->addDirectory( "res/materials/" );
-	fileSystem->addDirectory( "res/meshes/" );
-	fileSystem->addDirectory( "res/shaders/user/" );
-	fileSystem->addDirectory( "res/shaders/core/" );
-	fileSystem->addDirectory( "res/textures/" );
+	fileSystem->addDirectory( "../" );
+	fileSystem->addDirectory( "../materials/" );
+	fileSystem->addDirectory( "../meshes/" );
+	fileSystem->addDirectory( "../shaders/user/" );
+	fileSystem->addDirectory( "../shaders/core/" );
+	fileSystem->addDirectory( "../textures/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
 	
@@ -111,7 +111,7 @@ bool cSandbox::create( void )
 	engineDesc.pApplicationState = appState;
 
 	// load scenes
-	wv::Scene* scene = appState->loadScene( fileSystem, "res/scenes/playground.json" );
+	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 
 	// create engine

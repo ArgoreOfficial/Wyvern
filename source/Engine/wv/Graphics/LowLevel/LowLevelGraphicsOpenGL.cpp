@@ -575,7 +575,6 @@ void wv::cLowLevelGraphicsOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
-	printf( "Destroying Pipeline %i\n", _pipelineID.value );
 	DrawListID drawListID = m_pipelineDrawListMap.at( _pipelineID );
 	m_drawLists.erase( drawListID );
 	m_pipelineDrawListMap.erase( _pipelineID );

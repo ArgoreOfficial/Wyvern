@@ -8,7 +8,8 @@
 
 wv::cResourceRegistry::~cResourceRegistry()
 {
-	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource Registry has %i unloaded resources\n", (int)m_resources.size() );
+	if( !m_resources.empty() )
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource Registry has %i unloaded resources\n", (int)m_resources.size() );
 
 	std::vector<std::string> markedForDelete;
 

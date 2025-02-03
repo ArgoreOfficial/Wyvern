@@ -19,8 +19,8 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 	basepath += "psvita/";
 #endif
 
-	std::string vsPath = _pFileSystem->getFullPath( m_name + "_vs" + ext );
-	std::string fsPath = _pFileSystem->getFullPath( m_name + "_fs" + ext );
+	std::string vsPath = m_name + "_vs" + ext;
+	std::string fsPath = m_name + "_fs" + ext;
 
 	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
 	m_fsSource.data = _pFileSystem->loadMemory( fsPath );

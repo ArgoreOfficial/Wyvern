@@ -56,7 +56,7 @@ void wv::cSkyboxObject::onLoadImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	
-	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "res/meshes/skysphere.glb" )->createInstance();
+	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "meshes/skysphere.glb" )->createInstance();
 	m_transform.addChild( &m_mesh.transform );
 }
 
