@@ -8,28 +8,23 @@
 namespace wv
 {
 
-class IComponentInterface
+class Entity;
+
+class IComponent : public IUpdatable
 {
 public:
-
-};
-
-template<typename _Ty>
-class IComponent : public IComponentInterface, public IUpdatable
-{
-public:
-	IComponent() :
-		m_name{ _Ty::getName() }
+	IComponent( const std::string _name ):
+		m_name{ _name }
 	{
 
 	}
 
-	~IComponent() {
-		IUpdatable::destroyUpdatable();
+	const std::string getName() const { 
+		return m_name; 
 	}
 
-	static const char* getName() {
-		return _Ty::getName();
+	Entity* getParent() {
+		return m_pParent;
 	}
 
 	virtual void onLoad  ( void ) override { };
@@ -43,6 +38,8 @@ public:
 
 private:
 	const std::string m_name;
+
+	Entity* m_pParent;
 };
 
 

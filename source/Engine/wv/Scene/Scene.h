@@ -70,7 +70,7 @@ namespace wv
 		std::string m_name = "Scene";
 		std::string m_sourcePath = "";
 
-		std::vector<IEntity*> m_sceneObjects;
+		std::vector<IEntity*> m_entities;
 
 	};
 
@@ -79,14 +79,14 @@ namespace wv
 	{
 		JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
 
-		std::vector<_Ty> userDatas{ m_sceneObjects.size() };
+		std::vector<_Ty> userDatas{ m_entities.size() };
 		std::vector<Job*> jobs{};
 
 		JobCounter* counter = nullptr;
 
-		for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
+		for ( size_t i = 0; i < m_entities.size(); i++ )
 		{
-			userDatas[ i ] = _Ty{ m_sceneObjects[ i ], _args... };
+			userDatas[ i ] = _Ty{ m_entities[ i ], _args... };
 			Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
 			jobs.push_back( job );
 		}

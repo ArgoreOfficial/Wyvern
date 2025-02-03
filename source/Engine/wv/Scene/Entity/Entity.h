@@ -9,23 +9,17 @@
 namespace wv
 {
 
-class IComponentInterface;
+class IComponent;
 
 class Entity : public IEntity
 {
 public:
 	Entity( const UUID& _uuid, const std::string& _name );
-
-	~Entity() { 
-		for ( size_t i = 0; i < m_components.size(); i++ )
-			delete m_components[ i ];
-
-		m_components.clear();
-	}
+	~Entity();
 
 	template<typename _Ty, typename... _Args>
 	void addComponent( _Args... _args ) {
-		static_assert( std::is_base_of_v<IComponentInterface, _Ty>, "Type must be a component" );
+		static_assert( std::is_base_of_v<IComponent, _Ty>, "Type must be a component" );
 
 		_Ty* comp = new _Ty{ _args... };
 		comp->registerUpdatable();
@@ -44,9 +38,10 @@ public:
 	template<typename _Ty>
 	void getComponent() { }
 
-	std::vector<IComponentInterface*> m_components{};
-
 protected:
+
+	std::vector<IComponent*> m_components{};
+
 
 	virtual void onLoadImpl( void ) { };
 	virtual void onUnloadImpl( void ) { };

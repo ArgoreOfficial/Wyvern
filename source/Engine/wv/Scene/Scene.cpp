@@ -9,10 +9,10 @@ void wv::Scene::addChild( IEntity* _node, bool _triggerLoadAndCreate )
 	if ( !_node )
 		return;
 
-	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
-		if ( m_sceneObjects[ i ] == _node ) return; // node already has child
+	for ( size_t i = 0; i < m_entities.size(); i++ )
+		if ( m_entities[ i ] == _node ) return; // node already has child
 	
-	m_sceneObjects.push_back( _node );
+	m_entities.push_back( _node );
 
 	if ( _triggerLoadAndCreate )
 	{
@@ -28,12 +28,12 @@ void wv::Scene::removeChild( IEntity* _node )
 	if ( !_node )
 		return;
 
-	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
+	for ( size_t i = 0; i < m_entities.size(); i++ )
 	{
-		if ( m_sceneObjects[ i ] != _node )
+		if ( m_entities[ i ] != _node )
 			continue;
 
-		m_sceneObjects.erase( m_sceneObjects.begin() + i );
+		m_entities.erase( m_entities.begin() + i );
 		return;
 	}
 }
@@ -103,8 +103,8 @@ void wv::Scene::onDestroy()
 
 	_runJobs<JobData>( "onDestroy", fptr, false );
 
-	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
-		WV_FREE( m_sceneObjects[ i ] );
+	for ( size_t i = 0; i < m_entities.size(); i++ )
+		WV_FREE( m_entities[ i ] );
 	
 }
 
@@ -121,12 +121,12 @@ void wv::Scene::onUpdate( double _deltaTime )
 
 	_runJobs<UpdateData>( "onUpdate", fptr, _deltaTime );
 
-	for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
+	for ( size_t i = 0; i < m_entities.size(); i++ )
 	{
-		if ( m_sceneObjects[ i ]->m_transform.pParent != nullptr )
+		if ( m_entities[ i ]->m_transform.pParent != nullptr )
 			continue;
 
-		m_sceneObjects[ i ]->m_transform.update( nullptr );
+		m_entities[ i ]->m_transform.update( nullptr );
 	}
 }
 

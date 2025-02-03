@@ -5,12 +5,12 @@
 namespace wv
 {
 
-class ScriptComponent : public IComponent<ScriptComponent>
+class ScriptComponent : public IComponent
 {
 public:
-	static const char* getName() { 
-		return "ScriptComponent"; 
-	}
+	ScriptComponent() : 
+		IComponent( "ScriptComponent" )
+	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
 		return FunctionFlags::kOnEnter | FunctionFlags::kOnUpdate;

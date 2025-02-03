@@ -18,7 +18,7 @@ class IUpdatable
 public:
 	
 	IUpdatable() { }
-	~IUpdatable();
+	virtual ~IUpdatable();
 
 	void registerUpdatable();
 	
