@@ -201,6 +201,9 @@ void wv::cEngine::handleInput()
 			case 'F': m_drawWireframe ^= 1; break;
 
 			case WV_KEY_ESCAPE: context->close(); break;
+
+			default: 
+				break;
 			}
 
 		}

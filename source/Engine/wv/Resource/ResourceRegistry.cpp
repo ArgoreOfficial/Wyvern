@@ -18,7 +18,7 @@ wv::cResourceRegistry::~cResourceRegistry()
 		markedForDelete.push_back( res.second->getName() );
 	}
 
-	for ( int i = 0; i < markedForDelete.size(); i++ )
+	for ( size_t i = 0; i < markedForDelete.size(); i++ )
 	{
 		removeResource( markedForDelete[ i ] );
 

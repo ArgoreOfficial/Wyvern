@@ -80,8 +80,6 @@ namespace wv
 		cMaterial* pMaterial = nullptr;
 
 		bool complete = false;
-
-		void* pPlatformData = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

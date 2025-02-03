@@ -110,7 +110,7 @@ inline _Kty unordered_array<_Kty, _Ty>::emplace( const Args&... _args ) {
 
 	size_t index = key - 1; // index is key-1 because key 0 is invalid/none
 	_Ty* base = m_pBuffer + index;
-	_Ty* obj = new( base )_Ty{ _args... }; obj;
+	_Ty* obj = new( base )_Ty{ _args... }; (void)obj;
 
 	m_keys.insert( (_Kty)key );
 
@@ -147,7 +147,7 @@ inline void unordered_array<_Kty, _Ty>::erase( const _Kty& _key ) {
 	_Ty& obj = m_pBuffer[ index ];
 	obj.~_Ty();
 
-	memset( &obj, 0, sizeof( _Ty ) );
+	//memset( &obj, 0, sizeof( _Ty ) );
 }
 
 template<typename _Kty, typename _Ty>

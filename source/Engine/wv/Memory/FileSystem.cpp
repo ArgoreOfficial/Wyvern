@@ -101,7 +101,7 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 
 	std::scoped_lock lock( m_mutex );
 
-	for ( int i = 0; i < (int)m_loadedMemory.size(); i++ )
+	for ( size_t i = 0; i < m_loadedMemory.size(); i++ )
 	{
 		if ( m_loadedMemory[ i ] != _memory )
 			continue;
@@ -145,7 +145,7 @@ bool wv::cFileSystem::fileExists( const std::string& _path )
 
 std::string wv::cFileSystem::getFullPath( const std::string& _fileName )
 {
-	for ( int i = 0; i < m_directories.size(); i++ )
+	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{
 		std::string path = m_directories[ i ];
 		path.append( _fileName );

@@ -13,7 +13,7 @@ wv::JobSystem::JobSystem()
 
 void wv::JobSystem::initialize( size_t _numWorkers )
 {
-	for ( int i = 0; i < _numWorkers; i++ )
+	for ( size_t i = 0; i < _numWorkers; i++ )
 	{
 		JobSystem::Worker* worker = WV_NEW( JobSystem::Worker );
 		worker->thread = std::thread( _workerThread, this, worker );

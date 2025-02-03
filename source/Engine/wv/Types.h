@@ -75,21 +75,5 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	template<typename T> static const char* typeStr() { return "unknown type"; }
-
-#define WV_DEFINE_TYPE_STR( _type ) template<> const char* typeStr<_type>() { return #_type; }
-
-	WV_DEFINE_TYPE_STR( char )
-	WV_DEFINE_TYPE_STR( unsigned char )
-	WV_DEFINE_TYPE_STR( int )
-	WV_DEFINE_TYPE_STR( unsigned int )
-	WV_DEFINE_TYPE_STR( float )
-	WV_DEFINE_TYPE_STR( double )
-	WV_DEFINE_TYPE_STR( bool )
-	WV_DEFINE_TYPE_STR( std::string )
-	WV_DEFINE_TYPE_STR( const char* )
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 }
 

@@ -8,10 +8,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
-	m_type{ _type },
 	fov{ _fov },
 	m_near{ _near },
-	m_far{ _far }
+	m_far{ _far },
+	m_type{ _type }
 {
 	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
 
@@ -39,7 +39,7 @@ bool wv::iCamera::beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode 
 	instanceData.model      = wv::Matrix4x4f( 1.0f );
 
 	/// TODO: rename UbCameraData to UbCameraData?
-	BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbCameraData" );
+	//BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbCameraData" );
 	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( sUbCameraData ), 0 );
 
 	return true;

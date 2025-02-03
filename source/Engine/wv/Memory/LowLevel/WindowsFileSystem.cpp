@@ -66,7 +66,7 @@ wv::FileID wv::cWindowsFileSystem::openFile( const char* _path, const eOpenMode&
 
 	return FileID( reinterpret_cast<uint64_t>( hFile ) );
 #else
-	FileID::InvalidID;
+	return FileID::InvalidID;
 #endif
 }
 

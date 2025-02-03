@@ -128,7 +128,7 @@ namespace wv
 				{
 					T v = 0;
 
-					for( int inner = 0; inner < ColA_RowB; inner++ )
+					for( size_t inner = 0; inner < ColA_RowB; inner++ )
 						v += _a.m[ row ][ inner ] * _b.m[ inner ][ column ];
 
 					res[ row ][ column ] = v;

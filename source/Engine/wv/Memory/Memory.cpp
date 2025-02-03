@@ -74,5 +74,5 @@ void wv::cMemoryStream::reallocate( size_t _newSize )
 	allocate( _newSize );
 	push( *pOldData, oldSize );
 
-	WV_FREE( pOldData );
+	WV_FREE_ARR( pOldData );
 }

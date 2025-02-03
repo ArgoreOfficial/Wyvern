@@ -77,6 +77,9 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowL
 		switch( var.type )
 		{
 		case wv::WV_MATERIAL_VARIABLE_TEXTURE: resReg->unload( var.data.texture ); break;
+		case wv::WV_MATERIAL_VARIABLE_INT:   break;
+		case wv::WV_MATERIAL_VARIABLE_FLOAT: break;
+		case wv::WV_MATERIAL_VARIABLE_RGBA:  break;
 		}
 	}
 }

@@ -58,3 +58,12 @@ wv::tReflectedClassesMap& wv::cReflectionRegistry::getClasses()
 	static tReflectedClassesMap classes{};
 	return classes;
 }
+
+wv::Vector3f wv::jsonToVec3( const Json::array& _arr )
+{
+	return wv::Vector3f(
+		static_cast<float>( _arr[ 0 ].number_value() ),
+		static_cast<float>( _arr[ 1 ].number_value() ),
+		static_cast<float>( _arr[ 2 ].number_value() )
+	);
+}

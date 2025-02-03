@@ -65,7 +65,7 @@ namespace wv
 						LoadData* loadData = (LoadData*)_pData;
 
 						loadData->resource->load( loadData->pFileSystem, loadData->pLowLevelGraphics );
-						WV_FREE( _pData );
+						WV_FREE( loadData );
 					};
 
 				JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
@@ -101,7 +101,7 @@ namespace wv
 
 		iResource* getLoadedResource( const std::string& _name );
 
-		bool isWorking() { false; }
+		bool isWorking() { return false; }
 
 	protected:
 

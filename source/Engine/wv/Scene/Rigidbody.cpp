@@ -58,6 +58,15 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 	
 	switch( shape )
 	{
+	case WV_PHYSICS_NONE: break;
+
+	case WV_PHYSICS_SPHERE:
+	{
+		sPhysicsSphereDesc* sphereDesc = WV_NEW( sPhysicsSphereDesc );
+		sphereDesc->radius = data[ "radius" ].number_value();
+		desc = sphereDesc;
+	} break;
+
 	case WV_PHYSICS_BOX:
 	{
 		wv::Json::array halfExtents = data[ "halfExtents" ].array_items();
@@ -69,12 +78,14 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 		desc = boxDesc;
 	} break;
 
-	case WV_PHYSICS_SPHERE:
-	{
-		sPhysicsSphereDesc* sphereDesc = WV_NEW( sPhysicsSphereDesc );
-		sphereDesc->radius = data[ "radius" ].number_value();
-		desc = sphereDesc;
-	} break;
+	case WV_PHYSICS_CAPSULE:          break;
+	case WV_PHYSICS_TAPERRED_CAPSULE: break;
+	case WV_PHYSICS_CYLINDER:         break;
+	case WV_PHYSICS_CONVECT_HULL:     break;
+	case WV_PHYSICS_PLANE:            break;
+	case WV_PHYSICS_MESH:             break;
+	case WV_PHYSICS_TERRAIN:          break;
+
 	}
 
 	if( desc )

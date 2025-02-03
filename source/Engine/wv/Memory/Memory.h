@@ -25,7 +25,7 @@ public:
 		size_t size;
 		size_t count;
 		const char* file;
-		uint32_t line;
+		size_t line;
 		const char* func;
 	};
 
@@ -86,7 +86,14 @@ public:
 	static void track_free( _Ty* _ptr )
 	{
 		wv::MemoryTracker::relinquish<_Ty>( _ptr );
-		free( (void*)_ptr );
+		delete _ptr;
+	}
+
+	template<typename _Ty>
+	static void track_free_arr( _Ty* _ptr )
+	{
+		wv::MemoryTracker::relinquish<_Ty>( _ptr );
+		delete[] _ptr;
 	}
 
 	static size_t getNumAllocations() { return m_entries.size(); }
@@ -94,7 +101,7 @@ public:
 	{
 		std::scoped_lock lock{ m_mutex };
 		
-		printf( "------- Allocations : %llu ------- \n", m_entries.size() );
+		printf( "------- Allocations : %zu ------- \n", m_entries.size() );
 		for ( size_t i = 0; i < m_entries.size(); i++ )
 		{
 			Entry& entry = m_entries[ i ];
@@ -102,7 +109,7 @@ public:
 			if ( entry.count > 1 )
 				typestr += "[" + std::to_string( entry.count ) + "]";
 			
-			printf( "[%p] %-32s %s %i\n", entry.ptr, typestr.c_str(), entry.file, entry.line);
+			printf( "[%p] %-32s %s %zu\n", entry.ptr, typestr.c_str(), entry.file, entry.line );
 		}
 	}
 
@@ -125,12 +132,14 @@ private:
 #define WV_NEW_ARR( _Ty, _count ) wv::MemoryTracker::track_new_arr<_Ty>( _count, #_Ty , __FILE__, __LINE__, __FUNCTION__ )
 
 #define WV_FREE( _ptr ) wv::MemoryTracker::track_free( _ptr )
+#define WV_FREE_ARR( _ptr ) wv::MemoryTracker::track_free_arr( _ptr )
 #define WV_RELINQUISH( _ptr ) wv::MemoryTracker::relinquish( _ptr )
 #else
 #define WV_NEW( _Ty, ... ) new _Ty( __VA_ARGS__ )
 #define WV_NEW_ARR( _Ty, _count ) new _Ty[ _count ]
 
-#define WV_FREE( _ptr ) free( _ptr )
+#define WV_FREE( _ptr ) delete _ptr
+#define WV_FREE_ARR( _ptr ) delete[] _ptr
 #define WV_RELINQUISH( _ptr ) ( void )( _ptr )
 #endif
 };

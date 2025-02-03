@@ -30,11 +30,11 @@ namespace wv
 			{
 				struct Sphere { Vector3f position; float radius; }; /// TODO: move to wv/Math or similar
 
-				static sMeshNode* SPHERE_MESH;
-				static sMeshNode* CUBE_MESH;
+				extern sMeshNode* SPHERE_MESH;
+				extern sMeshNode* CUBE_MESH;
 				
-				static std::vector<Sphere> spheres;
-				static std::vector<Transformf> cubes;
+				extern std::vector<Sphere> spheres;
+				extern std::vector<Transformf> cubes;
 
 				void initDebugDraw( iLowLevelGraphics* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry );
 				void deinitDebugDraw( iLowLevelGraphics* _pLowLevelGraphics );

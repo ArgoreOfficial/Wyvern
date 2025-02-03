@@ -66,7 +66,7 @@ namespace wv
 	template<typename T>
 	inline void cEventDispatcher<T>::unhook( int32_t _handle )
 	{
-		if ( _handle < 0 || _handle >= m_hooks.size() )
+		if ( _handle < 0 || static_cast<size_t>( _handle ) == m_hooks.size() )
 			return;
 
 		m_hooks[ _handle ].hooked = false;
@@ -76,11 +76,11 @@ namespace wv
 	template<typename T>
 	inline bool cEventDispatcher<T>::pollEvent( int32_t _handle, T& _outEvent )
 	{
-		if ( _handle < 0 || _handle >= m_hooks.size() )
+		if ( _handle < 0 || static_cast<size_t>( _handle ) >= m_hooks.size() )
 			return false;
 
 		int counter = m_hooks[ _handle ].currentEventCounter;
-		if ( counter >= m_events.size() )
+		if ( static_cast<size_t>( counter ) >= m_events.size() )
 			return false;
 
 		_outEvent = m_events[ counter ];

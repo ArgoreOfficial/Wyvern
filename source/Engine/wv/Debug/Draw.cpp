@@ -9,6 +9,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+wv::sMeshNode* wv::Debug::Draw::Internal::SPHERE_MESH = nullptr;
+wv::sMeshNode* wv::Debug::Draw::Internal::CUBE_MESH   = nullptr;
+
+std::vector<wv::Debug::Draw::Internal::Sphere> wv::Debug::Draw::Internal::spheres{};
+std::vector<wv::Transformf> wv::Debug::Draw::Internal::cubes{};
+
 void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_PLATFORM_PSVITA
@@ -36,7 +42,7 @@ void wv::Debug::Draw::Internal::drawDebug( iLowLevelGraphics* _pLowLevelGraphics
 {
 	if( SPHERE_MESH )
 	{
-		for( int i = 0; i < spheres.size(); i++ )
+		for( size_t i = 0; i < spheres.size(); i++ )
 		{
 			SPHERE_MESH->transform.position = spheres[ i ].position;
 			SPHERE_MESH->transform.scale = wv::Vector3f{ spheres[ i ].radius };

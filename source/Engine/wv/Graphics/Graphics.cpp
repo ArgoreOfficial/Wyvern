@@ -87,6 +87,11 @@ void wv::iLowLevelGraphics::executeCommandBuffer()
 		
 		switch( taskType )
 		{
+		case WV_GPUTASK_NONE: 
+			break;
+
+			/// TODO: move to wv::CreateQueue
+			
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
 		{
 			auto descData = stream.pop<sCmdCreateDesc<RenderTargetID, sRenderTargetDesc>>();
@@ -152,9 +157,15 @@ void wv::iLowLevelGraphics::executeCommandBuffer()
 			break;
 
 		case WV_GPUTASK_CALLBACK:
+		{
 			CreateCallback cb = stream.pop<CreateCallback>();
 			cb.func( cb.caller );
-			break;
+		} break;
+
+			/// TODO: move to CommandBuffer
+		case WV_GPUTASK_CLEAR_RENDERTARGET: wv::Debug::Print( "error\n" ); break;
+		case WV_GPUTASK_BUFFER_DATA:        wv::Debug::Print( "error\n" ); break;
+		case WV_GPUTASK_DRAW:               wv::Debug::Print( "error\n" ); break;
 		}
 	}
 
@@ -483,12 +494,5 @@ wv::MeshID wv::iLowLevelGraphics::_createMesh( MeshID _meshID, const sMeshDesc& 
 
 void wv::iLowLevelGraphics::_destroyMesh( MeshID _meshID )
 {
-	sMesh& mesh = m_meshes.at( _meshID );
-
-	// destroy vertex and index data
-
-	if( mesh.pPlatformData )
-		WV_FREE( mesh.pPlatformData );
-
 	m_meshes.erase( _meshID );
 }

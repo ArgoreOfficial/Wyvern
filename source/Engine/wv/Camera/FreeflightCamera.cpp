@@ -62,6 +62,9 @@ void wv::FreeflightCamera::handleInput()
 				m_speed += button_delta * 1000.0f;
 				break;
 
+			default: 
+				break;
+
 			}
 		}
 	}
@@ -86,8 +89,7 @@ void wv::FreeflightCamera::update( double _delta_time )
 
 	float yaw   = Math::radians( m_transform.rotation.y );
 	float pitch = Math::radians( m_transform.rotation.x );
-	float roll  = 0.0f;
-
+	
 	// forward
 	Matrix4x4f rot_forward( 1.0f );
 	rot_forward = MatrixUtil::rotateY( rot_forward, yaw );

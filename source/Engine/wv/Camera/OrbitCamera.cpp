@@ -32,8 +32,6 @@ void wv::OrbitCamera::handleInput()
 	sMouseEvent mouseEvent;
 	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
-
 		if ( ( mouseEvent.buttondown || mouseEvent.buttonup ) && mouseEvent.button == sMouseEvent::WV_MOUSE_BUTTON_LEFT )
 		{
 			m_input_enabled = mouseEvent.buttondown;
