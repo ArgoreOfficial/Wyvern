@@ -73,10 +73,10 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
-		const unsigned int m_maxBodies             = 65536;
+		const unsigned int m_maxBodies             = 65536 * 3;
 		const unsigned int m_numBodyMutexes        = 0;
-		const unsigned int m_maxBodyPairs          = 65536;
-		const unsigned int m_maxContactConstraints = 10240;
+		const unsigned int m_maxBodyPairs          = 65536 * 4;
+		const unsigned int m_maxContactConstraints = 10240 * 2;
 
 		const float  m_timestep    = 1.0f / 120.0f;
 		float        m_accumulator = 0.0f;

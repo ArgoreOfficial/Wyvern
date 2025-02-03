@@ -98,7 +98,7 @@ void wv::cJoltPhysicsEngine::init()
 
 	JPH::RegisterTypes();
 
-	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, 10 * 1024 * 1024 );
+	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, 200000000 );
 	m_pPhysicsJobSystem = WV_NEW( JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
 
 	m_pBroadPhaseLayer               = WV_NEW( cBroadPhaseLayer );
