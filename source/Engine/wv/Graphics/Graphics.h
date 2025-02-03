@@ -72,7 +72,7 @@ public:
 	#endif
 	}
 
-	void executeCommandBuffer();
+	void executeCreateQueue();
 
 private:
 	template<typename T>
@@ -111,7 +111,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	virtual void terminate() = 0;
+	virtual void terminate();
 
 	//virtual void update() = 0;
 

@@ -45,6 +45,8 @@ namespace wv
 		bool generateMipMaps = false;
 	};
 
+	struct sPlatformTextureData;
+
 	struct sTexture
 	{
 		eTextureFiltering m_filtering;
@@ -59,6 +61,6 @@ namespace wv
 		int height = 0;
 		int numChannels = 0;
 
-		void* pPlatformData = nullptr;
+		sPlatformTextureData* pPlatformData = nullptr;
 	};
 }

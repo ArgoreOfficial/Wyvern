@@ -63,6 +63,7 @@ void wv::AudioDevice::terminate()
 #ifdef WV_SUPPORT_MINIAUDIO
 	m_enabled = false;
 	ma_engine_uninit( m_engine );
+	WV_FREE( m_engine );
 #endif
 }
 

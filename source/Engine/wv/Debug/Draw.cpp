@@ -30,10 +30,18 @@ void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGrap
 void wv::Debug::Draw::Internal::deinitDebugDraw( iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if( CUBE_MESH )
+	{
 		_pLowLevelGraphics->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
+		WV_FREE( CUBE_MESH->children[ 0 ] );
+		WV_FREE( CUBE_MESH );
+	}
 	
 	if( SPHERE_MESH )
+	{
 		_pLowLevelGraphics->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
+		WV_FREE( SPHERE_MESH->children[ 0 ] );
+		WV_FREE( SPHERE_MESH );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

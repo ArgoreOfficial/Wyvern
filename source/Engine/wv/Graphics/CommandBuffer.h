@@ -56,6 +56,10 @@ namespace wv
 			m_buffer.allocate( _initialSize );
 		}
 
+		~cCommandBuffer() {
+			m_buffer.deallocate();
+		}
+
 		void flush()
 		{
 			m_buffer.clear();

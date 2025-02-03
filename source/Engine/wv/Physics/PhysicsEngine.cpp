@@ -120,10 +120,6 @@ void wv::cJoltPhysicsEngine::init()
 
 	m_pBodyInterface = &m_pPhysicsSystem->GetBodyInterface();
 
-	sPhysicsSphereDesc* ballDesc = WV_NEW( sPhysicsSphereDesc );
-	ballDesc->kind = WV_PHYSICS_KINEMATIC;
-	ballDesc->radius = 1.0f;
-
 #else
 	wv::Debug::Print( Debug::WV_PRINT_ERROR, "Jolt Physics is not supported on this platform\n" );
 #endif // WV_SUPPORT_JOLT_PHYSICS
@@ -134,8 +130,16 @@ void wv::cJoltPhysicsEngine::init()
 void wv::cJoltPhysicsEngine::terminate()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	// Unregisters all types with the factory and cleans up the default material
 	JPH::UnregisterTypes();
+
+	WV_FREE( tempBodyActivationListener );
+	WV_FREE( tempContactListener );
+	WV_FREE( m_pPhysicsSystem );
+	WV_FREE( m_pObjectLayerPairFilter );
+	WV_FREE( m_pObjectVsBroadPhaseLayerFilter );
+	WV_FREE( m_pBroadPhaseLayer );
+	WV_FREE( m_pPhysicsJobSystem );
+	WV_FREE( m_pTempAllocator );
 
 	// Destroy the factory
 	WV_FREE( JPH::Factory::sInstance );

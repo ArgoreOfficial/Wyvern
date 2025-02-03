@@ -31,6 +31,7 @@ void wv::JobSystem::terminate()
 	{
 		m_workers[ i ]->alive = false;
 		m_workers[ i ]->thread.join();
+		WV_FREE( m_workers[ i ] );
 	}
 
 	deleteAll();

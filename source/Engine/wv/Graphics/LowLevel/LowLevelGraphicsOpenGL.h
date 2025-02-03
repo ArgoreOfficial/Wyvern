@@ -20,7 +20,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sOpenGLTextureData
+	struct sPlatformTextureData
 	{
 		unsigned int format = 0;
 		unsigned int internalFormat = 0;

@@ -73,7 +73,7 @@ void wv::iLowLevelGraphics::initEmbeds()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iLowLevelGraphics::executeCommandBuffer()
+void wv::iLowLevelGraphics::executeCreateQueue()
 {
 	std::scoped_lock lock( m_mutex );
 
@@ -349,11 +349,18 @@ void wv::iLowLevelGraphics::queueAddCallback( wv::Function<void, void*>::fptr_t 
 	cmd( WV_GPUTASK_CALLBACK, &cb );
 }
 
+void wv::iLowLevelGraphics::terminate()
+{
+	m_pEmptyMaterial->unload( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+	WV_FREE( m_pEmptyMaterial );
+	m_pEmptyMaterial = nullptr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::iLowLevelGraphics::beginRender()
 {
-	executeCommandBuffer();
+	executeCreateQueue();
 
 	/*
 	while( m_recordingCommandBuffers.size() > 0 )
@@ -372,7 +379,7 @@ void wv::iLowLevelGraphics::endRender()
 {
 	//for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
 	//	executeCommandBuffer( m_submittedCommandBuffers[ i ] );
-	executeCommandBuffer();
+	executeCreateQueue();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

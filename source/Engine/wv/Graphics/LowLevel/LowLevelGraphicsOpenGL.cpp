@@ -156,6 +156,9 @@ bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 void wv::cLowLevelGraphicsOpenGL::terminate()
 {
 	WV_TRACE();
+
+	wv::iLowLevelGraphics::terminate();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -850,7 +853,8 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::_createTexture( TextureID _textureID,
 
 	glTextureImage2DEXT( texture.textureObjectHandle, GL_TEXTURE_2D, 0, internalFormat, _desc.width, _desc.height, 0, format, type, nullptr );
 	
-	sOpenGLTextureData* pPData = WV_NEW( sOpenGLTextureData );
+	sPlatformTextureData* pPData = WV_NEW( sPlatformTextureData );
+
 	pPData->filter = minFilter;
 	pPData->format = format;
 	pPData->internalFormat = internalFormat;
@@ -876,7 +880,7 @@ void wv::cLowLevelGraphicsOpenGL::_bufferTextureData( TextureID _textureID, void
 #ifdef WV_SUPPORT_OPENGL
 	sTexture& tex = m_textures.at( _textureID );
 
-	sOpenGLTextureData* pPData = (sOpenGLTextureData*)tex.pPlatformData;
+	sPlatformTextureData* pPData = tex.pPlatformData;
 
 	glTextureImage2DEXT( tex.textureObjectHandle, GL_TEXTURE_2D, 0, pPData->internalFormat, tex.width, tex.height, 0, pPData->format, pPData->type, _pData );
 	if ( _generateMipMaps )
@@ -898,14 +902,14 @@ void wv::cLowLevelGraphicsOpenGL::_destroyTexture( TextureID _textureID )
 	assertMainThread();
 
 #ifdef WV_SUPPORT_OPENGL
-	sTexture& tex = m_textures.at( _textureID );
+	sTexture tex = m_textures.at( _textureID );
 
 	glMakeTextureHandleNonResidentARB( tex.textureHandle );
-
 	glDeleteTextures( 1, &tex.textureObjectHandle );
+
 	if( tex.pData )
 	{
-		delete[] tex.pData;
+		WV_FREE_ARR( tex.pData );
 		tex.pData = nullptr;
 	}
 

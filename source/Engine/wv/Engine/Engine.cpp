@@ -94,7 +94,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
-
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
 	m_pResourceRegistry->initializeEmbeded();
@@ -103,6 +102,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pJobSystem->initialize( 5 );
 
 	graphics->initEmbeds();
+
+	audio = _desc->device.pAudio;
 
 	/* 
 	 * create deferred rendering objects
@@ -139,6 +140,8 @@ wv::cEngine* wv::cEngine::get()
 	return s_pInstance;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::UUID wv::cEngine::getUniqueUUID()
 {
 #ifdef WV_PLATFORM_WINDOWS
@@ -154,6 +157,8 @@ wv::UUID wv::cEngine::getUniqueUUID()
 	return 0;
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Handle wv::cEngine::getUniqueHandle()
 {
@@ -172,7 +177,6 @@ wv::Handle wv::cEngine::getUniqueHandle()
 #endif
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cEngine::onResize( int _width, int _height )
@@ -180,6 +184,8 @@ void wv::cEngine::onResize( int _width, int _height )
 	context->onResize( _width, _height );
 	recreateScreenRenderTarget( _width, _height );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cEngine::handleInput()
 {
@@ -209,6 +215,8 @@ void wv::cEngine::handleInput()
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cEngine::setSize( int _width, int _height, bool _notify )
 {
@@ -241,6 +249,7 @@ wv::Vector2i wv::cEngine::getViewportSize()
 	return { context->getWidth(), context->getHeight() };
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cEngine::run()
 {
@@ -280,6 +289,8 @@ void wv::cEngine::run()
 
 void wv::cEngine::terminate()
 {
+	graphics->executeCreateQueue();
+
 	currentCamera = nullptr;
 	
 	if ( m_pPhysicsEngine )
@@ -289,27 +300,77 @@ void wv::cEngine::terminate()
 		m_pPhysicsEngine = nullptr;
 	}
 
-	WV_FREE( orbitCamera );
-	WV_FREE( freeflightCamera );
-	orbitCamera = nullptr;
-	freeflightCamera = nullptr;
+	if( orbitCamera )
+	{
+		WV_FREE( orbitCamera );
+		orbitCamera = nullptr;
+	}
+
+	if( freeflightCamera )
+	{
+		WV_FREE( freeflightCamera );
+		freeflightCamera = nullptr;
+	}
 
 	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( m_gbuffer );
 
+	if( m_pDeferredShader )
+	{
+		m_pDeferredShader->unload( m_pFileSystem, graphics );
+		WV_FREE( m_pDeferredShader );
+		m_pDeferredShader = nullptr;
+	}
+
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
-	WV_FREE( m_pFileSystem );
-
-	context->terminate();
-	graphics->terminate();
 	
-	m_pJobSystem->terminate();
-	WV_FREE( m_pJobSystem );
-	m_pJobSystem = nullptr;
+	if( m_pApplicationState )
+	{
+		WV_FREE( m_pApplicationState );
+		m_pApplicationState = nullptr;
+	}
 
-	WV_FREE( context );
-	WV_FREE( graphics );
+	if( audio )
+	{
+		audio->terminate();
+		WV_FREE( audio );
+		audio = nullptr;
+	}
+
+	if( m_pFileSystem )
+	{
+		WV_FREE( m_pFileSystem );
+		m_pFileSystem = nullptr;
+	}
+
+	if( m_pResourceRegistry )
+	{
+		WV_FREE( m_pResourceRegistry );
+		m_pResourceRegistry = nullptr;
+	}
+
+	if( context )
+	{
+		context->terminate();
+		WV_FREE( context );
+		context = nullptr;
+	}
+	
+	if( graphics )
+	{
+		graphics->terminate();
+		WV_FREE( graphics );
+		graphics = nullptr;
+	}
+
+	if( m_pJobSystem )
+	{
+		m_pJobSystem->terminate();
+		WV_FREE( m_pJobSystem );
+		m_pJobSystem = nullptr;
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -588,7 +649,7 @@ void wv::cEngine::createGBuffer()
 #endif
 
 	m_gbuffer = graphics->createRenderTarget( rtDesc );
-	graphics->executeCommandBuffer();
+	graphics->executeCreateQueue();
 
 
 }

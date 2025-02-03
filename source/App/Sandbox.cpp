@@ -143,6 +143,8 @@ void cSandbox::run( void )
 void cSandbox::destroy( void )
 {
 	m_pEngine->terminate();
+	WV_FREE( m_pEngine );
+	m_pEngine = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

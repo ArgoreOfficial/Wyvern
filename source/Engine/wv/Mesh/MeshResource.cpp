@@ -45,9 +45,9 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 
 	for ( auto& meshID : _node->meshes )
 	{
-		pLowLevelGraphics->destroyMesh( meshID );
-		wv::sMesh& mesh = pLowLevelGraphics->m_meshes.at( meshID );
+		wv::sMesh mesh = pLowLevelGraphics->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
+		pLowLevelGraphics->destroyMesh( meshID );
 	}
 	
 	for ( auto& child : _node->children )
