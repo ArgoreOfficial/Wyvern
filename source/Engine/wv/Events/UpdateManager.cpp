@@ -3,6 +3,8 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Engine/ApplicationState.h>
 
+#include <wv/JobSystem/JobSystem.h>
+
 wv::IUpdatable::~IUpdatable()
 {
 	getAppState()->getUpdateManager()->unregisterUpdatable( this );
@@ -114,8 +116,39 @@ void wv::UpdateManager::onExit( void )
 
 void wv::UpdateManager::onUpdate( double _deltaTime )
 {
-	for ( auto& u : m_onUpdate )
-		u->onUpdate( _deltaTime );
+	struct UpdateData
+	{
+		IUpdatable* u;
+		double dt;
+	};
+
+	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+
+	std::vector<UpdateData> userDatas{ m_onUpdate.size() };
+	std::vector<Job*> jobs{};
+
+	JobCounter* counter = nullptr;
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			UpdateData* data = (UpdateData*)_pData;
+			data->u->onUpdate( data->dt );
+		};
+
+	int i = 0;
+	for( auto& u : m_onUpdate )
+	{
+		userDatas[ i ] = UpdateData{ u, _deltaTime };
+		Job* job = pJobSystem->createJob( "comp_onUpdate", fptr, &counter, &userDatas[i]);
+		jobs.push_back( job );
+		i++;
+	}
+
+	pJobSystem->run( jobs.data(), jobs.size() );
+	pJobSystem->waitForAndFreeCounter( &counter, 0 );
+
+	//for ( auto& u : m_onUpdate )
+	//	u->onUpdate( _deltaTime );
 }
 
 void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
