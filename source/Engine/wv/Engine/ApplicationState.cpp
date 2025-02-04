@@ -23,6 +23,24 @@ void wv::cApplicationState::terminate()
 	}
 }
 
+void wv::cApplicationState::onConstruct()
+{
+	m_pCurrentScene->onConstruct();
+	m_pUpdateManager->onConstruct();
+}
+
+void wv::cApplicationState::onDeconstruct()
+{
+	m_pUpdateManager->onDeconstruct();
+	
+	for( auto& scene : m_scenes )
+	{
+		scene->onDeconstruct();
+		WV_FREE( scene );
+	}
+	m_scenes.clear();
+}
+
 void wv::cApplicationState::onEnter()
 {
 	m_pCurrentScene->onEnter();
@@ -31,17 +49,9 @@ void wv::cApplicationState::onEnter()
 
 void wv::cApplicationState::onExit()
 {
-	m_pCurrentScene->onDeconstruct();
-
-	for( auto& scene : m_scenes )
-	{
-		scene->onExit();
-		WV_FREE( scene );
-	}
-
+	m_pCurrentScene->onExit();
 	m_pUpdateManager->onExit();
 
-	m_scenes.clear();
 }
 
 void wv::cApplicationState::update( double _deltaTime )
@@ -49,16 +59,19 @@ void wv::cApplicationState::update( double _deltaTime )
 	if( m_pNextScene )
 	{
 		if( m_pCurrentScene )
+		{
+			m_pCurrentScene->onExit();
 			m_pCurrentScene->onDeconstruct();
+		}
 		
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
 		
 		m_pCurrentScene->onConstruct();
-		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
-
 		m_pUpdateManager->onConstruct();
 		onEnter();
+		
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
@@ -83,9 +96,11 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
+	m_pUpdateManager->onExit();
+	m_pCurrentScene->onExit();
+	
 	m_pUpdateManager->onDeconstruct();
 	m_pCurrentScene->onDeconstruct();
-	m_pCurrentScene->onExit();
 
 	cEngine::get()->m_pJobSystem->deleteAll();
 	
@@ -104,9 +119,11 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
 
-	m_pCurrentScene->onEnter();
 	m_pCurrentScene->onConstruct();
 	m_pUpdateManager->onConstruct();
+
+	m_pCurrentScene->onEnter();
+	m_pUpdateManager->onEnter();
 }
 
 wv::IEntity* parseSceneObject( const wv::Json& _json )

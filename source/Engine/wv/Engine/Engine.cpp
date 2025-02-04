@@ -281,7 +281,7 @@ void wv::cEngine::run()
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
 	m_pApplicationState->onExit();
-	
+	m_pApplicationState->onDeconstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -70,6 +70,10 @@ void wv::Scene::onDeconstruct()
 		};
 
 	_runJobs<JobData>( "onDeconstruct", fptr, false );
+
+	for( size_t i = 0; i < m_entities.size(); i++ )
+		WV_FREE( m_entities[ i ] );
+
 }
 
 void wv::Scene::onEnter()
@@ -102,10 +106,6 @@ void wv::Scene::onExit()
 		};
 
 	_runJobs<JobData>( "onExit", fptr, false );
-
-	for ( size_t i = 0; i < m_entities.size(); i++ )
-		WV_FREE( m_entities[ i ] );
-	
 }
 
 void wv::Scene::onUpdate( double _deltaTime )

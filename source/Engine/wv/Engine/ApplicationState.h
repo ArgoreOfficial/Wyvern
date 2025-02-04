@@ -24,6 +24,9 @@ namespace wv
 		void initialize();
 		void terminate();
 
+		void onConstruct();
+		void onDeconstruct();
+
 		void onEnter();
 		void onExit();
 
