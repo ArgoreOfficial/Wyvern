@@ -79,6 +79,12 @@ namespace wv
 		return Vector2<T>( x * _scalar, y * _scalar );
 	}
 
+	template<typename T>
+	inline Vector2<T> operator*(const float& scalar, const Vector2<T>& vec)
+	{
+		return Vector2<T>(vec.x * scalar, vec.y * scalar);
+	}
+
 	template< typename T >
 	inline Vector2<T>& Vector2<T>::operator*=( const float & _scalar )
 	{
@@ -100,6 +106,8 @@ namespace wv
 		y /= _scalar;
 		return *this;
 	}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

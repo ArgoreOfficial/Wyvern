@@ -81,6 +81,13 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	}
 }
 
+void DemoWindowComponent::spawnBezier(wv::BezierCurve<float> _curvePoints)
+{
+	
+}
+
+
+
 void DemoWindowComponent::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
 {
 #ifdef WV_SUPPORT_IMGUI

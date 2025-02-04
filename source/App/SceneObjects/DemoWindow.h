@@ -17,6 +17,7 @@ class DemoWindow : public wv::Entity
 
 public:
 
+
 	DemoWindow( const uint64_t& _uuid, const std::string& _name ) : 
 		wv::Entity{ _uuid, _name } 
 	{}
