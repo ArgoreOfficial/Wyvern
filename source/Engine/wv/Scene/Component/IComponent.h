@@ -29,8 +29,8 @@ public:
 		return m_pParent;
 	}
 
-	virtual void onLoad  ( void ) override { };
-	virtual void onUnload( void ) override { };
+	virtual void onConstruct  ( void ) override { };
+	virtual void onDeconstruct( void ) override { };
 
 	virtual void onEnter( void ) override { };
 	virtual void onExit ( void ) override { };

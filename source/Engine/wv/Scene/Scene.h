@@ -32,11 +32,11 @@ namespace wv
 		void addChild( IEntity* _node, bool _triggerLoadAndCreate = false );
 		void removeChild( IEntity* _node );
 		
-		void onLoad();
-		void onUnload();
+		void onConstruct();
+		void onDeconstruct();
 
-		void onCreate();
-		void onDestroy();
+		void onEnter();
+		void onExit();
 
 		void onUpdate( double _deltaTime );
 		void onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );

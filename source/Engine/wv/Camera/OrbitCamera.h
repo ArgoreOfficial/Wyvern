@@ -23,7 +23,7 @@ namespace wv
 
 		~OrbitCamera( void );
 
-		void onCreate() override;
+		void onEnter() override;
 
 		void handleInput();
 		void update( double _delta_time ) override;

@@ -48,11 +48,11 @@ protected:
 	std::vector<IComponent*> m_components{};
 
 
-	virtual void onLoadImpl( void ) { };
-	virtual void onUnloadImpl( void ) { };
+	virtual void onConstructImpl( void ) { };
+	virtual void onDeconstructImpl( void ) { };
 
-	virtual void onCreateImpl ( void ) { };
-	virtual void onDestroyImpl( void ) { };
+	virtual void onEnterImpl ( void ) { };
+	virtual void onExitImpl( void ) { };
 
 	virtual void onUpdate( double _deltaTime ) { };
 	virtual void drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) { };

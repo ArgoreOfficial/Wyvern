@@ -14,7 +14,7 @@
 
 #include <fstream>
 
-void wv::ModelComponent::onLoad( void )
+void wv::ModelComponent::onConstruct( void )
 {
 	wv::cEngine* app = wv::cEngine::get();
 
@@ -28,7 +28,7 @@ void wv::ModelComponent::onLoad( void )
 	getParent()->m_transform.addChild(&m_mesh.transform);
 }
 
-void wv::ModelComponent::onUnload( void )
+void wv::ModelComponent::onDeconstruct( void )
 {
 	m_mesh.destroy();
 }

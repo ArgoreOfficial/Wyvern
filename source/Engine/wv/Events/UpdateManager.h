@@ -24,20 +24,20 @@ public:
 	
 	enum FunctionFlags
 	{
-		kOnLoad     = 1,
-		kOnUnload   = 1 << 1,
+		kOnConstruct     = 1,
+		kOnDeconstruct   = 1 << 1,
 		kOnEnter    = 1 << 2,
 		kOnExit     = 1 << 3,
 		kOnUpdate   = 1 << 4,
 		kOnDraw     = 1 << 5,
 
-		kAll = kOnLoad | kOnUnload | kOnEnter | kOnExit | kOnUpdate | kOnDraw
+		kAll = kOnConstruct | kOnDeconstruct | kOnEnter | kOnExit | kOnUpdate | kOnDraw
 	};
 
 	virtual FunctionFlags getFunctionFlags() = 0;
 
-	virtual void onLoad  ( void ) { };
-	virtual void onUnload( void ) { };
+	virtual void onConstruct  ( void ) { };
+	virtual void onDeconstruct( void ) { };
 
 	virtual void onEnter( void ) { };
 	virtual void onExit ( void ) { };
@@ -60,8 +60,8 @@ public:
 
 private:
 
-	void onLoad( void );
-	void onUnload( void );
+	void onConstruct( void );
+	void onDeconstruct( void );
 
 	void onEnter( void );
 	void onExit ( void );
@@ -71,8 +71,8 @@ private:
 
 	std::vector<IUpdatable*> m_updatables;
 
-	std::unordered_set<IUpdatable*> m_onLoad;
-	std::unordered_set<IUpdatable*> m_onUnload;
+	std::unordered_set<IUpdatable*> m_onConstruct;
+	std::unordered_set<IUpdatable*> m_onDeconstruct;
 	
 	std::unordered_set<IUpdatable*> m_onEnter;
 	std::unordered_set<IUpdatable*> m_onExit;

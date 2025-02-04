@@ -16,8 +16,8 @@ void wv::Scene::addChild( IEntity* _node, bool _triggerLoadAndCreate )
 
 	if ( _triggerLoadAndCreate )
 	{
-		_node->onCreateImpl();
-		_node->onLoadImpl();
+		_node->onEnterImpl();
+		_node->onConstructImpl();
 	}
 }
 
@@ -40,7 +40,7 @@ void wv::Scene::removeChild( IEntity* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Scene::onLoad()
+void wv::Scene::onConstruct()
 {
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
@@ -48,15 +48,15 @@ void wv::Scene::onLoad()
 			wv::IEntity* obj = data->pObject;
 			if ( !obj->m_loaded )
 			{
-				obj->onLoadImpl();
+				obj->onConstructImpl();
 				obj->m_loaded = true;
 			}
 		};
 
-	_runJobs<JobData>( "onLoad", fptr, false );
+	_runJobs<JobData>( "onConstruct", fptr, false );
 }
 
-void wv::Scene::onUnload()
+void wv::Scene::onDeconstruct()
 {
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
@@ -64,15 +64,15 @@ void wv::Scene::onUnload()
 			wv::IEntity* obj = data->pObject;
 			if ( obj->m_loaded )
 			{
-				obj->onUnloadImpl();
+				obj->onDeconstructImpl();
 				obj->m_loaded = false;
 			}
 		};
 
-	_runJobs<JobData>( "onUnload", fptr, false );
+	_runJobs<JobData>( "onDeconstruct", fptr, false );
 }
 
-void wv::Scene::onCreate()
+void wv::Scene::onEnter()
 {
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
@@ -80,15 +80,15 @@ void wv::Scene::onCreate()
 			wv::IEntity* obj = data->pObject;
 			if ( !obj->m_created )
 			{
-				obj->onCreateImpl();
+				obj->onEnterImpl();
 				obj->m_created = true;
 			}
 		};
 
-	_runJobs<JobData>( "onCreate", fptr, false );
+	_runJobs<JobData>( "onEnter", fptr, false );
 }
 
-void wv::Scene::onDestroy()
+void wv::Scene::onExit()
 {
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
@@ -96,12 +96,12 @@ void wv::Scene::onDestroy()
 			wv::IEntity* obj = data->pObject;
 			if ( obj->m_created )
 			{
-				obj->onDestroyImpl();
+				obj->onExitImpl();
 				obj->m_created = false;
 			}
 		};
 
-	_runJobs<JobData>( "onDestroy", fptr, false );
+	_runJobs<JobData>( "onExit", fptr, false );
 
 	for ( size_t i = 0; i < m_entities.size(); i++ )
 		WV_FREE( m_entities[ i ] );

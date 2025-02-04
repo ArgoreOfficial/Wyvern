@@ -21,7 +21,7 @@ wv::OrbitCamera::~OrbitCamera( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OrbitCamera::onCreate()
+void wv::OrbitCamera::onEnter()
 {
 	m_inputListener.hook();
 	m_mouseListener.hook();

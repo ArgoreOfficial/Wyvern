@@ -45,11 +45,11 @@ namespace wv
 
 	protected:
 
-		virtual void onLoadImpl() = 0;
-		virtual void onUnloadImpl() = 0;
+		virtual void onConstructImpl() = 0;
+		virtual void onDeconstructImpl() = 0;
 
-		virtual void onCreateImpl() = 0;
-		virtual void onDestroyImpl() = 0;
+		virtual void onEnterImpl() = 0;
+		virtual void onExitImpl() = 0;
 
 		virtual void onUpdate( double _deltaTime ) = 0;
 		virtual void drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;

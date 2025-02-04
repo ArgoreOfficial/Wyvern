@@ -23,19 +23,19 @@ void wv::cApplicationState::terminate()
 	}
 }
 
-void wv::cApplicationState::onCreate()
+void wv::cApplicationState::onEnter()
 {
-	m_pCurrentScene->onCreate();
+	m_pCurrentScene->onEnter();
 	m_pUpdateManager->onEnter();
 }
 
-void wv::cApplicationState::onDestroy()
+void wv::cApplicationState::onExit()
 {
-	m_pCurrentScene->onUnload();
+	m_pCurrentScene->onDeconstruct();
 
 	for( auto& scene : m_scenes )
 	{
-		scene->onDestroy();
+		scene->onExit();
 		WV_FREE( scene );
 	}
 
@@ -49,16 +49,16 @@ void wv::cApplicationState::update( double _deltaTime )
 	if( m_pNextScene )
 	{
 		if( m_pCurrentScene )
-			m_pCurrentScene->onUnload();
-
+			m_pCurrentScene->onDeconstruct();
+		
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
 		
-		m_pCurrentScene->onLoad();
+		m_pCurrentScene->onConstruct();
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 
-		m_pUpdateManager->onLoad();
-		onCreate();
+		m_pUpdateManager->onConstruct();
+		onEnter();
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
@@ -83,9 +83,9 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
-	m_pUpdateManager->onUnload();
-	m_pCurrentScene->onUnload();
-	m_pCurrentScene->onDestroy();
+	m_pUpdateManager->onDeconstruct();
+	m_pCurrentScene->onDeconstruct();
+	m_pCurrentScene->onExit();
 
 	cEngine::get()->m_pJobSystem->deleteAll();
 	
@@ -104,9 +104,9 @@ void wv::cApplicationState::reloadScene()
 	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
 
-	m_pCurrentScene->onCreate();
-	m_pCurrentScene->onLoad();
-	m_pUpdateManager->onLoad();
+	m_pCurrentScene->onEnter();
+	m_pCurrentScene->onConstruct();
+	m_pUpdateManager->onConstruct();
 }
 
 wv::IEntity* parseSceneObject( const wv::Json& _json )

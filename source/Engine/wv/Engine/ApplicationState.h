@@ -24,8 +24,8 @@ namespace wv
 		void initialize();
 		void terminate();
 
-		void onCreate();
-		void onDestroy();
+		void onEnter();
+		void onExit();
 
 		void update( double _deltaTime );
 		void draw  ( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );

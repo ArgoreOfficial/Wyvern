@@ -50,8 +50,8 @@ void cDemoWindow::spawnBalls( int _count )
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
-	sceneRoot->onCreate();
-	sceneRoot->onLoad();
+	sceneRoot->onEnter();
+	sceneRoot->onConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -74,8 +74,8 @@ void cDemoWindow::spawnCubes( int _count )
 		
 		m_numSpawned++;
 	}
-	sceneRoot->onCreate();
-	sceneRoot->onLoad();
+	sceneRoot->onEnter();
+	sceneRoot->onConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -105,8 +105,8 @@ void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 		}
 	}
 
-	scene->onCreate();
-	scene->onLoad();
+	scene->onEnter();
+	scene->onConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

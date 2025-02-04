@@ -260,8 +260,8 @@ void wv::cEngine::run()
 
 	orbitCamera = WV_NEW( OrbitCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = WV_NEW( FreeflightCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	orbitCamera->onCreate();
-	freeflightCamera->onCreate();
+	orbitCamera->onEnter();
+	freeflightCamera->onEnter();
 
 	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
 
@@ -280,7 +280,7 @@ void wv::cEngine::run()
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
-	m_pApplicationState->onDestroy();
+	m_pApplicationState->onExit();
 	
 }
 

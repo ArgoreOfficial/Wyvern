@@ -17,7 +17,7 @@ wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _nea
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::FreeflightCamera::onCreate()
+void wv::FreeflightCamera::onEnter()
 {
 	m_inputListener.hook();
 	m_mouseListener.hook();
