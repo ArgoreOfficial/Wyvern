@@ -267,9 +267,8 @@ void wv::cEngine::run()
 
 	currentCamera = freeflightCamera;
 	
-	m_pApplicationState->onCreate();
 	m_pApplicationState->switchToScene( 0 ); // default scene
-
+	
 	// while m_applicationState->isLoading() { doloadingstuff }
 	
 #ifdef EMSCRIPTEN

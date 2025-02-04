@@ -25,9 +25,7 @@ void wv::cApplicationState::terminate()
 
 void wv::cApplicationState::onCreate()
 {
-	for( auto& scene : m_scenes )
-		scene->onCreate();
-
+	m_pCurrentScene->onCreate();
 	m_pUpdateManager->onEnter();
 }
 
@@ -53,11 +51,14 @@ void wv::cApplicationState::update( double _deltaTime )
 		if( m_pCurrentScene )
 			m_pCurrentScene->onUnload();
 
-		m_pNextScene->onLoad();
-
-		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
+		
+		m_pCurrentScene->onLoad();
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
+
+		m_pUpdateManager->onLoad();
+		onCreate();
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
@@ -82,6 +83,7 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
+	m_pUpdateManager->onUnload();
 	m_pCurrentScene->onUnload();
 	m_pCurrentScene->onDestroy();
 
@@ -104,6 +106,7 @@ void wv::cApplicationState::reloadScene()
 
 	m_pCurrentScene->onCreate();
 	m_pCurrentScene->onLoad();
+	m_pUpdateManager->onLoad();
 }
 
 wv::IEntity* parseSceneObject( const wv::Json& _json )

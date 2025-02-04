@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Scene/SceneObject.h>
+#include <wv/Scene/Entity/Entity.h>
 
 #include <wv/Mesh/MeshResource.h>
 
@@ -22,31 +22,17 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cRigidbody : public IEntity
+	class cRigidbody : public Entity
 	{
 	public:
+		 cRigidbody( const UUID& _uuid, const std::string& _name );
 		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
 		~cRigidbody();
 
 		static cRigidbody* parseInstance( sParseData& _data );
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-	protected:
-		void onLoadImpl() override;
-		void onUnloadImpl() override;
-		void onCreateImpl() override { };
-		void onDestroyImpl() override { };
-
-		virtual void onUpdate( double _deltaTime ) override;
-		virtual void drawImpl  ( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;
-
-		sMeshInstance m_mesh;
-		std::string m_meshPath  = "";
-
-		iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
-		PhysicsBodyID m_physicsBodyHandle = 0;
-
+		std::string m_meshPath;
+		iPhysicsBodyDesc* m_bodyDesc = nullptr;
 	};
 
 }

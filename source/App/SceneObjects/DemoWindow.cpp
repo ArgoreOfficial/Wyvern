@@ -10,6 +10,9 @@
 #include <wv/Scene/Model.h>
 #include <wv/Memory/FileSystem.h>
 
+#include <wv/Scene/Component/ModelComponent.h>
+#include <wv/Scene/Component/RigidBodyComponent.h>
+
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif
@@ -41,7 +44,9 @@ void cDemoWindow::spawnBalls( int _count )
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
 
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball", "meshes/sphere.dae", sphereDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball" );
+		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
+		rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
@@ -61,7 +66,9 @@ void cDemoWindow::spawnCubes( int _count )
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 		
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "meshes/cube.dae", boxDesc );
+		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube" );
+		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
+		rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
 		rb->m_transform.position.y = 1.0f;
 		sceneRoot->addChild( rb );
 		
@@ -87,8 +94,10 @@ void cDemoWindow::spawnBlock( int _halfX, int _halfY, int _halfZ )
 				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 				
-				wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube", "meshes/cube.dae", boxDesc );
+				wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube" );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
+				rb->addComponent<wv::RigidBodyComponent>( boxDesc );
+				rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
 				scene->addChild( rb );
 
 				m_numSpawned++;

@@ -16,14 +16,16 @@
 
 void wv::sMeshInstance::draw()
 {
-	pResource->addToDrawQueue( *this );
+	if( pResource )
+		pResource->addToDrawQueue( *this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::sMeshInstance::destroy()
 {
-	pResource->destroyInstance( *this );
+	if( pResource )
+		pResource->destroyInstance( *this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

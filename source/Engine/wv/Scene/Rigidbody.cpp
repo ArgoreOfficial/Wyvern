@@ -15,13 +15,25 @@
 
 #include <wv/Resource/ResourceRegistry.h>
 
+#include <wv/Scene/Component/ModelComponent.h>
+#include <wv/Scene/Component/RigidBodyComponent.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) :
-	IEntity{ _uuid, _name },
-	m_meshPath{ _meshPath },
-	m_pPhysicsBodyDesc{ _bodyDesc }
+wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name ) :
+	Entity{ _uuid, _name }
 {
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) : 
+	Entity{ _uuid, _name },
+	m_meshPath{ _meshPath },
+	m_bodyDesc{ _bodyDesc }
+{
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -95,66 +107,10 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 
 	cRigidbody* rb = WV_NEW( cRigidbody, uuid, name, meshPath, desc );
 	rb->m_transform = transform;
+	rb->addComponent<ModelComponent>( meshPath );
+	rb->addComponent<RigidBodyComponent>( desc );
+
 	return rb;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cRigidbody::onLoadImpl()
-{
-	cEngine* app = wv::cEngine::get();
-
-	if ( m_meshPath == "" )
-	{
-		Debug::Print( Debug::WV_PRINT_WARN, "No mesh path provided, defaulting to cube\n" );
-		m_meshPath = "meshes/cube.dae";
-	}
-	
-	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( m_meshPath )->createInstance();
-	m_transform.addChild( &m_mesh.transform );
-
-	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
-	//sphereSettings.mRestitution = 0.4f;
-#ifdef WV_SUPPORT_PHYSICS
-	m_pPhysicsBodyDesc->transform = m_transform;
-	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
-#endif // WV_SUPPORT_PHYSICS
-	
-	WV_FREE( m_pPhysicsBodyDesc );
-	m_pPhysicsBodyDesc = nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cRigidbody::onUnloadImpl()
-{
-	wv::cEngine* app = wv::cEngine::get();
-	
-	m_mesh.destroy();
-	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cRigidbody::onUpdate( double _deltaTime )
-{
-#ifdef WV_SUPPORT_PHYSICS
-
-	wv::cJoltPhysicsEngine* pPhysics = wv::cEngine::get()->m_pPhysicsEngine;
-
-	if( m_physicsBodyHandle.is_valid() && pPhysics->isBodyActive( m_physicsBodyHandle ) )
-	{
-		Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
-		m_transform.position = t.position;
-		m_transform.rotation = t.rotation;
-	}
-	
-#endif // WV_SUPPORT_PHYSICS
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::cRigidbody::drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
-{
-	m_mesh.draw();
-}

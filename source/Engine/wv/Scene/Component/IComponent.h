@@ -13,6 +13,8 @@ class Entity;
 class IComponent : public IUpdatable
 {
 public:
+	friend class Entity;
+
 	IComponent( const std::string _name ):
 		m_name{ _name }
 	{

@@ -24,6 +24,7 @@ public:
 
 		_Ty* comp = WV_NEW( _Ty, _args... );
 		comp->registerUpdatable();
+		comp->m_pParent = this;
 		m_components.push_back( comp );
 
 	}
