@@ -1,5 +1,5 @@
 {
-  "name": "defaultScene",
+  "name": "playground",
   "scene": [
     {
       "uuid": 28752,
@@ -89,7 +89,7 @@
     {
       "uuid": 8740140,
       "name": "DemoWindow",
-      "type": "cDemoWindow",
+      "type": "DemoWindow",
       "transform": {
         "pos": [0,0,0],
         "rot": [0,0,0],
