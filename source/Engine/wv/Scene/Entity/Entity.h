@@ -7,6 +7,8 @@
 #include <wv/Scene/SceneObject.h>
 #include <wv/Reflection/Reflection.h>
 
+#include <wv/Scene/Component/ScriptComponent.h>
+
 namespace wv
 {
 
@@ -33,8 +35,11 @@ public:
 		auto& json = _data.json;
 		wv::UUID    uuid = json[ "uuid" ].int_value();
 		std::string name = json[ "name" ].string_value();
+		
+		Entity* entity = WV_NEW( Entity, uuid, name );
+		entity->addComponent<ScriptComponent>();
 
-		return WV_NEW( Entity, uuid, name );
+		return entity;
 	}
 
 	template<typename _Ty>

@@ -1,4 +1,4 @@
-$platforms = "x64,arm_3ds"
+$platforms = "x64"
 
 if( (Test-Path platform/platform_psvita.lua ) -and (Test-Path env:SCE_PSP2_SDK_DIR) ) {
     $platforms += ",psvita"

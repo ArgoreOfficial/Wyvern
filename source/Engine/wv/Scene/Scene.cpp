@@ -40,87 +40,14 @@ void wv::Scene::removeChild( IEntity* _node )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Scene::onConstruct()
+void wv::Scene::destroyAllEntities()
 {
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			JobData* data = (JobData*)_pData;
-			wv::IEntity* obj = data->pObject;
-			if ( !obj->m_loaded )
-			{
-				obj->onConstructImpl();
-				obj->m_loaded = true;
-			}
-		};
-
-	_runJobs<JobData>( "onConstruct", fptr, false );
-}
-
-void wv::Scene::onDestruct()
-{
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			JobData* data = (JobData*)_pData;
-			wv::IEntity* obj = data->pObject;
-			if ( obj->m_loaded )
-			{
-				obj->onDeconstructImpl();
-				obj->m_loaded = false;
-			}
-		};
-
-	_runJobs<JobData>( "onDestruct", fptr, false );
-
 	for( size_t i = 0; i < m_entities.size(); i++ )
 		WV_FREE( m_entities[ i ] );
-
-}
-
-void wv::Scene::onEnter()
-{
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			JobData* data = (JobData*)_pData;
-			wv::IEntity* obj = data->pObject;
-			if ( !obj->m_created )
-			{
-				obj->onEnterImpl();
-				obj->m_created = true;
-			}
-		};
-
-	_runJobs<JobData>( "onEnter", fptr, false );
-}
-
-void wv::Scene::onExit()
-{
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			JobData* data = (JobData*)_pData;
-			wv::IEntity* obj = data->pObject;
-			if ( obj->m_created )
-			{
-				obj->onExitImpl();
-				obj->m_created = false;
-			}
-		};
-
-	_runJobs<JobData>( "onExit", fptr, false );
 }
 
 void wv::Scene::onUpdate( double _deltaTime )
 {
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			UpdateData* updateData = (UpdateData*)_pData;
-			wv::IEntity* obj = updateData->pObject;
-
-			if ( obj->m_loaded && obj->m_created )
-				obj->onUpdate( updateData->deltaTime );
-		};
-
-	_runJobs<UpdateData>( "onUpdate", fptr, _deltaTime );
-
 	for ( size_t i = 0; i < m_entities.size(); i++ )
 	{
 		if ( m_entities[ i ]->m_transform.pParent != nullptr )
@@ -128,19 +55,5 @@ void wv::Scene::onUpdate( double _deltaTime )
 
 		m_entities[ i ]->m_transform.update( nullptr );
 	}
-}
-
-void wv::Scene::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
-{
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
-		{
-			DrawData* data = (DrawData*)_pData;
-			wv::IEntity* obj = data->pObject;
-
-			if ( obj->m_loaded && obj->m_created )
-				obj->onDraw( data->pContext, data->pDevice );
-		};
-
-	_runJobs<DrawData>( "onUpdate", fptr, _pContext, _pDevice );
 }
 
