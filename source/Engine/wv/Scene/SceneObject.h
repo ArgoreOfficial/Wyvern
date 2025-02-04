@@ -52,7 +52,7 @@ namespace wv
 		virtual void onExitImpl() = 0;
 
 		virtual void onUpdate( double _deltaTime ) = 0;
-		virtual void drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;
+		virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;
 
 		uint64_t    m_uuid;
 		std::string m_name;

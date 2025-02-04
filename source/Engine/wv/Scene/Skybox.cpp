@@ -84,7 +84,7 @@ void wv::cSkyboxObject::onUpdate( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iLowLevelGraphics* _device )
+void wv::cSkyboxObject::onDraw( iDeviceContext* _context, iLowLevelGraphics* _device )
 {
 	/// TODO: remove raw gl calls
 #ifdef WV_SUPPORT_OPENGL

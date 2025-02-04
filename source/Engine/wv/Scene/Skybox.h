@@ -42,7 +42,7 @@ namespace wv
 		void onExitImpl() override;
 
 		virtual void onUpdate( double _deltaTime ) override;
-		virtual void drawImpl  ( iDeviceContext* _context, iLowLevelGraphics* _device ) override;
+		virtual void onDraw  ( iDeviceContext* _context, iLowLevelGraphics* _device ) override;
 
 		sMeshInstance m_mesh;
 

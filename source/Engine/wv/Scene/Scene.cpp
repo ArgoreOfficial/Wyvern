@@ -138,7 +138,7 @@ void wv::Scene::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 			wv::IEntity* obj = data->pObject;
 
 			if ( obj->m_loaded && obj->m_created )
-				obj->drawImpl( data->pContext, data->pDevice );
+				obj->onDraw( data->pContext, data->pDevice );
 		};
 
 	_runJobs<DrawData>( "onUpdate", fptr, _pContext, _pDevice );
