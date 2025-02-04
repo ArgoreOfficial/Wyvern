@@ -33,7 +33,7 @@ namespace wv
 		void removeChild( IEntity* _node );
 		
 		void onConstruct();
-		void onDeconstruct();
+		void onDestruct();
 
 		void onEnter();
 		void onExit();

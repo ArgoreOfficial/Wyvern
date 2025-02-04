@@ -29,13 +29,13 @@ void wv::cApplicationState::onConstruct()
 	m_pUpdateManager->onConstruct();
 }
 
-void wv::cApplicationState::onDeconstruct()
+void wv::cApplicationState::onDestruct()
 {
-	m_pUpdateManager->onDeconstruct();
+	m_pUpdateManager->onDestruct();
 	
 	for( auto& scene : m_scenes )
 	{
-		scene->onDeconstruct();
+		scene->onDestruct();
 		WV_FREE( scene );
 	}
 	m_scenes.clear();
@@ -51,17 +51,18 @@ void wv::cApplicationState::onExit()
 {
 	m_pCurrentScene->onExit();
 	m_pUpdateManager->onExit();
-
 }
 
 void wv::cApplicationState::update( double _deltaTime )
-{;
+{
+	m_pUpdateManager->_updateQueued();
+
 	if( m_pNextScene )
 	{
 		if( m_pCurrentScene )
 		{
 			m_pCurrentScene->onExit();
-			m_pCurrentScene->onDeconstruct();
+			m_pCurrentScene->onDestruct();
 		}
 		
 		m_pCurrentScene = m_pNextScene;
@@ -72,6 +73,13 @@ void wv::cApplicationState::update( double _deltaTime )
 		onEnter();
 		
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
+	}
+
+	if( m_pCurrentScene )
+	{
+		// if there are any new updatables that needs construction and entering
+		m_pUpdateManager->onConstruct();
+		m_pUpdateManager->onEnter();
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
@@ -99,8 +107,10 @@ void wv::cApplicationState::reloadScene()
 	m_pUpdateManager->onExit();
 	m_pCurrentScene->onExit();
 	
-	m_pUpdateManager->onDeconstruct();
-	m_pCurrentScene->onDeconstruct();
+	m_pUpdateManager->onDestruct();
+	m_pCurrentScene->onDestruct();
+
+	m_pUpdateManager->_updateQueued();
 
 	cEngine::get()->m_pJobSystem->deleteAll();
 	
@@ -118,6 +128,8 @@ void wv::cApplicationState::reloadScene()
 
 	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
+
+	m_pUpdateManager->_updateQueued();
 
 	m_pCurrentScene->onConstruct();
 	m_pUpdateManager->onConstruct();

@@ -16,11 +16,11 @@ public:
 	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
-		return FunctionFlags::kOnConstruct | FunctionFlags::kOnDeconstruct | FunctionFlags::kOnDraw;
+		return FunctionFlags::kOnConstruct | FunctionFlags::kOnDestruct | FunctionFlags::kOnDraw;
 	}
 
 	virtual void onConstruct( void ) override;
-	virtual void onDeconstruct( void ) override;
+	virtual void onDestruct( void ) override;
 
 	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;
 

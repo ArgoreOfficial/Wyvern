@@ -30,7 +30,7 @@ public:
 	}
 
 	virtual void onConstruct  ( void ) override { };
-	virtual void onDeconstruct( void ) override { };
+	virtual void onDestruct( void ) override { };
 
 	virtual void onEnter( void ) override { };
 	virtual void onExit ( void ) override { };

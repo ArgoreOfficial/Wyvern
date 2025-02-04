@@ -28,7 +28,7 @@ void wv::ModelComponent::onConstruct( void )
 	getParent()->m_transform.addChild(&m_mesh.transform);
 }
 
-void wv::ModelComponent::onDeconstruct( void )
+void wv::ModelComponent::onDestruct( void )
 {
 	m_mesh.destroy();
 }

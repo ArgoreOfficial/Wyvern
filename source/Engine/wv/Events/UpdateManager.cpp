@@ -5,21 +5,32 @@
 
 wv::IUpdatable::~IUpdatable()
 {
-	getAppState()->getUpdateManager()->removeUpdatable( this );
+	getAppState()->getUpdateManager()->unregisterUpdatable( this );
 }
 
-void wv::IUpdatable::registerUpdatable()
+void wv::IUpdatable::_registerUpdatable()
 {
-	FunctionFlags flags = getFunctionFlags();
-	getAppState()->getUpdateManager()->registerUpdatable(this, flags);
+	getAppState()->getUpdateManager()->registerUpdatable( this );
 }
 
-void wv::UpdateManager::registerUpdatable( IUpdatable* _pUpdatable, IUpdatable::FunctionFlags _flags )
+
+
+void wv::UpdateManager::registerUpdatable( IUpdatable* _pUpdatable )
+{
+	m_registerQueue.push( _pUpdatable );
+}
+
+void wv::UpdateManager::unregisterUpdatable( IUpdatable* _pUpdatable )
+{
+	m_unregisterQueue.push( _pUpdatable );
+}
+
+void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable::FunctionFlags _flags )
 {
 	if ( _flags & IUpdatable::FunctionFlags::kOnConstruct )
 		m_onConstruct.insert( _pUpdatable );
 
-	if ( _flags & IUpdatable::FunctionFlags::kOnDeconstruct )
+	if ( _flags & IUpdatable::FunctionFlags::kOnDestruct )
 		m_onDeconstruct.insert( _pUpdatable );
 
 	if ( _flags & IUpdatable::FunctionFlags::kOnEnter )
@@ -35,19 +46,13 @@ void wv::UpdateManager::registerUpdatable( IUpdatable* _pUpdatable, IUpdatable::
 		m_onDraw.insert( _pUpdatable );
 }
 
-void wv::UpdateManager::removeUpdatable( IUpdatable* _pUpdatable )
+void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 {
-	if ( m_onConstruct.contains( _pUpdatable ) )
-		m_onConstruct.erase( _pUpdatable );
-
-	if ( m_onDeconstruct.contains( _pUpdatable ) )
-		m_onDeconstruct.erase( _pUpdatable );
+	m_onConstruct.erase( _pUpdatable );
+	m_onDeconstruct.erase( _pUpdatable );
 	
-	if ( m_onEnter.contains( _pUpdatable ) )
-		m_onEnter.erase( _pUpdatable );
-	
-	if ( m_onExit.contains( _pUpdatable ) )
-		m_onExit.erase( _pUpdatable );
+	m_onEnter.erase( _pUpdatable );
+	m_onExit.erase( _pUpdatable );
 	
 	if ( m_onUpdate.contains( _pUpdatable ) )
 		m_onUpdate.erase( _pUpdatable );
@@ -56,28 +61,55 @@ void wv::UpdateManager::removeUpdatable( IUpdatable* _pUpdatable )
 		m_onDraw.erase( _pUpdatable );
 }
 
-void wv::UpdateManager::onConstruct( void )
+void wv::UpdateManager::_updateQueued( void )
 {
-	for ( auto& u : m_onConstruct )
-		u->onConstruct();
+	while( !m_unregisterQueue.empty() )
+	{
+		IUpdatable* u = m_unregisterQueue.front();
+		m_unregisterQueue.pop();
+
+		_unregisterUpdatable( u );
+	}
+
+	while( !m_registerQueue.empty() )
+	{
+		IUpdatable* u = m_registerQueue.front();
+		m_registerQueue.pop();
+
+		IUpdatable::FunctionFlags flags = u->getFunctionFlags();
+		_registerUpdatable( u, flags );
+	}
 }
 
-void wv::UpdateManager::onDeconstruct( void )
+void wv::UpdateManager::onConstruct( void )
 {
-	for ( auto& u : m_onDeconstruct )
-		u->onDeconstruct();
+	for ( auto& u : m_onConstruct.m_awaiting )
+		u->onConstruct();
+	m_onConstruct.complete();
+}
+
+void wv::UpdateManager::onDestruct( void )
+{
+	for( auto& u : m_onDeconstruct.m_awaiting )
+		u->onDestruct();
+	
+	m_onDeconstruct.complete();
 }
 
 void wv::UpdateManager::onEnter( void )
 {
-	for ( auto& u : m_onEnter )
+	for( auto& u : m_onEnter.m_awaiting )
 		u->onEnter();
+	
+	m_onEnter.complete();
 }
 
 void wv::UpdateManager::onExit( void )
 {
-	for ( auto& u : m_onExit )
+	for( auto& u : m_onExit.m_awaiting )
 		u->onExit();
+	
+	m_onExit.complete();
 }
 
 void wv::UpdateManager::onUpdate( double _deltaTime )

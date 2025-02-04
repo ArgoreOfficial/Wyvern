@@ -56,7 +56,7 @@ void wv::Scene::onConstruct()
 	_runJobs<JobData>( "onConstruct", fptr, false );
 }
 
-void wv::Scene::onDeconstruct()
+void wv::Scene::onDestruct()
 {
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
@@ -69,7 +69,7 @@ void wv::Scene::onDeconstruct()
 			}
 		};
 
-	_runJobs<JobData>( "onDeconstruct", fptr, false );
+	_runJobs<JobData>( "onDestruct", fptr, false );
 
 	for( size_t i = 0; i < m_entities.size(); i++ )
 		WV_FREE( m_entities[ i ] );
