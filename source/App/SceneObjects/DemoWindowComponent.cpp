@@ -33,8 +33,6 @@ void DemoWindowComponent::spawnBalls( int _count )
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
-	sceneRoot->onEnter();
-	sceneRoot->onConstruct();
 }
 
 void DemoWindowComponent::spawnCubes( int _count )
@@ -55,8 +53,6 @@ void DemoWindowComponent::spawnCubes( int _count )
 
 		m_numSpawned++;
 	}
-	sceneRoot->onEnter();
-	sceneRoot->onConstruct();
 }
 
 void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
@@ -83,9 +79,6 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 			}
 		}
 	}
-
-	scene->onEnter();
-	scene->onConstruct();
 }
 
 void DemoWindowComponent::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )

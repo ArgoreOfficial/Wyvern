@@ -18,14 +18,11 @@ void wv::cApplicationState::initialize()
 void wv::cApplicationState::terminate()
 {
 	if ( m_pUpdateManager )
-	{
 		WV_FREE( m_pUpdateManager );
-	}
 }
 
 void wv::cApplicationState::onConstruct()
 {
-	m_pCurrentScene->onConstruct();
 	m_pUpdateManager->onConstruct();
 }
 
@@ -34,22 +31,18 @@ void wv::cApplicationState::onDestruct()
 	m_pUpdateManager->onDestruct();
 	
 	for( auto& scene : m_scenes )
-	{
-		scene->onDestruct();
 		WV_FREE( scene );
-	}
+	
 	m_scenes.clear();
 }
 
 void wv::cApplicationState::onEnter()
 {
-	m_pCurrentScene->onEnter();
 	m_pUpdateManager->onEnter();
 }
 
 void wv::cApplicationState::onExit()
 {
-	m_pCurrentScene->onExit();
 	m_pUpdateManager->onExit();
 }
 
@@ -59,16 +52,9 @@ void wv::cApplicationState::update( double _deltaTime )
 
 	if( m_pNextScene )
 	{
-		if( m_pCurrentScene )
-		{
-			m_pCurrentScene->onExit();
-			m_pCurrentScene->onDestruct();
-		}
-		
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
 		
-		m_pCurrentScene->onConstruct();
 		m_pUpdateManager->onConstruct();
 		onEnter();
 		
@@ -91,7 +77,6 @@ void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* 
 	if( !m_pCurrentScene )
 		return;
 	
-	m_pCurrentScene->onDraw( _pContext, _pDevice );
 	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }
 
@@ -105,15 +90,13 @@ void wv::cApplicationState::reloadScene()
 	}
 
 	m_pUpdateManager->onExit();
-	m_pCurrentScene->onExit();
-	
 	m_pUpdateManager->onDestruct();
-	m_pCurrentScene->onDestruct();
 
 	m_pUpdateManager->_updateQueued();
 
 	cEngine::get()->m_pJobSystem->deleteAll();
-	
+	m_pCurrentScene->destroyAllEntities();
+
 	int index = -1;
 	for( size_t i = 0; i < m_scenes.size(); i++ )
 	{
@@ -125,16 +108,16 @@ void wv::cApplicationState::reloadScene()
 	}
 
 	WV_FREE( m_pCurrentScene );
+	
+	m_pUpdateManager->_updateQueued();
 
 	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
 
 	m_pUpdateManager->_updateQueued();
 
-	m_pCurrentScene->onConstruct();
 	m_pUpdateManager->onConstruct();
 
-	m_pCurrentScene->onEnter();
 	m_pUpdateManager->onEnter();
 }
 
