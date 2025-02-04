@@ -1,10 +1,12 @@
 #pragma once
 
 #include <wv/Decl.h>
+#include <wv/JobSystem/JobSystem.h>
 
 #include <vector>
 #include <unordered_set>
 #include <queue>
+
 
 namespace wv
 {
@@ -96,6 +98,9 @@ private:
 
 	void _updateQueued( void );
 
+	template<typename _Ty, typename... _Args>
+	void _runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args... _args );
+
 	void onConstruct( void );
 	void onDestruct( void );
 
@@ -108,7 +113,7 @@ private:
 	std::vector<IUpdatable*> m_updatables;
 
 	UpdatableOnceContainer m_onConstruct;
-	UpdatableOnceContainer m_onDeconstruct;
+	UpdatableOnceContainer m_onDestruct;
 	
 	UpdatableOnceContainer m_onEnter;
 	UpdatableOnceContainer m_onExit;
@@ -119,5 +124,28 @@ private:
 	std::queue<IUpdatable*> m_registerQueue{};
 	std::queue<IUpdatable*> m_unregisterQueue{};
 };
+
+template<typename _Ty, typename ..._Args>
+inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
+{
+	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+
+	std::vector<_Ty> userDatas{ _set.size() };
+	std::vector<Job*> jobs{};
+
+	JobCounter* counter = nullptr;
+
+	int i = 0;
+	for( auto& u : _set )
+	{
+		userDatas[ i ] = _Ty{ u, _args... };
+		Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
+		jobs.push_back( job );
+		i++;
+	}
+
+	pJobSystem->run( jobs.data(), jobs.size() );
+	pJobSystem->waitForAndFreeCounter( &counter, 0 );
+}
 
 }

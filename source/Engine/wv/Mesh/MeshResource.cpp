@@ -60,7 +60,8 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 
 void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
-	unloadMeshNode( m_pMeshNode );
+	if( m_pMeshNode )
+		unloadMeshNode( m_pMeshNode );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -29,6 +29,7 @@ void wv::RigidBodyComponent::onExit( void )
 	wv::cEngine* app = wv::cEngine::get();
 
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
+	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
 }
 
 void wv::RigidBodyComponent::onUpdate( double _deltaTime )

@@ -33,7 +33,7 @@ void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable:
 		m_onConstruct.insert( _pUpdatable );
 
 	if ( _flags & IUpdatable::FunctionFlags::kOnDestruct )
-		m_onDeconstruct.insert( _pUpdatable );
+		m_onDestruct.insert( _pUpdatable );
 
 	if ( _flags & IUpdatable::FunctionFlags::kOnEnter )
 		m_onEnter.insert( _pUpdatable );
@@ -51,7 +51,7 @@ void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable:
 void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 {
 	m_onConstruct.erase( _pUpdatable );
-	m_onDeconstruct.erase( _pUpdatable );
+	m_onDestruct.erase( _pUpdatable );
 	
 	m_onEnter.erase( _pUpdatable );
 	m_onExit.erase( _pUpdatable );
@@ -85,74 +85,99 @@ void wv::UpdateManager::_updateQueued( void )
 
 void wv::UpdateManager::onConstruct( void )
 {
-	for ( auto& u : m_onConstruct.m_awaiting )
-		u->onConstruct();
+	struct JobData { IUpdatable* u; };
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onConstruct();
+		};
+
+	_runJobs<JobData>( "comp_onConstruct", m_onConstruct.m_awaiting, fptr );
+
 	m_onConstruct.complete();
+	m_onDestruct.reset();
 }
 
 void wv::UpdateManager::onDestruct( void )
 {
-	for( auto& u : m_onDeconstruct.m_awaiting )
-		u->onDestruct();
-	
-	m_onDeconstruct.complete();
+	struct JobData { IUpdatable* u; };
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onDestruct();
+		};
+
+	_runJobs<JobData>( "comp_onDestruct", m_onDestruct.m_awaiting, fptr );
+
+	m_onDestruct.complete();
+	m_onConstruct.reset();
 }
 
 void wv::UpdateManager::onEnter( void )
 {
-	for( auto& u : m_onEnter.m_awaiting )
-		u->onEnter();
-	
+	struct JobData { IUpdatable* u; };
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onEnter();
+		};
+
+	_runJobs<JobData>( "comp_onEnter", m_onEnter.m_awaiting, fptr );
+
 	m_onEnter.complete();
+	m_onExit.reset();
 }
 
 void wv::UpdateManager::onExit( void )
 {
-	for( auto& u : m_onExit.m_awaiting )
-		u->onExit();
-	
+	struct JobData { IUpdatable* u; };
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onExit();
+		};
+
+	_runJobs<JobData>( "comp_onExit", m_onExit.m_awaiting, fptr );
+
 	m_onExit.complete();
+	m_onEnter.reset();
 }
 
 void wv::UpdateManager::onUpdate( double _deltaTime )
 {
-	struct UpdateData
+	struct JobData
 	{
 		IUpdatable* u;
 		double dt;
 	};
 
-	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
-
-	std::vector<UpdateData> userDatas{ m_onUpdate.size() };
-	std::vector<Job*> jobs{};
-
-	JobCounter* counter = nullptr;
-
 	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
 		{
-			UpdateData* data = (UpdateData*)_pData;
+			JobData* data = (JobData*)_pData;
 			data->u->onUpdate( data->dt );
 		};
 
-	int i = 0;
-	for( auto& u : m_onUpdate )
-	{
-		userDatas[ i ] = UpdateData{ u, _deltaTime };
-		Job* job = pJobSystem->createJob( "comp_onUpdate", fptr, &counter, &userDatas[i]);
-		jobs.push_back( job );
-		i++;
-	}
-
-	pJobSystem->run( jobs.data(), jobs.size() );
-	pJobSystem->waitForAndFreeCounter( &counter, 0 );
-
-	//for ( auto& u : m_onUpdate )
-	//	u->onUpdate( _deltaTime );
+	_runJobs<JobData>( "comp_onUpdate", m_onUpdate, fptr, _deltaTime );
 }
 
 void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
 {
-	for ( auto& u : m_onDraw )
-		u->onDraw( _context, _device );
+	struct JobData
+	{
+		IUpdatable* u;
+		wv::iDeviceContext* context;
+		wv::iLowLevelGraphics* device;
+	};
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onDraw( data->context, data->device );
+		};
+
+	_runJobs<JobData>( "comp_onDraw", m_onDraw, fptr, _context, _device );
 }
