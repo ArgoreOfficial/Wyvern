@@ -60,29 +60,29 @@ namespace wv
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		cVector4<T>& right( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 0 ] ); }
+		Vector4<T>& right( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 0 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		cVector4<T>& up   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 1 ] ); }
+		Vector4<T>& up   ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 1 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		cVector4<T>& at   ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 2 ] ); }
+		Vector4<T>& at   ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 2 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		cVector4<T>& pos  ( void ) { return *reinterpret_cast< cVector4<T>* >( m[ 3 ] ); }
+		Vector4<T>& pos  ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 3 ] ); }
 
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	cVector4<T> operator*( const Matrix<T, 4, 4>& _mat, const cVector4<T>& _vec )
+	Vector4<T> operator*( const Matrix<T, 4, 4>& _mat, const Vector4<T>& _vec )
 	{
 		Matrix<T, 4, 1> tmpMat{};
 		tmpMat[ 0 ][ 0 ] = _vec.x;
@@ -96,7 +96,7 @@ namespace wv
 	}
 
 	template<typename T>
-	cVector4<T> operator*( const cVector4<T>& _vec, const Matrix<T, 4, 4>& _mat )
+	Vector4<T> operator*( const Vector4<T>& _vec, const Matrix<T, 4, 4>& _mat )
 	{
 		Matrix<T, 1, 4> tmpMat{};
 		tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.z } );
@@ -303,7 +303,7 @@ namespace wv
 		/// TODO: focal length camera https://paulbourke.net/miscellaneous/lens/
 
 		template<typename T>
-		Matrix<T, 1, 4> fromVector( const cVector4<T>& _vec )
+		Matrix<T, 1, 4> fromVector( const Vector4<T>& _vec )
 		{
 			Matrix<T, 1, 4> m;
 			m.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );

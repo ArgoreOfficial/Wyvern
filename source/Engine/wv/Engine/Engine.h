@@ -128,7 +128,7 @@ namespace wv
 		
 		struct sFogParams
 		{
-			wv::cVector4f colorDensity{};
+			wv::Vector4f colorDensity{};
 			int isEnabled = 0;
 		} m_fogParams;
 

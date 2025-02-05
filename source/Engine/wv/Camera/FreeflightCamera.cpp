@@ -95,15 +95,15 @@ void wv::FreeflightCamera::update( double _delta_time )
 	rot_forward = MatrixUtil::rotateY( rot_forward, yaw );
 	rot_forward = MatrixUtil::rotateX( rot_forward, pitch );
 
-	cVector4f forward = cVector4f{ 0.0f, 0.0f, -1.0f, 1.0f } * rot_forward;
+	Vector4f forward = Vector4f{ 0.0f, 0.0f, -1.0f, 1.0f } * rot_forward;
 	
 	// right
 	Matrix4x4f rot_right( 1.0f );
 	rot_right = MatrixUtil::rotateY( rot_right, yaw );
-	cVector4f right = cVector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
+	Vector4f right = Vector4f{ 1.0f, 0.0f, 0.0f, 1.0f } * rot_right;
 	
 	// up
-	cVector4f up = cVector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
+	Vector4f up = Vector4f{ 0.0f, 1.0f, 0.0f, 1.0f } * rot_forward;
 
 	Vector3f move = {};
 	if ( m_freecam_enabled )
