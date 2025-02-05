@@ -95,6 +95,8 @@ void wv::cApplicationState::reloadScene()
 	m_pUpdateManager->_updateQueued();
 
 	cEngine::get()->m_pJobSystem->deleteAll();
+	cEngine::get()->m_pJobSystem->createWorkers();
+
 	m_pCurrentScene->destroyAllEntities();
 
 	int index = -1;

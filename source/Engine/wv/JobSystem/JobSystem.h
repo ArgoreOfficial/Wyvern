@@ -52,6 +52,9 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
+	void createWorkers( size_t _count = 0 );
+	void killWorkers();
+
 	void deleteAll();
 	void deleteAllJobs();
 	void deleteAllCounters();
@@ -63,7 +66,6 @@ public:
 	{
 		return createJob( "", _pFunction, _ppCounter, _pData );
 	}
-
 
 	void run( Job** _pJobs, size_t _numJobs = 1 );
 	void waitForCounter( JobCounter** _ppCounter, int _value );
@@ -98,8 +100,8 @@ protected:
 	std::queue <Job*> m_availableJobs{};
 	std::deque <Job*> m_jobQueue{};
 
-
 	std::vector<Worker*> m_workers;
+	size_t m_numWorkers = 0;
 
 };
 

@@ -13,7 +13,28 @@ wv::JobSystem::JobSystem()
 
 void wv::JobSystem::initialize( size_t _numWorkers )
 {
-	for ( size_t i = 0; i < _numWorkers; i++ )
+	m_numWorkers = _numWorkers;
+	createWorkers( _numWorkers );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::terminate()
+{
+	waitForAllJobs();
+	
+	killWorkers();
+
+	deleteAll();
+}
+
+void wv::JobSystem::createWorkers( size_t _count )
+{
+	size_t count = _count;
+	if ( _count == 0 )
+		count = m_numWorkers;
+
+	for ( size_t i = 0; i < count; i++ )
 	{
 		JobSystem::Worker* worker = WV_NEW( JobSystem::Worker );
 		worker->thread = std::thread( _workerThread, this, worker );
@@ -21,9 +42,7 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::JobSystem::terminate()
+void wv::JobSystem::killWorkers()
 {
 	waitForAllJobs();
 
@@ -33,14 +52,12 @@ void wv::JobSystem::terminate()
 		m_workers[ i ]->thread.join();
 		WV_FREE( m_workers[ i ] );
 	}
-
-	deleteAll();
+	m_workers.clear();
 }
 
 void wv::JobSystem::deleteAll()
 {
-	waitForAllJobs();
-
+	killWorkers();
 	deleteAllJobs();
 	deleteAllCounters();
 }
@@ -51,6 +68,7 @@ void wv::JobSystem::deleteAllJobs()
 
 	for ( size_t i = 0; i < m_jobPool.size(); i++ )
 		WV_FREE( m_jobPool[ i ] );
+
 	m_jobPool.clear();
 
 	while ( !m_availableJobs.empty() )
