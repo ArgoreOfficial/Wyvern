@@ -119,6 +119,9 @@ wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t 
 
 void wv::JobSystem::run( Job** _pJobs, size_t _numJobs )
 {
+	if ( _pJobs == nullptr )
+		return;
+
 	for ( size_t i = 0; i < _numJobs; i++ )
 	{
 		Job* job = _pJobs[ i ];
@@ -196,10 +199,9 @@ void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Wo
 wv::Job* wv::JobSystem::_getNextJob()
 {
 	std::scoped_lock lock{ m_queueMutex };
-	
 	if ( m_jobQueue.empty() )
 		return nullptr;
-	
+
 	Job* job = m_jobQueue.back();
 	m_jobQueue.pop_back();
 
@@ -252,20 +254,20 @@ wv::Job* wv::JobSystem::_allocateJob()
 
 void wv::JobSystem::_freeCounter( JobCounter* _counter )
 {
-	m_counterPoolMutex.lock();
+	std::scoped_lock lock{ m_counterPoolMutex };
+
 	_counter->value = 0;
 	m_availableCounters.push( _counter );
-	m_counterPoolMutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::JobSystem::_freeJob( Job* _job )
 {
-	m_jobPoolMutex.lock();
+	std::scoped_lock lock{ m_jobPoolMutex };
+
 	*_job = {};
 	m_availableJobs.push( _job );
-	m_jobPoolMutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
