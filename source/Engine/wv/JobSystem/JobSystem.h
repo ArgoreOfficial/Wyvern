@@ -11,26 +11,28 @@
 #include <thread>
 #include <atomic>
 
+#include "Worker.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
 
-struct JobCounter
+class JobWorker
 {
-	std::atomic_int32_t value{ 0 };
-};
+public:
 
-///////////////////////////////////////////////////////////////////////////////////////
+	void create();
+	void destroy();
 
-struct Job
-{
-	typedef void( *JobFunction_t )( const Job*, void* );
+	Job* stealJob();
 
-	std::string   name      = "";
-	JobFunction_t pFunction = nullptr;
-	void*         pData     = nullptr;
-	JobCounter**  ppCounter = nullptr;
+private:
+
+	Job* _getJob();
+	Job* _pushJob();
+
+	std::queue<Job*> m_jobQueue;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
