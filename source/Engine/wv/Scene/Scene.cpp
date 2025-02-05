@@ -44,6 +44,8 @@ void wv::Scene::destroyAllEntities()
 {
 	for( size_t i = 0; i < m_entities.size(); i++ )
 		WV_FREE( m_entities[ i ] );
+
+	m_entities.clear();
 }
 
 void wv::Scene::onUpdate( double _deltaTime )
