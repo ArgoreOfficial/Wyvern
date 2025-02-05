@@ -32,14 +32,13 @@ void wv::RigidBodyComponent::onExit( void )
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
 }
 
-void wv::RigidBodyComponent::onUpdate( double _deltaTime )
+void wv::RigidBodyComponent::onPhysicsUpdate( double _deltaTime )
 {
 	wv::cJoltPhysicsEngine* pPhysics = wv::cEngine::get()->m_pPhysicsEngine;
 
-	if( m_physicsBodyHandle.is_valid() && pPhysics->isBodyActive( m_physicsBodyHandle ) )
-	{
-		Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
-		getParent()->m_transform.position = t.position;
-		getParent()->m_transform.rotation = t.rotation;
-	}
+	if ( !m_physicsBodyHandle.is_valid() || !pPhysics->isBodyActive( m_physicsBodyHandle ) )
+		return;
+
+	Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
+	getParent()->m_transform.setPositionRotation( t.position, t.rotation );
 }

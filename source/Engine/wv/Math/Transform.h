@@ -18,9 +18,14 @@ class Transform
 
 public:
 
-	inline void setPosition( wv::Vector3<_Ty> _position ) { position = _position; }
-	inline void setRotation( wv::Vector3<_Ty> _rotation ) { rotation = _rotation; }
-	inline void setScale( wv::Vector3<_Ty> _scale ) { scale = _scale; }
+	inline void setPosition( const wv::Vector3<_Ty>& _position ) { position = _position; }
+	inline void setRotation( const wv::Vector3<_Ty>& _rotation ) { rotation = _rotation; }
+	inline void setScale( const wv::Vector3<_Ty>& _scale ) { scale = _scale; }
+
+	inline void setPositionRotation( const wv::Vector3<_Ty>& _position, const wv::Vector3<_Ty>& _rotation ) {
+		position = _position;
+		rotation = _rotation;
+	}
 
 	inline void translate( wv::Vector3<_Ty> _translation ) { position += _translation; }
 	inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }

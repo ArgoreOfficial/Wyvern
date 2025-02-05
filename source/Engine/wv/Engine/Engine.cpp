@@ -674,3 +674,8 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 	createGBuffer();
 }
 
+void wv::cEngine::_physicsUpdate( double _deltaTime )
+{
+	m_pApplicationState->onPhysicsUpdate( _deltaTime );
+}
+

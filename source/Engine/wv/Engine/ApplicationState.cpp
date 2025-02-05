@@ -72,11 +72,13 @@ void wv::cApplicationState::update( double _deltaTime )
 	m_pUpdateManager->onUpdate( _deltaTime );
 }
 
+void wv::cApplicationState::onPhysicsUpdate( double _deltaTime )
+{
+	m_pUpdateManager->onPhysicsUpdate( _deltaTime );
+}
+
 void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 {
-	if( !m_pCurrentScene )
-		return;
-	
 	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }
 

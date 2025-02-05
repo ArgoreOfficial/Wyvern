@@ -27,26 +27,27 @@ public:
 	
 	enum FunctionFlags
 	{
-		kOnConstruct  = 1,
-		kOnDestruct   = 1 << 1,
-		kOnEnter      = 1 << 2,
-		kOnExit       = 1 << 3,
-		kOnUpdate     = 1 << 4,
-		kOnDraw       = 1 << 5,
-
-		kAll = kOnConstruct | kOnDestruct | kOnEnter | kOnExit | kOnUpdate | kOnDraw
+		kOnConstruct     = 1,
+		kOnDestruct      = 1 << 1,
+		kOnEnter         = 1 << 2,
+		kOnExit          = 1 << 3,
+		kOnUpdate        = 1 << 4,
+		kOnPhysicsUpdate = 1 << 5,
+		kOnDraw          = 1 << 6,
 	};
 
 	virtual FunctionFlags getFunctionFlags() = 0;
 
-	virtual void onConstruct( void ) { };
-	virtual void onDestruct ( void ) { };
+	virtual void onConstruct( void ) { }
+	virtual void onDestruct ( void ) { }
 
-	virtual void onEnter( void ) { };
-	virtual void onExit ( void ) { };
+	virtual void onEnter( void ) { }
+	virtual void onExit ( void ) { }
 
-	virtual void onUpdate( double _deltaTime ) { };
-	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) { };
+	virtual void onUpdate       ( double _deltaTime )        { }
+	virtual void onPhysicsUpdate( double _deltaTime ) { }
+
+	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) { }
 
 };
 
@@ -108,6 +109,7 @@ private:
 	void onExit ( void );
 
 	void onUpdate( double _deltaTime );
+	void onPhysicsUpdate( double _deltaTime );
 	void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device );
 
 	std::vector<IUpdatable*> m_updatables;
@@ -119,6 +121,7 @@ private:
 	UpdatableOnceContainer m_onExit;
 
 	std::unordered_set<IUpdatable*> m_onUpdate;
+	std::unordered_set<IUpdatable*> m_onPhysicsUpdate;
 	std::unordered_set<IUpdatable*> m_onDraw;
 
 	std::queue<IUpdatable*> m_registerQueue{};

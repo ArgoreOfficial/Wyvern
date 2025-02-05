@@ -19,19 +19,18 @@ public:
 	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
-		return FunctionFlags::kOnEnter | FunctionFlags::kOnExit | FunctionFlags::kOnUpdate;
+		return FunctionFlags::kOnEnter | FunctionFlags::kOnExit | FunctionFlags::kOnPhysicsUpdate;
 	}
 
 	virtual void onEnter( void ) override;
 	virtual void onExit( void ) override;
 
-	virtual void onUpdate( double _deltaTime ) override;
+	virtual void onPhysicsUpdate( double _deltaTime ) override;
 
 protected:
 
 	iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
 	PhysicsBodyID m_physicsBodyHandle = PhysicsBodyID::InvalidID;
-
 };
 
 }

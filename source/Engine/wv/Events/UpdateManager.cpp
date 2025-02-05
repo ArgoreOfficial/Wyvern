@@ -44,6 +44,9 @@ void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable:
 	if ( _flags & IUpdatable::FunctionFlags::kOnUpdate )
 		m_onUpdate.insert( _pUpdatable );
 
+	if ( _flags & IUpdatable::FunctionFlags::kOnPhysicsUpdate )
+		m_onPhysicsUpdate.insert( _pUpdatable );
+
 	if ( _flags & IUpdatable::FunctionFlags::kOnDraw )
 		m_onDraw.insert( _pUpdatable );
 }
@@ -59,6 +62,9 @@ void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 	if ( m_onUpdate.contains( _pUpdatable ) )
 		m_onUpdate.erase( _pUpdatable );
 	
+	if ( m_onPhysicsUpdate.contains( _pUpdatable ) )
+		m_onPhysicsUpdate.erase( _pUpdatable );
+
 	if ( m_onDraw.contains( _pUpdatable ) )
 		m_onDraw.erase( _pUpdatable );
 }
@@ -162,6 +168,23 @@ void wv::UpdateManager::onUpdate( double _deltaTime )
 		};
 
 	_runJobs<JobData>( "comp_onUpdate", m_onUpdate, fptr, _deltaTime );
+}
+
+void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
+{
+	struct JobData
+	{
+		IUpdatable* u;
+		double dt;
+	};
+
+	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+		{
+			JobData* data = (JobData*)_pData;
+			data->u->onPhysicsUpdate( data->dt );
+		};
+
+	_runJobs<JobData>( "comp_onPhysicsUpdate", m_onPhysicsUpdate, fptr, _deltaTime );
 }
 
 void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )

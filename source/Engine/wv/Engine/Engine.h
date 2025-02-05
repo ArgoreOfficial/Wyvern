@@ -70,6 +70,9 @@ namespace wv
 	{
 
 	public:
+	#ifdef WV_SUPPORT_JOLT_PHYSICS
+		friend class cJoltPhysicsEngine;
+	#endif
 
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
@@ -123,7 +126,9 @@ namespace wv
 		// modules
 		cFileSystem*        m_pFileSystem       = nullptr;
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
+	#ifdef WV_SUPPORT_JOLT_PHYSICS
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
+	#endif
 		JobSystem*          m_pJobSystem        = nullptr;
 		
 		struct sFogParams
@@ -143,6 +148,8 @@ namespace wv
 		void createGBuffer();
 
 		void recreateScreenRenderTarget( int _width, int _height );
+
+		void _physicsUpdate( double _deltaTime );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
