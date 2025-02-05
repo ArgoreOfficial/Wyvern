@@ -422,7 +422,7 @@ void wv::cEngine::tick()
 
 	// update modules
 
-	m_pApplicationState->update( dt );
+	m_pApplicationState->onUpdate( dt );
 	
 	currentCamera->update( dt );
 
@@ -456,7 +456,7 @@ void wv::cEngine::tick()
 	{
 		graphics->clearRenderTarget( true, true );
 
-		m_pApplicationState->draw( context, graphics );
+		m_pApplicationState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
 
 		GPUBufferID viewBufferID = currentCamera->getBufferID();

@@ -46,7 +46,7 @@ void wv::cApplicationState::onExit()
 	m_pUpdateManager->onExit();
 }
 
-void wv::cApplicationState::update( double _deltaTime )
+void wv::cApplicationState::onUpdate( double _deltaTime )
 {
 	m_pUpdateManager->_updateQueued();
 
@@ -77,7 +77,7 @@ void wv::cApplicationState::onPhysicsUpdate( double _deltaTime )
 	m_pUpdateManager->onPhysicsUpdate( _deltaTime );
 }
 
-void wv::cApplicationState::draw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
+void wv::cApplicationState::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
 {
 	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }

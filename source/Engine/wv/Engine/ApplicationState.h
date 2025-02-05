@@ -30,10 +30,10 @@ namespace wv
 		void onEnter();
 		void onExit();
 
-		void update( double _deltaTime );
+		void onUpdate( double _deltaTime );
 		void onPhysicsUpdate( double _deltaTime );
 
-		void draw  ( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
+		void onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
 
 		void reloadScene();
 
