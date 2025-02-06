@@ -24,12 +24,6 @@ class JobSystem
 {
 public:
 
-	struct Worker
-	{
-		std::thread thread;
-		std::atomic_bool alive{ true };
-	};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	JobSystem();
@@ -62,7 +56,7 @@ public:
 
 protected:
 
-	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker );
+	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker );
 
 	Job* _getNextJob();
 	
@@ -85,7 +79,7 @@ protected:
 	std::queue <Job*> m_availableJobs{};
 	std::deque <Job*> m_jobQueue{};
 
-	std::vector<Worker*> m_workers;
+	std::vector<JobWorker*> m_workers;
 	size_t m_numWorkers = 0;
 
 };

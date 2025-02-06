@@ -1,25 +1,18 @@
 #pragma once
 
-#include "Job.h"
+#include <wv/JobSystem/Job.h>
+#include <wv/JobSystem/JobBuffer.h>
+
+#include <thread>
 
 namespace wv
 {
 
-class JobWorker
+struct JobWorker
 {
-public:
-
-	void create();
-	void destroy();
-
-	Job* stealJob();
-
-private:
-
-	Job* _getJob();
-	Job* _pushJob();
-
-	std::queue<Job*> m_jobQueue;
+	std::thread mThread{};
+	std::atomic_bool mIsAlive{ true };
+	JobBuffer mQueue{ 128 };
 };
 
 }

@@ -36,8 +36,8 @@ void wv::JobSystem::createWorkers( size_t _count )
 
 	for ( size_t i = 0; i < count; i++ )
 	{
-		JobSystem::Worker* worker = WV_NEW( JobSystem::Worker );
-		worker->thread = std::thread( _workerThread, this, worker );
+		JobWorker* worker = WV_NEW( JobWorker );
+		worker->mThread = std::thread( _workerThread, this, worker );
 		m_workers.push_back( worker );
 	}
 }
@@ -48,8 +48,8 @@ void wv::JobSystem::killWorkers()
 
 	for ( size_t i = 0; i < m_workers.size(); i++ )
 	{
-		m_workers[ i ]->alive = false;
-		m_workers[ i ]->thread.join();
+		m_workers[ i ]->mIsAlive = false;
+		m_workers[ i ]->mThread.join();
 		WV_FREE( m_workers[ i ] );
 	}
 	m_workers.clear();
@@ -184,13 +184,26 @@ void wv::JobSystem::freeCounter( JobCounter** _ppCounter )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker )
+void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker )
 {
-	while ( _pWorker->alive )
+	size_t victimIndex = 0;
+	while ( _pWorker->mIsAlive )
 	{
-		Job* nextJob = _pJobSystem->_getNextJob();
+		//Job* nextJob = _pJobSystem->_getNextJob();
+		Job* nextJob = _pWorker->mQueue.pop();
+
+		if( !nextJob ) // no jobs, try to steal
+		{
+			wv::JobWorker* victim = _pJobSystem->m_workers[ victimIndex ];
+			if( victim != _pWorker )
+				nextJob = victim->mQueue.steal();
+		}
+		
 		if ( nextJob )
 			_pJobSystem->_executeJob( nextJob );
+
+		victimIndex++;
+		victimIndex %= _pJobSystem->m_numWorkers;
 	}
 }
 
