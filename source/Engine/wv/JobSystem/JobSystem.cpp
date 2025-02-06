@@ -107,7 +107,7 @@ wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t 
 
 	Job* job = _allocateJob();
 
-	job->name = _name;
+	//job->name = _name;
 	job->pFunction = _pFunction;
 	job->pData = _pData;
 	job->ppCounter = _ppCounter;
