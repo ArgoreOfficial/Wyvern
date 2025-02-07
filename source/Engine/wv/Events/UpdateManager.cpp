@@ -69,13 +69,13 @@ void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 	m_onEnter.erase( _pUpdatable );
 	m_onExit.erase( _pUpdatable );
 	
-	if ( m_onUpdate.contains( _pUpdatable ) )
+	if ( m_onUpdate.count( _pUpdatable ) )
 		m_onUpdate.erase( _pUpdatable );
 	
-	if ( m_onPhysicsUpdate.contains( _pUpdatable ) )
+	if ( m_onPhysicsUpdate.count( _pUpdatable ) )
 		m_onPhysicsUpdate.erase( _pUpdatable );
 
-	if ( m_onDraw.contains( _pUpdatable ) )
+	if ( m_onDraw.count( _pUpdatable ) )
 		m_onDraw.erase( _pUpdatable );
 }
 

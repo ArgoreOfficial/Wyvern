@@ -54,7 +54,7 @@ rule_end()
 function load()
     set_languages( "c17", "cxx17" )
     add_defines( "WV_C17", "WV_CPP17" )
-    add_defines( "WV_PLATFORM_3DS" )
+    add_defines( "WV_PLATFORM_3DS", "LUA_USE_C89" )
 
     set_toolchains( "arm-none-eabi" )
 end

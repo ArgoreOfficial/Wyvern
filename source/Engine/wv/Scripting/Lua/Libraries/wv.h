@@ -4,8 +4,8 @@
 #include <vector>
 
 extern "C" {
-	int l_wv_log( lua_State* _L );
-	int l_wv_logDebug( lua_State* _L );
+	int l_wv_log( lua_State* _luaState );
+	int l_wv_logDebug( lua_State* _luaState );
 	
 	static const struct luaL_Reg lualib_wvPrint[] = {
 		{ "print", l_wv_log },
@@ -18,5 +18,5 @@ extern "C" {
 		{ NULL, NULL }
 	};
 
-	extern int luaopen_wv( lua_State* _L );
+	extern int luaopen_wv( lua_State* _luaState );
 }

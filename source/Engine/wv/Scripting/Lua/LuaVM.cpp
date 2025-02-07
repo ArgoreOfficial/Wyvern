@@ -15,15 +15,15 @@ template<> int wv::LuaVM::pushToStack( const bool&        _v ) { lua_pushboolean
 template<> int wv::LuaVM::pushToStack( const std::string& _v ) { lua_pushlstring( m_luaState, _v.c_str(), _v.size() ); return 1; }
 template<> int wv::LuaVM::pushToStack( const double&      _v ) { lua_pushnumber ( m_luaState, _v ); return 1; }
 
-wv::LuaStackGuard::LuaStackGuard( lua_State* _L )
+wv::LuaStackGuard::LuaStackGuard( lua_State* _luaState )
 {
-    L = _L;
-    m_stackBegin = lua_gettop( L );
+    m_luaState = _luaState;
+    m_stackBegin = lua_gettop( _luaState );
 }
 
 bool wv::LuaStackGuard::check()
 {
-    return lua_gettop( L ) == m_stackBegin;
+    return lua_gettop( m_luaState ) == m_stackBegin;
 }
 
 wv::LuaVM::LuaVM()

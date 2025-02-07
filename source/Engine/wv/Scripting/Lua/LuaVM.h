@@ -18,13 +18,13 @@ enum LuaResult
 
 struct LuaStackGuard
 {
-	LuaStackGuard( lua_State* _L );
+	LuaStackGuard( lua_State* _luaState );
 
 	bool check();
 
 private:
 	int m_stackBegin = 0;
-	lua_State* L;
+	lua_State* m_luaState;
 };
 
 class LuaVM

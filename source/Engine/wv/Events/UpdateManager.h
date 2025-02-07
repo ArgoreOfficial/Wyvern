@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/Engine/Engine.h>
 #include <wv/Decl.h>
 #include <wv/JobSystem/JobSystem.h>
 
