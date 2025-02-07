@@ -1,8 +1,6 @@
-
-print( "Cool Lua Log" )
+print( "Normal lua print" )
 
 function sum( _a, _b ) 
-    print( _a )
-    --return _a + _b; 
-    return {}
+    wv.logDebug( "Sum was called with " .. tostring(_a) .. " and " .. tostring( _b ) )
+    return _a + _b; 
 end

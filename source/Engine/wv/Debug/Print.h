@@ -30,7 +30,8 @@ static const char* LEVEL_STR[] = {
 	" WARN",
 	"ERROR",
 	"FATAL",
-	"TRACE"
+	"TRACE",
+	" LUA "
 };
 
 static const wv::Console::Color LEVEL_COL[] = {
@@ -39,7 +40,8 @@ static const wv::Console::Color LEVEL_COL[] = {
 	Console::Bright_Yellow,   // warning
 	Console::Red,             // error
 	Console::Bright_Red,      // fatal
-	Console::Bright_Magenta   // trace
+	Console::Bright_Magenta,  // trace
+	Console::Bright_Green     // lua
 };
 
 std::mutex& getMutex();
@@ -65,7 +67,8 @@ enum PrintLevel
 	WV_PRINT_WARN,
 	WV_PRINT_ERROR,
 	WV_PRINT_FATAL,
-	WV_PRINT_TRACE
+	WV_PRINT_TRACE,
+	WV_PRINT_LUA
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -131,5 +134,6 @@ inline void Print( PrintLevel _printLevel, const char* _str, Args... _args )
 }
 
 #define WV_LOG_ERROR( ... ) wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, __VA_ARGS__ )
+#define WV_LOG_WARNING( ... ) wv::Debug::Print( wv::Debug::WV_PRINT_WARN, __VA_ARGS__ )
 
 
