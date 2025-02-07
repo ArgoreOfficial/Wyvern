@@ -10,11 +10,13 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Events/UpdateManager.h>
 
+#include <wv/Scripting/Lua/LuaVM.h>
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::cApplicationState::initialize()
 {
 	m_pUpdateManager = WV_NEW( UpdateManager );
+	m_pLuaVM = WV_NEW( LuaVM );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +25,9 @@ void wv::cApplicationState::terminate()
 {
 	if ( m_pUpdateManager )
 		WV_FREE( m_pUpdateManager );
+
+	if( m_pLuaVM )
+		WV_FREE( m_pLuaVM );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

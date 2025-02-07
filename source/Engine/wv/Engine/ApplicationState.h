@@ -15,6 +15,7 @@ namespace wv
 	class Scene;
 	class cFileSystem;
 	class UpdateManager;
+	class LuaVM;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,7 @@ namespace wv
 		Scene* m_pCurrentScene = nullptr;
 
 		UpdateManager* m_pUpdateManager = nullptr;
+		LuaVM* m_pLuaVM = nullptr;
 	};
 
 	cApplicationState* getAppState();
