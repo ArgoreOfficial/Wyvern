@@ -102,6 +102,7 @@ bool cSandbox::create( void )
 	fileSystem->addDirectory( "../shaders/user/" );
 	fileSystem->addDirectory( "../shaders/core/" );
 	fileSystem->addDirectory( "../textures/" );
+	fileSystem->addDirectory( "../scripts/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
 	

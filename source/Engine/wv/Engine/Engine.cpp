@@ -72,6 +72,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	s_pInstance = this;
 
+	m_pFileSystem = _desc->systems.pFileSystem;
+
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
 
@@ -94,7 +96,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
-	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
 	m_pResourceRegistry->initializeEmbeded();
 

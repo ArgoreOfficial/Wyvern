@@ -7,6 +7,9 @@ extern "C" {
 }
 
 #include <wv/Debug/Print.h>
+#include <wv/Engine/Engine.h>
+#include <wv/Memory/FileSystem.h>
+
 
 template<> int wv::LuaVM::pushToStack( const int&         _v ) { lua_pushinteger( m_luaState, _v ); return 1; }
 template<> int wv::LuaVM::pushToStack( const bool&        _v ) { lua_pushboolean( m_luaState, _v ); return 1; }
@@ -30,23 +33,28 @@ wv::LuaVM::LuaVM()
 
 	luaL_openlibs( m_luaState ); // dangerous
 	//luaopen_math( m_luaState );
-	luaopen_string( m_luaState );
+	//luaopen_string( m_luaState );
 
-    switch( runScript( "print('Lua: Created LuaVM')" ) )
+    std::string wv_test = cEngine::get()->m_pFileSystem->loadString( "wv_test.lua" );
+
+    //switch( runScript( "function sum(a, b) print(a); return a+b; end" ) )
+    switch( runScript( wv_test ) )
     {
-    case LuaResult::kError_Load: WV_LOG_ERROR( "Failed to load test1 script" ); break;
-    case LuaResult::kError_Run:  WV_LOG_ERROR( "Failed to run test1 script" ); break;
+    case LuaResult::kError_Load: WV_LOG_ERROR( "Failed to load wv_test script" ); break;
+    case LuaResult::kError_Run:  WV_LOG_ERROR( "Failed to run wv_test script" ); break;
     }
 
-    switch( runScript( "function sum(a, b) print(a); return a+b; end" ) )
     {
-    case LuaResult::kError_Load: WV_LOG_ERROR( "Failed to load test2 script" ); break;
-    case LuaResult::kError_Run:  WV_LOG_ERROR( "Failed to run test2 script" ); break;
-    }
+        LuaStackGuard stackGuard{ m_luaState };
 
-    switch( runGlobalFunction( "sum", 5.0, 6.0 ) )
-    {
-    case kError_StackMismatch: WV_LOG_ERROR( "Stack mismatch" ); break;
+        if( runGlobalFunction( "sum", 5.0, 6.0 ) == kSuccess )
+        {
+            double sumval = popReturnNumber();
+            printf( "sum=%lf\n", sumval );
+        }
+
+        if( !stackGuard.check() )
+            WV_LOG_ERROR( "Stack mismatch" );
     }
 }
 
@@ -72,6 +80,18 @@ wv::LuaResult wv::LuaVM::runScript( const std::string& _code )
     return LuaResult::kSuccess;
 }
 
+double wv::LuaVM::popReturnNumber()
+{
+    double val = 0.0;
+    if( !lua_isnumber( m_luaState, -1 ) )
+        WV_LOG_ERROR( "Lua: Incorrect return type. Expected number, got %s\n", lua_typename( m_luaState, lua_type( m_luaState, -1 ) ) );
+    else
+        val = lua_tonumber( m_luaState, -1 );
+    
+    lua_pop( m_luaState, 1 );
+    return val;
+}
+
 wv::LuaResult wv::LuaVM::_loadFunc( const std::string& _funcName )
 {
     lua_getglobal( m_luaState, _funcName.c_str() );
@@ -84,17 +104,8 @@ wv::LuaResult wv::LuaVM::_loadFunc( const std::string& _funcName )
     return LuaResult::kSuccess;
 }
 
-wv::LuaResult wv::LuaVM::_execFunc()
+wv::LuaResult wv::LuaVM::_execFunc( int _numArgs )
 {
-    lua_pcall( m_luaState, 2, 1, 0 );
-    double sumval = 0.0;
-    if( !lua_isnil( m_luaState, -1 ) )
-    {
-        sumval = lua_tonumber( m_luaState, -1 );
-        lua_pop( m_luaState, 1 );
-    }
-
-    printf( "sum=%lf\n", sumval );
-    
+    lua_pcall( m_luaState, _numArgs, 1, 0 );
     return kSuccess;
 }

@@ -52,23 +52,23 @@ public:
 
 	template<typename... _Args>
 	LuaResult runGlobalFunction( const std::string& _funcName, _Args... _args ) {
-		LuaStackGuard stackGuard{ m_luaState };
 		
 		if( _loadFunc( _funcName ) != LuaResult::kSuccess )
 			return kError;
 		pushArgsToStack( _args... );
-		_execFunc();
+		_execFunc( sizeof...( _Args ) );
 		
-		if( !stackGuard.check() )
-			return kError_StackMismatch;
-
 		return kSuccess;
 	}
 
+	double popReturnNumber();
+
 private:
 
+
+
 	LuaResult _loadFunc( const std::string& _funcName );
-	LuaResult _execFunc();
+	LuaResult _execFunc( int _numArgs );
 
 	lua_State* m_luaState = nullptr;
 
