@@ -28,11 +28,16 @@ target "Wyvern"
     set_targetdir "../../game/$(plat)"
     set_objectdir "../../build/obj" 
 
+    add_files( "lua/*.c" )
+    remove_files( "lua/onelua.c" )
+    add_headerfiles( "lua/*.h" )
+    
+    add_files( "wv/**.cpp" )
     add_headerfiles( 
-        "**.h", 
-        "**.hpp" 
+        "wv/**.h", 
+        "wv/**.hpp" 
     )
-    add_files( "**.cpp" )
+
     add_includedirs( "./", "../../libs/ArX/include" )
     
     if is_arch( "psvita" ) and has_vitasdk then 

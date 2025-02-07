@@ -1,3 +1,6 @@
 [submodule "libs/ArX"]
 	path = libs/ArX
 	url = https://github.com/ArgoreOfficial/ArX
+[submodule "source/Engine/lua"]
+	path = source/Engine/lua
+	url = https://github.com/lua/lua.git

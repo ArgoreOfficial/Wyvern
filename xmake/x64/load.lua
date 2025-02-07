@@ -5,7 +5,7 @@ function load()
     add_defines( "WV_C17", "WV_CPP20" )
     add_defines( "WV_PLATFORM_WINDOWS" )
 
-    add_requires( "libsdl", "assimp", "joltphysics", "luajit" )
+    add_requires( "libsdl", "assimp", "joltphysics" )
     add_requires( "imgui v1.91.0-docking", { 
         configs={
             opengl3 = true,
