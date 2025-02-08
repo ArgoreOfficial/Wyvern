@@ -132,23 +132,49 @@ template<typename _Ty, typename ..._Args>
 inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
 {
 	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
-
-	std::vector<_Ty> userDatas{ _set.size() };
-	std::vector<Job*> jobs{};
-
-	JobCounter* counter = nullptr;
-
-	int i = 0;
-	for( auto& u : _set )
+	
+	struct DispatchData
 	{
-		userDatas[ i ] = _Ty{ u, _args... };
-		Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
-		jobs.push_back( job );
-		i++;
-	}
+		std::vector<_Ty> userDatas;
+		Job::JobFunction_t fptr;
+	} dispatchData;
+	dispatchData.userDatas.reserve( _set.size() );
+	dispatchData.fptr = _fptr;
 
-	pJobSystem->run( jobs.data(), jobs.size() );
-	pJobSystem->waitForAndFreeCounter( &counter, 0 );
+	for ( auto& u : _set )
+		dispatchData.userDatas.push_back( _Ty{ u, _args... } );
+	
+	Job::JobFunction_t dispatchJob = []( void* _pData )
+		{
+			JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+
+			struct DispatchData
+			{
+				std::vector<_Ty> userDatas;
+				Job::JobFunction_t fptr;
+			}* dispatchData = ( DispatchData*)_pData;
+
+			std::vector<Job*> jobs{};
+
+			Fence* fence = JobSystem::createFence();
+			int i = 0;
+			for( auto& data : dispatchData->userDatas )
+			{
+				Job* job = pJobSystem->createJob( fence, nullptr, dispatchData->fptr, &data );
+				jobs.push_back( job );
+			}
+
+			pJobSystem->submit( jobs );
+			pJobSystem->waitForFences( &fence );
+			JobSystem::deleteFence( fence );
+		};
+
+
+	Fence* fence = JobSystem::createFence();
+	Job* job = pJobSystem->createJob( fence, nullptr, dispatchJob, &dispatchData );
+	pJobSystem->submit( { job } );
+	pJobSystem->waitForFences( &fence );
+	JobSystem::deleteFence( fence );
 }
 
 }

@@ -93,7 +93,7 @@ void wv::UpdateManager::onConstruct( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onConstruct();
@@ -109,7 +109,7 @@ void wv::UpdateManager::onDestruct( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onDestruct();
@@ -125,7 +125,7 @@ void wv::UpdateManager::onEnter( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onEnter();
@@ -141,7 +141,7 @@ void wv::UpdateManager::onExit( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onExit();
@@ -161,7 +161,7 @@ void wv::UpdateManager::onUpdate( double _deltaTime )
 		double dt;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onUpdate( data->dt );
@@ -178,7 +178,7 @@ void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 		double dt;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onPhysicsUpdate( data->dt );
@@ -196,7 +196,7 @@ void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraph
 		wv::iLowLevelGraphics* device;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onDraw( data->context, data->device );

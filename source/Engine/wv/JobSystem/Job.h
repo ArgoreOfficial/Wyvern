@@ -1,36 +1,38 @@
 #pragma once
 
 #include <atomic>
-#include <array>
 #include <new>
+
+#include <wv/Decl.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
 
-struct JobCounter
+struct Fence
 {
-	std::atomic_int32_t value{ 0 };
+	std::atomic_uint16_t counter;
 };
-
-#define DEF_PAD_PAYLOAD( _size ) static constexpr size_t _PAYLOAD_SIZE = _size ;
-#define UCHAR_PAD_TO_T( _size ) static constexpr size_t _MAX_PADDING_SIZE = _size; \
-static constexpr size_t _PADDING_SIZE = _MAX_PADDING_SIZE - _PAYLOAD_SIZE; \
-std::array<unsigned char, _PADDING_SIZE>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 struct Job
 {
-	typedef void( *JobFunction_t )( const Job*, void* );
+	typedef void( *JobFunction_t )( void* _pData );
 
 	JobFunction_t pFunction = nullptr;
-	JobCounter** ppCounter = nullptr;
 	void* pData = nullptr;
+	Fence* pSignalFence;
 
-	DEF_PAD_PAYLOAD( sizeof( pFunction ) + sizeof( ppCounter ) + sizeof( pData ) );
-	UCHAR_PAD_TO_T( std::hardware_destructive_interference_size ) padding;
+	// pad to 64 bytes
+	WV_PAD_PAYLOAD( 
+		sizeof( pFunction ) + 
+		sizeof( pData ) +
+		sizeof( pSignalFence )
+	);
+	WV_PAD_TO_T( std::hardware_destructive_interference_size ) padding;
+	//WV_PAD_TO_T( WV_CONCURRENCY ) padding;
 };
 
 static_assert( sizeof( Job ) == std::hardware_destructive_interference_size );

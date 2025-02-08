@@ -1,6 +1,7 @@
 #include "JobBuffer.h"
 
 #include "Job.h"
+#include <wv/JobSystem/JobSystem.h>
 
 wv::JobBuffer::JobBuffer( size_t _size ) :
     m_numJobs{ _size }
@@ -10,32 +11,35 @@ wv::JobBuffer::JobBuffer( size_t _size ) :
 
 void wv::JobBuffer::push( Job* _pJob )
 {
-    size_t idx = (m_head - 1) % m_numJobs;
-    Job*& job = *m_jobs[ idx ].lock();
+    Job*& job = *m_jobs[ m_head ].lock();
 
-    if( job == nullptr )
+	if ( job == nullptr )
+	{
         job = _pJob;
+		m_jobs[ m_head ].unlock();
+	}
     else
     {
-        job->pFunction( job, job->pData );
+		JobSystem::executeJob( job );
         job = nullptr;
+		m_jobs[ m_head ].unlock();
+
         m_head--;
     }
 
-    m_jobs[ idx ].unlock();
-    
     m_head++;
     m_head %= m_jobs.size();
 }
 
 wv::Job* wv::JobBuffer::pop()
 {
-    Job*& job = *m_jobs[ m_head ].lock();
+	uint32_t idx = ( m_head - 1 ) % m_numJobs;
+    Job*& job = *m_jobs[ idx ].lock();
 
     Job* jobCopy = job;
     job = nullptr;
 
-    m_jobs[ m_head ].unlock();
+    m_jobs[ idx ].unlock();
 
     if( jobCopy != nullptr )
         m_head--;

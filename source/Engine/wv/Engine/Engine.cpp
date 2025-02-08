@@ -100,7 +100,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	const unsigned int numCores = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( 5 );
+	m_pJobSystem->initialize( numCores - 1 );
 
 	graphics->initEmbeds();
 
