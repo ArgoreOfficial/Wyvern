@@ -46,8 +46,8 @@ public:
 protected:
 
 	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker );
-	void _runWorker( wv::JobWorker* _pWorker );
 	JobWorker* _getThisThreadWorker();
+	Job* _getNextJob( wv::JobWorker* _pWorker );
 
 	std::vector<JobWorker*> m_workers;
 	std::unordered_map<std::thread::id, JobWorker*> m_threadIDWorkerMap;

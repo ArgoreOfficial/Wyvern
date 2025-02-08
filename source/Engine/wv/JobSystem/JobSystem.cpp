@@ -2,6 +2,7 @@
 
 #include <wv/Memory/Memory.h>
 #include <exception>
+#include <random>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +114,9 @@ void wv::JobSystem::waitForFences( wv::Fence** _pFences, size_t _count )
 		while ( fence->counter )
 		{
 			JobWorker* worker = _getThisThreadWorker();
-			_runWorker( worker );
+			Job* nextJob = _getNextJob( worker );
+			if ( nextJob )
+				wv::JobSystem::executeJob( nextJob );
 		}
 	}
 }
@@ -123,34 +126,11 @@ void wv::JobSystem::waitForFences( wv::Fence** _pFences, size_t _count )
 void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker )
 {
 	while ( _pWorker->mIsAlive )
-		_pJobSystem->_runWorker( _pWorker );
-}
-
-void wv::JobSystem::_runWorker( wv::JobWorker* _pWorker )
-{
-	Job* nextJob = _pWorker->mQueue.pop();
-
-	if ( !nextJob ) // no jobs, try to steal
 	{
-		for ( size_t i = 0; i < m_workers.size(); i++ )
-		{
-			wv::JobWorker* victim = m_workers[ i ];
-			if ( victim && victim != _pWorker )
-			{
-				nextJob = victim->mQueue.steal();
-				if( nextJob )
-					break;
-			}
-		}
+		Job* nextJob = _pJobSystem->_getNextJob( _pWorker );
+		if ( nextJob )
+			wv::JobSystem::executeJob( nextJob );
 	}
-
-	_pWorker->victimIndex++;
-	_pWorker->victimIndex %= m_workers.size();
-
-	if ( nextJob )
-		wv::JobSystem::executeJob( nextJob );
-	else
-		std::this_thread::yield();
 }
 
 wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
@@ -161,6 +141,31 @@ wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
 
 	throw std::runtime_error( "Thread is not worker thread" );
 	return nullptr; // will not occur
+}
+
+wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
+{
+	Job* job = _pWorker->mQueue.pop();
+
+	if ( job )
+		return job;
+
+	const int r = std::rand() % m_workers.size();
+	JobWorker* worker = m_workers[ r ];
+
+	if ( worker == _pWorker )
+	{
+		std::this_thread::yield();
+		return nullptr;
+	}
+
+	Job* stolenJob = _pWorker->mQueue.steal();
+
+	if ( stolenJob )
+		return stolenJob;
+		
+	std::this_thread::yield();
+	return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
