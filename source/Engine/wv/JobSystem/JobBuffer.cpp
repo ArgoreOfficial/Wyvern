@@ -65,7 +65,7 @@ wv::Job* wv::JobBuffer::steal()
     m_jobs[ tail ].unlock();
 
     if( jobCopy )
-        tail--;
+        tail++;
     tail %= m_numJobs;
     m_tail.unlock();
 

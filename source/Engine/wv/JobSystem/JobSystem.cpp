@@ -132,9 +132,16 @@ void wv::JobSystem::_runWorker( wv::JobWorker* _pWorker )
 
 	if ( !nextJob ) // no jobs, try to steal
 	{
-		wv::JobWorker* victim = m_workers[ _pWorker->victimIndex ];
-		if ( victim && victim != _pWorker )
-			nextJob = victim->mQueue.steal();
+		for ( size_t i = 0; i < m_workers.size(); i++ )
+		{
+			wv::JobWorker* victim = m_workers[ i ];
+			if ( victim && victim != _pWorker )
+			{
+				nextJob = victim->mQueue.steal();
+				if( nextJob )
+					break;
+			}
+		}
 	}
 
 	_pWorker->victimIndex++;
@@ -142,8 +149,8 @@ void wv::JobSystem::_runWorker( wv::JobWorker* _pWorker )
 
 	if ( nextJob )
 		wv::JobSystem::executeJob( nextJob );
-	//else
-	//	std::this_thread::yield();
+	else
+		std::this_thread::yield();
 }
 
 wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
