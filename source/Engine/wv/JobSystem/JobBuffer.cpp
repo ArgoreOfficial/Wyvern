@@ -3,42 +3,71 @@
 #include "Job.h"
 #include <wv/JobSystem/JobSystem.h>
 
+#define COMPILER_BARRIER std::atomic_signal_fence(std::memory_order_seq_cst)
+
 wv::JobBuffer::JobBuffer(  )
 {
     m_jobs.resize( g_NUM_JOBS );
 }
 
-bool wv::JobBuffer::push( Job* _pJob )
+void wv::JobBuffer::push( Job* _pJob )
 {
-	std::scoped_lock criticalLock{ m_criticalMutex };
-
-	m_jobs[ m_head & g_MASK ] = _pJob;
-	++m_head;
-
-	return true;
+	size_t b = m_bottom;
+	m_jobs[ b & g_MASK ] = _pJob;
+	
+	// ensure the job is written before b+1 is published to other threads.
+	// on x86/64, a compiler barrier is enough.
+	// On other platforms (PowerPC, ARM, …) you would need a memory fence instead
+	// https://blog.molecular-matters.com/2015/09/25/job-system-2-0-lock-free-work-stealing-part-3-going-lock-free/
+	COMPILER_BARRIER;
+	/// TODO: read up on compiler barrier stuff
+	
+	m_bottom = b + 1;
 }
 
 wv::Job* wv::JobBuffer::pop()
 {
-	std::scoped_lock criticalLock{ m_criticalMutex };
-	
-	const int jobCount = m_head - m_tail;
-	if ( jobCount <= 0 ) // no jobs queue
-		return nullptr;
-	
-	--m_head;
-	return m_jobs[ m_head & g_MASK ];
+	long b = m_bottom - 1;
+	_InterlockedExchange( &m_bottom, b );
+
+	long t = m_top;
+
+	if ( t <= b )
+	{
+		// non-empty queue
+		Job* job = m_jobs[ b & g_MASK ];
+		if ( t != b ) // there's still more than one item left in the queue
+			return job;
+		
+		// this is the last item in the queue
+		if ( _InterlockedCompareExchange( &m_top, t + 1, t ) != t ) // failed race against steal operation
+			job = nullptr;
+		
+		m_bottom = t + 1;
+		return job;
+	}
+
+	// deque was already empty
+	m_bottom = t;
+	return nullptr;
 }
 
 wv::Job* wv::JobBuffer::steal()
 {
-	std::scoped_lock criticalLock{ m_criticalMutex };
+	long t = m_top;
+	COMPILER_BARRIER;
+	long b = m_bottom;
 
-	const int jobCount = m_head - m_tail;
-	if ( jobCount <= 0 ) // no job to steal
-		return nullptr;
-	
-	Job* job = m_jobs[ m_tail & g_MASK ];
-	++m_tail;
-	return job;
+	if ( t < b )
+	{
+		Job* job = m_jobs[ t & g_MASK ];
+
+		// a concurrent steal or pop operation removed an element from the deque in the meantime.
+		if ( _InterlockedCompareExchange( &m_top, t + 1, t ) != t )
+			return nullptr;
+		
+		return job;
+	}
+
+	return nullptr; // queue empty
 }

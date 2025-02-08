@@ -160,7 +160,7 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 		return nullptr;
 	}
 
-	Job* stolenJob = _pWorker->mQueue.steal();
+	Job* stolenJob = worker->mQueue.steal();
 
 	if ( stolenJob )
 		return stolenJob;
