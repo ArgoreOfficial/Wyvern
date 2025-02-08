@@ -12,7 +12,7 @@ struct JobWorker
 {
 	std::thread mThread{};
 	std::atomic_bool mIsAlive{ true };
-	JobBuffer mQueue{ 1024 };
+	JobBuffer mQueue{};
 	size_t victimIndex = 0;
 };
 

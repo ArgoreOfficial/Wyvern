@@ -12,17 +12,20 @@ class Job;
 class JobBuffer
 {
 public:
-    JobBuffer( size_t _size );
+    JobBuffer();
 
-    void push( Job* _pJob );
+    bool push( Job* _pJob );
     Job* pop();
     Job* steal();
 
 private:
-    uint32_t m_head;
-    arx::type_guard<uint32_t> m_tail;
-    std::vector<arx::type_guard<Job*>> m_jobs{};
-    const size_t m_numJobs{ 0 };
+	static const unsigned int g_NUM_JOBS = 4096u;
+	static const unsigned int g_MASK = g_NUM_JOBS - 1u;
+
+    std::atomic_size_t m_head, m_tail;
+    std::vector<Job*> m_jobs{};
+
+	std::mutex m_criticalMutex;
 };
 
 

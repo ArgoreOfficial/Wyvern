@@ -84,6 +84,7 @@ void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 	{
 		if ( j->pSignalFence )
 			j->pSignalFence->counter++;
+
 		worker->mQueue.push( j );
 	}
 }
@@ -173,7 +174,7 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 void wv::JobSystem::executeJob( wv::Job* _pJob )
 {
 	_pJob->pFunction( _pJob->pData );
-
+	
 	if ( _pJob->pSignalFence )
 		_pJob->pSignalFence->counter--;
 

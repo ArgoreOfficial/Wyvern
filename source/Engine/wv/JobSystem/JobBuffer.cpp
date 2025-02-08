@@ -3,71 +3,42 @@
 #include "Job.h"
 #include <wv/JobSystem/JobSystem.h>
 
-wv::JobBuffer::JobBuffer( size_t _size ) :
-    m_numJobs{ _size }
+wv::JobBuffer::JobBuffer(  )
 {
-    m_jobs.resize( _size );
+    m_jobs.resize( g_NUM_JOBS );
 }
 
-void wv::JobBuffer::push( Job* _pJob )
+bool wv::JobBuffer::push( Job* _pJob )
 {
-    Job*& job = *m_jobs[ m_head ].lock();
+	std::scoped_lock criticalLock{ m_criticalMutex };
 
-	if ( job == nullptr )
-	{
-        job = _pJob;
-		m_jobs[ m_head ].unlock();
-	}
-    else
-    {
-		JobSystem::executeJob( job );
-        job = nullptr;
-		m_jobs[ m_head ].unlock();
+	m_jobs[ m_head & g_MASK ] = _pJob;
+	++m_head;
 
-        m_head--;
-    }
-
-    m_head++;
-    m_head %= m_jobs.size();
+	return true;
 }
 
 wv::Job* wv::JobBuffer::pop()
 {
-	uint32_t idx = ( m_head - 1 ) % m_numJobs;
-    Job*& job = *m_jobs[ idx ].lock();
-
-    Job* jobCopy = job;
-    job = nullptr;
-
-    m_jobs[ idx ].unlock();
-
-    if( jobCopy != nullptr )
-        m_head--;
-    m_head %= m_numJobs;
-
-    return jobCopy;
+	std::scoped_lock criticalLock{ m_criticalMutex };
+	
+	const int jobCount = m_head - m_tail;
+	if ( jobCount <= 0 ) // no jobs queue
+		return nullptr;
+	
+	--m_head;
+	return m_jobs[ m_head & g_MASK ];
 }
 
 wv::Job* wv::JobBuffer::steal()
 {
-    uint32_t& tail = *m_tail.lock();
-    Job** pJob;
-    if( !m_jobs[ tail ].try_lock( pJob ) )
-    {
-        m_tail.unlock();
-        return nullptr;
-    }
+	std::scoped_lock criticalLock{ m_criticalMutex };
 
-    Job*& job = *pJob;
-    Job* jobCopy = job;
-    job = nullptr;
-
-    m_jobs[ tail ].unlock();
-
-    if( jobCopy )
-        tail++;
-    tail %= m_numJobs;
-    m_tail.unlock();
-
-    return jobCopy;
+	const int jobCount = m_head - m_tail;
+	if ( jobCount <= 0 ) // no job to steal
+		return nullptr;
+	
+	Job* job = m_jobs[ m_tail & g_MASK ];
+	++m_tail;
+	return job;
 }
