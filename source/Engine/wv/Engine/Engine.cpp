@@ -410,8 +410,11 @@ void wv::cEngine::tick()
 			m_fpsAccumulator = 0.0;
 			m_timeSinceFPSUpdate = 0.0;
 			m_fpsCounter = 0;
-
-			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+			
+			std::string title = 
+				"FPS: " + std::to_string( (int)m_averageFps ) + 
+				" ("     + std::to_string( 1000.0 / m_averageFps ) + "ms)   "
+				"MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
 		}
 	}
