@@ -82,7 +82,7 @@ namespace wv
 		std::vector<Job*> jobs{};
 
 		Fence* fence = JobSystem::createFence();
-
+		
 		for ( size_t i = 0; i < m_entities.size(); i++ )
 		{
 			userDatas[ i ] = _Ty{ m_entities[ i ], _args... };
@@ -91,7 +91,7 @@ namespace wv
 		}
 
 		pJobSystem->submit( jobs );
-		pJobSystem->waitForFences( &fence );
+		pJobSystem->waitAndDeleteFence( fence );
 	}
 
 }

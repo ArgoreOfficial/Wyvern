@@ -23,6 +23,24 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 void wv::JobSystem::terminate()
 {
 	deleteWorkers();
+
+
+
+	while ( !m_jobPool.empty() )
+	{
+		WV_FREE( m_jobPool.front() );
+		m_jobPool.pop();
+	}
+
+	while ( !m_fencePool.empty() )
+	{
+		std::scoped_lock lock{ m_fencePoolMutex };
+		Fence* f = m_fencePool.front();
+		m_fencePool.pop();
+
+		waitForFence( f );
+		WV_FREE( f );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +86,7 @@ void wv::JobSystem::deleteWorkers()
 
 wv::Job* wv::JobSystem::createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
 {
-	wv::Job* job = WV_NEW( wv::Job );
+	Job* job = _allocateJob();
 	job->pSignalFence = _pSignalFence;
 	job->pFunction    = _fptr;
 	job->pData        = _pData;
@@ -94,8 +112,19 @@ void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 
 wv::Fence* wv::JobSystem::createFence()
 {
-	wv::Fence* fence = WV_NEW( wv::Fence );
+	wv::Fence* fence = nullptr;
+
+	if ( m_jobPool.empty() )
+		fence = WV_NEW( wv::Fence );
+	else
+	{
+		std::scoped_lock lock{ m_fencePoolMutex };
+		fence = m_fencePool.front();
+		m_fencePool.pop();
+	}
+
 	fence->counter = 0;
+
 	return fence;
 }
 
@@ -103,24 +132,27 @@ wv::Fence* wv::JobSystem::createFence()
 
 void wv::JobSystem::deleteFence( Fence* _fence )
 {
-	WV_FREE( _fence );
+	std::scoped_lock lock{ m_fencePoolMutex };
+	m_fencePool.push( _fence );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::waitForFences( wv::Fence** _pFences, size_t _count )
+void wv::JobSystem::waitForFence( wv::Fence* _pFence )
 {
-	for ( size_t i = 0; i < _count; i++ )
+	while ( _pFence->counter )
 	{
-		wv::Fence* fence = _pFences[ i ];
-		while ( fence->counter )
-		{
-			JobWorker* worker = _getThisThreadWorker();
-			Job* nextJob = _getNextJob( worker );
-			if ( nextJob )
-				wv::JobSystem::executeJob( nextJob );
-		}
+		JobWorker* worker = _getThisThreadWorker();
+		Job* nextJob = _getNextJob( worker );
+		if ( nextJob )
+			wv::JobSystem::executeJob( nextJob );
 	}
+}
+
+void wv::JobSystem::waitAndDeleteFence( wv::Fence* _pFence )
+{
+	waitForFence( _pFence );
+	deleteFence( _pFence );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +163,7 @@ void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _p
 	{
 		Job* nextJob = _pJobSystem->_getNextJob( _pWorker );
 		if ( nextJob )
-			wv::JobSystem::executeJob( nextJob );
+			_pJobSystem->executeJob( nextJob );
 	}
 }
 
@@ -176,6 +208,32 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+wv::Job* wv::JobSystem::_allocateJob()
+{
+	wv::Job* job = nullptr;
+	
+	if ( m_jobPool.empty() )
+		job = WV_NEW( Job );
+	else
+	{
+		std::scoped_lock lock{ m_jobPoolMutex };
+		job = m_jobPool.front();
+		m_jobPool.pop();
+	}
+
+	return job;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::_freeJob( Job* _pJob )
+{
+	std::scoped_lock lock{ m_jobPoolMutex };
+	m_jobPool.push( _pJob );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::JobSystem::executeJob( wv::Job* _pJob )
 {
 	_pJob->pFunction( _pJob->pData );
@@ -183,6 +241,5 @@ void wv::JobSystem::executeJob( wv::Job* _pJob )
 	if ( _pJob->pSignalFence )
 		_pJob->pSignalFence->counter--;
 
-	// wv::JobSystem::_freeJob( _pJob );
-	WV_FREE( _pJob );
+	_freeJob( _pJob );
 }

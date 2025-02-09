@@ -147,7 +147,7 @@ inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set
 	std::vector<_Ty> userDatas{ _set.size() };
 	std::vector<Job*> jobs{};
 
-	Fence* fence = JobSystem::createFence();
+	Fence* fence = pJobSystem->createFence();
 
 	int i = 0;
 	for ( auto& u : _set )
@@ -159,8 +159,7 @@ inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set
 	}
 
 	pJobSystem->submit( jobs );
-	pJobSystem->waitForFences( &fence );
-	JobSystem::deleteFence( fence );
+	pJobSystem->waitAndDeleteFence( fence );
 }
 
 }
