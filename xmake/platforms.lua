@@ -6,18 +6,24 @@ add_moduledirs( "./" )
 function init_platform()
 
     -- configure modes
-    if is_mode("Debug") then
+    if is_mode( "Debug", "Debug-nomt" ) then
         set_symbols "debug"
         set_optimize "none"
         set_strip "none"
-    elseif is_mode("Release") then 
+
+        add_defines( "WV_DEBUG" )
+    elseif is_mode( "Release" ) then 
         set_symbols "debug"
         set_optimize "fast"
         set_strip "debug"
-    elseif is_mode("Package") then 
+
+        add_defines( "WV_RELEASE" )
+    elseif is_mode( "Package" ) then 
         set_symbols "none"
         set_optimize "fastest"
         set_strip "all"
+
+        add_defines( "WV_PACKAGE" )
     end
 
     for _, filepath in ipairs( os.dirs("xmake/*"), path.translate ) do
@@ -42,7 +48,6 @@ function init_platform()
 
         -- target:add( "defines", "WV_PLATFORM_" .. string.upper( config.plat() ) )
         target:add( "defines", "WV_ARCH_"     .. string.upper( config.arch() ) )
-        target:add( "defines", "WV_"          .. string.upper( config.mode() ) )
 
         if option.get("verbose") then
             print( target:name() )

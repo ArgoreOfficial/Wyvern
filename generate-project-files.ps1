@@ -1,15 +1,15 @@
 $platforms = "x64"
 
-if( (Test-Path platform/platform_psvita.lua ) -and (Test-Path env:SCE_PSP2_SDK_DIR) ) {
+if( (Test-Path xmake/psvita/load.lua ) -and (Test-Path env:SCE_PSP2_SDK_DIR) ) {
     $platforms += ",psvita"
 }
 
-if( (Test-Path xmake/arm_3ds/xmake.lua ) -and (Test-Path env:DEVKITARM) ) {
+if( (Test-Path xmake/arm_3ds/load.lua ) -and (Test-Path env:DEVKITARM) ) {
     $platforms += ",arm_3ds"
 }
 
 & "xmake" f -c -y --vs=2022
-& "xmake" project -k vsxmake -y -m "Debug,Release,Package" -a $platforms ./build
+& "xmake" project -k vsxmake -y -m "Debug,Debug-nomt,Release,Package" -a $platforms ./build
 
 if( $LASTEXITCODE -lt 0 )
 {

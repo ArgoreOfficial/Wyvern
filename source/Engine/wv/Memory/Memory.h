@@ -159,17 +159,8 @@ private:
 
 	static inline std::vector<Entry> m_entries{};
 	static inline std::mutex m_mutex{};
-#ifndef WV_TRACK_MEMORY 
-#ifdef WV_DEBUG
 
-#ifndef WV_PLATFORM_3DS
-#define WV_TRACK_MEMORY 1
-#endif
-
-#endif
-#endif
-
-#if WV_TRACK_MEMORY == 1
+#ifdef WV_TRACK_MEMORY
 #define WV_NEW( _Ty, ... ) wv::MemoryTracker::track_new<_Ty>( #_Ty, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
 #define WV_NEW_ARR( _Ty, _count ) wv::MemoryTracker::track_new_arr<_Ty>( _count, #_Ty , __FILE__, __LINE__, __FUNCTION__ )
 
