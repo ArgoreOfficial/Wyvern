@@ -1,9 +1,10 @@
 #pragma once
 
+#include <wv/Types.h>
+#include <wv/Decl.h>
+
 #include <atomic>
 #include <new>
-
-#include <wv/Decl.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

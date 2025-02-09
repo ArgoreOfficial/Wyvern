@@ -126,9 +126,9 @@ namespace wv
 		// modules
 		cFileSystem*        m_pFileSystem       = nullptr;
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
-	#ifdef WV_SUPPORT_JOLT_PHYSICS
+	
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
-	#endif
+		
 		JobSystem*          m_pJobSystem        = nullptr;
 		
 		struct sFogParams

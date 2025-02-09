@@ -81,7 +81,7 @@ namespace wv
 		std::vector<_Ty> userDatas{ m_entities.size() };
 		std::vector<Job*> jobs{};
 
-		Fence* fence = JobSystem::createFence();
+		Fence* fence = pJobSystem->createFence();
 		
 		for ( size_t i = 0; i < m_entities.size(); i++ )
 		{

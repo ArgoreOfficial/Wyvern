@@ -4,6 +4,8 @@
 #include <exception>
 #include <random>
 
+#include <wv/Debug/Print.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::JobSystem::JobSystem()
@@ -174,8 +176,11 @@ wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
 	std::thread::id threadID = std::this_thread::get_id();
 	if ( m_threadIDWorkerMap.count( threadID ) )
 		return m_threadIDWorkerMap[ threadID ];
-
+#ifdef __cpp_exceptions
 	throw std::runtime_error( "Thread is not worker thread" );
+#else
+	wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Thread is not worker thread\n" );
+#endif
 	return nullptr; // will not occur
 }
 

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <atomic>
 
 #include <wv/Types/type_guard.hpp>
 

@@ -2,6 +2,7 @@
 
 #include <wv/Decl.h>
 #include <wv/JobSystem/JobSystem.h>
+#include <wv/Engine/Engine.h>
 
 #include <vector>
 #include <unordered_set>
