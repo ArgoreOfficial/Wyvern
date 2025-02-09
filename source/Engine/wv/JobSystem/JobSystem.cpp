@@ -134,6 +134,8 @@ void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _p
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
 {
 	std::thread::id threadID = std::this_thread::get_id();
@@ -143,6 +145,8 @@ wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
 	throw std::runtime_error( "Thread is not worker thread" );
 	return nullptr; // will not occur
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 {
