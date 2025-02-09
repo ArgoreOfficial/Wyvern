@@ -1,6 +1,7 @@
 #include "Scene.h"
 
 #include <wv/Memory/Memory.h>
+#include <functional>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +14,7 @@ void wv::Scene::addChild( IEntity* _node, bool _triggerLoadAndCreate )
 		if ( m_entities[ i ] == _node ) return; // node already has child
 	
 	m_entities.push_back( _node );
-
+	
 	if ( _triggerLoadAndCreate )
 	{
 		_node->onEnterImpl();

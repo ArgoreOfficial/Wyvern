@@ -81,17 +81,17 @@ namespace wv
 		std::vector<_Ty> userDatas{ m_entities.size() };
 		std::vector<Job*> jobs{};
 
-		JobCounter* counter = nullptr;
-
+		Fence* fence = JobSystem::createFence();
+		
 		for ( size_t i = 0; i < m_entities.size(); i++ )
 		{
 			userDatas[ i ] = _Ty{ m_entities[ i ], _args... };
-			Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
+			Job* job = pJobSystem->createJob( fence, nullptr, _fptr, &userDatas[ i ] );
 			jobs.push_back( job );
 		}
 
-		pJobSystem->run( jobs.data(), jobs.size() );
-		pJobSystem->waitForAndFreeCounter( &counter, 0 );
+		pJobSystem->submit( jobs );
+		pJobSystem->waitAndDeleteFence( fence );
 	}
 
 }

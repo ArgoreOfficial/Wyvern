@@ -5,27 +5,35 @@
 
 #include <wv/JobSystem/JobSystem.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::IUpdatable::~IUpdatable()
 {
 	getAppState()->getUpdateManager()->unregisterUpdatable( this );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IUpdatable::_registerUpdatable()
 {
 	getAppState()->getUpdateManager()->registerUpdatable( this );
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::UpdateManager::registerUpdatable( IUpdatable* _pUpdatable )
 {
 	m_registerQueue.push( _pUpdatable );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::unregisterUpdatable( IUpdatable* _pUpdatable )
 {
 	m_unregisterQueue.push( _pUpdatable );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable::FunctionFlags _flags )
 {
@@ -51,6 +59,8 @@ void wv::UpdateManager::_registerUpdatable( IUpdatable* _pUpdatable, IUpdatable:
 		m_onDraw.insert( _pUpdatable );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 {
 	m_onConstruct.erase( _pUpdatable );
@@ -68,6 +78,8 @@ void wv::UpdateManager::_unregisterUpdatable( IUpdatable* _pUpdatable )
 	if ( m_onDraw.contains( _pUpdatable ) )
 		m_onDraw.erase( _pUpdatable );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::UpdateManager::_updateQueued( void )
 {
@@ -89,11 +101,13 @@ void wv::UpdateManager::_updateQueued( void )
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::onConstruct( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onConstruct();
@@ -105,11 +119,13 @@ void wv::UpdateManager::onConstruct( void )
 	m_onDestruct.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::onDestruct( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onDestruct();
@@ -121,11 +137,13 @@ void wv::UpdateManager::onDestruct( void )
 	m_onConstruct.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::onEnter( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onEnter();
@@ -137,11 +155,13 @@ void wv::UpdateManager::onEnter( void )
 	m_onExit.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::onExit( void )
 {
 	struct JobData { IUpdatable* u; };
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onExit();
@@ -153,6 +173,8 @@ void wv::UpdateManager::onExit( void )
 	m_onEnter.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::UpdateManager::onUpdate( double _deltaTime )
 {
 	struct JobData
@@ -161,7 +183,7 @@ void wv::UpdateManager::onUpdate( double _deltaTime )
 		double dt;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onUpdate( data->dt );
@@ -169,6 +191,8 @@ void wv::UpdateManager::onUpdate( double _deltaTime )
 
 	_runJobs<JobData>( "comp_onUpdate", m_onUpdate, fptr, _deltaTime );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 {
@@ -178,7 +202,7 @@ void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 		double dt;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onPhysicsUpdate( data->dt );
@@ -186,6 +210,8 @@ void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 
 	_runJobs<JobData>( "comp_onPhysicsUpdate", m_onPhysicsUpdate, fptr, _deltaTime );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
 {
@@ -196,7 +222,7 @@ void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraph
 		wv::iLowLevelGraphics* device;
 	};
 
-	Job::JobFunction_t fptr = []( const Job* _job, void* _pData )
+	Job::JobFunction_t fptr = []( void* _pData )
 		{
 			JobData* data = (JobData*)_pData;
 			data->u->onDraw( data->context, data->device );

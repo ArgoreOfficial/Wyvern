@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <queue>
 
+///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
@@ -15,6 +16,8 @@ class iDeviceContext;
 class iLowLevelGraphics;
 class cEngine;
 class cApplicationState;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 class IUpdatable
 {
@@ -53,6 +56,8 @@ public:
 
 WV_ENUM_BITWISE_OR( IUpdatable::FunctionFlags )
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 class UpdatableOnceContainer
 {
 public:
@@ -84,6 +89,8 @@ public:
 	std::unordered_set<IUpdatable*> m_completed;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 class UpdateManager
 {
 public:
@@ -92,6 +99,8 @@ public:
 
 	void registerUpdatable( IUpdatable* _pUpdatable );
 	void unregisterUpdatable( IUpdatable* _pUpdatable );
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 private:
 	void _registerUpdatable( IUpdatable* _pUpdatable, IUpdatable::FunctionFlags _flags );
@@ -128,6 +137,8 @@ private:
 	std::queue<IUpdatable*> m_unregisterQueue{};
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 template<typename _Ty, typename ..._Args>
 inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
 {
@@ -136,19 +147,19 @@ inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set
 	std::vector<_Ty> userDatas{ _set.size() };
 	std::vector<Job*> jobs{};
 
-	JobCounter* counter = nullptr;
+	Fence* fence = pJobSystem->createFence();
 
 	int i = 0;
-	for( auto& u : _set )
+	for ( auto& u : _set )
 	{
 		userDatas[ i ] = _Ty{ u, _args... };
-		Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
+		Job* job = pJobSystem->createJob( fence, nullptr, _fptr, &userDatas[ i ] );
 		jobs.push_back( job );
 		i++;
 	}
 
-	pJobSystem->run( jobs.data(), jobs.size() );
-	pJobSystem->waitForAndFreeCounter( &counter, 0 );
+	pJobSystem->submit( jobs );
+	pJobSystem->waitAndDeleteFence( fence );
 }
 
 }
