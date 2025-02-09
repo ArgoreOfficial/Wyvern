@@ -3,7 +3,6 @@
 #include "Job.h"
 #include <wv/JobSystem/JobSystem.h>
 
-#define COMPILER_BARRIER std::atomic_signal_fence(std::memory_order_seq_cst)
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::JobBuffer::JobBuffer(  )
@@ -22,8 +21,7 @@ void wv::JobBuffer::push( Job* _pJob )
 	// on x86/64, a compiler barrier is enough.
 	// On other platforms (PowerPC, ARM, …) you would need a memory fence instead
 	// https://blog.molecular-matters.com/2015/09/25/job-system-2-0-lock-free-work-stealing-part-3-going-lock-free/
-	COMPILER_BARRIER;
-	/// TODO: read up on compiler barrier stuff
+	std::atomic_signal_fence( std::memory_order_seq_cst );
 	
 	m_bottom = b + 1;
 }
@@ -34,17 +32,15 @@ wv::Job* wv::JobBuffer::pop()
 {
 	long b = m_bottom - 1;
 	_InterlockedExchange( &m_bottom, b );
-
+	
 	long t = m_top;
 
 	if ( t <= b )
 	{
-		// non-empty queue
 		Job* job = m_jobs[ b & g_MASK ];
-		if ( t != b ) // there's still more than one item left in the queue
+		if ( t != b )
 			return job;
 		
-		// this is the last item in the queue
 		if ( _InterlockedCompareExchange( &m_top, t + 1, t ) != t ) // failed race against steal operation
 			job = nullptr;
 		
@@ -62,7 +58,7 @@ wv::Job* wv::JobBuffer::pop()
 wv::Job* wv::JobBuffer::steal()
 {
 	long t = m_top;
-	COMPILER_BARRIER;
+	std::atomic_signal_fence( std::memory_order_seq_cst );
 	long b = m_bottom;
 
 	if ( t < b )
