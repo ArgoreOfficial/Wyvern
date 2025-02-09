@@ -21,7 +21,7 @@ public:
 private:
 	static const unsigned int g_NUM_JOBS = 4096u * 2;
 	
-    std::atomic_long m_bottom, m_top;
+    std::atomic_int32_t m_bottom, m_top;
     std::vector<Job*> m_jobs{};
 
 	std::mutex m_criticalMutex;
