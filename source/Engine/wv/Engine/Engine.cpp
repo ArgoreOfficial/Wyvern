@@ -98,9 +98,9 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
 	m_pResourceRegistry->initializeEmbeded();
 
-	const unsigned int numCores = std::thread::hardware_concurrency();
+	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( numCores - 1 );
+	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
 
 	graphics->initEmbeds();
 
