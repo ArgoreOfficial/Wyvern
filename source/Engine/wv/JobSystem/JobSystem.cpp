@@ -116,7 +116,7 @@ wv::Fence* wv::JobSystem::createFence()
 {
 	wv::Fence* fence = nullptr;
 
-	if ( m_jobPool.empty() )
+	if ( m_fencePool.empty() )
 		fence = WV_NEW( wv::Fence );
 	else
 	{
