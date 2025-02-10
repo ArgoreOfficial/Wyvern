@@ -21,9 +21,6 @@ void wv::cApplicationState::initialize()
 
 void wv::cApplicationState::terminate()
 {
-	if ( m_pUpdateManager )
-		WV_FREE( m_pUpdateManager );
-
 	if ( m_pCurrentScene )
 		m_pCurrentScene->destroyAllEntities();
 
@@ -31,6 +28,9 @@ void wv::cApplicationState::terminate()
 		WV_FREE( scene );
 
 	m_scenes.clear();
+
+	if ( m_pUpdateManager )
+		WV_FREE( m_pUpdateManager );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

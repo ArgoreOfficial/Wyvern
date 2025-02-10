@@ -94,13 +94,13 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
-	m_pFileSystem = _desc->systems.pFileSystem;
-	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
-	m_pResourceRegistry->initializeEmbeded();
-
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
 	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
+
+	m_pFileSystem = _desc->systems.pFileSystem;
+	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
+	m_pResourceRegistry->initializeEmbeded();
 
 	graphics->initEmbeds();
 
@@ -353,17 +353,17 @@ void wv::cEngine::terminate()
 		graphics = nullptr;
 	}
 
-	if( m_pJobSystem )
-	{
-		m_pJobSystem->terminate();
-		WV_FREE( m_pJobSystem );
-		m_pJobSystem = nullptr;
-	}
-
 	if( m_pResourceRegistry )
 	{
 		WV_FREE( m_pResourceRegistry );
 		m_pResourceRegistry = nullptr;
+	}
+
+	if ( m_pJobSystem )
+	{
+		m_pJobSystem->terminate();
+		WV_FREE( m_pJobSystem );
+		m_pJobSystem = nullptr;
 	}
 
 	if( m_pFileSystem )
