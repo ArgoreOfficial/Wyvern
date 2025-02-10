@@ -14,13 +14,10 @@ wv::JobBuffer::JobBuffer(  )
 
 bool wv::JobBuffer::push( Job* _pJob )
 {
-	int32_t head = m_head.load( std::memory_order::memory_order_acquire );
-
-	if ( head >= static_cast<int32_t>( m_jobs.size() ) )
-		return false; // queue is full
+	int32_t h = m_head.load( std::memory_order::memory_order_acquire );
 	
-	m_jobs[ head ] = _pJob;
-	m_head.store( head + 1, std::memory_order::memory_order_release );
+	m_jobs[ h % g_NUM_JOBS ] = _pJob;
+	m_head.store( h + 1, std::memory_order::memory_order_release );
 
 	return true;
 }
@@ -29,45 +26,54 @@ bool wv::JobBuffer::push( Job* _pJob )
 
 wv::Job* wv::JobBuffer::pop()
 {
-	int32_t head = m_head.load( std::memory_order::memory_order_acquire );
-	head = wv::Math::max<int32_t>( 0, head - 1 );
-	m_head.store( head, std::memory_order::memory_order_release );
+	std::scoped_lock lock{ m_criticalMutex };
 
-	int32_t tail = m_tail.load( std::memory_order::memory_order_acquire );
+	int32_t h = m_head.load( std::memory_order::memory_order_acquire ) - 1;
+	int32_t t = m_tail.load( std::memory_order::memory_order_acquire );
 
-	if ( tail > head )
+	if ( t < h )
 	{
-		// queue is empty
-		m_head.store( tail, std::memory_order::memory_order_release );
-		return nullptr;
+		m_head.store( h, std::memory_order::memory_order_release );
+		
+		// non-empty queue
+		Job* job = m_jobs[ h % g_NUM_JOBS ];
+		if ( t != h )
+        {
+            // there's still more than one item left in the queue
+            return job;
+        }
+
+		if ( !m_tail.compare_exchange_weak( t, t + 1, std::memory_order::memory_order_acq_rel ) )
+		{
+			// failed race against steal operation
+			job = nullptr;
+		}
+		
+		//m_head.store( t + 1, std::memory_order::memory_order_release );
+		return job;
 	}
 
-	Job* job = m_jobs[ head ];
-	if ( tail != head )
-		return job;
-		
-	if ( !m_tail.compare_exchange_weak( tail, tail + 1, std::memory_order::memory_order_acq_rel ) )
-		job = nullptr; // failed race against steal
-		
-	m_head.store( tail + 1, std::memory_order::memory_order_release );
-
-	return job;
+	return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Job* wv::JobBuffer::steal()
 {
+	std::scoped_lock lock{ m_criticalMutex };
+
 	int32_t tail = m_tail.load( std::memory_order::memory_order_acquire );
 	int32_t head = m_head.load( std::memory_order::memory_order_acquire );
 
-	if ( tail <= head )
-		return nullptr; // queue is empty
-	
-	Job* job = m_jobs[ tail % g_NUM_JOBS ];
+	if ( tail < head )
+	{
+		Job* job = m_jobs[ tail % g_NUM_JOBS ];
 		
-	if ( !m_tail.compare_exchange_weak( tail, tail + 1, std::memory_order::memory_order_acq_rel ) )
-		return nullptr; // failed race against steal or pop
+		if ( !m_tail.compare_exchange_weak( tail, tail + 1, std::memory_order::memory_order_acq_rel ) )
+			return nullptr; // failed race against steal or pop
 
-	return job;
+		return job;
+	}
+	
+	return nullptr; // queue is empty
 }
