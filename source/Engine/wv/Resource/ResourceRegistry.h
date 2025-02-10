@@ -23,11 +23,12 @@ namespace wv
 	class cResourceRegistry
 	{
 	public:
-		cResourceRegistry( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ):
+		cResourceRegistry( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics, JobSystem* _pJobSystem ):
 			m_pFileSystem{ _pFileSystem },
-			m_pLowLevelGraphics{ _pLowLevelGraphics }
+			m_pLowLevelGraphics{ _pLowLevelGraphics },
+			m_pJobSystem{ _pJobSystem }
 		{
-			
+			m_resourceFence = _pJobSystem->createFence();
 		}
 
 		~cResourceRegistry();
@@ -70,7 +71,7 @@ namespace wv
 
 				JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
 				LoadData* loadData = WV_NEW( LoadData, res, m_pFileSystem, m_pLowLevelGraphics );
-				Job* job = pJobSystem->createJob( nullptr, nullptr, fptr, loadData );
+				Job* job = pJobSystem->createJob( m_resourceFence, nullptr, fptr, loadData );
 				pJobSystem->submit( { job } );
 
 				addResource( res );
@@ -101,7 +102,14 @@ namespace wv
 
 		iResource* getLoadedResource( const std::string& _name );
 
-		bool isWorking() { return false; }
+		bool isWorking() { 
+			uint32_t v = m_resourceFence->counter.load();
+			return v > 0;
+		}
+
+		size_t getNumLoadedResources() {
+			return m_resources.size();
+		}
 
 	protected:
 
@@ -113,11 +121,13 @@ namespace wv
 		void findAndRemoveResource( iResource* _resource );
 		void removeResource( const std::string& _name );
 
-		cFileSystem* m_pFileSystem;
-		iLowLevelGraphics* m_pLowLevelGraphics;
+		cFileSystem* m_pFileSystem{ nullptr };
+		iLowLevelGraphics* m_pLowLevelGraphics{ nullptr };
+		JobSystem* m_pJobSystem{ nullptr };
 
-		std::unordered_map<std::string, iResource*> m_resources;
-		std::mutex m_mutex;
+		std::unordered_map<std::string, iResource*> m_resources{};
+		std::mutex m_mutex{};
+		wv::Fence* m_resourceFence{ nullptr };
 
 		std::vector<cMeshResource*> m_meshes;
 	};

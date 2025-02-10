@@ -268,9 +268,13 @@ void wv::cEngine::run()
 
 	currentCamera = freeflightCamera;
 	
+	size_t embeddedResources = m_pResourceRegistry->getNumLoadedResources();
+
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	
-	// while m_applicationState->isLoading() { doloadingstuff }
+	// wait for load to be done
+	while ( m_pResourceRegistry->isWorking() )
+		Sleep( 10 );
 	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
@@ -279,10 +283,15 @@ void wv::cEngine::run()
 		tick();
 #endif
 
+
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
 	m_pApplicationState->onExit();
 	m_pApplicationState->onDestruct();
+	
+	// wait for unload to be done
+	while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
+		Sleep( 10 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
