@@ -1,3 +1,14 @@
+/**
+ * @file JobBuffer.h
+ * @author Argore
+ * @brief 
+ * @version 0.2
+ * @date 2025-02-09
+ * 
+ * @copyright Copyright (c) 2025 Argore
+ * 
+ */
+
 #pragma once
 
 #include <stdint.h>
