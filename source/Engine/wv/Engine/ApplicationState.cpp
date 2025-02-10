@@ -23,6 +23,14 @@ void wv::cApplicationState::terminate()
 {
 	if ( m_pUpdateManager )
 		WV_FREE( m_pUpdateManager );
+
+	if ( m_pCurrentScene )
+		m_pCurrentScene->destroyAllEntities();
+
+	for ( auto& scene : m_scenes )
+		WV_FREE( scene );
+
+	m_scenes.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -37,11 +45,6 @@ void wv::cApplicationState::onConstruct()
 void wv::cApplicationState::onDestruct()
 {
 	m_pUpdateManager->onDestruct();
-	
-	for( auto& scene : m_scenes )
-		WV_FREE( scene );
-	
-	m_scenes.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +72,7 @@ void wv::cApplicationState::onUpdate( double _deltaTime )
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
 		
-		m_pUpdateManager->onConstruct();
+		onConstruct();
 		onEnter();
 		
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
@@ -78,8 +81,8 @@ void wv::cApplicationState::onUpdate( double _deltaTime )
 	if( m_pCurrentScene )
 	{
 		// if there are any new updatables that needs construction and entering
-		m_pUpdateManager->onConstruct();
-		m_pUpdateManager->onEnter();
+		onConstruct();
+		onEnter();
 	}
 
 	m_pCurrentScene->onUpdate( _deltaTime );
@@ -111,8 +114,8 @@ void wv::cApplicationState::reloadScene()
 		return;
 	}
 
-	m_pUpdateManager->onExit();
-	m_pUpdateManager->onDestruct();
+	onExit();
+	onDestruct();
 
 	m_pUpdateManager->_updateQueued();
 
@@ -137,9 +140,8 @@ void wv::cApplicationState::reloadScene()
 
 	m_pUpdateManager->_updateQueued();
 
-	m_pUpdateManager->onConstruct();
-
-	m_pUpdateManager->onEnter();
+	onConstruct();
+	onEnter();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
