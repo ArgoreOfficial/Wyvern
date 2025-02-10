@@ -72,15 +72,16 @@ void wv::JobSystem::createWorkers( size_t _count )
 
 void wv::JobSystem::deleteWorkers()
 {
-	for ( size_t i = 0; i < m_workers.size(); i++ )
+	// shutdown threads
+	for ( size_t i = 1; i < m_workers.size(); i++ )
 	{
 		m_workers[ i ]->mIsAlive = false;
-		
-		if( m_workers[ i ]->mThread.joinable() )
-			m_workers[ i ]->mThread.join();
-
-		WV_FREE( m_workers[ i ] );
+		m_workers[ i ]->mThread.join();
 	}
+
+	for ( size_t i = 0; i < m_workers.size(); i++ )
+		WV_FREE( m_workers[ i ] );
+	
 	m_workers.clear();
 }
 
