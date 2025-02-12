@@ -46,7 +46,9 @@ namespace wv
 		bool initialize( ContextDesc* _desc ) override;
 
 		bool m_isFirstFrame = true;
+	#ifdef WV_PLATFORM_WINDOWS
 		std::chrono::high_resolution_clock m_timer;
 		std::chrono::steady_clock::time_point m_timepoint;
+	#endif
 	};
 }

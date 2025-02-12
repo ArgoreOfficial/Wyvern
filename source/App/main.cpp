@@ -67,7 +67,7 @@ int main()
 	wv::MemoryTracker::dump();
 
 #ifdef WV_PLATFORM_3DS
-	while( true ) {}
+	std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
 #endif
 
 	return 0;
