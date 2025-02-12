@@ -48,10 +48,10 @@ public:
 	virtual void onEnter( void ) { }
 	virtual void onExit ( void ) { }
 
-	virtual void onUpdate       ( double _deltaTime )        { }
-	virtual void onPhysicsUpdate( double _deltaTime ) { }
+	virtual void onUpdate       ( double /*_deltaTime*/ ) { }
+	virtual void onPhysicsUpdate( double /*_deltaTime*/ ) { }
 
-	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) { }
+	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device */) { }
 
 };
 
@@ -110,7 +110,7 @@ private:
 	void _updateQueued( void );
 
 	template<typename _Ty, typename... _Args>
-	void _runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args... _args );
+	void _runJobs( const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args... _args );
 
 	void onConstruct( void );
 	void onDestruct( void );
@@ -141,7 +141,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _Ty, typename ..._Args>
-inline void UpdateManager::_runJobs( std::string _name, const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
+inline void UpdateManager::_runJobs( const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
 {
 	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
 

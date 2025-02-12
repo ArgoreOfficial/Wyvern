@@ -20,8 +20,8 @@ public:
 
 protected:
 
-	void spawnBalls( int _count );
-	void spawnCubes( int _count );
+	void spawnBalls();
+	void spawnCubes();
 	void spawnBlock( int _halfX, int _halfY, int _halfZ );
 
 	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;

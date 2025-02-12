@@ -35,8 +35,8 @@ public:
 	virtual void onEnter( void ) override { };
 	virtual void onExit ( void ) override { };
 	
-	virtual void onUpdate( double _deltaTime ) override { };
-	virtual void onDraw  ( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override { };
+	virtual void onUpdate( double /*_deltaTime*/ ) override { };
+	virtual void onDraw  ( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device*/ ) override { };
 
 private:
 	const std::string m_name;

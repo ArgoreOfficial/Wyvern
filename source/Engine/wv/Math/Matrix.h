@@ -39,6 +39,13 @@ namespace wv
 				m[ i ][ i ] = _val;
 		}
 
+		Matrix( const Matrix<T, R, C>& _other )
+		{
+			for( size_t r = 0; r < R; r++ )
+				for( size_t c = 0; c < C; c++ )
+					m[ R ][ C ] = _other.m[ R ][ C ];
+		}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 			                T*               operator []( const size_t& _index        ) const { return (T*)m[ _index ]; }
