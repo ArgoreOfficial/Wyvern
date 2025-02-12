@@ -43,11 +43,13 @@ wv::Job* wv::JobBuffer::pop()
             return job;
         }
 
+		/*
 		if ( !m_tail.compare_exchange_weak( t, t + 1, std::memory_order::memory_order_acq_rel ) )
 		{
 			// failed race against steal operation
 			job = nullptr;
 		}
+		*/
 		
 		//m_head.store( t + 1, std::memory_order::memory_order_release );
 		return job;
@@ -68,10 +70,9 @@ wv::Job* wv::JobBuffer::steal()
 	if ( tail < head )
 	{
 		Job* job = m_jobs[ tail % g_NUM_JOBS ];
-		
 		if ( !m_tail.compare_exchange_weak( tail, tail + 1, std::memory_order::memory_order_acq_rel ) )
 			return nullptr; // failed race against steal or pop
-
+		
 		return job;
 	}
 	

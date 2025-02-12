@@ -107,6 +107,10 @@ namespace wv
 			return v > 0;
 		}
 
+		void waitForFence() {
+			m_pJobSystem->waitForFence( m_resourceFence );
+		}
+
 		size_t getNumLoadedResources() {
 			return m_resources.size();
 		}

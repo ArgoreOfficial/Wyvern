@@ -276,6 +276,8 @@ void wv::cEngine::run()
 	//while ( m_pResourceRegistry->isWorking() )
 	//	Sleep( 10 );
 	
+	m_pResourceRegistry->waitForFence();
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
