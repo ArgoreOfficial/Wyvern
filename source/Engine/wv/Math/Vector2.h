@@ -37,6 +37,11 @@ public:
 		y( _y ) 
 	{ }
 
+	Vector2( const Vector2<_Ty>& _other ) :
+		x( _other.x ),
+		y( _other.y )
+	{ }
+
 	Vector2<_Ty>& operator = ( const Vector2<_Ty>& _other );
 	Vector2<_Ty>& operator +=( const Vector2<_Ty>& _other );
 	Vector2<_Ty>& operator -=( const Vector2<_Ty>& _other );

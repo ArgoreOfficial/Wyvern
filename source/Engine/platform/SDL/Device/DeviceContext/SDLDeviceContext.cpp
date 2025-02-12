@@ -1,3 +1,5 @@
+#ifdef WV_SUPPORT_SDL2
+
 #include "SDLDeviceContext.h"
 
 #include <stdio.h>
@@ -22,7 +24,6 @@
 
 #include <wv/Events/Dispatcher.h>
 
-#ifdef WV_SUPPORT_SDL2
 static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 {
 
@@ -135,9 +136,9 @@ static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 
 	return wv::eKey::WV_KEY_UNKNOWN;
 }
-#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_SDL2
+
 void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 {
 	wv::sInputEvent inputEvent;
@@ -151,10 +152,10 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 	
 	wv::cInputEventDispatcher::post( inputEvent );
 }
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_SDL2
+
 void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
 	wv::sMouseEvent mouseEvent;
@@ -167,14 +168,13 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 
 	wv::cMouseEventDispatcher::post( mouseEvent );
 }
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_SDL2
+
 void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _event )
 {
 	wv::sMouseEvent mouseEvent;
-
 
 	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
 	// SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
@@ -194,10 +194,10 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 
 	wv::cMouseEventDispatcher::post( mouseEvent );
 }
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#ifdef WV_SUPPORT_SDL2
+
 void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 {
 	wv::sWindowEvent windowEvent;
@@ -229,14 +229,12 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 
 	wv::cWindowEventDispatcher::post( windowEvent );
 }
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::SDLDeviceContext::SDLDeviceContext()
-#ifdef WV_SUPPORT_SDL2
-	: m_windowContext{ nullptr }
-#endif
+wv::SDLDeviceContext::SDLDeviceContext() : 
+	m_windowContext{ nullptr }
 {
 
 }
@@ -245,7 +243,6 @@ wv::SDLDeviceContext::SDLDeviceContext()
 
 bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 {
-#ifdef WV_SUPPORT_SDL2
 	// glfwSetErrorCallback( glfwErrorCallback );
 
 	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -329,19 +326,14 @@ bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 	SDL_GetWindowSize( m_windowContext, &m_width, &m_height );
 
 	return true;
-#else
-	return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setSwapInterval( int _interval )
 {
-#ifdef WV_SUPPORT_SDL2
 	if ( SDL_GL_SetSwapInterval( _interval ) < 0 )
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to set VSync mode" );
-#endif
 }
 
 
@@ -349,7 +341,6 @@ void wv::SDLDeviceContext::setSwapInterval( int _interval )
 
 void wv::SDLDeviceContext::initImGui()
 {
-#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -367,7 +358,6 @@ void wv::SDLDeviceContext::initImGui()
 		break;
 	}
 #endif
-#endif
 }
 
 void wv::SDLDeviceContext::terminateImGui()
@@ -375,7 +365,6 @@ void wv::SDLDeviceContext::terminateImGui()
 	if( !m_imGuiEnabled )
 		return;
 
-#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -385,7 +374,6 @@ void wv::SDLDeviceContext::terminateImGui()
 	}
 	ImGui_ImplSDL2_Shutdown();
 #endif
-#endif
 }
 
 
@@ -394,7 +382,6 @@ bool wv::SDLDeviceContext::newImGuiFrame()
 	if( !m_imGuiEnabled )
 		return false;
 
-#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -409,7 +396,6 @@ bool wv::SDLDeviceContext::newImGuiFrame()
 		break;
 	}
 #endif
-#endif
 
 	return false;
 }
@@ -420,7 +406,6 @@ void wv::SDLDeviceContext::renderImGui()
 	if( !m_imGuiEnabled )
 		return;
 
-#ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Render();
 
@@ -434,33 +419,25 @@ void wv::SDLDeviceContext::renderImGui()
 		break;
 	}
 #endif
-#endif
 }
 
 
 void wv::SDLDeviceContext::terminate()
 {
-#ifdef WV_SUPPORT_SDL2
 	SDL_Quit();
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDriverLoadProc wv::SDLDeviceContext::getLoadProc()
 {
-#ifdef WV_SUPPORT_SDL2
 	return (GraphicsDriverLoadProc)SDL_GL_GetProcAddress;
-#else
-	return nullptr;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::pollEvents()
 {
-#ifdef WV_SUPPORT_SDL2
 	// process input
 	SDL_Event ev;
 	while ( SDL_PollEvent( &ev ) )
@@ -482,14 +459,12 @@ void wv::SDLDeviceContext::pollEvents()
 			ImGui_ImplSDL2_ProcessEvent( &ev );
 	#endif
 	}
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::swapBuffers()
 {
-#ifdef WV_SUPPORT_SDL2
 	// if opengl
 	SDL_GL_SwapWindow( m_windowContext );
 	
@@ -504,7 +479,6 @@ void wv::SDLDeviceContext::swapBuffers()
 		return;
 
 	m_deltaTime = (double)( ( m_performanceCounter - last ) / (double)SDL_GetPerformanceFrequency() );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -519,29 +493,25 @@ void wv::SDLDeviceContext::onResize( int _width, int _height )
 void wv::SDLDeviceContext::setSize( int _width, int _height )
 {
 	iDeviceContext::setSize( _width, _height );
-#ifdef WV_SUPPORT_SDL2
+
 	SDL_SetWindowSize( m_windowContext, _width, _height );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setMouseLock( bool _lock )
 {
-#ifdef WV_SUPPORT_SDL2
 	SDL_SetRelativeMouseMode( (SDL_bool)_lock );
 
 	if( !_lock )
 		SDL_WarpMouseInWindow( m_windowContext, m_width / 2, m_height / 2 );
-	
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setTitle( const char* _title )
 {
-#ifdef WV_SUPPORT_SDL2
 	SDL_SetWindowTitle( m_windowContext, _title );
-#endif
 }
+
+#endif
