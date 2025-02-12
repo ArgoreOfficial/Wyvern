@@ -233,7 +233,7 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::SDLDeviceContext::SDLDeviceContext() 
+wv::SDLDeviceContext::SDLDeviceContext()
 #ifdef WV_SUPPORT_SDL2
 	: m_windowContext{ nullptr }
 #endif

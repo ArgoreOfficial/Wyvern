@@ -19,6 +19,7 @@ namespace wv
 	{
 
 	public:
+		GLFWDeviceContext() {}
 
 		void terminate() override;
 
@@ -50,7 +51,6 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		GLFWDeviceContext();
 		
 		bool initialize( ContextDesc* _desc ) override;
 

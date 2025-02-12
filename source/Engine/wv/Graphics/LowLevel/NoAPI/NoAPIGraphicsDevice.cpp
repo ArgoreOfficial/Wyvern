@@ -123,7 +123,6 @@ wv::ProgramID wv::NoAPIGraphicsDevice::_createProgram( ProgramID _programID, con
 void wv::NoAPIGraphicsDevice::_destroyProgram( ProgramID _programID )
 {
 	WV_TRACE();
-	assertMainThread();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

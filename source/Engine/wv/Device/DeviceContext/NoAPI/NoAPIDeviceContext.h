@@ -3,6 +3,8 @@
 #include <wv/Types.h>
 #include <wv/Device/DeviceContext.h>
 
+#include <chrono>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -14,6 +16,7 @@ namespace wv
 	{
 
 	public:
+		NoAPIDeviceContext() {}
 
 		void terminate() override;
 
@@ -39,9 +42,11 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		NoAPIDeviceContext();
 		
 		bool initialize( ContextDesc* _desc ) override;
 
+		bool m_isFirstFrame = true;
+		std::chrono::high_resolution_clock m_timer;
+		std::chrono::steady_clock::time_point m_timepoint;
 	};
 }

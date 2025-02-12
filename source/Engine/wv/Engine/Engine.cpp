@@ -281,8 +281,31 @@ void wv::cEngine::run()
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
-	while ( context->isAlive() )
+
+	int timeToDeath = 5;
+	int deathCounter = 0;
+	double deathTimer = 0.0;
+	while( context->isAlive() )
+	{
 		tick();
+
+		// automatic shutdown if the context is NONE
+		if( context->getContextAPI() == WV_DEVICE_CONTEXT_API_NONE )
+		{
+			double t = context->getTime();
+			
+			deathTimer = t - static_cast<double>( deathCounter );
+			if( deathTimer > 1.0 )
+			{
+				wv::Debug::Print( "Automatic Close in: %i\n", timeToDeath - deathCounter );
+				deathCounter++;
+			}
+
+			if( deathCounter > timeToDeath )
+				context->close();
+		}
+	}
+
 #endif
 
 
@@ -294,6 +317,9 @@ void wv::cEngine::run()
 	// wait for unload to be done
 	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
 	//	Sleep( 10 );
+
+	m_pResourceRegistry->waitForFence();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -21,8 +21,9 @@ namespace wv
 
 	class SDLDeviceContext : public iDeviceContext
 	{
-
 	public:
+		SDLDeviceContext();
+
 		virtual void initImGui() override;
 		virtual void terminateImGui() override;
 		virtual bool newImGuiFrame() override;
@@ -47,7 +48,6 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		SDLDeviceContext();
 		
 		bool initialize( ContextDesc* _desc ) override;
 

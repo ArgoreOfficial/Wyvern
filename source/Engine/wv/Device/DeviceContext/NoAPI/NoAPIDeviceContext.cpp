@@ -4,13 +4,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::NoAPIDeviceContext::NoAPIDeviceContext()
-{
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 bool wv::NoAPIDeviceContext::initialize( ContextDesc* /*_desc*/ )
 {
 	Debug::Print( Debug::WV_PRINT_INFO, "Initialized Device Context\n" );
@@ -69,7 +62,20 @@ void wv::NoAPIDeviceContext::pollEvents()
 
 void wv::NoAPIDeviceContext::swapBuffers()
 {
+	auto now = m_timer.now();
+	
+	if( m_isFirstFrame )
+		m_isFirstFrame = false;
+	else
+	{
+		using cast_t = std::chrono::duration<double>;
+		double deltaTime = std::chrono::duration_cast<cast_t>( now - m_timepoint ).count();
 
+		m_deltaTime = deltaTime;
+		m_time += deltaTime;
+	}
+
+	m_timepoint = now;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
