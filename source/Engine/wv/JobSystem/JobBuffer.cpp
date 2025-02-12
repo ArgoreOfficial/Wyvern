@@ -31,7 +31,7 @@ wv::Job* wv::JobBuffer::pop()
 	int32_t h = m_head.load( std::memory_order::memory_order_acquire ) - 1;
 	int32_t t = m_tail.load( std::memory_order::memory_order_acquire );
 
-	if ( t < h )
+	if ( t <= h )
 	{
 		m_head.store( h, std::memory_order::memory_order_release );
 		
