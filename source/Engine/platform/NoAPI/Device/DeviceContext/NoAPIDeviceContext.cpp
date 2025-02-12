@@ -102,14 +102,14 @@ void wv::NoAPIDeviceContext::setSize( int _width, int _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIDeviceContext::setMouseLock( bool _lock )
+void wv::NoAPIDeviceContext::setMouseLock( bool /*_lock*/ )
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIDeviceContext::setTitle( const char* _title )
+void wv::NoAPIDeviceContext::setTitle( const char* /*_title*/ )
 {
 
 }
