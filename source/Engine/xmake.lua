@@ -16,6 +16,8 @@ local has_vitasdk = os.getenv("SCE_PSP2_SDK_DIR") ~= nil
 target "Wyvern" 
     set_kind "static"
 
+    set_warnings( "extra" )
+
     if not is_mode("Package") then
         set_basename("Wyvern_$(mode)_$(arch)")
     end
