@@ -50,10 +50,6 @@
 #include <imgui.h>
 #endif // WV_SUPPORT_IMGUI
 
-#ifdef WV_SUPPORT_GLFW
-#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#endif // WV_SUPPORT_GLFW
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cEngine* wv::cEngine::s_pInstance = nullptr;

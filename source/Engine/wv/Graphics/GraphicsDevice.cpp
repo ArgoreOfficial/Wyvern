@@ -11,12 +11,11 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Resource/ResourceRegistry.h>
 
-
-#include <wv/Graphics/LowLevel/NoAPI/NoAPIGraphicsDevice.h>
+#include <platform/NoAPI/Graphics/NoAPIGraphicsDevice.h>
 #if defined( WV_SUPPORT_OPENGL )
-#include <wv/Graphics/LowLevel/OpenGL/OpenGLGraphicsDevice.h>
+#include <platform/OpenGL/Graphics/OpenGLGraphicsDevice.h>
 #elif defined( WV_PLATFORM_PSVITA )
-#include <wv/Graphics/LowLevel/PSVitaGraphicsDevice.h>
+#include <platform/PSVita/Graphics/PSVitaGraphicsDevice.h>
 #endif
 
 #include <exception>

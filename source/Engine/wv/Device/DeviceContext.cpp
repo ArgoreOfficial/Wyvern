@@ -1,12 +1,16 @@
 #include "DeviceContext.h"
+#include <platform/NoAPI/Device/DeviceContext/NoAPIDeviceContext.h>
 
-#include <wv/Device/DeviceContext/NoAPI/NoAPIDeviceContext.h>
+#ifdef WV_SUPPORT_GLFW
+#include <platform/GLFW/Device/DeviceContext/GLFWDeviceContext.h>
+#endif
 
-#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#include <wv/Device/DeviceContext/SDL/SDLDeviceContext.h>
+#ifdef WV_SUPPORT_SDL2
+#include <platform/SDL/Device/DeviceContext/SDLDeviceContext.h>
+#endif
 
 #ifdef WV_PLATFORM_PSVITA
-#include <wv/Device/DeviceContext/PSVita/PSVitaDeviceContext.h>
+#include <platform/PSVita/Device/DeviceContext/PSVitaDeviceContext.h>
 #endif
 
 #include <wv/Memory/Memory.h>
