@@ -10,7 +10,7 @@
 #include <wv/Camera/OrbitCamera.h>
 
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Device/AudioDevice.h>
 
 #include <wv/JobSystem/JobSystem.h>
@@ -96,7 +96,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
+	m_pJobSystem->initialize( wv::Math::max( 0,  - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
@@ -273,8 +273,8 @@ void wv::cEngine::run()
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	
 	// wait for load to be done
-	while ( m_pResourceRegistry->isWorking() )
-		Sleep( 10 );
+	//while ( m_pResourceRegistry->isWorking() )
+	//	Sleep( 10 );
 	
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
@@ -290,8 +290,8 @@ void wv::cEngine::run()
 	m_pApplicationState->onDestruct();
 	
 	// wait for unload to be done
-	while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
-		Sleep( 10 );
+	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
+	//	Sleep( 10 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -461,8 +461,10 @@ void wv::cEngine::tick()
 	graphics->beginRender();
 	
 #ifdef WV_SUPPORT_IMGUI
-	context->newImGuiFrame();
-	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	if( context->newImGuiFrame() )
+	{
+		ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	}
 #endif // WV_SUPPORT_IMGUI
 	
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )

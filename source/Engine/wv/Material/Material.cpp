@@ -2,7 +2,7 @@
 
 #include <wv/Texture/TextureResource.h>
 #include <wv/Camera/Camera.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
 #include <wv/Math/Transform.h>
 #include <wv/Mesh/MeshResource.h>

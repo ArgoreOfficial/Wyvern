@@ -5,7 +5,7 @@
 
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Memory/FileSystem.h>
 #include <wv/Memory/Memory.h>
@@ -49,7 +49,7 @@ bool cSandbox::create( void )
 	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_SDL;
 #endif
 #ifdef WV_SUPPORT_OPENGL
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_NONE;
 #endif
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;

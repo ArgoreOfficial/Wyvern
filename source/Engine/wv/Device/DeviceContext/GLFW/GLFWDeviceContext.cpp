@@ -255,7 +255,7 @@ void wv::GLFWDeviceContext::terminateImGui()
 #endif
 }
 
-void wv::GLFWDeviceContext::newImGuiFrame()
+bool wv::GLFWDeviceContext::newImGuiFrame()
 {
 #ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
@@ -265,12 +265,15 @@ void wv::GLFWDeviceContext::newImGuiFrame()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		return true;
 		break;
 	default:
 		Debug::Print( Debug::WV_PRINT_FATAL, "GLFW context newImGuiFrame() graphics mode not supported" );
 	}
 #endif
 #endif
+
+	return false;
 }
 
 void wv::GLFWDeviceContext::renderImGui()

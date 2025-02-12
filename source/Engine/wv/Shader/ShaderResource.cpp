@@ -4,7 +4,7 @@
 
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Engine/Engine.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {

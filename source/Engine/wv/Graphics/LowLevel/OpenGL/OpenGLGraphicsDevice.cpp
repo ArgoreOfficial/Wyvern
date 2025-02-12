@@ -1,4 +1,4 @@
-#include "LowLevelGraphicsOpenGL.h"
+#include "OpenGLGraphicsDevice.h"
 
 #include <wv/Graphics/Texture.h>
 

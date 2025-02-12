@@ -355,9 +355,15 @@ void wv::SDLDeviceContext::initImGui()
 	{
 	case WV_GRAPHICS_API_OPENGL:
 		ImGui_ImplOpenGL3_Init();
-	case WV_GRAPHICS_API_OPENGL_ES1:
-	case WV_GRAPHICS_API_OPENGL_ES2:
 		ImGui_ImplSDL2_InitForOpenGL( m_windowContext, m_glContext );
+		m_imGuiEnabled = true;
+		break;
+	case WV_GRAPHICS_API_OPENGL_ES1:
+		break;
+	case WV_GRAPHICS_API_OPENGL_ES2:
+		break;
+	default: 
+		m_imGuiEnabled = false; 
 		break;
 	}
 #endif
@@ -366,6 +372,9 @@ void wv::SDLDeviceContext::initImGui()
 
 void wv::SDLDeviceContext::terminateImGui()
 {
+	if( !m_imGuiEnabled )
+		return;
+
 #ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
@@ -380,8 +389,11 @@ void wv::SDLDeviceContext::terminateImGui()
 }
 
 
-void wv::SDLDeviceContext::newImGuiFrame()
+bool wv::SDLDeviceContext::newImGuiFrame()
 {
+	if( !m_imGuiEnabled )
+		return false;
+
 #ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
@@ -390,6 +402,7 @@ void wv::SDLDeviceContext::newImGuiFrame()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
+		return true;
 		break;
 	default:
 		Debug::Print( Debug::WV_PRINT_FATAL, "SDL context newImGuiFrame() graphics mode not supported" );
@@ -397,11 +410,16 @@ void wv::SDLDeviceContext::newImGuiFrame()
 	}
 #endif
 #endif
+
+	return false;
 }
 
 
 void wv::SDLDeviceContext::renderImGui()
 {
+	if( !m_imGuiEnabled )
+		return;
+
 #ifdef WV_SUPPORT_SDL2
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Render();
@@ -460,7 +478,8 @@ void wv::SDLDeviceContext::pollEvents()
 		case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
 	#ifdef WV_SUPPORT_IMGUI
-		ImGui_ImplSDL2_ProcessEvent( &ev );
+		if( m_imGuiEnabled )
+			ImGui_ImplSDL2_ProcessEvent( &ev );
 	#endif
 	}
 #endif

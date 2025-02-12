@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Engine/ApplicationState.h>
 #include <wv/Scene/Scene.h>

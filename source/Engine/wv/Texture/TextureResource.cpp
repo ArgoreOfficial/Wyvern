@@ -1,7 +1,7 @@
 #include "TextureResource.h"
 
 #include <wv/Memory/FileSystem.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
 
 #ifdef WV_PLATFORM_WINDOWS

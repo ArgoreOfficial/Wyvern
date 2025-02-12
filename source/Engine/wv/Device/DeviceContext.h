@@ -70,8 +70,8 @@ namespace wv
 
 		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); }
 		virtual void terminateImGui() { }
-		virtual void newImGuiFrame() { Debug::Print( Debug::WV_PRINT_ERROR, "newImGuiFrame not implemented\n" ); }
-		virtual void renderImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "renderImGui not implemented\n" ); }
+		virtual bool newImGuiFrame() { return false; }
+		virtual void renderImGui() { }
 
 		virtual void terminate() = 0;
 		virtual GraphicsDriverLoadProc getLoadProc() = 0;
@@ -86,7 +86,6 @@ namespace wv
 		virtual void setTitle( const char* _title ) = 0;
 
 		virtual void setSwapInterval( int _interval ) = 0;
-
 
 		DeviceContextAPI getContextAPI     ( void ) { return m_deviceApi; }
 		GraphicsAPI      getGraphicsAPI    ( void ) { return m_graphicsApi; }
@@ -129,7 +128,7 @@ namespace wv
 		double m_deltaTime = 0.016f;
 
 		bool m_alive = true;
-
+		bool m_imGuiEnabled = false;
 	};
 
 }

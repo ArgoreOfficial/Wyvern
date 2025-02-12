@@ -1,16 +1,7 @@
 #pragma once
 
-#ifdef WV_SUPPORT_SDL2
-#include <SDL2/SDL.h>
-#endif
 #include <wv/Types.h>
-
 #include <wv/Device/DeviceContext.h>
-
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,16 +10,17 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class SDLDeviceContext : public iDeviceContext
+	class NoAPIDeviceContext : public iDeviceContext
 	{
 
 	public:
+
+		void terminate() override;
+
 		virtual void initImGui() override;
 		virtual void terminateImGui() override;
 		virtual bool newImGuiFrame() override;
 		virtual void renderImGui() override;
-
-		void terminate() override;
 
 		GraphicsDriverLoadProc getLoadProc() override;
 
@@ -47,18 +39,9 @@ namespace wv
 
 	protected:
 		friend class iDeviceContext;
-		SDLDeviceContext();
+		NoAPIDeviceContext();
 		
 		bool initialize( ContextDesc* _desc ) override;
-
-	#ifdef WV_SUPPORT_SDL2
-		SDL_Window* m_windowContext = nullptr;
-	#ifdef WV_SUPPORT_OPENGL 
-		SDL_GLContext m_glContext = nullptr;
-	#endif
-	#endif
-		uint64_t m_performanceCounter = 0;
-
 
 	};
 }
