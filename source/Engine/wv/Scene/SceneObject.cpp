@@ -18,7 +18,7 @@ wv::IEntity::~IEntity()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::IEntity* wv::IEntity::getChildByUUID( const wv::UUID& _uuid )
+wv::IEntity* wv::IEntity::getChildByUUID( const wv::UUID& /*_uuid*/ )
 {
 	/*
 	for( auto& child : m_children )

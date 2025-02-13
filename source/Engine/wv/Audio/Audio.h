@@ -23,10 +23,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		#ifdef WV_SUPPORT_MINIAUDIO
 		inline void play( float _volume = 1.0f, bool _loop = false )
 		{
-		#ifdef WV_SUPPORT_MINIAUDIO
-
 			ma_result res = ma_sound_start( &sound );
 			ma_sound_set_volume( &sound, _volume );
 			ma_sound_set_looping( &sound, _loop );
@@ -35,27 +34,22 @@ namespace wv
 				Debug::Print( Debug::WV_PRINT_ERROR, "Audio failed to start\n" );
 			else
 				Debug::Print( Debug::WV_PRINT_DEBUG, "Played sound\n" );
-		#else
-			
-			Debug::Print( Debug::WV_PRINT_DEBUG, "Played sound\n" );
-		#endif
 		}
+		#endif
 
+		#ifdef WV_SUPPORT_MINIAUDIO
 		inline void stop() 
 		{
-		#ifdef WV_SUPPORT_MINIAUDIO
 			ma_sound_stop( &sound ); 
-		#endif
 		}
+		#endif
 
+		#ifdef WV_SUPPORT_MINIAUDIO
 		inline bool isPlaying() 
 		{
-		#ifdef WV_SUPPORT_MINIAUDIO
 			return ma_sound_is_playing( &sound ); 
-		#else
-			return false;
-		#endif
 		}
+		#endif
 
 	};
 

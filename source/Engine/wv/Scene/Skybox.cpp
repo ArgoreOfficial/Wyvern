@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Material/Material.h>
@@ -77,23 +77,14 @@ void wv::cSkyboxObject::onExitImpl()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::onUpdate( double _deltaTime )
+void wv::cSkyboxObject::onUpdate( double /*_deltaTime*/ )
 {
 	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::onDraw( iDeviceContext* _context, iLowLevelGraphics* _device )
+void wv::cSkyboxObject::onDraw( iDeviceContext* /*_context*/, iLowLevelGraphics* /*_device*/ )
 {
-	/// TODO: remove raw gl calls
-#ifdef WV_SUPPORT_OPENGL
-	glDepthMask( GL_FALSE );
-	glDepthFunc( GL_LEQUAL );
-	m_mesh.draw();
-	m_mesh.pResource->drawInstances( _device ); 
-	glDepthFunc( GL_LESS );
-	glDepthMask( GL_TRUE );
-#endif
 	
 }

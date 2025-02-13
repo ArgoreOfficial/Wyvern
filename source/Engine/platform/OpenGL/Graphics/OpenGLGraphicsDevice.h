@@ -6,10 +6,9 @@
 #include <wv/Graphics/GPUBuffer.h>
 
 #include <wv/Graphics/RenderTarget.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <set>
-
-#include <wv/Graphics/Graphics.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

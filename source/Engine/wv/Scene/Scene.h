@@ -32,7 +32,7 @@ namespace wv
 
 		std::string getSourcePath( void ) { return m_sourcePath; }
 		std::string getName      ( void ) { return m_name; }
-
+		
 		void addChild( IEntity* _node, bool _triggerLoadAndCreate = false );
 		void removeChild( IEntity* _node );
 		

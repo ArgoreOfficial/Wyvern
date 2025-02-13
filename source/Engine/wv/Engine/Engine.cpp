@@ -10,7 +10,7 @@
 #include <wv/Camera/OrbitCamera.h>
 
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Device/AudioDevice.h>
 
 #include <wv/JobSystem/JobSystem.h>
@@ -49,10 +49,6 @@
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif // WV_SUPPORT_IMGUI
-
-#ifdef WV_SUPPORT_GLFW
-#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#endif // WV_SUPPORT_GLFW
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +92,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
+	m_pJobSystem->initialize( wv::Math::max( 0,  - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
@@ -273,14 +269,39 @@ void wv::cEngine::run()
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	
 	// wait for load to be done
-	while ( m_pResourceRegistry->isWorking() )
-		Sleep( 10 );
+	//while ( m_pResourceRegistry->isWorking() )
+	//	Sleep( 10 );
 	
+	m_pResourceRegistry->waitForFence();
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
-	while ( context->isAlive() )
+
+	int timeToDeath = 5;
+	int deathCounter = 0;
+	double deathTimer = 0.0;
+	while( context->isAlive() )
+	{
 		tick();
+
+		// automatic shutdown if the context is NONE
+		if( context->getContextAPI() == WV_DEVICE_CONTEXT_API_NONE )
+		{
+			double t = context->getTime();
+			
+			deathTimer = t - static_cast<double>( deathCounter );
+			if( deathTimer > 1.0 )
+			{
+				wv::Debug::Print( "Automatic Close in: %i\n", timeToDeath - deathCounter );
+				deathCounter++;
+			}
+
+			if( deathCounter > timeToDeath )
+				context->close();
+		}
+	}
+
 #endif
 
 
@@ -290,8 +311,11 @@ void wv::cEngine::run()
 	m_pApplicationState->onDestruct();
 	
 	// wait for unload to be done
-	while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
-		Sleep( 10 );
+	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
+	//	Sleep( 10 );
+
+	m_pResourceRegistry->waitForFence();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -461,8 +485,10 @@ void wv::cEngine::tick()
 	graphics->beginRender();
 	
 #ifdef WV_SUPPORT_IMGUI
-	context->newImGuiFrame();
-	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	if( context->newImGuiFrame() )
+	{
+		ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	}
 #endif // WV_SUPPORT_IMGUI
 	
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )

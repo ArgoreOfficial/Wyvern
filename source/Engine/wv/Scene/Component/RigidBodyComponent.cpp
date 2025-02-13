@@ -10,11 +10,11 @@
 
 void wv::RigidBodyComponent::onEnter( void )
 {
-	cEngine* app = wv::cEngine::get();
-
 	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
 	//sphereSettings.mRestitution = 0.4f;
+
 #ifdef WV_SUPPORT_PHYSICS
+	cEngine* app = wv::cEngine::get();
 	Entity* parent = getParent();
 	m_pPhysicsBodyDesc->transform = parent->m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
@@ -32,7 +32,7 @@ void wv::RigidBodyComponent::onExit( void )
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
 }
 
-void wv::RigidBodyComponent::onPhysicsUpdate( double _deltaTime )
+void wv::RigidBodyComponent::onPhysicsUpdate( double /*_deltaTime*/ )
 {
 	wv::cJoltPhysicsEngine* pPhysics = wv::cEngine::get()->m_pPhysicsEngine;
 

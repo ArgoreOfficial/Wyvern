@@ -1,7 +1,7 @@
 #include "TextureResource.h"
 
 #include <wv/Memory/FileSystem.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
 
 #ifdef WV_PLATFORM_WINDOWS
@@ -13,7 +13,6 @@
 
 void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
-#ifdef WV_PLATFORM_WINDOWS
 	if ( m_name == "" ) // no file should be loaded
 	{
 		setComplete( true );
@@ -26,8 +25,10 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	sTextureDesc desc;
 	wv::Memory* mem = _pFileSystem->loadMemory( m_path );
 
+#ifdef WV_PLATFORM_WINDOWS
 	stbi_set_flip_vertically_on_load( 0 );
 	m_pData = reinterpret_cast<uint8_t*>( stbi_load_from_memory( mem->data, mem->size, &desc.width, &desc.height, &desc.numChannels, 0 ) );
+#endif
 	_pFileSystem->unloadMemory( mem );
 		
 	if ( !m_pData )
@@ -53,18 +54,16 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 			sTexture& texObject = wv::cEngine::get()->graphics->m_textures.at( tex->m_textureID );
 
 			tex->setComplete( true ); 
+		#ifdef WV_PLATFORM_WINDOWS
 			stbi_image_free( texObject.pData );
+		#endif
 			texObject.pData = nullptr;
 		};
 
 	_pLowLevelGraphics->queueAddCallback( onCompleteCallback, (void*)this );
-
-#else
-	printf( "wv::cTextureResource::load unimplemented\n" );
-#endif
 }
 
-void wv::cTextureResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cTextureResource::unload( cFileSystem* /*_pFileSystem*/, iLowLevelGraphics* _pLowLevelGraphics )
 {
 	if( m_pData )
 	{

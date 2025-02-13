@@ -195,8 +195,7 @@ public:
 	template<typename T> void push( const T& _data, const size_t& _size );
 	template<typename T> void push( const T& _data ) { push( _data, sizeof( T ) ); }
 
-	template<typename T> T& pop( const size_t& _size );
-	template<typename T> T& pop() { return pop<T>( sizeof( T ) ); }
+	template<typename T> T pop();
 
 	inline uint8_t* data( void ) { return m_pData; }
 
@@ -240,11 +239,12 @@ inline void cMemoryStream::push( const T& _data, const size_t& _size )
 }
 
 template<typename T>
-inline T& cMemoryStream::pop( const size_t& _size )
+inline T cMemoryStream::pop()
 {
-	T* ptr = reinterpret_cast<T*>( m_pData );
-	m_pData += _size;
-	return *ptr;
+	T tmp;
+	std::memcpy( &tmp, m_pData, sizeof( T ) );
+	m_pData += sizeof( T );
+	return tmp;
 }
 
 }

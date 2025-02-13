@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Engine/ApplicationState.h>
 #include <wv/Scene/Scene.h>
@@ -17,7 +17,7 @@
 #include <imgui.h>
 #endif
 
-void DemoWindowComponent::spawnBalls( int _count )
+void DemoWindowComponent::spawnBalls()
 {
 	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
 
@@ -35,7 +35,7 @@ void DemoWindowComponent::spawnBalls( int _count )
 	}
 }
 
-void DemoWindowComponent::spawnCubes( int _count )
+void DemoWindowComponent::spawnCubes()
 {
 	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
 
@@ -81,7 +81,7 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	}
 }
 
-void DemoWindowComponent::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
+void DemoWindowComponent::onDraw( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device*/ )
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Wyvern Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize );
@@ -89,11 +89,11 @@ void DemoWindowComponent::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGra
 	ImGui::InputInt( "Spawn Count", &m_numToSpawn );
 
 	if( ImGui::Button( "Spawn Balls" ) )
-		spawnBalls( m_numToSpawn );
+		spawnBalls();
 
 	ImGui::SameLine();
 	if( ImGui::Button( "Spawn Boxes" ) )
-		spawnCubes( m_numToSpawn );
+		spawnCubes();
 
 	ImGui::SameLine();
 	if( ImGui::Button( "Spawn Block" ) )

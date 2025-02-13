@@ -2,7 +2,7 @@
 
 #include <wv/Memory/ModelParser.h>
 #include <wv/Engine/Engine.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Material/Material.h>
 

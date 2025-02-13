@@ -59,8 +59,8 @@ protected:
 	virtual void onEnterImpl ( void ) { };
 	virtual void onExitImpl( void ) { };
 
-	virtual void onUpdate( double _deltaTime ) { };
-	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) { };
+	virtual void onUpdate( double /*_deltaTime*/ ) { };
+	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device */) { };
 
 
 };

@@ -1,12 +1,9 @@
 #pragma once
 
-#ifdef WV_SUPPORT_GLFW
-#include <GLFW/glfw3.h>
-#endif
-
 #include <wv/Types.h>
-
 #include <wv/Device/DeviceContext.h>
+
+#include <chrono>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,16 +12,17 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class GLFWDeviceContext : public iDeviceContext
+	class NoAPIDeviceContext : public iDeviceContext
 	{
 
 	public:
+		NoAPIDeviceContext() {}
 
 		void terminate() override;
 
 		virtual void initImGui() override;
 		virtual void terminateImGui() override;
-		virtual void newImGuiFrame() override;
+		virtual bool newImGuiFrame() override;
 		virtual void renderImGui() override;
 
 		GraphicsDriverLoadProc getLoadProc() override;
@@ -42,17 +40,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	#ifdef WV_SUPPORT_GLFW
-		GLFWwindow* m_windowContext = nullptr;
-	#endif
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 	protected:
 		friend class iDeviceContext;
-		GLFWDeviceContext();
 		
 		bool initialize( ContextDesc* _desc ) override;
 
+		bool m_isFirstFrame = true;
+	#ifdef WV_PLATFORM_WINDOWS
+		std::chrono::high_resolution_clock m_timer;
+		std::chrono::steady_clock::time_point m_timepoint;
+	#endif
 	};
 }

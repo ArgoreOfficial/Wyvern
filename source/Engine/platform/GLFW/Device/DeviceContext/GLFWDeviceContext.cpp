@@ -1,3 +1,5 @@
+#ifdef WV_SUPPORT_GLFW
+
 #include "GLFWDeviceContext.h"
 
 #include <stdio.h>
@@ -16,7 +18,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
 	wv::sInputEvent inputEvent;
@@ -29,11 +30,9 @@ void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int
 
 	wv::cInputEventDispatcher::post( inputEvent );
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
 	wv::sMouseEvent mouseEvent;
@@ -45,11 +44,9 @@ void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 	
 	wv::cMouseEventDispatcher::post( mouseEvent );
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
 	wv::sMouseEvent mouseEvent;
@@ -70,11 +67,9 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 	wv::cMouseEventDispatcher::post( mouseEvent );
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void windowFocusCallback(GLFWwindow* _window, int _focused)
 {
 	wv::sWindowEvent windowEvent;
@@ -84,11 +79,9 @@ void windowFocusCallback(GLFWwindow* _window, int _focused)
 
 	wv::cWindowEventDispatcher::post( windowEvent );
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
 	wv::cEngine::get()->onResize( _width, _height );
@@ -100,11 +93,9 @@ void onResizeCallback( GLFWwindow* window, int _width, int _height )
 
 	wv::cWindowEventDispatcher::post( windowEvent );
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_GLFW
 void glfwErrorCallback(int _err, const char* _msg)
 {
 	const char* errmsg = "";
@@ -127,20 +118,11 @@ void glfwErrorCallback(int _err, const char* _msg)
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "%i ::\n %s\n %s\n", _err, _msg, errmsg );
 }
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::GLFWDeviceContext::GLFWDeviceContext()
-{
-
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwSetErrorCallback( glfwErrorCallback );
 
 	if ( !glfwInit() )
@@ -200,32 +182,24 @@ bool wv::GLFWDeviceContext::initialize( ContextDesc* _desc )
 	glfwMakeContextCurrent( m_windowContext );
 
 	glfwGetWindowSize( m_windowContext, &m_width, &m_height );
+
     return true;
-#else
-	Debug::Print( Debug::WV_PRINT_FATAL, "GLFW is not supported\n" );
-	return false;
-#endif
 }
 
 void wv::GLFWDeviceContext::setSwapInterval( int _interval )
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwSwapInterval( _interval );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::terminate()
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwTerminate();
-#endif
 }
 
 void wv::GLFWDeviceContext::initImGui()
 {
-#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -237,12 +211,10 @@ void wv::GLFWDeviceContext::initImGui()
 		break;
 	}
 #endif
-#endif
 }
 
 void wv::GLFWDeviceContext::terminateImGui()
 {
-#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -252,12 +224,10 @@ void wv::GLFWDeviceContext::terminateImGui()
 	}
 	ImGui_ImplGlfw_Shutdown();
 #endif
-#endif
 }
 
-void wv::GLFWDeviceContext::newImGuiFrame()
+bool wv::GLFWDeviceContext::newImGuiFrame()
 {
-#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	switch ( m_graphicsApi )
 	{
@@ -265,17 +235,18 @@ void wv::GLFWDeviceContext::newImGuiFrame()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		return true;
 		break;
 	default:
 		Debug::Print( Debug::WV_PRINT_FATAL, "GLFW context newImGuiFrame() graphics mode not supported" );
 	}
 #endif
-#endif
+
+	return false;
 }
 
 void wv::GLFWDeviceContext::renderImGui()
 {
-#ifdef WV_SUPPORT_GLFW
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Render();
 
@@ -288,45 +259,36 @@ void wv::GLFWDeviceContext::renderImGui()
 		Debug::Print( Debug::WV_PRINT_FATAL, "GLFW context renderImGui() graphics mode not supported" );
 	}
 #endif
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::GraphicsDriverLoadProc wv::GLFWDeviceContext::getLoadProc()
 {
-#ifdef WV_SUPPORT_GLFW
 	return (GraphicsDriverLoadProc)glfwGetProcAddress;
-#else
-	return nullptr;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::pollEvents()
 {
-#ifdef WV_SUPPORT_GLFW
 	// process input
 	glfwPollEvents();
 
 	if ( glfwWindowShouldClose( m_windowContext ) )
 		m_alive = false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::swapBuffers()
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwSwapBuffers( m_windowContext );
 
 	// update frametime
 	float t = static_cast<float>( m_time );
 	m_time = glfwGetTime();
 	m_deltaTime = m_time - t;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -341,25 +303,21 @@ void wv::GLFWDeviceContext::onResize( int _width, int _height )
 void wv::GLFWDeviceContext::setSize( int _width, int _height )
 {
 	iDeviceContext::setSize( _width, _height );
-#ifdef WV_SUPPORT_GLFW
 	glfwSetWindowSize( m_windowContext, _width, _height );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::setMouseLock( bool _lock )
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwSetInputMode( m_windowContext, GLFW_CURSOR, _lock ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::setTitle( const char* _title )
 {
-#ifdef WV_SUPPORT_GLFW
 	glfwSetWindowTitle( m_windowContext, _title );
-#endif
 }
+
+#endif

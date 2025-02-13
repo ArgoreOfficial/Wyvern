@@ -5,12 +5,15 @@
 
 #include <wv/Device/AudioDevice.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Memory/FileSystem.h>
 #include <wv/Memory/Memory.h>
 
+#include <wv/Scene/Scene.h>
+
 #include "SceneObjects/DemoWindow.h"
+
 
 #ifdef WV_PLATFORM_PSVITA
 #include <wv/Platform/PSVita.h>
@@ -116,7 +119,7 @@ bool cSandbox::create( void )
 	// load scenes
 	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
-
+	
 	// set fog params 
 	/// TODO: move to scene
 	m_pEngine->m_fogParams.colorDensity = { 0.85f, 0.f, 0.f, 0.15f };

@@ -177,13 +177,12 @@ wv::Scene* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const st
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Loading scene '%s'\n", _path.c_str() );
 
-	std::string src = _pFileSystem->loadString( _path );
+	std::string src = "";
+	if( _path != "" )
+		src = _pFileSystem->loadString( _path );
 
 	if( src == "" )
-	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to load scene\n" );
-		return nullptr;
-	}
+		return WV_NEW( wv::Scene, "", "" );
 
 	std::string err;
 	wv::Json root = wv::Json::parse( src, err );

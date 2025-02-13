@@ -113,7 +113,7 @@ void wv::UpdateManager::onConstruct( void )
 			data->u->onConstruct();
 		};
 
-	_runJobs<JobData>( "comp_onConstruct", m_onConstruct.m_awaiting, fptr );
+	_runJobs<JobData>( m_onConstruct.m_awaiting, fptr );
 
 	m_onConstruct.complete();
 	m_onDestruct.reset();
@@ -131,7 +131,7 @@ void wv::UpdateManager::onDestruct( void )
 			data->u->onDestruct();
 		};
 
-	_runJobs<JobData>( "comp_onDestruct", m_onDestruct.m_awaiting, fptr );
+	_runJobs<JobData>( m_onDestruct.m_awaiting, fptr );
 
 	m_onDestruct.complete();
 	m_onConstruct.reset();
@@ -149,7 +149,7 @@ void wv::UpdateManager::onEnter( void )
 			data->u->onEnter();
 		};
 
-	_runJobs<JobData>( "comp_onEnter", m_onEnter.m_awaiting, fptr );
+	_runJobs<JobData>( m_onEnter.m_awaiting, fptr );
 
 	m_onEnter.complete();
 	m_onExit.reset();
@@ -167,7 +167,7 @@ void wv::UpdateManager::onExit( void )
 			data->u->onExit();
 		};
 
-	_runJobs<JobData>( "comp_onExit", m_onExit.m_awaiting, fptr );
+	_runJobs<JobData>( m_onExit.m_awaiting, fptr );
 
 	m_onExit.complete();
 	m_onEnter.reset();
@@ -189,7 +189,7 @@ void wv::UpdateManager::onUpdate( double _deltaTime )
 			data->u->onUpdate( data->dt );
 		};
 
-	_runJobs<JobData>( "comp_onUpdate", m_onUpdate, fptr, _deltaTime );
+	_runJobs<JobData>( m_onUpdate, fptr, _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 			data->u->onPhysicsUpdate( data->dt );
 		};
 
-	_runJobs<JobData>( "comp_onPhysicsUpdate", m_onPhysicsUpdate, fptr, _deltaTime );
+	_runJobs<JobData>( m_onPhysicsUpdate, fptr, _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -228,5 +228,5 @@ void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraph
 			data->u->onDraw( data->context, data->device );
 		};
 
-	_runJobs<JobData>( "comp_onDraw", m_onDraw, fptr, _context, _device );
+	_runJobs<JobData>( m_onDraw, fptr, _context, _device );
 }
