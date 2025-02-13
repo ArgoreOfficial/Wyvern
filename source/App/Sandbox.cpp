@@ -49,10 +49,10 @@ bool cSandbox::create( void )
 	ctxDesc.graphicsApiVersion.minor = 0;
 #elif defined( WV_PLATFORM_WINDOWS )
 #ifdef WV_SUPPORT_SDL2
-	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_NONE;
+	ctxDesc.deviceApi   = wv::WV_DEVICE_CONTEXT_API_SDL;
 #endif
 #ifdef WV_SUPPORT_OPENGL
-	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_NONE;
+	ctxDesc.graphicsApi = wv::WV_GRAPHICS_API_OPENGL;
 #endif
 	ctxDesc.graphicsApiVersion.major = 4;
 	ctxDesc.graphicsApiVersion.minor = 6;
