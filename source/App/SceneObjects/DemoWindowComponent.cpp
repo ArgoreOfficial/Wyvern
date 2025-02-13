@@ -30,6 +30,7 @@ void DemoWindowComponent::spawnBalls()
 		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
 	}
@@ -48,7 +49,7 @@ void DemoWindowComponent::spawnCubes()
 		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube" );
 		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
-		rb->m_transform.position.y = 1.0f;
+		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 
 		m_numSpawned++;
