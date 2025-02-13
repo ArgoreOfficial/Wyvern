@@ -454,14 +454,22 @@ void wv::cEngine::tick()
 #endif
 
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	m_pPhysicsEngine->update( dt );
+	Fence* physicsFence = m_pJobSystem->createFence();
+	Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			cEngine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
+		};
+	Job* job = m_pJobSystem->createJob( physicsFence, nullptr, fptr, &dt );
+	m_pJobSystem->submit( { job } );
 #endif
 
-	// update modules
-
 	m_pApplicationState->onUpdate( dt );
-	
 	currentCamera->update( dt );
+	
+#ifdef WV_SUPPORT_JOLT_PHYSICS
+	m_pJobSystem->waitAndDeleteFence( physicsFence );
+#endif
+
 
 	/// ------------------ render ------------------ ///	
 
