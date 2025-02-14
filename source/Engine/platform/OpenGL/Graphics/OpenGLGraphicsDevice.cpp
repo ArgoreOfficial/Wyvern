@@ -9,6 +9,7 @@
 
 #include <wv/Decl.h>
 
+#include <wv/Memory/Memory.h>
 #include <wv/Memory/FileSystem.h>
 
 #include <wv/Graphics/Mesh.h>

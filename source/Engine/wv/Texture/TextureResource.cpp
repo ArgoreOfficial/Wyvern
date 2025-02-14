@@ -1,8 +1,9 @@
 #include "TextureResource.h"
 
-#include <wv/Memory/FileSystem.h>
-#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Engine/Engine.h>
+#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/Memory/FileSystem.h>
+#include <wv/Memory/Memory.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/Auxiliary/stb_image.h>

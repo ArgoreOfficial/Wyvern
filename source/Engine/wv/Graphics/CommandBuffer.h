@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <wv/Memory/Memory.h> // memory stream
+#include <wv/Memory/MemoryStream.h>
 #include <wv/Memory/Function.h>
 
 namespace wv
@@ -73,7 +73,7 @@ namespace wv
 		void push( const eGPUTaskType& _type, T* _pInfo );
 		void push( const eGPUTaskType& _type ) { push<std::nullptr_t>( _type, nullptr ); }
 
-		wv::cMemoryStream& getBuffer() { return m_buffer; }
+		wv::MemoryStream& getBuffer() { return m_buffer; }
 		size_t numCommands() { return m_numCommands; }
 		
 		wv::Function<void, void*> callback;
@@ -82,7 +82,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
-		wv::cMemoryStream m_buffer;
+		wv::MemoryStream m_buffer;
 		size_t m_numCommands = 0;
 
 	};

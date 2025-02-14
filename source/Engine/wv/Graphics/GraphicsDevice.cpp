@@ -91,7 +91,7 @@ void wv::iLowLevelGraphics::executeCreateQueue()
 
 	//cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
 	cCommandBuffer& buffer = m_createDestroyCommandBuffer;
-	cMemoryStream& stream = buffer.getBuffer();
+	MemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.numCommands(); i++ )
 	{
