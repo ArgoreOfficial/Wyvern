@@ -2,7 +2,7 @@
 
 #include "3DSConsole.h"
 
-#include <wv/Platform/3DS/3DS.h>
+#include <platform/3DS/3DS.h>
 
 #include <3ds.h>
 #include <citro3d.h>

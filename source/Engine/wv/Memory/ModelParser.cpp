@@ -3,7 +3,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Material/Material.h>
 #include <wv/Debug/Print.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Math/Triangle.h>
 #include <wv/Memory/FileSystem.h>

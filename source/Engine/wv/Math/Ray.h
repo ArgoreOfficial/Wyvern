@@ -126,8 +126,8 @@ namespace wv
 	template<>
 	inline RayIntersection Ray::intersect<sMesh>( sMesh* _t )
 	{
-		cVector4f s{ start.x, start.y, start.z, 1.0f };
-		cVector4f e{   end.x,   end.y,   end.z, 1.0f };
+		Vector4f s{ start.x, start.y, start.z, 1.0f };
+		Vector4f e{   end.x,   end.y,   end.z, 1.0f };
 		s = Matrix::inverse( _t->transform.getMatrix() ) * s;
 		e = Matrix::inverse( _t->transform.getMatrix() ) * e;
 

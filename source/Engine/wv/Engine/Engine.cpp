@@ -10,7 +10,7 @@
 #include <wv/Camera/OrbitCamera.h>
 
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Device/AudioDevice.h>
 
 #include <wv/JobSystem/JobSystem.h>
@@ -25,7 +25,6 @@
 #include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
 #include <wv/Resource/ResourceRegistry.h>
 #include <wv/Shader/ShaderResource.h>
-
 
 #include <wv/Engine/EngineReflect.h>
 
@@ -50,10 +49,6 @@
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif // WV_SUPPORT_IMGUI
-
-#ifdef WV_SUPPORT_GLFW
-#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#endif // WV_SUPPORT_GLFW
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,17 +84,19 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	rt.fbHandle = 0;
 	
 	m_pApplicationState = _desc->pApplicationState;
+	m_pApplicationState->initialize();
 
 	/// TODO: move to descriptor
 	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
-	m_pFileSystem = _desc->systems.pFileSystem;
-	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics );
-	m_pResourceRegistry->initializeEmbeded();
-
+	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( 5 );
+	m_pJobSystem->initialize( wv::Math::max( 0,  - 1 ) );
+
+	m_pFileSystem = _desc->systems.pFileSystem;
+	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
+	m_pResourceRegistry->initializeEmbeded();
 
 	graphics->initEmbeds();
 
@@ -260,29 +257,65 @@ void wv::cEngine::run()
 
 	orbitCamera = WV_NEW( OrbitCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	freeflightCamera = WV_NEW( FreeflightCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	orbitCamera->onCreate();
-	freeflightCamera->onCreate();
+	orbitCamera->onEnter();
+	freeflightCamera->onEnter();
 
 	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
 
 	currentCamera = freeflightCamera;
 	
-	m_pApplicationState->onCreate();
-	m_pApplicationState->switchToScene( 0 ); // default scene
+	size_t embeddedResources = m_pResourceRegistry->getNumLoadedResources();
 
-	// while m_applicationState->isLoading() { doloadingstuff }
+	m_pApplicationState->switchToScene( 0 ); // default scene
 	
+	// wait for load to be done
+	//while ( m_pResourceRegistry->isWorking() )
+	//	Sleep( 10 );
+	
+	m_pResourceRegistry->waitForFence();
+
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
 #else
-	while ( context->isAlive() )
+
+	int timeToDeath = 5;
+	int deathCounter = 0;
+	double deathTimer = 0.0;
+	while( context->isAlive() )
+	{
 		tick();
+
+		// automatic shutdown if the context is NONE
+		if( context->getContextAPI() == WV_DEVICE_CONTEXT_API_NONE )
+		{
+			double t = context->getTime();
+			
+			deathTimer = t - static_cast<double>( deathCounter );
+			if( deathTimer > 1.0 )
+			{
+				wv::Debug::Print( "Automatic Close in: %i\n", timeToDeath - deathCounter );
+				deathCounter++;
+			}
+
+			if( deathCounter > timeToDeath )
+				context->close();
+		}
+	}
+
 #endif
+
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
-	m_pApplicationState->onDestroy();
+	m_pApplicationState->onExit();
+	m_pApplicationState->onDestruct();
 	
+	// wait for unload to be done
+	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
+	//	Sleep( 10 );
+
+	m_pResourceRegistry->waitForFence();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -293,13 +326,6 @@ void wv::cEngine::terminate()
 
 	currentCamera = nullptr;
 	
-	if ( m_pPhysicsEngine )
-	{
-		m_pPhysicsEngine->terminate();
-		WV_FREE( m_pPhysicsEngine );
-		m_pPhysicsEngine = nullptr;
-	}
-
 	if( orbitCamera )
 	{
 		WV_FREE( orbitCamera );
@@ -327,8 +353,16 @@ void wv::cEngine::terminate()
 	
 	if( m_pApplicationState )
 	{
+		m_pApplicationState->terminate();
 		WV_FREE( m_pApplicationState );
 		m_pApplicationState = nullptr;
+	}
+
+	if ( m_pPhysicsEngine )
+	{
+		m_pPhysicsEngine->terminate();
+		WV_FREE( m_pPhysicsEngine );
+		m_pPhysicsEngine = nullptr;
 	}
 
 	if( audio )
@@ -352,17 +386,17 @@ void wv::cEngine::terminate()
 		graphics = nullptr;
 	}
 
-	if( m_pJobSystem )
-	{
-		m_pJobSystem->terminate();
-		WV_FREE( m_pJobSystem );
-		m_pJobSystem = nullptr;
-	}
-
 	if( m_pResourceRegistry )
 	{
 		WV_FREE( m_pResourceRegistry );
 		m_pResourceRegistry = nullptr;
+	}
+
+	if ( m_pJobSystem )
+	{
+		m_pJobSystem->terminate();
+		WV_FREE( m_pJobSystem );
+		m_pJobSystem = nullptr;
 	}
 
 	if( m_pFileSystem )
@@ -409,22 +443,33 @@ void wv::cEngine::tick()
 			m_fpsAccumulator = 0.0;
 			m_timeSinceFPSUpdate = 0.0;
 			m_fpsCounter = 0;
-
-			std::string title = "FPS: " + std::to_string( (int)m_averageFps ) + "   MAX: " + std::to_string( (int)m_maxFps );
+			
+			std::string title = 
+				"FPS: " + std::to_string( (int)m_averageFps ) + 
+				" ("     + std::to_string( 1000.0 / m_averageFps ) + "ms)   "
+				"MAX: " + std::to_string( (int)m_maxFps );
 			context->setTitle( title.c_str() );
 		}
 	}
 #endif
 
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	m_pPhysicsEngine->update( dt );
+	Fence* physicsFence = m_pJobSystem->createFence();
+	Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			cEngine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
+		};
+	Job* job = m_pJobSystem->createJob( physicsFence, nullptr, fptr, &dt );
+	m_pJobSystem->submit( { job } );
 #endif
 
-	// update modules
-
-	m_pApplicationState->update( dt );
-	
+	m_pApplicationState->onUpdate( dt );
 	currentCamera->update( dt );
+	
+#ifdef WV_SUPPORT_JOLT_PHYSICS
+	m_pJobSystem->waitAndDeleteFence( physicsFence );
+#endif
+
 
 	/// ------------------ render ------------------ ///	
 
@@ -448,15 +493,17 @@ void wv::cEngine::tick()
 	graphics->beginRender();
 	
 #ifdef WV_SUPPORT_IMGUI
-	context->newImGuiFrame();
-	ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	if( context->newImGuiFrame() )
+	{
+		ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	}
 #endif // WV_SUPPORT_IMGUI
 	
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
 	{
 		graphics->clearRenderTarget( true, true );
 
-		m_pApplicationState->draw( context, graphics );
+		m_pApplicationState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
 
 		GPUBufferID viewBufferID = currentCamera->getBufferID();
@@ -672,5 +719,10 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 		return;
 
 	createGBuffer();
+}
+
+void wv::cEngine::_physicsUpdate( double _deltaTime )
+{
+	m_pApplicationState->onPhysicsUpdate( _deltaTime );
 }
 

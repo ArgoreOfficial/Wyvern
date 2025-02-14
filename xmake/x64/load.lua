@@ -19,10 +19,14 @@ function load()
     elseif is_arch( "x86" ) and os.arch() == "x64" then
         set_toolchains( "i686-w64-mingw32" )
     end
+    
+    if is_mode( "Debug" ) then
+        add_defines( "WV_TRACK_MEMORY" )
+    end
 end
 
 PLATFORMS[ "x64" ] = { 
     plat="windows",
-    arch={ "x64", "x86"  },
+    arch={ "x64" },
     load=load
 }

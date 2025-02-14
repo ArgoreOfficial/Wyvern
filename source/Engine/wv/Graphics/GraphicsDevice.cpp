@@ -1,4 +1,4 @@
-#include "Graphics.h"
+#include "GraphicsDevice.h"
 
 #include <wv/Debug/Print.h>
 #include <wv/Debug/Trace.h>
@@ -11,11 +11,11 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Resource/ResourceRegistry.h>
 
-
+#include <platform/NoAPI/Graphics/NoAPIGraphicsDevice.h>
 #if defined( WV_SUPPORT_OPENGL )
-#include <wv/Graphics/LowLevel/LowLevelGraphicsOpenGL.h>
+#include <platform/OpenGL/Graphics/OpenGLGraphicsDevice.h>
 #elif defined( WV_PLATFORM_PSVITA )
-#include <wv/Graphics/LowLevel/PSVitaGraphicsDevice.h>
+#include <platform/PSVita/Graphics/PSVitaGraphicsDevice.h>
 #endif
 
 #include <exception>
@@ -28,13 +28,25 @@ wv::iLowLevelGraphics* wv::iLowLevelGraphics::createGraphics( sLowLevelGraphicsD
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Graphics Device\n" );
 
 	iLowLevelGraphics* device = nullptr;
-#ifdef WV_PLATFORM_PSVITA
-	device = WV_NEW( cPSVitaGraphicsDevice );
-#else
+	switch( _desc->pContext->getGraphicsAPI() )
+	{
+
+	case GraphicsAPI::WV_GRAPHICS_API_NONE:   
+		device = WV_NEW( NoAPIGraphicsDevice );
+		break;
+
 #ifdef WV_SUPPORT_OPENGL
-	device = WV_NEW( cLowLevelGraphicsOpenGL );
+	case GraphicsAPI::WV_GRAPHICS_API_OPENGL: 
+		device = WV_NEW( cLowLevelGraphicsOpenGL );
+		break;
 #endif
+
+#ifdef WV_PLATFORM_PSVITA
+	case GraphicsAPI::WV_GRAPHICS_API_PSVITA: 
+		device = WV_NEW( cPSVitaGraphicsDevice );
+		break;
 #endif
+	}
 
 	if( !device )
 		return nullptr;
@@ -79,7 +91,7 @@ void wv::iLowLevelGraphics::executeCreateQueue()
 
 	//cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
 	cCommandBuffer& buffer = m_createDestroyCommandBuffer;
-	cMemoryStream& stream = buffer.getBuffer();
+	MemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.numCommands(); i++ )
 	{
@@ -391,6 +403,9 @@ wv::iLowLevelGraphics::iLowLevelGraphics()
 
 size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 {
+	if( !m_vertexBuffer.is_valid() )
+		return 0;
+
 	sGPUBuffer old = m_gpuBuffers.at( m_vertexBuffer );
 	size_t base = old.size / sizeof( Vertex );
 
@@ -416,6 +431,9 @@ size_t wv::iLowLevelGraphics::pushVertexBuffer( void* _vertices, size_t _size )
 
 size_t wv::iLowLevelGraphics::pushIndexBuffer( void* _indices, size_t _size )
 {
+	if( !m_indexBuffer.is_valid() )
+		return 0;
+
 	sGPUBuffer old = m_gpuBuffers.at( m_indexBuffer );
 	size_t base = old.size / sizeof( unsigned int );
 

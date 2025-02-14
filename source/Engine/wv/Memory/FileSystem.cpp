@@ -1,8 +1,10 @@
-#include <wv/Memory/FileSystem.h>
+#include "FileSystem.h"
 
+#include <wv/Debug/Print.h>
 #include <wv/Engine/Engine.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Graphics/Uniform.h>
+#include <wv/Memory/Memory.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #define STB_IMAGE_IMPLEMENTATION
@@ -11,9 +13,6 @@
 
 #include <fstream>
 #include <vector>
-
-#include <wv/Debug/Print.h>
-
 #include <string>
 
 #ifdef WV_CPP20

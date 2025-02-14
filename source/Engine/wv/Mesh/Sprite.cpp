@@ -1,9 +1,10 @@
 #include "Sprite.h"
 
 #include <wv/Engine/Engine.h>
-#include <wv/Graphics/Graphics.h>
-#include <wv/Mesh/MeshResource.h>
+#include <wv/Graphics/GraphicsDevice.h>
 #include <wv/Material/Material.h>
+#include <wv/Memory/Memory.h>
+#include <wv/Mesh/MeshResource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

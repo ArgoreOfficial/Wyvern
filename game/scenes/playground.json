@@ -1,5 +1,5 @@
 {
-  "name": "defaultScene",
+  "name": "playground",
   "scene": [
     {
       "uuid": 28752,
@@ -89,7 +89,7 @@
     {
       "uuid": 8740140,
       "name": "DemoWindow",
-      "type": "cDemoWindow",
+      "type": "DemoWindow",
       "transform": {
         "pos": [0,0,0],
         "rot": [0,0,0],
@@ -102,6 +102,20 @@
       "uuid": 981749,
       "name": "Skybox",
       "type": "cSkyboxObject",
+      "transform": {
+        "pos": [0,0,0],
+        "rot": [0,0,0],
+        "scl": [1,1,1]
+      },
+      "data": {
+        "path": ""
+      },
+      "children": []
+    },
+    {
+      "uuid": 2874621,
+      "name": "ScriptTest",
+      "type": "Entity",
       "transform": {
         "pos": [0,0,0],
         "rot": [0,0,0],

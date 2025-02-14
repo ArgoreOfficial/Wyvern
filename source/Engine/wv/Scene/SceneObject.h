@@ -22,15 +22,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iSceneObject
+	class IEntity
 	{
 	public:
 		friend class Scene;
 
-		iSceneObject( const UUID& _uuid, const std::string& _name );
-		virtual ~iSceneObject() = 0;
+		IEntity( const UUID& _uuid, const std::string& _name );
+		virtual ~IEntity() = 0;
 
-		wv::iSceneObject* getChildByUUID( const wv::UUID& _uuid );
+		wv::IEntity* getChildByUUID( const wv::UUID& _uuid );
 
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
@@ -45,14 +45,14 @@ namespace wv
 
 	protected:
 
-		virtual void onLoadImpl() = 0;
-		virtual void onUnloadImpl() = 0;
+		virtual void onConstructImpl() = 0;
+		virtual void onDeconstructImpl() = 0;
 
-		virtual void onCreateImpl() = 0;
-		virtual void onDestroyImpl() = 0;
+		virtual void onEnterImpl() = 0;
+		virtual void onExitImpl() = 0;
 
 		virtual void onUpdate( double _deltaTime ) = 0;
-		virtual void drawImpl( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;
+		virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) = 0;
 
 		uint64_t    m_uuid;
 		std::string m_name;

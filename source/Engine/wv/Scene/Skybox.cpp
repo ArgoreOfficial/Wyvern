@@ -2,7 +2,7 @@
 
 #include <wv/Engine/Engine.h>
 #include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 #include <wv/Mesh/MeshResource.h>
 #include <wv/Material/Material.h>
@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::cSkyboxObject::cSkyboxObject( const UUID& _uuid, const std::string& _name ) :
-	iSceneObject{ _uuid, _name }
+	IEntity{ _uuid, _name }
 {
 
 }
@@ -52,7 +52,7 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 	return skysphere;
 }
 
-void wv::cSkyboxObject::onLoadImpl()
+void wv::cSkyboxObject::onConstructImpl()
 {
 	wv::cEngine* app = wv::cEngine::get();
 	
@@ -60,40 +60,31 @@ void wv::cSkyboxObject::onLoadImpl()
 	m_transform.addChild( &m_mesh.transform );
 }
 
-void wv::cSkyboxObject::onUnloadImpl()
+void wv::cSkyboxObject::onDeconstructImpl()
 {
 	m_mesh.destroy();
 }
 
-void wv::cSkyboxObject::onCreateImpl()
+void wv::cSkyboxObject::onEnterImpl()
 {
 
 }
 
-void wv::cSkyboxObject::onDestroyImpl()
+void wv::cSkyboxObject::onExitImpl()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::onUpdate( double _deltaTime )
+void wv::cSkyboxObject::onUpdate( double /*_deltaTime*/ )
 {
 	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::drawImpl( iDeviceContext* _context, iLowLevelGraphics* _device )
+void wv::cSkyboxObject::onDraw( iDeviceContext* /*_context*/, iLowLevelGraphics* /*_device*/ )
 {
-	/// TODO: remove raw gl calls
-#ifdef WV_SUPPORT_OPENGL
-	glDepthMask( GL_FALSE );
-	glDepthFunc( GL_LEQUAL );
-	m_mesh.draw();
-	m_mesh.pResource->drawInstances( _device ); 
-	glDepthFunc( GL_LESS );
-	glDepthMask( GL_TRUE );
-#endif
 	
 }

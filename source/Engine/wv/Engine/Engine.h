@@ -31,6 +31,8 @@ namespace wv
 	class cJoltPhysicsEngine;
 	class JobSystem;
 
+	class UpdateManager;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct EngineDesc
@@ -68,6 +70,9 @@ namespace wv
 	{
 
 	public:
+	#ifdef WV_SUPPORT_JOLT_PHYSICS
+		friend class cJoltPhysicsEngine;
+	#endif
 
 		cEngine( EngineDesc* _desc );
 		static cEngine* get();
@@ -95,6 +100,7 @@ namespace wv
 		void tick();
 		void quit();
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		// deferred rendering
@@ -121,13 +127,14 @@ namespace wv
 		// modules
 		cFileSystem*        m_pFileSystem       = nullptr;
 		cResourceRegistry*  m_pResourceRegistry = nullptr;
+	
 		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
+		
 		JobSystem*          m_pJobSystem        = nullptr;
-
-
+		
 		struct sFogParams
 		{
-			wv::cVector4f colorDensity{};
+			wv::Vector4f colorDensity{};
 			int isEnabled = 0;
 		} m_fogParams;
 
@@ -142,6 +149,8 @@ namespace wv
 		void createGBuffer();
 
 		void recreateScreenRenderTarget( int _width, int _height );
+
+		void _physicsUpdate( double _deltaTime );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -25,6 +25,8 @@ wv::cResourceRegistry::~cResourceRegistry()
 
 		wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Force unloaded '%s'\n", markedForDelete[ i ].c_str());
 	}
+
+	m_pJobSystem->deleteFence( m_resourceFence );
 }
 
 void wv::cResourceRegistry::initializeEmbeded()

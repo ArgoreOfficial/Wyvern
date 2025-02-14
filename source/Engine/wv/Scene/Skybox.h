@@ -20,7 +20,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cSkyboxObject : public iSceneObject
+	class cSkyboxObject : public IEntity
 	{
 
 	public:
@@ -36,13 +36,13 @@ namespace wv
 
 	protected:
 
-		void onLoadImpl   () override;
-		void onUnloadImpl () override;
-		void onCreateImpl () override;
-		void onDestroyImpl() override;
+		void onConstructImpl   () override;
+		void onDeconstructImpl () override;
+		void onEnterImpl () override;
+		void onExitImpl() override;
 
 		virtual void onUpdate( double _deltaTime ) override;
-		virtual void drawImpl  ( iDeviceContext* _context, iLowLevelGraphics* _device ) override;
+		virtual void onDraw  ( iDeviceContext* _context, iLowLevelGraphics* _device ) override;
 
 		sMeshInstance m_mesh;
 

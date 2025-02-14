@@ -2,48 +2,26 @@
 
 #include <arx/unordered_array.hpp>
 
+#include <wv/JobSystem/Worker.h>
 #include <wv/Types.h>
 
-#include <deque>
-#include <queue>
-#include <mutex>
 #include <vector>
+#include <queue>
+
 #include <thread>
-#include <atomic>
+#include <unordered_map>
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
 {
 
-struct JobCounter
-{
-	std::atomic_int32_t value{ 0 };
-};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-struct Job
-{
-	typedef void( *JobFunction_t )( const Job*, void* );
-
-	std::string   name      = "";
-	JobFunction_t pFunction = nullptr;
-	void*         pData     = nullptr;
-	JobCounter**  ppCounter = nullptr;
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class JobSystem
 {
 public:
-
-	struct Worker
-	{
-		std::thread thread;
-		std::atomic_bool alive{ true };
-	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,55 +30,39 @@ public:
 	void initialize( size_t _numWorkers );
 	void terminate();
 
-	void deleteAll();
-	void deleteAllJobs();
-	void deleteAllCounters();
+	void createWorkers( size_t _count = 0 );
+	void deleteWorkers();
 
-	void waitForAllJobs();
+	wv::Job* createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData );
+	void submit( const std::vector<wv::Job*>& _jobs );
 
-	[[nodiscard]] Job* createJob( const std::string& _name, Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr );
-	[[nodiscard]] Job* createJob( Job::JobFunction_t _pFunction, JobCounter** _ppCounter = nullptr, void* _pData = nullptr )
-	{
-		return createJob( "", _pFunction, _ppCounter, _pData );
-	}
+	Fence* createFence();
+	void   deleteFence( Fence* _fence );
 
-
-	void run( Job** _pJobs, size_t _numJobs = 1 );
-	void waitForCounter( JobCounter** _ppCounter, int _value );
-	void waitForAndFreeCounter( JobCounter** _ppCounter, int _value );
-
-	void freeCounter( JobCounter** _ppCounter );
+	void waitForFence( wv::Fence* _pFence );
+	void waitAndDeleteFence( wv::Fence* _pFence );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+	void executeJob( wv::Job* _pJob );
+
 protected:
 
-	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker );
-
-	Job* _getNextJob();
+	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker );
+	JobWorker* _getThisThreadWorker();
+	Job* _getNextJob( wv::JobWorker* _pWorker );
 	
-	JobCounter* _allocateCounter();
 	Job* _allocateJob();
-
-	void _freeCounter( JobCounter* _counter );
-	void _freeJob( Job* _job );
-
-	void _executeJob( Job* _job );
-
-	std::mutex m_queueMutex{};
+	void _freeJob( Job* _pJob );
+	
+	std::mutex m_fencePoolMutex{};
+	std::queue<Fence*> m_fencePool{};
+	
 	std::mutex m_jobPoolMutex{};
-	std::mutex m_counterPoolMutex{};
+	std::queue<Job*> m_jobPool{};
 
-	std::vector<JobCounter*> m_counterPool{};
-	std::queue <JobCounter*> m_availableCounters{};
-
-	std::vector<Job*> m_jobPool{};
-	std::queue <Job*> m_availableJobs{};
-	std::deque <Job*> m_jobQueue{};
-
-
-	std::vector<Worker*> m_workers;
-
+	std::vector<JobWorker*> m_workers;
+	std::unordered_map<std::thread::id, JobWorker*> m_threadIDWorkerMap;
 };
 
 }

@@ -1,10 +1,16 @@
 #include "DeviceContext.h"
+#include <platform/NoAPI/Device/DeviceContext/NoAPIDeviceContext.h>
 
-#include <wv/Device/DeviceContext/GLFW/GLFWDeviceContext.h>
-#include <wv/Device/DeviceContext/SDL/SDLDeviceContext.h>
+#ifdef WV_SUPPORT_GLFW
+#include <platform/GLFW/Device/DeviceContext/GLFWDeviceContext.h>
+#endif
+
+#ifdef WV_SUPPORT_SDL2
+#include <platform/SDL/Device/DeviceContext/SDLDeviceContext.h>
+#endif
 
 #ifdef WV_PLATFORM_PSVITA
-#include <wv/Device/DeviceContext/PSVita/PSVitaDeviceContext.h>
+#include <platform/PSVita/Device/DeviceContext/PSVitaDeviceContext.h>
 #endif
 
 #include <wv/Memory/Memory.h>
@@ -17,23 +23,31 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Device Context\n" );
 
-#ifdef WV_PLATFORM_PSVITA
-	context = new cPSVitaDeviceContext(); // force psvita context
-#else // WV_PLATFORM_PSVITA
 	switch ( _desc->deviceApi )
 	{
+
 	case WV_DEVICE_CONTEXT_API_NONE:
-		wv::Debug::Print( Debug::WV_PRINT_WARN, "_desc->deviceApi was WV_DEVICE_CONTEXT_API_NONE\n" );
-		context = nullptr;
+		context = WV_NEW( NoAPIDeviceContext );
 		break;
 
 	#ifdef WV_SUPPORT_GLFW
-	case WV_DEVICE_CONTEXT_API_GLFW: context = new GLFWDeviceContext(); break;
+	case WV_DEVICE_CONTEXT_API_GLFW: 
+		context = WV_NEW( GLFWDeviceContext ); 
+		break;
 	#endif
 
 	#ifdef WV_SUPPORT_SDL2
-	case WV_DEVICE_CONTEXT_API_SDL:  context = new SDLDeviceContext(); break;
+	case WV_DEVICE_CONTEXT_API_SDL: 
+		context = WV_NEW( SDLDeviceContext ); 
+		break;
 	#endif
+
+	#ifdef WV_PLATFORM_PSVITA
+	case WV_DEVICE_CONTEXT_API_PSVITA: 
+		context = WV_NEW( cPSVitaDeviceContext );
+		break;
+	#else
+
 	}
 #endif // WV_PLATFORM_PSVITA
 

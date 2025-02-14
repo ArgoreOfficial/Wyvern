@@ -4,7 +4,7 @@
 
 #include <wv/Auxiliary/json/json11.hpp>
 #include <wv/Engine/Engine.h>
-#include <wv/Graphics/Graphics.h>
+#include <wv/Graphics/GraphicsDevice.h>
 
 void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
 {
@@ -69,7 +69,8 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* 
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
-	_pLowLevelGraphics->destroyPipeline( m_pipelineID );
+	if( m_pipelineID.is_valid() )
+		_pLowLevelGraphics->destroyPipeline( m_pipelineID );
 }
 
 void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )

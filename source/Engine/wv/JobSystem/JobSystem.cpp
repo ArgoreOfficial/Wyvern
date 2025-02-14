@@ -1,6 +1,10 @@
 #include "JobSystem.h"
 
 #include <wv/Memory/Memory.h>
+#include <exception>
+#include <random>
+
+#include <wv/Debug/Print.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,218 +17,212 @@ wv::JobSystem::JobSystem()
 
 void wv::JobSystem::initialize( size_t _numWorkers )
 {
-	for ( size_t i = 0; i < _numWorkers; i++ )
-	{
-		JobSystem::Worker* worker = WV_NEW( JobSystem::Worker );
-		worker->thread = std::thread( _workerThread, this, worker );
-		m_workers.push_back( worker );
-	}
+	createWorkers( _numWorkers );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::JobSystem::terminate()
 {
-	waitForAllJobs();
+	while ( !m_jobPool.empty() )
+	{
+		WV_FREE( m_jobPool.front() );
+		m_jobPool.pop();
+	}
+
+	while ( !m_fencePool.empty() )
+	{
+		std::scoped_lock lock{ m_fencePoolMutex };
+		Fence* f = m_fencePool.front();
+		m_fencePool.pop();
+
+		waitForFence( f );
+		WV_FREE( f );
+	}
+
+	deleteWorkers();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::createWorkers( size_t _count )
+{
+	m_workers.reserve( _count + 1 );
+	
+	// main thread worker
+	{
+		JobWorker* worker = WV_NEW( JobWorker );
+		m_workers.push_back( worker );
+		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
+	}
+
+	for ( size_t i = 0; i < _count; i++ )
+	{
+		JobWorker* worker = WV_NEW( JobWorker );
+		worker->mThread = std::thread( _workerThread, this, worker );
+
+		m_workers.push_back( worker );
+		m_threadIDWorkerMap[ worker->mThread.get_id() ] = worker;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::deleteWorkers()
+{
+	// shutdown threads
+	for ( size_t i = 1; i < m_workers.size(); i++ )
+	{
+		m_workers[ i ]->mIsAlive = false;
+		m_workers[ i ]->mThread.join();
+	}
 
 	for ( size_t i = 0; i < m_workers.size(); i++ )
-	{
-		m_workers[ i ]->alive = false;
-		m_workers[ i ]->thread.join();
 		WV_FREE( m_workers[ i ] );
-	}
-
-	deleteAll();
-}
-
-void wv::JobSystem::deleteAll()
-{
-	waitForAllJobs();
-
-	deleteAllJobs();
-	deleteAllCounters();
-}
-
-void wv::JobSystem::deleteAllJobs()
-{
-	std::scoped_lock lock{ m_jobPoolMutex };
-
-	for ( size_t i = 0; i < m_jobPool.size(); i++ )
-		WV_FREE( m_jobPool[ i ] );
-	m_jobPool.clear();
-
-	while ( !m_availableJobs.empty() )
-		m_availableJobs.pop();
-
-}
-
-void wv::JobSystem::deleteAllCounters()
-{
-	std::scoped_lock lock{ m_counterPoolMutex };
 	
-	for ( size_t i = 0; i < m_counterPool.size(); i++ )
-		WV_FREE( m_counterPool[ i ] );
-	m_counterPool.clear();
-
-	while ( !m_availableCounters.empty() )
-		m_availableCounters.pop();
-}
-
-void wv::JobSystem::waitForAllJobs()
-{
-	Job* nextJob = _getNextJob();
-	while ( nextJob || !m_jobQueue.empty() )
-	{
-		_executeJob( nextJob );
-		nextJob = _getNextJob();
-	} 
+	m_workers.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Job* wv::JobSystem::createJob( const std::string& _name, Job::JobFunction_t _pFunction, JobCounter** _ppCounter, void* _pData )
+wv::Job* wv::JobSystem::createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
 {
-	if ( _ppCounter && ( *_ppCounter ) == nullptr )
-		*_ppCounter = _allocateCounter();
-
 	Job* job = _allocateJob();
-
-	job->name = _name;
-	job->pFunction = _pFunction;
-	job->pData = _pData;
-	job->ppCounter = _ppCounter;
-
+	job->pSignalFence = _pSignalFence;
+	job->pFunction    = _fptr;
+	job->pData        = _pData;
 	return job;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::run( Job** _pJobs, size_t _numJobs )
+void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 {
-	for ( size_t i = 0; i < _numJobs; i++ )
+	JobWorker* worker = _getThisThreadWorker();
+	for ( auto& j : _jobs )
 	{
-		Job* job = _pJobs[ i ];
-		if ( job->ppCounter )
-		{
-			JobCounter* counter = *job->ppCounter;
-			if ( counter )
-				counter->value++;
-		}
-		
-		m_queueMutex.lock();
-		m_jobQueue.push_back( job );
-		m_queueMutex.unlock();
+		if ( j->pSignalFence )
+			j->pSignalFence->counter++;
+
+		if ( !worker->mQueue.push( j ) )
+			JobSystem::executeJob( j );
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::waitForCounter( JobCounter** _ppCounter, int _value )
+wv::Fence* wv::JobSystem::createFence()
 {
-	if ( !_ppCounter || !*_ppCounter )
-	{
-		// warning: nullptr
-		return;
-	}
+	wv::Fence* fence = nullptr;
 
-	JobCounter& counter = **_ppCounter;
-	while ( counter.value != _value )
-	{
-		Job* nextJob = _getNextJob();
-		if ( nextJob )
-			_executeJob( nextJob );
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::JobSystem::waitForAndFreeCounter( JobCounter** _ppCounter, int _value )
-{
-	waitForCounter( _ppCounter, _value );
-	freeCounter( _ppCounter );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::JobSystem::freeCounter( JobCounter** _ppCounter )
-{
-	if ( !_ppCounter || !*_ppCounter )
-	{
-		// warning: nullptr
-		return;
-	}
-
-	JobCounter& counter = **_ppCounter;
-	if ( counter.value > 0 )
-		waitForCounter( _ppCounter, 0 );
-	
-	_freeCounter( *_ppCounter );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobSystem::Worker* _pWorker )
-{
-	while ( _pWorker->alive )
-	{
-		Job* nextJob = _pJobSystem->_getNextJob();
-		if ( nextJob )
-			_pJobSystem->_executeJob( nextJob );
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Job* wv::JobSystem::_getNextJob()
-{
-	std::scoped_lock lock{ m_queueMutex };
-	
-	if ( m_jobQueue.empty() )
-		return nullptr;
-	
-	Job* job = m_jobQueue.back();
-	m_jobQueue.pop_back();
-
-	return job;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::JobCounter* wv::JobSystem::_allocateCounter()
-{
-	std::scoped_lock lock{ m_counterPoolMutex };
-
-	wv::JobCounter* counter = nullptr;
-	if ( m_availableCounters.empty() )
-	{
-		counter = WV_NEW( JobCounter );
-		m_counterPool.push_back( counter );
-	}
+	if ( m_fencePool.empty() )
+		fence = WV_NEW( wv::Fence );
 	else
 	{
-		counter = m_availableCounters.front();
-		m_availableCounters.pop();
+		std::scoped_lock lock{ m_fencePoolMutex };
+		fence = m_fencePool.front();
+		m_fencePool.pop();
 	}
 
-	return counter;
+	fence->counter = 0;
+
+	return fence;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::deleteFence( Fence* _fence )
+{
+	std::scoped_lock lock{ m_fencePoolMutex };
+	m_fencePool.push( _fence );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::waitForFence( wv::Fence* _pFence )
+{
+	while ( _pFence->counter )
+	{
+		JobWorker* worker = _getThisThreadWorker();
+		Job* nextJob = _getNextJob( worker );
+		if ( nextJob )
+			wv::JobSystem::executeJob( nextJob );
+	}
+}
+
+void wv::JobSystem::waitAndDeleteFence( wv::Fence* _pFence )
+{
+	waitForFence( _pFence );
+	deleteFence( _pFence );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker )
+{
+	while ( _pWorker->mIsAlive )
+	{
+		Job* nextJob = _pJobSystem->_getNextJob( _pWorker );
+		if ( nextJob )
+			_pJobSystem->executeJob( nextJob );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
+{
+	std::thread::id threadID = std::this_thread::get_id();
+	if ( m_threadIDWorkerMap.count( threadID ) )
+		return m_threadIDWorkerMap[ threadID ];
+#ifdef __cpp_exceptions
+	throw std::runtime_error( "Thread is not worker thread" );
+#else
+	wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Thread is not worker thread\n" );
+#endif
+	return nullptr; // will not occur
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
+{
+	Job* job = _pWorker->mQueue.pop();
+
+	if ( job )
+		return job;
+
+	const int r = std::rand() % m_workers.size();
+	JobWorker* worker = m_workers[ r ];
+
+	if ( worker == _pWorker )
+	{
+		std::this_thread::yield();
+		return nullptr;
+	}
+
+	Job* stolenJob = worker->mQueue.steal();
+
+	if ( stolenJob )
+		return stolenJob;
+		
+	std::this_thread::yield();
+	return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Job* wv::JobSystem::_allocateJob()
 {
-	std::scoped_lock lock{ m_jobPoolMutex };
-
 	wv::Job* job = nullptr;
-	if ( m_availableJobs.empty() )
-	{
+	
+	if ( m_jobPool.empty() )
 		job = WV_NEW( Job );
-		m_jobPool.push_back( job );
-	}
 	else
 	{
-		job = m_availableJobs.front();
-		m_availableJobs.pop();
+		std::scoped_lock lock{ m_jobPoolMutex };
+		job = m_jobPool.front();
+		m_jobPool.pop();
 	}
 
 	return job;
@@ -232,36 +230,20 @@ wv::Job* wv::JobSystem::_allocateJob()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::_freeCounter( JobCounter* _counter )
+void wv::JobSystem::_freeJob( Job* _pJob )
 {
-	m_counterPoolMutex.lock();
-	_counter->value = 0;
-	m_availableCounters.push( _counter );
-	m_counterPoolMutex.unlock();
+	std::scoped_lock lock{ m_jobPoolMutex };
+	m_jobPool.push( _pJob );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::_freeJob( Job* _job )
+void wv::JobSystem::executeJob( wv::Job* _pJob )
 {
-	m_jobPoolMutex.lock();
-	*_job = {};
-	m_availableJobs.push( _job );
-	m_jobPoolMutex.unlock();
-}
+	_pJob->pFunction( _pJob->pData );
+	
+	if ( _pJob->pSignalFence )
+		_pJob->pSignalFence->counter--;
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::JobSystem::_executeJob( Job* _job )
-{
-	_job->pFunction( _job, _job->pData );
-
-	if ( _job->ppCounter )
-	{
-		JobCounter* counter = *_job->ppCounter;
-		if ( counter )
-			counter->value--;
-	}
-
-	_freeJob( _job );
+	_freeJob( _pJob );
 }

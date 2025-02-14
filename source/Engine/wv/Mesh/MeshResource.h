@@ -30,8 +30,8 @@ namespace wv
 		// removes this instance, mesh may stay loaded
 		void destroy(); 
 
-		Transformf transform;
-		cMeshResource* pResource;
+		Transformf transform{};
+		cMeshResource* pResource = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////

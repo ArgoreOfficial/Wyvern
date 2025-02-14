@@ -14,17 +14,26 @@ namespace wv
 	class iLowLevelGraphics;
 	class Scene;
 	class cFileSystem;
+	class UpdateManager;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class cApplicationState
 	{
 	public:
-		void onCreate();
-		void onDestroy();
+		void initialize();
+		void terminate();
 
-		void update( double _deltaTime );
-		void draw  ( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
+		void onConstruct();
+		void onDestruct();
+
+		void onEnter();
+		void onExit();
+
+		void onUpdate( double _deltaTime );
+		void onPhysicsUpdate( double _deltaTime );
+
+		void onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
 
 		void reloadScene();
 
@@ -38,6 +47,10 @@ namespace wv
 		void switchToScene( const std::string& _name );
 		void switchToScene( int _index );
 
+		UpdateManager* getUpdateManager() { 
+			return m_pUpdateManager; 
+		}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	private:
@@ -47,6 +60,8 @@ namespace wv
 		Scene* m_pNextScene = nullptr;
 		Scene* m_pCurrentScene = nullptr;
 
+		UpdateManager* m_pUpdateManager = nullptr;
 	};
 
+	cApplicationState* getAppState();
 }

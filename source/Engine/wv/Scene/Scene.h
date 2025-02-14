@@ -26,20 +26,19 @@ namespace wv
 		{
 		}
 
+		~Scene() {
+			destroyAllEntities();
+		}
+
 		std::string getSourcePath( void ) { return m_sourcePath; }
 		std::string getName      ( void ) { return m_name; }
-
-		void addChild( iSceneObject* _node, bool _triggerLoadAndCreate = false );
-		void removeChild( iSceneObject* _node );
 		
-		void onLoad();
-		void onUnload();
-
-		void onCreate();
-		void onDestroy();
+		void addChild( IEntity* _node, bool _triggerLoadAndCreate = false );
+		void removeChild( IEntity* _node );
+		
+		void destroyAllEntities();
 
 		void onUpdate( double _deltaTime );
-		void onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,20 +46,20 @@ namespace wv
 
 		struct UpdateData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			double deltaTime;
 		};
 
 		struct DrawData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			iDeviceContext* pContext;
 			iLowLevelGraphics* pDevice;
 		};
 
 		struct JobData
 		{
-			wv::iSceneObject* pObject;
+			wv::IEntity* pObject;
 			bool b;
 		};
 
@@ -70,7 +69,7 @@ namespace wv
 		std::string m_name = "Scene";
 		std::string m_sourcePath = "";
 
-		std::vector<iSceneObject*> m_sceneObjects;
+		std::vector<IEntity*> m_entities;
 
 	};
 
@@ -79,20 +78,20 @@ namespace wv
 	{
 		JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
 
-		std::vector<_Ty> userDatas{ m_sceneObjects.size() };
+		std::vector<_Ty> userDatas{ m_entities.size() };
 		std::vector<Job*> jobs{};
 
-		JobCounter* counter = nullptr;
-
-		for ( size_t i = 0; i < m_sceneObjects.size(); i++ )
+		Fence* fence = pJobSystem->createFence();
+		
+		for ( size_t i = 0; i < m_entities.size(); i++ )
 		{
-			userDatas[ i ] = _Ty{ m_sceneObjects[ i ], _args... };
-			Job* job = pJobSystem->createJob( _name, _fptr, &counter, &userDatas[ i ] );
+			userDatas[ i ] = _Ty{ m_entities[ i ], _args... };
+			Job* job = pJobSystem->createJob( fence, nullptr, _fptr, &userDatas[ i ] );
 			jobs.push_back( job );
 		}
 
-		pJobSystem->run( jobs.data(), jobs.size() );
-		pJobSystem->waitForAndFreeCounter( &counter, 0 );
+		pJobSystem->submit( jobs );
+		pJobSystem->waitAndDeleteFence( fence );
 	}
 
 }
