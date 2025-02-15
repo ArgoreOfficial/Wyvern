@@ -270,7 +270,7 @@ void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTarge
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::GraphicsDeviceOpenGL::_createProgram( ProgramID _programID, const sProgramDesc& _desc )
+wv::ShaderModuleID wv::GraphicsDeviceOpenGL::_createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -284,7 +284,7 @@ wv::ProgramID wv::GraphicsDeviceOpenGL::_createProgram( ProgramID _programID, co
 	if( source.data->size == 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot compile shader with null source\n" );
-		return ProgramID::InvalidID;
+		return ShaderModuleID::InvalidID;
 	}
 
 	// sShaderProgram* program = new sShaderProgram();
@@ -411,7 +411,7 @@ wv::ProgramID wv::GraphicsDeviceOpenGL::_createProgram( ProgramID _programID, co
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyProgram( ProgramID _programID )
+void wv::GraphicsDeviceOpenGL::_destroyShaderModule( ShaderModuleID _programID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -472,8 +472,8 @@ void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
-	_destroyProgram( pipeline.vertexProgramID );
-	_destroyProgram( pipeline.fragmentProgramID );
+	_destroyShaderModule( pipeline.vertexProgramID );
+	_destroyShaderModule( pipeline.fragmentProgramID );
 
 	if( pipeline.pPlatformData )
 		WV_FREE( pipeline.pPlatformData );

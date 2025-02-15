@@ -101,8 +101,8 @@ void wv::IGraphicsDevice::executeCreateQueue()
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<ProgramID, sProgramDesc>>();
-			_createProgram( descData.id, descData.desc );
+			auto descData = stream.pop<sCmdCreateDesc<ShaderModuleID, ShaderModuleDesc>>();
+			_createShaderModule( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
@@ -148,7 +148,7 @@ void wv::IGraphicsDevice::executeCreateQueue()
 		case WV_GPUTASK_DESTROY_MESH:         _destroyMesh        ( stream.pop<MeshID>()         ); break;
 		case WV_GPUTASK_DESTROY_BUFFER:       _destroyGPUBuffer   ( stream.pop<GPUBufferID>()    ); break;
 		case WV_GPUTASK_DESTROY_PIPELINE:     _destroyPipeline    ( stream.pop<PipelineID>()     ); break;
-		case WV_GPUTASK_DESTROY_PROGRAM:      _destroyProgram     ( stream.pop<ProgramID>()      ); break;
+		case WV_GPUTASK_DESTROY_PROGRAM:      _destroyShaderModule     ( stream.pop<ShaderModuleID>()      ); break;
 		case WV_GPUTASK_DESTROY_RENDERTARGET: _destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
 
 		case WV_GPUTASK_SET_RENDERTARGET: cmdBeginRender( 0, stream.pop<RenderTargetID>() ); break;
@@ -187,22 +187,22 @@ void wv::IGraphicsDevice::executeCreateQueue()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::IGraphicsDevice::createProgram( const sProgramDesc& _desc )
+wv::ShaderModuleID wv::IGraphicsDevice::createShaderModule( const ShaderModuleDesc& _desc )
 {
-	ProgramID id = m_programs.emplace();
+	ShaderModuleID id = m_programs.emplace();
 
 	if ( std::this_thread::get_id() == getThreadID() )
-		_createProgram( id, _desc );
+		_createShaderModule( id, _desc );
 	else
 		return cmdCreateCommand( WV_GPUTASK_CREATE_PROGRAM, id, _desc );
 	
 	return id;
 }
 
-void wv::IGraphicsDevice::destroyProgram( ProgramID _programID )
+void wv::IGraphicsDevice::destroyShaderModule( ShaderModuleID _programID )
 {
 	if ( std::this_thread::get_id() == getThreadID() )
-		_destroyProgram( _programID );
+		_destroyShaderModule( _programID );
 	else
 		return cmd( WV_GPUTASK_DESTROY_PROGRAM, &_programID );
 

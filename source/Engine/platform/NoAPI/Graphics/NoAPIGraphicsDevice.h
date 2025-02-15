@@ -42,8 +42,8 @@ namespace wv
 		virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) override;
 		virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID )                                override;
 		
-		virtual ProgramID  _createProgram( ProgramID _programID, const sProgramDesc& _desc ) override;
-		virtual void       _destroyProgram( ProgramID _programID )                           override;
+		virtual ShaderModuleID  _createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc ) override;
+		virtual void       _destroyShaderModule( ShaderModuleID _programID )                           override;
 		
 		virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) override;
 		virtual void       _destroyPipeline( PipelineID _pipelineID )                            override;

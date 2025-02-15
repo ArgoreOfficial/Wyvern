@@ -84,8 +84,8 @@ public:
 	template<typename ID, typename T>
 	ID cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc );
 
-	ProgramID createProgram( const sProgramDesc& _desc );
-	void      destroyProgram( ProgramID _programID );
+	ShaderModuleID createShaderModule( const ShaderModuleDesc& _desc );
+	void      destroyShaderModule( ShaderModuleID _programID );
 
 	PipelineID createPipeline( const sPipelineDesc& _desc );
 	void       destroyPipeline( PipelineID _pipelineID );
@@ -234,14 +234,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	arx::unordered_array<ProgramID,      sProgram>      m_programs;
+	arx::unordered_array<ShaderModuleID,      sProgram>      m_programs;
 	arx::unordered_array<PipelineID,     sPipeline>     m_pipelines;
 	arx::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
 	arx::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
 	arx::unordered_array<TextureID,      sTexture>      m_textures;
 	arx::unordered_array<MeshID,         sMesh>         m_meshes;
 
-	std::queue<std::pair<ProgramID, sProgramDesc>> m_programCreateQueue;
+	std::queue<std::pair<ShaderModuleID, ShaderModuleDesc>> m_programCreateQueue;
 
 	std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 
@@ -250,8 +250,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 protected:
-	virtual ProgramID _createProgram( ProgramID _programID, const sProgramDesc& _desc ) = 0;
-	virtual void      _destroyProgram( ProgramID _programID ) = 0;
+	virtual ShaderModuleID _createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc ) = 0;
+	virtual void      _destroyShaderModule( ShaderModuleID _programID ) = 0;
 
 	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc ) = 0;
 	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;

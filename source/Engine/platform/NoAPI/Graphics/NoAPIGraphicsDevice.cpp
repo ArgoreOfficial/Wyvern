@@ -144,16 +144,16 @@ void wv::NoAPIGraphicsDevice::_destroyRenderTarget( RenderTargetID _renderTarget
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::NoAPIGraphicsDevice::_createProgram( ProgramID _programID, const sProgramDesc& _desc )
+wv::ShaderModuleID wv::NoAPIGraphicsDevice::_createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc )
 {
 	WV_TRACE();
 	
-	return ProgramID::InvalidID;
+	return ShaderModuleID::InvalidID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyProgram( ProgramID _programID )
+void wv::NoAPIGraphicsDevice::_destroyShaderModule( ShaderModuleID _programID )
 {
 	WV_TRACE();
 }
@@ -193,13 +193,6 @@ void wv::NoAPIGraphicsDevice::_destroyGPUBuffer( GPUBufferID _bufferID )
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::NoAPIGraphicsDevice::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
-{
-	WV_TRACE();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::NoAPIGraphicsDevice::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
 {
 	WV_TRACE();
 }

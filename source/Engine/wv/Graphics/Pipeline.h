@@ -12,8 +12,8 @@ namespace wv
 	{
 		wv::Handle handle;
 		std::string name;
-		ProgramID vertexProgramID{};
-		ProgramID fragmentProgramID{};
+		ShaderModuleID vertexProgramID{};
+		ShaderModuleID fragmentProgramID{};
 
 		void* pPlatformData;
 	};
@@ -22,8 +22,8 @@ namespace wv
 	{
 		std::string name;
 		sVertexLayout* pVertexLayout = nullptr;
-		ProgramID vertexProgramID{};
-		ProgramID fragmentProgramID{};
+		ShaderModuleID vertexProgramID{};
+		ShaderModuleID fragmentProgramID{};
 
 		bool reflect = true;
 	};

@@ -29,7 +29,7 @@ namespace wv
 		Memory* data;
 	};
 
-	struct sProgramDesc
+	struct ShaderModuleDesc
 	{
 		eShaderProgramType type;
 		sShaderProgramSource source;

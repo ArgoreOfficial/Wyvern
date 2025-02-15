@@ -25,11 +25,11 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLo
 	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
 	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
 
-	sProgramDesc vsDesc;
+	ShaderModuleDesc vsDesc;
 	vsDesc.source = m_vsSource;
 	vsDesc.type = WV_SHADER_TYPE_VERTEX;
 
-	sProgramDesc fsDesc;
+	ShaderModuleDesc fsDesc;
 	fsDesc.source = m_fsSource;
 	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
@@ -50,8 +50,8 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLo
 
 	desc.pVertexLayout = &layout;
 
-	desc.vertexProgramID   = _pLowLevelGraphics->createProgram( vsDesc );
-	desc.fragmentProgramID = _pLowLevelGraphics->createProgram( fsDesc );
+	desc.vertexProgramID   = _pLowLevelGraphics->createShaderModule( vsDesc );
+	desc.fragmentProgramID = _pLowLevelGraphics->createShaderModule( fsDesc );
 	m_pipelineID = _pLowLevelGraphics->createPipeline( desc );
 
 	auto cb = []( void* _c ) 
