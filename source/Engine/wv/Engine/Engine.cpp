@@ -502,38 +502,10 @@ void wv::cEngine::tick()
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
 	{
 		graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
-		graphics->cmdClearDepthStencil( {}, 0.0, 0 );
+		graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 		m_pApplicationState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
-
-		GPUBufferID viewBufferID = currentCamera->getBufferID();
-		/*
-		for ( auto& pair : graphics->m_pipelineDrawListMap )
-		{
-			PipelineID pipelineID = pair.first;
-			DrawListID drawListID = pair.second;
-			sDrawList& drawList = graphics->m_drawLists.at( drawListID );
-
-			if ( drawList.cmds.empty() || !drawList.instanceBufferID.is_valid() )
-				continue;
-
-			graphics->cmdBindPipeline( pipelineID );
-			graphics->bindVertexBuffer( drawList.vertexBufferID );
-
-			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.at( drawList.instanceBufferID );
-			graphics->bufferData( drawList.instanceBufferID, drawList.instances.data(), drawList.instances.size() * sizeof( sMeshInstanceData ) );
-			graphics->bindBufferIndex( drawList.instanceBufferID, instanceBuffer.bindingIndex.value );
-
-			sGPUBuffer viewBuffer = graphics->m_gpuBuffers.at( drawList.viewDataBufferID );
-			graphics->bindBufferIndex( viewBufferID, viewBuffer.bindingIndex.value );
-			
-			graphics->multiDrawIndirect( drawListID );
-			drawList.instances.clear();
-			drawList.cmds.clear();
-		}
-		*/
-
 
 	#ifdef WV_DEBUG
 		Debug::Draw::Internal::drawDebug( graphics );
@@ -550,7 +522,7 @@ void wv::cEngine::tick()
 		graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
 	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
-	graphics->cmdClearDepthStencil( {}, 0.0, 0 );
+	graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 	// bind gbuffer textures to deferred pass
 	{
@@ -588,7 +560,7 @@ void wv::cEngine::tick()
 		{
 			graphics->cmdBeginRender( {}, m_screenRenderTarget );
 			graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
-			graphics->cmdClearDepthStencil( {}, 0.0, 0 );
+			graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 			m_pIRTHandler->draw( graphics );
 		}

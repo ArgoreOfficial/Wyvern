@@ -248,9 +248,6 @@ public:
 
 	std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 
-	arx::unordered_array<DrawListID, sDrawList> m_drawLists;
-	std::unordered_map<PipelineID, DrawListID> m_pipelineDrawListMap;
-
 	uint32_t drawIndirectHandle = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////

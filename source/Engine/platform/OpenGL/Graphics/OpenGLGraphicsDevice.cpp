@@ -458,29 +458,6 @@ wv::PipelineID wv::GraphicsDeviceOpenGL::_createPipeline( PipelineID _pipelineID
 	glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle );
 	glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 	
-	DrawListID drawListID = m_drawLists.emplace();
-	m_pipelineDrawListMap[ _pipelineID ] = drawListID;
-	
-	sDrawList drawList;
-	drawList.pipeline = _pipelineID;
-
-	// get camera data binding index
-	// I really don't like this
-
-	for ( GPUBufferID bufID : vs.shaderBuffers )
-	{
-		sGPUBuffer buf = m_gpuBuffers.at( bufID );
-
-		if ( buf.name == "UbCameraData" )
-			drawList.viewDataBufferID = bufID;
-		else if ( buf.name == "SbInstances" )
-			drawList.instanceBufferID = bufID;
-		else if ( buf.name == "SbVertices" )
-			drawList.vertexBufferID = bufID;
-	}
-
-	m_drawLists.at( drawListID ) = drawList;
-
 	return _pipelineID;
 }
 
@@ -495,10 +472,6 @@ void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
-	DrawListID drawListID = m_pipelineDrawListMap.at( _pipelineID );
-	m_drawLists.erase( drawListID );
-	m_pipelineDrawListMap.erase( _pipelineID );
-
 	_destroyProgram( pipeline.vertexProgramID );
 	_destroyProgram( pipeline.fragmentProgramID );
 
@@ -909,7 +882,7 @@ void wv::GraphicsDeviceOpenGL::cmdClearDepthStencil( CmdBufferID _cmd, double _d
 	assertMainThread();
 
 	//glClearStencil( static_cast<GLint>( _stencil ) );
-	glClearDepth( 1.0 );
+	glClearDepth( _depth );
 	glClear( GL_DEPTH_BUFFER_BIT );
 }
 
