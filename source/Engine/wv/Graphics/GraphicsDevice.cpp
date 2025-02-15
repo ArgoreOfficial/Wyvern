@@ -37,7 +37,7 @@ wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( sLowLevelGraphicsDesc*
 
 #ifdef WV_SUPPORT_OPENGL
 	case GraphicsAPI::WV_GRAPHICS_API_OPENGL: 
-		device = WV_NEW( cLowLevelGraphicsOpenGL );
+		device = WV_NEW( GraphicsDeviceOpenGL );
 		break;
 #endif
 

@@ -81,14 +81,14 @@ static GLenum getGlBufferUsage( wv::eGPUBufferUsage _usage )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cLowLevelGraphicsOpenGL::cLowLevelGraphicsOpenGL()
+wv::GraphicsDeviceOpenGL::GraphicsDeviceOpenGL()
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
+bool wv::GraphicsDeviceOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 {
 	WV_TRACE();
 
@@ -150,7 +150,7 @@ bool wv::cLowLevelGraphicsOpenGL::initialize( sLowLevelGraphicsDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::terminate()
+void wv::GraphicsDeviceOpenGL::terminate()
 {
 	WV_TRACE();
 
@@ -159,14 +159,14 @@ void wv::cLowLevelGraphicsOpenGL::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::onResize( int _width, int _height )
+void wv::GraphicsDeviceOpenGL::onResize( int _width, int _height )
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::setViewport( int _width, int _height )
+void wv::GraphicsDeviceOpenGL::setViewport( int _width, int _height )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -176,7 +176,7 @@ void wv::cLowLevelGraphicsOpenGL::setViewport( int _width, int _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::beginRender()
+void wv::GraphicsDeviceOpenGL::beginRender()
 {
 	WV_TRACE();
 	assertMainThread();
@@ -188,7 +188,7 @@ void wv::cLowLevelGraphicsOpenGL::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::_createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc )
+wv::RenderTargetID wv::GraphicsDeviceOpenGL::_createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -264,7 +264,7 @@ wv::RenderTargetID wv::cLowLevelGraphicsOpenGL::_createRenderTarget( RenderTarge
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_destroyRenderTarget( RenderTargetID _renderTargetID )
+void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -285,7 +285,7 @@ void wv::cLowLevelGraphicsOpenGL::_destroyRenderTarget( RenderTargetID _renderTa
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::setRenderTarget( RenderTargetID _renderTargetID )
+void wv::GraphicsDeviceOpenGL::setRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -299,7 +299,7 @@ void wv::cLowLevelGraphicsOpenGL::setRenderTarget( RenderTargetID _renderTargetI
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::setClearColor( const wv::cColor& _color )
+void wv::GraphicsDeviceOpenGL::setClearColor( const wv::cColor& _color )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -309,7 +309,7 @@ void wv::cLowLevelGraphicsOpenGL::setClearColor( const wv::cColor& _color )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::clearRenderTarget( bool _color, bool _depth )
+void wv::GraphicsDeviceOpenGL::clearRenderTarget( bool _color, bool _depth )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -319,7 +319,7 @@ void wv::cLowLevelGraphicsOpenGL::clearRenderTarget( bool _color, bool _depth )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ProgramID wv::cLowLevelGraphicsOpenGL::_createProgram( ProgramID _programID, const sProgramDesc& _desc )
+wv::ProgramID wv::GraphicsDeviceOpenGL::_createProgram( ProgramID _programID, const sProgramDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -460,7 +460,7 @@ wv::ProgramID wv::cLowLevelGraphicsOpenGL::_createProgram( ProgramID _programID,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_destroyProgram( ProgramID _programID )
+void wv::GraphicsDeviceOpenGL::_destroyProgram( ProgramID _programID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -480,7 +480,7 @@ void wv::cLowLevelGraphicsOpenGL::_destroyProgram( ProgramID _programID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::cLowLevelGraphicsOpenGL::_createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc )
+wv::PipelineID wv::GraphicsDeviceOpenGL::_createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -535,7 +535,7 @@ wv::PipelineID wv::cLowLevelGraphicsOpenGL::_createPipeline( PipelineID _pipelin
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_destroyPipeline( PipelineID _pipelineID )
+void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -559,7 +559,7 @@ void wv::cLowLevelGraphicsOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindPipeline( PipelineID _pipelineID )
+void wv::GraphicsDeviceOpenGL::bindPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -570,7 +570,7 @@ void wv::cLowLevelGraphicsOpenGL::bindPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::_createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc )
+wv::GPUBufferID wv::GraphicsDeviceOpenGL::_createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -600,7 +600,7 @@ wv::GPUBufferID wv::cLowLevelGraphicsOpenGL::_createGPUBuffer( GPUBufferID _buff
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
+void wv::GraphicsDeviceOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -638,7 +638,7 @@ void wv::cLowLevelGraphicsOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
+void wv::GraphicsDeviceOpenGL::bindBuffer( GPUBufferID _bufferID )
 {
 	assertMainThread();
 
@@ -650,7 +650,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
+void wv::GraphicsDeviceOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
 {
 	assertMainThread();
 
@@ -662,7 +662,7 @@ void wv::cLowLevelGraphicsOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
+void wv::GraphicsDeviceOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
 {
 	assertMainThread();
 
@@ -679,7 +679,7 @@ void wv::cLowLevelGraphicsOpenGL::bufferData( GPUBufferID _bufferID, void* _pDat
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
+void wv::GraphicsDeviceOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
 	assertMainThread();
 
@@ -687,7 +687,7 @@ void wv::cLowLevelGraphicsOpenGL::bufferSubData( GPUBufferID _bufferID, void* _p
 	glNamedBufferSubData( buffer.handle, _base, _size, _pData );
 }
 
-void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
+void wv::GraphicsDeviceOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
 {
 	assertMainThread();
 
@@ -699,7 +699,7 @@ void wv::cLowLevelGraphicsOpenGL::copyBufferSubData( GPUBufferID _readBufferID, 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::cLowLevelGraphicsOpenGL::_createTexture( TextureID _textureID, const sTextureDesc& _desc )
+wv::TextureID wv::GraphicsDeviceOpenGL::_createTexture( TextureID _textureID, const sTextureDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -818,7 +818,7 @@ wv::TextureID wv::cLowLevelGraphicsOpenGL::_createTexture( TextureID _textureID,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
+void wv::GraphicsDeviceOpenGL::_bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -840,7 +840,7 @@ void wv::cLowLevelGraphicsOpenGL::_bufferTextureData( TextureID _textureID, void
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_destroyTexture( TextureID _textureID )
+void wv::GraphicsDeviceOpenGL::_destroyTexture( TextureID _textureID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -867,7 +867,7 @@ void wv::cLowLevelGraphicsOpenGL::_destroyTexture( TextureID _textureID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::_bindTextureToSlot( TextureID _textureID, unsigned int _slot )
+void wv::GraphicsDeviceOpenGL::_bindTextureToSlot( TextureID _textureID, unsigned int _slot )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -888,7 +888,7 @@ void wv::cLowLevelGraphicsOpenGL::_bindTextureToSlot( TextureID _textureID, unsi
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBufferID )
+void wv::GraphicsDeviceOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBufferID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -902,7 +902,7 @@ void wv::cLowLevelGraphicsOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBuffe
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::setFillMode( eFillMode _mode )
+void wv::GraphicsDeviceOpenGL::setFillMode( eFillMode _mode )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -917,7 +917,7 @@ void wv::cLowLevelGraphicsOpenGL::setFillMode( eFillMode _mode )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::draw( uint32_t _firstVertex, uint32_t _numVertices )
+void wv::GraphicsDeviceOpenGL::draw( uint32_t _firstVertex, uint32_t _numVertices )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -927,7 +927,7 @@ void wv::cLowLevelGraphicsOpenGL::draw( uint32_t _firstVertex, uint32_t _numVert
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::drawIndexed( uint32_t _numIndices )
+void wv::GraphicsDeviceOpenGL::drawIndexed( uint32_t _numIndices )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -940,7 +940,7 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexed( uint32_t _numIndices )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex )
+void wv::GraphicsDeviceOpenGL::drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -948,7 +948,7 @@ void wv::cLowLevelGraphicsOpenGL::drawIndexedInstanced( uint32_t _numIndices, ui
 	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
 }
 
-void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
+void wv::GraphicsDeviceOpenGL::multiDrawIndirect( DrawListID _drawListID )
 {
 	sDrawList& drawList = m_drawLists.at( _drawListID );
 	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle );
@@ -959,7 +959,7 @@ void wv::cLowLevelGraphicsOpenGL::multiDrawIndirect( DrawListID _drawListID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::cLowLevelGraphicsOpenGL::getError( std::string* _out )
+bool wv::GraphicsDeviceOpenGL::getError( std::string* _out )
 {
 	WV_TRACE();
 	assertMainThread();

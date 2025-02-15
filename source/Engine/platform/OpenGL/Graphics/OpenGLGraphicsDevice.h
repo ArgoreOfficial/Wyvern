@@ -31,12 +31,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cLowLevelGraphicsOpenGL : public IGraphicsDevice
+	class GraphicsDeviceOpenGL : public IGraphicsDevice
 	{
 	public:
 
-		 cLowLevelGraphicsOpenGL();
-		~cLowLevelGraphicsOpenGL() { }
+		 GraphicsDeviceOpenGL();
+		~GraphicsDeviceOpenGL() { }
 
 		virtual void terminate() override;
 
@@ -108,7 +108,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename ...Args>
-	inline bool cLowLevelGraphicsOpenGL::assertGLError( const std::string _msg, Args ..._args )
+	inline bool GraphicsDeviceOpenGL::assertGLError( const std::string _msg, Args ..._args )
 	{
 		std::string error;
 		if ( !getError( &error ) )
