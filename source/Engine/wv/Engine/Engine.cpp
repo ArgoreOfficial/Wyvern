@@ -547,7 +547,7 @@ void wv::cEngine::tick()
 		{
 			wv::sGPUBuffer& SbVertices = graphics->m_gpuBuffers.at( SbVerticesID );
 			graphics->bindBufferIndex( screenQuad.vertexBufferID, SbVertices.bindingIndex.value );
-			graphics->bindBuffer( screenQuad.indexBufferID );
+			graphics->cmdBindIndexBuffer( {}, screenQuad.indexBufferID, 0, {} );
 		}
 
 		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );

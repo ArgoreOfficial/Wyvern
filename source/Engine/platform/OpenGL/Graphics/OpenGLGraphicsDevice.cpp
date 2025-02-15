@@ -551,18 +551,6 @@ void wv::GraphicsDeviceOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::bindBuffer( GPUBufferID _bufferID )
-{
-	assertMainThread();
-
-	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
-	GLenum target = getGlBufferEnum( buffer.type );
-
-	glBindBuffer( target, buffer.handle );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::GraphicsDeviceOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
 {
 	assertMainThread();
@@ -944,23 +932,19 @@ void wv::GraphicsDeviceOpenGL::cmdCopyBuffer( CmdBufferID _cmd, GPUBufferID _src
 
 void wv::GraphicsDeviceOpenGL::cmdBindVertexBuffer( CmdBufferID _cmd, GPUBufferID _vertexBuffer )
 {
-	WV_TRACE();
-	assertMainThread();
-
-	wv::sGPUBuffer& SbVertices = m_gpuBuffers.at( _vertexBuffer );
-	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
-
 	WV_UNIMPLEMENTED;
-
-	//bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
-	//bindBuffer( m_indexBuffer );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GraphicsDeviceOpenGL::cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID _indexBuffer, size_t _offset, wv::DataType _type )
 {
-	WV_UNIMPLEMENTED;
+	WV_TRACE();
+	assertMainThread();
+
+	m_indexBufferDataType = _type;
+	wv::sGPUBuffer& buffer = m_gpuBuffers.at( _indexBuffer );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer.handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -989,10 +973,14 @@ void wv::GraphicsDeviceOpenGL::cmdDraw( CmdBufferID _cmd, uint32_t _vertexCount,
 
 void wv::GraphicsDeviceOpenGL::cmdDrawIndexed( CmdBufferID _cmd, uint32_t _indexCount, uint32_t _instanceCount, uint32_t _firstIndex, int32_t _vertexOffset, uint32_t _firstInstance )
 {
+	// m_indexBufferDataType
+	/// TODO:
+	GLenum type = GL_UNSIGNED_INT;
+
 	glDrawElementsInstancedBaseVertexBaseInstance(
 		GL_TRIANGLES,
 		_indexCount,
-		GL_UNSIGNED_INT,
+		type,
 		nullptr,
 		_instanceCount,
 		_firstIndex,

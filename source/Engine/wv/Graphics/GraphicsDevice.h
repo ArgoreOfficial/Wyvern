@@ -214,9 +214,6 @@ public:
 	
 	// old 
 
-	virtual void bindBuffer( 
-		GPUBufferID _bufferID ) = 0;
-
 	virtual void bindBufferIndex( 
 		GPUBufferID _bufferID, 
 		int32_t _bindingIndex ) = 0;

@@ -187,7 +187,7 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 					wv::sGPUBuffer& SbVertices = _pLowLevelGraphics->m_gpuBuffers.at( SbVerticesID );
 
 					_pLowLevelGraphics->bindBufferIndex( mesh.vertexBufferID, SbVertices.bindingIndex.value );
-					_pLowLevelGraphics->bindBuffer( mesh.indexBufferID );
+					_pLowLevelGraphics->cmdBindIndexBuffer( {}, mesh.indexBufferID, 0, WV_UNSIGNED_INT );
 				}
 
 				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );

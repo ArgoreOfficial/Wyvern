@@ -29,7 +29,6 @@ namespace wv
 
 		virtual void beginRender() override;
 
-		virtual void bindBuffer       ( GPUBufferID _bufferID ) override;
 		virtual void bindBufferIndex  ( GPUBufferID _bufferID, int32_t _bindingIndex ) override;
 		virtual void bufferData       ( GPUBufferID _bufferID, void* _pData, size_t _size ) override;
 		virtual void bufferSubData    ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;

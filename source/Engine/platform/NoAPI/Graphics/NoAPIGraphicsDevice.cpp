@@ -192,13 +192,6 @@ void wv::NoAPIGraphicsDevice::_destroyGPUBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::bindBuffer( GPUBufferID _bufferID )
-{
-	WV_TRACE();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::NoAPIGraphicsDevice::bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex )
 {
 	WV_TRACE();
