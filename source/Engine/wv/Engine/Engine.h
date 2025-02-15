@@ -56,11 +56,6 @@ namespace wv
 			cFileSystem* pFileSystem;
 		} systems;
 
-		/// <summary>
-		/// Optional intermediate render target. Can be used to render to viewport
-		/// </summary>
-		iIntermediateRenderTargetHandler* pIRTHandler = nullptr;
-
 		cApplicationState* pApplicationState = nullptr;
 	};
 
@@ -119,7 +114,6 @@ namespace wv
 		iCamera* orbitCamera      = nullptr;
 		iCamera* freeflightCamera = nullptr;
 
-		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
 		RenderTargetID m_screenRenderTarget{};
 
 		cApplicationState* m_pApplicationState = nullptr;

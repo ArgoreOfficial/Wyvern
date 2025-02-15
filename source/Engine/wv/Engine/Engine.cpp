@@ -71,12 +71,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
 
-	m_pIRTHandler = _desc->pIRTHandler;
-	
-	if( m_pIRTHandler )
-		m_pIRTHandler->create( graphics );
-
-
 	m_screenRenderTarget = graphics->m_renderTargets.emplace();
 	sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 	rt.width = _desc->windowWidth;
@@ -229,17 +223,10 @@ void emscriptenMainLoop() { wv::cEngine::get()->tick(); }
 
 wv::Vector2i wv::cEngine::getViewportSize()
 {
-	if( m_pIRTHandler )
-	{
-		sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
-
-		if( m_pIRTHandler->m_renderTarget.is_valid() )
-			return { rt.width, rt.height };
-		else
-			return { 1,1 };
-	}
-	
-	return { context->getWidth(), context->getHeight() };
+	return wv::Vector2i{
+		context->getWidth(),
+		context->getHeight()
+	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -503,13 +490,7 @@ void wv::cEngine::tick()
 	}
 
 #ifndef WV_PLATFORM_PSVITA
-	if( m_pIRTHandler )
-	{
-		if( m_pIRTHandler->m_renderTarget.is_valid() )
-			graphics->cmdBeginRender( {}, m_pIRTHandler->m_renderTarget );
-	}
-	else
-		graphics->cmdBeginRender( {}, m_screenRenderTarget );
+	graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
 	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
 	graphics->cmdClearDepthStencil( {}, 1.0, 0 );
@@ -543,18 +524,6 @@ void wv::cEngine::tick()
 		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
 		graphics->cmdDrawIndexed( {}, screenQuad.numIndices, 1, 0, 0, 0 );
 	}
-
-	if( m_pIRTHandler )
-	{
-		if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
-		{
-			graphics->cmdBeginRender( {}, m_screenRenderTarget );
-			graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
-			graphics->cmdClearDepthStencil( {}, 1.0, 0 );
-
-			m_pIRTHandler->draw( graphics );
-		}
-	}
 #endif
 
 #ifdef WV_SUPPORT_IMGUI
@@ -564,24 +533,6 @@ void wv::cEngine::tick()
 	graphics->endRender();
 
 	context->swapBuffers();
-
-#ifndef WV_PLATFORM_PSVITA
-	if( m_pIRTHandler )
-	{
-		if( m_pIRTHandler->shouldRecreate() )
-		{
-			m_pIRTHandler->destroy();
-			m_pIRTHandler->create( graphics );
-
-			if( m_pIRTHandler->m_renderTarget.is_valid() )
-			{
-				sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
-				recreateScreenRenderTarget( rt.width, rt.height );
-			}
-		}
-	}
-#endif
-
 }
 
 void wv::cEngine::quit()
