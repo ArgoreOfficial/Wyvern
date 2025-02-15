@@ -32,8 +32,6 @@ namespace wv
 		}
 
 		~cResourceRegistry();
-		
-		void initializeEmbeded();
 
 		struct LoadData
 		{

@@ -813,11 +813,18 @@ void wv::GraphicsDeviceOpenGL::cmdBeginRender( CmdBufferID _cmd, RenderTargetID 
 	WV_TRACE();
 	assertMainThread();
 
-	sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
-	unsigned int handle = rt.fbHandle;
+	if ( _renderTargetID.is_valid() )
+	{
+		sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
+		unsigned int handle = rt.fbHandle;
 
-	glBindFramebuffer( GL_FRAMEBUFFER, handle );
-	glViewport( 0, 0, rt.width, rt.height );
+		glBindFramebuffer( GL_FRAMEBUFFER, handle );
+		glViewport( 0, 0, rt.width, rt.height );
+	}
+	else
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

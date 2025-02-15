@@ -57,8 +57,6 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-
-// Inherited via IGraphicsDevice
 		void bindTextureToSlot( TextureID _textureID, unsigned int _slot ) override;
 
 		void cmdBeginRender( CmdBufferID _cmd, RenderTargetID _renderTargetID ) override;

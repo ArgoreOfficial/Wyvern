@@ -96,7 +96,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
-	m_pResourceRegistry->initializeEmbeded();
 
 	graphics->initEmbeds();
 
@@ -118,9 +117,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	}
 #endif
 	
-	graphics->cmdBeginRender( {}, m_screenRenderTarget );
-	//graphics->setClearColor( wv::Color::Black );
-
 	initImgui();
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
@@ -269,9 +265,6 @@ void wv::cEngine::run()
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	
 	// wait for load to be done
-	//while ( m_pResourceRegistry->isWorking() )
-	//	Sleep( 10 );
-	
 	m_pResourceRegistry->waitForFence();
 
 #ifdef EMSCRIPTEN
@@ -311,9 +304,6 @@ void wv::cEngine::run()
 	m_pApplicationState->onDestruct();
 	
 	// wait for unload to be done
-	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
-	//	Sleep( 10 );
-
 	m_pResourceRegistry->waitForFence();
 
 }
@@ -485,7 +475,7 @@ void wv::cEngine::tick()
 	}
 
 #ifdef WV_PLATFORM_PSVITA
-	graphics->setRenderTarget( nullptr );
+	graphics->cmdBeginRender( {}, {} );
 #else
 	graphics->cmdBeginRender( {}, m_gbuffer );
 #endif
