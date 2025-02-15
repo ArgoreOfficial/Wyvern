@@ -157,13 +157,9 @@ namespace wv
 			GPUBufferID _indexBuffer, 
 			size_t _offset, 
 			wv::DataType _type ) override;
-		
-		void cmdUpdateBuffer( 
-			CmdBufferID _cmd, 
-			GPUBufferID _buffer, 
-			size_t _offset, 
-			uint16_t _dataSize,
-			void* _pData ) override;
+
+		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _dataSize, void* _pData ) override;
+		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _dataSize, void* _pData ) override;
 		
 		void cmdDraw( 
 			CmdBufferID _cmd, 
@@ -179,7 +175,7 @@ namespace wv
 			uint32_t _firstIndex, 
 			int32_t _vertexOffset, 
 			uint32_t _firstInstance ) override;
-	};
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

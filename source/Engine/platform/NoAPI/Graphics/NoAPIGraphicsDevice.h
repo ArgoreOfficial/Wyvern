@@ -85,7 +85,9 @@ namespace wv
 
 		void cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID _indexBuffer, size_t _offset, wv::DataType _type ) override;
 
-		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, uint16_t _dataSize, void* _pData ) override;
+		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _dataSize, void* _pData ) override;
+		
+		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _dataSize, void* _pData ) override;
 
 		void cmdDraw( CmdBufferID _cmd, uint32_t _vertexCount, uint32_t _instanceCount, uint32_t _firstVertex, uint32_t _firstInstance ) override;
 

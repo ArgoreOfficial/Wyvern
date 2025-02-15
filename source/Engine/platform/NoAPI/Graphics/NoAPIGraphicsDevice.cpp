@@ -95,7 +95,11 @@ void wv::NoAPIGraphicsDevice::cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID 
 {
 }
 
-void wv::NoAPIGraphicsDevice::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, uint16_t _dataSize, void* _pData )
+void wv::NoAPIGraphicsDevice::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _dataSize, void* _pData )
+{
+}
+
+void wv::NoAPIGraphicsDevice::cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _dataSize, void* _pData )
 {
 }
 

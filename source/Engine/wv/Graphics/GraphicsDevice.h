@@ -192,9 +192,15 @@ public:
 
 	virtual void cmdUpdateBuffer( 
 		CmdBufferID _cmd, 
-		GPUBufferID _buffer, 
-		size_t _offset, 
-		uint16_t _dataSize,
+		GPUBufferID _buffer,
+		size_t _dataSize,
+		void* _pData ) = 0;
+
+	virtual void cmdUpdateSubBuffer(
+		CmdBufferID _cmd,
+		GPUBufferID _buffer,
+		size_t _offset,
+		size_t _dataSize,
 		void* _pData ) = 0;
 
 	virtual void cmdDraw( 
