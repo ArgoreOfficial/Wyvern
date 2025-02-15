@@ -939,22 +939,23 @@ void wv::GraphicsDeviceOpenGL::cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-
-void wv::GraphicsDeviceOpenGL::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _dataSize, void* _pData )
+void wv::GraphicsDeviceOpenGL::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _size, void* _pData )
 {
 	sGPUBuffer& buffer = m_gpuBuffers.at( _buffer );
 
 	GLenum usage = getGlBufferUsage( buffer.usage );
 	GLenum target = getGlBufferEnum( buffer.type );
 
-	glNamedBufferData( buffer.handle, _dataSize, _pData, usage );
+	glNamedBufferData( buffer.handle, _size, _pData, usage );
 }
 
-void wv::GraphicsDeviceOpenGL::cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _dataSize, void* _pData )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _size, void* _pData )
 {
 	sGPUBuffer& buffer = m_gpuBuffers.at( _buffer );
 
-	glNamedBufferSubData( buffer.handle, _offset, _dataSize, _pData );
+	glNamedBufferSubData( buffer.handle, _offset, _size, _pData );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

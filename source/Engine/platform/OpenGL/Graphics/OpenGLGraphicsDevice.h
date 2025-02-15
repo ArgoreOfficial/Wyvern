@@ -158,8 +158,8 @@ namespace wv
 			size_t _offset, 
 			wv::DataType _type ) override;
 
-		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _dataSize, void* _pData ) override;
-		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _dataSize, void* _pData ) override;
+		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _size, void* _pData ) override;
+		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _size, void* _pData ) override;
 		
 		void cmdDraw( 
 			CmdBufferID _cmd, 
