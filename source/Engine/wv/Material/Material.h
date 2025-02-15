@@ -17,7 +17,7 @@ namespace wv
 
 	class cShaderResource;
 	
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 	class sMesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@ namespace wv
 			iResource( _name, _path )
 		{ }
 
-		void load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
-		void setAsActive( iLowLevelGraphics* _device );
+		void setAsActive( IGraphicsDevice* _device );
 
 		void setMaterialUniforms();
 		void setInstanceUniforms( sMesh* _instance );

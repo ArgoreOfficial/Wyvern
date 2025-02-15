@@ -13,7 +13,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 	class AudioDevice;
 
 	class iIntermediateRenderTargetHandler;
@@ -47,7 +47,7 @@ namespace wv
 		struct
 		{
 			iDeviceContext*    pContext;
-			iLowLevelGraphics* pGraphics;
+			IGraphicsDevice* pGraphics;
 			AudioDevice*       pAudio;
 		} device;
 
@@ -110,7 +110,7 @@ namespace wv
 		
 		// engine
 		iDeviceContext*    context  = nullptr;
-		iLowLevelGraphics* graphics = nullptr;
+		IGraphicsDevice* graphics = nullptr;
 		AudioDevice*       audio    = nullptr;
 
 		// camera 

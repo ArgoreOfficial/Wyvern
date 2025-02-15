@@ -33,7 +33,7 @@ void wv::ModelComponent::onDestruct( void )
 	m_mesh.destroy();
 }
 
-void wv::ModelComponent::onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device )
+void wv::ModelComponent::onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device )
 {
 	m_mesh.draw();
 }

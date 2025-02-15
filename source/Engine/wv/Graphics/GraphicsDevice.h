@@ -52,13 +52,13 @@ struct CreateCallback
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class iLowLevelGraphics
+class IGraphicsDevice
 {
 public:
 
-	virtual ~iLowLevelGraphics() { };
+	virtual ~IGraphicsDevice() { };
 
-	static iLowLevelGraphics* createGraphics( sLowLevelGraphicsDesc* _desc );
+	static IGraphicsDevice* createGraphics( sLowLevelGraphicsDesc* _desc );
 
 	void initEmbeds();
 
@@ -190,7 +190,7 @@ protected:
 	virtual void      _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
 
 
-	iLowLevelGraphics();
+	IGraphicsDevice();
 
 	// returns base vertex
 	size_t pushVertexBuffer( void* _vertices, size_t _size );
@@ -217,14 +217,14 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-inline void iLowLevelGraphics::cmd( const eGPUTaskType& _type, T* _pInfo )
+inline void IGraphicsDevice::cmd( const eGPUTaskType& _type, T* _pInfo )
 {
 	std::scoped_lock lock( m_mutex );
 	m_createDestroyCommandBuffer.push<T>( _type, _pInfo );
 }
 
 template<typename ID, typename T>
-inline ID iLowLevelGraphics::cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc )
+inline ID IGraphicsDevice::cmdCreateCommand( eGPUTaskType _task, ID _id, const T& _desc )
 {
 	sCmdCreateDesc<ID, T> desc{ _id, _desc };
 	cmd( _task, &desc );

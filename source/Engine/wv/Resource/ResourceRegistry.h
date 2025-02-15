@@ -17,13 +17,13 @@
 namespace wv
 {
 	class iResource;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 	class cMeshResource;
 
 	class cResourceRegistry
 	{
 	public:
-		cResourceRegistry( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics, JobSystem* _pJobSystem ):
+		cResourceRegistry( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics, JobSystem* _pJobSystem ):
 			m_pFileSystem{ _pFileSystem },
 			m_pLowLevelGraphics{ _pLowLevelGraphics },
 			m_pJobSystem{ _pJobSystem }
@@ -37,14 +37,14 @@ namespace wv
 
 		struct LoadData
 		{
-			LoadData( iResource* _resource, wv::cFileSystem* _pFileSystem, wv::iLowLevelGraphics* _pLowLevelGraphics ) : 
+			LoadData( iResource* _resource, wv::cFileSystem* _pFileSystem, wv::IGraphicsDevice* _pLowLevelGraphics ) : 
 				resource{ _resource },
 				pFileSystem{ _pFileSystem },
 				pLowLevelGraphics{ _pLowLevelGraphics }
 			{}
 			iResource* resource = nullptr;
 			wv::cFileSystem* pFileSystem = nullptr;
-			wv::iLowLevelGraphics* pLowLevelGraphics = nullptr;
+			wv::IGraphicsDevice* pLowLevelGraphics = nullptr;
 		};
 
 		template<typename T, typename...Args, std::enable_if_t<std::is_base_of_v<wv::iResource, T>, bool> = true>
@@ -126,7 +126,7 @@ namespace wv
 		void removeResource( const std::string& _name );
 
 		cFileSystem* m_pFileSystem{ nullptr };
-		iLowLevelGraphics* m_pLowLevelGraphics{ nullptr };
+		IGraphicsDevice* m_pLowLevelGraphics{ nullptr };
 		JobSystem* m_pJobSystem{ nullptr };
 
 		std::unordered_map<std::string, iResource*> m_resources{};

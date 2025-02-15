@@ -18,7 +18,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class NoAPIGraphicsDevice : public iLowLevelGraphics
+	class NoAPIGraphicsDevice : public IGraphicsDevice
 	{
 	public:
 

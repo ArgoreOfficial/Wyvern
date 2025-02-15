@@ -14,7 +14,7 @@ namespace wv
 {
 
 class iDeviceContext;
-class iLowLevelGraphics;
+class IGraphicsDevice;
 class cEngine;
 class cApplicationState;
 
@@ -51,7 +51,7 @@ public:
 	virtual void onUpdate       ( double /*_deltaTime*/ ) { }
 	virtual void onPhysicsUpdate( double /*_deltaTime*/ ) { }
 
-	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device */) { }
+	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { }
 
 };
 
@@ -120,7 +120,7 @@ private:
 
 	void onUpdate( double _deltaTime );
 	void onPhysicsUpdate( double _deltaTime );
-	void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device );
+	void onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device );
 
 	std::vector<IUpdatable*> m_updatables;
 

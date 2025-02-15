@@ -12,7 +12,7 @@
 #include <codecvt>
 #endif
 
-void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cTextureResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_name == "" ) // no file should be loaded
 	{
@@ -64,7 +64,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _
 	_pLowLevelGraphics->queueAddCallback( onCompleteCallback, (void*)this );
 }
 
-void wv::cTextureResource::unload( cFileSystem* /*_pFileSystem*/, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cTextureResource::unload( cFileSystem* /*_pFileSystem*/, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pData )
 	{

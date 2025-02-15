@@ -31,7 +31,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cLowLevelGraphicsOpenGL : public iLowLevelGraphics
+	class cLowLevelGraphicsOpenGL : public IGraphicsDevice
 	{
 	public:
 

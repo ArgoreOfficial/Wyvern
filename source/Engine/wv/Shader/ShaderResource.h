@@ -13,7 +13,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,10 +24,10 @@ namespace wv
 			iResource( _name, _path )
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 		
-		void bind( iLowLevelGraphics* _pLowLevelGraphics );
+		void bind( IGraphicsDevice* _pLowLevelGraphics );
 
 		PipelineID  getPipelineID() { return m_pipelineID; }
 		GPUBufferID getShaderBuffer( const std::string& _name );

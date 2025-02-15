@@ -154,7 +154,7 @@ void wv::cLowLevelGraphicsOpenGL::terminate()
 {
 	WV_TRACE();
 
-	wv::iLowLevelGraphics::terminate();
+	wv::IGraphicsDevice::terminate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@ void wv::cLowLevelGraphicsOpenGL::beginRender()
 	WV_TRACE();
 	assertMainThread();
 
-	iLowLevelGraphics::beginRender();
+	IGraphicsDevice::beginRender();
 
 	glBindVertexArray( m_vaoHandle );
 }

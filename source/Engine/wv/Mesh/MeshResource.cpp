@@ -30,7 +30,7 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	cEngine* app = cEngine::get();
 
@@ -42,7 +42,7 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLo
 
 static void unloadMeshNode( wv::sMeshNode* _node )
 {
-	wv::iLowLevelGraphics* pLowLevelGraphics = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* pLowLevelGraphics = wv::cEngine::get()->graphics;
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
@@ -58,7 +58,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	WV_FREE( _node );
 }
 
-void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pMeshNode )
 		unloadMeshNode( m_pMeshNode );
@@ -93,7 +93,7 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::drawInstances( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_pMeshNode == nullptr )
 	{
@@ -109,7 +109,7 @@ void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node )
+void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode* _node )
 {
 	if ( !_node )
 		return;

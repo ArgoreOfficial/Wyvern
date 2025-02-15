@@ -6,7 +6,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Graphics/GraphicsDevice.h>
 
-void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -62,7 +62,7 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 	_pLowLevelGraphics->queueAddCallback( cb, (void*)this );
 }
 
-void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	setComplete( false );
 
@@ -73,7 +73,7 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* 
 		_pLowLevelGraphics->destroyPipeline( m_pipelineID );
 }
 
-void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( !m_pipelineID.is_valid() )
 		return;
@@ -86,7 +86,7 @@ wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
 	if ( !m_complete )
 		return GPUBufferID{ GPUBufferID::InvalidID };
 
-	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
+	IGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
 	/// this needs to be reworked
 

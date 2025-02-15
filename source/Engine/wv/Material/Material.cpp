@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMaterial::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_path == "" )
 		m_path = m_name + ".wmat";
@@ -63,7 +63,7 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLev
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMaterial::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	setComplete( false );
 
@@ -86,7 +86,7 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowL
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setAsActive( iLowLevelGraphics* _device )
+void wv::cMaterial::setAsActive( IGraphicsDevice* _device )
 {
 	m_pShader->bind( _device );
 	setMaterialUniforms();

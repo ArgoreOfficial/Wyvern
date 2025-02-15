@@ -22,7 +22,7 @@ public:
 	virtual void onConstruct( void ) override;
 	virtual void onDestruct( void ) override;
 
-	virtual void onDraw( wv::iDeviceContext* _context, wv::iLowLevelGraphics* _device ) override;
+	virtual void onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
 
 protected:
 

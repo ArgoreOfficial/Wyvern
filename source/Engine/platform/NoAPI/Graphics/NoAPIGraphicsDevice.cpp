@@ -45,7 +45,7 @@ void wv::NoAPIGraphicsDevice::terminate()
 {
 	WV_TRACE();
 
-	wv::iLowLevelGraphics::terminate();
+	wv::IGraphicsDevice::terminate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ void wv::NoAPIGraphicsDevice::beginRender()
 	WV_TRACE();
 	assertMainThread();
 
-	iLowLevelGraphics::beginRender();
+	IGraphicsDevice::beginRender();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

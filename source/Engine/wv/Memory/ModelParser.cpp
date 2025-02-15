@@ -44,7 +44,7 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID* _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
 {
-	wv::iLowLevelGraphics* device = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* device = wv::cEngine::get()->graphics;
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -181,7 +181,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::iLowLevelGraphics* _pLowLevelGraphics, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::IGraphicsDevice* _pLowLevelGraphics, wv::cResourceRegistry* _pResourceRegistry )
 {
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
@@ -241,7 +241,7 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 		return nullptr;
 	}
 
-	wv::iLowLevelGraphics* device = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* device = wv::cEngine::get()->graphics;
 
 	wv::sMeshNode* mesh = WV_NEW( wv::sMeshNode );
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
