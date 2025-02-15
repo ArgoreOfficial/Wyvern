@@ -190,8 +190,8 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 					_pLowLevelGraphics->cmdBindIndexBuffer( {}, mesh.indexBufferID, 0, WV_UNSIGNED_INT );
 				}
 
-				_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
-				_pLowLevelGraphics->cmdDrawIndexed( 0, mesh.numIndices, instances.size(), mesh.baseIndex, mesh.baseVertex, 0 );
+				_pLowLevelGraphics->cmdUpdateBuffer( {}, SbInstanceData, 0, instances.size() * sizeof( sMeshInstanceData ), instances.data() );
+				_pLowLevelGraphics->cmdDrawIndexed( {}, mesh.numIndices, instances.size(), mesh.baseIndex, mesh.baseVertex, 0 );
 			}
 
 			instances.clear();

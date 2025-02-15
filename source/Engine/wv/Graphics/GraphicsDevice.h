@@ -218,11 +218,6 @@ public:
 		GPUBufferID _bufferID, 
 		int32_t _bindingIndex ) = 0;
 
-	virtual void bufferData( 
-		GPUBufferID _bufferID, 
-		void* _pData, 
-		size_t _size ) = 0;
-
 	virtual void bufferSubData( 
 		GPUBufferID _bufferID, 
 		void* _pData, 

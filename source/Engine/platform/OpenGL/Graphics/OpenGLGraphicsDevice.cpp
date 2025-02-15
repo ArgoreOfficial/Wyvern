@@ -563,23 +563,6 @@ void wv::GraphicsDeviceOpenGL::bindBufferIndex( GPUBufferID _bufferID, int32_t _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::bufferData( GPUBufferID _bufferID, void* _pData, size_t _size )
-{
-	assertMainThread();
-
-	sGPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
-
-	GLenum usage  = getGlBufferUsage( buffer.usage );
-	GLenum target = getGlBufferEnum ( buffer.type );
-
-	glBindBuffer( target, buffer.handle );
-	glBufferData( target, _size, _pData, usage );
-	glBindBuffer( target, 0 );
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::GraphicsDeviceOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base )
 {
 	assertMainThread();
@@ -951,7 +934,22 @@ void wv::GraphicsDeviceOpenGL::cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID
 
 void wv::GraphicsDeviceOpenGL::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, uint16_t _dataSize, void* _pData )
 {
-	WV_UNIMPLEMENTED;
+	sGPUBuffer& buffer = m_gpuBuffers.at( _buffer );
+
+	size_t size = _offset + _dataSize;
+	if ( size > buffer.size ) // too big, reallocate
+	{
+		GLenum usage = getGlBufferUsage( buffer.usage );
+		GLenum target = getGlBufferEnum( buffer.type );
+
+		glNamedBufferData( buffer.handle, _dataSize, _pData, usage );
+		buffer.size = size;
+	}
+	else
+	{
+		glNamedBufferSubData( buffer.handle, _offset, _dataSize, _pData );
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
