@@ -908,9 +908,9 @@ void wv::GraphicsDeviceOpenGL::cmdClearDepthStencil( CmdBufferID _cmd, double _d
 	WV_TRACE();
 	assertMainThread();
 
-	glClearStencil( static_cast<GLint>( _stencil ) );
-	glClearDepth( _depth );
-	glClear( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+	//glClearStencil( static_cast<GLint>( _stencil ) );
+	glClearDepth( 1.0 );
+	glClear( GL_DEPTH_BUFFER_BIT );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -977,8 +977,10 @@ void wv::GraphicsDeviceOpenGL::cmdBindVertexBuffer( CmdBufferID _cmd, GPUBufferI
 	wv::sGPUBuffer& SbVertices = m_gpuBuffers.at( _vertexBuffer );
 	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
 
-	bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
-	bindBuffer( m_indexBuffer );
+	WV_UNIMPLEMENTED;
+
+	//bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
+	//bindBuffer( m_indexBuffer );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

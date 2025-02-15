@@ -78,7 +78,7 @@ void wv::cShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
 	if ( !m_pipelineID.is_valid() )
 		return;
 
-	_pLowLevelGraphics->bindPipeline( m_pipelineID );
+	_pLowLevelGraphics->cmdBindPipeline( {}, m_pipelineID );
 }
 
 wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )

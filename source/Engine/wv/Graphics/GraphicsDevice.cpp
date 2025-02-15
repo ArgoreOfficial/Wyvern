@@ -70,17 +70,6 @@ void wv::IGraphicsDevice::initEmbeds()
 	m_pEmptyMaterial = WV_NEW( cMaterial, "empty", "materials/EmptyMaterial.wmat" );
 	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
 
-	sGPUBufferDesc mvbDesc{};
-	mvbDesc.name  = "mvb";
-	mvbDesc.type  = WV_BUFFER_TYPE_DYNAMIC;
-	mvbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_vertexBuffer = _createGPUBuffer( {}, mvbDesc );
-
-	sGPUBufferDesc mibDesc{};
-	mibDesc.name  = "mib";
-	mibDesc.type  = WV_BUFFER_TYPE_INDEX;
-	mibDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
-	m_indexBuffer = _createGPUBuffer( {}, mibDesc );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -388,12 +377,12 @@ wv::IGraphicsDevice::IGraphicsDevice()
 
 }
 
-size_t wv::IGraphicsDevice::pushVertexBuffer( void* _vertices, size_t _size )
+size_t wv::IGraphicsDevice::pushVertexBuffer( GPUBufferID _buffer, void* _vertices, size_t _size )
 {
-	if( !m_vertexBuffer.is_valid() )
+	if( !_buffer.is_valid() )
 		return 0;
 
-	sGPUBuffer old = m_gpuBuffers.at( m_vertexBuffer );
+	sGPUBuffer old = m_gpuBuffers.at( _buffer );
 	size_t base = old.size / sizeof( Vertex );
 
 	// create new buffer
@@ -405,23 +394,23 @@ size_t wv::IGraphicsDevice::pushVertexBuffer( void* _vertices, size_t _size )
 	GPUBufferID mvb = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
-		cmdCopyBuffer( 0, m_vertexBuffer, mvb, 0, 0, old.size );
+		cmdCopyBuffer( 0, _buffer, mvb, 0, 0, old.size );
 
 	bufferSubData( mvb, _vertices, _size, old.size );
 
 	// destroy and replace handle
-	_destroyGPUBuffer( m_vertexBuffer );
-	m_vertexBuffer = mvb;
+	_destroyGPUBuffer( _buffer );
+	_buffer = mvb;
 
 	return base;
 }
 
-size_t wv::IGraphicsDevice::pushIndexBuffer( void* _indices, size_t _size )
+size_t wv::IGraphicsDevice::pushIndexBuffer( GPUBufferID _buffer, void* _indices, size_t _size )
 {
-	if( !m_indexBuffer.is_valid() )
+	if( !_buffer.is_valid() )
 		return 0;
 
-	sGPUBuffer old = m_gpuBuffers.at( m_indexBuffer );
+	sGPUBuffer old = m_gpuBuffers.at( _buffer );
 	size_t base = old.size / sizeof( unsigned int );
 
 	// create new buffer
@@ -433,13 +422,13 @@ size_t wv::IGraphicsDevice::pushIndexBuffer( void* _indices, size_t _size )
 	GPUBufferID buf = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
-		cmdCopyBuffer( 0, m_indexBuffer, buf, 0, 0, old.size );
+		cmdCopyBuffer( 0, _buffer, buf, 0, 0, old.size );
 
 	bufferSubData( buf, _indices, _size, old.size );
 
 	// destroy and replace handle
-	_destroyGPUBuffer( m_indexBuffer );
-	m_indexBuffer = buf;
+	_destroyGPUBuffer( _buffer );
+	_buffer = buf;
 
 	return base;
 }
@@ -452,8 +441,18 @@ wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const sMeshDesc& _d
 	sMesh mesh{};
 	mesh.pMaterial   = _desc.pMaterial;
 	mesh.numVertices = _desc.sizeVertices / sizeof( Vertex ); 
-	mesh.baseVertex  = pushVertexBuffer( _desc.vertices, _desc.sizeVertices );
 	
+	{ // create index and vertex buffers
+		sGPUBufferDesc vbDesc{};
+		vbDesc.name = "vertexBuffer";
+		vbDesc.type = WV_BUFFER_TYPE_DYNAMIC;
+		vbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
+		vbDesc.size = _desc.sizeVertices;
+		mesh.vertexBufferID = createGPUBuffer( vbDesc );
+
+		bufferSubData( mesh.vertexBufferID, _desc.vertices, _desc.sizeVertices, 0 );
+	}
+
 	if( _desc.numIndices > 0 )
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
@@ -464,23 +463,25 @@ wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const sMeshDesc& _d
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;
 
 		void* indices = nullptr;
-		size_t indicesSize = 0;
+		size_t sizeIndices = 0;
 
 		if( _desc.pIndices16 )
 		{
-			indicesSize = _desc.numIndices * sizeof( uint16_t );
+			sizeIndices = _desc.numIndices * sizeof( uint16_t );
 			indices = _desc.pIndices16;
 		}
 		else if( _desc.pIndices32 )
 		{
-			indicesSize = _desc.numIndices * sizeof( uint32_t );
+			sizeIndices = _desc.numIndices * sizeof( uint32_t );
 			indices = _desc.pIndices32;
 		}
 
-		ibDesc.size = indicesSize;
-		mesh.baseIndex = pushIndexBuffer( indices, indicesSize );
+		ibDesc.size = sizeIndices;
+
+		mesh.indexBufferID = createGPUBuffer( ibDesc );
 		mesh.numIndices = _desc.numIndices;
 
+		bufferSubData( mesh.indexBufferID, indices, sizeIndices, 0 );
 	}
 	else
 	{

@@ -118,8 +118,8 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	}
 #endif
 	
-	graphics->setRenderTarget( m_screenRenderTarget );
-	graphics->setClearColor( wv::Color::Black );
+	graphics->cmdBeginRender( {}, m_screenRenderTarget );
+	//graphics->setClearColor( wv::Color::Black );
 
 	initImgui();
 
@@ -487,7 +487,7 @@ void wv::cEngine::tick()
 #ifdef WV_PLATFORM_PSVITA
 	graphics->setRenderTarget( nullptr );
 #else
-	graphics->setRenderTarget( m_gbuffer );
+	graphics->cmdBeginRender( {}, m_gbuffer );
 #endif
 
 	graphics->beginRender();
@@ -501,13 +501,14 @@ void wv::cEngine::tick()
 	
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
 	{
-		graphics->clearRenderTarget( true, true );
+		graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+		graphics->cmdClearDepthStencil( {}, 0.0, 0 );
 
 		m_pApplicationState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
 
 		GPUBufferID viewBufferID = currentCamera->getBufferID();
-
+		/*
 		for ( auto& pair : graphics->m_pipelineDrawListMap )
 		{
 			PipelineID pipelineID = pair.first;
@@ -517,7 +518,7 @@ void wv::cEngine::tick()
 			if ( drawList.cmds.empty() || !drawList.instanceBufferID.is_valid() )
 				continue;
 
-			graphics->bindPipeline( pipelineID );
+			graphics->cmdBindPipeline( pipelineID );
 			graphics->bindVertexBuffer( drawList.vertexBufferID );
 
 			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.at( drawList.instanceBufferID );
@@ -531,6 +532,7 @@ void wv::cEngine::tick()
 			drawList.instances.clear();
 			drawList.cmds.clear();
 		}
+		*/
 
 
 	#ifdef WV_DEBUG
@@ -542,18 +544,19 @@ void wv::cEngine::tick()
 	if( m_pIRTHandler )
 	{
 		if( m_pIRTHandler->m_renderTarget.is_valid() )
-			graphics->setRenderTarget( m_pIRTHandler->m_renderTarget );
+			graphics->cmdBeginRender( {}, m_pIRTHandler->m_renderTarget );
 	}
 	else
-		graphics->setRenderTarget( m_screenRenderTarget );
+		graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
-	graphics->clearRenderTarget( true, true );
+	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+	graphics->cmdClearDepthStencil( {}, 0.0, 0 );
 
 	// bind gbuffer textures to deferred pass
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
-			graphics->_bindTextureToSlot( rt.pTextureIDs[ i ], i );
+			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
 
 	// render screen quad with deferred shader
@@ -569,18 +572,24 @@ void wv::cEngine::tick()
 		graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
 
 		sMesh screenQuad = graphics->m_meshes.at( m_screenQuad );
-		graphics->bindVertexBuffer( SbVerticesID );
-		
+		{
+			wv::sGPUBuffer& SbVertices = graphics->m_gpuBuffers.at( SbVerticesID );
+			graphics->bindBufferIndex( screenQuad.vertexBufferID, SbVertices.bindingIndex.value );
+			graphics->bindBuffer( screenQuad.indexBufferID );
+		}
+
 		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
-		graphics->drawIndexed( screenQuad.numIndices );
+		graphics->cmdDrawIndexed( {}, screenQuad.numIndices, 1, 0, 0, 0 );
 	}
 
 	if( m_pIRTHandler )
 	{
 		if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 		{
-			graphics->setRenderTarget( m_screenRenderTarget );
-			graphics->clearRenderTarget( true, true );
+			graphics->cmdBeginRender( {}, m_screenRenderTarget );
+			graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+			graphics->cmdClearDepthStencil( {}, 0.0, 0 );
+
 			m_pIRTHandler->draw( graphics );
 		}
 	}
@@ -703,7 +712,6 @@ void wv::cEngine::createGBuffer()
 
 void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 {
-	graphics->onResize( _width, _height );
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 

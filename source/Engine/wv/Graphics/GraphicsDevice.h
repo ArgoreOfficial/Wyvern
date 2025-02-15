@@ -279,9 +279,9 @@ protected:
 	IGraphicsDevice();
 
 	// returns base vertex
-	size_t pushVertexBuffer( void* _vertices, size_t _size );
+	size_t pushVertexBuffer( GPUBufferID _buffer, void* _vertices, size_t _size );
 	// returns base index
-	size_t pushIndexBuffer( void* _indices, size_t _size );
+	size_t pushIndexBuffer( GPUBufferID _buffer, void* _indices, size_t _size );
 
 	virtual bool initialize( sLowLevelGraphicsDesc* _desc ) = 0;
 
@@ -293,9 +293,6 @@ protected:
 	std::mutex m_mutex;
 
 	cCommandBuffer m_createDestroyCommandBuffer{ 128 };
-
-	GPUBufferID m_vertexBuffer{};
-	GPUBufferID m_indexBuffer{};
 
 	cMaterial* m_pEmptyMaterial = nullptr;
 };
