@@ -162,10 +162,10 @@ void wv::IGraphicsDevice::executeCreateQueue()
 		case WV_GPUTASK_DESTROY_PROGRAM:      _destroyProgram     ( stream.pop<ProgramID>()      ); break;
 		case WV_GPUTASK_DESTROY_RENDERTARGET: _destroyRenderTarget( stream.pop<RenderTargetID>() ); break;
 
-		case WV_GPUTASK_SET_RENDERTARGET: setRenderTarget( stream.pop<RenderTargetID>() ); break;
-		case WV_GPUTASK_BIND_PIPELINE:    bindPipeline   ( stream.pop<PipelineID>() );     break;
+		case WV_GPUTASK_SET_RENDERTARGET: cmdBeginRender( 0, stream.pop<RenderTargetID>() ); break;
+		case WV_GPUTASK_BIND_PIPELINE:    cmdBindPipeline( 0, stream.pop<PipelineID>() );     break;
 		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
-			_bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
+			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
 			break;
 
 		case WV_GPUTASK_CALLBACK:
@@ -342,19 +342,6 @@ void wv::IGraphicsDevice::bufferTextureData( TextureID _textureID, void* _pData,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IGraphicsDevice::cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances )
-{
-	sDrawList& drawList = m_drawLists.at( _drawListID );
-	_cmd.firstInstance = drawList.instances.size();
-
-	for ( auto& instance : _instances )
-		drawList.instances.push_back( instance );
-	
-	drawList.cmds.push_back( _cmd );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::IGraphicsDevice::queueAddCallback( wv::Function<void, void*>::fptr_t _func, void* _caller )
 {
 	CreateCallback cb{ _caller, _func };
@@ -418,7 +405,7 @@ size_t wv::IGraphicsDevice::pushVertexBuffer( void* _vertices, size_t _size )
 	GPUBufferID mvb = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
-		copyBufferSubData( m_vertexBuffer, mvb, 0, 0, old.size );
+		cmdCopyBuffer( 0, m_vertexBuffer, mvb, 0, 0, old.size );
 
 	bufferSubData( mvb, _vertices, _size, old.size );
 
@@ -446,7 +433,7 @@ size_t wv::IGraphicsDevice::pushIndexBuffer( void* _indices, size_t _size )
 	GPUBufferID buf = _createGPUBuffer( {}, desc );
 
 	if( old.size > 0 ) // copy old data
-		copyBufferSubData( m_indexBuffer, buf, 0, 0, old.size );
+		cmdCopyBuffer( 0, m_indexBuffer, buf, 0, 0, old.size );
 
 	bufferSubData( buf, _indices, _size, old.size );
 

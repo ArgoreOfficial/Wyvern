@@ -78,6 +78,7 @@ private:
 	template<typename T>
 	void cmd( const eGPUTaskType& _type, T* _pInfo );
 	void cmd( const eGPUTaskType& _type ) { cmd<char>( _type, nullptr ); }
+
 public:
 
 	template<typename ID, typename T>
@@ -98,12 +99,10 @@ public:
 	MeshID createMesh( const sMeshDesc& _desc );
 	void   destroyMesh( MeshID _meshID );
 
-	TextureID createTexture( const sTextureDesc& _desc );
-	void      destroyTexture( TextureID _textureID );
-	void      bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps );
-	virtual void      _bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
-
-	void cmdDrawIndexedIndirect( DrawListID _drawListID, sDrawIndexedIndirectCommand _cmd, const std::vector<sMeshInstanceData>& _instances );
+	TextureID    createTexture( const sTextureDesc& _desc );
+	void         destroyTexture( TextureID _textureID );
+	void         bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps );
+	virtual void bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 	void queueAddCallback( wv::Function<void, void*>::fptr_t _func, void* _caller );
 
@@ -113,49 +112,137 @@ public:
 
 	virtual void terminate();
 
-	//virtual void update() = 0;
-
-	virtual void onResize( int _width, int _height ) = 0;
-	virtual void setViewport( int _width, int _height ) = 0;
-
 	virtual void beginRender();
 	virtual void endRender();
 
-	virtual void           setRenderTarget( RenderTargetID _renderTargetID ) = 0;
+	// cmd
 
-	virtual void setClearColor( const wv::cColor& _color ) = 0;
-	virtual void clearRenderTarget( bool _color, bool _depth ) = 0;
+	virtual void cmdBeginRender( 
+		CmdBufferID _cmd, 
+		RenderTargetID _renderTargetID ) = 0;
 
+	virtual void cmdEndRender( 
+		CmdBufferID _cmd ) = 0;
+	
+	virtual void cmdClearColor( 
+		CmdBufferID _cmd, 
+		float _r, 
+		float _g, 
+		float _b, 
+		float _a ) = 0;
 
-	virtual void       bindPipeline( PipelineID _pipelineID ) = 0;
+	virtual void cmdImageClearColor( 
+		CmdBufferID _cmd, 
+		TextureID _image, 
+		float _r, 
+		float _g, 
+		float _b,
+		float _a ) = 0;
 
+	virtual void cmdClearDepthStencil( 
+		CmdBufferID _cmd, 
+		double _depth, 
+		uint32_t _stencil ) = 0;
 
-	virtual void bindBuffer( GPUBufferID _bufferID ) = 0;
-	virtual void bindBufferIndex( GPUBufferID _bufferID, int32_t _bindingIndex ) = 0;
+	virtual void cmdImageClearDepthStencil( 
+		CmdBufferID _cmd, 
+		TextureID _image, 
+		double _depth, 
+		uint32_t _stencil ) = 0;
 
-	virtual void bufferData( GPUBufferID _bufferID, void* _pData, size_t _size ) = 0;
-	virtual void bufferSubData( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) = 0;
+	virtual void cmdBindPipeline( 
+		CmdBufferID _cmd, 
+		PipelineID _pipeline ) = 0;
 
-	virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) = 0;
+	virtual void cmdImageBlit( 
+		CmdBufferID _cmd, 
+		TextureID _src, 
+		TextureID _dst ) = 0;
 
+	virtual void cmdDispatch( 
+		CmdBufferID _cmd, 
+		uint32_t _numGroupsX, 
+		uint32_t _numGroupsY, 
+		uint32_t _numGroupsZ ) = 0;
 
-	virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) = 0;
+	virtual void cmdViewport( 
+		CmdBufferID _cmd, 
+		uint32_t _x, 
+		uint32_t _y, 
+		uint32_t _width, 
+		uint32_t _height ) = 0;
 
-	virtual void setFillMode( eFillMode _mode ) = 0;
+	virtual void cmdCopyBuffer( 
+		CmdBufferID _cmd, 
+		GPUBufferID _src, 
+		GPUBufferID _dst, 
+		size_t _srcOffset, 
+		size_t _dstOffset, 
+		size_t _size ) = 0;
+	
+	virtual void cmdBindVertexBuffer( 
+		CmdBufferID _cmd, 
+		GPUBufferID _vertexBuffer ) = 0;
 
-	virtual void draw( uint32_t _firstVertex, uint32_t _numVertices ) = 0;
-	virtual void drawIndexed( uint32_t _numIndices ) = 0;
-	virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) = 0;
-	virtual void multiDrawIndirect( DrawListID _drawListID ) = 0;
+	virtual void cmdBindIndexBuffer( 
+		CmdBufferID _cmd, 
+		GPUBufferID _indexBuffer, 
+		size_t _offset, 
+		wv::DataType _type ) = 0;
+
+	virtual void cmdUpdateBuffer( 
+		CmdBufferID _cmd, 
+		GPUBufferID _buffer, 
+		size_t _offset, 
+		uint16_t _dataSize,
+		void* _pData ) = 0;
+
+	virtual void cmdDraw( 
+		CmdBufferID _cmd, 
+		uint32_t _vertexCount, 
+		uint32_t _instanceCount, 
+		uint32_t _firstVertex, 
+		uint32_t _firstInstance ) = 0;
+
+	virtual void cmdDrawIndexed( 
+		CmdBufferID _cmd, 
+		uint32_t _indexCount, 
+		uint32_t _instanceCount, 
+		uint32_t _firstIndex, 
+		int32_t _vertexOffset, 
+		uint32_t _firstInstance ) = 0;
+	
+	// old 
+
+	virtual void bindBuffer( 
+		GPUBufferID _bufferID ) = 0;
+
+	virtual void bindBufferIndex( 
+		GPUBufferID _bufferID, 
+		int32_t _bindingIndex ) = 0;
+
+	virtual void bufferData( 
+		GPUBufferID _bufferID, 
+		void* _pData, 
+		size_t _size ) = 0;
+
+	virtual void bufferSubData( 
+		GPUBufferID _bufferID, 
+		void* _pData, 
+		size_t _size, 
+		size_t _base ) = 0;
+
+	virtual void setFillMode( 
+		eFillMode _mode ) = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	arx::unordered_array<ProgramID, sProgram>      m_programs;
-	arx::unordered_array<PipelineID, sPipeline>     m_pipelines;
+	arx::unordered_array<ProgramID,      sProgram>      m_programs;
+	arx::unordered_array<PipelineID,     sPipeline>     m_pipelines;
 	arx::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
-	arx::unordered_array<GPUBufferID, sGPUBuffer>    m_gpuBuffers;
-	arx::unordered_array<TextureID, sTexture>      m_textures;
-	arx::unordered_array<MeshID, sMesh>         m_meshes;
+	arx::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
+	arx::unordered_array<TextureID,      sTexture>      m_textures;
+	arx::unordered_array<MeshID,         sMesh>         m_meshes;
 
 	std::queue<std::pair<ProgramID, sProgramDesc>> m_programCreateQueue;
 
@@ -187,8 +274,7 @@ protected:
 	virtual TextureID _createTexture( TextureID _textureID, const sTextureDesc& _desc ) = 0;
 	virtual void      _destroyTexture( TextureID _textureID ) = 0;
 
-	virtual void      _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-
+	virtual void _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
 
 	IGraphicsDevice();
 

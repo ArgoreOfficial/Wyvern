@@ -33,6 +33,8 @@
 	#define WV_VALIDATE_GL( _func )
 #endif
 
+#define WV_UNIMPLEMENTED throw std::runtime_error( "UNIMPLEMENTED" )
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef WV_DEBUG
@@ -159,23 +161,6 @@ void wv::GraphicsDeviceOpenGL::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::onResize( int _width, int _height )
-{
-	WV_TRACE();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::setViewport( int _width, int _height )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	glViewport( 0, 0, _width, _height );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::GraphicsDeviceOpenGL::beginRender()
 {
 	WV_TRACE();
@@ -281,40 +266,6 @@ void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTarge
 		WV_FREE_ARR( rt.pTextureIDs );
 
 	m_renderTargets.erase( _renderTargetID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::setRenderTarget( RenderTargetID _renderTargetID )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
-	unsigned int handle = rt.fbHandle;
-
-	glBindFramebuffer( GL_FRAMEBUFFER, handle );
-	glViewport( 0, 0, rt.width, rt.height );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::setClearColor( const wv::cColor& _color )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	glClearColor( _color.r, _color.g, _color.b, _color.a );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::clearRenderTarget( bool _color, bool _depth )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	glClear( (GL_COLOR_BUFFER_BIT * _color) | (GL_DEPTH_BUFFER_BIT * _depth) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -559,17 +510,6 @@ void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::bindPipeline( PipelineID _pipelineID )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	sPipeline& pipeline = m_pipelines.at( _pipelineID );
-	glBindProgramPipeline( pipeline.handle );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::GPUBufferID wv::GraphicsDeviceOpenGL::_createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc )
 {
 	WV_TRACE();
@@ -685,16 +625,6 @@ void wv::GraphicsDeviceOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pDat
 
 	sGPUBuffer buffer = m_gpuBuffers.at( _bufferID );
 	glNamedBufferSubData( buffer.handle, _base, _size, _pData );
-}
-
-void wv::GraphicsDeviceOpenGL::copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size )
-{
-	assertMainThread();
-
-	sGPUBuffer rb = m_gpuBuffers.at( _readBufferID );
-	sGPUBuffer wb = m_gpuBuffers.at( _writeBufferID );
-
-	glCopyNamedBufferSubData( rb.handle, wb.handle, _readOffset, _writeOffset, _size );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -867,7 +797,7 @@ void wv::GraphicsDeviceOpenGL::_destroyTexture( TextureID _textureID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_bindTextureToSlot( TextureID _textureID, unsigned int _slot )
+void wv::GraphicsDeviceOpenGL::bindTextureToSlot( TextureID _textureID, unsigned int _slot )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -888,20 +818,6 @@ void wv::GraphicsDeviceOpenGL::_bindTextureToSlot( TextureID _textureID, unsigne
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::bindVertexBuffer( GPUBufferID _vertexPullBufferID )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	wv::sGPUBuffer& SbVertices = m_gpuBuffers.at( _vertexPullBufferID );
-	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
-	
-	bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
-	bindBuffer( m_indexBuffer );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::GraphicsDeviceOpenGL::setFillMode( eFillMode _mode )
 {
 	WV_TRACE();
@@ -913,48 +829,6 @@ void wv::GraphicsDeviceOpenGL::setFillMode( eFillMode _mode )
 	case WV_FILL_MODE_WIREFRAME: glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  break;
 	case WV_FILL_MODE_POINTS:    glPolygonMode( GL_FRONT_AND_BACK, GL_POINT ); break;
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::draw( uint32_t _firstVertex, uint32_t _numVertices )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	glDrawArrays( GL_TRIANGLES, _firstVertex, _numVertices );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::drawIndexed( uint32_t _numIndices )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	/// TODO: allow for other draw modes
-	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawElements.xhtml#:~:text=Parameters-,mode,-Specifies%20what%20kind
-	
-	glDrawElements( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0 );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::GraphicsDeviceOpenGL::drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex )
-{
-	WV_TRACE();
-	assertMainThread();
-
-	glDrawElementsInstancedBaseVertex( GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0, _numInstances, _baseVertex );
-}
-
-void wv::GraphicsDeviceOpenGL::multiDrawIndirect( DrawListID _drawListID )
-{
-	sDrawList& drawList = m_drawLists.at( _drawListID );
-	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, drawIndirectHandle );
-	glBufferData( GL_DRAW_INDIRECT_BUFFER, sizeof( sDrawIndexedIndirectCommand ) * drawList.cmds.size(), drawList.cmds.data(), GL_DYNAMIC_DRAW );
-	glMultiDrawElementsIndirect( GL_TRIANGLES, GL_UNSIGNED_INT, 0, drawList.cmds.size(), 0 );
-	glBindBuffer( GL_DRAW_INDIRECT_BUFFER, 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -986,6 +860,168 @@ bool wv::GraphicsDeviceOpenGL::getError( std::string* _out )
 	}
 
 	return hasError;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdBeginRender( CmdBufferID _cmd, RenderTargetID _renderTargetID )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	sRenderTarget& rt = m_renderTargets.at( _renderTargetID );
+	unsigned int handle = rt.fbHandle;
+
+	glBindFramebuffer( GL_FRAMEBUFFER, handle );
+	glViewport( 0, 0, rt.width, rt.height );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdEndRender( CmdBufferID _cmd )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdClearColor( CmdBufferID _cmd, float _r, float _g, float _b, float _a )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	glClearColor( _r, _g, _b, _a );
+	glClear( GL_COLOR_BUFFER_BIT );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdImageClearColor( CmdBufferID _cmd, TextureID _image, float _r, float _g, float _b, float _a )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdClearDepthStencil( CmdBufferID _cmd, double _depth, uint32_t _stencil )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	glClearStencil( static_cast<GLint>( _stencil ) );
+	glClearDepth( _depth );
+	glClear( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdImageClearDepthStencil( CmdBufferID _cmd, TextureID _image, double _depth, uint32_t _stencil )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdBindPipeline( CmdBufferID _cmd, PipelineID _pipeline )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	sPipeline& pipeline = m_pipelines.at( _pipeline );
+	glBindProgramPipeline( pipeline.handle );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdImageBlit( CmdBufferID _cmd, TextureID _src, TextureID _dst )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdDispatch( CmdBufferID _cmd, uint32_t _numGroupsX, uint32_t _numGroupsY, uint32_t _numGroupsZ )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdViewport( CmdBufferID _cmd, uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	glViewport( _x, _y, _width, _height );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdCopyBuffer( CmdBufferID _cmd, GPUBufferID _src, GPUBufferID _dst, size_t _srcOffset, size_t _dstOffset, size_t _size )
+{
+	assertMainThread();
+
+	sGPUBuffer rb = m_gpuBuffers.at( _src );
+	sGPUBuffer wb = m_gpuBuffers.at( _dst );
+
+	glCopyNamedBufferSubData( rb.handle, wb.handle, _srcOffset, _dstOffset, _size );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdBindVertexBuffer( CmdBufferID _cmd, GPUBufferID _vertexBuffer )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	wv::sGPUBuffer& SbVertices = m_gpuBuffers.at( _vertexBuffer );
+	//sOpenGLBufferData* pData = (sOpenGLBufferData*)SbVertices.pPlatformData;
+
+	bindBufferIndex( m_vertexBuffer, SbVertices.bindingIndex.value );
+	bindBuffer( m_indexBuffer );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdBindIndexBuffer( CmdBufferID _cmd, GPUBufferID _indexBuffer, size_t _offset, wv::DataType _type )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, uint16_t _dataSize, void* _pData )
+{
+	WV_UNIMPLEMENTED;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdDraw( CmdBufferID _cmd, uint32_t _vertexCount, uint32_t _instanceCount, uint32_t _firstVertex, uint32_t _firstInstance )
+{
+	WV_TRACE();
+	assertMainThread();
+
+	glDrawArraysInstancedBaseInstance(
+		GL_TRIANGLES,
+		_firstVertex,
+		_vertexCount,
+		_instanceCount,
+		_firstInstance );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::GraphicsDeviceOpenGL::cmdDrawIndexed( CmdBufferID _cmd, uint32_t _indexCount, uint32_t _instanceCount, uint32_t _firstIndex, int32_t _vertexOffset, uint32_t _firstInstance )
+{
+	glDrawElementsInstancedBaseVertexBaseInstance(
+		GL_TRIANGLES,
+		_indexCount,
+		GL_UNSIGNED_INT,
+		nullptr,
+		_instanceCount,
+		_firstIndex,
+		_firstInstance );
 }
 
 #endif
