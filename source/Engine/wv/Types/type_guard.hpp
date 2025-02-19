@@ -3,7 +3,7 @@
 #include <mutex>
 #include <atomic>
 
-namespace arx {
+namespace wv {
 
 template<typename _Ty>
 struct type_guard

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <arx/unordered_array.hpp>
+#include <wv/unordered_array.hpp>
 
 #include <wv/Types.h>
 #include <wv/Graphics/Types.h>
@@ -235,12 +235,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	arx::unordered_array<ShaderModuleID,      sProgram>      m_programs;
-	arx::unordered_array<PipelineID,     sPipeline>     m_pipelines;
-	arx::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
-	arx::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
-	arx::unordered_array<TextureID,      sTexture>      m_textures;
-	arx::unordered_array<MeshID,         sMesh>         m_meshes;
+	wv::unordered_array<ShaderModuleID, sProgram>      m_programs;
+	wv::unordered_array<PipelineID,     sPipeline>     m_pipelines;
+	wv::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
+	wv::unordered_array<GPUBufferID,    sGPUBuffer>    m_gpuBuffers;
+	wv::unordered_array<TextureID,      sTexture>      m_textures;
+	wv::unordered_array<MeshID,         sMesh>         m_meshes;
 
 	std::queue<std::pair<ShaderModuleID, ShaderModuleDesc>> m_programCreateQueue;
 

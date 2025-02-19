@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <arx/strong_type.hpp>
+#include <wv/strong_type.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 typedef unsigned int size_t;
 #endif
 
-#define WV_DEFINE_ID( _c ) typedef arx::strong_type<uint16_t, struct _c##_t> _c
+#define WV_DEFINE_ID( _c ) typedef wv::strong_type<uint16_t, struct _c##_t> _c
 
 namespace wv
 {

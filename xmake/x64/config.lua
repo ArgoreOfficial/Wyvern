@@ -8,7 +8,7 @@ function _add_supports( _target )
     import( "support.assimp" )( _target )
     import( "support.libsdl" )( _target ) 
     import( "support.imgui" )( _target ) 
-    import( "support.joltphysics" )( _target ) 
+    --import( "support.joltphysics" )( _target ) 
 
     _target:add( "defines", { 
         "WV_SUPPORT_OPENGL", 

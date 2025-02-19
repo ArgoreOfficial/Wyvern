@@ -79,8 +79,8 @@ namespace wv
 		GenericVersion m_graphicsApiVersion;
 
 		wv::Handle m_vaoHandle = 0;
-		arx::unordered_array<BufferBindingIndex, uint8_t> m_uniformBindingIndices;
-		arx::unordered_array<BufferBindingIndex, uint8_t> m_ssboBindingIndices;
+		wv::unordered_array<BufferBindingIndex, uint8_t> m_uniformBindingIndices;
+		wv::unordered_array<BufferBindingIndex, uint8_t> m_ssboBindingIndices;
 
 		wv::DataType m_indexBufferDataType;
 
