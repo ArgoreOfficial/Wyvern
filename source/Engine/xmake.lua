@@ -35,7 +35,10 @@ target "Wyvern"
         "**.hpp" 
     )
     add_files( "**.cpp" )
-    add_includedirs( "./", "../../libs/ArX/include" )
+    add_includedirs( 
+        "./", 
+        "../../libs/libWyvern/include" 
+        )
     
     if is_arch( "psvita" ) and has_vitasdk then 
         add_rules( "vitaCg" )

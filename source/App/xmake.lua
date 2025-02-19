@@ -28,7 +28,8 @@ target( PROJECT_NAME )
     add_includedirs( 
         "../Engine", 
         "./",
-        "../../libs/ArX/include" )
+        "../../libs/libWyvern/include" 
+        )
     
     target_platform()
 target_end()

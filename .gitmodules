@@ -1,3 +1,3 @@
-[submodule "libs/ArX"]
-	path = libs/ArX
-	url = https://github.com/ArgoreOfficial/ArX
+[submodule "libs/libWyvern"]
+	path = libs/libWyvern
+	url = https://github.com/ArgoreOfficial/libWyvern.git
