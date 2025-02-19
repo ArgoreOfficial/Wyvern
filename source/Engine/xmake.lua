@@ -11,6 +11,7 @@ if not is_arch( "psvita" ) then
 end
 
 local has_vitasdk = os.getenv("SCE_PSP2_SDK_DIR") ~= nil
+local ROOTDIR = "../../"
 
 -- create project
 target "Wyvern" 
@@ -27,22 +28,27 @@ target "Wyvern"
     end
 
     -- set_targetdir "../../build"
-    set_targetdir "../../game/$(plat)"
-    set_objectdir "../../build/obj" 
+    set_targetdir( ROOTDIR .. "game/$(plat)" )
+    set_objectdir( ROOTDIR .. "build/obj" )
 
     add_headerfiles( 
         "**.h", 
-        "**.hpp" 
+        "**.hpp",
+        ROOTDIR .. "libs/libWyvern/include/**.hpp"
     )
+    
     add_files( "**.cpp" )
+
+    add_filegroups("wv", { rootdir = ROOTDIR .. "libs/libWyvern/include/wv/" } )
+
     add_includedirs( 
-        "./", 
-        "../../libs/libWyvern/include" 
-        )
+        "./",
+        ROOTDIR .. "libs/libWyvern/include"
+    )
     
     if is_arch( "psvita" ) and has_vitasdk then 
         add_rules( "vitaCg" )
-        add_files( "../../game/res/shaders/**.cg" )
+        add_files( ROOTDIR .. "game/shaders/**.cg" )
     end
 
     target_platform()
