@@ -1,11 +1,11 @@
 #pragma once
 
 #include <wv/Types.h>
-#include <arx/strong_type.hpp>
+#include <wv/strong_type.hpp>
 
 namespace wv
 {    
-    typedef arx::strong_type<uint64_t, struct FileID_t> FileID;
+    typedef wv::strong_type<uint64_t, struct FileID_t> FileID;
     
     enum eOpenMode
     {

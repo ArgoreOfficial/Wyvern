@@ -1,6 +1,6 @@
 #pragma once
 
-#include <arx/unordered_array.hpp>
+#include <wv/unordered_array.hpp>
 
 #include <wv/Types.h>
 #include <wv/Graphics/Types.h>
@@ -150,18 +150,18 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	arx::unordered_array<ProgramID, sProgram>      m_programs;
-	arx::unordered_array<PipelineID, sPipeline>     m_pipelines;
-	arx::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
-	arx::unordered_array<GPUBufferID, sGPUBuffer>    m_gpuBuffers;
-	arx::unordered_array<TextureID, sTexture>      m_textures;
-	arx::unordered_array<MeshID, sMesh>         m_meshes;
+	wv::unordered_array<ProgramID, sProgram>      m_programs;
+	wv::unordered_array<PipelineID, sPipeline>     m_pipelines;
+	wv::unordered_array<RenderTargetID, sRenderTarget> m_renderTargets;
+	wv::unordered_array<GPUBufferID, sGPUBuffer>    m_gpuBuffers;
+	wv::unordered_array<TextureID, sTexture>      m_textures;
+	wv::unordered_array<MeshID, sMesh>         m_meshes;
 
 	std::queue<std::pair<ProgramID, sProgramDesc>> m_programCreateQueue;
 
 	std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 
-	arx::unordered_array<DrawListID, sDrawList> m_drawLists;
+	wv::unordered_array<DrawListID, sDrawList> m_drawLists;
 	std::unordered_map<PipelineID, DrawListID> m_pipelineDrawListMap;
 
 	uint32_t drawIndirectHandle = 0;
