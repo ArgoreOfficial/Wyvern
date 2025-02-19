@@ -377,62 +377,6 @@ wv::IGraphicsDevice::IGraphicsDevice()
 
 }
 
-size_t wv::IGraphicsDevice::pushVertexBuffer( GPUBufferID _buffer, void* _vertices, size_t _size )
-{
-	if( !_buffer.is_valid() )
-		return 0;
-
-	sGPUBuffer old = m_gpuBuffers.at( _buffer );
-	size_t base = old.size / sizeof( Vertex );
-
-	// create new buffer
-	sGPUBufferDesc desc;
-	desc.name  = old.name;
-	desc.type  = old.type;
-	desc.usage = old.usage;
-	desc.size  = old.size + _size;
-	GPUBufferID mvb = _createGPUBuffer( {}, desc );
-
-	if( old.size > 0 ) // copy old data
-		cmdCopyBuffer( 0, _buffer, mvb, 0, 0, old.size );
-
-	bufferSubData( mvb, _vertices, _size, old.size );
-
-	// destroy and replace handle
-	_destroyGPUBuffer( _buffer );
-	_buffer = mvb;
-
-	return base;
-}
-
-size_t wv::IGraphicsDevice::pushIndexBuffer( GPUBufferID _buffer, void* _indices, size_t _size )
-{
-	if( !_buffer.is_valid() )
-		return 0;
-
-	sGPUBuffer old = m_gpuBuffers.at( _buffer );
-	size_t base = old.size / sizeof( unsigned int );
-
-	// create new buffer
-	sGPUBufferDesc desc;
-	desc.name  = old.name;
-	desc.type  = old.type;
-	desc.usage = old.usage;
-	desc.size  = old.size + _size;
-	GPUBufferID buf = _createGPUBuffer( {}, desc );
-
-	if( old.size > 0 ) // copy old data
-		cmdCopyBuffer( 0, _buffer, buf, 0, 0, old.size );
-
-	bufferSubData( buf, _indices, _size, old.size );
-
-	// destroy and replace handle
-	_destroyGPUBuffer( _buffer );
-	_buffer = buf;
-
-	return base;
-}
-
 wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const sMeshDesc& _desc )
 {
 	if( !_meshID.is_valid() )
