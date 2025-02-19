@@ -24,6 +24,8 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 
 void wv::JobSystem::terminate()
 {
+	deleteWorkers();
+
 	while ( !m_jobPool.empty() )
 	{
 		WV_FREE( m_jobPool.front() );
@@ -40,7 +42,6 @@ void wv::JobSystem::terminate()
 		WV_FREE( f );
 	}
 
-	deleteWorkers();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
