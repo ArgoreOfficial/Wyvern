@@ -46,8 +46,8 @@ namespace wv
 		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
-		MeshInstance* createInstance();
-		void destroyInstance( MeshInstance* _instance );
+		void makeInstance( MeshInstance* _instance );
+		void removeInstance( MeshInstance* _instance );
 
 		MeshNode*                   getMeshNode ( void ) { return m_pMeshNode; }
 		std::vector<MeshInstance*>& getInstances( void ) { return m_instances; }

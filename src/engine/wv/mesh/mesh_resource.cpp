@@ -26,7 +26,7 @@ void wv::MeshInstance::draw()
 void wv::MeshInstance::destroy()
 {
 	if ( pResource )
-		pResource->destroyInstance( this );
+		pResource->removeInstance( this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -73,25 +73,18 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 	m_instances.clear();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::MeshInstance* wv::MeshResource::createInstance()
+void wv::MeshResource::makeInstance( MeshInstance* _instance )
 {
-	MeshInstance* instance = WV_NEW( MeshInstance );
-	instance->pResource = this;
-
-	m_instances.push_back( instance );
-	//m_mutex.lock();
-	//m_mutex.unlock();
-	
-	return instance;
+	_instance->pResource = this;
+	m_instances.push_back( _instance );
 }
 
-void wv::MeshResource::destroyInstance( MeshInstance* _instance )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::MeshResource::removeInstance( MeshInstance* _instance )
 {
 	Engine* app = Engine::get();
 
-	//m_mutex.lock();
 	for ( auto itr = m_instances.begin(); itr != m_instances.end(); itr++ )
 	{
 		if ( *itr != _instance )
@@ -99,10 +92,8 @@ void wv::MeshResource::destroyInstance( MeshInstance* _instance )
 
 		_instance->pResource = nullptr;
 		m_instances.erase( itr );
-		WV_FREE( _instance );
 		break;
 	}
-	//m_mutex.unlock();
 	
 	app->m_pResourceRegistry->unload( this );
 }

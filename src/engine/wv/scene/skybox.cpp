@@ -56,13 +56,15 @@ void wv::SkyboxObject::onConstructImpl()
 {
 	wv::Engine* app = wv::Engine::get();
 	
-	m_mesh = app->m_pResourceRegistry->load<MeshResource>( "meshes/skysphere.glb" )->createInstance();
-	m_transform.addChild( &m_mesh->transform );
+	MeshResource* skysphere = app->m_pResourceRegistry->load<MeshResource>( "meshes/skysphere.glb" );
+	skysphere->makeInstance( &m_mesh );
+
+	m_transform.addChild( &m_mesh.transform );
 }
 
 void wv::SkyboxObject::onDeconstructImpl()
 {
-	m_mesh->destroy();
+	m_mesh.destroy();
 }
 
 void wv::SkyboxObject::onEnterImpl()

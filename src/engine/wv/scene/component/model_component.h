@@ -24,7 +24,7 @@ public:
 
 protected:
 
-	MeshInstance* m_mesh;
+	MeshInstance m_mesh;
 	std::string m_meshPath = "";
 
 };
