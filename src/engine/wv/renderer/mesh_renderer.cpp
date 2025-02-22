@@ -14,6 +14,8 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 
 	unordered_array<MeshID, Mesh>& meshreg = m_pGraphics->m_meshes;
 
+	std::vector<MeshInstanceData> instances;
+
 	for ( auto& meshID : _pNode->meshes )
 	{
 		if ( !meshID.is_valid() )
@@ -32,10 +34,9 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 		mat->setAsActive( m_pGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
-		
 		wv::Matrix4x4f basematrix = mesh.transform.getMatrix();
-		std::vector<MeshInstanceData> instances;
 		
+		instances.reserve( _numInstances );
 		for ( size_t i = 0; i < _numInstances; i++ )
 		{
 			Matrix4x4f matrix = basematrix * _pInstanceMatrices[ i ];
