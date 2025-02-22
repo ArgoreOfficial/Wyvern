@@ -76,7 +76,7 @@ void wv::IGraphicsDevice::initEmbeds()
 
 void wv::IGraphicsDevice::executeCreateQueue()
 {
-	std::scoped_lock lock( m_mutex );
+	std::scoped_lock lock{ m_mutex };
 
 	//cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
 	cCommandBuffer& buffer = m_createDestroyCommandBuffer;

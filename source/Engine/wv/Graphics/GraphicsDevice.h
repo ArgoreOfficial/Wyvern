@@ -273,11 +273,6 @@ protected:
 
 	IGraphicsDevice();
 
-	// returns base vertex
-	size_t pushVertexBuffer( GPUBufferID _buffer, void* _vertices, size_t _size );
-	// returns base index
-	size_t pushIndexBuffer( GPUBufferID _buffer, void* _indices, size_t _size );
-
 	virtual bool initialize( sLowLevelGraphicsDesc* _desc ) = 0;
 
 	std::thread::id m_threadID;
@@ -297,7 +292,7 @@ protected:
 template<typename T>
 inline void IGraphicsDevice::cmd( const eGPUTaskType& _type, T* _pInfo )
 {
-	std::scoped_lock lock( m_mutex );
+	std::scoped_lock lock{ m_mutex };
 	m_createDestroyCommandBuffer.push<T>( _type, _pInfo );
 }
 
