@@ -18,27 +18,29 @@ void wv::RigidBodyComponent::onEnter( void )
 	Entity* parent = getParent();
 	m_pPhysicsBodyDesc->transform = parent->m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
-#endif // WV_SUPPORT_PHYSICS
 
 	WV_FREE( m_pPhysicsBodyDesc );
 	m_pPhysicsBodyDesc = nullptr;
+#endif // WV_SUPPORT_PHYSICS
 }
 
 void wv::RigidBodyComponent::onExit( void )
 {
+#ifdef WV_SUPPORT_PHYSICS
 	wv::Engine* app = wv::Engine::get();
-
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
+#endif
 }
 
 void wv::RigidBodyComponent::onPhysicsUpdate( double /*_deltaTime*/ )
 {
+#ifdef WV_SUPPORT_PHYSICS
 	wv::JoltPhysicsEngine* pPhysics = wv::Engine::get()->m_pPhysicsEngine;
-
 	if ( !m_physicsBodyHandle.is_valid() || !pPhysics->isBodyActive( m_physicsBodyHandle ) )
 		return;
 
 	Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
 	getParent()->m_transform.setPositionRotation( t.position, t.rotation );
+#endif
 }

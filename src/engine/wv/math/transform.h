@@ -17,6 +17,7 @@ class Transform
 {
 
 public:
+	Transform() = default;
 
 	inline void setPosition( const wv::Vector3<_Ty>& _position ) { position = _position; }
 	inline void setRotation( const wv::Vector3<_Ty>& _rotation ) { rotation = _rotation; }

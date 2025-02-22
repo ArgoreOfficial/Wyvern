@@ -31,6 +31,7 @@ public:
 	
 	enum FunctionFlags
 	{
+		kNone            = 0,
 		kOnConstruct     = 1,
 		kOnDestruct      = 1 << 1,
 		kOnEnter         = 1 << 2,

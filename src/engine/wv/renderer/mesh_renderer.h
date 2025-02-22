@@ -19,7 +19,7 @@ public:
 
 	}
 	
-	virtual void drawMeshNode( MeshNode* _pNode, Transformf* _pTransforms, size_t _numInstances );
+	virtual void drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances );
 	virtual void drawMesh( MeshResource* _pMesh );
 
 private:

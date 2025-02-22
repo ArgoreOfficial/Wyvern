@@ -13,13 +13,19 @@ struct IPhysicsBodyDesc;
 class RigidBodyComponent : public IComponent
 {
 public:
-	RigidBodyComponent( IPhysicsBodyDesc* _bodyDesc ) :
-		IComponent( "RigidBodyComponent" ),
-		m_pPhysicsBodyDesc{ _bodyDesc }
+	RigidBodyComponent( IPhysicsBodyDesc* _bodyDesc ) 
+		: IComponent( "RigidBodyComponent" )
+	#ifdef WV_SUPPORT_PHYSICS
+		, m_pPhysicsBodyDesc{ _bodyDesc }
+	#endif
 	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
+	#ifdef WV_SUPPORT_PHYSICS
 		return FunctionFlags::kOnEnter | FunctionFlags::kOnExit | FunctionFlags::kOnPhysicsUpdate;
+	#else
+		return FunctionFlags::kNone;
+	#endif
 	}
 
 	virtual void onEnter( void ) override;
@@ -28,9 +34,10 @@ public:
 	virtual void onPhysicsUpdate( double _deltaTime ) override;
 
 protected:
-
+#ifdef WV_SUPPORT_PHYSICS
 	IPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
 	PhysicsBodyID m_physicsBodyHandle = PhysicsBodyID::InvalidID;
+#endif
 };
 
 }

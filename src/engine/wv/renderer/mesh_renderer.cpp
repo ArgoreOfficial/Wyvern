@@ -7,7 +7,7 @@
 #include <wv/shader/shader_resource.h>
 #include <wv/graphics/mesh.h>
 
-void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Transformf* _pTransforms, size_t _numInstances )
+void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances )
 {
 	if ( !_pNode )
 		return;
@@ -38,8 +38,7 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Transformf* _pTransforms
 		
 		for ( size_t i = 0; i < _numInstances; i++ )
 		{
-			Transformf& transform = _pTransforms[ i ];
-			Matrix4x4f matrix = basematrix * transform.getMatrix();
+			Matrix4x4f matrix = basematrix * _pInstanceMatrices[ i ];
 		
 			MeshInstanceData instanceData{};
 			instanceData.model = matrix;
@@ -79,7 +78,7 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Transformf* _pTransforms
 	}
 
 	for ( auto& childNode : _pNode->children )
-		drawMeshNode( childNode, _pTransforms, _numInstances );
+		drawMeshNode( childNode, _pInstanceMatrices, _numInstances );
 }
 
 void wv::IMeshRenderer::drawMesh( MeshResource* _pMesh )
@@ -94,11 +93,11 @@ void wv::IMeshRenderer::drawMesh( MeshResource* _pMesh )
 	if ( instances.empty() )
 		return;
 
-	// construct tranform list
-	std::vector<Transformf> transforms;
-	transforms.reserve( instances.size() );
+	// construct instance list
+	std::vector<Matrix4x4f> matrices;
+	matrices.reserve( instances.size() );
 	for ( MeshInstance* instance : instances )
-		transforms.push_back( instance->transform );
+		matrices.push_back( instance->transform.getMatrix() );
 	
-	drawMeshNode( _pMesh->getMeshNode(), transforms.data(), transforms.size() );
+	drawMeshNode( _pMesh->getMeshNode(), matrices.data(), matrices.size() );
 }
