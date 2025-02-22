@@ -1,0 +1,36 @@
+#pragma once
+
+#include <wv/math/vector2.h>
+#include <wv/math/vector3.h>
+#include <wv/math/vector4.h>
+
+#include <string>
+#include <vector>
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+namespace wv
+{
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	struct MeshNode;
+	class ResourceRegistry;
+	class Mesh;
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+	class Parser
+	{
+
+	public:
+
+		Parser() { }
+			
+		
+		MeshNode* load( const char* _path, ResourceRegistry* _pResourceRegistry );
+
+	};
+
+
+}
