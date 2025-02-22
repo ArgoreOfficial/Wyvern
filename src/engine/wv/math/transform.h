@@ -30,7 +30,7 @@ public:
 	inline void translate( wv::Vector3<_Ty> _translation ) { position += _translation; }
 	inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }
 
-	inline Matrix<_Ty, 4, 4> getMatrix() { return m_matrix; }
+	inline Matrix<_Ty, 4, 4> getMatrix() const { return m_matrix; }
 
 	void addChild( Transform<_Ty>* _child );
 	void removeChild( Transform<_Ty>* _child );

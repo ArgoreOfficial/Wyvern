@@ -49,19 +49,16 @@ namespace wv
 		MeshInstance createInstance();
 		void destroyInstance( MeshInstance& _instance );
 
-		std::vector<Transformf>& getDrawQueue() { return m_drawQueue; }
-		
-		void addToDrawQueue( MeshInstance& _instance );
+		std::vector<Transformf>& getDrawQueue( void ) { return m_drawQueue; }
+		MeshNode*                getMeshNode ( void ) { return m_pMeshNode; }
 
-		void drawInstances( IGraphicsDevice* _pLowLevelGraphics );
+		void addToDrawQueue( MeshInstance& _instance );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( IGraphicsDevice* _pLowLevelGraphics, MeshNode* _node );
-
 		std::mutex m_mutex{};
 		MeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;
