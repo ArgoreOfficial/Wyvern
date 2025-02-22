@@ -101,6 +101,7 @@ void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphic
 		spawnBlock( 5, m_numToSpawn / 2, 5 );
 
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
+	ImGui::Text( "Bytes Allocated: %i", wv::MemoryTracker::getTotalAllocationSize() );
 	ImGui::SameLine();
 
 	ImGui::End();
