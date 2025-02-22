@@ -44,7 +44,7 @@ namespace wv
 		virtual void onUpdate( double _deltaTime ) override;
 		virtual void onDraw  ( IDeviceContext* _context, IGraphicsDevice* _device ) override;
 
-		MeshInstance m_mesh;
+		MeshInstance* m_mesh;
 
 	};
 }

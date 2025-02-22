@@ -84,17 +84,21 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Transformf* _pTransforms
 
 void wv::IMeshRenderer::drawMesh( MeshResource* _pMesh )
 {
-	auto& drawQueue = _pMesh->getDrawQueue();
+	auto& instances = _pMesh->getInstances();
 	if ( _pMesh->getMeshNode() == nullptr )
 	{
-		drawQueue.clear();
+		instances.clear();
 		return;
 	}
 
-	if ( drawQueue.empty() )
+	if ( instances.empty() )
 		return;
 
-	drawMeshNode( _pMesh->getMeshNode(), drawQueue.data(), drawQueue.size() );
-
-	drawQueue.clear();
+	// construct tranform list
+	std::vector<Transformf> transforms;
+	transforms.reserve( instances.size() );
+	for ( MeshInstance* instance : instances )
+		transforms.push_back( instance->transform );
+	
+	drawMeshNode( _pMesh->getMeshNode(), transforms.data(), transforms.size() );
 }

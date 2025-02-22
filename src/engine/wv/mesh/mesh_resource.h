@@ -46,13 +46,11 @@ namespace wv
 		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
-		MeshInstance createInstance();
-		void destroyInstance( MeshInstance& _instance );
+		MeshInstance* createInstance();
+		void destroyInstance( MeshInstance* _instance );
 
-		std::vector<Transformf>& getDrawQueue( void ) { return m_drawQueue; }
-		MeshNode*                getMeshNode ( void ) { return m_pMeshNode; }
-
-		void addToDrawQueue( MeshInstance& _instance );
+		MeshNode*                   getMeshNode ( void ) { return m_pMeshNode; }
+		std::vector<MeshInstance*>& getInstances( void ) { return m_instances; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,8 +58,9 @@ namespace wv
 
 	private:
 		std::mutex m_mutex{};
+
 		MeshNode* m_pMeshNode = nullptr;
-		std::vector<Transformf> m_drawQueue;
+		std::vector<MeshInstance*> m_instances;
 	};
 
 

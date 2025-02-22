@@ -17,16 +17,16 @@
 
 void wv::MeshInstance::draw()
 {
-	if( pResource )
-		pResource->addToDrawQueue( *this );
+	//if( pResource )
+	//	pResource->addToDrawQueue( *this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::MeshInstance::destroy()
 {
-	if( pResource )
-		pResource->destroyInstance( *this );
+	if ( pResource )
+		pResource->destroyInstance( this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -63,32 +63,46 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 {
 	if( m_pMeshNode )
 		unloadMeshNode( m_pMeshNode );
+
+	if ( m_instances.size() > 0 )
+		Debug::Print( Debug::WV_PRINT_ERROR, "Mesh %s has %zu instances left", m_name, m_instances.size() );
+	
+	for ( auto& instance : m_instances )
+		WV_FREE( instance );
+
+	m_instances.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::MeshInstance wv::MeshResource::createInstance()
+wv::MeshInstance* wv::MeshResource::createInstance()
 {
-	MeshInstance instance;
-	instance.pResource = this;
+	MeshInstance* instance = WV_NEW( MeshInstance );
+	instance->pResource = this;
+
+	m_instances.push_back( instance );
+	//m_mutex.lock();
+	//m_mutex.unlock();
 	
-    return instance;
+	return instance;
 }
 
-void wv::MeshResource::destroyInstance( MeshInstance& _instance )
+void wv::MeshResource::destroyInstance( MeshInstance* _instance )
 {
 	Engine* app = Engine::get();
-	app->m_pResourceRegistry->unload( _instance.pResource );
 
-	_instance.pResource = nullptr;
+	//m_mutex.lock();
+	for ( auto itr = m_instances.begin(); itr != m_instances.end(); itr++ )
+	{
+		if ( *itr != _instance )
+			continue;
+
+		_instance->pResource = nullptr;
+		m_instances.erase( itr );
+		WV_FREE( _instance );
+		break;
+	}
+	//m_mutex.unlock();
+	
+	app->m_pResourceRegistry->unload( this );
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::MeshResource::addToDrawQueue( MeshInstance& _instance )
-{
-	std::scoped_lock lock{ m_mutex };
-
-	m_drawQueue.push_back( _instance.transform );
-}
-
