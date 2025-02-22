@@ -1,13 +1,13 @@
 #ifdef WV_SUPPORT_SDL2
 
-#include "SDLDeviceContext.h"
+#include "sdl_device_context.h"
 
 #include <stdio.h>
 
-#include <wv/Engine/Engine.h>
-#include <wv/Events/Events.h>
+#include <wv/engine.h>
+#include <wv/event/events.h>
 
-#include <wv/Math/Vector2.h>
+#include <wv/math/vector2.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -15,14 +15,14 @@
 #include <GLES2/gl2.h>
 #endif
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 #endif
 
-#include <wv/Events/Dispatcher.h>
+#include <wv/event/dispatcher.h>
 
 static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
 {

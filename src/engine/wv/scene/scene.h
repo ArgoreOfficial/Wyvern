@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Decl.h>
-#include <wv/Scene/SceneObject.h>
-#include "wv/JobSystem/JobSystem.h"
+#include <wv/decl.h>
+#include <wv/scene/scene_object.h>
+#include "wv/job/job_system.h"
 #include <string>
 
 ///////////////////////////////////////////////////////////////////////////////////////

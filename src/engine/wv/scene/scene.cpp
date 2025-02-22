@@ -1,6 +1,6 @@
-#include "Scene.h"
+#include "scene.h"
 
-#include <wv/Memory/Memory.h>
+#include <wv/memory/memory.h>
 #include <functional>
 
 ///////////////////////////////////////////////////////////////////////////////////////

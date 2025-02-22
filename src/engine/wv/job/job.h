@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Decl.h>
+#include <wv/types.h>
+#include <wv/decl.h>
 
 #include <atomic>
 #include <new>

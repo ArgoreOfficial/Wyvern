@@ -3,9 +3,9 @@
 #ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>
 #endif
-#include <wv/Types.h>
+#include <wv/types.h>
 
-#include <wv/Device/DeviceContext.h>
+#include <wv/device/device_context.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>

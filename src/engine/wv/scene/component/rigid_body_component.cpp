@@ -1,10 +1,10 @@
-#include "RigidBodyComponent.h"
+#include "rigid_body_component.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Memory/Memory.h>
+#include <wv/engine.h>
+#include <wv/memory/memory.h>
 
-#include <wv/Physics/PhysicsEngine.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
+#include <wv/physics/physics_engine.h>
+#include <wv/physics/physics_body_descriptor.h>
 
 #include <wv/Scene/Entity/Entity.h>
 

@@ -1,10 +1,10 @@
-#include "ShaderResource.h"
+#include "shader_resource.h"
 
-#include <wv/Memory/FileSystem.h>
+#include <wv/memory/file_system.h>
 
-#include <wv/Auxiliary/json/json11.hpp>
-#include <wv/Engine/Engine.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <auxiliary/json/json11.hpp>
+#include <wv/engine.h>
+#include <wv/graphics/graphics_device.h>
 
 void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {

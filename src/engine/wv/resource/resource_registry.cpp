@@ -1,9 +1,9 @@
-#include "ResourceRegistry.h"
+#include "resource_registry.h"
 
-#include <wv/Material/Material.h>
-#include <wv/Debug/Print.h>
-#include <wv/Resource/Resource.h>
-#include <wv/Mesh/MeshResource.h>
+#include <wv/material/material.h>
+#include <wv/debug/log.h>
+#include <wv/resource/resource.h>
+#include <wv/mesh/mesh_resource.h>
 #include <vector>
 
 wv::cResourceRegistry::~cResourceRegistry()

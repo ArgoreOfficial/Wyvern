@@ -1,3 +1,3 @@
 #pragma once
 
-#include <wv/Platform/Thread.h>
+#include <wv/platform/thread.h>

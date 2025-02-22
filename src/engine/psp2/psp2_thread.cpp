@@ -1,6 +1,6 @@
 #ifdef WV_PLATFORM_PSP2
 
-#include "PSP2Thread.h"
+#include "psp2_thread.h"
 
 void wv::Thread::sleepFor( uint64_t _nanoseconds )
 {

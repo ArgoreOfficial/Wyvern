@@ -1,6 +1,6 @@
-#include "NoAPIDeviceContext.h"
+#include "noapi_device_context.h"
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

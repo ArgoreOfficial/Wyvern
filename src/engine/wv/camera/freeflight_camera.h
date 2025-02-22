@@ -2,11 +2,11 @@
 
 #include <wv/Camera/Camera.h>
 
-#include <wv/Events/Events.h>
+#include <wv/event/events.h>
 
-#include <wv/Math/Transform.h>
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector2.h>
+#include <wv/math/transform.h>
+#include <wv/math/vector3.h>
+#include <wv/math/vector2.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

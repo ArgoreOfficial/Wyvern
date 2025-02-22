@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/JobSystem/Job.h>
-#include <wv/JobSystem/JobBuffer.h>
+#include <wv/job/job.h>
+#include <wv/job/job_buffer.h>
 
 #include <thread>
 

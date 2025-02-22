@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Graphics/Pipeline.h>
-#include <wv/Resource/Resource.h>
+#include <wv/graphics/Pipeline.h>
+#include <wv/resource/resource.h>
 
 #include <vector>
 #include <string>

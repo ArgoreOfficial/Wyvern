@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Decl.h>
+#include <wv/decl.h>
 
 namespace wv
 {

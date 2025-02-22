@@ -2,11 +2,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#include <wv/Types.h>
+#include <wv/types.h>
 
-#include <wv/Math/Transform.h>
+#include <wv/math/transform.h>
 
-#include <wv/Physics/PhysicsTypes.h>
+#include <wv/physics/physics_types.h>
 
 #include <unordered_map>
 #include <mutex>

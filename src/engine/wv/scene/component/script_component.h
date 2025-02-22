@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IComponent.h"
+#include "icomponent.h"
 
 namespace wv
 {

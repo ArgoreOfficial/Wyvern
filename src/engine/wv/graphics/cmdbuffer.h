@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include <wv/Memory/MemoryStream.h>
-#include <wv/Memory/Function.h>
+#include <wv/memory/memory_stream.h>
+#include <wv/memory/function.h>
 
 namespace wv
 {

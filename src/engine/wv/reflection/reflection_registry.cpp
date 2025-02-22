@@ -1,7 +1,7 @@
-#include "ReflectionRegistry.h"
+#include "reflection_registry.h"
 
-#include <wv/Debug/Print.h>
-#include <wv/Reflection/ReflectedClass.h>
+#include <wv/debug/log.h>
+#include <wv/reflection/reflected_class.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

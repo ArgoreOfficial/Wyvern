@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Engine/Application.h>
+#include <wv/app.h>
 
 class cSandbox : public wv::iApplication
 {

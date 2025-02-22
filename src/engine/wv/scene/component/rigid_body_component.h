@@ -1,9 +1,9 @@
 #pragma once
 
-#include "IComponent.h"
+#include "icomponent.h"
 
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Physics/PhysicsTypes.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/physics/physics_types.h>
 
 namespace wv
 {

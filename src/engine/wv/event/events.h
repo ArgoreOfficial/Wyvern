@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Events/Listener.h>
+#include <wv/event/listener.h>
 
-#include <wv/Math/Vector2.h>
-#include <wv/Misc/Key.h>
+#include <wv/math/vector2.h>
+#include <wv/misc/key.h>
 
 namespace wv
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Math/Transform.h>
-#include <wv/Math/Triangle.h>
-#include <wv/Graphics/Mesh.h>
-#include <wv/Types.h>
+#include <wv/math/transform.h>
+#include <wv/math/Triangle.h>
+#include <wv/graphics/mesh.h>
+#include <wv/types.h>
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#include <wv/Resource/Resource.h>
+#include <wv/resource/resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

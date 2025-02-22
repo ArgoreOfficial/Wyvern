@@ -1,9 +1,9 @@
 
 #include "Sandbox.h"
 
-#include <wv/Debug/Trace.h>
-#include <wv/Memory/Memory.h>
-#include <wv/Platform/Console.h>
+#include <wv/debug/trace.h>
+#include <wv/memory/memory.h>
+#include <wv/platform/console.h>
 
 #include <stdio.h>
 #include <exception>

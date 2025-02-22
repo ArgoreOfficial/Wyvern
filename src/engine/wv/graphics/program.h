@@ -1,12 +1,12 @@
 #pragma once
 
-#include <wv/Resource/Resource.h>
-#include <wv/Graphics/Uniform.h>
-#include <wv/Graphics/GPUBuffer.h>
+#include <wv/resource/resource.h>
+#include <wv/graphics/uniform.h>
+#include <wv/graphics/gpu_buffer.h>
+
+#include <wv/graphics/types.h>
 
 #include <vector>
-
-#include <wv/Graphics/Types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

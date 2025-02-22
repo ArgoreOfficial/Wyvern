@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Types.h>
+#include <wv/types.h>
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 #include <string>
 

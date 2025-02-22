@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Device/DeviceContext.h>
+#include <wv/types.h>
+#include <wv/device/device_context.h>
 
 #include <chrono>
 

@@ -1,7 +1,7 @@
-#include "MemoryStream.h"
+#include "memory_stream.h"
 
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/Memory.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
 
 #include <fstream>
 #include <stdio.h>

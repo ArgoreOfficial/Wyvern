@@ -1,6 +1,6 @@
 #ifdef WV_PLATFORM_WINDOWS
 
-#include "WinConsole.h"
+#include "windows_console.h"
 
 #include <stdio.h>
 #include <Windows.h>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Types.h>
+#include <wv/types.h>
 
-#include <wv/Math/Matrix.h>
+#include <wv/math/matrix.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

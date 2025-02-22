@@ -1,8 +1,8 @@
-#include "OrbitCamera.h"
+#include "orbit_camera.h"
 
-#include <wv/Device/DeviceContext.h>
-#include <wv/Engine/Engine.h>
-#include <wv/Math/Math.h>
+#include <wv/device/device_context.h>
+#include <wv/engine.h>
+#include <wv/math/math.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

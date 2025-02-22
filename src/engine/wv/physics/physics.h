@@ -1,4 +1,4 @@
 #pragma once
 
-#include <wv/Physics/PhysicsTypes.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
+#include <wv/physics/physics_types.h>
+#include <wv/physics/physics_body_descriptor.h>

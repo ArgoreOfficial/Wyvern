@@ -1,12 +1,12 @@
 #pragma once
 
-#include "DemoWindowComponent.h"
+#include "demo_window_component.h"
 
-#include <wv/Scene/Entity/Entity.h>
-#include <wv/Reflection/Reflection.h>
-#include <wv/Engine/Engine.h>
+#include <wv/scene/entity/entity.h>
+#include <wv/reflection/reflection.h>
+#include <wv/engine.h>
 
-#include <wv/Memory/Memory.h>
+#include <wv/memory/memory.h>
 
 #include <string>
 

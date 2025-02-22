@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Debug/Print.h>
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
+#include <wv/debug/log.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
 
 namespace wv
 {

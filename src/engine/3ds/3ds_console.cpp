@@ -1,8 +1,8 @@
 #ifdef WV_PLATFORM_3DS
 
-#include "3DSConsole.h"
+#include "3ds_console.h"
 
-#include <platform/3DS/3DS.h>
+#include <3ds/3ds.h> //wv
 
 #include <3ds.h>
 #include <citro3d.h>

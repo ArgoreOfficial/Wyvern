@@ -3,12 +3,12 @@
 #include <unordered_map>
 #include <string>
 
-#include <wv/Auxiliary/json/json11.hpp>
-#include <wv/Memory/Function.h>
+#include <auxiliary/json/json11.hpp>
+#include <wv/memory/Function.h>
 
-#include <wv/Auxiliary/json/json11.hpp>
+#include <auxiliary/json/json11.hpp>
 
-#include <wv/Math/Vector3.h>
+#include <wv/math/vector3.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

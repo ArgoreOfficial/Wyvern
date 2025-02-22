@@ -15,7 +15,7 @@
 #include <vector>
 #include <atomic>
 
-#include <wv/Types/type_guard.hpp>
+#include <wv/types/type_guard.hpp>
 
 namespace wv {
 

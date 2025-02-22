@@ -1,8 +1,8 @@
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 
-#include "PhysicsListeners.h"
+#include "physics_listener.h"
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

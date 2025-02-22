@@ -1,7 +1,7 @@
 #include "Model.h"
 
-#include <wv/Memory/Memory.h>
-#include <wv/Scene/Component/ModelComponent.h>
+#include <wv/memory/memory.h>
+#include <wv/scene/component/model_component.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

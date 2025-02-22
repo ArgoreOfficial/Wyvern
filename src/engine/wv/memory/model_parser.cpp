@@ -1,17 +1,17 @@
-#include "ModelParser.h"
+#include "model_parser.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Material/Material.h>
-#include <wv/Debug/Print.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Math/Triangle.h>
-#include <wv/Memory/FileSystem.h>
+#include <wv/engine.h>
+#include <wv/material/material.h>
+#include <wv/debug/log.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/math/Triangle.h>
+#include <wv/memory/file_system.h>
 
-#include <wv/Texture/TextureResource.h>
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/texture/texture_resource.h>
+#include <wv/Resource/resource_registry.h>
 
-#include <wv/Auxiliary/json/json11.hpp>
+#include <auxiliary/json/json11.hpp>
 
 #include <fstream>
 

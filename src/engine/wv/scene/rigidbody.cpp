@@ -1,22 +1,22 @@
-#include "Rigidbody.h"
+#include "rigidbody.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/engine.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
 
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Material/Material.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/material/material.h>
 
-#include <wv/Memory/ModelParser.h>
-#include <wv/Memory/FileSystem.h>
+#include <wv/memory/model_parser.h>
+#include <wv/memory/file_system.h>
 
-#include <wv/Physics/PhysicsEngine.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
+#include <wv/physics/physics_engine.h>
+#include <wv/physics/physics_body_descriptor.h>
 
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/resource/resource_registry.h>
 
-#include <wv/Scene/Component/ModelComponent.h>
-#include <wv/Scene/Component/RigidBodyComponent.h>
+#include <wv/scene/component/model_component.h>
+#include <wv/scene/component/rigid_body_component.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -3,10 +3,10 @@
 #include <vector>
 #include <string>
 
-#include <wv/Material/MaterialVariable.h>
-#include <wv/Math/Matrix.h>
-#include <wv/Resource/Resource.h>
-#include <wv/Graphics/Types.h>
+#include <wv/material/material_variable.h>
+#include <wv/math/matrix.h>
+#include <wv/resource/resource.h>
+#include <wv/graphics/types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

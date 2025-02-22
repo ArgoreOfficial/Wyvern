@@ -1,17 +1,17 @@
-#include "DemoWindowComponent.h"
+#include "demo_window_component.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/engine.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
 
-#include <wv/Engine/ApplicationState.h>
-#include <wv/Scene/Scene.h>
-#include <wv/Scene/Rigidbody.h>
-#include <wv/Scene/Model.h>
-#include <wv/Memory/FileSystem.h>
+#include <wv/app_state.h>
+#include <wv/scene/scene.h>
+#include <wv/scene/rigidbody.h>
+#include <wv/scene/model.h>
+#include <wv/memory/file_system.h>
 
-#include <wv/Scene/Component/ModelComponent.h>
-#include <wv/Scene/Component/RigidBodyComponent.h>
+#include <wv/scene/component/model_component.h>
+#include <wv/scene/component/rigid_body_component.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>

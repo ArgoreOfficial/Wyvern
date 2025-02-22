@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Graphics/Types.h>
-#include <wv/Math/Transform.h>
+#include <wv/graphics/types.h>
+#include <wv/math/transform.h>
 
 namespace wv
 {

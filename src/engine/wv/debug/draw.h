@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Math/Transform.h>
-#include <wv/Math/Vector3.h>
+#include <wv/math/transform.h>
+#include <wv/math/vector3.h>
 
 #include <vector>
 

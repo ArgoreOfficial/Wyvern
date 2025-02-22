@@ -2,8 +2,8 @@
 
 #include <wv/unordered_array.hpp>
 
-#include <wv/JobSystem/Worker.h>
-#include <wv/Types.h>
+#include <wv/job/worker.h>
+#include <wv/types.h>
 
 #include <vector>
 #include <queue>

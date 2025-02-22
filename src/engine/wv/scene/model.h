@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Entity/Entity.h"
+#include "entity/entity.h"
 
-#include <wv/Reflection/Reflection.h>
+#include <wv/reflection/reflection.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

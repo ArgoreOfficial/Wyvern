@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Scene/Component/IComponent.h>
+#include <wv/scene/component/icomponent.h>
 
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Physics/PhysicsTypes.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/physics/physics_types.h>
 
 struct iPhysicsBodyDesc;
 

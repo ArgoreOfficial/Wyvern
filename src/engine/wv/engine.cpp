@@ -4,35 +4,34 @@
 #include <glad/glad.h>
 #endif
 
-#include <wv/Material/Material.h>
+#include <wv/material/material.h>
 
-#include <wv/Camera/FreeflightCamera.h>
-#include <wv/Camera/OrbitCamera.h>
+#include <wv/camera/freeflight_camera.h>
+#include <wv/camera/orbit_camera.h>
 
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Device/AudioDevice.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/device/audio_device.h>
 
-#include <wv/JobSystem/JobSystem.h>
+#include <wv/job/job_system.h>
 
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/ModelParser.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/model_parser.h>
 
-#include <wv/Physics/PhysicsEngine.h>
-#include <wv/Mesh/MeshResource.h>
+#include <wv/physics/physics_engine.h>
+#include <wv/mesh/mesh_resource.h>
 
-#include <wv/Graphics/RenderTarget.h>
-#include <wv/RenderTarget/IntermediateRenderTargetHandler.h>
-#include <wv/Resource/ResourceRegistry.h>
-#include <wv/Shader/ShaderResource.h>
+#include <wv/graphics/render_target.h>
+#include <wv/Resource/resource_registry.h>
+#include <wv/shader/shader_resource.h>
 
-#include <wv/Engine/EngineReflect.h>
+#include <wv/engine_reflect.h>
 
-#include <wv/Engine/ApplicationState.h>
-#include <wv/Events/Dispatcher.h>
+#include <wv/app_state.h>
+#include <wv/event/dispatcher.h>
 
-#include <wv/Debug/Print.h>
-#include <wv/Debug/Draw.h>
+#include <wv/debug/log.h>
+#include <wv/debug/Draw.h>
 
 #include <stdio.h>
 #include <math.h>

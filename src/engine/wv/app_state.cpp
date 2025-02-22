@@ -1,14 +1,14 @@
-#include "ApplicationState.h"
+#include "app_state.h"
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 #include <wv/Scene/Scene.h>
 
-#include <wv/Reflection/Reflection.h>
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/Memory.h>
+#include <wv/reflection/reflection.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
 
-#include <wv/Engine/Engine.h>
-#include <wv/Events/UpdateManager.h>
+#include <wv/engine.h>
+#include <wv/event/update_manager.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

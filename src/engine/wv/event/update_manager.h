@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Decl.h>
-#include <wv/JobSystem/JobSystem.h>
-#include <wv/Engine/Engine.h>
+#include <wv/decl.h>
+#include <wv/job/job_system.h>
+#include <wv/engine.h>
 
 #include <vector>
 #include <unordered_set>

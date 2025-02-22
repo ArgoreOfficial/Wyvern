@@ -1,11 +1,11 @@
 #pragma once
 
-#include <wv/Math/Transform.h>
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector2.h>
+#include <wv/math/transform.h>
+#include <wv/math/vector3.h>
+#include <wv/math/vector2.h>
 
-#include <wv/Decl.h>
-#include <wv/Graphics/Types.h>
+#include <wv/decl.h>
+#include <wv/graphics/types.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

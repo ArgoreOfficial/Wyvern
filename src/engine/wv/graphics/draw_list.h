@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Graphics/Types.h>
-#include <wv/Graphics/Mesh.h>
+#include <wv/graphics/types.h>
+#include <wv/graphics/mesh.h>
 
 #include <vector>
 

@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include <wv/Types.h>
-#include <wv/Misc/Color.h>
+#include <wv/types.h>
+#include <wv/misc/color.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

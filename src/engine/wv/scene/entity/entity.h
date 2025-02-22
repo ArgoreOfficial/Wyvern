@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 
-#include <wv/Memory/Memory.h>
-#include <wv/Scene/SceneObject.h>
-#include <wv/Reflection/Reflection.h>
+#include <wv/memory/memory.h>
+#include <wv/scene/scene_object.h>
+#include <wv/reflection/reflection.h>
 
-#include <wv/Scene/Component/ScriptComponent.h>
+#include <wv/scene/component/script_component.h>
 
 namespace wv
 {

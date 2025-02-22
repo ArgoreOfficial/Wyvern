@@ -1,9 +1,9 @@
-#include "Camera.h"
+#include "camera.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Graphics/GPUBuffer.h>
+#include <wv/engine.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/graphics/gpu_buffer.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

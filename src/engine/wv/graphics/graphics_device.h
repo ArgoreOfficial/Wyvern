@@ -2,17 +2,17 @@
 
 #include <wv/unordered_array.hpp>
 
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
 
-#include <wv/Misc/Color.h>
-#include <wv/Graphics/GPUBuffer.h>
+#include <wv/misc/color.h>
+#include <wv/graphics/gpu_buffer.h>
 
-#include <wv/Graphics/CommandBuffer.h>
-#include <wv/Graphics/Pipeline.h>
-#include <wv/Graphics/DrawList.h>
-#include <wv/Graphics/Texture.h>
-#include <wv/Graphics/RenderTarget.h>
+#include <wv/graphics/cmdbuffer.h>
+#include <wv/graphics/pipeline.h>
+#include <wv/graphics/draw_list.h>
+#include <wv/graphics/texture.h>
+#include <wv/graphics/render_target.h>
 
 #include <vector>
 #include <queue>

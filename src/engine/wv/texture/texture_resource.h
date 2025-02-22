@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Graphics/Texture.h>
-#include <wv/Resource/Resource.h>
+#include <wv/graphics/Texture.h>
+#include <wv/resource/resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

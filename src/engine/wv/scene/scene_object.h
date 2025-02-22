@@ -1,14 +1,14 @@
 #pragma once
 
-#include <wv/Math/Transform.h>
-#include <wv/Types.h>
+#include <wv/math/transform.h>
+#include <wv/types.h>
 
 #include <stdint.h>
 #include <vector>
 #include <string>
 
-#include <wv/Engine/Engine.h>
-#include <wv/JobSystem/JobSystem.h>
+#include <wv/engine.h>
+#include <wv/job/job_system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

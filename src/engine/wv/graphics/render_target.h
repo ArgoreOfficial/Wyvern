@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
-#include <wv/Graphics/Texture.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
+#include <wv/graphics/Texture.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

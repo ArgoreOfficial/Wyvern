@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector4.h>
+#include <wv/math/vector3.h>
+#include <wv/math/vector4.h>
 
 #include <stdint.h>
 #include <type_traits>

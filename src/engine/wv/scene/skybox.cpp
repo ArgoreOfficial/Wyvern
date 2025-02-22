@@ -1,12 +1,12 @@
-#include "Skybox.h"
+#include "skybox.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/engine.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
 
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Material/Material.h>
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/material/material.h>
+#include <wv/resource/resource_registry.h>
 
 #ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>

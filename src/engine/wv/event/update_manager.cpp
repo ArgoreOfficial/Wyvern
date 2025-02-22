@@ -1,9 +1,9 @@
-#include "UpdateManager.h"
+#include "update_manager.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Engine/ApplicationState.h>
+#include <wv/engine.h>
+#include <wv/app_state.h>
 
-#include <wv/JobSystem/JobSystem.h>
+#include <wv/job/job_system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

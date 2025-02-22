@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IComponent.h"
+#include "icomponent.h"
 
-#include <wv/Mesh/MeshResource.h>
+#include <wv/mesh/mesh_resource.h>
 
 namespace wv
 {

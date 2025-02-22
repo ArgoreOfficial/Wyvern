@@ -1,17 +1,17 @@
-#include "Material.h"
+#include "material.h"
 
-#include <wv/Texture/TextureResource.h>
-#include <wv/Camera/Camera.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Engine/Engine.h>
-#include <wv/Math/Transform.h>
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Graphics/Mesh.h>
-#include <wv/Shader/ShaderResource.h>
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/texture/texture_resource.h>
+#include <wv/camera/camera.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/engine.h>
+#include <wv/math/transform.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/graphics/mesh.h>
+#include <wv/shader/shader_resource.h>
+#include <wv/resource/resource_registry.h>
 
-#include <wv/Auxiliary/json/json11.hpp>
-#include <wv/Memory/FileSystem.h>
+#include <auxiliary/json/json11.hpp>
+#include <wv/memory/file_system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

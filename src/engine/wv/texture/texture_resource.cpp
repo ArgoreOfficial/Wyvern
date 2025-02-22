@@ -1,12 +1,12 @@
-#include "TextureResource.h"
+#include "texture_resource.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/Memory.h>
+#include <wv/engine.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
 
 #ifdef WV_PLATFORM_WINDOWS
-#include <wv/Auxiliary/stb_image.h>
+#include <auxiliary/stb_image.h>
 
 #include <locale>
 #include <codecvt>

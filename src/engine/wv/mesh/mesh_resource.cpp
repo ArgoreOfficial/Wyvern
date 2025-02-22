@@ -1,16 +1,17 @@
-#include "MeshResource.h"
+#include "mesh_resource.h"
 
-#include <wv/Memory/ModelParser.h>
-#include <wv/Engine/Engine.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Resource/ResourceRegistry.h>
-#include <wv/Material/Material.h>
+#include <wv/memory/model_parser.h>
+#include <wv/engine.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/Resource/resource_registry.h>
+#include <wv/material/material.h>
 
 #ifdef WV_SUPPORT_OPENGL
 #include <glad/glad.h>
 #endif
-#include <wv/Shader/ShaderResource.h>
-#include <wv/Texture/TextureResource.h>
+
+#include <wv/shader/shader_resource.h>
+#include <wv/texture/texture_resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

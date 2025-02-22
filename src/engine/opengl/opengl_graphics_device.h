@@ -1,12 +1,12 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Graphics/Pipeline.h>
-#include <wv/Misc/Color.h>
-#include <wv/Graphics/GPUBuffer.h>
+#include <wv/types.h>
+#include <wv/graphics/Pipeline.h>
+#include <wv/misc/color.h>
+#include <wv/graphics/gpu_buffer.h>
 
-#include <wv/Graphics/RenderTarget.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/graphics/render_target.h>
+#include <wv/graphics/graphics_device.h>
 
 #include <set>
 

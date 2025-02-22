@@ -1,10 +1,10 @@
-#include "JobSystem.h"
+#include "job_system.h"
 
-#include <wv/Memory/Memory.h>
+#include <wv/memory/memory.h>
 #include <exception>
 #include <random>
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

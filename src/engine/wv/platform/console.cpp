@@ -1,4 +1,4 @@
-#include "Console.h"
+#include "console.h"
 
 bool wv::Console::Internal::g_initialized = false;
 

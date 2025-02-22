@@ -1,11 +1,11 @@
 #pragma once
 
-#include <wv/Scene/Entity/Entity.h>
+#include <wv/scene/entity/entity.h>
 
-#include <wv/Mesh/MeshResource.h>
+#include <wv/mesh/mesh_resource.h>
 
-#include <wv/Physics/Physics.h>
-#include <wv/Reflection/Reflection.h>
+#include <wv/physics/physics.h>
+#include <wv/reflection/reflection.h>
 
 #include <string>
 #include <vector>

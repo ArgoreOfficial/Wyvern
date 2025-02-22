@@ -1,12 +1,12 @@
 #pragma once
 
-#include "SceneObject.h"
+#include "scene_object.h"
 
 #include <string>
 #include <vector>
 
-#include <wv/Reflection/Reflection.h>
-#include <wv/Mesh/MeshResource.h>
+#include <wv/reflection/reflection.h>
+#include <wv/mesh/mesh_resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

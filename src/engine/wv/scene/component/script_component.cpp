@@ -1,4 +1,4 @@
-#include "ScriptComponent.h"
+#include "script_component.h"
 
 void wv::ScriptComponent::onEnter( void )
 {

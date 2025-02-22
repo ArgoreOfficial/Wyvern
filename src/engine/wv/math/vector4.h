@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-#include <wv/Math/Math.h>
+#include <wv/math/Math.h>
 
 #ifdef WV_CPP20
 #include <compare>

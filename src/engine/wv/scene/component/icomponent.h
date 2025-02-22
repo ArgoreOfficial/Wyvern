@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Events/UpdateManager.h>
+#include <wv/event/update_manager.h>
 
 #include <vector>
 #include <string>

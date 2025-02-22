@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Math/Triangle.h>
-#include <wv/Mesh/MeshResource.h>
+#include <wv/math/Triangle.h>
+#include <wv/mesh/mesh_resource.h>
 
-#include <wv/Math/Matrix.h>
+#include <wv/math/matrix.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

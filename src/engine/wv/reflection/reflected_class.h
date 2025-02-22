@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wv/Memory/Function.h>
-#include <wv/Reflection/ReflectionRegistry.h>
-#include <wv/Debug/Print.h>
+#include <wv/memory/function.h>
+#include <wv/reflection/reflection_registry.h>
+#include <wv/debug/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

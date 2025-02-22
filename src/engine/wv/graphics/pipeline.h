@@ -1,10 +1,10 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
-#include <wv/Graphics/Program.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
+#include <wv/graphics/Program.h>
 
-#include <wv/Graphics/VertexLayout.h>
+#include <wv/graphics/vertex_layout.h>
 
 namespace wv
 {

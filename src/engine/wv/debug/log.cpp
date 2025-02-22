@@ -1,4 +1,4 @@
-#include "Print.h"
+#include "log.h"
 
 std::mutex& wv::Debug::Internal::getMutex()
 {

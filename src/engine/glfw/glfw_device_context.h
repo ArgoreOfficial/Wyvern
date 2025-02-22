@@ -4,9 +4,9 @@
 #include <GLFW/glfw3.h>
 #endif
 
-#include <wv/Types.h>
+#include <wv/types.h>
 
-#include <wv/Device/DeviceContext.h>
+#include <wv/device/device_context.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

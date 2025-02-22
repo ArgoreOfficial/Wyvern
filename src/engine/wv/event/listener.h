@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Events/Dispatcher.h>
+#include <wv/event/dispatcher.h>
 
 namespace wv
 {

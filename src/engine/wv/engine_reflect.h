@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wv/Scene/Model.h>
-#include <wv/Scene/Rigidbody.h>
-#include <wv/Scene/Skybox.h>
-#include <wv/Scene/Entity/Entity.h>
+#include <wv/scene/model.h>
+#include <wv/scene/rigidbody.h>
+#include <wv/scene/skybox.h>
+#include <wv/scene/entity/entity.h>
 
 namespace wv
 {

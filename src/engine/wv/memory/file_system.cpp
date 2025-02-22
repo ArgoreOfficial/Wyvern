@@ -1,14 +1,14 @@
-#include "FileSystem.h"
+#include "file_system.h"
 
-#include <wv/Debug/Print.h>
-#include <wv/Engine/Engine.h>
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Graphics/Uniform.h>
-#include <wv/Memory/Memory.h>
+#include <wv/debug/log.h>
+#include <wv/engine.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/graphics/Uniform.h>
+#include <wv/memory/memory.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #define STB_IMAGE_IMPLEMENTATION
-#include <wv/Auxiliary/stb_image.h>
+#include <auxiliary/stb_image.h>
 #endif
 
 #include <fstream>
@@ -22,9 +22,9 @@
 #endif
 
 #if defined( WV_PLATFORM_PSVITA )
-#include "LowLevel/PSVitaFileSystem.h"
+#include "lowlevel/psp2_file_system.h"
 #elif defined( WV_PLATFORM_WINDOWS )
-#include "LowLevel/WindowsFileSystem.h"
+#include "lowlevel/windows_file_system.h"
 #endif
 
 

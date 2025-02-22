@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Audio/Audio.h>
-#include <wv/Math/Vector3.h>
+#include <wv/audio/audio.h>
+#include <wv/math/vector3.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

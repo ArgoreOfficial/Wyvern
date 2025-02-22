@@ -1,11 +1,11 @@
 #pragma once
 
-#include <wv/Events/Events.h>
+#include <wv/event/events.h>
 
-#include <wv/Math/Vector2.h>
+#include <wv/math/vector2.h>
 
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
 
 namespace wv
 {

@@ -1,21 +1,21 @@
-#include "GraphicsDevice.h"
+#include "graphics_device.h"
 
-#include <wv/Debug/Print.h>
-#include <wv/Debug/Trace.h>
+#include <wv/debug/log.h>
+#include <wv/debug/trace.h>
 
-#include <wv/Material/Material.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/Mesh.h>
-#include <wv/Graphics/RenderTarget.h>
+#include <wv/material/material.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/mesh.h>
+#include <wv/graphics/render_target.h>
 
-#include <wv/Engine/Engine.h>
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/engine.h>
+#include <wv/resource/resource_registry.h>
 
-#include <platform/NoAPI/Graphics/NoAPIGraphicsDevice.h>
+#include <noapi/noapi_graphics_device.h>
 #if defined( WV_SUPPORT_OPENGL )
-#include <platform/OpenGL/Graphics/OpenGLGraphicsDevice.h>
+#include <opengl/opengl_graphics_device.h>
 #elif defined( WV_PLATFORM_PSVITA )
-#include <platform/PSVita/Graphics/PSVitaGraphicsDevice.h>
+#include <psp2/psp2_graphics_device.h>
 #endif
 
 #include <exception>

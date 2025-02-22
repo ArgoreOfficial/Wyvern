@@ -1,11 +1,11 @@
-#include "Draw.h"
+#include "draw.h"
 
-#include <wv/Graphics/GraphicsDevice.h>
-#include <wv/Material/Material.h>
-#include <wv/Mesh/MeshResource.h>
-#include <wv/Memory/ModelParser.h>
+#include <wv/graphics/graphics_device.h>
+#include <wv/material/material.h>
+#include <wv/mesh/mesh_resource.h>
+#include <wv/memory/model_parser.h>
 
-#include <wv/Resource/ResourceRegistry.h>
+#include <wv/resource/resource_registry.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

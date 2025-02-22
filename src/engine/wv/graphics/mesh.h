@@ -1,13 +1,13 @@
 #pragma once
 
-#include <wv/Types.h>
-#include <wv/Graphics/Types.h>
-#include <wv/Math/Vector2.h>
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Vector4.h>
+#include <wv/types.h>
+#include <wv/graphics/types.h>
+#include <wv/math/vector2.h>
+#include <wv/math/vector3.h>
+#include <wv/math/vector4.h>
 
-#include <wv/Graphics/VertexLayout.h>
-#include <wv/Math/Transform.h>
+#include <wv/graphics/vertex_layout.h>
+#include <wv/math/transform.h>
 
 #include <vector>
 #include <string>

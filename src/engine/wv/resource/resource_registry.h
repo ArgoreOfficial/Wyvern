@@ -1,17 +1,17 @@
 #pragma once
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/Memory.h>
-#include <wv/Resource/Resource.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
+#include <wv/resource/resource.h>
 
 #include <string>
 #include <unordered_map>
 #include <mutex>
 
-#include <wv/JobSystem/JobSystem.h>
-#include <wv/Engine/Engine.h>
+#include <wv/job/job_system.h>
+#include <wv/engine.h>
 
 
 namespace wv

@@ -1,7 +1,7 @@
-#include "JobBuffer.h"
+#include "job_buffer.h"
 
-#include <wv/JobSystem/Job.h>
-#include <wv/Math/Math.h>
+#include <wv/job/job.h>
+#include <wv/math/Math.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

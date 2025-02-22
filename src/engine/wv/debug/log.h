@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/Platform/Console.h>
+#include <wv/platform/console.h>
 
 #include <stdio.h>
 #include <mutex>

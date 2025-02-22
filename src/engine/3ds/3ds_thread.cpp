@@ -1,6 +1,6 @@
 #ifdef WV_PLATFORM_3DS
 
-#include "3DSThread.h"
+#include "3ds_thread.h"
 
 #include <3ds.h>
 

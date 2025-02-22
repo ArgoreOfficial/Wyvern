@@ -1,13 +1,13 @@
 #ifdef WV_SUPPORT_GLFW
 
-#include "GLFWDeviceContext.h"
+#include "glfw_device_context.h"
 
 #include <stdio.h>
 
-#include <wv/Engine/Engine.h>
-#include <wv/Events/Events.h>
+#include <wv/engine.h>
+#include <wv/event/events.h>
 
-#include <wv/Math/Vector2.h>
+#include <wv/math/vector2.h>
 
 #include <iostream>
 

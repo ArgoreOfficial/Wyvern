@@ -5,10 +5,10 @@
 #endif
 
 #ifdef WV_SUPPORT_MINIAUDIO
-#include <wv/Auxiliary/miniaudio.h>
+#include <auxiliary/miniaudio.h>
 #endif
 
-#include <wv/Debug/Print.h>
+#include <wv/debug/log.h>
 
 namespace wv
 {

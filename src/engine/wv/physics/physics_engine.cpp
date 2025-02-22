@@ -1,4 +1,4 @@
-#include "PhysicsEngine.h"
+#include "physics_engine.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #ifdef WV_SUPPORT_JOLT_PHYSICS
@@ -18,18 +18,18 @@
 #include <Jolt/Physics/Constraints/PulleyConstraint.h>
 #include <Jolt/Physics/Constraints/DistanceConstraint.h>
 
-#include <wv/Physics/BroadPhaseLayer.h>
-#include <wv/Physics/PhysicsBodyDescriptor.h>
+#include <wv/physics/broad_phase_layer.h>
+#include <wv/physics/physics_body_descriptor.h>
 
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
-#include <wv/Engine/Engine.h>
-#include <wv/Debug/Print.h>
-#include <wv/Debug/Draw.h>
+#include <wv/engine.h>
+#include <wv/debug/log.h>
+#include <wv/debug/Draw.h>
 
 #include <wv/Camera/Camera.h>
-#include <wv/Physics/PhysicsListeners.h>
-#include <wv/Memory/Memory.h>
+#include <wv/physics/physics_listeners.h>
+#include <wv/memory/memory.h>
 
 #include <stdarg.h>
 #include <cstdarg>

@@ -1,18 +1,18 @@
 #include "Sandbox.h"
 
-#include <wv/Engine/ApplicationState.h>
-#include <wv/Engine/Engine.h>
+#include <wv/app_state.h>
+#include <wv/engine.h>
 
-#include <wv/Device/AudioDevice.h>
-#include <wv/Device/DeviceContext.h>
-#include <wv/Graphics/GraphicsDevice.h>
+#include <wv/device/audio_device.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
 
-#include <wv/Memory/FileSystem.h>
-#include <wv/Memory/Memory.h>
+#include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
 
-#include <wv/Scene/Scene.h>
+#include <wv/scene/scene.h>
 
-#include "SceneObjects/DemoWindow.h"
+#include "scene/demo_window.h"
 
 
 #ifdef WV_PLATFORM_PSVITA

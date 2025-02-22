@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/Math/Vector3.h>
-#include <wv/Math/Matrix.h>
+#include <wv/math/vector3.h>
+#include <wv/math/matrix.h>
 
 #include <vector>
 

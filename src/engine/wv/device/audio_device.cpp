@@ -1,10 +1,10 @@
-#include "AudioDevice.h"
+#include "audio_device.h"
 
-#include <wv/Engine/Engine.h>
-#include <wv/Debug/Print.h>
+#include <wv/engine.h>
+#include <wv/debug/log.h>
 #include <string>
 
-#include <wv/Memory/Memory.h>
+#include <wv/memory/memory.h>
 
 #ifdef WV_PLATFORM_WASM
 //#define MA_AUDIO_WORKLETS_THREAD_STACK_SIZE 81920
@@ -12,7 +12,7 @@
 #endif
 
 #define MINIAUDIO_IMPLEMENTATION
-#include <wv/Auxiliary/miniaudio.h>
+#include <auxiliary/miniaudio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,19 +1,19 @@
-#include "NoAPIGraphicsDevice.h"
+#include "noapi_graphics_device.h"
 
-#include <wv/Graphics/Texture.h>
+#include <wv/graphics/Texture.h>
 
-#include <wv/Debug/Print.h>
-#include <wv/Debug/Trace.h>
+#include <wv/debug/log.h>
+#include <wv/debug/trace.h>
 
-#include <wv/Decl.h>
+#include <wv/decl.h>
 
-#include <wv/Memory/FileSystem.h>
+#include <wv/memory/file_system.h>
 
-#include <wv/Graphics/Mesh.h>
-#include <wv/Graphics/RenderTarget.h>
+#include <wv/graphics/mesh.h>
+#include <wv/graphics/render_target.h>
 
-#include <wv/Device/DeviceContext.h>
-#include <wv/Shader/ShaderResource.h>
+#include <wv/device/device_context.h>
+#include <wv/shader/shader_resource.h>
 
 #include <stdio.h>
 #include <sstream>
