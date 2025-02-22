@@ -26,7 +26,7 @@ target( PROJECT_NAME )
     )
     add_files( "**.cpp" )
     add_includedirs( 
-        "../Engine", 
+        "../engine", 
         "./",
         "../../libs/libWyvern/include" 
         )
