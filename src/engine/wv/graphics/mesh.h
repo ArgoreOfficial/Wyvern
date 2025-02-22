@@ -17,8 +17,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMaterial;
-	struct sGPUBuffer;
+	class Material;
+	struct GPUBuffer;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum eMeshDrawType
+	enum MeshDrawType
 	{
 		WV_MESH_DRAW_TYPE_VERTICES,
 		WV_MESH_DRAW_TYPE_INDICES
@@ -41,7 +41,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshDesc
+	struct MeshDesc
 	{
 		std::string name;
 		Transformf transform;
@@ -56,12 +56,12 @@ namespace wv
 
 		bool deleteData = true;
 
-		cMaterial* pMaterial = nullptr;
+		Material* pMaterial = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMesh
+	struct Mesh
 	{
 		std::string name;
 		Transformf transform{};
@@ -75,24 +75,24 @@ namespace wv
 		int32_t baseIndex  = 0;
 		int32_t numIndices = 0;
 
-		eMeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
+		MeshDrawType drawType = WV_MESH_DRAW_TYPE_VERTICES;
 		
-		cMaterial* pMaterial = nullptr;
+		Material* pMaterial = nullptr;
 
 		bool complete = false;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshNode
+	struct MeshNode
 	{
 		std::string name;
 		Transformf transform;
 		std::vector<MeshID> meshes;
-		std::vector<sMeshNode*> children;
+		std::vector<MeshNode*> children;
 	};
 
-	struct sMeshInstanceData
+	struct MeshInstanceData
 	{
 		Matrix4x4f model;                              // 64 bytes
 		uint64_t texturesHandles[ 4 ] = { 0, 0, 0, 0 }; // 32 bytes

@@ -6,11 +6,11 @@ namespace wv
 {
 
 	template<typename T>
-	class cEventListener
+	class EventListener
 	{
 	public:
 
-		cEventListener() { }
+		EventListener() { }
 
 
 		void hook();
@@ -25,21 +25,21 @@ namespace wv
 	};
 
 	template<typename T>
-	inline void cEventListener<T>::hook()
+	inline void EventListener<T>::hook()
 	{
-		m_handle = cEventDispatcher<T>::hook( m_handle );
+		m_handle = EventDispatcher<T>::hook( m_handle );
 	}
 
 	template<typename T>
-	inline void cEventListener<T>::unhook()
+	inline void EventListener<T>::unhook()
 	{
-		cEventDispatcher<T>::unhook( m_handle );
+		EventDispatcher<T>::unhook( m_handle );
 	}
 
 	template<typename T>
-	inline bool cEventListener<T>::pollEvent( T& _outEvent )
+	inline bool EventListener<T>::pollEvent( T& _outEvent )
 	{
-		return cEventDispatcher<T>::pollEvent( m_handle, _outEvent );
+		return EventDispatcher<T>::pollEvent( m_handle, _outEvent );
 	}
 
 }

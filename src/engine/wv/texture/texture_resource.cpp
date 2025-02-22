@@ -12,7 +12,7 @@
 #include <codecvt>
 #endif
 
-void wv::cTextureResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_name == "" ) // no file should be loaded
 	{
@@ -23,7 +23,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pL
 	if ( m_path == "" )
 		m_path = m_name;
 
-	sTextureDesc desc;
+	TextureDesc desc;
 	wv::Memory* mem = _pFileSystem->loadMemory( m_path );
 
 #ifdef WV_PLATFORM_WINDOWS
@@ -51,8 +51,8 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pL
 
 	auto onCompleteCallback = []( void* _c ) 
 		{ 
-			cTextureResource* tex = (cTextureResource*)_c;
-			sTexture& texObject = wv::cEngine::get()->graphics->m_textures.at( tex->m_textureID );
+			TextureResource* tex = (TextureResource*)_c;
+			Texture& texObject = wv::Engine::get()->graphics->m_textures.at( tex->m_textureID );
 
 			tex->setComplete( true ); 
 		#ifdef WV_PLATFORM_WINDOWS
@@ -64,7 +64,7 @@ void wv::cTextureResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pL
 	_pLowLevelGraphics->queueAddCallback( onCompleteCallback, (void*)this );
 }
 
-void wv::cTextureResource::unload( cFileSystem* /*_pFileSystem*/, IGraphicsDevice* _pLowLevelGraphics )
+void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pData )
 	{

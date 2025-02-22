@@ -84,7 +84,7 @@ static bool AssertFailedImpl( const char* inExpression, const char* inMessage, c
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::init()
+void wv::JoltPhysicsEngine::init()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	using namespace JPH::literals;
@@ -101,9 +101,9 @@ void wv::cJoltPhysicsEngine::init()
 	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, 200000000 );
 	m_pPhysicsJobSystem = WV_NEW( JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
 
-	m_pBroadPhaseLayer               = WV_NEW( cBroadPhaseLayer );
-	m_pObjectVsBroadPhaseLayerFilter = WV_NEW( cObjectVsBroadPhaseLayerFilter );
-	m_pObjectLayerPairFilter         = WV_NEW( cObjectLayerPairFilter );
+	m_pBroadPhaseLayer               = WV_NEW( BroadPhaseLayer );
+	m_pObjectVsBroadPhaseLayerFilter = WV_NEW( ObjectVsBroadPhaseLayerFilter );
+	m_pObjectLayerPairFilter         = WV_NEW( ObjectLayerPairFilter );
 
 	m_pPhysicsSystem = WV_NEW( JPH::PhysicsSystem );
 	m_pPhysicsSystem->Init(
@@ -112,8 +112,8 @@ void wv::cJoltPhysicsEngine::init()
 		*m_pObjectVsBroadPhaseLayerFilter, 
 		*m_pObjectLayerPairFilter );
 
-	tempContactListener        = WV_NEW( cJoltContactListener );
-	tempBodyActivationListener = WV_NEW( cJoltBodyActivationListener );
+	tempContactListener        = WV_NEW( JoltContactListener );
+	tempBodyActivationListener = WV_NEW( JoltBodyActivationListener );
 
 	m_pPhysicsSystem->SetContactListener( tempContactListener );
 	m_pPhysicsSystem->SetBodyActivationListener( tempBodyActivationListener );
@@ -125,7 +125,7 @@ void wv::cJoltPhysicsEngine::init()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::terminate()
+void wv::JoltPhysicsEngine::terminate()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::UnregisterTypes();
@@ -147,7 +147,7 @@ void wv::cJoltPhysicsEngine::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
+void wv::JoltPhysicsEngine::killAllPhysicsBodies()
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	std::scoped_lock lock{ m_mutex };
@@ -165,7 +165,7 @@ void wv::cJoltPhysicsEngine::killAllPhysicsBodies()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
+void wv::JoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	std::scoped_lock lock{ m_mutex };
@@ -188,7 +188,7 @@ void wv::cJoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::update( double _deltaTime )
+void wv::JoltPhysicsEngine::update( double _deltaTime )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	// physics update
@@ -212,14 +212,14 @@ void wv::cJoltPhysicsEngine::update( double _deltaTime )
 	for ( size_t i = 0; i < collisionSteps; i++ )
 	{
 		m_pPhysicsSystem->Update( m_timestep, 1, m_pTempAllocator, m_pPhysicsJobSystem );
-		cEngine::get()->_physicsUpdate( m_timestep );
+		Engine::get()->_physicsUpdate( m_timestep );
 	}
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate )
+wv::PhysicsBodyID wv::JoltPhysicsEngine::createAndAddBody( IPhysicsBodyDesc* _desc, bool _activate )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	std::scoped_lock lock{ m_mutex };
@@ -234,14 +234,14 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 	{
 	case WV_PHYSICS_BOX:
 	{
-		sPhysicsBoxDesc* desc = static_cast< sPhysicsBoxDesc* >( _desc );
+		PhysicsBoxDesc* desc = static_cast< PhysicsBoxDesc* >( _desc );
 		JPH::RVec3 halfExtent = WVtoJPH( desc->halfExtent );
 		shape = WV_NEW( JPH::BoxShape, halfExtent );
 	} break;
 
 	case WV_PHYSICS_SPHERE:
 	{
-		sPhysicsSphereDesc* desc = static_cast< sPhysicsSphereDesc* >( _desc );
+		PhysicsSphereDesc* desc = static_cast< PhysicsSphereDesc* >( _desc );
 		shape = WV_NEW( JPH::SphereShape, desc->radius );
 	} break;
 
@@ -293,7 +293,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 
 	do 
 	{
-		handle.value = cEngine::getUniqueHandle(); 
+		handle.value = Engine::getUniqueHandle(); 
 	} while( m_bodies.contains( handle ) );
 
 	m_bodies[ handle ] = id;
@@ -305,7 +305,7 @@ wv::PhysicsBodyID wv::cJoltPhysicsEngine::createAndAddBody( iPhysicsBodyDesc* _d
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
+wv::Transformf wv::JoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyID body = m_bodies.at( _handle );
@@ -338,7 +338,7 @@ wv::Transformf wv::cJoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
+wv::Vector3f wv::JoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
@@ -352,7 +352,7 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _handle )
+wv::Vector3f wv::JoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyID body = m_bodies.at( _handle );
@@ -372,7 +372,7 @@ wv::Vector3f wv::cJoltPhysicsEngine::getBodyAngularVelocity( PhysicsBodyID& _han
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
+bool wv::JoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyID body = m_bodies.at( _handle );
@@ -389,7 +389,7 @@ bool wv::cJoltPhysicsEngine::isBodyActive( PhysicsBodyID& _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Transformf& _transform )
+void wv::JoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Transformf& _transform )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
@@ -408,7 +408,7 @@ void wv::cJoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Tra
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vector3f& _velocity )
+void wv::JoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vector3f& _velocity )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
@@ -421,7 +421,7 @@ void wv::cJoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vect
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, const Vector3f& _angularVelocity )
+void wv::JoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, const Vector3f& _angularVelocity )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
@@ -434,7 +434,7 @@ void wv::cJoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, con
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cJoltPhysicsEngine::setBodyActive( PhysicsBodyID& _handle, bool _active )
+void wv::JoltPhysicsEngine::setBodyActive( PhysicsBodyID& _handle, bool _active )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();

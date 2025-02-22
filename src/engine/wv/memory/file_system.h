@@ -22,12 +22,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cFileSystem
+	class FileSystem
 	{
 
 	public:
-		 cFileSystem();
-		~cFileSystem();
+		 FileSystem();
+		~FileSystem();
 
 		void addDirectory( const std::string& _dir ) { m_directories.push_back( _dir ); }
 
@@ -44,7 +44,7 @@ namespace wv
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		iLowLevelFileSystem* m_pLowLevel = nullptr;
+		ILowLevelFileSystem* m_pLowLevel = nullptr;
 	private:
 
 

@@ -24,124 +24,124 @@
 
 #include <wv/event/dispatcher.h>
 
-static wv::eKey sdlToWVKey( SDL_Keycode _keycode )
+static wv::Key sdlToWVKey( SDL_Keycode _keycode )
 {
 
 	switch( _keycode )
 	{
-	case SDLK_RETURN:       return wv::eKey::WV_KEY_ENTER; break;
-	case SDLK_ESCAPE:       return wv::eKey::WV_KEY_ESCAPE; break;
-	case SDLK_BACKSPACE:    return wv::eKey::WV_KEY_BACKSPACE; break;
-	case SDLK_TAB:          return wv::eKey::WV_KEY_TAB; break;
-	case SDLK_SPACE:        return wv::eKey::WV_KEY_SPACE; break;
-	case SDLK_EXCLAIM:      return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_QUOTEDBL:     return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_HASH:         return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_PERCENT:      return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_DOLLAR:       return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_AMPERSAND:    return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_QUOTE:        return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_LEFTPAREN:    return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_RIGHTPAREN:   return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_ASTERISK:     return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_PLUS:         return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_COMMA:        return wv::eKey::WV_KEY_COMMA; break;
-	case SDLK_MINUS:        return wv::eKey::WV_KEY_MINUS; break;
-	case SDLK_PERIOD:       return wv::eKey::WV_KEY_PERIOD; break;
-	case SDLK_SLASH:        return wv::eKey::WV_KEY_SLASH; break;
-	case SDLK_0:            return wv::eKey::WV_KEY_0; break;
-	case SDLK_1:            return wv::eKey::WV_KEY_1; break;
-	case SDLK_2:            return wv::eKey::WV_KEY_2; break;
-	case SDLK_3:            return wv::eKey::WV_KEY_3; break;
-	case SDLK_4:            return wv::eKey::WV_KEY_4; break;
-	case SDLK_5:            return wv::eKey::WV_KEY_5; break;
-	case SDLK_6:            return wv::eKey::WV_KEY_6; break;
-	case SDLK_7:            return wv::eKey::WV_KEY_7; break;
-	case SDLK_8:            return wv::eKey::WV_KEY_8; break;
-	case SDLK_9:            return wv::eKey::WV_KEY_9; break;
-	case SDLK_COLON:        return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_SEMICOLON:    return wv::eKey::WV_KEY_SEMICOLON; break;
-	case SDLK_LESS:         return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_EQUALS:       return wv::eKey::WV_KEY_EQUAL; break;
-	case SDLK_GREATER:      return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_QUESTION:     return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_AT:           return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_LEFTBRACKET:  return wv::eKey::WV_KEY_LEFT_BRACKET; break;
-	case SDLK_BACKSLASH:    return wv::eKey::WV_KEY_BACKSLASH; break;
-	case SDLK_RIGHTBRACKET: return wv::eKey::WV_KEY_RIGHT_BRACKET; break;
-	case SDLK_CARET:        return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_UNDERSCORE:   return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_BACKQUOTE:    return wv::eKey::WV_KEY_BACK_QUOTE; break;
-	case SDLK_a:            return wv::eKey::WV_KEY_A; break;
-	case SDLK_b:            return wv::eKey::WV_KEY_B; break;
-	case SDLK_c:            return wv::eKey::WV_KEY_C; break;
-	case SDLK_d:            return wv::eKey::WV_KEY_D; break;
-	case SDLK_e:            return wv::eKey::WV_KEY_E; break;
-	case SDLK_f:            return wv::eKey::WV_KEY_F; break;
-	case SDLK_g:            return wv::eKey::WV_KEY_G; break;
-	case SDLK_h:            return wv::eKey::WV_KEY_H; break;
-	case SDLK_i:            return wv::eKey::WV_KEY_I; break;
-	case SDLK_j:            return wv::eKey::WV_KEY_J; break;
-	case SDLK_k:            return wv::eKey::WV_KEY_K; break;
-	case SDLK_l:            return wv::eKey::WV_KEY_L; break;
-	case SDLK_m:            return wv::eKey::WV_KEY_M; break;
-	case SDLK_n:            return wv::eKey::WV_KEY_N; break;
-	case SDLK_o:            return wv::eKey::WV_KEY_O; break;
-	case SDLK_p:            return wv::eKey::WV_KEY_P; break;
-	case SDLK_q:            return wv::eKey::WV_KEY_Q; break;
-	case SDLK_r:            return wv::eKey::WV_KEY_R; break;
-	case SDLK_s:            return wv::eKey::WV_KEY_S; break;
-	case SDLK_t:            return wv::eKey::WV_KEY_T; break;
-	case SDLK_u:            return wv::eKey::WV_KEY_U; break;
-	case SDLK_v:            return wv::eKey::WV_KEY_V; break;
-	case SDLK_w:            return wv::eKey::WV_KEY_W; break;
-	case SDLK_x:            return wv::eKey::WV_KEY_X; break;
-	case SDLK_y:            return wv::eKey::WV_KEY_Y; break;
-	case SDLK_z:            return wv::eKey::WV_KEY_Z; break;
-	case SDLK_CAPSLOCK:     return wv::eKey::WV_KEY_CAPS_LOCK; break;
-	case SDLK_F1:           return wv::eKey::WV_KEY_F1; break;
-	case SDLK_F2:           return wv::eKey::WV_KEY_F2; break;
-	case SDLK_F3:           return wv::eKey::WV_KEY_F3; break;
-	case SDLK_F4:           return wv::eKey::WV_KEY_F4; break;
-	case SDLK_F5:           return wv::eKey::WV_KEY_F5; break;
-	case SDLK_F6:           return wv::eKey::WV_KEY_F6; break;
-	case SDLK_F7:           return wv::eKey::WV_KEY_F7; break;
-	case SDLK_F8:           return wv::eKey::WV_KEY_F8; break;
-	case SDLK_F9:           return wv::eKey::WV_KEY_F9; break;
-	case SDLK_F10:          return wv::eKey::WV_KEY_F10; break;
-	case SDLK_F11:          return wv::eKey::WV_KEY_F11; break;
-	case SDLK_F12:          return wv::eKey::WV_KEY_F12; break;
-	case SDLK_PRINTSCREEN:  return wv::eKey::WV_KEY_PRINT_SCREEN; break;
-	case SDLK_SCROLLLOCK:   return wv::eKey::WV_KEY_SCROLL_LOCK; break;
-	case SDLK_PAUSE:        return wv::eKey::WV_KEY_PAUSE; break;
-	case SDLK_INSERT:       return wv::eKey::WV_KEY_INSERT; break;
-	case SDLK_HOME:         return wv::eKey::WV_KEY_HOME; break;
-	case SDLK_PAGEUP:       return wv::eKey::WV_KEY_PAGE_UP; break;
-	case SDLK_DELETE:       return wv::eKey::WV_KEY_DELETE; break;
-	case SDLK_END:          return wv::eKey::WV_KEY_END; break;
-	case SDLK_PAGEDOWN:     return wv::eKey::WV_KEY_PAGE_DOWN; break;
-	case SDLK_RIGHT:        return wv::eKey::WV_KEY_RIGHT; break;
-	case SDLK_LEFT:         return wv::eKey::WV_KEY_LEFT; break;
-	case SDLK_DOWN:         return wv::eKey::WV_KEY_DOWN; break;
-	case SDLK_UP:           return wv::eKey::WV_KEY_UP; break;
-	case SDLK_LCTRL:        return wv::eKey::WV_KEY_UNKNOWN; break;
-	case SDLK_LSHIFT:       return wv::eKey::WV_KEY_LEFT_SHIFT; break;
-	case SDLK_LALT:        	return wv::eKey::WV_KEY_LEFT_ALT; break;
-	case SDLK_RCTRL:        return wv::eKey::WV_KEY_RIGHT_CONTROL; break;
-	case SDLK_RSHIFT:       return wv::eKey::WV_KEY_RIGHT_SHIFT; break;
-	case SDLK_RALT:        	return wv::eKey::WV_KEY_RIGHT_ALT; break;
+	case SDLK_RETURN:       return wv::Key::WV_KEY_ENTER; break;
+	case SDLK_ESCAPE:       return wv::Key::WV_KEY_ESCAPE; break;
+	case SDLK_BACKSPACE:    return wv::Key::WV_KEY_BACKSPACE; break;
+	case SDLK_TAB:          return wv::Key::WV_KEY_TAB; break;
+	case SDLK_SPACE:        return wv::Key::WV_KEY_SPACE; break;
+	case SDLK_EXCLAIM:      return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_QUOTEDBL:     return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_HASH:         return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_PERCENT:      return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_DOLLAR:       return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_AMPERSAND:    return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_QUOTE:        return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_LEFTPAREN:    return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_RIGHTPAREN:   return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_ASTERISK:     return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_PLUS:         return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_COMMA:        return wv::Key::WV_KEY_COMMA; break;
+	case SDLK_MINUS:        return wv::Key::WV_KEY_MINUS; break;
+	case SDLK_PERIOD:       return wv::Key::WV_KEY_PERIOD; break;
+	case SDLK_SLASH:        return wv::Key::WV_KEY_SLASH; break;
+	case SDLK_0:            return wv::Key::WV_KEY_0; break;
+	case SDLK_1:            return wv::Key::WV_KEY_1; break;
+	case SDLK_2:            return wv::Key::WV_KEY_2; break;
+	case SDLK_3:            return wv::Key::WV_KEY_3; break;
+	case SDLK_4:            return wv::Key::WV_KEY_4; break;
+	case SDLK_5:            return wv::Key::WV_KEY_5; break;
+	case SDLK_6:            return wv::Key::WV_KEY_6; break;
+	case SDLK_7:            return wv::Key::WV_KEY_7; break;
+	case SDLK_8:            return wv::Key::WV_KEY_8; break;
+	case SDLK_9:            return wv::Key::WV_KEY_9; break;
+	case SDLK_COLON:        return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_SEMICOLON:    return wv::Key::WV_KEY_SEMICOLON; break;
+	case SDLK_LESS:         return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_EQUALS:       return wv::Key::WV_KEY_EQUAL; break;
+	case SDLK_GREATER:      return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_QUESTION:     return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_AT:           return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_LEFTBRACKET:  return wv::Key::WV_KEY_LEFT_BRACKET; break;
+	case SDLK_BACKSLASH:    return wv::Key::WV_KEY_BACKSLASH; break;
+	case SDLK_RIGHTBRACKET: return wv::Key::WV_KEY_RIGHT_BRACKET; break;
+	case SDLK_CARET:        return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_UNDERSCORE:   return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_BACKQUOTE:    return wv::Key::WV_KEY_BACK_QUOTE; break;
+	case SDLK_a:            return wv::Key::WV_KEY_A; break;
+	case SDLK_b:            return wv::Key::WV_KEY_B; break;
+	case SDLK_c:            return wv::Key::WV_KEY_C; break;
+	case SDLK_d:            return wv::Key::WV_KEY_D; break;
+	case SDLK_e:            return wv::Key::WV_KEY_E; break;
+	case SDLK_f:            return wv::Key::WV_KEY_F; break;
+	case SDLK_g:            return wv::Key::WV_KEY_G; break;
+	case SDLK_h:            return wv::Key::WV_KEY_H; break;
+	case SDLK_i:            return wv::Key::WV_KEY_I; break;
+	case SDLK_j:            return wv::Key::WV_KEY_J; break;
+	case SDLK_k:            return wv::Key::WV_KEY_K; break;
+	case SDLK_l:            return wv::Key::WV_KEY_L; break;
+	case SDLK_m:            return wv::Key::WV_KEY_M; break;
+	case SDLK_n:            return wv::Key::WV_KEY_N; break;
+	case SDLK_o:            return wv::Key::WV_KEY_O; break;
+	case SDLK_p:            return wv::Key::WV_KEY_P; break;
+	case SDLK_q:            return wv::Key::WV_KEY_Q; break;
+	case SDLK_r:            return wv::Key::WV_KEY_R; break;
+	case SDLK_s:            return wv::Key::WV_KEY_S; break;
+	case SDLK_t:            return wv::Key::WV_KEY_T; break;
+	case SDLK_u:            return wv::Key::WV_KEY_U; break;
+	case SDLK_v:            return wv::Key::WV_KEY_V; break;
+	case SDLK_w:            return wv::Key::WV_KEY_W; break;
+	case SDLK_x:            return wv::Key::WV_KEY_X; break;
+	case SDLK_y:            return wv::Key::WV_KEY_Y; break;
+	case SDLK_z:            return wv::Key::WV_KEY_Z; break;
+	case SDLK_CAPSLOCK:     return wv::Key::WV_KEY_CAPS_LOCK; break;
+	case SDLK_F1:           return wv::Key::WV_KEY_F1; break;
+	case SDLK_F2:           return wv::Key::WV_KEY_F2; break;
+	case SDLK_F3:           return wv::Key::WV_KEY_F3; break;
+	case SDLK_F4:           return wv::Key::WV_KEY_F4; break;
+	case SDLK_F5:           return wv::Key::WV_KEY_F5; break;
+	case SDLK_F6:           return wv::Key::WV_KEY_F6; break;
+	case SDLK_F7:           return wv::Key::WV_KEY_F7; break;
+	case SDLK_F8:           return wv::Key::WV_KEY_F8; break;
+	case SDLK_F9:           return wv::Key::WV_KEY_F9; break;
+	case SDLK_F10:          return wv::Key::WV_KEY_F10; break;
+	case SDLK_F11:          return wv::Key::WV_KEY_F11; break;
+	case SDLK_F12:          return wv::Key::WV_KEY_F12; break;
+	case SDLK_PRINTSCREEN:  return wv::Key::WV_KEY_PRINT_SCREEN; break;
+	case SDLK_SCROLLLOCK:   return wv::Key::WV_KEY_SCROLL_LOCK; break;
+	case SDLK_PAUSE:        return wv::Key::WV_KEY_PAUSE; break;
+	case SDLK_INSERT:       return wv::Key::WV_KEY_INSERT; break;
+	case SDLK_HOME:         return wv::Key::WV_KEY_HOME; break;
+	case SDLK_PAGEUP:       return wv::Key::WV_KEY_PAGE_UP; break;
+	case SDLK_DELETE:       return wv::Key::WV_KEY_DELETE; break;
+	case SDLK_END:          return wv::Key::WV_KEY_END; break;
+	case SDLK_PAGEDOWN:     return wv::Key::WV_KEY_PAGE_DOWN; break;
+	case SDLK_RIGHT:        return wv::Key::WV_KEY_RIGHT; break;
+	case SDLK_LEFT:         return wv::Key::WV_KEY_LEFT; break;
+	case SDLK_DOWN:         return wv::Key::WV_KEY_DOWN; break;
+	case SDLK_UP:           return wv::Key::WV_KEY_UP; break;
+	case SDLK_LCTRL:        return wv::Key::WV_KEY_UNKNOWN; break;
+	case SDLK_LSHIFT:       return wv::Key::WV_KEY_LEFT_SHIFT; break;
+	case SDLK_LALT:        	return wv::Key::WV_KEY_LEFT_ALT; break;
+	case SDLK_RCTRL:        return wv::Key::WV_KEY_RIGHT_CONTROL; break;
+	case SDLK_RSHIFT:       return wv::Key::WV_KEY_RIGHT_SHIFT; break;
+	case SDLK_RALT:        	return wv::Key::WV_KEY_RIGHT_ALT; break;
 	
-	default: return wv::eKey::WV_KEY_UNKNOWN;
+	default: return wv::Key::WV_KEY_UNKNOWN;
 	}
 
-	return wv::eKey::WV_KEY_UNKNOWN;
+	return wv::Key::WV_KEY_UNKNOWN;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
+void keyCallback( wv::IDeviceContext* _device, SDL_KeyboardEvent* _event )
 {
-	wv::sInputEvent inputEvent;
+	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _event->type == SDL_KEYDOWN;
 	inputEvent.buttonup = _event->type == SDL_KEYUP;
 	inputEvent.repeat = _event->repeat != 0;
@@ -150,15 +150,15 @@ void keyCallback( wv::iDeviceContext* _device, SDL_KeyboardEvent* _event )
 
 	inputEvent.key = sdlToWVKey( _event->keysym.sym );
 	
-	wv::cInputEventDispatcher::post( inputEvent );
+	wv::InputEventDispatcher::post( inputEvent );
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
+void mouseCallback( wv::IDeviceContext* _device, SDL_MouseMotionEvent* _event )
 {
-	wv::sMouseEvent mouseEvent;
+	wv::MouseEvent mouseEvent;
 	mouseEvent.position.x = _event->x;
 	mouseEvent.position.y = _event->y;
 	mouseEvent.delta.x = _event->xrel;
@@ -166,15 +166,15 @@ void mouseCallback( wv::iDeviceContext* _device, SDL_MouseMotionEvent* _event )
 	
 	_device->mousePosition = mouseEvent.position;
 
-	wv::cMouseEventDispatcher::post( mouseEvent );
+	wv::MouseEventDispatcher::post( mouseEvent );
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _event )
+void mouseButtonCallback( wv::IDeviceContext* _device, SDL_MouseButtonEvent* _event )
 {
-	wv::sMouseEvent mouseEvent;
+	wv::MouseEvent mouseEvent;
 
 	SDL_GetMouseState( &mouseEvent.position.x, &mouseEvent.position.y );
 	// SDL_GetRelativeMouseState( &mouseEvent.delta.x, &mouseEvent.delta.y );
@@ -184,15 +184,15 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 
 	switch ( _event->button )
 	{
-	case 1: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
-	case 3: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
-	case 2: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
+	case 1: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
+	case 3: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
+	case 2: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
 	}
 
 	mouseEvent.buttondown = _event->type == SDL_MOUSEBUTTONDOWN;
 	mouseEvent.buttonup   = _event->type == SDL_MOUSEBUTTONUP;
 
-	wv::cMouseEventDispatcher::post( mouseEvent );
+	wv::MouseEventDispatcher::post( mouseEvent );
 }
 
 
@@ -200,7 +200,7 @@ void mouseButtonCallback( wv::iDeviceContext* _device, SDL_MouseButtonEvent* _ev
 
 void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 {
-	wv::sWindowEvent windowEvent;
+	wv::WindowEvent windowEvent;
 
 	switch ( _event->event )
 	{
@@ -208,26 +208,26 @@ void windowCallback( SDL_Window* _window, SDL_WindowEvent* _event )
 		{
 			int w, h;
 			SDL_GetWindowSize( _window, &w, &h );
-			wv::cEngine::get()->onResize( w, h );
+			wv::Engine::get()->onResize( w, h );
 
-			windowEvent.type = wv::sWindowEvent::WV_WINDOW_RESIZED;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
 			windowEvent.size.x = w;
 			windowEvent.size.y = h;
 			break;
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_GAINED:
 		{
-			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_GAINED;
 			break;
 		}
 		case SDL_WindowEventID::SDL_WINDOWEVENT_FOCUS_LOST:
 		{
-			windowEvent.type = wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
+			windowEvent.type = wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
 			break;
 		}
 	}
 
-	wv::cWindowEventDispatcher::post( windowEvent );
+	wv::WindowEventDispatcher::post( windowEvent );
 }
 
 
@@ -485,14 +485,14 @@ void wv::SDLDeviceContext::swapBuffers()
 
 void wv::SDLDeviceContext::onResize( int _width, int _height )
 {
-	iDeviceContext::onResize( _width, _height );
+	IDeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::SDLDeviceContext::setSize( int _width, int _height )
 {
-	iDeviceContext::setSize( _width, _height );
+	IDeviceContext::setSize( _width, _height );
 
 	SDL_SetWindowSize( m_windowContext, _width, _height );
 }

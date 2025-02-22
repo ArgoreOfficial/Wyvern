@@ -22,7 +22,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( sLowLevelGraphicsDesc* _desc )
+wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( LowLevelGraphicsDesc* _desc )
 {
 
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Graphics Device\n" );
@@ -67,8 +67,8 @@ wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( sLowLevelGraphicsDesc*
 
 void wv::IGraphicsDevice::initEmbeds()
 {
-	m_pEmptyMaterial = WV_NEW( cMaterial, "empty", "materials/EmptyMaterial.wmat" );
-	m_pEmptyMaterial->load( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+	m_pEmptyMaterial = WV_NEW( Material, "empty", "materials/EmptyMaterial.wmat" );
+	m_pEmptyMaterial->load( Engine::get()->m_pFileSystem, Engine::get()->graphics );
 
 }
 
@@ -78,13 +78,13 @@ void wv::IGraphicsDevice::executeCreateQueue()
 {
 	std::scoped_lock lock{ m_mutex };
 
-	//cCommandBuffer& buffer = m_commandBuffers.at( _bufferID );
-	cCommandBuffer& buffer = m_createDestroyCommandBuffer;
+	//CommandBuffer& buffer = m_commandBuffers.at( _bufferID );
+	CommandBuffer& buffer = m_createDestroyCommandBuffer;
 	MemoryStream& stream = buffer.getBuffer();
 
 	for( size_t i = 0; i < buffer.numCommands(); i++ )
 	{
-		eGPUTaskType taskType = stream.pop<eGPUTaskType>();
+		GPUTaskType taskType = stream.pop<GPUTaskType>();
 		
 		switch( taskType )
 		{
@@ -95,37 +95,37 @@ void wv::IGraphicsDevice::executeCreateQueue()
 			
 		case WV_GPUTASK_CREATE_RENDERTARGET:  
 		{
-			auto descData = stream.pop<sCmdCreateDesc<RenderTargetID, sRenderTargetDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<RenderTargetID, RenderTargetDesc>>();
 			_createRenderTarget( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_PROGRAM:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<ShaderModuleID, ShaderModuleDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<ShaderModuleID, ShaderModuleDesc>>();
 			_createShaderModule( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_PIPELINE:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<PipelineID, sPipelineDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<PipelineID, PipelineDesc>>();
 			_createPipeline( descData.id, descData.desc );
 		} break;
 		
 		case WV_GPUTASK_CREATE_BUFFER:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<GPUBufferID, sGPUBufferDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<GPUBufferID, GPUBufferDesc>>();
 			_createGPUBuffer( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_MESH:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<MeshID, sMeshDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<MeshID, MeshDesc>>();
 			_createMesh( descData.id, descData.desc );
 		} break;
 
 		case WV_GPUTASK_CREATE_TEXTURE:
 		{
-			auto descData = stream.pop<sCmdCreateDesc<TextureID, sTextureDesc>>();
+			auto descData = stream.pop<CmdCreateDesc<TextureID, TextureDesc>>();
 			_createTexture( descData.id, descData.desc );
 		} break;
 
@@ -210,7 +210,7 @@ void wv::IGraphicsDevice::destroyShaderModule( ShaderModuleID _programID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::IGraphicsDevice::createPipeline( const sPipelineDesc& _desc )
+wv::PipelineID wv::IGraphicsDevice::createPipeline( const PipelineDesc& _desc )
 {
 	PipelineID id = m_pipelines.emplace();
 
@@ -233,7 +233,7 @@ void wv::IGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::IGraphicsDevice::createRenderTarget( const sRenderTargetDesc& _desc )
+wv::RenderTargetID wv::IGraphicsDevice::createRenderTarget( const RenderTargetDesc& _desc )
 {
 	RenderTargetID id = m_renderTargets.emplace();
 	if ( std::this_thread::get_id() == getThreadID() )
@@ -253,7 +253,7 @@ void wv::IGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTargetID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::IGraphicsDevice::createGPUBuffer( const sGPUBufferDesc& _desc )
+wv::GPUBufferID wv::IGraphicsDevice::createGPUBuffer( const GPUBufferDesc& _desc )
 {
 	GPUBufferID id = m_gpuBuffers.emplace();
 	if ( std::this_thread::get_id() == getThreadID() )
@@ -273,7 +273,7 @@ void wv::IGraphicsDevice::destroyGPUBuffer( GPUBufferID _bufferID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::MeshID wv::IGraphicsDevice::createMesh( const sMeshDesc& _desc )
+wv::MeshID wv::IGraphicsDevice::createMesh( const MeshDesc& _desc )
 {
 	MeshID  id = m_meshes.emplace();
 	if ( std::this_thread::get_id() == getThreadID() )
@@ -293,7 +293,7 @@ void wv::IGraphicsDevice::destroyMesh( MeshID _meshID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::IGraphicsDevice::createTexture( const sTextureDesc& _desc )
+wv::TextureID wv::IGraphicsDevice::createTexture( const TextureDesc& _desc )
 {
 	TextureID id = m_textures.emplace();
 	if ( std::this_thread::get_id() == getThreadID() )
@@ -339,7 +339,7 @@ void wv::IGraphicsDevice::queueAddCallback( wv::Function<void, void*>::fptr_t _f
 
 void wv::IGraphicsDevice::terminate()
 {
-	m_pEmptyMaterial->unload( cEngine::get()->m_pFileSystem, cEngine::get()->graphics );
+	m_pEmptyMaterial->unload( Engine::get()->m_pFileSystem, Engine::get()->graphics );
 	WV_FREE( m_pEmptyMaterial );
 	m_pEmptyMaterial = nullptr;
 }
@@ -377,17 +377,17 @@ wv::IGraphicsDevice::IGraphicsDevice()
 
 }
 
-wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const sMeshDesc& _desc )
+wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const MeshDesc& _desc )
 {
 	if( !_meshID.is_valid() )
 		_meshID = m_meshes.emplace();
 
-	sMesh mesh{};
+	Mesh mesh{};
 	mesh.pMaterial   = _desc.pMaterial;
 	mesh.numVertices = _desc.sizeVertices / sizeof( Vertex ); 
 	
 	{ // create index and vertex buffers
-		sGPUBufferDesc vbDesc{};
+		GPUBufferDesc vbDesc{};
 		vbDesc.name = "vertexBuffer";
 		vbDesc.type = WV_BUFFER_TYPE_DYNAMIC;
 		vbDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
@@ -401,7 +401,7 @@ wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const sMeshDesc& _d
 	{
 		mesh.drawType = WV_MESH_DRAW_TYPE_INDICES;
 
-		sGPUBufferDesc ibDesc;
+		GPUBufferDesc ibDesc;
 		ibDesc.name = "ebo";
 		ibDesc.type = WV_BUFFER_TYPE_INDEX;
 		ibDesc.usage = WV_BUFFER_USAGE_STATIC_DRAW;

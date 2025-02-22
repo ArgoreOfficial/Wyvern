@@ -12,14 +12,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::initialize()
+void wv::ApplicationState::initialize()
 {
 	m_pUpdateManager = WV_NEW( UpdateManager );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::terminate()
+void wv::ApplicationState::terminate()
 {
 	if ( m_pCurrentScene )
 		m_pCurrentScene->destroyAllEntities();
@@ -35,35 +35,35 @@ void wv::cApplicationState::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onConstruct()
+void wv::ApplicationState::onConstruct()
 {
 	m_pUpdateManager->onConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onDestruct()
+void wv::ApplicationState::onDestruct()
 {
 	m_pUpdateManager->onDestruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onEnter()
+void wv::ApplicationState::onEnter()
 {
 	m_pUpdateManager->onEnter();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onExit()
+void wv::ApplicationState::onExit()
 {
 	m_pUpdateManager->onExit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onUpdate( double _deltaTime )
+void wv::ApplicationState::onUpdate( double _deltaTime )
 {
 	m_pUpdateManager->_updateQueued();
 
@@ -91,21 +91,21 @@ void wv::cApplicationState::onUpdate( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onPhysicsUpdate( double _deltaTime )
+void wv::ApplicationState::onPhysicsUpdate( double _deltaTime )
 {
 	m_pUpdateManager->onPhysicsUpdate( _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onDraw( iDeviceContext* _pContext, IGraphicsDevice* _pDevice )
+void wv::ApplicationState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice )
 {
 	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::reloadScene()
+void wv::ApplicationState::reloadScene()
 {
 	std::string path = m_pCurrentScene->getSourcePath();
 	if( path == "" )
@@ -135,7 +135,7 @@ void wv::cApplicationState::reloadScene()
 	
 	m_pUpdateManager->_updateQueued();
 
-	m_pCurrentScene = loadScene( cEngine::get()->m_pFileSystem, path );
+	m_pCurrentScene = loadScene( Engine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
 
 	m_pUpdateManager->_updateQueued();
@@ -150,10 +150,10 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 {
 	std::string objTypeName = _json[ "type" ].string_value();
 
-	wv::sParseData parseData; /// TODO: fix
+	wv::ParseData parseData; /// TODO: fix
 	parseData.json = _json;
 
-	wv::IEntity* obj = ( wv::IEntity* )wv::cReflectionRegistry::parseInstance( objTypeName, parseData );
+	wv::IEntity* obj = ( wv::IEntity* )wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
 
 	if( !obj )
 	{
@@ -173,7 +173,7 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Scene* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const std::string& _path )
+wv::Scene* wv::ApplicationState::loadScene( FileSystem* _pFileSystem, const std::string& _path )
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Loading scene '%s'\n", _path.c_str() );
 
@@ -197,7 +197,7 @@ wv::Scene* wv::cApplicationState::loadScene( cFileSystem* _pFileSystem, const st
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int wv::cApplicationState::addScene( Scene* _pScene )
+int wv::ApplicationState::addScene( Scene* _pScene )
 {
 	if( !_pScene )
 	{
@@ -228,7 +228,7 @@ int wv::cApplicationState::addScene( Scene* _pScene )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::switchToScene( const std::string& _name )
+void wv::ApplicationState::switchToScene( const std::string& _name )
 {
 	for( auto& scene : m_scenes )
 	{
@@ -244,7 +244,7 @@ void wv::cApplicationState::switchToScene( const std::string& _name )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::switchToScene( int _index )
+void wv::ApplicationState::switchToScene( int _index )
 {
 	if ( _index < 0 || _index > m_scenes.size() )
 	{
@@ -257,9 +257,9 @@ void wv::cApplicationState::switchToScene( int _index )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cApplicationState* wv::getAppState()
+wv::ApplicationState* wv::getAppState()
 {
-	cEngine* engine = cEngine::get();
+	Engine* engine = Engine::get();
 	if ( !engine )
 		return nullptr;
 

@@ -15,41 +15,41 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cShaderResource;
+	class ShaderResource;
 	
 	class IGraphicsDevice;
-	class sMesh;
+	class Mesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMaterial : public iResource
+	class Material : public IResource
 	{
 
 	public:
 
-		cMaterial( std::string _name, std::string _path ) :
-			iResource( _name, _path )
+		Material( std::string _name, std::string _path ) :
+			IResource( _name, _path )
 		{ }
 
-		void load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
 		void setAsActive( IGraphicsDevice* _device );
 
 		void setMaterialUniforms();
-		void setInstanceUniforms( sMesh* _instance );
+		void setInstanceUniforms( Mesh* _instance );
 
-		cShaderResource* getShader() { return m_pShader; }
+		ShaderResource* getShader() { return m_pShader; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		std::vector<sMaterialVariable> m_variables;
+		std::vector<MaterialVariable> m_variables;
 	protected:
 
-		void setDefaultMeshUniforms( sMesh* _mesh );
+		void setDefaultMeshUniforms( Mesh* _mesh );
 
-		cShaderResource* m_pShader = nullptr;
-		sUbCameraData m_UbCameraData{};
+		ShaderResource* m_pShader = nullptr;
+		UbCameraData m_UbCameraData{};
 
 	};
 

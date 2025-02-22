@@ -19,7 +19,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class SDLDeviceContext : public iDeviceContext
+	class SDLDeviceContext : public IDeviceContext
 	{
 	public:
 		SDLDeviceContext();
@@ -47,7 +47,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
-		friend class iDeviceContext;
+		friend class IDeviceContext;
 		
 		bool initialize( ContextDesc* _desc ) override;
 

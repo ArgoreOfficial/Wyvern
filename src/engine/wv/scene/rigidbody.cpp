@@ -20,7 +20,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name ) :
+wv::Rigidbody::Rigidbody( const UUID& _uuid, const std::string& _name ) :
 	Entity{ _uuid, _name }
 {
 
@@ -28,7 +28,7 @@ wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc ) : 
+wv::Rigidbody::Rigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, IPhysicsBodyDesc* _bodyDesc ) : 
 	Entity{ _uuid, _name },
 	m_meshPath{ _meshPath },
 	m_bodyDesc{ _bodyDesc }
@@ -38,14 +38,14 @@ wv::cRigidbody::cRigidbody( const UUID& _uuid, const std::string& _name, const s
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody::~cRigidbody()
+wv::Rigidbody::~Rigidbody()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
+wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 {
 	wv::Json& json = _data.json;
 	std::string name = json[ "name" ].string_value();
@@ -63,10 +63,10 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 
 	wv::Json data = json[ "data" ];
 
-	ePhysicsKind  kind  = ( ePhysicsKind  )data[ "kind"  ].int_value();
-	ePhysicsShape shape = ( ePhysicsShape )data[ "shape" ].int_value();
+	PhysicsKind  kind  = ( PhysicsKind  )data[ "kind"  ].int_value();
+	PhysicsShape shape = ( PhysicsShape )data[ "shape" ].int_value();
 
-	iPhysicsBodyDesc* desc = nullptr;
+	IPhysicsBodyDesc* desc = nullptr;
 	
 	switch( shape )
 	{
@@ -74,7 +74,7 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 
 	case WV_PHYSICS_SPHERE:
 	{
-		sPhysicsSphereDesc* sphereDesc = WV_NEW( sPhysicsSphereDesc );
+		PhysicsSphereDesc* sphereDesc = WV_NEW( PhysicsSphereDesc );
 		sphereDesc->radius = data[ "radius" ].number_value();
 		desc = sphereDesc;
 	} break;
@@ -83,7 +83,7 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 	{
 		wv::Json::array halfExtents = data[ "halfExtents" ].array_items();
 
-		sPhysicsBoxDesc* boxDesc = WV_NEW( sPhysicsBoxDesc );
+		PhysicsBoxDesc* boxDesc = WV_NEW( PhysicsBoxDesc );
 		boxDesc->halfExtent.x = halfExtents[ 0 ].number_value();
 		boxDesc->halfExtent.y = halfExtents[ 1 ].number_value();
 		boxDesc->halfExtent.z = halfExtents[ 2 ].number_value();
@@ -105,7 +105,7 @@ wv::cRigidbody* wv::cRigidbody::parseInstance( sParseData& _data )
 
 	std::string meshPath = data[ "path" ].string_value();
 
-	cRigidbody* rb = WV_NEW( cRigidbody, uuid, name, meshPath, desc );
+	Rigidbody* rb = WV_NEW( Rigidbody, uuid, name, meshPath, desc );
 	rb->m_transform = transform;
 	rb->addComponent<ModelComponent>( meshPath );
 	rb->addComponent<RigidBodyComponent>( desc );

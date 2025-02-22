@@ -2,7 +2,7 @@
 
 namespace wv
 {
-	enum eKey
+	enum Key
 	{
 		WV_KEY_UNKNOWN = 0,
 

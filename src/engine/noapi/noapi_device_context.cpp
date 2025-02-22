@@ -90,14 +90,14 @@ void wv::NoAPIDeviceContext::swapBuffers()
 
 void wv::NoAPIDeviceContext::onResize( int _width, int _height )
 {
-	iDeviceContext::onResize( _width, _height );
+	IDeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::NoAPIDeviceContext::setSize( int _width, int _height )
 {
-	iDeviceContext::setSize( _width, _height );
+	IDeviceContext::setSize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

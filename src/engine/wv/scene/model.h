@@ -11,15 +11,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cModelObject : public Entity
+	class ModelObject : public Entity
 	{
 
 	public:
 
-		cModelObject( const UUID& _uuid, const std::string& _name );
-		~cModelObject() { }
+		ModelObject( const UUID& _uuid, const std::string& _name );
+		~ModelObject() { }
 		
-		static cModelObject* parseInstance( sParseData& _data );
+		static ModelObject* parseInstance( ParseData& _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

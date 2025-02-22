@@ -30,23 +30,23 @@ namespace JPH { class Body; }
 namespace wv
 {
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
-	class cJoltContactListener;
-	class cJoltBodyActivationListener;
+	class JoltContactListener;
+	class JoltBodyActivationListener;
 	
-	class cBroadPhaseLayer;
-	class cObjectVsBroadPhaseLayerFilter;
-	class cObjectLayerPairFilter;
+	class BroadPhaseLayer;
+	class ObjectVsBroadPhaseLayerFilter;
+	class ObjectLayerPairFilter;
 	#endif // WV_SUPPORT_JOLT_PHYSICS
 
-	struct iPhysicsBodyDesc;
+	struct IPhysicsBodyDesc;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cJoltPhysicsEngine
+	class JoltPhysicsEngine
 	{
 	public:
-		 cJoltPhysicsEngine() { }
-		~cJoltPhysicsEngine() { }
+		 JoltPhysicsEngine() { }
+		~JoltPhysicsEngine() { }
 
 		void init();
 		void terminate();
@@ -56,7 +56,7 @@ namespace wv
 
 		void update( double _deltaTime );
 
-		PhysicsBodyID createAndAddBody( iPhysicsBodyDesc* _desc, bool _activate );
+		PhysicsBodyID createAndAddBody( IPhysicsBodyDesc* _desc, bool _activate );
 		
 		Transformf getBodyTransform      ( PhysicsBodyID& _handle );
 		Vector3f   getBodyVelocity       ( PhysicsBodyID& _handle );
@@ -87,12 +87,12 @@ namespace wv
 		JPH::JobSystemThreadPool* m_pPhysicsJobSystem = nullptr;
 		JPH::PhysicsSystem*       m_pPhysicsSystem    = nullptr;
 		
-		cBroadPhaseLayer*               m_pBroadPhaseLayer               = nullptr;
-		cObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
-		cObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
+		BroadPhaseLayer*               m_pBroadPhaseLayer               = nullptr;
+		ObjectVsBroadPhaseLayerFilter* m_pObjectVsBroadPhaseLayerFilter = nullptr;
+		ObjectLayerPairFilter*         m_pObjectLayerPairFilter         = nullptr;
 
-		cJoltContactListener*        tempContactListener        = nullptr;
-		cJoltBodyActivationListener* tempBodyActivationListener = nullptr;
+		JoltContactListener*        tempContactListener        = nullptr;
+		JoltBodyActivationListener* tempBodyActivationListener = nullptr;
 
 		std::unordered_map<wv::PhysicsBodyID, JPH::BodyID> m_bodies;
 		std::mutex m_mutex;

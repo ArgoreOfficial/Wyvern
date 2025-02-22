@@ -31,7 +31,7 @@ public:
 
 	}
 
-	static Entity* parseInstance( sParseData& _data ) {
+	static Entity* parseInstance( ParseData& _data ) {
 		auto& json = _data.json;
 		wv::UUID    uuid = json[ "uuid" ].int_value();
 		std::string name = json[ "name" ].string_value();
@@ -60,7 +60,7 @@ protected:
 	virtual void onExitImpl( void ) { };
 
 	virtual void onUpdate( double /*_deltaTime*/ ) { };
-	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { };
+	virtual void onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { };
 
 
 };

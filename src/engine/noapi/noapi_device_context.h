@@ -12,7 +12,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class NoAPIDeviceContext : public iDeviceContext
+	class NoAPIDeviceContext : public IDeviceContext
 	{
 
 	public:
@@ -41,7 +41,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
-		friend class iDeviceContext;
+		friend class IDeviceContext;
 		
 		bool initialize( ContextDesc* _desc ) override;
 

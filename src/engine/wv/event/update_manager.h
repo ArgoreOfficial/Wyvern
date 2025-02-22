@@ -13,10 +13,10 @@
 namespace wv
 {
 
-class iDeviceContext;
+class IDeviceContext;
 class IGraphicsDevice;
-class cEngine;
-class cApplicationState;
+class Engine;
+class ApplicationState;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ public:
 	virtual void onUpdate       ( double /*_deltaTime*/ ) { }
 	virtual void onPhysicsUpdate( double /*_deltaTime*/ ) { }
 
-	virtual void onDraw( wv::iDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { }
+	virtual void onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { }
 
 };
 
@@ -95,8 +95,8 @@ public:
 class UpdateManager
 {
 public:
-	friend class cEngine;
-	friend class cApplicationState;
+	friend class Engine;
+	friend class ApplicationState;
 
 	void registerUpdatable( IUpdatable* _pUpdatable );
 	void unregisterUpdatable( IUpdatable* _pUpdatable );
@@ -120,7 +120,7 @@ private:
 
 	void onUpdate( double _deltaTime );
 	void onPhysicsUpdate( double _deltaTime );
-	void onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device );
+	void onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device );
 
 	std::vector<IUpdatable*> m_updatables;
 
@@ -143,7 +143,7 @@ private:
 template<typename _Ty, typename ..._Args>
 inline void UpdateManager::_runJobs( const std::unordered_set<IUpdatable*>& _set, Job::JobFunction_t _fptr, _Args ..._args )
 {
-	JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
 	std::vector<_Ty> userDatas{ _set.size() };
 	std::vector<Job*> jobs{};

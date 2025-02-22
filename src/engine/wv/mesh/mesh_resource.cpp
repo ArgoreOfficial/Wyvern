@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::sMeshInstance::draw()
+void wv::MeshInstance::draw()
 {
 	if( pResource )
 		pResource->addToDrawQueue( *this );
@@ -23,7 +23,7 @@ void wv::sMeshInstance::draw()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::sMeshInstance::destroy()
+void wv::MeshInstance::destroy()
 {
 	if( pResource )
 		pResource->destroyInstance( *this );
@@ -31,9 +31,9 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::MeshResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
-	cEngine* app = cEngine::get();
+	Engine* app = Engine::get();
 
 	wv::Parser parser;
 	m_pMeshNode = parser.load( m_path.c_str(), app->m_pResourceRegistry );
@@ -41,14 +41,14 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-static void unloadMeshNode( wv::sMeshNode* _node )
+static void unloadMeshNode( wv::MeshNode* _node )
 {
-	wv::IGraphicsDevice* pLowLevelGraphics = wv::cEngine::get()->graphics;
-	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
+	wv::IGraphicsDevice* pLowLevelGraphics = wv::Engine::get()->graphics;
+	wv::ResourceRegistry* pResourceRegistry = wv::Engine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
 	{
-		wv::sMesh mesh = pLowLevelGraphics->m_meshes.at( meshID );
+		wv::Mesh mesh = pLowLevelGraphics->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 		pLowLevelGraphics->destroyMesh( meshID );
 	}
@@ -59,7 +59,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	WV_FREE( _node );
 }
 
-void wv::cMeshResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pMeshNode )
 		unloadMeshNode( m_pMeshNode );
@@ -67,17 +67,17 @@ void wv::cMeshResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sMeshInstance wv::cMeshResource::createInstance()
+wv::MeshInstance wv::MeshResource::createInstance()
 {
-	sMeshInstance instance;
+	MeshInstance instance;
 	instance.pResource = this;
 	
     return instance;
 }
 
-void wv::cMeshResource::destroyInstance( sMeshInstance& _instance )
+void wv::MeshResource::destroyInstance( MeshInstance& _instance )
 {
-	cEngine* app = cEngine::get();
+	Engine* app = Engine::get();
 	app->m_pResourceRegistry->unload( _instance.pResource );
 
 	_instance.pResource = nullptr;
@@ -85,7 +85,7 @@ void wv::cMeshResource::destroyInstance( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
+void wv::MeshResource::addToDrawQueue( MeshInstance& _instance )
 {
 	std::scoped_lock lock{ m_mutex };
 
@@ -94,7 +94,7 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::drawInstances( IGraphicsDevice* _pLowLevelGraphics )
+void wv::MeshResource::drawInstances( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_pMeshNode == nullptr )
 	{
@@ -110,7 +110,7 @@ void wv::cMeshResource::drawInstances( IGraphicsDevice* _pLowLevelGraphics )
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode* _node )
+void wv::MeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, MeshNode* _node )
 {
 	if ( !_node )
 		return;
@@ -122,16 +122,16 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 		if ( !meshID.is_valid() )
 			continue;
 
-		sMesh mesh = meshreg.at( meshID ); // get copy, incase mesh object container reallocated
+		Mesh mesh = meshreg.at( meshID ); // get copy, incase mesh object container reallocated
 		if( !mesh.complete )
 			continue;
 
-		wv::cMaterial* mat = mesh.pMaterial;
+		wv::Material* mat = mesh.pMaterial;
 
 		if ( !mat || !mat->isComplete() )
 			mat = _pLowLevelGraphics->getEmptyMaterial();
 		
-		wv::cShaderResource* pShader = mat->getShader();
+		wv::ShaderResource* pShader = mat->getShader();
 		mat->setAsActive( _pLowLevelGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
@@ -141,7 +141,7 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 			m_useGPUInstancing = false;
 			
 		wv::Matrix4x4f basematrix = mesh.transform.getMatrix();
-		std::vector<sMeshInstanceData> instances;
+		std::vector<MeshInstanceData> instances;
 
 		for ( auto& transform : m_drawQueue )
 		{
@@ -154,7 +154,7 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 			}
 			else
 			{
-				sMeshInstanceData instanceData;
+				MeshInstanceData instanceData;
 				instanceData.model = matrix;
 				
 				for( auto& var : mat->m_variables )
@@ -166,7 +166,7 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 					{
 						if( var.data.texture->m_textureID.is_valid() )
 						{
-							sTexture& tex = _pLowLevelGraphics->m_textures.at( var.data.texture->m_textureID );
+							Texture& tex = _pLowLevelGraphics->m_textures.at( var.data.texture->m_textureID );
 							instanceData.texturesHandles[ 0 ] = tex.textureHandle;
 							instanceData.hasAlpha = tex.numChannels == 4;
 						}
@@ -185,13 +185,13 @@ void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode
 			{
 				//_pLowLevelGraphics->cmdBindVertexBuffer( 0, SbVerticesID );
 				{
-					wv::sGPUBuffer& SbVertices = _pLowLevelGraphics->m_gpuBuffers.at( SbVerticesID );
+					wv::GPUBuffer& SbVertices = _pLowLevelGraphics->m_gpuBuffers.at( SbVerticesID );
 
 					_pLowLevelGraphics->bindBufferIndex( mesh.vertexBufferID, SbVertices.bindingIndex.value );
 					_pLowLevelGraphics->cmdBindIndexBuffer( {}, mesh.indexBufferID, 0, WV_UNSIGNED_INT );
 				}
 
-				_pLowLevelGraphics->cmdUpdateBuffer( {}, SbInstanceData, instances.size() * sizeof( sMeshInstanceData ), instances.data() );
+				_pLowLevelGraphics->cmdUpdateBuffer( {}, SbInstanceData, instances.size() * sizeof( MeshInstanceData ), instances.data() );
 				_pLowLevelGraphics->cmdDrawIndexed( {}, mesh.numIndices, instances.size(), mesh.baseIndex, mesh.baseVertex, 0 );
 			}
 

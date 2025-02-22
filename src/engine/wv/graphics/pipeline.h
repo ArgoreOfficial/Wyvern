@@ -8,7 +8,7 @@
 
 namespace wv
 {
-	struct sPipeline
+	struct Pipeline
 	{
 		wv::Handle handle;
 		std::string name;
@@ -18,10 +18,10 @@ namespace wv
 		void* pPlatformData;
 	};
 
-	struct sPipelineDesc
+	struct PipelineDesc
 	{
 		std::string name;
-		sVertexLayout* pVertexLayout = nullptr;
+		VertexLayout* pVertexLayout = nullptr;
 		ShaderModuleID vertexProgramID{};
 		ShaderModuleID fragmentProgramID{};
 

@@ -42,9 +42,9 @@ std::string getAssimpMaterialTexturePath( aiMaterial* _material, aiTextureType _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID* _outMesh, wv::sMeshNode* _meshNode, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID* _outMesh, wv::MeshNode* _meshNode, wv::ResourceRegistry* _pResourceRegistry )
 {
-	wv::IGraphicsDevice* device = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* device = wv::Engine::get()->graphics;
 
 	std::vector<wv::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -111,12 +111,12 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 	/// this reeeeeeeally needs to be reworked
 
-	wv::cMaterial* material = nullptr;
+	wv::Material* material = nullptr;
 	if( _assimp_mesh->mMaterialIndex >= 0 )
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 
-		wv::cFileSystem& md = *wv::cEngine::get()->m_pFileSystem;
+		wv::FileSystem& md = *wv::Engine::get()->m_pFileSystem;
 
 		std::string materialName = assimpMaterial->GetName().C_Str();
 
@@ -138,7 +138,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 						json11::Json::object {
 							{ "name", "u_Albedo" },
 							{ "texture", diffusePath.C_Str() },
-							{ "filtering", wv::eTextureFiltering::WV_TEXTURE_FILTER_LINEAR }
+							{ "filtering", wv::TextureFiltering::WV_TEXTURE_FILTER_LINEAR }
 						}
 					} 
 				}
@@ -152,11 +152,11 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 			// create new material file
 		}
 
-		material = _pResourceRegistry->load<wv::cMaterial>( materialName + ".wmat" );
+		material = _pResourceRegistry->load<wv::Material>( materialName + ".wmat" );
 	}
 
 	{ // create primitive
-		wv::sMeshDesc prDesc;
+		wv::MeshDesc prDesc;
 		prDesc.pParentTransform = &_meshNode->transform;
 
 		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
@@ -176,12 +176,12 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 		*_outMesh = device->createMesh( prDesc );
 	}
 
-	wv::cFileSystem filesystem;
+	wv::FileSystem filesystem;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _meshNode, wv::IGraphicsDevice* _pLowLevelGraphics, wv::cResourceRegistry* _pResourceRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _meshNode, wv::IGraphicsDevice* _pLowLevelGraphics, wv::ResourceRegistry* _pResourceRegistry )
 {
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
@@ -208,7 +208,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 	// then do the same for each of its children
 	for( unsigned int i = 0; i < _node->mNumChildren; i++ )
 	{
-		wv::sMeshNode* meshNode = WV_NEW( wv::sMeshNode );
+		wv::MeshNode* meshNode = WV_NEW( wv::MeshNode );
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
 
@@ -219,10 +219,10 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::sMeshNode* _me
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pResourceRegistry )
+wv::MeshNode* wv::Parser::load( const char* _path, wv::ResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_SUPPORT_ASSIMP
-	cFileSystem md;
+	FileSystem md;
 	std::string path = std::string( _path );
 	Memory* meshMem = md.loadMemory( path );
 
@@ -241,9 +241,9 @@ wv::sMeshNode* wv::Parser::load( const char* _path, wv::cResourceRegistry* _pRes
 		return nullptr;
 	}
 
-	wv::IGraphicsDevice* device = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* device = wv::Engine::get()->graphics;
 
-	wv::sMeshNode* mesh = WV_NEW( wv::sMeshNode );
+	wv::MeshNode* mesh = WV_NEW( wv::MeshNode );
 	processAssimpNode( scene->mRootNode, scene, mesh, device, _pResourceRegistry );
 	
 	return mesh;

@@ -15,7 +15,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class FreeflightCamera : public iCamera
+	class FreeflightCamera : public ICamera
 	{
 
 	public:
@@ -35,8 +35,8 @@ namespace wv
 
 	private:
 
-		cMouseEventListener m_mouseListener;
-		cInputEventListener m_inputListener;
+		MouseEventListener m_mouseListener;
+		InputEventListener m_inputListener;
 
 		wv::Vector3f m_move;
 		wv::Vector2f m_rotate;

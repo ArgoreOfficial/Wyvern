@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::OrbitCamera::OrbitCamera( CameraType _type, float _fov, float _near, float _far ) :
-	iCamera( _type, _fov, _near, _far )
+	ICamera( _type, _fov, _near, _far )
 {
 	m_transform.setRotation( { -15.0f, 0.0f, 0.0f } );
 }
@@ -29,10 +29,10 @@ void wv::OrbitCamera::onEnter()
 
 void wv::OrbitCamera::handleInput()
 {
-	sMouseEvent mouseEvent;
+	MouseEvent mouseEvent;
 	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		if ( ( mouseEvent.buttondown || mouseEvent.buttonup ) && mouseEvent.button == sMouseEvent::WV_MOUSE_BUTTON_LEFT )
+		if ( ( mouseEvent.buttondown || mouseEvent.buttonup ) && mouseEvent.button == MouseEvent::WV_MOUSE_BUTTON_LEFT )
 		{
 			m_input_enabled = mouseEvent.buttondown;
 
@@ -70,5 +70,5 @@ void wv::OrbitCamera::update( double _delta_time )
 	
 	m_rotate = { 0.0f, 0.0f };
 
-	iCamera::update( _delta_time );
+	ICamera::update( _delta_time );
 }

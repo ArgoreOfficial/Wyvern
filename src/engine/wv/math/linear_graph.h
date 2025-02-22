@@ -10,7 +10,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	struct sGraphPoint
+	struct GraphPoint
 	{
 		T x, y;
 	};
@@ -18,13 +18,13 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	struct sLinearEquation
+	struct LinearEquation
 	{
 		T min, max;
 		T m, b;
 
-		sLinearEquation() : m{0}, b{0}, min{0}, max{0} { }
-		sLinearEquation( const sGraphPoint<T>& _a, const sGraphPoint<T>& _b ):
+		LinearEquation() : m{0}, b{0}, min{0}, max{0} { }
+		LinearEquation( const GraphPoint<T>& _a, const GraphPoint<T>& _b ):
 			m  { ( _b.y - _a.y ) / ( _b.x - _a.x ) },
 			b  { _a.y },
 			min{ _a.x },
@@ -38,25 +38,25 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	class cLinearGraph
+	class LinearGraph
 	{
 	public:
 
-		cLinearGraph( const std::vector<sGraphPoint<T>>& _points );
+		LinearGraph( const std::vector<GraphPoint<T>>& _points );
 
 		T getValue( const T& _x );
-		sLinearEquation<T> getLinearEquation( const T& _x );
+		LinearEquation<T> getLinearEquation( const T& _x );
 
 	private:
 
-		std::vector<sLinearEquation<T>> m_linearEquations;
+		std::vector<LinearEquation<T>> m_linearEquations;
 
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline wv::cLinearGraph<T>::cLinearGraph( const std::vector<sGraphPoint<T>>& _points )
+	inline wv::LinearGraph<T>::LinearGraph( const std::vector<GraphPoint<T>>& _points )
 	{
 		m_linearEquations.resize( _points.size() );
 		
@@ -65,16 +65,16 @@ namespace wv
 			if ( i >= _points.size() - 1 )
 				continue;
 
-			m_linearEquations[ i ] = sLinearEquation<T>( _points[ i ], _points[ i + 1 ] );
+			m_linearEquations[ i ] = LinearEquation<T>( _points[ i ], _points[ i + 1 ] );
 		}
 	}
 
 	template<typename T>
-	inline T wv::cLinearGraph<T>::getValue( const T& _x )
+	inline T wv::LinearGraph<T>::getValue( const T& _x )
 	{
 		for ( size_t i = 0; i < m_linearEquations.size(); i++ )
 		{
-			sLinearEquation<T>& line = m_linearEquations[ i ];
+			LinearEquation<T>& line = m_linearEquations[ i ];
 
 			if ( _x < line.min || _x >= line.max )
 				continue;
@@ -86,11 +86,11 @@ namespace wv
 	}
 
 	template<typename T>
-	inline sLinearEquation<T> cLinearGraph<T>::getLinearEquation( const T& _x )
+	inline LinearEquation<T> LinearGraph<T>::getLinearEquation( const T& _x )
 	{
 		for ( size_t i = 0; i < m_linearEquations.size(); i++ )
 		{
-			sLinearEquation<T>& line = m_linearEquations[ i ];
+			LinearEquation<T>& line = m_linearEquations[ i ];
 
 			if ( _x < line.min || _x >= line.max )
 				continue;
@@ -98,7 +98,7 @@ namespace wv
 			return line;
 		}
 
-		return sLinearEquation<T>{};
+		return LinearEquation<T>{};
 	}
 
 }

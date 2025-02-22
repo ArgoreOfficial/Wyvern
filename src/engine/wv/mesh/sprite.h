@@ -8,7 +8,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMaterial;
+	class Material;
 	class IGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace wv
 	struct SpriteDesc
 	{
 		MeshID mesh{};
-		cMaterial* material = nullptr;
+		Material* material = nullptr;
 		Vector3f position{};
 		Vector3f size{ 64.0f, 64.0f, 1.0f };
 	};
@@ -42,7 +42,7 @@ namespace wv
 
 		Transformf& getTransform() { return m_transform; }
 		void draw( IGraphicsDevice* _device );
-		cMaterial* getMaterial() { return m_material; }
+		Material* getMaterial() { return m_material; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ namespace wv
 
 		static void createQuad();
 
-		cMaterial* m_material = nullptr;
+		Material* m_material = nullptr;
 		Transformf m_transform;
 		MeshID m_mesh{};
 

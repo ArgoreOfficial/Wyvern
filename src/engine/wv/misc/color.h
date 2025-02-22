@@ -16,18 +16,18 @@ namespace wv
 	typedef unsigned char byte;
 	typedef unsigned int dword;
 
-	class cColor
+	class Color
 	{
 		
 	public:
 		
-		cColor( byte _r, byte _g, byte _b, byte _a = 255  );
-		cColor( wv::Vector3< byte > _rgb, byte _a = 255  );
-		cColor( wv::Vector4< byte > _rgba );
-		cColor( wv::Vector3< float > _rgb, float _a = 1.0f );
-		cColor( wv::Vector4< float > _rgba );
-		cColor( float _r, float _g, float _b, float _a = 1.0f );
-		cColor( dword _rgba );
+		constexpr Color( byte _r, byte _g, byte _b, byte _a = 255  );
+		Color( wv::Vector3< byte > _rgb, byte _a = 255  );
+		Color( wv::Vector4< byte > _rgba );
+		Color( wv::Vector3< float > _rgb, float _a = 1.0f );
+		Color( wv::Vector4< float > _rgba );
+		constexpr Color( float _r, float _g, float _b, float _a = 1.0f );
+		constexpr Color( dword _rgba );
 		
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -38,28 +38,21 @@ namespace wv
 		byte a = 0xFF;
 		
 		
-		bool operator == ( cColor& _other );
+		bool operator == ( Color& _other );
 		byte& operator[]( const size_t& _index );
 
-		
+		static constexpr dword White       = 0xFFFFFFFF;
+		static constexpr dword Gray        = 0x0F0F0FFF;
+		static constexpr dword Black       = 0x000000FF;
+		static constexpr dword Red         = 0xFF0000FF;
+		static constexpr dword Yellow      = 0xFFFF00FF;
+		static constexpr dword Turquoise   = 0x30D5C8FF;
+		static constexpr dword Cyan        = 0x00FFFFFF;
+		static constexpr dword Blue        = 0x00FF00FF;
+		static constexpr dword Magenta     = 0xFF00FFFF;
+		static constexpr dword PacificBlue = 0x039BCFFF;
+		static constexpr dword Green       = 0x0000FFFF;
 	};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	namespace Color
-	{
-		const cColor White      ( 0xFFFFFFFF );
-		const cColor Gray       ( 0x0F0F0FFF );
-		const cColor Black      ( 0x000000FF );
-		const cColor Red        ( 0xFF0000FF );
-		const cColor Yellow     ( 0xFFFF00FF );
-		const cColor Turquoise  ( 0x30D5C8FF );
-		const cColor Cyan       ( 0x00FFFFFF );
-		const cColor Blue       ( 0x00FF00FF );
-		const cColor Magenta    ( 0xFF00FFFF );
-		const cColor PacificBlue( 0x039BCFFF );
-		const cColor Green      ( 0x0000FFFF );
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -20,36 +20,36 @@
 
 void keyCallback( GLFWwindow* _window, int _key, int _scancode, int _action, int _mods )
 {
-	wv::sInputEvent inputEvent;
+	wv::InputEvent inputEvent;
 	inputEvent.buttondown = _action == GLFW_PRESS;
 	inputEvent.buttonup = _action == GLFW_RELEASE;
 	inputEvent.repeat = _action == GLFW_REPEAT;
-	inputEvent.key = wv::eKey::WV_KEY_UNKNOWN;
+	inputEvent.key = wv::Key::WV_KEY_UNKNOWN;
 	inputEvent.scancode = _scancode;
 	inputEvent.mods = _mods;
 
-	wv::cInputEventDispatcher::post( inputEvent );
+	wv::InputEventDispatcher::post( inputEvent );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void mouseCallback( GLFWwindow* window, double xpos, double ypos )
 {
-	wv::sMouseEvent mouseEvent;
+	wv::MouseEvent mouseEvent;
 
 	mouseEvent.position = wv::Vector2i{ (int)xpos, (int)ypos };
 
-	wv::Vector2i oldPos = wv::cEngine::get()->getMousePosition();
+	wv::Vector2i oldPos = wv::Engine::get()->getMousePosition();
 	mouseEvent.delta = wv::Vector2i{ (int)xpos - oldPos.x, (int)ypos - oldPos.y };
 	
-	wv::cMouseEventDispatcher::post( mouseEvent );
+	wv::MouseEventDispatcher::post( mouseEvent );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mods )
 {
-	wv::sMouseEvent mouseEvent;
+	wv::MouseEvent mouseEvent;
 
 	double xpos, ypos;
 	glfwGetCursorPos( _window, &xpos, &ypos );
@@ -57,41 +57,41 @@ void mouseButtonCallback( GLFWwindow* _window, int _button, int _action, int _mo
 
 	switch ( _button )
 	{
-	case GLFW_MOUSE_BUTTON_LEFT:   mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
-	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
-	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::sMouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
+	case GLFW_MOUSE_BUTTON_LEFT:   mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_LEFT;   break;
+	case GLFW_MOUSE_BUTTON_RIGHT:  mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_RIGHT;  break;
+	case GLFW_MOUSE_BUTTON_MIDDLE: mouseEvent.button = wv::MouseEvent::WV_MOUSE_BUTTON_MIDDLE; break;
 	}
 	
 	mouseEvent.buttondown = _action == GLFW_PRESS;
 	mouseEvent.buttonup = _action == GLFW_RELEASE;
 
-	wv::cMouseEventDispatcher::post( mouseEvent );
+	wv::MouseEventDispatcher::post( mouseEvent );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void windowFocusCallback(GLFWwindow* _window, int _focused)
 {
-	wv::sWindowEvent windowEvent;
+	wv::WindowEvent windowEvent;
 	windowEvent.type = _focused == GLFW_TRUE
-		? wv::sWindowEvent::WV_WINDOW_FOCUS_GAINED
-		: wv::sWindowEvent::WV_WINDOW_FOCUS_LOST;
+		? wv::WindowEvent::WV_WINDOW_FOCUS_GAINED
+		: wv::WindowEvent::WV_WINDOW_FOCUS_LOST;
 
-	wv::cWindowEventDispatcher::post( windowEvent );
+	wv::WindowEventDispatcher::post( windowEvent );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void onResizeCallback( GLFWwindow* window, int _width, int _height )
 {
-	wv::cEngine::get()->onResize( _width, _height );
+	wv::Engine::get()->onResize( _width, _height );
 
-	wv::sWindowEvent windowEvent;
-	windowEvent.type = wv::sWindowEvent::WV_WINDOW_RESIZED;
+	wv::WindowEvent windowEvent;
+	windowEvent.type = wv::WindowEvent::WV_WINDOW_RESIZED;
 	windowEvent.size.x = _width;
 	windowEvent.size.y = _height;
 
-	wv::cWindowEventDispatcher::post( windowEvent );
+	wv::WindowEventDispatcher::post( windowEvent );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -295,14 +295,14 @@ void wv::GLFWDeviceContext::swapBuffers()
 
 void wv::GLFWDeviceContext::onResize( int _width, int _height )
 {
-	iDeviceContext::onResize( _width, _height );
+	IDeviceContext::onResize( _width, _height );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::GLFWDeviceContext::setSize( int _width, int _height )
 {
-	iDeviceContext::setSize( _width, _height );
+	IDeviceContext::setSize( _width, _height );
 	glfwSetWindowSize( m_windowContext, _width, _height );
 }
 

@@ -8,12 +8,12 @@
 namespace wv
 {
 
-struct iPhysicsBodyDesc;
+struct IPhysicsBodyDesc;
 
 class RigidBodyComponent : public IComponent
 {
 public:
-	RigidBodyComponent( iPhysicsBodyDesc* _bodyDesc ) :
+	RigidBodyComponent( IPhysicsBodyDesc* _bodyDesc ) :
 		IComponent( "RigidBodyComponent" ),
 		m_pPhysicsBodyDesc{ _bodyDesc }
 	{ }
@@ -29,7 +29,7 @@ public:
 
 protected:
 
-	iPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
+	IPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
 	PhysicsBodyID m_physicsBodyHandle = PhysicsBodyID::InvalidID;
 };
 

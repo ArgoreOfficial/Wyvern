@@ -4,7 +4,7 @@
 
 #if defined( WV_SUPPORT_PHYSICS ) && defined( WV_SUPPORT_JOLT_PHYSICS )
 
-wv::cBroadPhaseLayer::cBroadPhaseLayer()
+wv::BroadPhaseLayer::BroadPhaseLayer()
 {
 	m_objectToBroadPhaseMapping[ Layers::STATIC ] = BroadPhaseLayers::STATIC;
 	m_objectToBroadPhaseMapping[ Layers::DYNAMIC ] = BroadPhaseLayers::DYNAMIC;
@@ -12,21 +12,21 @@ wv::cBroadPhaseLayer::cBroadPhaseLayer()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-JPH::uint wv::cBroadPhaseLayer::GetNumBroadPhaseLayers() const
+JPH::uint wv::BroadPhaseLayer::GetNumBroadPhaseLayers() const
 {
 	return BroadPhaseLayers::NUM_LAYERS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-JPH::BroadPhaseLayer wv::cBroadPhaseLayer::GetBroadPhaseLayer( JPH::ObjectLayer inLayer ) const
+JPH::BroadPhaseLayer wv::BroadPhaseLayer::GetBroadPhaseLayer( JPH::ObjectLayer inLayer ) const
 {
 	JPH_ASSERT( inLayer < Layers::NUM_LAYERS );
 	return m_objectToBroadPhaseMapping[ inLayer ];
 }
 
 #if defined( JPH_EXTERNAL_PROFILE ) || defined( JPH_PROFILE_ENABLED )
-const char* wv::cBroadPhaseLayer::GetBroadPhaseLayerName( JPH::BroadPhaseLayer inLayer ) const
+const char* wv::BroadPhaseLayer::GetBroadPhaseLayerName( JPH::BroadPhaseLayer inLayer ) const
 {
 	switch( ( JPH::BroadPhaseLayer::Type )inLayer )
 	{
@@ -37,7 +37,7 @@ const char* wv::cBroadPhaseLayer::GetBroadPhaseLayerName( JPH::BroadPhaseLayer i
 }
 #endif
 
-bool wv::cObjectLayerPairFilter::ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const
+bool wv::ObjectLayerPairFilter::ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const
 {
 	switch( inObject1 )
 	{
@@ -48,7 +48,7 @@ bool wv::cObjectLayerPairFilter::ShouldCollide( JPH::ObjectLayer inObject1, JPH:
 	}
 }
 
-bool wv::cObjectVsBroadPhaseLayerFilter::ShouldCollide( JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2 ) const
+bool wv::ObjectVsBroadPhaseLayerFilter::ShouldCollide( JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2 ) const
 {
 	switch( inLayer1 )
 	{

@@ -11,13 +11,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iClassOperator
+	class IClassOperator
 	{
 	public:
-		virtual ~iClassOperator() { };
+		virtual ~IClassOperator() { };
 
 		virtual void* createInstance( void )              = 0;
-		virtual void* parseInstance ( sParseData& _data ) = 0;
+		virtual void* parseInstance ( ParseData& _data ) = 0;
 
 	protected:
 		std::string m_name;
@@ -27,11 +27,11 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class cReflectedClass : public iClassOperator
+	class ReflectedClass : public IClassOperator
 	{
 	public:
-		cReflectedClass( const std::string& _name ) { m_name = _name; }
-		virtual ~cReflectedClass() { }
+		ReflectedClass( const std::string& _name ) { m_name = _name; }
+		virtual ~ReflectedClass() { }
 
 		virtual void* createInstance( void ) override
 		{
@@ -42,7 +42,7 @@ namespace wv
 			return nullptr;
 		}
 
-		virtual void* parseInstance( sParseData& _data ) override
+		virtual void* parseInstance( ParseData& _data ) override
 		{
 			if( m_parseInstance.m_fptr )
 				return m_parseInstance( _data );
@@ -52,7 +52,7 @@ namespace wv
 		}
 
 		typename wv::Function<T*>                  m_createInstance;
-		typename wv::Function<T*, wv::sParseData&> m_parseInstance;
+		typename wv::Function<T*, wv::ParseData&> m_parseInstance;
 
 	};
 
@@ -63,10 +63,10 @@ namespace wv
 	{
 		ClassReflect( const std::string _name )
 		{
-			static cReflectedClass<T> classReflection{ _name };
-			classReflection.m_createInstance.bind( cReflectionRegistry::get_createInstance<T>() );
-			classReflection.m_parseInstance.bind( cReflectionRegistry::get_parseInstance<T>() );
-			cReflectionRegistry::reflectClass( _name, static_cast< iClassOperator* >( &classReflection ) );
+			static ReflectedClass<T> classReflection{ _name };
+			classReflection.m_createInstance.bind( ReflectionRegistry::get_createInstance<T>() );
+			classReflection.m_parseInstance.bind( ReflectionRegistry::get_parseInstance<T>() );
+			ReflectionRegistry::reflectClass( _name, static_cast< IClassOperator* >( &classReflection ) );
 			
 		#ifdef WV_DEBUG
 			if( classReflection.m_createInstance.m_fptr ) wv::Debug::Print( "    ::createInstance\n" );

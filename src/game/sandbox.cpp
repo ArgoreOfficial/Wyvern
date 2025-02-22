@@ -26,7 +26,7 @@ REFLECT_CLASS( DemoWindow );
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-bool cSandbox::create( void )
+bool Sandbox::create( void )
 {
 	wv::EngineDesc engineDesc;
 
@@ -68,7 +68,7 @@ bool cSandbox::create( void )
 	ctxDesc.height = engineDesc.windowHeight;
 	ctxDesc.allowResize = false;
 
-	wv::iDeviceContext* deviceContext = wv::iDeviceContext::getDeviceContext( &ctxDesc );
+	wv::IDeviceContext* deviceContext = wv::IDeviceContext::getDeviceContext( &ctxDesc );
 	if ( !deviceContext )
 	{
 		wv::Debug::Print( "Device Context was nullptr\n" );
@@ -78,7 +78,7 @@ bool cSandbox::create( void )
 	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
 
 	// create graphics device
-	wv::sLowLevelGraphicsDesc lowLevelGraphicsDesc;
+	wv::LowLevelGraphicsDesc lowLevelGraphicsDesc;
 	lowLevelGraphicsDesc.loadProc = deviceContext->getLoadProc();
 	lowLevelGraphicsDesc.pContext = deviceContext;
 	
@@ -96,7 +96,7 @@ bool cSandbox::create( void )
 	engineDesc.device.pAudio = WV_NEW( wv::AudioDevice, nullptr );
 
 	// create modules
-	wv::cFileSystem* fileSystem = WV_NEW( wv::cFileSystem );
+	wv::FileSystem* fileSystem = WV_NEW( wv::FileSystem );
 
 	// set up load directories
 	fileSystem->addDirectory( "../" );
@@ -110,11 +110,11 @@ bool cSandbox::create( void )
 	
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
-	wv::cApplicationState* appState = WV_NEW( wv::cApplicationState );
+	wv::ApplicationState* appState = WV_NEW( wv::ApplicationState );
 	engineDesc.pApplicationState = appState;
 
 	// create engine
-	m_pEngine = WV_NEW( wv::cEngine, &engineDesc );
+	m_pEngine = WV_NEW( wv::Engine, &engineDesc );
 
 	// load scenes
 	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
@@ -125,7 +125,7 @@ bool cSandbox::create( void )
 	m_pEngine->m_fogParams.colorDensity = { 0.85f, 0.f, 0.f, 0.15f };
 	m_pEngine->m_fogParams.isEnabled = 0;
 
-	if( !wv::cEngine::get() )
+	if( !wv::Engine::get() )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Couldn't create Engine\n" );
 		return false;
@@ -136,14 +136,14 @@ bool cSandbox::create( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cSandbox::run( void )
+void Sandbox::run( void )
 {
 	m_pEngine->run();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void cSandbox::destroy( void )
+void Sandbox::destroy( void )
 {
 	m_pEngine->terminate();
 	WV_FREE( m_pEngine );

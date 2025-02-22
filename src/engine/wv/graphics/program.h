@@ -16,34 +16,34 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct Memory;
-	struct sProgram;
+	struct Program;
 
-	enum eShaderProgramType
+	enum ShaderProgramType
 	{
 		WV_SHADER_TYPE_VERTEX,
 		WV_SHADER_TYPE_FRAGMENT
 	};
 
-	struct sShaderProgramSource
+	struct ShaderProgramSource
 	{
 		Memory* data;
 	};
 
 	struct ShaderModuleDesc
 	{
-		eShaderProgramType type;
-		sShaderProgramSource source;
+		ShaderProgramType type;
+		ShaderProgramSource source;
 	};
 
-	struct sProgram
+	struct Program
 	{
 		Handle handle;
 
-		eShaderProgramType type;
-		sShaderProgramSource source;
+		ShaderProgramType type;
+		ShaderProgramSource source;
 
 		std::vector<GPUBufferID> shaderBuffers;
-		std::vector<sUniform> textureUniforms;
+		std::vector<Uniform> textureUniforms;
 
 		void* pPlatformData;
 	};

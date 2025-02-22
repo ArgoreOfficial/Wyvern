@@ -5,7 +5,7 @@
 #include <wv/mesh/mesh_resource.h>
 #include <wv/physics/physics_types.h>
 
-struct iPhysicsBodyDesc;
+struct IPhysicsBodyDesc;
 
 class DemoWindowComponent : public wv::IComponent
 {
@@ -24,7 +24,7 @@ protected:
 	void spawnCubes();
 	void spawnBlock( int _halfX, int _halfY, int _halfZ );
 
-	virtual void onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
+	virtual void onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
 
 	int m_numToSpawn = 10;
 	int m_numSpawned = 0;

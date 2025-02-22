@@ -17,7 +17,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cSkyboxObject::cSkyboxObject( const UUID& _uuid, const std::string& _name ) :
+wv::SkyboxObject::SkyboxObject( const UUID& _uuid, const std::string& _name ) :
 	IEntity{ _uuid, _name }
 {
 
@@ -25,12 +25,12 @@ wv::cSkyboxObject::cSkyboxObject( const UUID& _uuid, const std::string& _name ) 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cSkyboxObject::~cSkyboxObject()
+wv::SkyboxObject::~SkyboxObject()
 {
 	
 }
 
-wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
+wv::SkyboxObject* wv::SkyboxObject::parseInstance( ParseData& _data )
 {	
 	auto& json = _data.json;
 	wv::UUID    uuid = json[ "uuid" ].int_value();
@@ -46,45 +46,45 @@ wv::cSkyboxObject* wv::cSkyboxObject::parseInstance( sParseData& _data )
 	transform.setRotation( rot );
 	transform.setScale( scl );
 
-	cSkyboxObject* skysphere = WV_NEW( cSkyboxObject, uuid, name );
+	SkyboxObject* skysphere = WV_NEW( SkyboxObject, uuid, name );
 	skysphere->m_transform = transform;
 
 	return skysphere;
 }
 
-void wv::cSkyboxObject::onConstructImpl()
+void wv::SkyboxObject::onConstructImpl()
 {
-	wv::cEngine* app = wv::cEngine::get();
+	wv::Engine* app = wv::Engine::get();
 	
-	m_mesh = app->m_pResourceRegistry->load<cMeshResource>( "meshes/skysphere.glb" )->createInstance();
+	m_mesh = app->m_pResourceRegistry->load<MeshResource>( "meshes/skysphere.glb" )->createInstance();
 	m_transform.addChild( &m_mesh.transform );
 }
 
-void wv::cSkyboxObject::onDeconstructImpl()
+void wv::SkyboxObject::onDeconstructImpl()
 {
 	m_mesh.destroy();
 }
 
-void wv::cSkyboxObject::onEnterImpl()
+void wv::SkyboxObject::onEnterImpl()
 {
 
 }
 
-void wv::cSkyboxObject::onExitImpl()
+void wv::SkyboxObject::onExitImpl()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::onUpdate( double /*_deltaTime*/ )
+void wv::SkyboxObject::onUpdate( double /*_deltaTime*/ )
 {
 	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cSkyboxObject::onDraw( iDeviceContext* /*_context*/, IGraphicsDevice* /*_device*/ )
+void wv::SkyboxObject::onDraw( IDeviceContext* /*_context*/, IGraphicsDevice* /*_device*/ )
 {
 	
 }

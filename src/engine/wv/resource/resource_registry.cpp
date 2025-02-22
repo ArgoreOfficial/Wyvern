@@ -6,7 +6,7 @@
 #include <wv/mesh/mesh_resource.h>
 #include <vector>
 
-wv::cResourceRegistry::~cResourceRegistry()
+wv::ResourceRegistry::~ResourceRegistry()
 {
 	if( !m_resources.empty() )
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Resource Registry has %i unloaded resources\n", (int)m_resources.size() );
@@ -29,15 +29,15 @@ wv::cResourceRegistry::~cResourceRegistry()
 	m_pJobSystem->deleteFence( m_resourceFence );
 }
 
-void wv::cResourceRegistry::drawMeshInstances()
+void wv::ResourceRegistry::drawMeshInstances()
 {
 	for ( auto& meshRes : m_meshes )
 		meshRes->drawInstances( m_pLowLevelGraphics );
 }
 
-wv::iResource* wv::cResourceRegistry::getLoadedResource( const std::string& _name )
+wv::IResource* wv::ResourceRegistry::getLoadedResource( const std::string& _name )
 {
-	wv::iResource* res = nullptr;
+	wv::IResource* res = nullptr;
 	
 	auto search = m_resources.find( _name );
 	if ( search != m_resources.end() )
@@ -46,7 +46,7 @@ wv::iResource* wv::cResourceRegistry::getLoadedResource( const std::string& _nam
 	return res;
 }
 
-void wv::cResourceRegistry::addResource( iResource* _resource )
+void wv::ResourceRegistry::addResource( IResource* _resource )
 {
 	std::string name = _resource->getName();
 	if ( getLoadedResource( name ) )
@@ -58,7 +58,7 @@ void wv::cResourceRegistry::addResource( iResource* _resource )
 	m_resources[ name ] = _resource;
 }
 
-void wv::cResourceRegistry::findAndRemoveResource( iResource* _resource )
+void wv::ResourceRegistry::findAndRemoveResource( IResource* _resource )
 {
 	if ( !_resource )
 	{
@@ -70,7 +70,7 @@ void wv::cResourceRegistry::findAndRemoveResource( iResource* _resource )
 	removeResource( key );
 }
 
-void wv::cResourceRegistry::removeResource( const std::string& _name )
+void wv::ResourceRegistry::removeResource( const std::string& _name )
 {
 	std::scoped_lock lock{ m_mutex };
 

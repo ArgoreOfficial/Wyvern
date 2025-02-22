@@ -6,7 +6,7 @@
 #include <wv/engine.h>
 #include <wv/graphics/graphics_device.h>
 
-void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -33,18 +33,18 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLo
 	fsDesc.source = m_fsSource;
 	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
-	sPipelineDesc desc;
+	PipelineDesc desc;
 	desc.name = m_name;
 
 	/// TODO: generalize 
-	wv::sVertexAttribute attributes[] = {
+	wv::VertexAttribute attributes[] = {
 			{ "aPosition",  3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
 			{ "aNormal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
 			{ "aTangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
 			{ "aColor",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
 			{ "aTexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
 	};
-	wv::sVertexLayout layout;
+	wv::VertexLayout layout;
 	layout.elements = attributes;
 	layout.numElements = 5;
 
@@ -56,13 +56,13 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLo
 
 	auto cb = []( void* _c ) 
 		{ 
-			iResource* res = (iResource*)_c;
+			IResource* res = (IResource*)_c;
 			res->setComplete( true ); 
 		};
 	_pLowLevelGraphics->queueAddCallback( cb, (void*)this );
 }
 
-void wv::cShaderResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	setComplete( false );
 
@@ -73,7 +73,7 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _p
 		_pLowLevelGraphics->destroyPipeline( m_pipelineID );
 }
 
-void wv::cShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( !m_pipelineID.is_valid() )
 		return;
@@ -81,30 +81,30 @@ void wv::cShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
 	_pLowLevelGraphics->cmdBindPipeline( {}, m_pipelineID );
 }
 
-wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
+wv::GPUBufferID wv::ShaderResource::getShaderBuffer( const std::string& _name )
 {
 	if ( !m_complete )
 		return GPUBufferID{ GPUBufferID::InvalidID };
 
-	IGraphicsDevice* pGraphics = cEngine::get()->graphics;
+	IGraphicsDevice* pGraphics = Engine::get()->graphics;
 
 	/// this needs to be reworked
 
-	sPipeline& pipeline = pGraphics->m_pipelines.at( m_pipelineID );
+	Pipeline& pipeline = pGraphics->m_pipelines.at( m_pipelineID );
 
-	sProgram& vs = pGraphics->m_programs.at( pipeline.vertexProgramID );
-	sProgram& fs = pGraphics->m_programs.at( pipeline.fragmentProgramID );
+	Program& vs = pGraphics->m_programs.at( pipeline.vertexProgramID );
+	Program& fs = pGraphics->m_programs.at( pipeline.fragmentProgramID );
 
 	for( GPUBufferID bufID : vs.shaderBuffers )
 	{
-		sGPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
+		GPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
 		if( buf.name == _name )
 			return bufID;
 	}
 	
 	for( GPUBufferID bufID : fs.shaderBuffers )
 	{
-		sGPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
+		GPUBuffer& buf = pGraphics->m_gpuBuffers.at( bufID );
 		if ( buf.name == _name )
 			return bufID;
 	}

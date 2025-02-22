@@ -12,23 +12,21 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iDeviceContext;
+	class IDeviceContext;
 	class IGraphicsDevice;
 	class AudioDevice;
 
-	class iIntermediateRenderTargetHandler;
-
-	class iCamera;
-	class cFileSystem;
-	class cSceneRoot;
-	class cModelObject;
-	class iMaterial;
+	class ICamera;
+	class FileSystem;
+	class SceneRoot;
+	class ModelObject;
+	class IMaterial;
 	
-	class cApplicationState;
-	class cShaderResource;
+	class ApplicationState;
+	class ShaderResource;
 
-	class cResourceRegistry;
-	class cJoltPhysicsEngine;
+	class ResourceRegistry;
+	class JoltPhysicsEngine;
 	class JobSystem;
 
 	class UpdateManager;
@@ -46,31 +44,31 @@ namespace wv
 
 		struct
 		{
-			iDeviceContext*    pContext;
+			IDeviceContext*    pContext;
 			IGraphicsDevice* pGraphics;
 			AudioDevice*       pAudio;
 		} device;
 
 		struct
 		{
-			cFileSystem* pFileSystem;
+			FileSystem* pFileSystem;
 		} systems;
 
-		cApplicationState* pApplicationState = nullptr;
+		ApplicationState* pApplicationState = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cEngine
+	class Engine
 	{
 
 	public:
 	#ifdef WV_SUPPORT_JOLT_PHYSICS
-		friend class cJoltPhysicsEngine;
+		friend class JoltPhysicsEngine;
 	#endif
 
-		cEngine( EngineDesc* _desc );
-		static cEngine* get();
+		Engine( EngineDesc* _desc );
+		static Engine* get();
 		
 		static wv::UUID   getUniqueUUID();
 		static wv::Handle getUniqueHandle();
@@ -100,33 +98,33 @@ namespace wv
 
 		// deferred rendering
 		MeshID m_screenQuad{};
-		cShaderResource* m_pDeferredShader = nullptr;
+		ShaderResource* m_pDeferredShader = nullptr;
 		RenderTargetID m_gbuffer{};
 		
 		// engine
-		iDeviceContext*    context  = nullptr;
+		IDeviceContext*    context  = nullptr;
 		IGraphicsDevice* graphics = nullptr;
 		AudioDevice*       audio    = nullptr;
 
 		// camera 
 		/// TODO: move to applicationstate
-		iCamera* currentCamera    = nullptr;
-		iCamera* orbitCamera      = nullptr;
-		iCamera* freeflightCamera = nullptr;
+		ICamera* currentCamera    = nullptr;
+		ICamera* orbitCamera      = nullptr;
+		ICamera* freeflightCamera = nullptr;
 
 		RenderTargetID m_screenRenderTarget{};
 
-		cApplicationState* m_pApplicationState = nullptr;
+		ApplicationState* m_pApplicationState = nullptr;
 
 		// modules
-		cFileSystem*        m_pFileSystem       = nullptr;
-		cResourceRegistry*  m_pResourceRegistry = nullptr;
+		FileSystem*        m_pFileSystem       = nullptr;
+		ResourceRegistry*  m_pResourceRegistry = nullptr;
 	
-		cJoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
+		JoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
 		
 		JobSystem*          m_pJobSystem        = nullptr;
 		
-		struct sFogParams
+		struct FogParams
 		{
 			wv::Vector4f colorDensity{};
 			int isEnabled = 0;
@@ -159,10 +157,10 @@ namespace wv
 		bool m_drawWireframe = false;
 
 		wv::Vector2i m_mousePosition;
-		cMouseEventListener m_mouseListener;
-		cInputEventListener m_inputListener;
+		MouseEventListener m_mouseListener;
+		InputEventListener m_inputListener;
 
-		static cEngine* s_pInstance; 
+		static Engine* s_pInstance; 
 	};
 
 }

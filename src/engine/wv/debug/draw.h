@@ -12,10 +12,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshNode;
-	class cMaterial;
+	struct MeshNode;
+	class Material;
 	class IGraphicsDevice;
-	class cResourceRegistry;
+	class ResourceRegistry;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,13 +30,13 @@ namespace wv
 			{
 				struct Sphere { Vector3f position; float radius; }; /// TODO: move to wv/Math or similar
 
-				extern sMeshNode* SPHERE_MESH;
-				extern sMeshNode* CUBE_MESH;
+				extern MeshNode* SPHERE_MESH;
+				extern MeshNode* CUBE_MESH;
 				
 				extern std::vector<Sphere> spheres;
 				extern std::vector<Transformf> cubes;
 
-				void initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry );
+				void initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, ResourceRegistry* _pResourceRegistry );
 				void deinitDebugDraw( IGraphicsDevice* _pLowLevelGraphics );
 				void drawDebug( IGraphicsDevice* _pLowLevelGraphics );
 			}

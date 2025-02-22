@@ -10,7 +10,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum ePhysicsShape
+	enum PhysicsShape
 	{
 		WV_PHYSICS_NONE,
 		WV_PHYSICS_SPHERE,
@@ -26,7 +26,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum ePhysicsKind
+	enum PhysicsKind
 	{
 		WV_PHYSICS_STATIC,
 		WV_PHYSICS_DYANIMIC,
@@ -35,26 +35,26 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct iPhysicsBodyDesc
+	struct IPhysicsBodyDesc
 	{
-		ePhysicsShape shape = WV_PHYSICS_NONE;
-		ePhysicsKind kind = WV_PHYSICS_STATIC;
+		PhysicsShape shape = WV_PHYSICS_NONE;
+		PhysicsKind kind = WV_PHYSICS_STATIC;
 		Transformf transform{};
 	};
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sPhysicsBoxDesc : public iPhysicsBodyDesc
+	struct PhysicsBoxDesc : public IPhysicsBodyDesc
 	{
-		sPhysicsBoxDesc() { shape = WV_PHYSICS_BOX; }
+		PhysicsBoxDesc() { shape = WV_PHYSICS_BOX; }
 		Vector3f halfExtent{};
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sPhysicsSphereDesc : public iPhysicsBodyDesc
+	struct PhysicsSphereDesc : public IPhysicsBodyDesc
 	{
-		sPhysicsSphereDesc() { shape = WV_PHYSICS_SPHERE; }
+		PhysicsSphereDesc() { shape = WV_PHYSICS_SPHERE; }
 		float radius = 1.0f;
 	};
 

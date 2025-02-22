@@ -14,7 +14,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum eGPUTaskType : uint8_t
+	enum GPUTaskType : uint8_t
 	{
 		WV_GPUTASK_NONE = 0,
 		
@@ -48,15 +48,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cCommandBuffer
+	class CommandBuffer
 	{
 	public:
-		cCommandBuffer( const size_t& _initialSize )
+		CommandBuffer( const size_t& _initialSize )
 		{ 
 			m_buffer.allocate( _initialSize );
 		}
 
-		~cCommandBuffer() {
+		~CommandBuffer() {
 			m_buffer.deallocate();
 		}
 
@@ -70,8 +70,8 @@ namespace wv
 		}
 
 		template<typename T> 
-		void push( const eGPUTaskType& _type, T* _pInfo );
-		void push( const eGPUTaskType& _type ) { push<std::nullptr_t>( _type, nullptr ); }
+		void push( const GPUTaskType& _type, T* _pInfo );
+		void push( const GPUTaskType& _type ) { push<std::nullptr_t>( _type, nullptr ); }
 
 		wv::MemoryStream& getBuffer() { return m_buffer; }
 		size_t numCommands() { return m_numCommands; }
@@ -90,7 +90,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	inline void cCommandBuffer::push( const eGPUTaskType& _type, T* _pInfo )
+	inline void CommandBuffer::push( const GPUTaskType& _type, T* _pInfo )
 	{
 		m_numCommands++;
 		m_buffer.push( _type );

@@ -29,7 +29,7 @@ wv::AudioDevice::AudioDevice( AudioDeviceDesc* _desc )
 void wv::InternalAudio::onNotif( const ma_device_notification* pNotification )
 {
 	if ( pNotification->type == ma_device_notification_type::ma_device_notification_type_unlocked )
-		wv::cEngine::get()->audio->m_unlocked = true;
+		wv::Engine::get()->audio->m_unlocked = true;
 }
 #endif
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -22,11 +22,11 @@ public:
 	virtual void onConstruct( void ) override;
 	virtual void onDestruct( void ) override;
 
-	virtual void onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
+	virtual void onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
 
 protected:
 
-	sMeshInstance m_mesh;
+	MeshInstance m_mesh;
 	std::string m_meshPath = "";
 
 };

@@ -213,12 +213,12 @@ void wv::UpdateManager::onPhysicsUpdate( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::UpdateManager::onDraw( wv::iDeviceContext* _context, wv::IGraphicsDevice* _device )
+void wv::UpdateManager::onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device )
 {
 	struct JobData
 	{
 		IUpdatable* u;
-		wv::iDeviceContext* context;
+		wv::IDeviceContext* context;
 		wv::IGraphicsDevice* device;
 	};
 

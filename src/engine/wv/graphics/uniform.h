@@ -13,7 +13,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sUniform
+	struct Uniform
 	{
 		unsigned int index = 0;
 		unsigned int offset = 0;

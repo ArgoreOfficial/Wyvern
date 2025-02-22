@@ -124,7 +124,7 @@ namespace wv
 
 		/*
 	template<>
-	inline RayIntersection Ray::intersect<sMesh>( sMesh* _t )
+	inline RayIntersection Ray::intersect<Mesh>( Mesh* _t )
 	{
 		Vector4f s{ start.x, start.y, start.z, 1.0f };
 		Vector4f e{   end.x,   end.y,   end.z, 1.0f };

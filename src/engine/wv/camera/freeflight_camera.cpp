@@ -10,7 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::FreeflightCamera::FreeflightCamera( CameraType _type, float _fov, float _near, float _far ) :
-	iCamera( _type, _fov, _near, _far )
+	ICamera( _type, _fov, _near, _far )
 {
 
 }
@@ -27,12 +27,12 @@ void wv::FreeflightCamera::onEnter()
 
 void wv::FreeflightCamera::handleInput()
 {
-	sMouseEvent mouseEvent;
+	MouseEvent mouseEvent;
 	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
-		wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+		wv::IDeviceContext* ctx = wv::Engine::get()->context;
 
-		if ( mouseEvent.buttondown && mouseEvent.button == sMouseEvent::WV_MOUSE_BUTTON_RIGHT )
+		if ( mouseEvent.buttondown && mouseEvent.button == MouseEvent::WV_MOUSE_BUTTON_RIGHT )
 		{
 			m_freecam_enabled = !m_freecam_enabled;
 			ctx->setMouseLock( m_freecam_enabled );
@@ -42,7 +42,7 @@ void wv::FreeflightCamera::handleInput()
 	}
 
 
-	sInputEvent inputEvent;
+	InputEvent inputEvent;
 	while ( m_inputListener.pollEvent( inputEvent ) )
 	{
 		int button_delta = inputEvent.buttondown ? 1 : -1;
@@ -120,5 +120,5 @@ void wv::FreeflightCamera::update( double _delta_time )
 
 	m_rotate = { 0.0f, 0.0f };
 
-	iCamera::update( _delta_time );
+	ICamera::update( _delta_time );
 }

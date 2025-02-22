@@ -17,14 +17,14 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iClassOperator;
+	class IClassOperator;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sClassReflection
+	struct ClassReflection
 	{
 		std::string name = "";
-		iClassOperator* pOperator = nullptr;
+		IClassOperator* pOperator = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -35,18 +35,18 @@ namespace wv
 
 	Vector3f jsonToVec3( const Json::array& _arr );
 
-	struct sParseData
+	struct ParseData
 	{
 		wv::Json json;
 	};
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	typedef std::unordered_map<std::string, sClassReflection> tReflectedClassesMap;
+	typedef std::unordered_map<std::string, ClassReflection> ReflectedClassesMap_t;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cReflectionRegistry
+	class ReflectionRegistry
 	{
 
 	private:
@@ -62,19 +62,19 @@ namespace wv
 		}
 
 		template<typename C> 
-		static typename wv::Function<C*, sParseData&>::fptr_t get_parseInstance_impl( decltype( &C::parseInstance ) ) {
+		static typename wv::Function<C*, ParseData&>::fptr_t get_parseInstance_impl( decltype( &C::parseInstance ) ) {
 			return &C::parseInstance; 
 		}
 		template<typename C> 
-		static typename wv::Function<C*, sParseData&>::fptr_t get_parseInstance_impl( ... ) {
+		static typename wv::Function<C*, ParseData&>::fptr_t get_parseInstance_impl( ... ) {
 			return nullptr; 
 		}
 
 	public:
-		static int reflectClass( const std::string& _name, iClassOperator* _operator );
+		static int reflectClass( const std::string& _name, IClassOperator* _operator );
 
 		static void* createInstance( const std::string& _name );
-		static void* parseInstance ( const std::string& _name, sParseData& _data );
+		static void* parseInstance ( const std::string& _name, ParseData& _data );
 
 		template<typename C> 
 		static typename wv::Function<C*>::fptr_t get_createInstance( void ) { 
@@ -82,14 +82,14 @@ namespace wv
 		};
 
 		template<typename C> 
-		static typename wv::Function<C*, sParseData&>::fptr_t get_parseInstance( void ) {
+		static typename wv::Function<C*, ParseData&>::fptr_t get_parseInstance( void ) {
 			return get_parseInstance_impl<C>( 0 ); 
 		};
 
 		// classes map has to be local static because 
 		// global static does not guarantee it to be 
 		// created before REFLECT_CLASS() is called
-		static tReflectedClassesMap& getClasses();
+		static ReflectedClassesMap_t& getClasses();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

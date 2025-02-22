@@ -11,18 +11,18 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sRenderTargetDesc
+	struct RenderTargetDesc
 	{
 		int width = 0;
 		int height = 0;
 		
-		wv::sTextureDesc* pTextureDescs = nullptr;
+		wv::TextureDesc* pTextureDescs = nullptr;
 		int numTextures = 0;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sRenderTarget
+	struct RenderTarget
 	{
 		wv::Handle fbHandle = 0;
 		wv::Handle rbHandle = 0;

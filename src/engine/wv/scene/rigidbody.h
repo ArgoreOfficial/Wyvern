@@ -17,22 +17,22 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshNode; 
-	struct cMeshResource; 
+	struct MeshNode; 
+	struct MeshResource; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cRigidbody : public Entity
+	class Rigidbody : public Entity
 	{
 	public:
-		 cRigidbody( const UUID& _uuid, const std::string& _name );
-		 cRigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, iPhysicsBodyDesc* _bodyDesc );
-		~cRigidbody();
+		 Rigidbody( const UUID& _uuid, const std::string& _name );
+		 Rigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, IPhysicsBodyDesc* _bodyDesc );
+		~Rigidbody();
 
-		static cRigidbody* parseInstance( sParseData& _data );
+		static Rigidbody* parseInstance( ParseData& _data );
 
 		std::string m_meshPath;
-		iPhysicsBodyDesc* m_bodyDesc = nullptr;
+		IPhysicsBodyDesc* m_bodyDesc = nullptr;
 	};
 
 }

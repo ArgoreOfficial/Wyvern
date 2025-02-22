@@ -28,7 +28,7 @@ namespace Math
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty> _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max );
+template<typename _Ty> constexpr _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max );
 
 template<typename _Ty> _Ty pow2( const _Ty& _value );
 template<typename _Ty> _Ty pow3( const _Ty& _value );
@@ -60,7 +60,7 @@ inline double degrees( const double& _radians ) {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty> _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max )
+template<typename _Ty> constexpr _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max )
 {
 	const _Ty t = _value < _min ? _min : _value;
 	return t > _max ? _max : t;

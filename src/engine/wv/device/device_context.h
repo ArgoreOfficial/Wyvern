@@ -30,7 +30,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	enum eVSyncMode
+	enum VSyncMode
 	{
 		WV_VSYNC_OFF,
 		WV_VSYNC_ON,
@@ -57,16 +57,16 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iDeviceContext
+	class IDeviceContext
 	{
 
 	public:
 
 		friend class IGraphicsDevice;
 
-		virtual ~iDeviceContext() { }
+		virtual ~IDeviceContext() { }
 
-		static iDeviceContext* getDeviceContext( ContextDesc* _desc );
+		static IDeviceContext* getDeviceContext( ContextDesc* _desc );
 
 		virtual void initImGui() { Debug::Print( Debug::WV_PRINT_ERROR, "initImGui not implemented\n" ); }
 		virtual void terminateImGui() { }

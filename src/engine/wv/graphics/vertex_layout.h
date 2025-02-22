@@ -7,7 +7,7 @@
 namespace wv
 {
 
-	struct sVertexAttribute
+	struct VertexAttribute
 	{
 		const char* name;
 		unsigned int componentCount;
@@ -18,9 +18,9 @@ namespace wv
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sVertexLayout
+	struct VertexLayout
 	{
-		sVertexAttribute* elements = nullptr;
+		VertexAttribute* elements = nullptr;
 		unsigned int numElements = 0;
 	};
 

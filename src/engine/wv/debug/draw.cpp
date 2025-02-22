@@ -9,13 +9,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::sMeshNode* wv::Debug::Draw::Internal::SPHERE_MESH = nullptr;
-wv::sMeshNode* wv::Debug::Draw::Internal::CUBE_MESH   = nullptr;
+wv::MeshNode* wv::Debug::Draw::Internal::SPHERE_MESH = nullptr;
+wv::MeshNode* wv::Debug::Draw::Internal::CUBE_MESH   = nullptr;
 
 std::vector<wv::Debug::Draw::Internal::Sphere> wv::Debug::Draw::Internal::spheres{};
 std::vector<wv::Transformf> wv::Debug::Draw::Internal::cubes{};
 
-void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry )
+void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, ResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_PLATFORM_PSVITA
 	return;

@@ -4,11 +4,11 @@
 
 namespace wv
 {
-	class cEngine;
+	class Engine;
 
-	class iApplication
+	class IApplication
 	{
-	WV_DECLARE_INTERFACE( iApplication )
+	WV_DECLARE_INTERFACE( IApplication )
 
 	public:
 		virtual bool create ( void ) = 0;
@@ -17,6 +17,6 @@ namespace wv
 
 	protected:
 
-		wv::cEngine* m_pEngine = nullptr;
+		wv::Engine* m_pEngine = nullptr;
 	};
 }

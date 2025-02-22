@@ -5,13 +5,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOperator* _operator )
+int wv::ReflectionRegistry::reflectClass( const std::string& _name, IClassOperator* _operator )
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Reflecting '%s'\n", _name.c_str() );
 
-	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
+	ReflectedClassesMap_t& classes = wv::ReflectionRegistry::getClasses();
 
-	sClassReflection c;
+	ClassReflection c;
 	c.name = _name;
 	c.pOperator = _operator;
 	classes[ _name ] = c;
@@ -21,9 +21,9 @@ int wv::cReflectionRegistry::reflectClass( const std::string& _name, iClassOpera
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void* wv::cReflectionRegistry::createInstance( const std::string& _name )
+void* wv::ReflectionRegistry::createInstance( const std::string& _name )
 {
-	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
+	ReflectedClassesMap_t& classes = wv::ReflectionRegistry::getClasses();
 
 	auto search = classes.find( _name );
 	if( search == classes.end() )
@@ -32,15 +32,15 @@ void* wv::cReflectionRegistry::createInstance( const std::string& _name )
 		return nullptr;
 	}
 
-	sClassReflection& op = classes[ _name ];
+	ClassReflection& op = classes[ _name ];
 	return op.pOperator->createInstance();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void* wv::cReflectionRegistry::parseInstance( const std::string& _name, sParseData& _data )
+void* wv::ReflectionRegistry::parseInstance( const std::string& _name, ParseData& _data )
 {
-	tReflectedClassesMap& classes = wv::cReflectionRegistry::getClasses();
+	ReflectedClassesMap_t& classes = wv::ReflectionRegistry::getClasses();
 
 	auto search = classes.find( _name );
 	if( search == classes.end() )
@@ -49,13 +49,13 @@ void* wv::cReflectionRegistry::parseInstance( const std::string& _name, sParseDa
 		return nullptr;
 	}
 
-	sClassReflection& op = classes[ _name ];
+	ClassReflection& op = classes[ _name ];
 	return op.pOperator->parseInstance( _data );
 }
 
-wv::tReflectedClassesMap& wv::cReflectionRegistry::getClasses()
+wv::ReflectedClassesMap_t& wv::ReflectionRegistry::getClasses()
 {
-	static tReflectedClassesMap classes{};
+	static ReflectedClassesMap_t classes{};
 	return classes;
 }
 

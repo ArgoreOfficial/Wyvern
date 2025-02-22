@@ -15,22 +15,22 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshNode;
-	class cMaterial;
+	struct MeshNode;
+	class Material;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cSkyboxObject : public IEntity
+	class SkyboxObject : public IEntity
 	{
 
 	public:
 
-		 cSkyboxObject( const UUID& _uuid, const std::string& _name );
-		~cSkyboxObject();
+		 SkyboxObject( const UUID& _uuid, const std::string& _name );
+		~SkyboxObject();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		static cSkyboxObject* parseInstance( sParseData& _data );
+		static SkyboxObject* parseInstance( ParseData& _data );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +42,9 @@ namespace wv
 		void onExitImpl() override;
 
 		virtual void onUpdate( double _deltaTime ) override;
-		virtual void onDraw  ( iDeviceContext* _context, IGraphicsDevice* _device ) override;
+		virtual void onDraw  ( IDeviceContext* _context, IGraphicsDevice* _device ) override;
 
-		sMeshInstance m_mesh;
+		MeshInstance m_mesh;
 
 	};
 }

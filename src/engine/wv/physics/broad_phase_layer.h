@@ -31,11 +31,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cBroadPhaseLayer : public JPH::BroadPhaseLayerInterface
+	class BroadPhaseLayer : public JPH::BroadPhaseLayerInterface
 	{
 
 	public:
-		cBroadPhaseLayer();
+		BroadPhaseLayer();
 
 		virtual JPH::uint GetNumBroadPhaseLayers() const override;
 		virtual JPH::BroadPhaseLayer GetBroadPhaseLayer( JPH::ObjectLayer inLayer ) const override;
@@ -53,7 +53,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cObjectVsBroadPhaseLayerFilter : public JPH::ObjectVsBroadPhaseLayerFilter
+	class ObjectVsBroadPhaseLayerFilter : public JPH::ObjectVsBroadPhaseLayerFilter
 	{
 	public:
 		virtual bool ShouldCollide( JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2 ) const override;
@@ -62,7 +62,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cObjectLayerPairFilter : public JPH::ObjectLayerPairFilter
+	class ObjectLayerPairFilter : public JPH::ObjectLayerPairFilter
 	{
 	public:
 		virtual bool ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const override;

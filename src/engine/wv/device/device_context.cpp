@@ -18,9 +18,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
+wv::IDeviceContext* wv::IDeviceContext::getDeviceContext( ContextDesc* _desc )
 {
-	iDeviceContext* context = nullptr;
+	IDeviceContext* context = nullptr;
 
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Device Context\n" );
 
@@ -73,7 +73,7 @@ wv::iDeviceContext* wv::iDeviceContext::getDeviceContext( ContextDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::iDeviceContext::setSize( int _width, int _height )
+void wv::IDeviceContext::setSize( int _width, int _height )
 {
 	m_width  = _width;
 	m_height = _height;

@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_path == "" )
 		m_path = m_name + ".wmat";
@@ -27,9 +27,9 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevel
 
 	std::string shaderName = root[ "shader" ].string_value();
 
-	cResourceRegistry* pResReg = cEngine::get()->m_pResourceRegistry;
+	ResourceRegistry* pResReg = Engine::get()->m_pResourceRegistry;
 
-	m_pShader = pResReg->load<cShaderResource>( shaderName );
+	m_pShader = pResReg->load<ShaderResource>( shaderName );
 
 	for ( auto& textureObject : root[ "textures" ].array_items() )
 	{
@@ -47,12 +47,12 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevel
 			continue;
 		}
 
-		sMaterialVariable textureVariable;
+		MaterialVariable textureVariable;
 		textureVariable.handle = 0;
 		textureVariable.name = uniformName;
 		textureVariable.type = WV_MATERIAL_VARIABLE_TEXTURE;
 
-		cTextureResource* texture = pResReg->load<cTextureResource>( textureName, (wv::eTextureFiltering)filtering );
+		TextureResource* texture = pResReg->load<TextureResource>( textureName, (wv::TextureFiltering)filtering );
 		textureVariable.data.texture = texture;
 
 		m_variables.push_back( textureVariable );
@@ -63,11 +63,11 @@ void wv::cMaterial::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevel
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::Material::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	setComplete( false );
 
-	cResourceRegistry* resReg = cEngine::get()->m_pResourceRegistry;
+	ResourceRegistry* resReg = Engine::get()->m_pResourceRegistry;
 	
 	if( m_pShader )
 		resReg->unload( m_pShader );
@@ -86,7 +86,7 @@ void wv::cMaterial::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLev
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setAsActive( IGraphicsDevice* _device )
+void wv::Material::setAsActive( IGraphicsDevice* _device )
 {
 	m_pShader->bind( _device );
 	setMaterialUniforms();
@@ -94,16 +94,16 @@ void wv::cMaterial::setAsActive( IGraphicsDevice* _device )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setMaterialUniforms()
+void wv::Material::setMaterialUniforms()
 {
 	if ( m_pShader == nullptr || !m_pShader->isComplete() )
 		return;
 
-	wv::cEngine* app = wv::cEngine::get();
+	wv::Engine* app = wv::Engine::get();
 
 	// model transform
 	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbCameraData" );
-	wv::sGPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.at( instanceBlockID );
+	wv::GPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.at( instanceBlockID );
 
 	GPUBufferID id = app->currentCamera->getBufferID();
 
@@ -112,14 +112,14 @@ void wv::cMaterial::setMaterialUniforms()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setInstanceUniforms( sMesh* _instance )
+void wv::Material::setInstanceUniforms( Mesh* _instance )
 {
 	setDefaultMeshUniforms( _instance ); // sets transform/model matrix
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMaterial::setDefaultMeshUniforms( sMesh* _mesh )
+void wv::Material::setDefaultMeshUniforms( Mesh* _mesh )
 {
 	
 }

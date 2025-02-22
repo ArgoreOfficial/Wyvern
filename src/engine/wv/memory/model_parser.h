@@ -14,9 +14,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct sMeshNode;
-	class cResourceRegistry;
-	class sMesh;
+	struct MeshNode;
+	class ResourceRegistry;
+	class Mesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ namespace wv
 		Parser() { }
 			
 		
-		sMeshNode* load( const char* _path, cResourceRegistry* _pResourceRegistry );
+		MeshNode* load( const char* _path, ResourceRegistry* _pResourceRegistry );
 
 	};
 

@@ -5,14 +5,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject::cModelObject( const UUID& _uuid, const std::string& _name ):
+wv::ModelObject::ModelObject( const UUID& _uuid, const std::string& _name ):
 	Entity{ _uuid, _name }
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cModelObject* wv::cModelObject::parseInstance( sParseData& _data )
+wv::ModelObject* wv::ModelObject::parseInstance( ParseData& _data )
 {
 	wv::Json& json = _data.json;
 
@@ -32,7 +32,7 @@ wv::cModelObject* wv::cModelObject::parseInstance( sParseData& _data )
 	wv::Json data = json[ "data" ];
 	std::string meshPath = data["path"].string_value();
 	
-	cModelObject* model = WV_NEW( wv::cModelObject, uuid, name );
+	ModelObject* model = WV_NEW( wv::ModelObject, uuid, name );
 	model->m_transform = transform;
 	model->addComponent<ModelComponent>( meshPath );
 

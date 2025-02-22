@@ -12,7 +12,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iDeviceContext;
+	class IDeviceContext;
 	class IGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ namespace wv
 		struct DrawData
 		{
 			wv::IEntity* pObject;
-			iDeviceContext* pContext;
+			IDeviceContext* pContext;
 			IGraphicsDevice* pDevice;
 		};
 
@@ -76,7 +76,7 @@ namespace wv
 	template<typename _Ty, typename ..._Args>
 	inline void Scene::_runJobs( std::string _name, Job::JobFunction_t _fptr, _Args ..._args )
 	{
-		JobSystem* pJobSystem = cEngine::get()->m_pJobSystem;
+		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
 		std::vector<_Ty> userDatas{ m_entities.size() };
 		std::vector<Job*> jobs{};

@@ -8,9 +8,9 @@
 namespace wv
 {
 	
-	struct sWindowEvent
+	struct WindowEvent
 	{
-		enum sEventType
+		enum EventType
 		{
 			WV_WINDOW_EVENT_NONE,
 			WV_WINDOW_FOCUS_LOST,
@@ -18,16 +18,16 @@ namespace wv
 			WV_WINDOW_RESIZED,
 		};
 
-		sEventType type = WV_WINDOW_EVENT_NONE;
+		EventType type = WV_WINDOW_EVENT_NONE;
 
 		/// Only applicable when WV_WINDOW_FOCUS_RESIZED
 		/// TODO: event data union?
 		Vector2i size = { 0, 0 };
 	};
 
-	struct sMouseEvent
+	struct MouseEvent
 	{
-		enum sMouseButton
+		enum MouseButton
 		{
 			WV_MOUSE_BUTTON_NONE = 0,
 			WV_MOUSE_BUTTON_LEFT,
@@ -35,7 +35,7 @@ namespace wv
 			WV_MOUSE_BUTTON_MIDDLE
 		};
 
-		enum sMouseButtonAction
+		enum MouseButtonAction
 		{
 			WV_MOUSE_BUTTON_ACTION_DOWN,
 			WV_MOUSE_BUTTON_ACTION_UP
@@ -44,18 +44,18 @@ namespace wv
 		Vector2i position = { 0, 0 };
 		Vector2i delta = { 0, 0 };
 
-		sMouseButton button = WV_MOUSE_BUTTON_NONE;
+		MouseButton button = WV_MOUSE_BUTTON_NONE;
 
 		bool buttondown = false;
 		bool buttonup = false;
 
-		sMouseButtonAction action = WV_MOUSE_BUTTON_ACTION_DOWN;
+		MouseButtonAction action = WV_MOUSE_BUTTON_ACTION_DOWN;
 
 	};
 
-	struct sInputEvent
+	struct InputEvent
 	{
-		eKey key;
+		Key key;
 		int scancode;
 		int mods;
 
@@ -64,14 +64,12 @@ namespace wv
 		bool repeat;
 	};
 
+	typedef EventListener<WindowEvent> WindowEventListener;
+	typedef EventListener<MouseEvent> MouseEventListener;
+	typedef EventListener<InputEvent> InputEventListener;
 
-
-	typedef cEventListener<sWindowEvent> cWindowEventListener;
-	typedef cEventListener<sMouseEvent> cMouseEventListener;
-	typedef cEventListener<sInputEvent> cInputEventListener;
-
-	typedef cEventDispatcher<sWindowEvent> cWindowEventDispatcher;
-	typedef cEventDispatcher<sMouseEvent> cMouseEventDispatcher;
-	typedef cEventDispatcher<sInputEvent> cInputEventDispatcher;
+	typedef EventDispatcher<WindowEvent> WindowEventDispatcher;
+	typedef EventDispatcher<MouseEvent> MouseEventDispatcher;
+	typedef EventDispatcher<InputEvent> InputEventDispatcher;
 
 }

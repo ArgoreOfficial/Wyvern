@@ -21,9 +21,9 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMeshResource;
+	class MeshResource;
 
-	struct sMeshInstance
+	struct MeshInstance
 	{
 		void draw();
 
@@ -31,27 +31,27 @@ namespace wv
 		void destroy(); 
 
 		Transformf transform{};
-		cMeshResource* pResource = nullptr;
+		MeshResource* pResource = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cMeshResource : public wv::iResource
+	class MeshResource : public wv::IResource
 	{
 	public:
-		cMeshResource( const std::string& _name, const std::string& _path ) :
-			iResource( _name, _path )
+		MeshResource( const std::string& _name, const std::string& _path ) :
+			IResource( _name, _path )
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
-		sMeshInstance createInstance();
-		void destroyInstance( sMeshInstance& _instance );
+		MeshInstance createInstance();
+		void destroyInstance( MeshInstance& _instance );
 
 		std::vector<Transformf>& getDrawQueue() { return m_drawQueue; }
 		
-		void addToDrawQueue( sMeshInstance& _instance );
+		void addToDrawQueue( MeshInstance& _instance );
 
 		void drawInstances( IGraphicsDevice* _pLowLevelGraphics );
 
@@ -60,10 +60,10 @@ namespace wv
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode* _node );
+		void drawNode( IGraphicsDevice* _pLowLevelGraphics, MeshNode* _node );
 
 		std::mutex m_mutex{};
-		sMeshNode* m_pMeshNode = nullptr;
+		MeshNode* m_pMeshNode = nullptr;
 		std::vector<Transformf> m_drawQueue;
 	};
 

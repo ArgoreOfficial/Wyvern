@@ -7691,7 +7691,7 @@ struct ma_context
 
             /*HMODULE*/ ma_handle hAdvapi32DLL;
             ma_proc RegOpenKeyExA;
-            ma_proc RegCloseKey;
+            ma_proc RegClosKey;
             ma_proc RegQueryValueExA;
 
             /*HRESULT*/ long CoInitializeResult;
@@ -13080,14 +13080,14 @@ static ma_result ma_result_from_errno(int e)
 #ifdef ENOKEY
     else if (e == ENOKEY) { return MA_ERROR; }
 #endif
-#ifdef EKEYEXPIRED
-    else if (e == EKEYEXPIRED) { return MA_ERROR; }
+#ifdef KeyEXPIRED
+    else if (e == KeyEXPIRED) { return MA_ERROR; }
 #endif
-#ifdef EKEYREVOKED
-    else if (e == EKEYREVOKED) { return MA_ERROR; }
+#ifdef KeyREVOKED
+    else if (e == KeyREVOKED) { return MA_ERROR; }
 #endif
-#ifdef EKEYREJECTED
-    else if (e == EKEYREJECTED) { return MA_ERROR; }
+#ifdef KeyREJECTED
+    else if (e == KeyREJECTED) { return MA_ERROR; }
 #endif
 #ifdef EOWNERDEAD
     else if (e == EOWNERDEAD) { return MA_ERROR; }
@@ -18400,7 +18400,7 @@ typedef HWND    (WINAPI * MA_PFN_GetDesktopWindow)(void);
 #if defined(MA_WIN32_DESKTOP)
 /* Microsoft documents these APIs as returning LSTATUS, but the Win32 API shipping with some compilers do not define it. It's just a LONG. */
 typedef LONG    (WINAPI * MA_PFN_RegOpenKeyExA)(HKEY hKey, const char* lpSubKey, DWORD ulOptions, DWORD samDesired, HKEY* phkResult);
-typedef LONG    (WINAPI * MA_PFN_RegCloseKey)(HKEY hKey);
+typedef LONG    (WINAPI * MA_PFN_RegClosKey)(HKEY hKey);
 typedef LONG    (WINAPI * MA_PFN_RegQueryValueExA)(HKEY hKey, const char* lpValueName, DWORD* lpReserved, DWORD* lpType, BYTE* lpData, DWORD* lpcbData);
 #endif  /* MA_WIN32_DESKTOP */
 
@@ -25692,7 +25692,7 @@ static ma_result ma_context_get_device_info_from_WAVECAPS(ma_context* pContext, 
                 BYTE nameFromReg[512];
                 DWORD nameFromRegSize = sizeof(nameFromReg);
                 LONG resultWin32 = ((MA_PFN_RegQueryValueExA)pContext->win32.RegQueryValueExA)(hKey, "Name", 0, NULL, (BYTE*)nameFromReg, (DWORD*)&nameFromRegSize);
-                ((MA_PFN_RegCloseKey)pContext->win32.RegCloseKey)(hKey);
+                ((MA_PFN_RegClosKey)pContext->win32.RegClosKey)(hKey);
 
                 if (resultWin32 == ERROR_SUCCESS) {
                     /* We have the value from the registry, so now we need to construct the name string. */
@@ -33928,7 +33928,7 @@ static ma_result ma_device__untrack__coreaudio(ma_device* pDevice)
 
 -(void)handle_interruption:(NSNotification*)pNotification
 {
-    NSInteger type = [[[pNotification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
+    NSInteger type = [[[pNotification userInfo] objectForKey:AVAudioSessionInterruptionTypKey] integerValue];
     switch (type)
     {
         case AVAudioSessionInterruptionTypeBegan:
@@ -41010,7 +41010,7 @@ static ma_result ma_context_init_backend_apis__win32(ma_context* pContext)
         }
 
         pContext->win32.RegOpenKeyExA    = (ma_proc)ma_dlsym(ma_context_get_log(pContext), pContext->win32.hAdvapi32DLL, "RegOpenKeyExA");
-        pContext->win32.RegCloseKey      = (ma_proc)ma_dlsym(ma_context_get_log(pContext), pContext->win32.hAdvapi32DLL, "RegCloseKey");
+        pContext->win32.RegClosKey      = (ma_proc)ma_dlsym(ma_context_get_log(pContext), pContext->win32.hAdvapi32DLL, "RegClosKey");
         pContext->win32.RegQueryValueExA = (ma_proc)ma_dlsym(ma_context_get_log(pContext), pContext->win32.hAdvapi32DLL, "RegQueryValueExA");
     #endif
 

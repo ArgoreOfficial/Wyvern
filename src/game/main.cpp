@@ -20,14 +20,14 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 
 int main()
 {
-	wv::Trace::sTrace::printEnabled = false;
+	wv::Trace::Trace::printEnabled = false;
 
 	if( !wv::Console::isInitialized() )
 		wv::Console::initialize();
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
-	cSandbox sandbox{};
+	Sandbox sandbox{};
 
 #ifdef WV_PACKAGE
 	try

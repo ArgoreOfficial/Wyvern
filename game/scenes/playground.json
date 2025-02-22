@@ -4,7 +4,7 @@
     {
       "uuid": 28752,
       "name": "floor",
-      "type": "cRigidbody",
+      "type": "Rigidbody",
       "transform": {
         "pos": [0,-7,0],
         "rot": [0,0,0],
@@ -21,7 +21,7 @@
     {
       "uuid": 168716,
       "name": "wall",
-      "type": "cRigidbody",
+      "type": "Rigidbody",
       "transform": {
         "pos": [0,-4.5,50],
         "rot": [0,0,0],
@@ -38,7 +38,7 @@
     {
       "uuid": 497598,
       "name": "wall",
-      "type": "cRigidbody",
+      "type": "Rigidbody",
       "transform": {
         "pos": [0,-4.5,-50],
         "rot": [0,0,0],
@@ -55,7 +55,7 @@
     {
       "uuid": 561581,
       "name": "wall",
-      "type": "cRigidbody",
+      "type": "Rigidbody",
       "transform": {
         "pos": [50,-4.5,0],
         "rot": [0,0,0],
@@ -72,7 +72,7 @@
     {
       "uuid": 875219,
       "name": "wall",
-      "type": "cRigidbody",
+      "type": "Rigidbody",
       "transform": {
         "pos": [-50,-4.5,0],
         "rot": [0,0,0],
@@ -101,7 +101,7 @@
     {
       "uuid": 981749,
       "name": "Skybox",
-      "type": "cSkyboxObject",
+      "type": "SkyboxObject",
       "transform": {
         "pos": [0,0,0],
         "rot": [0,0,0],

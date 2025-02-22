@@ -7,17 +7,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
+wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 	fov{ _fov },
 	m_near{ _near },
 	m_far{ _far },
 	m_type{ _type }
 {
-	IGraphicsDevice* pGraphics = cEngine::get()->graphics;
+	IGraphicsDevice* pGraphics = Engine::get()->graphics;
 
-	sGPUBufferDesc ubDesc;
+	GPUBufferDesc ubDesc;
 	ubDesc.name  = "UbCameraData";
-	ubDesc.size  = sizeof( sUbCameraData );
+	ubDesc.size  = sizeof( UbCameraData );
 	ubDesc.type  = WV_BUFFER_TYPE_UNIFORM;
 	ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 
@@ -26,26 +26,26 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::iCamera::beginRender( IGraphicsDevice* _pLowLevelGraphics, eFillMode _fillMode )
+bool wv::ICamera::beginRender( IGraphicsDevice* _pLowLevelGraphics, FillMode _fillMode )
 {
 	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.count( "UbCameraData" ) )
 		return false;
 
 	_pLowLevelGraphics->setFillMode( _fillMode );
 
-	sUbCameraData instanceData;
+	UbCameraData instanceData;
 	instanceData.projection = getProjectionMatrix();
 	instanceData.view       = getViewMatrix();
 	instanceData.model      = wv::Matrix4x4f( 1.0f );
 
 	/// TODO: rename UbCameraData to UbCameraData?
 	//BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbCameraData" );
-	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( sUbCameraData ), 0 );
+	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( UbCameraData ), 0 );
 
 	return true;
 }
 
-wv::Matrix4x4f wv::iCamera::getProjectionMatrix( void )
+wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
 {
 	switch( m_type )
 	{
@@ -58,18 +58,18 @@ wv::Matrix4x4f wv::iCamera::getProjectionMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::iCamera::getPerspectiveMatrix( void )
+wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
-	wv::cEngine* engine = wv::cEngine::get();
+	wv::Engine* engine = wv::Engine::get();
 	
 	return MatrixUtil::perspective( engine->getViewportAspect(), Math::radians( fov ), m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::iCamera::getOrthographicMatrix( void )
+wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void )
 {
-	wv::iDeviceContext* ctx = wv::cEngine::get()->context;
+	wv::IDeviceContext* ctx = wv::Engine::get()->context;
 	float w = (float)ctx->getWidth()  / 2.0f;
 	float h = (float)ctx->getHeight() / 2.0f;
 
@@ -78,14 +78,14 @@ wv::Matrix4x4f wv::iCamera::getOrthographicMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::iCamera::getViewMatrix( void )
+wv::Matrix4x4f wv::ICamera::getViewMatrix( void )
 {
 	return MatrixUtil::inverse( m_transform.getMatrix() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::iCamera::getViewDirection()
+wv::Vector3f wv::ICamera::getViewDirection()
 {
 	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
 	float pitch = Math::radians( m_transform.rotation.x );

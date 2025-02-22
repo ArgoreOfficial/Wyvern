@@ -25,12 +25,12 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 	
 	static DemoWindow* createInstance( void ) { 
-		DemoWindow* dw = WV_NEW( DemoWindow, wv::cEngine::getUniqueUUID(), "DemoWindow" );
+		DemoWindow* dw = WV_NEW( DemoWindow, wv::Engine::getUniqueUUID(), "DemoWindow" );
 		dw->addComponent<DemoWindowComponent>();
 		return dw;
 	}
 
-	static DemoWindow* parseInstance( wv::sParseData& _data ) { 
+	static DemoWindow* parseInstance( wv::ParseData& _data ) { 
 		wv::Json& json = _data.json;
 		wv::UUID    uuid = json[ "uuid" ].int_value();
 		std::string name = json[ "name" ].string_value();

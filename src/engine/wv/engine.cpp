@@ -51,11 +51,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cEngine* wv::cEngine::s_pInstance = nullptr;
+wv::Engine* wv::Engine::s_pInstance = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cEngine::cEngine( EngineDesc* _desc )
+wv::Engine::Engine( EngineDesc* _desc )
 {
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Engine\n" );
 
@@ -71,7 +71,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	graphics = _desc->device.pGraphics;
 
 	m_screenRenderTarget = graphics->m_renderTargets.emplace();
-	sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
+	RenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 	rt.width = _desc->windowWidth;
 	rt.height = _desc->windowHeight;
 	rt.fbHandle = 0;
@@ -80,7 +80,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pApplicationState->initialize();
 
 	/// TODO: move to descriptor
-	m_pPhysicsEngine = WV_NEW( cJoltPhysicsEngine );
+	m_pPhysicsEngine = WV_NEW( JoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 	
 	const int concurrency = std::thread::hardware_concurrency();
@@ -88,7 +88,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	m_pJobSystem->initialize( wv::Math::max( 0, - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
-	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
+	m_pResourceRegistry = WV_NEW( ResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
 
 	graphics->initEmbeds();
 
@@ -102,7 +102,7 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 #ifndef WV_PLATFORM_PSVITA // use forward rendering on vita
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Deferred Resources\n" );
 	{ 
-		m_pDeferredShader = WV_NEW( cShaderResource, "deferred" );
+		m_pDeferredShader = WV_NEW( ShaderResource, "deferred" );
 		m_pDeferredShader->load( m_pFileSystem, graphics );
 		
 		createScreenQuad();
@@ -121,14 +121,14 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cEngine* wv::cEngine::get()
+wv::Engine* wv::Engine::get()
 {
 	return s_pInstance;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::UUID wv::cEngine::getUniqueUUID()
+wv::UUID wv::Engine::getUniqueUUID()
 {
 #ifdef WV_PLATFORM_WINDOWS
 	std::random_device rd;
@@ -146,7 +146,7 @@ wv::UUID wv::cEngine::getUniqueUUID()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Handle wv::cEngine::getUniqueHandle()
+wv::Handle wv::Engine::getUniqueHandle()
 {
 #ifdef WV_PLATFORM_WINDOWS
 	std::random_device rd;
@@ -165,7 +165,7 @@ wv::Handle wv::cEngine::getUniqueHandle()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::onResize( int _width, int _height )
+void wv::Engine::onResize( int _width, int _height )
 {
 	context->onResize( _width, _height );
 	recreateScreenRenderTarget( _width, _height );
@@ -173,16 +173,16 @@ void wv::cEngine::onResize( int _width, int _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::handleInput()
+void wv::Engine::handleInput()
 {
-	sMouseEvent mouseEvent;
+	MouseEvent mouseEvent;
 	while ( m_mouseListener.pollEvent( mouseEvent ) )
 	{
 		m_mousePosition = mouseEvent.position;
 	}
 	
 
-	sInputEvent inputEvent;
+	InputEvent inputEvent;
 	while ( m_inputListener.pollEvent( inputEvent ) )
 	{
 		if ( inputEvent.buttondown )
@@ -204,7 +204,7 @@ void wv::cEngine::handleInput()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::setSize( int _width, int _height, bool _notify )
+void wv::Engine::setSize( int _width, int _height, bool _notify )
 {
 	context->setSize( _width, _height );
 	
@@ -215,12 +215,12 @@ void wv::cEngine::setSize( int _width, int _height, bool _notify )
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef EMSCRIPTEN
-void emscriptenMainLoop() { wv::cEngine::get()->tick(); }
+void emscriptenMainLoop() { wv::Engine::get()->tick(); }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector2i wv::cEngine::getViewportSize()
+wv::Vector2i wv::Engine::getViewportSize()
 {
 	return wv::Vector2i{
 		context->getWidth(),
@@ -230,15 +230,15 @@ wv::Vector2i wv::cEngine::getViewportSize()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::run()
+void wv::Engine::run()
 {
 
 	// Subscribe to user input event
 	m_inputListener.hook();
 	m_mouseListener.hook();
 
-	orbitCamera = WV_NEW( OrbitCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	freeflightCamera = WV_NEW( FreeflightCamera, iCamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	orbitCamera = WV_NEW( OrbitCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
 	orbitCamera->onEnter();
 	freeflightCamera->onEnter();
 
@@ -254,7 +254,7 @@ void wv::cEngine::run()
 	m_pResourceRegistry->waitForFence();
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop( []{ wv::cEngine::get()->tick(); }, 0, 1);
+	emscripten_set_main_loop( []{ wv::Engine::get()->tick(); }, 0, 1);
 #else
 
 	int timeToDeath = 5;
@@ -296,7 +296,7 @@ void wv::cEngine::run()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::terminate()
+void wv::Engine::terminate()
 {
 	graphics->executeCreateQueue();
 
@@ -385,7 +385,7 @@ void wv::cEngine::terminate()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::tick()
+void wv::Engine::tick()
 {
 	double dt = context->getDeltaTime();
 	
@@ -433,7 +433,7 @@ void wv::cEngine::tick()
 	Fence* physicsFence = m_pJobSystem->createFence();
 	Job::JobFunction_t fptr = []( void* _pUserData )
 		{
-			cEngine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
+			Engine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
 		};
 	Job* job = m_pJobSystem->createJob( physicsFence, nullptr, fptr, &dt );
 	m_pJobSystem->submit( { job } );
@@ -455,7 +455,7 @@ void wv::cEngine::tick()
 #endif
 
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
+		RenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 		if ( rt.width == 0 || rt.height == 0 )
 			return;
 	}
@@ -496,7 +496,7 @@ void wv::cEngine::tick()
 
 	// bind gbuffer textures to deferred pass
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
+		RenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
 			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
@@ -508,19 +508,19 @@ void wv::cEngine::tick()
 
 		GPUBufferID UbFogParams  = m_pDeferredShader->getShaderBuffer( "UbFogParams" );
 		GPUBufferID SbVerticesID = m_pDeferredShader->getShaderBuffer( "SbVertices" );
-		sGPUBuffer fogParamBuffer = graphics->m_gpuBuffers.at( UbFogParams );
+		GPUBuffer fogParamBuffer = graphics->m_gpuBuffers.at( UbFogParams );
 
 		graphics->bufferSubData( UbFogParams, &m_fogParams, sizeof( m_fogParams ), 0 );
 		graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
 
-		sMesh screenQuad = graphics->m_meshes.at( m_screenQuad );
+		Mesh screenQuad = graphics->m_meshes.at( m_screenQuad );
 		{
-			wv::sGPUBuffer& SbVertices = graphics->m_gpuBuffers.at( SbVerticesID );
+			wv::GPUBuffer& SbVertices = graphics->m_gpuBuffers.at( SbVerticesID );
 			graphics->bindBufferIndex( screenQuad.vertexBufferID, SbVertices.bindingIndex.value );
 			graphics->cmdBindIndexBuffer( {}, screenQuad.indexBufferID, 0, {} );
 		}
 
-		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
+		// GPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
 		graphics->cmdDrawIndexed( {}, screenQuad.numIndices, 1, 0, 0, 0 );
 	}
 #endif
@@ -534,7 +534,7 @@ void wv::cEngine::tick()
 	context->swapBuffers();
 }
 
-void wv::cEngine::quit()
+void wv::Engine::quit()
 {
 	shutdownImgui();
 	context->close();
@@ -542,7 +542,7 @@ void wv::cEngine::quit()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::initImgui()
+void wv::Engine::initImgui()
 {
 #ifdef WV_SUPPORT_IMGUI
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Initializing ImGui\n" );
@@ -562,7 +562,7 @@ void wv::cEngine::initImgui()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::shutdownImgui()
+void wv::Engine::shutdownImgui()
 {
 #ifdef WV_SUPPORT_IMGUI
 	context->terminateImGui();
@@ -572,7 +572,7 @@ void wv::cEngine::shutdownImgui()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::createScreenQuad()
+void wv::Engine::createScreenQuad()
 {
 	std::vector<Vertex> vertices;
 	vertices.push_back( Vertex{ {  3.0f, -1.0f, 0.5f }, {}, {}, {}, { 2.0f, 0.0f } } );
@@ -583,7 +583,7 @@ void wv::cEngine::createScreenQuad()
 	indices.push_back( 0 );
 	indices.push_back( 1 );
 	indices.push_back( 2 );
-	wv::sMeshDesc prDesc;
+	wv::MeshDesc prDesc;
 	{
 		prDesc.vertices     = (uint8_t*)vertices.data();
 		prDesc.sizeVertices = vertices.size() * sizeof( Vertex );
@@ -599,15 +599,15 @@ void wv::cEngine::createScreenQuad()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cEngine::createGBuffer()
+void wv::Engine::createGBuffer()
 {
 	Vector2i size = getViewportSize();
 
-	sRenderTargetDesc rtDesc;
+	RenderTargetDesc rtDesc;
 	rtDesc.width  = size.x;
 	rtDesc.height = size.y;
 #ifdef WV_PLATFORM_WINDOWS
-	sTextureDesc texDescs[] = {
+	TextureDesc texDescs[] = {
 		{ wv::WV_TEXTURE_CHANNELS_RGBA, wv::WV_TEXTURE_FORMAT_BYTE }, // color
 		{ wv::WV_TEXTURE_CHANNELS_RG,   wv::WV_TEXTURE_FORMAT_BYTE }, // normal
 		{ wv::WV_TEXTURE_CHANNELS_RG,   wv::WV_TEXTURE_FORMAT_FLOAT } // roughness/metallic
@@ -622,10 +622,10 @@ void wv::cEngine::createGBuffer()
 
 }
 
-void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
+void wv::Engine::recreateScreenRenderTarget( int _width, int _height )
 {
 	{
-		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
+		RenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 
 		// recreate render target
 		rt.width = _width;
@@ -641,7 +641,7 @@ void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 	createGBuffer();
 }
 
-void wv::cEngine::_physicsUpdate( double _deltaTime )
+void wv::Engine::_physicsUpdate( double _deltaTime )
 {
 	m_pApplicationState->onPhysicsUpdate( _deltaTime );
 }

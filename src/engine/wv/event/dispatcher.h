@@ -5,10 +5,10 @@
 
 namespace wv
 {
-	struct sHook
+	struct Hook
 	{
-		sHook() = default;
-		sHook( bool _hooked, int _currentEventCounter ) : 
+		Hook() = default;
+		Hook( bool _hooked, int _currentEventCounter ) : 
 			hooked{ _hooked }, 
 			currentEventCounter{ _currentEventCounter } 
 		{ }
@@ -18,11 +18,11 @@ namespace wv
 	};
 
 	template<typename T>
-	class cEventDispatcher
+	class EventDispatcher
 	{
 	public:
 
-		cEventDispatcher() { }
+		EventDispatcher() { }
 
 		static int32_t hook( int32_t _handle );
 		static void unhook( int32_t _handle );
@@ -34,13 +34,13 @@ namespace wv
 
 	private:
 		
-		static inline std::vector<sHook> m_hooks {};
+		static inline std::vector<Hook> m_hooks {};
 		static inline std::vector<T>     m_events{};
 
 	};
 
 	template<typename T>
-	inline int32_t cEventDispatcher<T>::hook( int32_t _handle )
+	inline int32_t EventDispatcher<T>::hook( int32_t _handle )
 	{
 		for ( size_t i = 0; i < m_hooks.size(); i++ )
 		{
@@ -64,7 +64,7 @@ namespace wv
 	}
 
 	template<typename T>
-	inline void cEventDispatcher<T>::unhook( int32_t _handle )
+	inline void EventDispatcher<T>::unhook( int32_t _handle )
 	{
 		if ( _handle < 0 || static_cast<size_t>( _handle ) == m_hooks.size() )
 			return;
@@ -74,7 +74,7 @@ namespace wv
 	}
 
 	template<typename T>
-	inline bool cEventDispatcher<T>::pollEvent( int32_t _handle, T& _outEvent )
+	inline bool EventDispatcher<T>::pollEvent( int32_t _handle, T& _outEvent )
 	{
 		if ( _handle < 0 || static_cast<size_t>( _handle ) >= m_hooks.size() )
 			return false;
@@ -90,13 +90,13 @@ namespace wv
 	}
 
 	template<typename T>
-	inline void cEventDispatcher<T>::post( T _event )
+	inline void EventDispatcher<T>::post( T _event )
 	{
 		m_events.push_back( _event );
 	}
 
 	template<typename T>
-	inline void cEventDispatcher<T>::flush()
+	inline void EventDispatcher<T>::flush()
 	{
 		m_events.clear();
 		for ( auto& hook : m_hooks )

@@ -19,37 +19,37 @@ namespace wv
 		WV_TEXTURE_CHANNELS_RGBA
 	};
 
-	enum eTextureFormat
+	enum TextureFormat
 	{
 		WV_TEXTURE_FORMAT_BYTE,
 		WV_TEXTURE_FORMAT_INT,
 		WV_TEXTURE_FORMAT_FLOAT
 	};
 
-	enum eTextureFiltering
+	enum TextureFiltering
 	{
 		WV_TEXTURE_FILTER_NEAREST,
 		WV_TEXTURE_FILTER_LINEAR,
 	};
 
-	class cTextureResource;
+	class TextureResource;
 
-	struct sTextureDesc
+	struct TextureDesc
 	{
-		TextureChannels   channels  = WV_TEXTURE_CHANNELS_RGB;
-		eTextureFormat    format    = WV_TEXTURE_FORMAT_BYTE;
-		eTextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
+		TextureChannels  channels  = WV_TEXTURE_CHANNELS_RGB;
+		TextureFormat    format    = WV_TEXTURE_FORMAT_BYTE;
+		TextureFiltering filtering = WV_TEXTURE_FILTER_NEAREST;
 		int width = 0;
 		int height = 0;
 		int numChannels = 0;
 		bool generateMipMaps = false;
 	};
 
-	struct sPlatformTextureData;
+	struct PlatformTextureData;
 
-	struct sTexture
+	struct Texture
 	{
-		eTextureFiltering m_filtering;
+		TextureFiltering m_filtering;
 
 		wv::Handle textureObjectHandle = 0; // opengl specific
 		uint64_t textureHandle = 0; // opengl specific
@@ -61,6 +61,6 @@ namespace wv
 		int height = 0;
 		int numChannels = 0;
 
-		sPlatformTextureData* pPlatformData = nullptr;
+		PlatformTextureData* pPlatformData = nullptr;
 	};
 }

@@ -14,7 +14,7 @@ void wv::RigidBodyComponent::onEnter( void )
 	//sphereSettings.mRestitution = 0.4f;
 
 #ifdef WV_SUPPORT_PHYSICS
-	cEngine* app = wv::cEngine::get();
+	Engine* app = wv::Engine::get();
 	Entity* parent = getParent();
 	m_pPhysicsBodyDesc->transform = parent->m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
@@ -26,7 +26,7 @@ void wv::RigidBodyComponent::onEnter( void )
 
 void wv::RigidBodyComponent::onExit( void )
 {
-	wv::cEngine* app = wv::cEngine::get();
+	wv::Engine* app = wv::Engine::get();
 
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
@@ -34,7 +34,7 @@ void wv::RigidBodyComponent::onExit( void )
 
 void wv::RigidBodyComponent::onPhysicsUpdate( double /*_deltaTime*/ )
 {
-	wv::cJoltPhysicsEngine* pPhysics = wv::cEngine::get()->m_pPhysicsEngine;
+	wv::JoltPhysicsEngine* pPhysics = wv::Engine::get()->m_pPhysicsEngine;
 
 	if ( !m_physicsBodyHandle.is_valid() || !pPhysics->isBodyActive( m_physicsBodyHandle ) )
 		return;

@@ -9,7 +9,7 @@ namespace wv
 {
 	WV_DEFINE_ID( DrawListID );
 
-	struct sDrawIndexedIndirectCommand
+	struct DrawIndexedIndirectCommand
 	{
 		uint32_t indexCount;
 		uint32_t instanceCount;
@@ -18,7 +18,7 @@ namespace wv
 		uint32_t firstInstance;
 	};
 
-	struct sDrawIndirectCommand
+	struct DrawIndirectCommand
 	{
 		uint32_t vertexCount;
 		uint32_t instanceCount;
@@ -26,7 +26,7 @@ namespace wv
 		uint32_t firstInstance;
 	};
 
-	struct sDrawList
+	struct DrawList
 	{
 		PipelineID pipeline;
 		
@@ -34,7 +34,7 @@ namespace wv
 		GPUBufferID instanceBufferID;
 		GPUBufferID vertexBufferID;
 		
-		std::vector<sDrawIndexedIndirectCommand> cmds;
-		std::vector<sMeshInstanceData> instances;
+		std::vector<DrawIndexedIndirectCommand> cmds;
+		std::vector<MeshInstanceData> instances;
 	};
 }

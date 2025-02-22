@@ -30,21 +30,21 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::cFileSystem::cFileSystem()
+wv::FileSystem::FileSystem()
 {
 #if defined( WV_PLATFORM_PSVITA )
 	m_pLowLevel = WV_NEW( cPSVitaFileSystem );
 #elif defined( WV_PLATFORM_WINDOWS )
-	m_pLowLevel = WV_NEW( cWindowsFileSystem );
+	m_pLowLevel = WV_NEW( WindowsFileSystem );
 #endif
 	addDirectory( "" );
 }
 
-wv::cFileSystem::~cFileSystem()
+wv::FileSystem::~FileSystem()
 {
 	if ( m_loadedMemory.size() > 0 )
 	{
-		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty cFileSystem destroyed. This may cause memory leaks\n" );
+		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty FileSystem destroyed. This may cause memory leaks\n" );
 		while ( m_loadedMemory.size() > 0 )
 			unloadMemory( m_loadedMemory.front() );
 	}
@@ -62,7 +62,7 @@ wv::cFileSystem::~cFileSystem()
 #define ERROR_PREFIX "Error:"
 #endif
 
-wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
+wv::Memory* wv::FileSystem::loadMemory( const std::string& _path )
 {
 	std::scoped_lock lock( m_mutex );
 
@@ -70,7 +70,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 	if( path == "" )
 		return nullptr;
 
-	FileID file = m_pLowLevel->openFile( path.c_str(), wv::eOpenMode::WV_OPEN_MODE_READ );
+	FileID file = m_pLowLevel->openFile( path.c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
 	if( !file.is_valid() )
 		return nullptr;
 
@@ -100,7 +100,7 @@ wv::Memory* wv::cFileSystem::loadMemory( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cFileSystem::unloadMemory( Memory* _memory )
+void wv::FileSystem::unloadMemory( Memory* _memory )
 {
 	if ( !_memory )
 		return;
@@ -123,7 +123,7 @@ void wv::cFileSystem::unloadMemory( Memory* _memory )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string wv::cFileSystem::loadString( const std::string& _path )
+std::string wv::FileSystem::loadString( const std::string& _path )
 {
 	std::string path = getFullPath( _path );
 	Memory* mem = loadMemory( path );
@@ -138,7 +138,7 @@ std::string wv::cFileSystem::loadString( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::cFileSystem::fileExists( const std::string& _path )
+bool wv::FileSystem::fileExists( const std::string& _path )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	std::ifstream f( _path );
@@ -150,7 +150,7 @@ bool wv::cFileSystem::fileExists( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string wv::cFileSystem::getFullPath( const std::string& _fileName )
+std::string wv::FileSystem::getFullPath( const std::string& _fileName )
 {
 	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{

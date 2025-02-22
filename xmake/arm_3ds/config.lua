@@ -15,7 +15,7 @@ function on_load( _target )
     --_target:add( "linkdirs", path.join( DEVKITPRO, "/libctru/lib" ) )
     --_target:add( "syslinks", "citro3d", "citro2d", "ctru", "m" )
 
-    _target:add( "files", "source/**.pica", {rule = "3ds.picasso"} )
+    _target:add( "files", "src/**.pica", {rule = "3ds.picasso"} )
     _target:add( "rules", "3ds.package" )
 
     local kind = _target:get("kind")

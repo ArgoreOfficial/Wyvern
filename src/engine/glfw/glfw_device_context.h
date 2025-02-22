@@ -16,7 +16,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef WV_SUPPORT_GLFW
-	class GLFWDeviceContext : public iDeviceContext
+	class GLFWDeviceContext : public IDeviceContext
 	{
 
 	public:
@@ -49,7 +49,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
-		friend class iDeviceContext;
+		friend class IDeviceContext;
 		
 		bool initialize( ContextDesc* _desc ) override;
 

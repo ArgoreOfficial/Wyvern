@@ -2,12 +2,12 @@
 
 #include <wv/app.h>
 
-class cSandbox : public wv::iApplication
+class Sandbox : public wv::IApplication
 {
 public:
-	cSandbox() { }
+	Sandbox() { }
 
-	// Inherited via iApplication
+	// Inherited via IApplication
 	bool create ( void ) override;
 	void run    ( void ) override;
 	void destroy( void ) override;

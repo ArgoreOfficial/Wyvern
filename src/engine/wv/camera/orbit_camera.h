@@ -15,7 +15,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class OrbitCamera : public iCamera
+	class OrbitCamera : public ICamera
 	{
 	public:
 
@@ -32,8 +32,8 @@ namespace wv
 
 	private:
 
-		cMouseEventListener m_mouseListener;
-		cInputEventListener m_inputListener;
+		MouseEventListener m_mouseListener;
+		InputEventListener m_inputListener;
 
 		wv::Vector2f m_rotate;
 

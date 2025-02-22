@@ -17,33 +17,33 @@ namespace wv
 
 	WV_DEFINE_ID( BufferBindingIndex );
 
-	struct sMeshDesc;
-	struct sMeshNode;
-	struct sMesh;
+	struct MeshDesc;
+	struct MeshNode;
+	struct Mesh;
 
-	struct sTextureDesc;
-	struct sTexture;
+	struct TextureDesc;
+	struct Texture;
 
-	struct sPipelineDesc;
-	struct sPipeline;
+	struct PipelineDesc;
+	struct Pipeline;
 	
 	struct ShaderModuleDesc;
-	struct sProgram;
+	struct Program;
 
-	struct sRenderTargetDesc;
-	struct sRenderTarget;
+	struct RenderTargetDesc;
+	struct RenderTarget;
 
-	struct sGPUBufferDesc;
+	struct GPUBufferDesc;
 
 	/// TODO: move
-	struct sUbCameraData
+	struct UbCameraData
 	{
 		Matrix4x4f projection;
 		Matrix4x4f view;
 		Matrix4x4f model;
 	};
 
-	enum eFillMode
+	enum FillMode
 	{
 		WV_FILL_MODE_SOLID,
 		WV_FILL_MODE_WIREFRAME,

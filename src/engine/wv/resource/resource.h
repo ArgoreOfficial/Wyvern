@@ -9,34 +9,23 @@
 
 namespace wv
 {
-	/// TODO: forward declare iFileSystem for resource loading
-
-	class cFileSystem;
+	class FileSystem;
 	class IGraphicsDevice;
 
-	enum eResourceLoadState
-	{
-		WV_LOAD_STATE_NONE   = 0x0,
-		WV_LOAD_STATE_DATA   = 0x1,
-		WV_LOAD_STATE_OBJECT = 0x2,
-
-		WV_LOAD_STATE_DATA_OBJECT = WV_LOAD_STATE_DATA | WV_LOAD_STATE_OBJECT,
-	};
-
-	class iResource
+	class IResource
     {
 	public: 
 		
-		iResource( const std::string& _name, const std::string& _path )
+		IResource( const std::string& _name, const std::string& _path )
 		{ 
 			m_name = _name;
 			m_path = _path;
 		}
 
-		virtual ~iResource() {};
+		virtual ~IResource() {};
 
-		virtual void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
-		virtual void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
+		virtual void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
+		virtual void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
 
 		virtual void reload( void ) { }
 		

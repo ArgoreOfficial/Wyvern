@@ -8,15 +8,15 @@ namespace wv
 {
 	namespace Trace
 	{
-		struct sTrace
+		struct Trace
 		{
 			static inline bool printEnabled = 0;
 			static inline int depth = 0;
 
-			sTrace( const char* _func )
+			Trace( const char* _func )
 			{
 			#ifdef WV_DEBUG
-				if ( sTrace::printEnabled )
+				if ( Trace::printEnabled )
 				{
 					int d = depth * 3;
 
@@ -31,22 +31,22 @@ namespace wv
 					delete[] spacing;
 				}
 
-				sTrace::depth++;
+				Trace::depth++;
 			#endif
 			}
 
-			~sTrace()
+			~Trace()
 			{
 			#ifdef WV_DEBUG
-				sTrace::depth--;
-				if ( sTrace::depth < 0 )
-					sTrace::depth = 0;
+				Trace::depth--;
+				if ( Trace::depth < 0 )
+					Trace::depth = 0;
 			#endif
 			}
 		};
 		
 	#ifdef WV_DEBUG
-	#define WV_TRACE() wv::Trace::sTrace scopedTrace( __FUNCTION__ )
+	#define WV_TRACE() wv::Trace::Trace scopedTrace( __FUNCTION__ )
 	#else
 	#define WV_TRACE()
 	#endif

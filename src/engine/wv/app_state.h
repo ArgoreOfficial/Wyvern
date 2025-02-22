@@ -10,15 +10,15 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iDeviceContext;
+	class IDeviceContext;
 	class IGraphicsDevice;
 	class Scene;
-	class cFileSystem;
+	class FileSystem;
 	class UpdateManager;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cApplicationState
+	class ApplicationState
 	{
 	public:
 		void initialize();
@@ -33,11 +33,11 @@ namespace wv
 		void onUpdate( double _deltaTime );
 		void onPhysicsUpdate( double _deltaTime );
 
-		void onDraw( iDeviceContext* _pContext, IGraphicsDevice* _pDevice );
+		void onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice );
 
 		void reloadScene();
 
-		wv::Scene* loadScene( cFileSystem* _pFileSystem, const std::string& _path );
+		wv::Scene* loadScene( FileSystem* _pFileSystem, const std::string& _path );
 
 		/// <returns>scene index</returns>
 		int addScene( Scene* _pScene );
@@ -63,5 +63,5 @@ namespace wv
 		UpdateManager* m_pUpdateManager = nullptr;
 	};
 
-	cApplicationState* getAppState();
+	ApplicationState* getAppState();
 }

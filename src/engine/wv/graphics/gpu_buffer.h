@@ -6,7 +6,7 @@
 
 namespace wv
 {
-	enum eGPUBufferType
+	enum GPUBufferType
 	{
 		WV_BUFFER_TYPE_NONE = 0,
 		WV_BUFFER_TYPE_INDEX,
@@ -15,27 +15,27 @@ namespace wv
 		WV_BUFFER_TYPE_DYNAMIC
 	};
 
-	enum eGPUBufferUsage
+	enum GPUBufferUsage
 	{
 		WV_BUFFER_USAGE_NONE = 0,
 		WV_BUFFER_USAGE_STATIC_DRAW,
 		WV_BUFFER_USAGE_DYNAMIC_DRAW
 	};
 
-	struct sGPUBufferDesc
+	struct GPUBufferDesc
 	{
 		std::string name;
-		eGPUBufferType type;
-		eGPUBufferUsage usage;
+		GPUBufferType type;
+		GPUBufferUsage usage;
 		int32_t size;
 	};
 
-	struct sGPUBuffer
+	struct GPUBuffer
 	{
 		std::string name = "";
 		wv::Handle handle = 0;
-		eGPUBufferType  type  = WV_BUFFER_TYPE_NONE;
-		eGPUBufferUsage usage = WV_BUFFER_USAGE_NONE;
+		GPUBufferType  type  = WV_BUFFER_TYPE_NONE;
+		GPUBufferUsage usage = WV_BUFFER_USAGE_NONE;
 
 		uint32_t count  = 0;
 		uint32_t stride = 0;

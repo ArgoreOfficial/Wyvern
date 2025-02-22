@@ -36,7 +36,7 @@ void wv::Sprite::draw( IGraphicsDevice* _device )
 	if ( !Internal::S_SPRITE_QUAD.is_valid() )
 		return;
 	/*
-	sMeshWrapper* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
+	MeshWrapper* m = m_mesh ? m_mesh : Internal::S_SPRITE_QUAD;
 	m->transform = m_transform;
 	m->primitives[ 0 ]->material = m_material;
 	_device->draw( m );
@@ -47,7 +47,7 @@ void wv::Sprite::draw( IGraphicsDevice* _device )
 
 void wv::Sprite::createQuad()
 {
-	wv::cEngine* app = wv::cEngine::get();
+	wv::Engine* app = wv::Engine::get();
 
 	std::vector<wv::Vertex> vertices = {
 		wv::Vertex{ { 0.0f,  0.0f, 0.0f },{},{},{},{0.0f, 0.0f} },
@@ -60,7 +60,7 @@ void wv::Sprite::createQuad()
 		0, 2, 3
 	};
 
-	wv::sMeshDesc prDesc;
+	wv::MeshDesc prDesc;
 	
 	prDesc.vertices     = (uint8_t*)vertices.data();
 	prDesc.sizeVertices = static_cast<uint32_t>( vertices.size() * sizeof( Vertex ) );

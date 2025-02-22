@@ -18,10 +18,10 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iCamera
+	class ICamera
 	{
 
-	WV_DECLARE_INTERFACE( iCamera )
+	WV_DECLARE_INTERFACE( ICamera )
 
 	public:
 
@@ -31,12 +31,12 @@ namespace wv
 			WV_CAMERA_TYPE_ORTHOGRAPHIC
 		};
 
-		iCamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
+		ICamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
 		virtual void onEnter() { }
 		virtual void update( double /*_delta_time*/ ) { m_transform.update( nullptr ); }
 
-		bool beginRender( IGraphicsDevice* _pLowLevelGraphics, eFillMode _fillMode );
+		bool beginRender( IGraphicsDevice* _pLowLevelGraphics, FillMode _fillMode );
 
 		Matrix4x4f getProjectionMatrix( void );
 

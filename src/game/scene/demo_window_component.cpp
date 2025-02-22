@@ -19,15 +19,15 @@
 
 void DemoWindowComponent::spawnBalls()
 {
-	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::Engine::get()->m_pApplicationState->getCurrentScene();
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
-		wv::sPhysicsSphereDesc* sphereDesc = WV_NEW( wv::sPhysicsSphereDesc );
+		wv::PhysicsSphereDesc* sphereDesc = WV_NEW( wv::PhysicsSphereDesc );
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
 
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "ball" );
+		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
 		rb->m_transform.position.y = 10.0f;
@@ -38,15 +38,15 @@ void DemoWindowComponent::spawnBalls()
 
 void DemoWindowComponent::spawnCubes()
 {
-	wv::Scene* sceneRoot = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::Engine::get()->m_pApplicationState->getCurrentScene();
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
-		wv::sPhysicsBoxDesc* boxDesc = WV_NEW( wv::sPhysicsBoxDesc );
+		wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 
-		wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube" );
+		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
 		rb->m_transform.position.y = 10.0f;
@@ -58,7 +58,7 @@ void DemoWindowComponent::spawnCubes()
 
 void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 {
-	wv::Scene* scene = wv::cEngine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* scene = wv::Engine::get()->m_pApplicationState->getCurrentScene();
 
 	for( int x = -_halfX; x < _halfX; x++ )
 	{
@@ -66,11 +66,11 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 		{
 			for( int z = -_halfZ; z < _halfZ; z++ )
 			{
-				wv::sPhysicsBoxDesc* boxDesc = WV_NEW( wv::sPhysicsBoxDesc );
+				wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 
-				wv::cRigidbody* rb = WV_NEW( wv::cRigidbody, wv::cEngine::getUniqueUUID(), "cube" );
+				wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
 				rb->addComponent<wv::RigidBodyComponent>( boxDesc );
 				rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
@@ -82,7 +82,7 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	}
 }
 
-void DemoWindowComponent::onDraw( wv::iDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device*/ )
+void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device*/ )
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Wyvern Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize );

@@ -10,11 +10,11 @@
 namespace wv
 {
 
-    class cTextureResource;
+    class TextureResource;
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    enum eMaterialVariableType
+    enum MaterialVariableType
     {
         WV_MATERIAL_VARIABLE_INT,
         WV_MATERIAL_VARIABLE_FLOAT,
@@ -22,21 +22,21 @@ namespace wv
         WV_MATERIAL_VARIABLE_RGBA
     };
 
-    union uMaterialData
+    union MaterialData
     {
         int i;
         float f;
-        cTextureResource* texture;
-        cColor* rgba;
+        TextureResource* texture;
+        Color* rgba;
     };
 
-    struct sMaterialVariable
+    struct MaterialVariable
     {
         wv::Handle handle;
         std::string name;
 
-        eMaterialVariableType type;
-        uMaterialData data;
+        MaterialVariableType type;
+        MaterialData data;
     };
 
 }

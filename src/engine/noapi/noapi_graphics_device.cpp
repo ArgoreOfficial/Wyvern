@@ -29,7 +29,7 @@ wv::NoAPIGraphicsDevice::NoAPIGraphicsDevice()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::NoAPIGraphicsDevice::initialize( sLowLevelGraphicsDesc* _desc )
+bool wv::NoAPIGraphicsDevice::initialize( LowLevelGraphicsDesc* _desc )
 {
 	WV_TRACE();
 
@@ -132,7 +132,7 @@ void wv::NoAPIGraphicsDevice::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::NoAPIGraphicsDevice::_createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc )
+wv::RenderTargetID wv::NoAPIGraphicsDevice::_createRenderTarget( RenderTargetID _renderTargetID, const RenderTargetDesc& _desc )
 {
 	WV_TRACE();
 
@@ -164,7 +164,7 @@ void wv::NoAPIGraphicsDevice::_destroyShaderModule( ShaderModuleID _programID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::NoAPIGraphicsDevice::_createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc )
+wv::PipelineID wv::NoAPIGraphicsDevice::_createPipeline( PipelineID _pipelineID, const PipelineDesc& _desc )
 {
 	WV_TRACE();
 	
@@ -180,7 +180,7 @@ void wv::NoAPIGraphicsDevice::_destroyPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::NoAPIGraphicsDevice::_createGPUBuffer( GPUBufferID _bufferID, const sGPUBufferDesc& _desc )
+wv::GPUBufferID wv::NoAPIGraphicsDevice::_createGPUBuffer( GPUBufferID _bufferID, const GPUBufferDesc& _desc )
 {
 	WV_TRACE();
 	
@@ -210,7 +210,7 @@ void wv::NoAPIGraphicsDevice::bufferSubData( GPUBufferID _bufferID, void* _pData
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::NoAPIGraphicsDevice::_createTexture( TextureID _textureID, const sTextureDesc& _desc )
+wv::TextureID wv::NoAPIGraphicsDevice::_createTexture( TextureID _textureID, const TextureDesc& _desc )
 {
 	WV_TRACE();
 
@@ -233,7 +233,7 @@ void wv::NoAPIGraphicsDevice::_destroyTexture( TextureID _textureID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::setFillMode( eFillMode _mode )
+void wv::NoAPIGraphicsDevice::setFillMode( FillMode _mode )
 {
 	WV_TRACE();
 }
