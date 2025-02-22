@@ -13,7 +13,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +54,7 @@ namespace wv
 		{
 			wv::IEntity* pObject;
 			iDeviceContext* pContext;
-			iLowLevelGraphics* pDevice;
+			IGraphicsDevice* pDevice;
 		};
 
 		struct JobData

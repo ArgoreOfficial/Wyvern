@@ -12,7 +12,7 @@ namespace wv
 	/// TODO: forward declare iFileSystem for resource loading
 
 	class cFileSystem;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 
 	enum eResourceLoadState
 	{
@@ -35,8 +35,8 @@ namespace wv
 
 		virtual ~iResource() {};
 
-		virtual void load  ( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) = 0;
-		virtual void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) = 0;
+		virtual void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
+		virtual void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
 
 		virtual void reload( void ) { }
 		

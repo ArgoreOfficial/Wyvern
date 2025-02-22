@@ -43,8 +43,8 @@ namespace wv
 			iResource( _name, _path )
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
 		sMeshInstance createInstance();
 		void destroyInstance( sMeshInstance& _instance );
@@ -53,14 +53,14 @@ namespace wv
 		
 		void addToDrawQueue( sMeshInstance& _instance );
 
-		void drawInstances( iLowLevelGraphics* _pLowLevelGraphics );
+		void drawInstances( IGraphicsDevice* _pLowLevelGraphics );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node );
+		void drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode* _node );
 
 		std::mutex m_mutex{};
 		sMeshNode* m_pMeshNode = nullptr;

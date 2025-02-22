@@ -13,7 +13,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 	class AudioDevice;
 
 	class iIntermediateRenderTargetHandler;
@@ -47,7 +47,7 @@ namespace wv
 		struct
 		{
 			iDeviceContext*    pContext;
-			iLowLevelGraphics* pGraphics;
+			IGraphicsDevice* pGraphics;
 			AudioDevice*       pAudio;
 		} device;
 
@@ -55,11 +55,6 @@ namespace wv
 		{
 			cFileSystem* pFileSystem;
 		} systems;
-
-		/// <summary>
-		/// Optional intermediate render target. Can be used to render to viewport
-		/// </summary>
-		iIntermediateRenderTargetHandler* pIRTHandler = nullptr;
 
 		cApplicationState* pApplicationState = nullptr;
 	};
@@ -110,7 +105,7 @@ namespace wv
 		
 		// engine
 		iDeviceContext*    context  = nullptr;
-		iLowLevelGraphics* graphics = nullptr;
+		IGraphicsDevice* graphics = nullptr;
 		AudioDevice*       audio    = nullptr;
 
 		// camera 
@@ -119,7 +114,6 @@ namespace wv
 		iCamera* orbitCamera      = nullptr;
 		iCamera* freeflightCamera = nullptr;
 
-		iIntermediateRenderTargetHandler* m_pIRTHandler = nullptr;
 		RenderTargetID m_screenRenderTarget{};
 
 		cApplicationState* m_pApplicationState = nullptr;

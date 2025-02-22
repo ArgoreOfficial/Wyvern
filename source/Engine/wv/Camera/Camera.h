@@ -14,7 +14,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace wv
 		virtual void onEnter() { }
 		virtual void update( double /*_delta_time*/ ) { m_transform.update( nullptr ); }
 
-		bool beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode );
+		bool beginRender( IGraphicsDevice* _pLowLevelGraphics, eFillMode _fillMode );
 
 		Matrix4x4f getProjectionMatrix( void );
 

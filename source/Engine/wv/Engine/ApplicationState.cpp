@@ -98,7 +98,7 @@ void wv::cApplicationState::onPhysicsUpdate( double _deltaTime )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cApplicationState::onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice )
+void wv::cApplicationState::onDraw( iDeviceContext* _pContext, IGraphicsDevice* _pDevice )
 {
 	m_pUpdateManager->onDraw( _pContext, _pDevice );
 }

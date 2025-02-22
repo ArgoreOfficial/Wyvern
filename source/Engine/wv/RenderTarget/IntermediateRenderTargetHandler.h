@@ -7,7 +7,7 @@
 
 namespace wv
 {
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 
 	class iIntermediateRenderTargetHandler
 	{
@@ -15,10 +15,10 @@ namespace wv
 		iIntermediateRenderTargetHandler() {};
 		
 		virtual bool shouldRecreate( void ) = 0;
-		virtual void create        ( wv::iLowLevelGraphics* _pGraphics ) = 0;
+		virtual void create        ( wv::IGraphicsDevice* _pGraphics ) = 0;
 		void         destroy       ( void );
 
-		virtual void draw( iLowLevelGraphics* _pGraphics ) = 0;
+		virtual void draw( IGraphicsDevice* _pGraphics ) = 0;
 
 		RenderTargetID m_renderTarget{};
 

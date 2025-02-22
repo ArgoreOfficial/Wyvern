@@ -31,7 +31,7 @@ wv::Sprite* wv::Sprite::create( SpriteDesc* _desc )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Sprite::draw( iLowLevelGraphics* _device )
+void wv::Sprite::draw( IGraphicsDevice* _device )
 {
 	if ( !Internal::S_SPRITE_QUAD.is_valid() )
 		return;

@@ -30,7 +30,7 @@ void wv::sMeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	cEngine* app = cEngine::get();
 
@@ -42,7 +42,7 @@ void wv::cMeshResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLo
 
 static void unloadMeshNode( wv::sMeshNode* _node )
 {
-	wv::iLowLevelGraphics* pLowLevelGraphics = wv::cEngine::get()->graphics;
+	wv::IGraphicsDevice* pLowLevelGraphics = wv::cEngine::get()->graphics;
 	wv::cResourceRegistry* pResourceRegistry = wv::cEngine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
@@ -58,7 +58,7 @@ static void unloadMeshNode( wv::sMeshNode* _node )
 	WV_FREE( _node );
 }
 
-void wv::cMeshResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pMeshNode )
 		unloadMeshNode( m_pMeshNode );
@@ -93,7 +93,7 @@ void wv::cMeshResource::addToDrawQueue( sMeshInstance& _instance )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cMeshResource::drawInstances( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( m_pMeshNode == nullptr )
 	{
@@ -109,7 +109,7 @@ void wv::cMeshResource::drawInstances( iLowLevelGraphics* _pLowLevelGraphics )
 	m_drawQueue.clear();
 }
 
-void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNode* _node )
+void wv::cMeshResource::drawNode( IGraphicsDevice* _pLowLevelGraphics, sMeshNode* _node )
 {
 	if ( !_node )
 		return;
@@ -131,7 +131,7 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 			mat = _pLowLevelGraphics->getEmptyMaterial();
 		
 		wv::cShaderResource* pShader = mat->getShader();
-		//mat->setAsActive( _pLowLevelGraphics );
+		mat->setAsActive( _pLowLevelGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
 		if( SbInstanceData.is_valid() ) // TODO: enable gpu instancing on all meshes
@@ -182,19 +182,16 @@ void wv::cMeshResource::drawNode( iLowLevelGraphics* _pLowLevelGraphics, sMeshNo
 
 			if ( SbVerticesID.is_valid() )
 			{
-				//_pLowLevelGraphics->bindVertexBuffer( SbVerticesID );
-				
-				//_pLowLevelGraphics->bufferData( SbInstanceData, instances.data(), instances.size() * sizeof( sMeshInstanceData ) );
-			
-				sDrawIndexedIndirectCommand drawCmd;
-				drawCmd.indexCount    = mesh.numIndices;
-				drawCmd.instanceCount = instances.size();
-				drawCmd.firstIndex    = mesh.baseIndex;
-				drawCmd.vertexOffset  = mesh.baseVertex;
-				drawCmd.firstInstance = 0;
-							
-				DrawListID drawListID = _pLowLevelGraphics->m_pipelineDrawListMap.at( pShader->getPipelineID() );
-				_pLowLevelGraphics->cmdDrawIndexedIndirect( drawListID, drawCmd, instances );
+				//_pLowLevelGraphics->cmdBindVertexBuffer( 0, SbVerticesID );
+				{
+					wv::sGPUBuffer& SbVertices = _pLowLevelGraphics->m_gpuBuffers.at( SbVerticesID );
+
+					_pLowLevelGraphics->bindBufferIndex( mesh.vertexBufferID, SbVertices.bindingIndex.value );
+					_pLowLevelGraphics->cmdBindIndexBuffer( {}, mesh.indexBufferID, 0, WV_UNSIGNED_INT );
+				}
+
+				_pLowLevelGraphics->cmdUpdateBuffer( {}, SbInstanceData, instances.size() * sizeof( sMeshInstanceData ), instances.data() );
+				_pLowLevelGraphics->cmdDrawIndexed( {}, mesh.numIndices, instances.size(), mesh.baseIndex, mesh.baseVertex, 0 );
 			}
 
 			instances.clear();

@@ -6,7 +6,7 @@
 #include <wv/Engine/Engine.h>
 #include <wv/Graphics/GraphicsDevice.h>
 
-void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::load( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
 
@@ -25,11 +25,11 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
 	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
 
-	sProgramDesc vsDesc;
+	ShaderModuleDesc vsDesc;
 	vsDesc.source = m_vsSource;
 	vsDesc.type = WV_SHADER_TYPE_VERTEX;
 
-	sProgramDesc fsDesc;
+	ShaderModuleDesc fsDesc;
 	fsDesc.source = m_fsSource;
 	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
@@ -50,8 +50,8 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 
 	desc.pVertexLayout = &layout;
 
-	desc.vertexProgramID   = _pLowLevelGraphics->createProgram( vsDesc );
-	desc.fragmentProgramID = _pLowLevelGraphics->createProgram( fsDesc );
+	desc.vertexProgramID   = _pLowLevelGraphics->createShaderModule( vsDesc );
+	desc.fragmentProgramID = _pLowLevelGraphics->createShaderModule( fsDesc );
 	m_pipelineID = _pLowLevelGraphics->createPipeline( desc );
 
 	auto cb = []( void* _c ) 
@@ -62,7 +62,7 @@ void wv::cShaderResource::load( cFileSystem* _pFileSystem, iLowLevelGraphics* _p
 	_pLowLevelGraphics->queueAddCallback( cb, (void*)this );
 }
 
-void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	setComplete( false );
 
@@ -73,12 +73,12 @@ void wv::cShaderResource::unload( cFileSystem* _pFileSystem, iLowLevelGraphics* 
 		_pLowLevelGraphics->destroyPipeline( m_pipelineID );
 }
 
-void wv::cShaderResource::bind( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::cShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if ( !m_pipelineID.is_valid() )
 		return;
 
-	_pLowLevelGraphics->bindPipeline( m_pipelineID );
+	_pLowLevelGraphics->cmdBindPipeline( {}, m_pipelineID );
 }
 
 wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
@@ -86,7 +86,7 @@ wv::GPUBufferID wv::cShaderResource::getShaderBuffer( const std::string& _name )
 	if ( !m_complete )
 		return GPUBufferID{ GPUBufferID::InvalidID };
 
-	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
+	IGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
 	/// this needs to be reworked
 

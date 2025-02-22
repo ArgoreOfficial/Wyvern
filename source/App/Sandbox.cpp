@@ -82,7 +82,7 @@ bool cSandbox::create( void )
 	lowLevelGraphicsDesc.loadProc = deviceContext->getLoadProc();
 	lowLevelGraphicsDesc.pContext = deviceContext;
 	
-	wv::iLowLevelGraphics* pLowLevelGraphics = wv::iLowLevelGraphics::createGraphics( &lowLevelGraphicsDesc );
+	wv::IGraphicsDevice* pLowLevelGraphics = wv::IGraphicsDevice::createGraphics( &lowLevelGraphicsDesc );
 	if ( !pLowLevelGraphics )
 	{
 		wv::Debug::Print( "Graphics Device was nullptr\n" );

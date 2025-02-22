@@ -82,7 +82,7 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	}
 }
 
-void DemoWindowComponent::onDraw( wv::iDeviceContext* /*_context*/, wv::iLowLevelGraphics* /*_device*/ )
+void DemoWindowComponent::onDraw( wv::iDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device*/ )
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Wyvern Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize );

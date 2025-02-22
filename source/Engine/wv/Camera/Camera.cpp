@@ -13,7 +13,7 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 	m_far{ _far },
 	m_type{ _type }
 {
-	iLowLevelGraphics* pGraphics = cEngine::get()->graphics;
+	IGraphicsDevice* pGraphics = cEngine::get()->graphics;
 
 	sGPUBufferDesc ubDesc;
 	ubDesc.name  = "UbCameraData";
@@ -26,7 +26,7 @@ wv::iCamera::iCamera( CameraType _type, float _fov, float _near, float _far ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::iCamera::beginRender( iLowLevelGraphics* _pLowLevelGraphics, eFillMode _fillMode )
+bool wv::iCamera::beginRender( IGraphicsDevice* _pLowLevelGraphics, eFillMode _fillMode )
 {
 	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.count( "UbCameraData" ) )
 		return false;

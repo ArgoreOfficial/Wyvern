@@ -15,7 +15,7 @@ wv::sMeshNode* wv::Debug::Draw::Internal::CUBE_MESH   = nullptr;
 std::vector<wv::Debug::Draw::Internal::Sphere> wv::Debug::Draw::Internal::spheres{};
 std::vector<wv::Transformf> wv::Debug::Draw::Internal::cubes{};
 
-void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry )
+void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, cResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_PLATFORM_PSVITA
 	return;
@@ -27,7 +27,7 @@ void wv::Debug::Draw::Internal::initDebugDraw( iLowLevelGraphics* _pLowLevelGrap
 
 }
 
-void wv::Debug::Draw::Internal::deinitDebugDraw( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::Debug::Draw::Internal::deinitDebugDraw( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( CUBE_MESH )
 	{
@@ -46,7 +46,7 @@ void wv::Debug::Draw::Internal::deinitDebugDraw( iLowLevelGraphics* _pLowLevelGr
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::drawDebug( iLowLevelGraphics* _pLowLevelGraphics )
+void wv::Debug::Draw::Internal::drawDebug( IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( SPHERE_MESH )
 	{

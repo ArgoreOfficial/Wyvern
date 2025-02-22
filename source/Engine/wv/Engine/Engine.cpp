@@ -71,12 +71,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	context  = _desc->device.pContext;
 	graphics = _desc->device.pGraphics;
 
-	m_pIRTHandler = _desc->pIRTHandler;
-	
-	if( m_pIRTHandler )
-		m_pIRTHandler->create( graphics );
-
-
 	m_screenRenderTarget = graphics->m_renderTargets.emplace();
 	sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 	rt.width = _desc->windowWidth;
@@ -92,11 +86,10 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( wv::Math::max( 0,  - 1 ) );
+	m_pJobSystem->initialize( wv::Math::max( 0, - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( cResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
-	m_pResourceRegistry->initializeEmbeded();
 
 	graphics->initEmbeds();
 
@@ -118,9 +111,6 @@ wv::cEngine::cEngine( EngineDesc* _desc )
 	}
 #endif
 	
-	graphics->setRenderTarget( m_screenRenderTarget );
-	graphics->setClearColor( wv::Color::Black );
-
 	initImgui();
 
 	Debug::Print( Debug::WV_PRINT_WARN, "TODO: Create AudioDeviceDesc\n" );
@@ -233,17 +223,10 @@ void emscriptenMainLoop() { wv::cEngine::get()->tick(); }
 
 wv::Vector2i wv::cEngine::getViewportSize()
 {
-	if( m_pIRTHandler )
-	{
-		sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
-
-		if( m_pIRTHandler->m_renderTarget.is_valid() )
-			return { rt.width, rt.height };
-		else
-			return { 1,1 };
-	}
-	
-	return { context->getWidth(), context->getHeight() };
+	return wv::Vector2i{
+		context->getWidth(),
+		context->getHeight()
+	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -269,9 +252,6 @@ void wv::cEngine::run()
 	m_pApplicationState->switchToScene( 0 ); // default scene
 	
 	// wait for load to be done
-	//while ( m_pResourceRegistry->isWorking() )
-	//	Sleep( 10 );
-	
 	m_pResourceRegistry->waitForFence();
 
 #ifdef EMSCRIPTEN
@@ -311,9 +291,6 @@ void wv::cEngine::run()
 	m_pApplicationState->onDestruct();
 	
 	// wait for unload to be done
-	//while ( m_pResourceRegistry->getNumLoadedResources() > embeddedResources )
-	//	Sleep( 10 );
-
 	m_pResourceRegistry->waitForFence();
 
 }
@@ -485,9 +462,9 @@ void wv::cEngine::tick()
 	}
 
 #ifdef WV_PLATFORM_PSVITA
-	graphics->setRenderTarget( nullptr );
+	graphics->cmdBeginRender( {}, {} );
 #else
-	graphics->setRenderTarget( m_gbuffer );
+	graphics->cmdBeginRender( {}, m_gbuffer );
 #endif
 
 	graphics->beginRender();
@@ -501,37 +478,11 @@ void wv::cEngine::tick()
 	
 	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
 	{
-		graphics->clearRenderTarget( true, true );
+		graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+		graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 		m_pApplicationState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
-
-		GPUBufferID viewBufferID = currentCamera->getBufferID();
-
-		for ( auto& pair : graphics->m_pipelineDrawListMap )
-		{
-			PipelineID pipelineID = pair.first;
-			DrawListID drawListID = pair.second;
-			sDrawList& drawList = graphics->m_drawLists.at( drawListID );
-
-			if ( drawList.cmds.empty() || !drawList.instanceBufferID.is_valid() )
-				continue;
-
-			graphics->bindPipeline( pipelineID );
-			graphics->bindVertexBuffer( drawList.vertexBufferID );
-
-			sGPUBuffer instanceBuffer = graphics->m_gpuBuffers.at( drawList.instanceBufferID );
-			graphics->bufferData( drawList.instanceBufferID, drawList.instances.data(), drawList.instances.size() * sizeof( sMeshInstanceData ) );
-			graphics->bindBufferIndex( drawList.instanceBufferID, instanceBuffer.bindingIndex.value );
-
-			sGPUBuffer viewBuffer = graphics->m_gpuBuffers.at( drawList.viewDataBufferID );
-			graphics->bindBufferIndex( viewBufferID, viewBuffer.bindingIndex.value );
-			
-			graphics->multiDrawIndirect( drawListID );
-			drawList.instances.clear();
-			drawList.cmds.clear();
-		}
-
 
 	#ifdef WV_DEBUG
 		Debug::Draw::Internal::drawDebug( graphics );
@@ -539,21 +490,16 @@ void wv::cEngine::tick()
 	}
 
 #ifndef WV_PLATFORM_PSVITA
-	if( m_pIRTHandler )
-	{
-		if( m_pIRTHandler->m_renderTarget.is_valid() )
-			graphics->setRenderTarget( m_pIRTHandler->m_renderTarget );
-	}
-	else
-		graphics->setRenderTarget( m_screenRenderTarget );
+	graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
-	graphics->clearRenderTarget( true, true );
+	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+	graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 	// bind gbuffer textures to deferred pass
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.at( m_gbuffer );
 		for ( int i = 0; i < rt.numTextures; i++ )
-			graphics->_bindTextureToSlot( rt.pTextureIDs[ i ], i );
+			graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
 	}
 
 	// render screen quad with deferred shader
@@ -569,20 +515,14 @@ void wv::cEngine::tick()
 		graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
 
 		sMesh screenQuad = graphics->m_meshes.at( m_screenQuad );
-		graphics->bindVertexBuffer( SbVerticesID );
-		
-		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
-		graphics->drawIndexed( screenQuad.numIndices );
-	}
-
-	if( m_pIRTHandler )
-	{
-		if ( currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 		{
-			graphics->setRenderTarget( m_screenRenderTarget );
-			graphics->clearRenderTarget( true, true );
-			m_pIRTHandler->draw( graphics );
+			wv::sGPUBuffer& SbVertices = graphics->m_gpuBuffers.at( SbVerticesID );
+			graphics->bindBufferIndex( screenQuad.vertexBufferID, SbVertices.bindingIndex.value );
+			graphics->cmdBindIndexBuffer( {}, screenQuad.indexBufferID, 0, {} );
 		}
+
+		// sGPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
+		graphics->cmdDrawIndexed( {}, screenQuad.numIndices, 1, 0, 0, 0 );
 	}
 #endif
 
@@ -593,24 +533,6 @@ void wv::cEngine::tick()
 	graphics->endRender();
 
 	context->swapBuffers();
-
-#ifndef WV_PLATFORM_PSVITA
-	if( m_pIRTHandler )
-	{
-		if( m_pIRTHandler->shouldRecreate() )
-		{
-			m_pIRTHandler->destroy();
-			m_pIRTHandler->create( graphics );
-
-			if( m_pIRTHandler->m_renderTarget.is_valid() )
-			{
-				sRenderTarget& rt = graphics->m_renderTargets.at( m_pIRTHandler->m_renderTarget );
-				recreateScreenRenderTarget( rt.width, rt.height );
-			}
-		}
-	}
-#endif
-
 }
 
 void wv::cEngine::quit()
@@ -703,7 +625,6 @@ void wv::cEngine::createGBuffer()
 
 void wv::cEngine::recreateScreenRenderTarget( int _width, int _height )
 {
-	graphics->onResize( _width, _height );
 	{
 		sRenderTarget& rt = graphics->m_renderTargets.at( m_screenRenderTarget );
 

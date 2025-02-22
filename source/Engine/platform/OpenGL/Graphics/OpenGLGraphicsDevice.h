@@ -31,54 +31,32 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class cLowLevelGraphicsOpenGL : public iLowLevelGraphics
+	class GraphicsDeviceOpenGL : public IGraphicsDevice
 	{
 	public:
 
-		 cLowLevelGraphicsOpenGL();
-		~cLowLevelGraphicsOpenGL() { }
+		 GraphicsDeviceOpenGL();
+		~GraphicsDeviceOpenGL() { }
 
 		virtual void terminate() override;
 
-		virtual void onResize   ( int _width, int _height ) override;
-		virtual void setViewport( int _width, int _height ) override;
-
 		virtual void beginRender() override;
 
-		virtual void           setRenderTarget    ( RenderTargetID _renderTargetID )                           override;
-
-		virtual void setClearColor    ( const wv::cColor& _color ) override;
-		virtual void clearRenderTarget( bool _color, bool _depth ) override;
-
-		virtual void       bindPipeline   ( PipelineID _pipelineID )                       override;
-
-		virtual void bindBuffer       ( GPUBufferID _bufferID ) override;
 		virtual void bindBufferIndex  ( GPUBufferID _bufferID, int32_t _bindingIndex ) override;
-		virtual void bufferData       ( GPUBufferID _bufferID, void* _pData, size_t _size ) override;
 		virtual void bufferSubData    ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
-		virtual void copyBufferSubData( GPUBufferID _readBufferID, GPUBufferID _writeBufferID, size_t _readOffset, size_t _writeOffset, size_t _size ) override;
-
-		virtual void      _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
-		virtual void      _bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
-
-		virtual void bindVertexBuffer( GPUBufferID _vertexPullBufferID ) override;
+		
+		virtual void _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
+		virtual void bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
 		virtual void setFillMode( eFillMode _mode ) override;
 
-		virtual void draw                ( uint32_t _firstVertex, uint32_t _numVertices ) override;
-		virtual void drawIndexed         ( uint32_t _numIndices )                         override;
-		virtual void drawIndexedInstanced( uint32_t _numIndices, uint32_t _numInstances, uint32_t _baseVertex ) override;
-
-		virtual void multiDrawIndirect( DrawListID _drawListID ) override;
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	protected:
 		virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const sRenderTargetDesc& _desc ) override;
 		virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID )                                override;
 		
-		virtual ProgramID  _createProgram( ProgramID _programID, const sProgramDesc& _desc ) override;
-		virtual void       _destroyProgram( ProgramID _programID )                           override;
+		virtual ShaderModuleID  _createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc ) override;
+		virtual void       _destroyShaderModule( ShaderModuleID _programID )                           override;
 		
 		virtual PipelineID _createPipeline( PipelineID _pipelineID, const sPipelineDesc& _desc ) override;
 		virtual void       _destroyPipeline( PipelineID _pipelineID )                            override;
@@ -103,12 +81,106 @@ namespace wv
 		wv::Handle m_vaoHandle = 0;
 		wv::unordered_array<BufferBindingIndex, uint8_t> m_uniformBindingIndices;
 		wv::unordered_array<BufferBindingIndex, uint8_t> m_ssboBindingIndices;
-	};
+
+		wv::DataType m_indexBufferDataType;
+
+		// Inherited via IGraphicsDevice
+		void cmdBeginRender( 
+			CmdBufferID _cmd, 
+			RenderTargetID _renderTargetID ) override;
+
+		void cmdEndRender( 
+			CmdBufferID _cmd ) override;
+		
+		void cmdClearColor( 
+			CmdBufferID _cmd, 
+			float _r, 
+			float _g, 
+			float _b, 
+			float _a ) override;
+
+		void cmdImageClearColor( 
+			CmdBufferID _cmd, 
+			TextureID _image, 
+			float _r, 
+			float _g, 
+			float _b, 
+			float _a ) override;
+
+		void cmdClearDepthStencil( 
+			CmdBufferID _cmd, 
+			double _depth, 
+			uint32_t _stencil ) override;
+
+		void cmdImageClearDepthStencil( 
+			CmdBufferID _cmd, 
+			TextureID _image, 
+			double _depth, 
+			uint32_t _stencil ) override;
+		
+		void cmdBindPipeline( 
+			CmdBufferID _cmd, 
+			PipelineID _pipeline ) override;
+
+		void cmdImageBlit( 
+			CmdBufferID _cmd, 
+			TextureID _src, 
+			TextureID _dst ) override;
+		
+		void cmdDispatch( 
+			CmdBufferID _cmd, 
+			uint32_t _numGroupsX, 
+			uint32_t _numGroupsY, 
+			uint32_t _numGroupsZ ) override;
+
+		void cmdViewport( 
+			CmdBufferID _cmd, 
+			uint32_t _x, 
+			uint32_t _y, 
+			uint32_t _width, 
+			uint32_t _height ) override;
+
+		void cmdCopyBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _src, 
+			GPUBufferID _dst, 
+			size_t _srcOffset, 
+			size_t _dstOffset, 
+			size_t _size ) override;
+
+		void cmdBindVertexBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _vertexBuffer ) override;
+
+		void cmdBindIndexBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _indexBuffer, 
+			size_t _offset, 
+			wv::DataType _type ) override;
+
+		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _size, void* _pData ) override;
+		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _size, void* _pData ) override;
+		
+		void cmdDraw( 
+			CmdBufferID _cmd, 
+			uint32_t _vertexCount, 
+			uint32_t _instanceCount, 
+			uint32_t _firstVertex, 
+			uint32_t _firstInstance ) override;
+
+		void cmdDrawIndexed( 
+			CmdBufferID _cmd, 
+			uint32_t _indexCount, 
+			uint32_t _instanceCount, 
+			uint32_t _firstIndex, 
+			int32_t _vertexOffset, 
+			uint32_t _firstInstance ) override;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	template<typename ...Args>
-	inline bool cLowLevelGraphicsOpenGL::assertGLError( const std::string _msg, Args ..._args )
+	inline bool GraphicsDeviceOpenGL::assertGLError( const std::string _msg, Args ..._args )
 	{
 		std::string error;
 		if ( !getError( &error ) )

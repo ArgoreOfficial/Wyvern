@@ -11,7 +11,7 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	class iDeviceContext;
-	class iLowLevelGraphics;
+	class IGraphicsDevice;
 	class Scene;
 	class cFileSystem;
 	class UpdateManager;
@@ -33,7 +33,7 @@ namespace wv
 		void onUpdate( double _deltaTime );
 		void onPhysicsUpdate( double _deltaTime );
 
-		void onDraw( iDeviceContext* _pContext, iLowLevelGraphics* _pDevice );
+		void onDraw( iDeviceContext* _pContext, IGraphicsDevice* _pDevice );
 
 		void reloadScene();
 

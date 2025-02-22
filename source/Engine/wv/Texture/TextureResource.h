@@ -19,8 +19,8 @@ namespace wv
 			m_filtering{ _filtering }
 		{ }
 
-		void load  ( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
-		void unload( cFileSystem* _pFileSystem, iLowLevelGraphics* _pLowLevelGraphics ) override;
+		void load  ( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void unload( cFileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
 
 		TextureID m_textureID;
 	private:
