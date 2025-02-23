@@ -33,7 +33,7 @@ void DemoWindowComponent::spawnBalls()
 
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
-		rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+		rb->addComponent<wv::ModelComponent>( "meshes/ant.dae" );
 		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
