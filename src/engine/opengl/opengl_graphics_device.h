@@ -101,65 +101,75 @@ namespace wv
 
 		void cmdImageClearColor( 
 			CmdBufferID _cmd, 
-			TextureID _image, 
-			float _r, 
-			float _g, 
-			float _b, 
-			float _a ) override;
+			TextureID   _image, 
+			float       _r, 
+			float       _g, 
+			float       _b, 
+			float       _a ) override;
 
 		void cmdClearDepthStencil( 
 			CmdBufferID _cmd, 
-			double _depth, 
-			uint32_t _stencil ) override;
+			double      _depth, 
+			uint32_t    _stencil ) override;
 
 		void cmdImageClearDepthStencil( 
 			CmdBufferID _cmd, 
-			TextureID _image, 
-			double _depth, 
-			uint32_t _stencil ) override;
+			TextureID   _image, 
+			double      _depth, 
+			uint32_t    _stencil ) override;
 		
 		void cmdBindPipeline( 
 			CmdBufferID _cmd, 
-			PipelineID _pipeline ) override;
+			PipelineID  _pipeline ) override;
 
 		void cmdImageBlit( 
 			CmdBufferID _cmd, 
-			TextureID _src, 
-			TextureID _dst ) override;
+			TextureID   _src, 
+			TextureID   _dst ) override;
 		
 		void cmdDispatch( 
 			CmdBufferID _cmd, 
-			uint32_t _numGroupsX, 
-			uint32_t _numGroupsY, 
-			uint32_t _numGroupsZ ) override;
+			uint32_t  _numGroupsX, 
+			uint32_t  _numGroupsY, 
+			uint32_t  _numGroupsZ ) override;
 
 		void cmdViewport( 
 			CmdBufferID _cmd, 
-			uint32_t _x, 
-			uint32_t _y, 
-			uint32_t _width, 
-			uint32_t _height ) override;
+			uint32_t  _x, 
+			uint32_t  _y, 
+			uint32_t  _width, 
+			uint32_t  _height ) override;
 
 		void cmdCopyBuffer( 
 			CmdBufferID _cmd, 
 			GPUBufferID _src, 
 			GPUBufferID _dst, 
-			size_t _srcOffset, 
-			size_t _dstOffset, 
-			size_t _size ) override;
+			size_t      _srcOffset, 
+			size_t      _dstOffset, 
+			size_t      _size ) override;
 
 		void cmdBindVertexBuffer( 
 			CmdBufferID _cmd, 
 			GPUBufferID _vertexBuffer ) override;
 
 		void cmdBindIndexBuffer( 
-			CmdBufferID _cmd, 
-			GPUBufferID _indexBuffer, 
-			size_t _offset, 
+			CmdBufferID  _cmd, 
+			GPUBufferID  _indexBuffer, 
+			size_t       _offset, 
 			wv::DataType _type ) override;
 
-		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _size, void* _pData ) override;
-		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _size, void* _pData ) override;
+		void cmdUpdateBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _buffer, 
+			size_t      _size, 
+			void*       _pData ) override;
+
+		void cmdUpdateSubBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _buffer, 
+			size_t      _offset, 
+			size_t      _size, 
+			void*       _pData ) override;
 		
 		void cmdDraw( 
 			CmdBufferID _cmd, 

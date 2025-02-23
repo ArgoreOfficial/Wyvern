@@ -63,11 +63,12 @@ wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 
 	wv::Json data = json[ "data" ];
 
+	IPhysicsBodyDesc* desc = nullptr;
+	
+#ifdef WV_SUPPORT_PHYSICS
 	PhysicsKind  kind  = ( PhysicsKind  )data[ "kind"  ].int_value();
 	PhysicsShape shape = ( PhysicsShape )data[ "shape" ].int_value();
 
-	IPhysicsBodyDesc* desc = nullptr;
-	
 	switch( shape )
 	{
 	case WV_PHYSICS_NONE: break;
@@ -102,9 +103,9 @@ wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 
 	if( desc )
 		desc->kind = kind;
+#endif
 
 	std::string meshPath = data[ "path" ].string_value();
-
 	Rigidbody* rb = WV_NEW( Rigidbody, uuid, name, meshPath, desc );
 	rb->m_transform = transform;
 	rb->addComponent<ModelComponent>( meshPath );

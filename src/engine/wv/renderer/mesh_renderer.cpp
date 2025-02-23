@@ -12,21 +12,22 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 	if ( !_pNode )
 		return;
 
-	unordered_array<MeshID, Mesh>& meshreg = m_pGraphics->m_meshes;
+	unordered_array<MeshID, Mesh>& meshObjects = m_pGraphics->m_meshes;
 
 	std::vector<MeshInstanceData> instances;
+	instances.reserve( _numInstances );
 
 	for ( auto& meshID : _pNode->meshes )
 	{
 		if ( !meshID.is_valid() )
 			continue;
 
-		Mesh mesh = meshreg.at( meshID ); // get copy, incase mesh object container reallocated
+		Mesh mesh = meshObjects.at( meshID ); // get copy, incase mesh object container reallocated
 		if ( !mesh.complete )
 			continue;
 
+		/// TODO: sort by material
 		wv::Material* mat = mesh.pMaterial;
-
 		if ( !mat || !mat->isComplete() )
 			mat = m_pGraphics->getEmptyMaterial();
 
@@ -36,7 +37,6 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
 		wv::Matrix4x4f basematrix = mesh.transform.getMatrix();
 		
-		instances.reserve( _numInstances );
 		for ( size_t i = 0; i < _numInstances; i++ )
 		{
 			Matrix4x4f matrix = basematrix * _pInstanceMatrices[ i ];

@@ -23,9 +23,13 @@ void DemoWindowComponent::spawnBalls()
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
+	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsSphereDesc* sphereDesc = WV_NEW( wv::PhysicsSphereDesc );
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
+	#else
+		wv::PhysicsSphereDesc* sphereDesc = nullptr;
+	#endif
 
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
@@ -42,9 +46,13 @@ void DemoWindowComponent::spawnCubes()
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
+	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+	#else
+		wv::PhysicsBoxDesc* boxDesc = nullptr;
+	#endif
 
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
@@ -66,9 +74,13 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 		{
 			for( int z = -_halfZ; z < _halfZ; z++ )
 			{
+			#ifdef WV_SUPPORT_PHYSICS
 				wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+			#else
+				wv::PhysicsBoxDesc* boxDesc = nullptr;
+			#endif
 
 				wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };

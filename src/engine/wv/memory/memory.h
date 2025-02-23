@@ -6,6 +6,8 @@
 
 #include <vector>
 #include <mutex>
+#include <unordered_set>
+#include <unordered_map>
 
 namespace wv
 {
@@ -25,10 +27,12 @@ public:
 		bool isArray;
 	};
 
+	typedef std::unordered_map<void*, Entry> entry_container_t;
+
 	static void addEntry( void* _ptr, size_t _size, size_t _count, const char* _typestr, const char* _file, uint32_t _line, const char* _func, bool _isArray = false );
 
 	// relinquish ownership from the tracker
-	template<typename _Ty> static void relinquish( const std::vector<Entry>::iterator& _itr );
+	template<typename _Ty> static void relinquish( const entry_container_t::iterator& _itr );
 	template<typename _Ty> static void relinquish( _Ty* _ptr );
 
 	template<typename _Ty, typename... _Args> static _Ty* track_new    ( const char* _typestr, const char* _file, uint32_t _line, const char* _func, _Args ..._args );
@@ -44,8 +48,9 @@ public:
 private:
 
 	template<typename _Ty>
-	static std::vector<Entry>::iterator _getEntry( _Ty* _ptr ) {
-		std::vector<Entry>::iterator itr = m_entries.begin();
+	static entry_container_t::iterator _getEntry( _Ty* _ptr ) {
+		entry_container_t::iterator itr = m_entries.begin();
+		/*
 		while( itr != m_entries.end() )
 		{
 			if( itr->ptr == _ptr )
@@ -53,10 +58,12 @@ private:
 
 			itr++;
 		}
+		*/
+		itr = m_entries.find( _ptr );
 		return itr;
 	}
 
-	static inline std::vector<Entry> m_entries{};
+	static inline entry_container_t m_entries{};
 	static inline std::mutex m_mutex{};
 
 	static inline std::atomic_size_t m_totalAllocatedMemory{ 0 };
@@ -80,11 +87,11 @@ private:
 #endif
 
 template<typename _Ty>
-inline void MemoryTracker::relinquish( const std::vector<Entry>::iterator& _itr )
+inline void MemoryTracker::relinquish( const entry_container_t::iterator& _itr )
 {
 	if ( _itr != m_entries.end() )
 	{
-		m_totalAllocatedMemory -= _itr->size;
+		m_totalAllocatedMemory -= _itr->second.size;
 		m_entries.erase( _itr );
 		}
 	else
@@ -95,7 +102,7 @@ template<typename _Ty>
 inline void MemoryTracker::relinquish( _Ty* _ptr )
 {
 	m_mutex.lock();
-	std::vector<Entry>::iterator itr = _getEntry( _ptr );
+	entry_container_t::iterator itr = _getEntry( _ptr );
 	relinquish<_Ty>( itr );
 	m_mutex.unlock();
 }
@@ -120,16 +127,19 @@ template<typename _Ty>
 inline void MemoryTracker::track_free( _Ty* _ptr )
 {
 	m_mutex.lock();
-	std::vector<Entry>::iterator itr = _getEntry( _ptr );
+	entry_container_t::iterator itr = _getEntry( _ptr );
 	if ( itr != m_entries.end() )
 	{
-		if ( itr->isArray )
-			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free used for %s[]. Allocated at %s:%zu\n", itr->typestr, itr->file, itr->line );
+		if ( itr->second.isArray )
+			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free used for %s[]. Allocated at %s:%zu\n", 
+							  itr->second.typestr, 
+							  itr->second.file, 
+							  itr->second.line );
 
 		wv::MemoryTracker::relinquish<_Ty>( itr );
 	}
 	m_mutex.unlock();
-
+	
 	delete _ptr;
 }
 
@@ -137,11 +147,14 @@ template<typename _Ty>
 inline void MemoryTracker::track_free_arr( _Ty* _ptr )
 {
 	m_mutex.lock();
-	std::vector<Entry>::iterator itr = _getEntry( _ptr );
+	entry_container_t::iterator itr = _getEntry( _ptr );
 	if ( itr != m_entries.end() )
 	{
-		if ( !itr->isArray )
-			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free_arr used for %s. Allocated at %s:%zu\n", itr->typestr, itr->file, itr->line );
+		if ( !itr->second.isArray )
+			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free_arr used for %s. Allocated at %s:%zu\n", 
+							  itr->second.typestr, 
+							  itr->second.file, 
+							  itr->second.line );
 
 		wv::MemoryTracker::relinquish<_Ty>( itr );
 	}

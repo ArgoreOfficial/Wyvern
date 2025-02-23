@@ -15,7 +15,7 @@ void wv::MemoryTracker::addEntry( void* _ptr, size_t _size, size_t _count, const
 	m_totalAllocatedMemory += _size;
 
 	m_mutex.lock();
-	m_entries.push_back( entry );
+	m_entries.insert( { _ptr, entry } );
 	m_mutex.unlock();
 }
 
@@ -30,13 +30,12 @@ void wv::MemoryTracker::dump()
 	}
 
 	wv::Debug::Print( "------- Allocations : %zu ------- \n", m_entries.size() );
-	for ( size_t i = 0; i < m_entries.size(); i++ )
+	for ( auto& entry : m_entries )
 	{
-		Entry& entry = m_entries[ i ];
-		std::string typestr = entry.typestr;
-		if ( entry.count > 1 )
-			typestr += "[" + std::to_string( entry.count ) + "]";
+		std::string typestr = entry.second.typestr;
+		if ( entry.second.count > 1 )
+			typestr += "[" + std::to_string( entry.second.count ) + "]";
 
-		wv::Debug::Print( "[%p] %-32s %s %zu\n", entry.ptr, typestr.c_str(), entry.file, entry.line );
+		wv::Debug::Print( "[%p] %-32s %s %zu\n", entry.second.ptr, typestr.c_str(), entry.second.file, entry.second.line );
 	}
 }

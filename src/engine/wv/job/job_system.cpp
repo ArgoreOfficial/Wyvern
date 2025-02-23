@@ -26,11 +26,15 @@ void wv::JobSystem::terminate()
 {
 	deleteWorkers();
 
+	m_jobPoolMutex.lock();
 	while ( !m_jobPool.empty() )
 	{
-		WV_FREE( m_jobPool.front() );
+		Job* job = m_jobPool.front();
 		m_jobPool.pop();
+		
+		WV_FREE( job );
 	}
+	m_jobPoolMutex.unlock();
 
 	while ( !m_fencePool.empty() )
 	{
