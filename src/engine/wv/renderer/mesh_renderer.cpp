@@ -35,14 +35,13 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 		mat->setAsActive( m_pGraphics );
 
 		wv::GPUBufferID SbInstanceData = pShader->getShaderBuffer( "SbInstances" );
-		wv::Matrix4x4f basematrix = mesh.transform.getMatrix();
+
+		MeshInstanceData instanceData{};
+		instanceData.nodeMatrix = mesh.transform.getMatrix();;
 		
 		for ( size_t i = 0; i < _numInstances; i++ )
 		{
-			Matrix4x4f matrix = basematrix * _pInstanceMatrices[ i ];
-		
-			MeshInstanceData instanceData{};
-			instanceData.model = matrix;
+			instanceData.modelMatrix = _pInstanceMatrices[ i ];
 
 			for ( auto& var : mat->m_variables )
 			{

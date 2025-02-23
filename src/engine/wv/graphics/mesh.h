@@ -94,7 +94,8 @@ namespace wv
 
 	struct MeshInstanceData
 	{
-		Matrix4x4f model;                              // 64 bytes
+		Matrix4x4f nodeMatrix;                          // 64 bytes
+		Matrix4x4f modelMatrix;                         // 64 bytes
 		uint64_t texturesHandles[ 4 ] = { 0, 0, 0, 0 }; // 32 bytes
 		int32_t hasAlpha = 0;
 
