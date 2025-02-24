@@ -24,7 +24,7 @@ struct Fence
 #define PAD_SIZE 32
 #endif
 
-enum class JobThreadType : uint8_t
+enum class JobThreadType
 {
 	kANY    = 0x0,
 	kRENDER = 0x1
@@ -39,7 +39,14 @@ struct Job
 	void* pData = nullptr;
 	Fence* pSignalFence;
 
-	unsigned char padding[ PAD_SIZE - 32 ]; // pad to PAD_SIZE bytes
+
+	WV_PAD_PAYLOAD( 
+		sizeof( void* )     +  // threadType // this is void* because of alignment
+		sizeof( pFunction ) +
+		sizeof( pData )     +
+		sizeof( pSignalFence )
+	);
+	WV_PAD_TO_T( PAD_SIZE ) padding; // pad to PAD_SIZE bytes
 };
 
 static_assert( sizeof( Job ) == PAD_SIZE );
