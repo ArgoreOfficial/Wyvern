@@ -13,6 +13,8 @@
 #include <wv/shader/shader_resource.h>
 #include <wv/texture/texture_resource.h>
 
+#include <wv/job/job_system.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::MeshInstance::draw()
@@ -31,12 +33,21 @@ void wv::MeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::MeshResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pLowLevelGraphics*/ )
 {
-	Engine* app = Engine::get();
+	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+	
+	Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			Engine* app = Engine::get();
+			wv::MeshResource* _this = (wv::MeshResource*)_pUserData;
 
-	wv::Parser parser;
-	m_pMeshNode = parser.load( m_path.c_str(), app->m_pResourceRegistry );
+			wv::Parser parser;
+			_this->m_pMeshNode = parser.load( _this->m_path.c_str(), app->m_pResourceRegistry );
+		};
+
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, this );
+	pJobSystem->submit( { job } );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -64,19 +75,24 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 	if( m_pMeshNode )
 		unloadMeshNode( m_pMeshNode );
 
+	m_mutex.lock();
 	if ( m_instances.size() > 0 )
 		Debug::Print( Debug::WV_PRINT_ERROR, "Mesh %s has %zu instances left", m_name, m_instances.size() );
 	
 	for ( auto& instance : m_instances )
 		WV_FREE( instance );
-
+	
 	m_instances.clear();
+	m_mutex.unlock();
 }
 
 void wv::MeshResource::makeInstance( MeshInstance* _instance )
 {
 	_instance->pResource = this;
+
+	m_mutex.lock();
 	m_instances.push_back( _instance );
+	m_mutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +100,8 @@ void wv::MeshResource::makeInstance( MeshInstance* _instance )
 void wv::MeshResource::removeInstance( MeshInstance* _instance )
 {
 	Engine* app = Engine::get();
-
+	
+	m_mutex.lock();
 	for ( auto itr = m_instances.begin(); itr != m_instances.end(); itr++ )
 	{
 		if ( *itr != _instance )
@@ -94,6 +111,7 @@ void wv::MeshResource::removeInstance( MeshInstance* _instance )
 		m_instances.erase( itr );
 		break;
 	}
-	
+	m_mutex.unlock();
+
 	app->m_pResourceRegistry->unload( this );
 }

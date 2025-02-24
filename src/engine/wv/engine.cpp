@@ -85,7 +85,7 @@ wv::Engine::Engine( EngineDesc* _desc )
 	
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( wv::Math::max( 0, - 1 ) );
+	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( ResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );

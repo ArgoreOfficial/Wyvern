@@ -85,11 +85,8 @@ void wv::IMeshRenderer::drawMesh( MeshResource* _pMesh )
 {
 	auto& instances = _pMesh->getInstances();
 	if ( _pMesh->getMeshNode() == nullptr )
-	{
-		instances.clear();
 		return;
-	}
-
+	
 	if ( instances.empty() )
 		return;
 
