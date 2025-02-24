@@ -446,7 +446,7 @@ void wv::Engine::tick()
 
 	/// ------------------ render ------------------ ///	
 
-#ifndef WV_PLATFORM_PSVITA
+#ifdef WV_PLATFORM_WINDOWS
 	if( !m_gbuffer.is_valid() )
 		return;
 #endif
@@ -457,10 +457,10 @@ void wv::Engine::tick()
 			return;
 	}
 
-#ifdef WV_PLATFORM_PSVITA
-	graphics->cmdBeginRender( {}, {} );
-#else
+#ifdef WV_PLATFORM_WINDOWS
 	graphics->cmdBeginRender( {}, m_gbuffer );
+#else
+	graphics->cmdBeginRender( {}, {} );
 #endif
 
 	graphics->beginRender();
@@ -485,7 +485,7 @@ void wv::Engine::tick()
 	#endif
 	}
 
-#ifndef WV_PLATFORM_PSVITA
+#ifdef WV_PLATFORM_WINDOWS
 	graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
 	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
