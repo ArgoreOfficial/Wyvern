@@ -6,6 +6,7 @@
 #include <wv/memory/memory.h>
 
 #include <wv/job/job_system.h>
+#include <wv/resource/resource_registry.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #include <auxiliary/stb_image.h>
@@ -84,5 +85,31 @@ void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice*
 	}
 
 	m_dataSize = 0;
-	_pLowLevelGraphics->destroyTexture( m_textureID );
+
+	if( m_textureID.is_valid() )
+	{
+		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+
+		struct TextureIDData { TextureID id; };
+		TextureIDData* data = WV_NEW( TextureIDData );
+		data->id = m_textureID;
+
+		Job::JobFunction_t fptr = []( void* _pUserData )
+			{
+				Engine* app = Engine::get();
+				TextureIDData* data = (TextureIDData*)_pUserData;
+
+				app->graphics->destroyTexture( data->id );
+				WV_FREE( data );
+			};
+
+		Job* job = pJobSystem->createJob(
+			JobThreadType::kRENDER,
+			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
+			nullptr,
+			fptr,
+			data );
+
+		pJobSystem->submit( { job } );
+	}
 }
