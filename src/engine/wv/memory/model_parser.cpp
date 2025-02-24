@@ -126,7 +126,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 		if( md.getFullPath( materialName + ".wmat" ) == "" )
 		{
-			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. One \n", materialName.c_str() );
+			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. Creating ne \n", materialName.c_str() );
 			// materialName = "DefaultMaterial";
 
 			aiString diffusePath;
@@ -146,7 +146,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 			};
 			
 
-			std::ofstream file( "materials/" + materialName + ".wmat" );
+			std::ofstream file( "../materials/" + materialName + ".wmat" );
 			file << newMaterial.dump();
 			file.close();
 

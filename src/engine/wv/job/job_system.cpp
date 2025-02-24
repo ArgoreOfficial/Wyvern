@@ -242,11 +242,11 @@ wv::Job* wv::JobSystem::_allocateJob()
 {
 	wv::Job* job = nullptr;
 	
+	std::scoped_lock lock{ m_jobPoolMutex };
 	if ( m_jobPool.empty() )
 		job = WV_NEW( Job );
 	else
 	{
-		std::scoped_lock lock{ m_jobPoolMutex };
 		job = m_jobPool.front();
 		m_jobPool.pop();
 	}
