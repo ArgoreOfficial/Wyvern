@@ -298,8 +298,6 @@ void wv::Engine::run()
 
 void wv::Engine::terminate()
 {
-	graphics->executeCreateQueue();
-
 	currentCamera = nullptr;
 	
 	if( orbitCamera )
@@ -616,9 +614,6 @@ void wv::Engine::createGBuffer()
 #endif
 
 	m_gbuffer = graphics->createRenderTarget( rtDesc );
-	graphics->executeCreateQueue();
-
-
 }
 
 void wv::Engine::recreateScreenRenderTarget( int _width, int _height )

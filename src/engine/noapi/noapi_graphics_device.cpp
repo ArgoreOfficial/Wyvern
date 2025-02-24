@@ -132,7 +132,7 @@ void wv::NoAPIGraphicsDevice::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::NoAPIGraphicsDevice::_createRenderTarget( RenderTargetID _renderTargetID, const RenderTargetDesc& _desc )
+wv::RenderTargetID wv::NoAPIGraphicsDevice::createRenderTarget( const RenderTargetDesc& _desc )
 {
 	WV_TRACE();
 
@@ -141,14 +141,14 @@ wv::RenderTargetID wv::NoAPIGraphicsDevice::_createRenderTarget( RenderTargetID 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyRenderTarget( RenderTargetID _renderTargetID )
+void wv::NoAPIGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ShaderModuleID wv::NoAPIGraphicsDevice::_createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc )
+wv::ShaderModuleID wv::NoAPIGraphicsDevice::createShaderModule( const ShaderModuleDesc& _desc )
 {
 	WV_TRACE();
 	
@@ -157,14 +157,14 @@ wv::ShaderModuleID wv::NoAPIGraphicsDevice::_createShaderModule( ShaderModuleID 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyShaderModule( ShaderModuleID _programID )
+void wv::NoAPIGraphicsDevice::destroyShaderModule( ShaderModuleID _programID )
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::NoAPIGraphicsDevice::_createPipeline( PipelineID _pipelineID, const PipelineDesc& _desc )
+wv::PipelineID wv::NoAPIGraphicsDevice::createPipeline( const PipelineDesc& _desc )
 {
 	WV_TRACE();
 	
@@ -173,14 +173,14 @@ wv::PipelineID wv::NoAPIGraphicsDevice::_createPipeline( PipelineID _pipelineID,
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyPipeline( PipelineID _pipelineID )
+void wv::NoAPIGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::NoAPIGraphicsDevice::_createGPUBuffer( GPUBufferID _bufferID, const GPUBufferDesc& _desc )
+wv::GPUBufferID wv::NoAPIGraphicsDevice::createGPUBuffer( const GPUBufferDesc& _desc )
 {
 	WV_TRACE();
 	
@@ -189,7 +189,7 @@ wv::GPUBufferID wv::NoAPIGraphicsDevice::_createGPUBuffer( GPUBufferID _bufferID
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyGPUBuffer( GPUBufferID _bufferID )
+void wv::NoAPIGraphicsDevice::destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 }
@@ -210,7 +210,7 @@ void wv::NoAPIGraphicsDevice::bufferSubData( GPUBufferID _bufferID, void* _pData
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::NoAPIGraphicsDevice::_createTexture( TextureID _textureID, const TextureDesc& _desc )
+wv::TextureID wv::NoAPIGraphicsDevice::createTexture( const TextureDesc& _desc )
 {
 	WV_TRACE();
 
@@ -219,14 +219,14 @@ wv::TextureID wv::NoAPIGraphicsDevice::_createTexture( TextureID _textureID, con
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
+void wv::NoAPIGraphicsDevice::bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
 {
 	WV_TRACE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::NoAPIGraphicsDevice::_destroyTexture( TextureID _textureID )
+void wv::NoAPIGraphicsDevice::destroyTexture( TextureID _textureID )
 {
 	WV_TRACE();
 }

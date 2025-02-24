@@ -72,36 +72,27 @@ public:
 	#endif
 	}
 
-	void executeCreateQueue();
-
-private:
-	template<typename T>
-	void cmd( const GPUTaskType& _type, T* _pInfo );
-	void cmd( const GPUTaskType& _type ) { cmd<char>( _type, nullptr ); }
-
 public:
 
-	template<typename ID, typename T>
-	ID cmdCreateCommand( GPUTaskType _task, ID _id, const T& _desc );
+	virtual ShaderModuleID createShaderModule ( const ShaderModuleDesc& _desc ) = 0;
+	virtual void           destroyShaderModule( ShaderModuleID _programID ) = 0;
 
-	ShaderModuleID createShaderModule( const ShaderModuleDesc& _desc );
-	void      destroyShaderModule( ShaderModuleID _programID );
+	virtual PipelineID createPipeline( const PipelineDesc& _desc ) = 0;
+	virtual void       destroyPipeline( PipelineID _pipelineID ) = 0;
 
-	PipelineID createPipeline( const PipelineDesc& _desc );
-	void       destroyPipeline( PipelineID _pipelineID );
+	virtual RenderTargetID createRenderTarget ( const RenderTargetDesc& _desc ) = 0;
+	virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
 
-	RenderTargetID createRenderTarget( const RenderTargetDesc& _desc );
-	void           destroyRenderTarget( RenderTargetID _renderTargetID );
+	virtual GPUBufferID createGPUBuffer ( const GPUBufferDesc& _desc ) = 0;
+	virtual void        destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
 
-	GPUBufferID createGPUBuffer( const GPUBufferDesc& _desc );
-	void        destroyGPUBuffer( GPUBufferID _bufferID );
-
-	MeshID createMesh( const MeshDesc& _desc );
+	MeshID createMesh ( const MeshDesc& _desc );
 	void   destroyMesh( MeshID _meshID );
 
-	TextureID    createTexture( const TextureDesc& _desc );
-	void         destroyTexture( TextureID _textureID );
-	void         bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps );
+	virtual TextureID createTexture ( const TextureDesc& _desc ) = 0;
+	virtual void      destroyTexture( TextureID _textureID ) = 0;
+
+	virtual void bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
 	virtual void bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
 	Material* getEmptyMaterial() { return m_pEmptyMaterial; }
@@ -240,8 +231,6 @@ public:
 	wv::unordered_array<TextureID,      Texture>      m_textures;
 	wv::unordered_array<MeshID,         Mesh>         m_meshes;
 
-	std::queue<std::pair<ShaderModuleID, ShaderModuleDesc>> m_programCreateQueue;
-
 	std::unordered_map<std::string, BufferBindingIndex> m_uniformBindingNameMap;
 
 	uint32_t drawIndirectHandle = 0;
@@ -249,26 +238,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 protected:
-	virtual ShaderModuleID _createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc ) = 0;
-	virtual void      _destroyShaderModule( ShaderModuleID _programID ) = 0;
-
-	virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const GPUBufferDesc& _desc ) = 0;
-	virtual void        _destroyGPUBuffer( GPUBufferID _bufferID ) = 0;
-
-	virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const RenderTargetDesc& _desc ) = 0;
-	virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID ) = 0;
-
-	virtual PipelineID _createPipeline( PipelineID _pipelineID, const PipelineDesc& _desc ) = 0;
-	virtual void       _destroyPipeline( PipelineID _pipelineID ) = 0;
-
-	virtual MeshID _createMesh( MeshID _meshID, const MeshDesc& _desc );
-	virtual void   _destroyMesh( MeshID _meshID );
-
-	virtual TextureID _createTexture( TextureID _textureID, const TextureDesc& _desc ) = 0;
-	virtual void      _destroyTexture( TextureID _textureID ) = 0;
-
-	virtual void _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) = 0;
-
+	
 	IGraphicsDevice();
 
 	virtual bool initialize( LowLevelGraphicsDesc* _desc ) = 0;
@@ -287,18 +257,4 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-inline void IGraphicsDevice::cmd( const GPUTaskType& _type, T* _pInfo )
-{
-	std::scoped_lock lock{ m_mutex };
-	m_createDestroyCommandBuffer.push<T>( _type, _pInfo );
-}
-
-template<typename ID, typename T>
-inline ID IGraphicsDevice::cmdCreateCommand( GPUTaskType _task, ID _id, const T& _desc )
-{
-	CmdCreateDesc<ID, T> desc{ _id, _desc };
-	cmd( _task, &desc );
-	return _id;
-}
 }

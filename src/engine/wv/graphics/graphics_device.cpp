@@ -73,140 +73,6 @@ void wv::IGraphicsDevice::initEmbeds()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IGraphicsDevice::executeCreateQueue()
-{
-	std::scoped_lock lock{ m_mutex };
-
-	//CommandBuffer& buffer = m_commandBuffers.at( _bufferID );
-	CommandBuffer& buffer = m_createDestroyCommandBuffer;
-	MemoryStream& stream = buffer.getBuffer();
-
-	for( size_t i = 0; i < buffer.numCommands(); i++ )
-	{
-		GPUTaskType taskType = stream.pop<GPUTaskType>();
-		
-		switch( taskType )
-		{
-		case WV_GPUTASK_NONE: 
-			break;
-
-			/// TODO: move to wv::CreateQueue
-			
-		case WV_GPUTASK_SET_RENDERTARGET: cmdBeginRender( 0, stream.pop<RenderTargetID>() ); break;
-		case WV_GPUTASK_BIND_PIPELINE:    cmdBindPipeline( 0, stream.pop<PipelineID>() );     break;
-		case WV_GPUTASK_BIND_TEXTURE: // struct { TextureID id; unsigned int slot; };
-			bindTextureToSlot( stream.pop<TextureID>(), stream.pop<unsigned int>() ); 
-			break;
-
-		case WV_GPUTASK_CLEAR_RENDERTARGET: wv::Debug::Print( "error\n" ); break;
-		case WV_GPUTASK_BUFFER_DATA:        wv::Debug::Print( "error\n" ); break;
-		case WV_GPUTASK_DRAW:               wv::Debug::Print( "error\n" ); break;
-		}
-	}
-
-	buffer.flush();
-}
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::ShaderModuleID wv::IGraphicsDevice::createShaderModule( const ShaderModuleDesc& _desc )
-{
-	ShaderModuleID id = m_programs.emplace();
-	_createShaderModule( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyShaderModule( ShaderModuleID _programID )
-{
-	_destroyShaderModule( _programID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::PipelineID wv::IGraphicsDevice::createPipeline( const PipelineDesc& _desc )
-{
-	PipelineID id = m_pipelines.emplace();
-	_createPipeline( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyPipeline( PipelineID _pipelineID )
-{
-	_destroyPipeline( _pipelineID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::RenderTargetID wv::IGraphicsDevice::createRenderTarget( const RenderTargetDesc& _desc )
-{
-	RenderTargetID id = m_renderTargets.emplace();
-	_createRenderTarget( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyRenderTarget( RenderTargetID _renderTargetID )
-{
-	_destroyRenderTarget( _renderTargetID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::GPUBufferID wv::IGraphicsDevice::createGPUBuffer( const GPUBufferDesc& _desc )
-{
-	GPUBufferID id = m_gpuBuffers.emplace();
-	_createGPUBuffer( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyGPUBuffer( GPUBufferID _bufferID )
-{
-	_destroyGPUBuffer( _bufferID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::MeshID wv::IGraphicsDevice::createMesh( const MeshDesc& _desc )
-{
-	MeshID id = m_meshes.emplace();
-	_createMesh( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyMesh( MeshID _meshID )
-{
-	_destroyMesh( _meshID );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::TextureID wv::IGraphicsDevice::createTexture( const TextureDesc& _desc )
-{
-	TextureID id = m_textures.emplace();
-	_createTexture( id, _desc );
-	return id;
-}
-
-void wv::IGraphicsDevice::destroyTexture( TextureID _textureID )
-{
-	_destroyTexture( _textureID );
-}
-
-void wv::IGraphicsDevice::bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
-{
-	struct BufferData
-	{
-		TextureID tex;
-		void* pData;
-		bool generateMipMaps;
-	} bufferData;
-	bufferData.tex = _textureID;
-	bufferData.pData = _pData;
-	bufferData.generateMipMaps = _generateMipMaps;
-
-	_bufferTextureData( _textureID, _pData, _generateMipMaps );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::IGraphicsDevice::terminate()
 {
 	m_pEmptyMaterial->unload( Engine::get()->m_pFileSystem, Engine::get()->graphics );
@@ -218,26 +84,14 @@ void wv::IGraphicsDevice::terminate()
 
 void wv::IGraphicsDevice::beginRender()
 {
-	executeCreateQueue();
-
-	/*
-	while( m_recordingCommandBuffers.size() > 0 )
-	{
-		wv::Time::sleepForSeconds( 0.01 );
-	}
-
-	if( m_recordingCommandBuffers.size() > 0 )
-		throw std::runtime_error( "recording one or more command buffers across frames" );
-	*/
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IGraphicsDevice::endRender()
 {
-	//for( size_t i = 0; i < m_submittedCommandBuffers.size(); i++ )
-	//	executeCommandBuffer( m_submittedCommandBuffers[ i ] );
-	executeCreateQueue();
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -247,10 +101,9 @@ wv::IGraphicsDevice::IGraphicsDevice()
 
 }
 
-wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const MeshDesc& _desc )
+wv::MeshID wv::IGraphicsDevice::createMesh( const MeshDesc& _desc )
 {
-	if( !_meshID.is_valid() )
-		_meshID = m_meshes.emplace();
+	MeshID id = m_meshes.emplace();
 
 	Mesh mesh{};
 	mesh.pMaterial   = _desc.pMaterial;
@@ -314,12 +167,12 @@ wv::MeshID wv::IGraphicsDevice::_createMesh( MeshID _meshID, const MeshDesc& _de
 		mesh.transform.m_matrix = _desc.pParentTransform->m_matrix;
 
 	mesh.complete = true;
-	m_meshes.at( _meshID ) = mesh;
+	m_meshes.at( id ) = mesh;
 
-	return _meshID;
+	return id;
 }
 
-void wv::IGraphicsDevice::_destroyMesh( MeshID _meshID )
+void wv::IGraphicsDevice::destroyMesh( MeshID _meshID )
 {
 	m_meshes.erase( _meshID );
 }

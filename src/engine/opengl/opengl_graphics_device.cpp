@@ -173,15 +173,13 @@ void wv::GraphicsDeviceOpenGL::beginRender()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::RenderTargetID wv::GraphicsDeviceOpenGL::_createRenderTarget( RenderTargetID _renderTargetID, const RenderTargetDesc& _desc )
+wv::RenderTargetID wv::GraphicsDeviceOpenGL::createRenderTarget( const RenderTargetDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
 
-	if( !_renderTargetID.is_valid() )
-		_renderTargetID = m_renderTargets.emplace();
-
-	RenderTarget& target = m_renderTargets.at( _renderTargetID );
+	RenderTargetID id = m_renderTargets.emplace();;
+	RenderTarget& target = m_renderTargets.at( id );
 	
 	glCreateFramebuffers( 1, &target.fbHandle );
 	
@@ -197,7 +195,7 @@ wv::RenderTargetID wv::GraphicsDeviceOpenGL::_createRenderTarget( RenderTargetID
 
 		std::string texname = "buffer_tex" + std::to_string( i );
 
-		target.pTextureIDs[ i ] = _createTexture( {}, _desc.pTextureDescs[ i ] );
+		target.pTextureIDs[ i ] = createTexture( _desc.pTextureDescs[ i ] );
 		Texture& tex = m_textures.at( target.pTextureIDs[ i ] );
 
 		glNamedFramebufferTexture( target.fbHandle, GL_COLOR_ATTACHMENT0 + i, tex.textureObjectHandle, 0 );
@@ -236,7 +234,7 @@ wv::RenderTargetID wv::GraphicsDeviceOpenGL::_createRenderTarget( RenderTargetID
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to create RenderTarget\n" );
 		Debug::Print( Debug::WV_PRINT_ERROR, "  %s\n", err );
 
-		_destroyRenderTarget( _renderTargetID );
+		destroyRenderTarget( id );
 		
 		return RenderTargetID::InvalidID;
 	}
@@ -244,12 +242,12 @@ wv::RenderTargetID wv::GraphicsDeviceOpenGL::_createRenderTarget( RenderTargetID
 	target.width  = _desc.width;
 	target.height = _desc.height;
 
-	return _renderTargetID;
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTargetID )
+void wv::GraphicsDeviceOpenGL::destroyRenderTarget( RenderTargetID _renderTargetID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -260,7 +258,7 @@ void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTarge
 	glDeleteRenderbuffers( 1, &rt.rbHandle );
 
 	for ( int i = 0; i < rt.numTextures; i++ )
-		_destroyTexture( rt.pTextureIDs[ i ] );
+		destroyTexture( rt.pTextureIDs[ i ] );
 
 	if( rt.pTextureIDs )
 		WV_FREE_ARR( rt.pTextureIDs );
@@ -270,14 +268,13 @@ void wv::GraphicsDeviceOpenGL::_destroyRenderTarget( RenderTargetID _renderTarge
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ShaderModuleID wv::GraphicsDeviceOpenGL::_createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc )
+wv::ShaderModuleID wv::GraphicsDeviceOpenGL::createShaderModule( const ShaderModuleDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
 
-	if( !_programID.is_valid() )
-		_programID = m_programs.emplace();
-
+	ShaderModuleID id = m_programs.emplace();
+	
 	ShaderProgramType   type   = _desc.type;
 	ShaderProgramSource source = _desc.source;
 
@@ -360,7 +357,7 @@ wv::ShaderModuleID wv::GraphicsDeviceOpenGL::_createShaderModule( ShaderModuleID
 		wv::Handle blockIndex = glGetUniformBlockIndex( program.handle, name.c_str() );
 		glGetActiveUniformBlockiv( program.handle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &ubDesc.size );
 		
-		GPUBufferID bufID = _createGPUBuffer( {}, ubDesc );
+		GPUBufferID bufID = createGPUBuffer( ubDesc );
 		GPUBuffer& buf = m_gpuBuffers.at( bufID );
 		
 		buf.bindingIndex = index;
@@ -392,7 +389,7 @@ wv::ShaderModuleID wv::GraphicsDeviceOpenGL::_createShaderModule( ShaderModuleID
 		ubDesc.usage = WV_BUFFER_USAGE_DYNAMIC_DRAW;
 		ubDesc.size = 0;
 
-		GPUBufferID bufID = _createGPUBuffer( {}, ubDesc );
+		GPUBufferID bufID = createGPUBuffer( ubDesc );
 		GPUBuffer& buf = m_gpuBuffers.at( bufID );
 
 		buf.bindingIndex = m_ssboBindingIndices.emplace();
@@ -404,14 +401,13 @@ wv::ShaderModuleID wv::GraphicsDeviceOpenGL::_createShaderModule( ShaderModuleID
 		program.shaderBuffers.push_back( bufID );
 	}
 
-	m_programs.at( _programID ) = program;
-
-	return _programID;
+	m_programs.at( id ) = program;
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyShaderModule( ShaderModuleID _programID )
+void wv::GraphicsDeviceOpenGL::destroyShaderModule( ShaderModuleID _programID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -424,22 +420,21 @@ void wv::GraphicsDeviceOpenGL::_destroyShaderModule( ShaderModuleID _programID )
 	glDeleteProgram( program.handle );
 	
 	for( auto& buffer : program.shaderBuffers )
-		_destroyGPUBuffer( buffer );
+		destroyGPUBuffer( buffer );
 	
 	m_programs.erase( _programID );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::PipelineID wv::GraphicsDeviceOpenGL::_createPipeline( PipelineID _pipelineID, const PipelineDesc& _desc )
+wv::PipelineID wv::GraphicsDeviceOpenGL::createPipeline( const PipelineDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
 
-	if( !_pipelineID.is_valid() )
-		_pipelineID = m_pipelines.emplace();
-
-	Pipeline& pipeline = m_pipelines.at( _pipelineID );
+	PipelineID id = m_pipelines.emplace();
+	
+	Pipeline& pipeline = m_pipelines.at( id );
 	pipeline.vertexProgramID   = _desc.vertexProgramID;
 	pipeline.fragmentProgramID = _desc.fragmentProgramID;
 
@@ -448,7 +443,7 @@ wv::PipelineID wv::GraphicsDeviceOpenGL::_createPipeline( PipelineID _pipelineID
 	if( pipeline.handle == 0 )
 	{
 		wv::Debug::Print( Debug::WV_PRINT_ERROR, "Pipeline handle is 0\n" );
-		m_pipelines.erase( _pipelineID );
+		m_pipelines.erase( id );
 		return PipelineID::InvalidID;
 	}
 
@@ -458,12 +453,12 @@ wv::PipelineID wv::GraphicsDeviceOpenGL::_createPipeline( PipelineID _pipelineID
 	glUseProgramStages( pipeline.handle, GL_VERTEX_SHADER_BIT,   vs.handle );
 	glUseProgramStages( pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs.handle );
 	
-	return _pipelineID;
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
+void wv::GraphicsDeviceOpenGL::destroyPipeline( PipelineID _pipelineID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -472,8 +467,8 @@ void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 	glDeleteProgramPipelines( 1, &pipeline.handle );
 	
-	_destroyShaderModule( pipeline.vertexProgramID );
-	_destroyShaderModule( pipeline.fragmentProgramID );
+	destroyShaderModule( pipeline.vertexProgramID );
+	destroyShaderModule( pipeline.fragmentProgramID );
 
 	if( pipeline.pPlatformData )
 		WV_FREE( pipeline.pPlatformData );
@@ -483,15 +478,13 @@ void wv::GraphicsDeviceOpenGL::_destroyPipeline( PipelineID _pipelineID )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GPUBufferID wv::GraphicsDeviceOpenGL::_createGPUBuffer( GPUBufferID _bufferID, const GPUBufferDesc& _desc )
+wv::GPUBufferID wv::GraphicsDeviceOpenGL::createGPUBuffer( const GPUBufferDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
-
-	if( !_bufferID.is_valid() )
-		_bufferID = m_gpuBuffers.emplace();
-
-	GPUBuffer& buffer = m_gpuBuffers.at( _bufferID );
+	
+	GPUBufferID id = m_gpuBuffers.emplace();
+	GPUBuffer& buffer = m_gpuBuffers.at( id );
 
 	buffer.type  = _desc.type;
 	buffer.usage = _desc.usage;
@@ -508,12 +501,12 @@ wv::GPUBufferID wv::GraphicsDeviceOpenGL::_createGPUBuffer( GPUBufferID _bufferI
 		
 	buffer.complete = true;
 
-	return _bufferID;
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyGPUBuffer( GPUBufferID _bufferID )
+void wv::GraphicsDeviceOpenGL::destroyGPUBuffer( GPUBufferID _bufferID )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -573,7 +566,7 @@ void wv::GraphicsDeviceOpenGL::bufferSubData( GPUBufferID _bufferID, void* _pDat
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::TextureID wv::GraphicsDeviceOpenGL::_createTexture( TextureID _textureID, const TextureDesc& _desc )
+wv::TextureID wv::GraphicsDeviceOpenGL::createTexture( const TextureDesc& _desc )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -581,10 +574,9 @@ wv::TextureID wv::GraphicsDeviceOpenGL::_createTexture( TextureID _textureID, co
 	GLenum internalFormat = GL_R8;
 	GLenum format = GL_RED;
 
-	if( !_textureID.is_valid() )
-		_textureID = m_textures.emplace();
-
-	Texture& texture = m_textures.at( _textureID );
+	TextureID id = m_textures.emplace();
+	
+	Texture& texture = m_textures.at( id );
 	texture.numChannels = _desc.numChannels;
 
 	switch ( _desc.channels )
@@ -687,12 +679,12 @@ wv::TextureID wv::GraphicsDeviceOpenGL::_createTexture( TextureID _textureID, co
 	texture.width  = _desc.width;
 	texture.height = _desc.height;
 	
-	return _textureID;
+	return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
+void wv::GraphicsDeviceOpenGL::bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps )
 {
 	WV_TRACE();
 	assertMainThread();
@@ -714,7 +706,7 @@ void wv::GraphicsDeviceOpenGL::_bufferTextureData( TextureID _textureID, void* _
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::GraphicsDeviceOpenGL::_destroyTexture( TextureID _textureID )
+void wv::GraphicsDeviceOpenGL::destroyTexture( TextureID _textureID )
 {
 	WV_TRACE();
 	assertMainThread();
