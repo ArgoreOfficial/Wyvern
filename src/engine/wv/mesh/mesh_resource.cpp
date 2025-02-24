@@ -35,19 +35,9 @@ void wv::MeshInstance::destroy()
 
 void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pLowLevelGraphics*/ )
 {
-	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
-	
-	Job::JobFunction_t fptr = []( void* _pUserData )
-		{
-			Engine* app = Engine::get();
-			wv::MeshResource* _this = (wv::MeshResource*)_pUserData;
-
-			wv::Parser parser;
-			_this->m_pMeshNode = parser.load( _this->m_path.c_str(), app->m_pResourceRegistry );
-		};
-
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, this );
-	pJobSystem->submit( { job } );
+	Engine* app = Engine::get();
+	wv::Parser parser;
+	m_pMeshNode = parser.load( m_path.c_str(), app->m_pResourceRegistry );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

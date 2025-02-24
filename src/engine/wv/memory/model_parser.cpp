@@ -10,6 +10,7 @@
 
 #include <wv/texture/texture_resource.h>
 #include <wv/Resource/resource_registry.h>
+#include <wv/job/job_system.h>
 
 #include <auxiliary/json/json11.hpp>
 
@@ -156,24 +157,52 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 	}
 
 	{ // create primitive
-		wv::MeshDesc prDesc;
-		prDesc.pParentTransform = &_meshNode->transform;
 
-		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
-		prDesc.sizeVertices = sizeVertices;
+		struct CreateMeshData
+		{
+			wv::MeshID* outMesh;
+			wv::MeshDesc prDesc;
+		};
 
-		prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
-		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
+		CreateMeshData* createMeshData = WV_NEW( CreateMeshData );
+		{
+			createMeshData->prDesc.pParentTransform = &_meshNode->transform;
 
-		prDesc.numIndices = indices.size();
-		prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
-		memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
+			size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
+			createMeshData->prDesc.sizeVertices = sizeVertices;
 
-		prDesc.pMaterial = material;
-		prDesc.deleteData = true;
+			createMeshData->prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
+			memcpy( createMeshData->prDesc.vertices, vertices.data(), sizeVertices );
 
-		// buffer
-		*_outMesh = device->createMesh( prDesc );
+			createMeshData->prDesc.numIndices = indices.size();
+			createMeshData->prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
+			memcpy( createMeshData->prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
+
+			createMeshData->prDesc.pMaterial = material;
+			createMeshData->prDesc.deleteData = true;
+
+			createMeshData->outMesh = _outMesh;
+		}
+
+		wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+
+		wv::Job::JobFunction_t fptr = []( void* _pUserData )
+			{
+				wv::Engine* engine = wv::Engine::get();
+				CreateMeshData* data = (CreateMeshData*)_pUserData;
+
+				*data->outMesh = engine->graphics->createMesh( data->prDesc );
+				WV_FREE( data );
+			};
+
+		wv::Job* job = pJobSystem->createJob( 
+			wv::JobThreadType::kRENDER, 
+			wv::Engine::get()->m_pResourceRegistry->getResourceFence(), 
+			nullptr, 
+			fptr, 
+			createMeshData );
+
+		pJobSystem->submit( { job } );
 	}
 
 	wv::FileSystem filesystem;
@@ -197,7 +226,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 	_meshNode->transform.update( _meshNode->transform.pParent );
 
 	// process all the node's meshes (if any)
-	_meshNode->meshes.assign( _node->mNumMeshes, { 0 } );
+	_meshNode->meshes.assign( _node->mNumMeshes, {} );
 	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
