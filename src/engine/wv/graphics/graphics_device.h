@@ -104,8 +104,6 @@ public:
 	void         bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps );
 	virtual void bindTextureToSlot( TextureID _textureID, unsigned int _slot ) = 0;
 
-	void queueAddCallback( wv::Function<void, void*>::fptr_t _func, void* _caller );
-
 	Material* getEmptyMaterial() { return m_pEmptyMaterial; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
