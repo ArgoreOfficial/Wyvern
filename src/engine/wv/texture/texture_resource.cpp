@@ -5,6 +5,8 @@
 #include <wv/memory/file_system.h>
 #include <wv/memory/memory.h>
 
+#include <wv/job/job_system.h>
+
 #ifdef WV_PLATFORM_WINDOWS
 #include <auxiliary/stb_image.h>
 
@@ -23,45 +25,54 @@ void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLow
 	if ( m_path == "" )
 		m_path = m_name;
 
-	TextureDesc desc;
-	wv::Memory* mem = _pFileSystem->loadMemory( m_path );
+	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
-#ifdef WV_PLATFORM_WINDOWS
-	stbi_set_flip_vertically_on_load( 0 );
-	m_pData = reinterpret_cast<uint8_t*>( stbi_load_from_memory( mem->data, mem->size, &desc.width, &desc.height, &desc.numChannels, 0 ) );
-#endif
-	_pFileSystem->unloadMemory( mem );
-		
-	if ( !m_pData )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", m_path.c_str() );
-		WV_FREE( m_pData );
-		return;
-	}
+	Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			Engine* app = Engine::get();
+			FileSystem* pFileSystem = app->m_pFileSystem;
+			IGraphicsDevice* pGraphicsDevice = app->graphics;
 
-	m_dataSize = desc.width * desc.numChannels * desc.width * desc.numChannels;
-	
-	desc.filtering = m_filtering;
-	desc.generateMipMaps = true;
-	desc.channels = (TextureChannels)desc.numChannels;
-	
-	m_textureID = _pLowLevelGraphics->createTexture( desc );
-	_pLowLevelGraphics->bufferTextureData( m_textureID, m_pData, desc.generateMipMaps );
-	m_pData = nullptr; // move ownership
+			wv::TextureResource& _this = *(wv::TextureResource*)_pUserData;
 
-	auto onCompleteCallback = []( void* _c ) 
-		{ 
-			TextureResource* tex = (TextureResource*)_c;
-			Texture& texObject = wv::Engine::get()->graphics->m_textures.at( tex->m_textureID );
 
-			tex->setComplete( true ); 
+			TextureDesc desc;
+			wv::Memory* mem = pFileSystem->loadMemory( _this.m_path );
+
+		#ifdef WV_PLATFORM_WINDOWS
+			stbi_set_flip_vertically_on_load( 0 );
+			_this.m_pData = reinterpret_cast<uint8_t*>( stbi_load_from_memory( mem->data, mem->size, &desc.width, &desc.height, &desc.numChannels, 0 ) );
+		#endif
+			pFileSystem->unloadMemory( mem );
+
+			if( !_this.m_pData )
+			{
+				Debug::Print( Debug::WV_PRINT_ERROR, "Failed to load texture %s\n", _this.m_path.c_str() );
+				WV_FREE( _this.m_pData );
+				return;
+			}
+
+			_this.m_dataSize = desc.width * desc.numChannels * desc.width * desc.numChannels;
+
+			desc.filtering = _this.m_filtering;
+			desc.generateMipMaps = true;
+			desc.channels = (TextureChannels)desc.numChannels;
+
+			_this.m_textureID = pGraphicsDevice->createTexture( desc );
+			pGraphicsDevice->bufferTextureData( _this.m_textureID, _this.m_pData, desc.generateMipMaps );
+			_this.m_pData = nullptr; // move ownership
+
+			Texture& texObject = wv::Engine::get()->graphics->m_textures.at( _this.m_textureID );
+
+			_this.setComplete( true );
 		#ifdef WV_PLATFORM_WINDOWS
 			stbi_image_free( texObject.pData );
 		#endif
 			texObject.pData = nullptr;
 		};
 
-	_pLowLevelGraphics->queueAddCallback( onCompleteCallback, (void*)this );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, this );
+	pJobSystem->submit( { job } );
 }
 
 void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice* _pLowLevelGraphics )
