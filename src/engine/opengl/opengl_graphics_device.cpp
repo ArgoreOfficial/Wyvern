@@ -700,8 +700,6 @@ void wv::GraphicsDeviceOpenGL::bufferTextureData( TextureID _textureID, void* _p
 	tex.textureHandle = glGetTextureHandleARB( tex.textureObjectHandle );
 	
 	glMakeTextureHandleResidentARB( tex.textureHandle );
-	
-	tex.pData = (uint8_t*)_pData;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -715,13 +713,7 @@ void wv::GraphicsDeviceOpenGL::destroyTexture( TextureID _textureID )
 
 	glMakeTextureHandleNonResidentARB( tex.textureHandle );
 	glDeleteTextures( 1, &tex.textureObjectHandle );
-
-	if( tex.pData )
-	{
-		WV_FREE_ARR( tex.pData );
-		tex.pData = nullptr;
-	}
-
+	
 	if( tex.pPlatformData )
 	{
 		WV_FREE( tex.pPlatformData );
