@@ -24,6 +24,16 @@ void wv::JobSystem::initialize( size_t _numWorkers )
 
 void wv::JobSystem::terminate()
 {
+	while( !m_fencePool.empty() )
+	{
+		std::scoped_lock lock{ m_fencePoolMutex };
+		Fence* f = m_fencePool.front();
+		m_fencePool.pop();
+
+		waitForFence( f );
+		WV_FREE( f );
+	}
+
 	deleteWorkers();
 
 	m_jobPoolMutex.lock();
@@ -35,16 +45,6 @@ void wv::JobSystem::terminate()
 		WV_FREE( job );
 	}
 	m_jobPoolMutex.unlock();
-
-	while ( !m_fencePool.empty() )
-	{
-		std::scoped_lock lock{ m_fencePoolMutex };
-		Fence* f = m_fencePool.front();
-		m_fencePool.pop();
-
-		waitForFence( f );
-		WV_FREE( f );
-	}
 
 }
 

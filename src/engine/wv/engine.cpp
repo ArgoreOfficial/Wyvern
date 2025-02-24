@@ -355,13 +355,6 @@ void wv::Engine::terminate()
 		context = nullptr;
 	}
 	
-	if( graphics )
-	{
-		graphics->terminate();
-		WV_FREE( graphics );
-		graphics = nullptr;
-	}
-
 	if( m_pResourceRegistry )
 	{
 		WV_FREE( m_pResourceRegistry );
@@ -381,6 +374,12 @@ void wv::Engine::terminate()
 		m_pFileSystem = nullptr;
 	}
 
+	if( graphics )
+	{
+		graphics->terminate();
+		WV_FREE( graphics );
+		graphics = nullptr;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

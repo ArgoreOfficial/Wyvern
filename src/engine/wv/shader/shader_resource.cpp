@@ -1,12 +1,14 @@
 #include "shader_resource.h"
 
 #include <wv/memory/file_system.h>
+#include <wv/memory/memory.h>
 
 #include <auxiliary/json/json11.hpp>
 #include <wv/engine.h>
 #include <wv/graphics/graphics_device.h>
 
 #include <wv/job/job_system.h>
+#include <wv/resource/resource_registry.h>
 
 void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
@@ -81,7 +83,31 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLo
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
 	if( m_pipelineID.is_valid() )
-		_pLowLevelGraphics->destroyPipeline( m_pipelineID );
+	{
+		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+		
+		struct PipelineIDData { PipelineID id; };
+		PipelineIDData* data = WV_NEW( PipelineIDData );
+		data->id = m_pipelineID;
+
+		Job::JobFunction_t fptr = []( void* _pUserData )
+			{
+				Engine* app = Engine::get();
+				PipelineIDData* data = (PipelineIDData*)_pUserData;
+
+				app->graphics->destroyPipeline( data->id );
+				WV_FREE( data );
+			};
+		
+		Job* job = pJobSystem->createJob(
+			JobThreadType::kRENDER,
+			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
+			nullptr,
+			fptr,
+			data );
+
+		pJobSystem->submit( { job } );
+	}
 }
 
 void wv::ShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
