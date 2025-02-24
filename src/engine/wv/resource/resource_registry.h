@@ -113,6 +113,10 @@ namespace wv
 			return m_resources.size();
 		}
 
+		wv::Fence* getResourceFence() {
+			return m_resourceFence;
+		}
+		
 	protected:
 
 		template<typename T> 

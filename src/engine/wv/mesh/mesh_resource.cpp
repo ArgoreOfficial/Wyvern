@@ -73,8 +73,26 @@ static void unloadMeshNode( wv::MeshNode* _node )
 void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
 	if( m_pMeshNode )
-		unloadMeshNode( m_pMeshNode );
+	{
+		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
+		Job::JobFunction_t fptr = []( void* _pUserData )
+			{
+				Engine* app = Engine::get();
+				MeshNode* _meshNode = (MeshNode*)_pUserData;
+
+				unloadMeshNode( _meshNode );
+			};
+
+		Job* job = pJobSystem->createJob( 
+			JobThreadType::kRENDER, 
+			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
+			nullptr, 
+			fptr, 
+			m_pMeshNode );
+		pJobSystem->submit( { job } );
+	}
+	
 	m_mutex.lock();
 	if ( m_instances.size() > 0 )
 		Debug::Print( Debug::WV_PRINT_ERROR, "Mesh %s has %zu instances left", m_name, m_instances.size() );
