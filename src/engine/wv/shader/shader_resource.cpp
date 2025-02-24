@@ -6,60 +6,71 @@
 #include <wv/engine.h>
 #include <wv/graphics/graphics_device.h>
 
+#include <wv/job/job_system.h>
+
 void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
 {
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", m_name.c_str() );
+	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+	
+	Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			Engine* app = Engine::get();
+			FileSystem* pFileSystem = app->m_pFileSystem;
+			IGraphicsDevice* pGraphicsDevice = app->graphics;
 
-	std::string ext;
+			wv::ShaderResource* _this = (wv::ShaderResource*)_pUserData;
 
-#ifdef WV_PLATFORM_WINDOWS
-	ext = ".glsl";
-#elif defined( WV_PLATFORM_PSVITA )
-	ext = "_cg.gxp";
-	basepath += "psvita/";
-#endif
+			Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Shader '%s'\n", _this->m_name.c_str() );
 
-	std::string vsPath = m_name + "_vs" + ext;
-	std::string fsPath = m_name + "_fs" + ext;
+			std::string ext;
 
-	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
-	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
+		#ifdef WV_PLATFORM_WINDOWS
+			ext = ".glsl";
+		#elif defined( WV_PLATFORM_PSVITA )
+			ext = "_cg.gxp";
+			basepath += "psvita/";
+		#endif
 
-	ShaderModuleDesc vsDesc;
-	vsDesc.source = m_vsSource;
-	vsDesc.type = WV_SHADER_TYPE_VERTEX;
+			std::string vsPath = _this->m_name + "_vs" + ext;
+			std::string fsPath = _this->m_name + "_fs" + ext;
 
-	ShaderModuleDesc fsDesc;
-	fsDesc.source = m_fsSource;
-	fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
+			_this->m_vsSource.data = pFileSystem->loadMemory( vsPath );
+			_this->m_fsSource.data = pFileSystem->loadMemory( fsPath );
 
-	PipelineDesc desc;
-	desc.name = m_name;
+			ShaderModuleDesc vsDesc;
+			vsDesc.source = _this->m_vsSource;
+			vsDesc.type = WV_SHADER_TYPE_VERTEX;
 
-	/// TODO: generalize 
-	wv::VertexAttribute attributes[] = {
-			{ "aPosition",  3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
-			{ "aNormal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
-			{ "aTangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
-			{ "aColor",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
-			{ "aTexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
-	};
-	wv::VertexLayout layout;
-	layout.elements = attributes;
-	layout.numElements = 5;
+			ShaderModuleDesc fsDesc;
+			fsDesc.source = _this->m_fsSource;
+			fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
-	desc.pVertexLayout = &layout;
+			PipelineDesc desc;
+			desc.name = _this->m_name;
 
-	desc.vertexProgramID   = _pLowLevelGraphics->createShaderModule( vsDesc );
-	desc.fragmentProgramID = _pLowLevelGraphics->createShaderModule( fsDesc );
-	m_pipelineID = _pLowLevelGraphics->createPipeline( desc );
+			/// TODO: generalize 
+			wv::VertexAttribute attributes[] = {
+					{ "aPosition",  3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f pos
+					{ "aNormal",    3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f normal
+					{ "aTangent",   3, wv::WV_FLOAT, false, sizeof( float ) * 3 }, // vec3f tangent
+					{ "aColor",     4, wv::WV_FLOAT, false, sizeof( float ) * 4 }, // vec4f col
+					{ "aTexCoord0", 2, wv::WV_FLOAT, false, sizeof( float ) * 2 }  // vec2f texcoord0
+			};
+			wv::VertexLayout layout;
+			layout.elements = attributes;
+			layout.numElements = 5;
 
-	auto cb = []( void* _c ) 
-		{ 
-			IResource* res = (IResource*)_c;
-			res->setComplete( true ); 
+			desc.pVertexLayout = &layout;
+
+			desc.vertexProgramID   = pGraphicsDevice->createShaderModule( vsDesc );
+			desc.fragmentProgramID = pGraphicsDevice->createShaderModule( fsDesc );
+			_this->m_pipelineID    = pGraphicsDevice->createPipeline( desc );
+
+			_this->setComplete( true );
 		};
-	_pLowLevelGraphics->queueAddCallback( cb, (void*)this );
+
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, this );
+	pJobSystem->submit( { job } );
 }
 
 void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
