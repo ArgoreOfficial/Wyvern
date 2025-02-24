@@ -10,10 +10,11 @@ namespace wv
 
 struct JobWorker
 {
-	std::thread mThread{};
-	std::atomic_bool mIsAlive{ true };
-	JobBuffer mQueue{};
-	size_t victimIndex = 0;
+	std::thread thread{};
+	std::atomic_bool isAlive{ true };
+	JobBuffer queue{};
+	
+	bool isRenderThread = false;
 };
 
 }

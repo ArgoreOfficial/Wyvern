@@ -33,6 +33,7 @@ public:
 	void createWorkers( size_t _count = 0 );
 	void deleteWorkers();
 
+	wv::Job* createJob( wv::JobThreadType _threadType, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData );
 	wv::Job* createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData );
 	void submit( const std::vector<wv::Job*>& _jobs );
 
@@ -42,14 +43,17 @@ public:
 	void waitForFence( wv::Fence* _pFence );
 	void waitAndDeleteFence( wv::Fence* _pFence );
 
+	JobWorker* getThisThreadWorker();
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	void executeJob( wv::Job* _pJob );
 
 protected:
 
+	void _getNextAndExecuteJob( wv::JobWorker* _pWorker );
+
 	static void _workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker );
-	JobWorker* _getThisThreadWorker();
 	Job* _getNextJob( wv::JobWorker* _pWorker );
 	
 	Job* _allocateJob();

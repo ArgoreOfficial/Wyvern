@@ -57,6 +57,7 @@ void wv::JobSystem::createWorkers( size_t _count )
 	// main thread worker
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
+		worker->isRenderThread = true;
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
 	}
@@ -64,10 +65,10 @@ void wv::JobSystem::createWorkers( size_t _count )
 	for ( size_t i = 0; i < _count; i++ )
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
-		worker->mThread = std::thread( _workerThread, this, worker );
+		worker->thread = std::thread( _workerThread, this, worker );
 
 		m_workers.push_back( worker );
-		m_threadIDWorkerMap[ worker->mThread.get_id() ] = worker;
+		m_threadIDWorkerMap[ worker->thread.get_id() ] = worker;
 	}
 }
 
@@ -78,8 +79,8 @@ void wv::JobSystem::deleteWorkers()
 	// shutdown threads
 	for ( size_t i = 1; i < m_workers.size(); i++ )
 	{
-		m_workers[ i ]->mIsAlive = false;
-		m_workers[ i ]->mThread.join();
+		m_workers[ i ]->isAlive = false;
+		m_workers[ i ]->thread.join();
 	}
 
 	for ( size_t i = 0; i < m_workers.size(); i++ )
@@ -92,10 +93,16 @@ void wv::JobSystem::deleteWorkers()
 
 wv::Job* wv::JobSystem::createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
 {
+	return createJob( JobThreadType::kANY, _pSignalFence, _pWaitFence, _fptr, _pData );
+}
+
+wv::Job* wv::JobSystem::createJob( wv::JobThreadType _threadType, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
+{
 	Job* job = _allocateJob();
 	job->pSignalFence = _pSignalFence;
-	job->pFunction    = _fptr;
-	job->pData        = _pData;
+	job->pFunction = _fptr;
+	job->pData = _pData;
+	job->threadType = _threadType;
 	return job;
 }
 
@@ -103,13 +110,13 @@ wv::Job* wv::JobSystem::createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFe
 
 void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 {
-	JobWorker* worker = _getThisThreadWorker();
+	JobWorker* worker = getThisThreadWorker();
 	for ( auto& j : _jobs )
 	{
 		if ( j->pSignalFence )
 			j->pSignalFence->counter++;
 
-		if ( !worker->mQueue.push( j ) )
+		if ( !worker->queue.push( j ) )
 			JobSystem::executeJob( j );
 	}
 }
@@ -148,12 +155,12 @@ void wv::JobSystem::waitForFence( wv::Fence* _pFence )
 {
 	while ( _pFence->counter )
 	{
-		JobWorker* worker = _getThisThreadWorker();
-		Job* nextJob = _getNextJob( worker );
-		if ( nextJob )
-			wv::JobSystem::executeJob( nextJob );
+		JobWorker* worker = getThisThreadWorker();
+		_getNextAndExecuteJob( worker );
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::JobSystem::waitAndDeleteFence( wv::Fence* _pFence )
 {
@@ -163,22 +170,10 @@ void wv::JobSystem::waitAndDeleteFence( wv::Fence* _pFence )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker )
-{
-	while ( _pWorker->mIsAlive )
-	{
-		Job* nextJob = _pJobSystem->_getNextJob( _pWorker );
-		if ( nextJob )
-			_pJobSystem->executeJob( nextJob );
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
+wv::JobWorker* wv::JobSystem::getThisThreadWorker()
 {
 	std::thread::id threadID = std::this_thread::get_id();
-	if ( m_threadIDWorkerMap.count( threadID ) )
+	if( m_threadIDWorkerMap.count( threadID ) )
 		return m_threadIDWorkerMap[ threadID ];
 #ifdef __cpp_exceptions
 	throw std::runtime_error( "Thread is not worker thread" );
@@ -190,9 +185,35 @@ wv::JobWorker* wv::JobSystem::_getThisThreadWorker()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
+{
+	Job* nextJob = _getNextJob( _pWorker );
+	if( nextJob )
+	{
+		JobThreadType req = nextJob->threadType;
+		
+		if( req == JobThreadType::kANY ) // job can run on any thread
+			wv::JobSystem::executeJob( nextJob );
+		else if ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) // job is allowed to run on this thread
+			wv::JobSystem::executeJob( nextJob );
+		else
+			_pWorker->queue.push( nextJob );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::JobSystem::_workerThread( wv::JobSystem* _pJobSystem, wv::JobWorker* _pWorker )
+{
+	while ( _pWorker->isAlive )
+		_pJobSystem->_getNextAndExecuteJob( _pWorker );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 {
-	Job* job = _pWorker->mQueue.pop();
+	Job* job = _pWorker->queue.pop();
 
 	if ( job )
 		return job;
@@ -206,7 +227,7 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 		return nullptr;
 	}
 
-	Job* stolenJob = worker->mQueue.steal();
+	Job* stolenJob = worker->queue.steal();
 
 	if ( stolenJob )
 		return stolenJob;
