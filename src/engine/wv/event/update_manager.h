@@ -155,7 +155,7 @@ inline void UpdateManager::_runJobs( const std::unordered_set<IUpdatable*>& _set
 	for ( auto& u : _set )
 	{
 		userDatas[ i ] = _Ty{ u, _args... };
-		Job* job = pJobSystem->createJob( fence, nullptr, _fptr, &userDatas[ i ] );
+		Job* job = pJobSystem->createJob( _fptr, fence, nullptr, &userDatas[ i ] );
 		jobs.push_back( job );
 		i++;
 	}

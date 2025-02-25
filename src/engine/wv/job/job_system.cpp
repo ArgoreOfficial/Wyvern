@@ -91,12 +91,12 @@ void wv::JobSystem::deleteWorkers()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Job* wv::JobSystem::createJob( wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
+wv::Job* wv::JobSystem::createJob( wv::Job::JobFunction_t _fptr, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, void* _pData )
 {
-	return createJob( JobThreadType::kANY, _pSignalFence, _pWaitFence, _fptr, _pData );
+	return createJob( JobThreadType::kANY, _fptr, _pSignalFence, _pWaitFence, _pData );
 }
 
-wv::Job* wv::JobSystem::createJob( wv::JobThreadType _threadType, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, wv::Job::JobFunction_t _fptr, void* _pData )
+wv::Job* wv::JobSystem::createJob( wv::JobThreadType _threadType, wv::Job::JobFunction_t _fptr, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, void* _pData )
 {
 	Job* job = _allocateJob();
 	job->pSignalFence = _pSignalFence;

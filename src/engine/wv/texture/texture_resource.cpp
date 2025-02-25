@@ -69,7 +69,7 @@ void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGra
 			setComplete( true );
 		};
 
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, nullptr );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr );
 	pJobSystem->submit( { job } );
 }
 
@@ -91,12 +91,7 @@ void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice*
 				_pGraphicsDevice->destroyTexture( id );
 			};
 
-		Job* job = pJobSystem->createJob(
-			JobThreadType::kRENDER,
-			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
-			nullptr,
-			fptr,
-			nullptr );
+		Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
 
 		pJobSystem->submit( { job } );
 	}

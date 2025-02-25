@@ -69,7 +69,7 @@ namespace wv
 
 				JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 				LoadData* loadData = WV_NEW( LoadData, res, m_pFileSystem, m_pGraphicsDevice );
-				Job* job = pJobSystem->createJob( m_resourceFence, nullptr, fptr, loadData );
+				Job* job = pJobSystem->createJob( fptr, m_resourceFence, nullptr, loadData );
 				pJobSystem->submit( { job } );
 
 				addResource( res );

@@ -188,7 +188,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 				*outMesh = device->createMesh( prDesc );
 			};
 
-		wv::Job* job = pJobSystem->createJob( wv::JobThreadType::kRENDER, _pResourceRegistry->getResourceFence(), nullptr, fptr, nullptr );
+		wv::Job* job = pJobSystem->createJob( wv::JobThreadType::kRENDER, fptr, _pResourceRegistry->getResourceFence() );
 
 		pJobSystem->submit( { job } );
 	}

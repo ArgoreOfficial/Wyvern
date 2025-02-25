@@ -68,7 +68,7 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 			setComplete( true );
 		};
 
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, nullptr, nullptr, fptr, this );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr );
 	pJobSystem->submit( { job } );
 }
 
@@ -90,10 +90,7 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGr
 			_pGraphicsDevice->destroyPipeline( id );
 		};
 		
-	Job* job = pJobSystem->createJob(
-		JobThreadType::kRENDER,
-		Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
-		nullptr, fptr, nullptr );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
 
 	pJobSystem->submit( { job } );
 	

@@ -70,12 +70,7 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 				unloadMeshNode( pMeshNode, _pGraphicsDevice );
 			};
 
-		Job* job = pJobSystem->createJob( 
-			JobThreadType::kRENDER, 
-			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
-			nullptr, 
-			fptr, 
-			m_pMeshNode );
+		Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
 		pJobSystem->submit( { job } );
 	}
 	
