@@ -28,8 +28,8 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 	std::string vsPath = m_name + "_vs" + ext;
 	std::string fsPath = m_name + "_fs" + ext;
 
-	m_vsSource.data = _pFileSystem->loadMemory( vsPath );
-	m_fsSource.data = _pFileSystem->loadMemory( fsPath );
+	mVertSource.data = _pFileSystem->loadMemory( vsPath );
+	mFragSource.data = _pFileSystem->loadMemory( fsPath );
 
 	Job::JobFunction_t fptr = [&]( void* _pUserData )
 		{
@@ -37,11 +37,11 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 			IGraphicsDevice* pGraphicsDevice = app->graphics;
 
 			ShaderModuleDesc vsDesc;
-			vsDesc.source = m_vsSource;
+			vsDesc.source = mVertSource;
 			vsDesc.type = WV_SHADER_TYPE_VERTEX;
 
 			ShaderModuleDesc fsDesc;
-			fsDesc.source = m_fsSource;
+			fsDesc.source = mFragSource;
 			fsDesc.type = WV_SHADER_TYPE_FRAGMENT;
 
 			PipelineDesc desc;
@@ -63,7 +63,7 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 
 			desc.vertexProgramID   = pGraphicsDevice->createShaderModule( vsDesc );
 			desc.fragmentProgramID = pGraphicsDevice->createShaderModule( fsDesc );
-			m_pipelineID           = pGraphicsDevice->createPipeline( desc );
+			mPipelineID           = pGraphicsDevice->createPipeline( desc );
 
 			setComplete( true );
 		};
@@ -76,32 +76,32 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGr
 {
 	setComplete( false );
 
-	_pFileSystem->unloadMemory( m_fsSource.data );
-	_pFileSystem->unloadMemory( m_vsSource.data );
+	_pFileSystem->unloadMemory( mFragSource.data );
+	_pFileSystem->unloadMemory( mVertSource.data );
 
-	if( !m_pipelineID.is_valid() )
+	if( !mPipelineID.is_valid() )
 		return;
 
 	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
-	PipelineID id = m_pipelineID;
-		
+	Fence* pFence = Engine::get()->m_pResourceRegistry->getResourceFence();
+
+	PipelineID id = mPipelineID;
 	Job::JobFunction_t fptr = [=]( void* )
 		{
 			_pGraphicsDevice->destroyPipeline( id );
 		};
 		
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
-
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, pFence );
 	pJobSystem->submit( { job } );
 	
 }
 
 void wv::ShaderResource::bind( IGraphicsDevice* _pGraphicsDevice )
 {
-	if ( !m_pipelineID.is_valid() )
+	if ( !mPipelineID.is_valid() )
 		return;
 
-	_pGraphicsDevice->cmdBindPipeline( {}, m_pipelineID );
+	_pGraphicsDevice->cmdBindPipeline( {}, mPipelineID );
 }
 
 wv::GPUBufferID wv::ShaderResource::getShaderBuffer( const std::string& _name )
@@ -113,7 +113,7 @@ wv::GPUBufferID wv::ShaderResource::getShaderBuffer( const std::string& _name )
 
 	/// this needs to be reworked
 
-	Pipeline& pipeline = pGraphics->m_pipelines.at( m_pipelineID );
+	Pipeline& pipeline = pGraphics->m_pipelines.at( mPipelineID );
 
 	Program& vs = pGraphics->m_programs.at( pipeline.vertexProgramID );
 	Program& fs = pGraphics->m_programs.at( pipeline.fragmentProgramID );
