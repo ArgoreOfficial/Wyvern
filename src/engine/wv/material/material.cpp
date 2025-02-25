@@ -11,11 +11,11 @@
 #include <wv/resource/resource_registry.h>
 
 #include <auxiliary/json/json11.hpp>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::Material::load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if ( m_path == "" )
 		m_path = m_name + ".wmat";
@@ -63,7 +63,7 @@ void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDe
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::Material::unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
 

@@ -1,6 +1,6 @@
 #include "shader_resource.h"
 
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
 #include <auxiliary/json/json11.hpp>
@@ -10,7 +10,7 @@
 #include <wv/job/job_system.h>
 #include <wv/resource/resource_registry.h>
 
-void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::ShaderResource::load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 	
@@ -72,7 +72,7 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGrap
 	pJobSystem->submit( { job } );
 }
 
-void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::ShaderResource::unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
 

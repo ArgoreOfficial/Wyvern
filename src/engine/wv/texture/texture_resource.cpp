@@ -2,7 +2,7 @@
 
 #include <wv/engine.h>
 #include <wv/graphics/graphics_device.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
 #include <wv/job/job_system.h>
@@ -15,7 +15,7 @@
 #include <codecvt>
 #endif
 
-void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::TextureResource::load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if ( m_name == "" ) // no file should be loaded
 	{
@@ -73,7 +73,7 @@ void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGra
 	pJobSystem->submit( { job } );
 }
 
-void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice* _pGraphicsDevice )
+void wv::TextureResource::unload( IFileSystem* /*_pFileSystem*/, IGraphicsDevice* _pGraphicsDevice )
 {
 	if( m_pData )
 	{

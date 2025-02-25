@@ -15,7 +15,7 @@
 
 #include <wv/job/job_system.h>
 
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/model_parser.h>
 
 #include <wv/physics/physics_engine.h>

@@ -8,7 +8,7 @@
 #include <wv/material/material.h>
 
 #include <wv/memory/model_parser.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 
 #include <wv/physics/physics_engine.h>
 #include <wv/physics/physics_body_descriptor.h>

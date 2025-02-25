@@ -9,7 +9,7 @@
 
 namespace wv
 {
-	class FileSystem;
+	class IFileSystem;
 	class IGraphicsDevice;
 
 	class IResource
@@ -24,8 +24,8 @@ namespace wv
 
 		virtual ~IResource() {};
 
-		virtual void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
-		virtual void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
+		virtual void load  ( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
+		virtual void unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
 
 		virtual void reload( void ) { }
 		

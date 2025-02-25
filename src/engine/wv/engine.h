@@ -17,7 +17,7 @@ namespace wv
 	class AudioDevice;
 
 	class ICamera;
-	class FileSystem;
+	class IFileSystem;
 	class SceneRoot;
 	class ModelObject;
 	class IMaterial;
@@ -51,7 +51,7 @@ namespace wv
 
 		struct
 		{
-			FileSystem* pFileSystem;
+			IFileSystem* pFileSystem;
 		} systems;
 
 		ApplicationState* pApplicationState = nullptr;
@@ -117,7 +117,7 @@ namespace wv
 		ApplicationState* m_pApplicationState = nullptr;
 
 		// modules
-		FileSystem*        m_pFileSystem       = nullptr;
+		IFileSystem*        m_pFileSystem       = nullptr;
 		ResourceRegistry*  m_pResourceRegistry = nullptr;
 	
 		JoltPhysicsEngine* m_pPhysicsEngine    = nullptr;

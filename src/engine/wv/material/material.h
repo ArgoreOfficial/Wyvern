@@ -31,8 +31,8 @@ namespace wv
 			IResource( _name, _path )
 		{ }
 
-		void load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 
 		void setAsActive( IGraphicsDevice* _device );
 

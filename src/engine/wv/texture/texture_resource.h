@@ -19,8 +19,8 @@ namespace wv
 			m_filtering{ _filtering }
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void load  ( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 
 		size_t getDataSize() {
 			return m_width * m_height * m_numChannels;

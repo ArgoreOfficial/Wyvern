@@ -13,7 +13,7 @@ namespace wv
 	class IDeviceContext;
 	class IGraphicsDevice;
 	class Scene;
-	class FileSystem;
+	class IFileSystem;
 	class UpdateManager;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace wv
 
 		void reloadScene();
 
-		wv::Scene* loadScene( FileSystem* _pFileSystem, const std::string& _path );
+		wv::Scene* loadScene( IFileSystem* _pFileSystem, const std::string& _path );
 
 		/// <returns>scene index</returns>
 		int addScene( Scene* _pScene );

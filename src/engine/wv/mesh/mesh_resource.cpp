@@ -33,7 +33,7 @@ void wv::MeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pGraphicsDevice*/ )
+void wv::MeshResource::load( IFileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pGraphicsDevice*/ )
 {
 	Engine* app = Engine::get();
 	wv::Parser parser;
@@ -59,7 +59,7 @@ static void unloadMeshNode( wv::MeshNode* _node, wv::IGraphicsDevice* _pGraphics
 	WV_FREE( _node );
 }
 
-void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
+void wv::MeshResource::unload( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if( m_pMeshNode )
 	{

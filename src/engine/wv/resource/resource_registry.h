@@ -2,7 +2,7 @@
 
 #include <wv/debug/log.h>
 
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 #include <wv/resource/resource.h>
 
@@ -23,7 +23,7 @@ namespace wv
 	class ResourceRegistry
 	{
 	public:
-		ResourceRegistry( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice, JobSystem* _pJobSystem ):
+		ResourceRegistry( IFileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice, JobSystem* _pJobSystem ):
 			m_pFileSystem{ _pFileSystem },
 			m_pGraphicsDevice{ _pGraphicsDevice },
 			m_pJobSystem{ _pJobSystem }
@@ -35,13 +35,13 @@ namespace wv
 
 		struct LoadData
 		{
-			LoadData( IResource* _resource, wv::FileSystem* _pFileSystem, wv::IGraphicsDevice* _pGraphicsDevice ) : 
+			LoadData( IResource* _resource, wv::IFileSystem* _pFileSystem, wv::IGraphicsDevice* _pGraphicsDevice ) : 
 				resource{ _resource },
 				pFileSystem{ _pFileSystem },
 				pGraphicsDevice{ _pGraphicsDevice }
 			{}
 			IResource* resource = nullptr;
-			wv::FileSystem* pFileSystem = nullptr;
+			wv::IFileSystem* pFileSystem = nullptr;
 			wv::IGraphicsDevice* pGraphicsDevice = nullptr;
 		};
 
@@ -127,7 +127,7 @@ namespace wv
 		void findAndRemoveResource( IResource* _resource );
 		void removeResource( const std::string& _name );
 
-		FileSystem* m_pFileSystem{ nullptr };
+		IFileSystem* m_pFileSystem{ nullptr };
 		IGraphicsDevice* m_pGraphicsDevice{ nullptr };
 		JobSystem* m_pJobSystem{ nullptr };
 

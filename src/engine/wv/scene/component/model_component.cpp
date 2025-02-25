@@ -5,7 +5,7 @@
 #include <wv/graphics/graphics_device.h>
 
 #include <wv/mesh/mesh_resource.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/material/material.h>
 
 #include <wv/resource/resource_registry.h>

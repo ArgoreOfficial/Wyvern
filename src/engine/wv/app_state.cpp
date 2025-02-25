@@ -4,7 +4,7 @@
 #include <wv/Scene/Scene.h>
 
 #include <wv/reflection/reflection.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
 #include <wv/engine.h>
@@ -173,7 +173,7 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Scene* wv::ApplicationState::loadScene( FileSystem* _pFileSystem, const std::string& _path )
+wv::Scene* wv::ApplicationState::loadScene( IFileSystem* _pFileSystem, const std::string& _path )
 {
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Loading scene '%s'\n", _path.c_str() );
 

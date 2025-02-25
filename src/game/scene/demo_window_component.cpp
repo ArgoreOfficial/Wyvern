@@ -8,7 +8,7 @@
 #include <wv/scene/scene.h>
 #include <wv/scene/rigidbody.h>
 #include <wv/scene/model.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 
 #include <wv/scene/component/model_component.h>
 #include <wv/scene/component/rigid_body_component.h>

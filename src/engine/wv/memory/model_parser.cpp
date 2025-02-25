@@ -6,7 +6,7 @@
 #include <wv/graphics/graphics_device.h>
 #include <wv/mesh/mesh_resource.h>
 #include <wv/math/Triangle.h>
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 
 #include <wv/texture/texture_resource.h>
 #include <wv/Resource/resource_registry.h>
@@ -117,7 +117,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 	{
 		aiMaterial* assimpMaterial = _scene->mMaterials[ _assimp_mesh->mMaterialIndex ];
 
-		wv::FileSystem& md = *wv::Engine::get()->m_pFileSystem;
+		wv::IFileSystem& md = *wv::Engine::get()->m_pFileSystem;
 
 		std::string materialName = assimpMaterial->GetName().C_Str();
 
@@ -192,8 +192,6 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 		pJobSystem->submit( { job } );
 	}
-
-	wv::FileSystem filesystem;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -239,9 +237,9 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 wv::MeshNode* wv::Parser::load( const char* _path, wv::ResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_SUPPORT_ASSIMP
-	FileSystem md;
+	IFileSystem* md = Engine::get()->m_pFileSystem;
 	std::string path = std::string( _path );
-	Memory* meshMem = md.loadMemory( path );
+	Memory* meshMem = md->loadMemory( path );
 
 	if( !meshMem )
 		return nullptr;
@@ -249,7 +247,7 @@ wv::MeshNode* wv::Parser::load( const char* _path, wv::ResourceRegistry* _pResou
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFileFromMemory( meshMem->data, meshMem->size, aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals );
 
-	md.unloadMemory( meshMem );
+	md->unloadMemory( meshMem );
 
 	// TODO: change to wv::assert
 	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )

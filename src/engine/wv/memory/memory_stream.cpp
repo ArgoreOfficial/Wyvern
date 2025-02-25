@@ -1,6 +1,6 @@
 #include "memory_stream.h"
 
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
 #include <fstream>

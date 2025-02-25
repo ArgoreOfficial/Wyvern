@@ -7,8 +7,9 @@
 #include <wv/device/device_context.h>
 #include <wv/graphics/graphics_device.h>
 
-#include <wv/memory/file_system.h>
 #include <wv/memory/memory.h>
+#include <wv/filesystem/file_system.h>
+#include <noapi/noapi_file_system.h>
 
 #include <wv/scene/scene.h>
 
@@ -96,7 +97,7 @@ bool Sandbox::create( void )
 	engineDesc.device.pAudio = WV_NEW( wv::AudioDevice, nullptr );
 
 	// create modules
-	wv::FileSystem* fileSystem = WV_NEW( wv::FileSystem );
+	wv::IFileSystem* fileSystem = WV_NEW( wv::NoApFileSystem );
 
 	// set up load directories
 	fileSystem->addDirectory( "materials/" );

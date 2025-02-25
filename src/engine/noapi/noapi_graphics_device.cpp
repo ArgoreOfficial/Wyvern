@@ -7,7 +7,7 @@
 
 #include <wv/decl.h>
 
-#include <wv/memory/file_system.h>
+#include <wv/filesystem/file_system.h>
 
 #include <wv/graphics/mesh.h>
 #include <wv/graphics/render_target.h>
