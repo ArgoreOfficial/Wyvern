@@ -79,32 +79,24 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLo
 	_pFileSystem->unloadMemory( m_fsSource.data );
 	_pFileSystem->unloadMemory( m_vsSource.data );
 
-	if( m_pipelineID.is_valid() )
-	{
-		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+	if( !m_pipelineID.is_valid() )
+		return;
+
+	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
+	PipelineID id = m_pipelineID;
 		
-		struct PipelineIDData { PipelineID id; };
-		PipelineIDData* data = WV_NEW( PipelineIDData );
-		data->id = m_pipelineID;
-
-		Job::JobFunction_t fptr = []( void* _pUserData )
-			{
-				Engine* app = Engine::get();
-				PipelineIDData* data = (PipelineIDData*)_pUserData;
-
-				app->graphics->destroyPipeline( data->id );
-				WV_FREE( data );
-			};
+	Job::JobFunction_t fptr = [=]( void* )
+		{
+			_pLowLevelGraphics->destroyPipeline( id );
+		};
 		
-		Job* job = pJobSystem->createJob(
-			JobThreadType::kRENDER,
-			Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
-			nullptr,
-			fptr,
-			data );
+	Job* job = pJobSystem->createJob(
+		JobThreadType::kRENDER,
+		Engine::get()->m_pResourceRegistry->getResourceFence(), // ew
+		nullptr, fptr, nullptr );
 
-		pJobSystem->submit( { job } );
-	}
+	pJobSystem->submit( { job } );
+	
 }
 
 void wv::ShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )

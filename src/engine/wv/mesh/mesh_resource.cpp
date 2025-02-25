@@ -42,20 +42,19 @@ void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_p
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-static void unloadMeshNode( wv::MeshNode* _node )
+static void unloadMeshNode( wv::MeshNode* _node, wv::IGraphicsDevice* _pGraphicsDevice )
 {
-	wv::IGraphicsDevice* pLowLevelGraphics = wv::Engine::get()->graphics;
 	wv::ResourceRegistry* pResourceRegistry = wv::Engine::get()->m_pResourceRegistry;
 
 	for ( auto& meshID : _node->meshes )
 	{
-		wv::Mesh mesh = pLowLevelGraphics->m_meshes.at( meshID );
+		wv::Mesh mesh = _pGraphicsDevice->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
-		pLowLevelGraphics->destroyMesh( meshID );
+		_pGraphicsDevice->destroyMesh( meshID );
 	}
 	
 	for ( auto& child : _node->children )
-		unloadMeshNode( child );
+		unloadMeshNode( child, _pGraphicsDevice );
 	
 	WV_FREE( _node );
 }
@@ -65,13 +64,10 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 	if( m_pMeshNode )
 	{
 		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
-
-		Job::JobFunction_t fptr = []( void* _pUserData )
+		MeshNode*  pMeshNode  = m_pMeshNode; // lambdas can only capture local variables
+		Job::JobFunction_t fptr = [=]( void* _pUserData )
 			{
-				Engine* app = Engine::get();
-				MeshNode* _meshNode = (MeshNode*)_pUserData;
-
-				unloadMeshNode( _meshNode );
+				unloadMeshNode( pMeshNode, _pLowLevelGraphics );
 			};
 
 		Job* job = pJobSystem->createJob( 

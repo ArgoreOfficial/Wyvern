@@ -158,49 +158,37 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 	{ // create primitive
 
-		struct CreateMeshData
+		
+		wv::MeshID* outMesh;
+		wv::MeshDesc prDesc;
+		
 		{
-			wv::MeshID* outMesh;
-			wv::MeshDesc prDesc;
-		};
-
-		CreateMeshData* createMeshData = WV_NEW( CreateMeshData );
-		{
-			createMeshData->prDesc.pParentTransform = &_meshNode->transform;
+			prDesc.pParentTransform = &_meshNode->transform;
 
 			size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
-			createMeshData->prDesc.sizeVertices = sizeVertices;
+			prDesc.sizeVertices = sizeVertices;
 
-			createMeshData->prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
-			memcpy( createMeshData->prDesc.vertices, vertices.data(), sizeVertices );
+			prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
+			memcpy( prDesc.vertices, vertices.data(), sizeVertices );
 
-			createMeshData->prDesc.numIndices = indices.size();
-			createMeshData->prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
-			memcpy( createMeshData->prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
+			prDesc.numIndices = indices.size();
+			prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
+			memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
 
-			createMeshData->prDesc.pMaterial = material;
-			createMeshData->prDesc.deleteData = true;
+			prDesc.pMaterial = material;
+			prDesc.deleteData = true;
 
-			createMeshData->outMesh = _outMesh;
+			outMesh = _outMesh;
 		}
 
 		wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
 
-		wv::Job::JobFunction_t fptr = []( void* _pUserData )
+		wv::Job::JobFunction_t fptr = [=]( void* _pUserData )
 			{
-				wv::Engine* engine = wv::Engine::get();
-				CreateMeshData* data = (CreateMeshData*)_pUserData;
-
-				*data->outMesh = engine->graphics->createMesh( data->prDesc );
-				WV_FREE( data );
+				*outMesh = device->createMesh( prDesc );
 			};
 
-		wv::Job* job = pJobSystem->createJob( 
-			wv::JobThreadType::kRENDER, 
-			wv::Engine::get()->m_pResourceRegistry->getResourceFence(), 
-			nullptr, 
-			fptr, 
-			createMeshData );
+		wv::Job* job = pJobSystem->createJob( wv::JobThreadType::kRENDER, _pResourceRegistry->getResourceFence(), nullptr, fptr, nullptr );
 
 		pJobSystem->submit( { job } );
 	}
@@ -210,7 +198,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _meshNode, wv::IGraphicsDevice* _pLowLevelGraphics, wv::ResourceRegistry* _pResourceRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _meshNode, wv::IGraphicsDevice* _pGraphicsDevice, wv::ResourceRegistry* _pResourceRegistry )
 {
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
@@ -241,7 +229,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
 
-		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pLowLevelGraphics, _pResourceRegistry );
+		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pGraphicsDevice, _pResourceRegistry );
 	}
 }
 #endif

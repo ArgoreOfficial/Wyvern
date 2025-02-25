@@ -85,10 +85,10 @@ void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice*
 	{
 		JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
-		Job::JobFunction_t fptr = [&]( void* _pUserData )
+		TextureID id = m_textureID; // lambdas can only capture local variables
+		Job::JobFunction_t fptr = [=]( void* _pUserData )
 			{
-				Engine* app = Engine::get();
-				app->graphics->destroyTexture( m_textureID );
+				_pLowLevelGraphics->destroyTexture( id );
 			};
 
 		Job* job = pJobSystem->createJob(
