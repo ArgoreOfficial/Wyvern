@@ -79,15 +79,19 @@ wv::Engine::Engine( EngineDesc* _desc )
 	m_pApplicationState = _desc->pApplicationState;
 	m_pApplicationState->initialize();
 
+#ifdef WV_SUPPORT_PHYSICS
 	/// TODO: move to descriptor
 	m_pPhysicsEngine = WV_NEW( JoltPhysicsEngine );
 	m_pPhysicsEngine->init();
-	
+#endif
+
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
 	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
+	m_pFileSystem->initialize();
+
 	m_pResourceRegistry = WV_NEW( ResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
 
 	graphics->initEmbeds();
@@ -333,12 +337,14 @@ void wv::Engine::terminate()
 		m_pApplicationState = nullptr;
 	}
 
+#ifdef WV_SUPPORT_PHYSICS
 	if ( m_pPhysicsEngine )
 	{
 		m_pPhysicsEngine->terminate();
 		WV_FREE( m_pPhysicsEngine );
 		m_pPhysicsEngine = nullptr;
 	}
+#endif
 
 	if( audio )
 	{

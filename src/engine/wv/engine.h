@@ -120,8 +120,10 @@ namespace wv
 		IFileSystem*       m_pFileSystem       = nullptr;
 		ResourceRegistry*  m_pResourceRegistry = nullptr;
 	
+	#ifdef WV_SUPPORT_PHYSICS
 		JoltPhysicsEngine* m_pPhysicsEngine    = nullptr;
-		
+	#endif
+
 		JobSystem*          m_pJobSystem        = nullptr;
 		
 		struct FogParams

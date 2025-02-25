@@ -94,7 +94,7 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 	}
 }
 
-void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device*/ )
+void DemoWindowComponent::drawDemoWindow()
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::Begin( "Wyvern Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize );
@@ -114,8 +114,112 @@ void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphic
 
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
 	ImGui::Text( "Bytes Allocated: %i", wv::MemoryTracker::getTotalAllocationSize() );
-	ImGui::SameLine();
-
+	
 	ImGui::End();
 #endif
 }
+
+void DemoWindowComponent::drawBuildWindow()
+{
+#ifdef WV_SUPPORT_IMGUI
+
+	ImGui::SetNextItemWidth( 100.0f );
+	if( ImGui::BeginCombo( "##plat", mCurrentBuildPlatform ) )
+	{
+		for( int i = 0; i < mBuildPlatforms.size(); i++ )
+		{
+			bool is_selected = ( mCurrentBuildPlatform == mBuildPlatforms[ i ] );
+			
+			if( ImGui::Selectable( mBuildPlatforms[ i ], is_selected ) )
+				mCurrentBuildPlatform = mBuildPlatforms[ i ];
+			
+			if( is_selected )
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
+	ImGui::SetNextItemWidth( 100.0f );
+	if( ImGui::BeginCombo( "##mode", mCurrentBuildMode ) )
+	{
+		for( int i = 0; i < mBuildModes.size(); i++ )
+		{
+			bool is_selected = ( mCurrentBuildMode == mBuildModes[ i ] );
+
+			if( ImGui::Selectable( mBuildModes[ i ], is_selected ) )
+				mCurrentBuildMode = mBuildModes[ i ];
+
+			if( is_selected )
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+	
+	ImGui::BeginDisabled( mIsBuilding3DS );
+
+	if( ImGui::Button( "Build" ) )
+		buildPlatform();
+	
+	if( ImGui::Button( "Build & Run" ) )
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "3DS Run Unimplemented\n" );
+
+	ImGui::EndDisabled();
+#endif
+}
+
+void DemoWindowComponent::buildPlatform()
+{
+	if( mIsBuilding3DS )
+		return;
+
+	mIsBuilding3DS = true;
+
+	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+	wv::Job::JobFunction_t fptr = [&](void*)
+		{
+			wv::Debug::Print( "Launching xmake build\n" );
+
+			int platIdx = -1;
+			for( int i = 0; i < mBuildPlatforms.size(); i++ )
+				if( mCurrentBuildPlatform == mBuildPlatforms[ i ] )
+					platIdx = i;
+			
+			if( platIdx == -1 )
+			{
+				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "An error occured while creating build command\n" );
+				mIsBuilding3DS = false;
+				return;
+			}
+
+			std::string cmd = "cd ../../ && xmake f -c";
+			cmd.append( " -a" ); cmd.append( mBuildArchs[ platIdx ] );
+			cmd.append( " -p" ); cmd.append( mCurrentBuildPlatform );
+			cmd.append( " -m" ); cmd.append( mCurrentBuildMode );
+
+			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mBuildArchs[ platIdx ], mCurrentBuildMode );
+
+			std::system( cmd.c_str() );
+			int err = std::system( "cd ../../ && xmake" );
+			
+			if( err )
+				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
+			else
+				wv::Debug::Print( "Done!\n" );
+
+			mIsBuilding3DS = false;
+		};
+	wv::Job* job = pJobSystem->createJob(fptr);
+	pJobSystem->submit( { job } );
+}
+
+void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device*/ )
+{
+#ifdef WV_SUPPORT_IMGUI
+	drawDemoWindow();
+	
+	if( ImGui::BeginMainMenuBar() )
+		drawBuildWindow();
+	ImGui::EndMainMenuBar();
+#endif
+}
+

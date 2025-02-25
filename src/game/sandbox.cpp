@@ -98,7 +98,6 @@ bool Sandbox::create( void )
 
 	// create modules
 	wv::IFileSystem* fileSystem = WV_NEW( wv::NoAPIFileSystem );
-
 	// set up load directories
 	fileSystem->addDirectory( "materials/" );
 	fileSystem->addDirectory( "meshes/" );
