@@ -10,6 +10,7 @@
 
 #include <wv/texture/texture_resource.h>
 #include <wv/Resource/resource_registry.h>
+#include <wv/job/job_system.h>
 
 #include <auxiliary/json/json11.hpp>
 
@@ -125,7 +126,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 		if( md.getFullPath( materialName + ".wmat" ) == "" )
 		{
-			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. One \n", materialName.c_str() );
+			wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Material %s does not exist. Creating ne \n", materialName.c_str() );
 			// materialName = "DefaultMaterial";
 
 			aiString diffusePath;
@@ -145,7 +146,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 			};
 			
 
-			std::ofstream file( "materials/" + materialName + ".wmat" );
+			std::ofstream file( "../materials/" + materialName + ".wmat" );
 			file << newMaterial.dump();
 			file.close();
 
@@ -156,24 +157,40 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 	}
 
 	{ // create primitive
+
+		
+		wv::MeshID* outMesh;
 		wv::MeshDesc prDesc;
-		prDesc.pParentTransform = &_meshNode->transform;
+		
+		{
+			prDesc.pParentTransform = &_meshNode->transform;
 
-		size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
-		prDesc.sizeVertices = sizeVertices;
+			size_t sizeVertices = vertices.size() * sizeof( wv::Vertex );
+			prDesc.sizeVertices = sizeVertices;
 
-		prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
-		memcpy( prDesc.vertices, vertices.data(), sizeVertices );
+			prDesc.vertices = WV_NEW_ARR( uint8_t, sizeVertices );
+			memcpy( prDesc.vertices, vertices.data(), sizeVertices );
 
-		prDesc.numIndices = indices.size();
-		prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
-		memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
+			prDesc.numIndices = indices.size();
+			prDesc.pIndices32 = WV_NEW_ARR( uint32_t, indices.size() );
+			memcpy( prDesc.pIndices32, indices.data(), indices.size() * sizeof( uint32_t ) );
 
-		prDesc.pMaterial = material;
-		prDesc.deleteData = true;
+			prDesc.pMaterial = material;
+			prDesc.deleteData = true;
 
-		// buffer
-		*_outMesh = device->createMesh( prDesc );
+			outMesh = _outMesh;
+		}
+
+		wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+
+		wv::Job::JobFunction_t fptr = [=]( void* _pUserData )
+			{
+				*outMesh = device->createMesh( prDesc );
+			};
+
+		wv::Job* job = pJobSystem->createJob( wv::JobThreadType::kRENDER, fptr, _pResourceRegistry->getResourceFence() );
+
+		pJobSystem->submit( { job } );
 	}
 
 	wv::FileSystem filesystem;
@@ -181,7 +198,7 @@ void processAssimpMesh( aiMesh* _assimp_mesh, const aiScene* _scene, wv::MeshID*
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _meshNode, wv::IGraphicsDevice* _pLowLevelGraphics, wv::ResourceRegistry* _pResourceRegistry )
+void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _meshNode, wv::IGraphicsDevice* _pGraphicsDevice, wv::ResourceRegistry* _pResourceRegistry )
 {
 	aiVector3D pos, scale, rot;
 	_node->mTransformation.Decompose( scale, rot, pos );
@@ -197,7 +214,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 	_meshNode->transform.update( _meshNode->transform.pParent );
 
 	// process all the node's meshes (if any)
-	_meshNode->meshes.assign( _node->mNumMeshes, { 0 } );
+	_meshNode->meshes.assign( _node->mNumMeshes, {} );
 	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
 		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
@@ -212,7 +229,7 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 		_meshNode->transform.addChild( &meshNode->transform );
 		_meshNode->children.push_back( meshNode );
 
-		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pLowLevelGraphics, _pResourceRegistry );
+		processAssimpNode( _node->mChildren[ i ], _scene, meshNode, _pGraphicsDevice, _pResourceRegistry );
 	}
 }
 #endif

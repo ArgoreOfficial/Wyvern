@@ -85,7 +85,7 @@ wv::Engine::Engine( EngineDesc* _desc )
 	
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
-	m_pJobSystem->initialize( wv::Math::max( 0, - 1 ) );
+	m_pJobSystem->initialize( wv::Math::max( 0, concurrency - 1 ) );
 
 	m_pFileSystem = _desc->systems.pFileSystem;
 	m_pResourceRegistry = WV_NEW( ResourceRegistry, m_pFileSystem, graphics, m_pJobSystem );
@@ -298,8 +298,6 @@ void wv::Engine::run()
 
 void wv::Engine::terminate()
 {
-	graphics->executeCreateQueue();
-
 	currentCamera = nullptr;
 	
 	if( orbitCamera )
@@ -355,13 +353,6 @@ void wv::Engine::terminate()
 		context = nullptr;
 	}
 	
-	if( graphics )
-	{
-		graphics->terminate();
-		WV_FREE( graphics );
-		graphics = nullptr;
-	}
-
 	if( m_pResourceRegistry )
 	{
 		WV_FREE( m_pResourceRegistry );
@@ -381,6 +372,12 @@ void wv::Engine::terminate()
 		m_pFileSystem = nullptr;
 	}
 
+	if( graphics )
+	{
+		graphics->terminate();
+		WV_FREE( graphics );
+		graphics = nullptr;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +446,7 @@ void wv::Engine::tick()
 
 	/// ------------------ render ------------------ ///	
 
-#ifndef WV_PLATFORM_PSVITA
+#ifdef WV_PLATFORM_WINDOWS
 	if( !m_gbuffer.is_valid() )
 		return;
 #endif
@@ -460,10 +457,10 @@ void wv::Engine::tick()
 			return;
 	}
 
-#ifdef WV_PLATFORM_PSVITA
-	graphics->cmdBeginRender( {}, {} );
-#else
+#ifdef WV_PLATFORM_WINDOWS
 	graphics->cmdBeginRender( {}, m_gbuffer );
+#else
+	graphics->cmdBeginRender( {}, {} );
 #endif
 
 	graphics->beginRender();
@@ -488,7 +485,7 @@ void wv::Engine::tick()
 	#endif
 	}
 
-#ifndef WV_PLATFORM_PSVITA
+#ifdef WV_PLATFORM_WINDOWS
 	graphics->cmdBeginRender( {}, m_screenRenderTarget );
 	
 	graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
@@ -617,9 +614,6 @@ void wv::Engine::createGBuffer()
 #endif
 
 	m_gbuffer = graphics->createRenderTarget( rtDesc );
-	graphics->executeCreateQueue();
-
-
 }
 
 void wv::Engine::recreateScreenRenderTarget( int _width, int _height )

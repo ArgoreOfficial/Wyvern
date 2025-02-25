@@ -24,19 +24,19 @@ namespace wv
 			IResource( _name, _path )
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 		
-		void bind( IGraphicsDevice* _pLowLevelGraphics );
+		void bind( IGraphicsDevice* _pGraphicsDevice );
 
-		PipelineID  getPipelineID() { return m_pipelineID; }
+		PipelineID  getPipelineID() { return mPipelineID; }
 		GPUBufferID getShaderBuffer( const std::string& _name );
 
-		ShaderProgramSource m_fsSource{};
-		ShaderProgramSource m_vsSource{};
+		ShaderProgramSource mFragSource{};
+		ShaderProgramSource mVertSource{};
 
 	private:
-		PipelineID m_pipelineID{};
+		PipelineID mPipelineID{};
 
 	};
 

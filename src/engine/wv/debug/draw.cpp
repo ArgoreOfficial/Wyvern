@@ -15,7 +15,7 @@ wv::MeshNode* wv::Debug::Draw::Internal::CUBE_MESH   = nullptr;
 std::vector<wv::Debug::Draw::Internal::Sphere> wv::Debug::Draw::Internal::spheres{};
 std::vector<wv::Transformf> wv::Debug::Draw::Internal::cubes{};
 
-void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, ResourceRegistry* _pResourceRegistry )
+void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pGraphicsDevice, ResourceRegistry* _pResourceRegistry )
 {
 #ifdef WV_PLATFORM_PSVITA
 	return;
@@ -27,18 +27,18 @@ void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pLowLevelGraphi
 
 }
 
-void wv::Debug::Draw::Internal::deinitDebugDraw( IGraphicsDevice* _pLowLevelGraphics )
+void wv::Debug::Draw::Internal::deinitDebugDraw( IGraphicsDevice* _pGraphicsDevice )
 {
 	if( CUBE_MESH )
 	{
-		_pLowLevelGraphics->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pGraphicsDevice->destroyMesh( CUBE_MESH->children[ 0 ]->meshes[ 0 ] );
 		WV_FREE( CUBE_MESH->children[ 0 ] );
 		WV_FREE( CUBE_MESH );
 	}
 	
 	if( SPHERE_MESH )
 	{
-		_pLowLevelGraphics->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
+		_pGraphicsDevice->destroyMesh( SPHERE_MESH->children[ 0 ]->meshes[ 0 ] );
 		WV_FREE( SPHERE_MESH->children[ 0 ] );
 		WV_FREE( SPHERE_MESH );
 	}
@@ -46,7 +46,7 @@ void wv::Debug::Draw::Internal::deinitDebugDraw( IGraphicsDevice* _pLowLevelGrap
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Debug::Draw::Internal::drawDebug( IGraphicsDevice* _pLowLevelGraphics )
+void wv::Debug::Draw::Internal::drawDebug( IGraphicsDevice* _pGraphicsDevice )
 {
 	if( SPHERE_MESH )
 	{
@@ -56,7 +56,7 @@ void wv::Debug::Draw::Internal::drawDebug( IGraphicsDevice* _pLowLevelGraphics )
 			SPHERE_MESH->transform.scale = wv::Vector3f{ spheres[ i ].radius };
 			SPHERE_MESH->transform.update( nullptr );
 			
-			// _pLowLevelGraphics->drawNode( SPHERE_MESH );
+			// _pGraphicsDevice->drawNode( SPHERE_MESH );
 		}
 	}
 

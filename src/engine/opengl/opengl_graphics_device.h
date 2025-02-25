@@ -45,29 +45,29 @@ namespace wv
 		virtual void bindBufferIndex  ( GPUBufferID _bufferID, int32_t _bindingIndex ) override;
 		virtual void bufferSubData    ( GPUBufferID _bufferID, void* _pData, size_t _size, size_t _base ) override;
 		
-		virtual void _bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
+		virtual void bufferTextureData( TextureID _textureID, void* _pData, bool _generateMipMaps ) override;
 		virtual void bindTextureToSlot( TextureID _textureID, unsigned int _slot )                  override;
 
 		virtual void setFillMode( FillMode _mode ) override;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		virtual RenderTargetID _createRenderTarget( RenderTargetID _renderTargetID, const RenderTargetDesc& _desc ) override;
-		virtual void           _destroyRenderTarget( RenderTargetID _renderTargetID )                                override;
+		virtual RenderTargetID createRenderTarget( const RenderTargetDesc& _desc )   override;
+		virtual void           destroyRenderTarget( RenderTargetID _renderTargetID ) override;
 		
-		virtual ShaderModuleID  _createShaderModule( ShaderModuleID _programID, const ShaderModuleDesc& _desc ) override;
-		virtual void       _destroyShaderModule( ShaderModuleID _programID )                           override;
+		virtual ShaderModuleID  createShaderModule ( const ShaderModuleDesc& _desc ) override;
+		virtual void            destroyShaderModule( ShaderModuleID _programID )     override;
 		
-		virtual PipelineID _createPipeline( PipelineID _pipelineID, const PipelineDesc& _desc ) override;
-		virtual void       _destroyPipeline( PipelineID _pipelineID )                            override;
+		virtual PipelineID createPipeline ( const PipelineDesc& _desc ) override;
+		virtual void       destroyPipeline( PipelineID _pipelineID )    override;
 		
-		virtual GPUBufferID _createGPUBuffer( GPUBufferID _bufferID, const GPUBufferDesc& _desc ) override;
-		virtual void        _destroyGPUBuffer( GPUBufferID _bufferID )                             override;
+		virtual GPUBufferID createGPUBuffer ( const GPUBufferDesc& _desc ) override;
+		virtual void        destroyGPUBuffer( GPUBufferID _bufferID )      override;
 
-		virtual TextureID _createTexture( TextureID _textureID, const TextureDesc& _desc ) override;
-		virtual void      _destroyTexture( TextureID _textureID )                           override;
+		virtual TextureID createTexture ( const TextureDesc& _desc ) override;
+		virtual void      destroyTexture( TextureID _textureID )     override;
 
-		virtual bool initialize( LowLevelGraphicsDesc* _desc ) override;
+		virtual bool initialize( GraphicsDeviceDesc* _desc ) override;
 
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );
@@ -101,65 +101,75 @@ namespace wv
 
 		void cmdImageClearColor( 
 			CmdBufferID _cmd, 
-			TextureID _image, 
-			float _r, 
-			float _g, 
-			float _b, 
-			float _a ) override;
+			TextureID   _image, 
+			float       _r, 
+			float       _g, 
+			float       _b, 
+			float       _a ) override;
 
 		void cmdClearDepthStencil( 
 			CmdBufferID _cmd, 
-			double _depth, 
-			uint32_t _stencil ) override;
+			double      _depth, 
+			uint32_t    _stencil ) override;
 
 		void cmdImageClearDepthStencil( 
 			CmdBufferID _cmd, 
-			TextureID _image, 
-			double _depth, 
-			uint32_t _stencil ) override;
+			TextureID   _image, 
+			double      _depth, 
+			uint32_t    _stencil ) override;
 		
 		void cmdBindPipeline( 
 			CmdBufferID _cmd, 
-			PipelineID _pipeline ) override;
+			PipelineID  _pipeline ) override;
 
 		void cmdImageBlit( 
 			CmdBufferID _cmd, 
-			TextureID _src, 
-			TextureID _dst ) override;
+			TextureID   _src, 
+			TextureID   _dst ) override;
 		
 		void cmdDispatch( 
 			CmdBufferID _cmd, 
-			uint32_t _numGroupsX, 
-			uint32_t _numGroupsY, 
-			uint32_t _numGroupsZ ) override;
+			uint32_t  _numGroupsX, 
+			uint32_t  _numGroupsY, 
+			uint32_t  _numGroupsZ ) override;
 
 		void cmdViewport( 
 			CmdBufferID _cmd, 
-			uint32_t _x, 
-			uint32_t _y, 
-			uint32_t _width, 
-			uint32_t _height ) override;
+			uint32_t  _x, 
+			uint32_t  _y, 
+			uint32_t  _width, 
+			uint32_t  _height ) override;
 
 		void cmdCopyBuffer( 
 			CmdBufferID _cmd, 
 			GPUBufferID _src, 
 			GPUBufferID _dst, 
-			size_t _srcOffset, 
-			size_t _dstOffset, 
-			size_t _size ) override;
+			size_t      _srcOffset, 
+			size_t      _dstOffset, 
+			size_t      _size ) override;
 
 		void cmdBindVertexBuffer( 
 			CmdBufferID _cmd, 
 			GPUBufferID _vertexBuffer ) override;
 
 		void cmdBindIndexBuffer( 
-			CmdBufferID _cmd, 
-			GPUBufferID _indexBuffer, 
-			size_t _offset, 
+			CmdBufferID  _cmd, 
+			GPUBufferID  _indexBuffer, 
+			size_t       _offset, 
 			wv::DataType _type ) override;
 
-		void cmdUpdateBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _size, void* _pData ) override;
-		void cmdUpdateSubBuffer( CmdBufferID _cmd, GPUBufferID _buffer, size_t _offset, size_t _size, void* _pData ) override;
+		void cmdUpdateBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _buffer, 
+			size_t      _size, 
+			void*       _pData ) override;
+
+		void cmdUpdateSubBuffer( 
+			CmdBufferID _cmd, 
+			GPUBufferID _buffer, 
+			size_t      _offset, 
+			size_t      _size, 
+			void*       _pData ) override;
 		
 		void cmdDraw( 
 			CmdBufferID _cmd, 

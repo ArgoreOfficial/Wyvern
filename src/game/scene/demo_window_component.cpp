@@ -23,13 +23,17 @@ void DemoWindowComponent::spawnBalls()
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
+	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsSphereDesc* sphereDesc = WV_NEW( wv::PhysicsSphereDesc );
 		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		sphereDesc->radius = 0.5f;
+	#else
+		wv::PhysicsSphereDesc* sphereDesc = nullptr;
+	#endif
 
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
-		rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+		rb->addComponent<wv::ModelComponent>( "meshes/ant.dae" );
 		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
@@ -42,9 +46,13 @@ void DemoWindowComponent::spawnCubes()
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
+	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+	#else
+		wv::PhysicsBoxDesc* boxDesc = nullptr;
+	#endif
 
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
@@ -66,9 +74,13 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 		{
 			for( int z = -_halfZ; z < _halfZ; z++ )
 			{
+			#ifdef WV_SUPPORT_PHYSICS
 				wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
 				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
+			#else
+				wv::PhysicsBoxDesc* boxDesc = nullptr;
+			#endif
 
 				wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
@@ -101,6 +113,7 @@ void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphic
 		spawnBlock( 5, m_numToSpawn / 2, 5 );
 
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
+	ImGui::Text( "Bytes Allocated: %i", wv::MemoryTracker::getTotalAllocationSize() );
 	ImGui::SameLine();
 
 	ImGui::End();

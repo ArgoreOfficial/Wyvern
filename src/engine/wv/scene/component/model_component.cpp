@@ -24,16 +24,11 @@ void wv::ModelComponent::onConstruct( void )
 		m_meshPath = "meshes/cube.dae";
 	}
 
-	m_mesh = app->m_pResourceRegistry->load<MeshResource>( m_meshPath )->createInstance();
-	getParent()->m_transform.addChild(&m_mesh.transform);
+	app->m_pResourceRegistry->load<MeshResource>( m_meshPath )->makeInstance( &m_mesh );
+	getParent()->m_transform.addChild( &m_mesh.transform );
 }
 
 void wv::ModelComponent::onDestruct( void )
 {
 	m_mesh.destroy();
-}
-
-void wv::ModelComponent::onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device )
-{
-	m_mesh.draw();
 }

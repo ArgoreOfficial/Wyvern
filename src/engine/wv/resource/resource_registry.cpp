@@ -3,7 +3,9 @@
 #include <wv/material/material.h>
 #include <wv/debug/log.h>
 #include <wv/resource/resource.h>
+#include <wv/renderer/mesh_renderer.h>
 #include <wv/mesh/mesh_resource.h>
+
 #include <vector>
 
 wv::ResourceRegistry::~ResourceRegistry()
@@ -31,8 +33,9 @@ wv::ResourceRegistry::~ResourceRegistry()
 
 void wv::ResourceRegistry::drawMeshInstances()
 {
+	IMeshRenderer meshRenderer{ m_pGraphicsDevice };
 	for ( auto& meshRes : m_meshes )
-		meshRes->drawInstances( m_pLowLevelGraphics );
+		meshRenderer.drawMesh( meshRes );
 }
 
 wv::IResource* wv::ResourceRegistry::getLoadedResource( const std::string& _name )

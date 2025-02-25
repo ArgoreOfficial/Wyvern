@@ -54,9 +54,6 @@ namespace wv
 		wv::Handle textureObjectHandle = 0; // opengl specific
 		uint64_t textureHandle = 0; // opengl specific
 		
-		uint8_t* pData = nullptr;
-		unsigned int dataSize = 0;
-
 		int width  = 0;
 		int height = 0;
 		int numChannels = 0;

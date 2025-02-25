@@ -13,6 +13,15 @@
 		_class& operator=( _class && )     = delete; \
 	private:
 
+#ifdef _MSC_VER
+#define WV_NOVTABLE __declspec( novtable )
+#else
+#define WV_NOVTABLE
+#endif
+
+#define abstract_class class WV_NOVTABLE
+#define abstract_struct struct WV_NOVTABLE
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // to avoid int -> void* warnings

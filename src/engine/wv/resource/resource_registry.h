@@ -23,9 +23,9 @@ namespace wv
 	class ResourceRegistry
 	{
 	public:
-		ResourceRegistry( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics, JobSystem* _pJobSystem ):
+		ResourceRegistry( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice, JobSystem* _pJobSystem ):
 			m_pFileSystem{ _pFileSystem },
-			m_pLowLevelGraphics{ _pLowLevelGraphics },
+			m_pGraphicsDevice{ _pGraphicsDevice },
 			m_pJobSystem{ _pJobSystem }
 		{
 			m_resourceFence = _pJobSystem->createFence();
@@ -35,14 +35,14 @@ namespace wv
 
 		struct LoadData
 		{
-			LoadData( IResource* _resource, wv::FileSystem* _pFileSystem, wv::IGraphicsDevice* _pLowLevelGraphics ) : 
+			LoadData( IResource* _resource, wv::FileSystem* _pFileSystem, wv::IGraphicsDevice* _pGraphicsDevice ) : 
 				resource{ _resource },
 				pFileSystem{ _pFileSystem },
-				pLowLevelGraphics{ _pLowLevelGraphics }
+				pGraphicsDevice{ _pGraphicsDevice }
 			{}
 			IResource* resource = nullptr;
 			wv::FileSystem* pFileSystem = nullptr;
-			wv::IGraphicsDevice* pLowLevelGraphics = nullptr;
+			wv::IGraphicsDevice* pGraphicsDevice = nullptr;
 		};
 
 		template<typename T, typename...Args, std::enable_if_t<std::is_base_of_v<wv::IResource, T>, bool> = true>
@@ -63,13 +63,13 @@ namespace wv
 					{
 						LoadData* loadData = (LoadData*)_pData;
 
-						loadData->resource->load( loadData->pFileSystem, loadData->pLowLevelGraphics );
+						loadData->resource->load( loadData->pFileSystem, loadData->pGraphicsDevice );
 						WV_FREE( loadData );
 					};
 
 				JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
-				LoadData* loadData = WV_NEW( LoadData, res, m_pFileSystem, m_pLowLevelGraphics );
-				Job* job = pJobSystem->createJob( m_resourceFence, nullptr, fptr, loadData );
+				LoadData* loadData = WV_NEW( LoadData, res, m_pFileSystem, m_pGraphicsDevice );
+				Job* job = pJobSystem->createJob( fptr, m_resourceFence, nullptr, loadData );
 				pJobSystem->submit( { job } );
 
 				addResource( res );
@@ -90,7 +90,7 @@ namespace wv
 
 			if( _res->getNumUsers() == 0 )
 			{
-				_res->unload( m_pFileSystem, m_pLowLevelGraphics );
+				_res->unload( m_pFileSystem, m_pGraphicsDevice );
 				removeResource( _res->getName() );
 			}
 		}
@@ -113,6 +113,10 @@ namespace wv
 			return m_resources.size();
 		}
 
+		wv::Fence* getResourceFence() {
+			return m_resourceFence;
+		}
+		
 	protected:
 
 		template<typename T> 
@@ -124,7 +128,7 @@ namespace wv
 		void removeResource( const std::string& _name );
 
 		FileSystem* m_pFileSystem{ nullptr };
-		IGraphicsDevice* m_pLowLevelGraphics{ nullptr };
+		IGraphicsDevice* m_pGraphicsDevice{ nullptr };
 		JobSystem* m_pJobSystem{ nullptr };
 
 		std::unordered_map<std::string, IResource*> m_resources{};

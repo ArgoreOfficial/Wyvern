@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if ( m_path == "" )
 		m_path = m_name + ".wmat";
@@ -63,7 +63,7 @@ void wv::Material::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGr
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Material::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::Material::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
 

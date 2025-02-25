@@ -36,9 +36,9 @@ namespace wv
 				extern std::vector<Sphere> spheres;
 				extern std::vector<Transformf> cubes;
 
-				void initDebugDraw( IGraphicsDevice* _pLowLevelGraphics, ResourceRegistry* _pResourceRegistry );
-				void deinitDebugDraw( IGraphicsDevice* _pLowLevelGraphics );
-				void drawDebug( IGraphicsDevice* _pLowLevelGraphics );
+				void initDebugDraw( IGraphicsDevice* _pGraphicsDevice, ResourceRegistry* _pResourceRegistry );
+				void deinitDebugDraw( IGraphicsDevice* _pGraphicsDevice );
+				void drawDebug( IGraphicsDevice* _pGraphicsDevice );
 			}
 
 	///////////////////////////////////////////////////////////////////////////////////////

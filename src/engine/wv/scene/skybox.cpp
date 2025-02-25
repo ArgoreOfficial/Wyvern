@@ -56,7 +56,9 @@ void wv::SkyboxObject::onConstructImpl()
 {
 	wv::Engine* app = wv::Engine::get();
 	
-	m_mesh = app->m_pResourceRegistry->load<MeshResource>( "meshes/skysphere.glb" )->createInstance();
+	MeshResource* skysphere = app->m_pResourceRegistry->load<MeshResource>( "meshes/skysphere.glb" );
+	skysphere->makeInstance( &m_mesh );
+
 	m_transform.addChild( &m_mesh.transform );
 }
 

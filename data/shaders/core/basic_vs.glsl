@@ -7,7 +7,8 @@
 
 struct sInstance
 {
-    mat4x4 Model;
+    mat4x4 NodeModel;
+    mat4x4 ModelModel;
     uvec2 TextureHandles[ 4 ];
     int HasAlpha;
     int padding0[3];
@@ -91,7 +92,7 @@ void main()
 
     vec3 localPos = getPosition( gl_VertexID );
 
-    mat4x4 model = u_instances[ instanceID ].Model;
+    mat4x4 model = u_instances[ instanceID ].ModelModel * u_instances[ instanceID ].NodeModel;
     Albedo = getAlbedoSampler( instanceID );
     HasAlpha = u_instances[ instanceID ].HasAlpha;
     

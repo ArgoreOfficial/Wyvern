@@ -19,15 +19,22 @@ namespace wv
 			m_filtering{ _filtering }
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+
+		size_t getDataSize() {
+			return m_width * m_height * m_numChannels;
+		}
 
 		TextureID m_textureID;
 	private:
 
 		TextureFiltering m_filtering;
 		uint8_t* m_pData = nullptr;
-		size_t m_dataSize = 0;
+		
+		int m_width = 0;
+		int m_height = 0;
+		int m_numChannels = 0;
 	};
 
 }

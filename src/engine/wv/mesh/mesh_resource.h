@@ -43,28 +43,24 @@ namespace wv
 			IResource( _name, _path )
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 
-		MeshInstance createInstance();
-		void destroyInstance( MeshInstance& _instance );
+		void makeInstance( MeshInstance* _instance );
+		void removeInstance( MeshInstance* _instance );
 
-		std::vector<Transformf>& getDrawQueue() { return m_drawQueue; }
-		
-		void addToDrawQueue( MeshInstance& _instance );
-
-		void drawInstances( IGraphicsDevice* _pLowLevelGraphics );
+		MeshNode*                   getMeshNode ( void ) { return m_pMeshNode; }
+		std::vector<MeshInstance*>& getInstances( void ) { return m_instances; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		bool m_useGPUInstancing = false;
 
 	private:
-		void drawNode( IGraphicsDevice* _pLowLevelGraphics, MeshNode* _node );
-
 		std::mutex m_mutex{};
+
 		MeshNode* m_pMeshNode = nullptr;
-		std::vector<Transformf> m_drawQueue;
+		std::vector<MeshInstance*> m_instances;
 	};
 
 

@@ -39,13 +39,26 @@ function after_link(_target)
 
     local namepath = _target:targetdir() .. "/" .. _target:basename()
 
-    os.vrunv( path.join( DEVKITARM, "bin/arm-none-eabi-gcc-nm" ), { 
-        "-CSn", namepath .. ".elf"
-        }, {stdout = namepath .. ".lst"} )
+    os.vrunv( 
+        path.join( DEVKITARM, "bin/arm-none-eabi-gcc-nm" ), 
+        { "-CSn", namepath .. ".elf" }, 
+        { stdout = namepath .. ".lst" } )
+    
+    os.vrunv( 
+        "tools/3ds/bannertool",  -- fix
+        { 
+            "makesmdh", 
+            "-s", _target:basename(),
+            "-l", _target:basename(),
+            "-p", "Argore",
+            "-i", "resources/icon48.png",
+            "-o", namepath .. ".smdh"
+        } )
 
-    os.vrunv( path.join( DEVKITPRO, "tools/bin/3dsxtool" ), { 
+        os.vrunv( path.join( DEVKITPRO, "tools/bin/3dsxtool" ), { 
         namepath .. ".elf",
         namepath .. ".3dsx",
-        -- "--smdh=/d/dev/3ds/3ds.smdh"
+        "--smdh=" .. namepath .. ".smdh",
+        "--romfs=data"
         })
 end
