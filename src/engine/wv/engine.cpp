@@ -356,6 +356,7 @@ void wv::Engine::terminate()
 	
 	if( m_pResourceRegistry )
 	{
+		m_pResourceRegistry->waitForFence();
 		WV_FREE( m_pResourceRegistry );
 		m_pResourceRegistry = nullptr;
 	}

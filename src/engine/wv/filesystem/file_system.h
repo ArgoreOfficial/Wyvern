@@ -47,9 +47,7 @@ namespace wv
 		void unloadMemory( Memory* _memory );
 
 		std::string loadString( const std::string& _path );
-
 		bool fileExists( const std::string& _path );
-		
 		std::string getFullPath( const std::string& _fileName );
 		
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -61,8 +59,6 @@ namespace wv
 		virtual void     closeFile( FileID& _file ) = 0;
 
 	private:
-		std::mutex m_mutex;
-		std::vector<Memory*> m_loadedMemory;
 		std::vector<std::string> m_directories;
 	};
 

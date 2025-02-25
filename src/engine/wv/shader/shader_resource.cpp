@@ -68,7 +68,7 @@ void wv::ShaderResource::load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGra
 			setComplete( true );
 		};
 
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
 	pJobSystem->submit( { job } );
 }
 

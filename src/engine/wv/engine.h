@@ -117,7 +117,7 @@ namespace wv
 		ApplicationState* m_pApplicationState = nullptr;
 
 		// modules
-		IFileSystem*        m_pFileSystem       = nullptr;
+		IFileSystem*       m_pFileSystem       = nullptr;
 		ResourceRegistry*  m_pResourceRegistry = nullptr;
 	
 		JoltPhysicsEngine* m_pPhysicsEngine    = nullptr;

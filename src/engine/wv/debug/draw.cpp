@@ -22,7 +22,8 @@ void wv::Debug::Draw::Internal::initDebugDraw( IGraphicsDevice* _pGraphicsDevice
 #endif
 	wv::Parser parser;
 
-	CUBE_MESH = parser.load( "meshes/DebugCube.dae", _pResourceRegistry );
+	/// TODO: don't load meshes from file, keep embedded
+	CUBE_MESH   = parser.load( "meshes/DebugCube.dae", _pResourceRegistry );
 	SPHERE_MESH = parser.load( "meshes/DebugCube.dae", _pResourceRegistry );
 
 }

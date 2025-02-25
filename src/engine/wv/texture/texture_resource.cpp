@@ -69,7 +69,7 @@ void wv::TextureResource::load( IFileSystem* _pFileSystem, IGraphicsDevice* _pGr
 			setComplete( true );
 		};
 
-	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr );
+	Job* job = pJobSystem->createJob( JobThreadType::kRENDER, fptr, Engine::get()->m_pResourceRegistry->getResourceFence() );
 	pJobSystem->submit( { job } );
 }
 

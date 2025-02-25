@@ -50,12 +50,7 @@ wv::IFileSystem::IFileSystem()
 
 wv::IFileSystem::~IFileSystem()
 {
-	if ( m_loadedMemory.size() > 0 )
-	{
-		Debug::Print( Debug::WV_PRINT_WARN, "Non-Empty IFileSystem destroyed. This may cause memory leaks\n" );
-		while ( m_loadedMemory.size() > 0 )
-			unloadMemory( m_loadedMemory.front() );
-	}
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -66,8 +61,6 @@ wv::IFileSystem::~IFileSystem()
 
 wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
 {
-	std::scoped_lock lock( m_mutex );
-
 	std::string path = getFullPath( _path );
 	if( path == "" )
 		return nullptr;
@@ -81,8 +74,6 @@ wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
 	Memory* mem = WV_NEW( Memory );
 	mem->data = WV_NEW_ARR( unsigned char, size );
 	mem->size = static_cast<unsigned int>( size );
-
-	m_loadedMemory.push_back( mem );
 
 	readFile( file, mem->data, size );
 	closeFile( file );
@@ -106,17 +97,6 @@ void wv::IFileSystem::unloadMemory( Memory* _memory )
 {
 	if ( !_memory )
 		return;
-
-	std::scoped_lock lock( m_mutex );
-
-	for ( size_t i = 0; i < m_loadedMemory.size(); i++ )
-	{
-		if ( m_loadedMemory[ i ] != _memory )
-			continue;
-
-		m_loadedMemory.erase( m_loadedMemory.begin() + i );
-		break;
-	}
 
 	WV_FREE_ARR( _memory->data );
 	*_memory = {};
