@@ -99,12 +99,11 @@ bool Sandbox::create( void )
 	wv::FileSystem* fileSystem = WV_NEW( wv::FileSystem );
 
 	// set up load directories
-	fileSystem->addDirectory( "../" );
-	fileSystem->addDirectory( "../materials/" );
-	fileSystem->addDirectory( "../meshes/" );
-	fileSystem->addDirectory( "../shaders/user/" );
-	fileSystem->addDirectory( "../shaders/core/" );
-	fileSystem->addDirectory( "../textures/" );
+	fileSystem->addDirectory( "materials/" );
+	fileSystem->addDirectory( "meshes/" );
+	fileSystem->addDirectory( "shaders/user/" );
+	fileSystem->addDirectory( "shaders/core/" );
+	fileSystem->addDirectory( "textures/" );
 
 	engineDesc.systems.pFileSystem = fileSystem;
 	

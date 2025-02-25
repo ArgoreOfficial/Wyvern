@@ -125,8 +125,7 @@ void wv::FileSystem::unloadMemory( Memory* _memory )
 
 std::string wv::FileSystem::loadString( const std::string& _path )
 {
-	std::string path = getFullPath( _path );
-	Memory* mem = loadMemory( path );
+	Memory* mem = loadMemory( _path );
 
 	if ( !mem )
 		return "";
@@ -152,14 +151,29 @@ bool wv::FileSystem::fileExists( const std::string& _path )
 
 std::string wv::FileSystem::getFullPath( const std::string& _fileName )
 {
+	if( fileExists( _fileName ) )
+		return _fileName;
+	
 	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{
-		std::string path = m_directories[ i ];
+		std::string path = "";
+	#ifdef WV_PLATFORM_3DS
+		path.append( "data:/" );
+	#elif defined( WV_PLATFORM_WINDOWS )
+		path.append( "../../data/" );
+	#endif
+		path.append( m_directories[ i ] );
 		path.append( _fileName );
 
-		if ( fileExists( path ) )
+		if( fileExists( path ) )
+		{
+			Debug::Print( Debug::WV_PRINT_DEBUG, "Checking '%s' [yes]\n", path.c_str() );
 			return path;
+		}
+
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Checking '%s' [no]\n", path.c_str() );
 	}
+
 
 	return "";
 }
