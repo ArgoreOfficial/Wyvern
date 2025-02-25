@@ -10,7 +10,7 @@
 #include <wv/job/job_system.h>
 #include <wv/resource/resource_registry.h>
 
-void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 	
@@ -72,7 +72,7 @@ void wv::ShaderResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 	pJobSystem->submit( { job } );
 }
 
-void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	setComplete( false );
 
@@ -87,7 +87,7 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLo
 		
 	Job::JobFunction_t fptr = [=]( void* )
 		{
-			_pLowLevelGraphics->destroyPipeline( id );
+			_pGraphicsDevice->destroyPipeline( id );
 		};
 		
 	Job* job = pJobSystem->createJob(
@@ -99,12 +99,12 @@ void wv::ShaderResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLo
 	
 }
 
-void wv::ShaderResource::bind( IGraphicsDevice* _pLowLevelGraphics )
+void wv::ShaderResource::bind( IGraphicsDevice* _pGraphicsDevice )
 {
 	if ( !m_pipelineID.is_valid() )
 		return;
 
-	_pLowLevelGraphics->cmdBindPipeline( {}, m_pipelineID );
+	_pGraphicsDevice->cmdBindPipeline( {}, m_pipelineID );
 }
 
 wv::GPUBufferID wv::ShaderResource::getShaderBuffer( const std::string& _name )

@@ -29,7 +29,7 @@ wv::NoAPIGraphicsDevice::NoAPIGraphicsDevice()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::NoAPIGraphicsDevice::initialize( LowLevelGraphicsDesc* _desc )
+bool wv::NoAPIGraphicsDevice::initialize( GraphicsDeviceDesc* _desc )
 {
 	WV_TRACE();
 

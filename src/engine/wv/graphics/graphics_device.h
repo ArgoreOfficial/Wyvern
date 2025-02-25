@@ -35,7 +35,7 @@ class Material;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-struct LowLevelGraphicsDesc
+struct GraphicsDeviceDesc
 {
 	GraphicsDriverLoadProc loadProc;
 	IDeviceContext* pContext;
@@ -58,7 +58,7 @@ public:
 
 	virtual ~IGraphicsDevice() { };
 
-	static IGraphicsDevice* createGraphics( LowLevelGraphicsDesc* _desc );
+	static IGraphicsDevice* createGraphics( GraphicsDeviceDesc* _desc );
 
 	void initEmbeds();
 
@@ -241,7 +241,7 @@ protected:
 	
 	IGraphicsDevice();
 
-	virtual bool initialize( LowLevelGraphicsDesc* _desc ) = 0;
+	virtual bool initialize( GraphicsDeviceDesc* _desc ) = 0;
 
 	std::thread::id m_threadID;
 

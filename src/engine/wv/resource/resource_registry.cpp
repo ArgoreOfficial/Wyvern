@@ -33,7 +33,7 @@ wv::ResourceRegistry::~ResourceRegistry()
 
 void wv::ResourceRegistry::drawMeshInstances()
 {
-	IMeshRenderer meshRenderer{ m_pLowLevelGraphics };
+	IMeshRenderer meshRenderer{ m_pGraphicsDevice };
 	for ( auto& meshRes : m_meshes )
 		meshRenderer.drawMesh( meshRes );
 }

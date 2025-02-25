@@ -67,7 +67,7 @@ namespace wv
 		virtual TextureID createTexture ( const TextureDesc& _desc ) override;
 		virtual void      destroyTexture( TextureID _textureID )     override;
 
-		virtual bool initialize( LowLevelGraphicsDesc* _desc ) override;
+		virtual bool initialize( GraphicsDeviceDesc* _desc ) override;
 
 		template<typename... Args>
 		bool assertGLError( const std::string _msg, Args..._args );

@@ -90,7 +90,7 @@ wv::GraphicsDeviceOpenGL::GraphicsDeviceOpenGL()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::GraphicsDeviceOpenGL::initialize( LowLevelGraphicsDesc* _desc )
+bool wv::GraphicsDeviceOpenGL::initialize( GraphicsDeviceDesc* _desc )
 {
 	WV_TRACE();
 

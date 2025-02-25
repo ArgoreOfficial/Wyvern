@@ -33,7 +33,7 @@ void wv::MeshInstance::destroy()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pLowLevelGraphics*/ )
+void wv::MeshResource::load( FileSystem* /*_pFileSystem*/, IGraphicsDevice* /*_pGraphicsDevice*/ )
 {
 	Engine* app = Engine::get();
 	wv::Parser parser;
@@ -59,7 +59,7 @@ static void unloadMeshNode( wv::MeshNode* _node, wv::IGraphicsDevice* _pGraphics
 	WV_FREE( _node );
 }
 
-void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if( m_pMeshNode )
 	{
@@ -67,7 +67,7 @@ void wv::MeshResource::unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowL
 		MeshNode*  pMeshNode  = m_pMeshNode; // lambdas can only capture local variables
 		Job::JobFunction_t fptr = [=]( void* _pUserData )
 			{
-				unloadMeshNode( pMeshNode, _pLowLevelGraphics );
+				unloadMeshNode( pMeshNode, _pGraphicsDevice );
 			};
 
 		Job* job = pJobSystem->createJob( 

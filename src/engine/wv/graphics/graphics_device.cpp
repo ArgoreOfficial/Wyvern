@@ -22,7 +22,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( LowLevelGraphicsDesc* _desc )
+wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( GraphicsDeviceDesc* _desc )
 {
 
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Graphics Device\n" );

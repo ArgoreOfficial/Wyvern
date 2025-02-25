@@ -26,12 +26,12 @@ wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::ICamera::beginRender( IGraphicsDevice* _pLowLevelGraphics, FillMode _fillMode )
+bool wv::ICamera::beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fillMode )
 {
-	if ( !_pLowLevelGraphics->m_uniformBindingNameMap.count( "UbCameraData" ) )
+	if ( !_pGraphicsDevice->m_uniformBindingNameMap.count( "UbCameraData" ) )
 		return false;
 
-	_pLowLevelGraphics->setFillMode( _fillMode );
+	_pGraphicsDevice->setFillMode( _fillMode );
 
 	UbCameraData instanceData;
 	instanceData.projection = getProjectionMatrix();
@@ -39,8 +39,8 @@ bool wv::ICamera::beginRender( IGraphicsDevice* _pLowLevelGraphics, FillMode _fi
 	instanceData.model      = wv::Matrix4x4f( 1.0f );
 
 	/// TODO: rename UbCameraData to UbCameraData?
-	//BufferBindingIndex index = _pLowLevelGraphics->m_uniformBindingNameMap.at( "UbCameraData" );
-	_pLowLevelGraphics->bufferSubData( m_uniformBufferID, &instanceData, sizeof( UbCameraData ), 0 );
+	//BufferBindingIndex index = _pGraphicsDevice->m_uniformBindingNameMap.at( "UbCameraData" );
+	_pGraphicsDevice->bufferSubData( m_uniformBufferID, &instanceData, sizeof( UbCameraData ), 0 );
 
 	return true;
 }

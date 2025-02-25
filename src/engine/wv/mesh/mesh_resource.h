@@ -43,8 +43,8 @@ namespace wv
 			IResource( _name, _path )
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 
 		void makeInstance( MeshInstance* _instance );
 		void removeInstance( MeshInstance* _instance );

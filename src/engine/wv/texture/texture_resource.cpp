@@ -15,7 +15,7 @@
 #include <codecvt>
 #endif
 
-void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics )
+void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice )
 {
 	if ( m_name == "" ) // no file should be loaded
 	{
@@ -73,7 +73,7 @@ void wv::TextureResource::load( FileSystem* _pFileSystem, IGraphicsDevice* _pLow
 	pJobSystem->submit( { job } );
 }
 
-void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice* _pLowLevelGraphics )
+void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice* _pGraphicsDevice )
 {
 	if( m_pData )
 	{
@@ -88,7 +88,7 @@ void wv::TextureResource::unload( FileSystem* /*_pFileSystem*/, IGraphicsDevice*
 		TextureID id = m_textureID; // lambdas can only capture local variables
 		Job::JobFunction_t fptr = [=]( void* _pUserData )
 			{
-				_pLowLevelGraphics->destroyTexture( id );
+				_pGraphicsDevice->destroyTexture( id );
 			};
 
 		Job* job = pJobSystem->createJob(

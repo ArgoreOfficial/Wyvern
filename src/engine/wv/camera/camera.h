@@ -36,7 +36,7 @@ namespace wv
 		virtual void onEnter() { }
 		virtual void update( double /*_delta_time*/ ) { m_transform.update( nullptr ); }
 
-		bool beginRender( IGraphicsDevice* _pLowLevelGraphics, FillMode _fillMode );
+		bool beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fillMode );
 
 		Matrix4x4f getProjectionMatrix( void );
 

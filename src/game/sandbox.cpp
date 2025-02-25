@@ -78,19 +78,19 @@ bool Sandbox::create( void )
 	deviceContext->setSwapInterval( 0 ); // vsync on(1) off(0)
 
 	// create graphics device
-	wv::LowLevelGraphicsDesc lowLevelGraphicsDesc;
-	lowLevelGraphicsDesc.loadProc = deviceContext->getLoadProc();
-	lowLevelGraphicsDesc.pContext = deviceContext;
+	wv::GraphicsDeviceDesc GraphicsDeviceDesc;
+	GraphicsDeviceDesc.loadProc = deviceContext->getLoadProc();
+	GraphicsDeviceDesc.pContext = deviceContext;
 	
-	wv::IGraphicsDevice* pLowLevelGraphics = wv::IGraphicsDevice::createGraphics( &lowLevelGraphicsDesc );
-	if ( !pLowLevelGraphics )
+	wv::IGraphicsDevice* pGraphicsDevice = wv::IGraphicsDevice::createGraphics( &GraphicsDeviceDesc );
+	if ( !pGraphicsDevice )
 	{
 		wv::Debug::Print( "Graphics Device was nullptr\n" );
 		return false;
 	}
 
 	engineDesc.device.pContext = deviceContext;
-	engineDesc.device.pGraphics = pLowLevelGraphics;
+	engineDesc.device.pGraphics = pGraphicsDevice;
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Initializing Audio Device\n" );
 	engineDesc.device.pAudio = WV_NEW( wv::AudioDevice, nullptr );

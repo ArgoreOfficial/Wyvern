@@ -24,10 +24,10 @@ namespace wv
 			IResource( _name, _path )
 		{ }
 
-		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
-		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) override;
+		void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
+		void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) override;
 		
-		void bind( IGraphicsDevice* _pLowLevelGraphics );
+		void bind( IGraphicsDevice* _pGraphicsDevice );
 
 		PipelineID  getPipelineID() { return m_pipelineID; }
 		GPUBufferID getShaderBuffer( const std::string& _name );

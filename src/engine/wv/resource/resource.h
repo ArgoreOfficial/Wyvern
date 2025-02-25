@@ -24,8 +24,8 @@ namespace wv
 
 		virtual ~IResource() {};
 
-		virtual void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
-		virtual void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pLowLevelGraphics ) = 0;
+		virtual void load  ( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
+		virtual void unload( FileSystem* _pFileSystem, IGraphicsDevice* _pGraphicsDevice ) = 0;
 
 		virtual void reload( void ) { }
 		
