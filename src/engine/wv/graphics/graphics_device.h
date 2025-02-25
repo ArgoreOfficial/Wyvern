@@ -61,6 +61,7 @@ public:
 	static IGraphicsDevice* createGraphics( GraphicsDeviceDesc* _desc );
 
 	void initEmbeds();
+	void deinitEmbeds();
 
 	std::thread::id getThreadID() const { return m_threadID; }
 	void assertMainThread() {

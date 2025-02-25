@@ -71,13 +71,18 @@ void wv::IGraphicsDevice::initEmbeds()
 	m_pEmptyMaterial->load( Engine::get()->m_pFileSystem, Engine::get()->graphics );
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::IGraphicsDevice::terminate()
+void wv::IGraphicsDevice::deinitEmbeds()
 {
 	m_pEmptyMaterial->unload( Engine::get()->m_pFileSystem, Engine::get()->graphics );
 	WV_FREE( m_pEmptyMaterial );
 	m_pEmptyMaterial = nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::IGraphicsDevice::terminate()
+{
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

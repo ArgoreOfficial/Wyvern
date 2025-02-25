@@ -314,6 +314,7 @@ void wv::Engine::terminate()
 
 	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( m_gbuffer );
+	graphics->deinitEmbeds();
 
 	if( m_pDeferredShader )
 	{
