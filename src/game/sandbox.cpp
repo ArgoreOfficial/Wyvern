@@ -97,7 +97,7 @@ bool Sandbox::create( void )
 	engineDesc.device.pAudio = WV_NEW( wv::AudioDevice, nullptr );
 
 	// create modules
-	wv::IFileSystem* fileSystem = WV_NEW( wv::NoApFileSystem );
+	wv::IFileSystem* fileSystem = WV_NEW( wv::NoAPIFileSystem );
 
 	// set up load directories
 	fileSystem->addDirectory( "materials/" );

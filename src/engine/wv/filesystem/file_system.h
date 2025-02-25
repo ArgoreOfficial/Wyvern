@@ -52,6 +52,8 @@ namespace wv
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		virtual void initialize() = 0;
+
 		virtual FileID   openFile( const char* _path, const OpenMode& _mode ) = 0;
 		virtual uint64_t getFileSize( FileID& _file ) = 0;
 		virtual int      readFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;

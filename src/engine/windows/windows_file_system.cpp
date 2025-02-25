@@ -5,6 +5,8 @@
 OVERLAPPED ol = { 0 };
 #endif
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 std::string GetLastErrorAsString()
 {
 #ifdef WV_PLATFORM_WINDOWS
@@ -34,7 +36,14 @@ std::string GetLastErrorAsString()
 #endif
 }
 
-wv::FileID wv::WindowsIFileSystem::openFile( const char* _path, const OpenMode& _mode )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::WindowsFileSystem::initialize()
+{
+
+}
+
+wv::FileID wv::WindowsFileSystem::openFile( const char* _path, const OpenMode& _mode )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	DWORD desiredAccess = 0;
@@ -71,7 +80,9 @@ wv::FileID wv::WindowsIFileSystem::openFile( const char* _path, const OpenMode& 
 #endif
 }
 
-uint64_t wv::WindowsIFileSystem::getFileSize( FileID& _file )
+///////////////////////////////////////////////////////////////////////////////////////
+
+uint64_t wv::WindowsFileSystem::getFileSize( FileID& _file )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
@@ -85,7 +96,9 @@ uint64_t wv::WindowsIFileSystem::getFileSize( FileID& _file )
 #endif
 }
 
-int wv::WindowsIFileSystem::readFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
+///////////////////////////////////////////////////////////////////////////////////////
+
+int wv::WindowsFileSystem::readFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
@@ -99,14 +112,18 @@ int wv::WindowsIFileSystem::readFile( FileID& _file, uint8_t* _buffer, const siz
 #endif
 }
 
-void wv::WindowsIFileSystem::writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::WindowsFileSystem::writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );
 #endif
 }
 
-void wv::WindowsIFileSystem::closeFile( FileID& _file )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::WindowsFileSystem::closeFile( FileID& _file )
 {
 #ifdef WV_PLATFORM_WINDOWS
 	HANDLE hFile = reinterpret_cast<HANDLE>( _file.value );

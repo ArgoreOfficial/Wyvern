@@ -5,6 +5,7 @@
 #include <wv/graphics/graphics_device.h>
 #include <wv/graphics/Uniform.h>
 #include <wv/memory/memory.h>
+#include <wv/platform/platform.h>
 
 #ifdef WV_PLATFORM_WINDOWS
 #define STB_IMAGE_IMPLEMENTATION
@@ -21,20 +22,16 @@
 #include <filesystem>
 #endif
 
-#if defined( WV_PLATFORM_PSVITA )
-#include "psp2/psp2_file_system.h"
-#elif defined( WV_PLATFORM_WINDOWS )
-#include "windows/windows_file_system.h"
-#elif defined( WV_PLATFORM_3DS )
+#if defined( WV_PLATFORM_3DS )
 #include <unistd.h>
 #include <3ds.h>
 #endif
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::IFileSystem::IFileSystem()
 {
+	// todo: fix
 #ifdef WV_PLATFORM_3DS
 	Result rc = romfsMountSelf( "data" );
 	if( rc )
@@ -44,7 +41,7 @@ wv::IFileSystem::IFileSystem()
 		printf( "romfs Init Successful!\n" );
 	}
 #endif
-
+	
 	addDirectory( "" );
 }
 
@@ -149,11 +146,7 @@ std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
 	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{
 		std::string path = "";
-	#ifdef WV_PLATFORM_3DS
-		path.append( "data:/" );
-	#elif defined( WV_PLATFORM_WINDOWS )
-		path.append( "../../data/" );
-	#endif
+		path.append( gFileSystemPathPrefix ); // defined in <target platform>.cpp
 		path.append( m_directories[ i ] );
 		path.append( _fileName );
 

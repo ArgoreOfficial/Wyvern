@@ -2,7 +2,12 @@
 
 #include <stdio.h>
 
-wv::FileID wv::NoApFileSystem::openFile( const char* _path, const OpenMode& _mode )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::NoAPIFileSystem::initialize()
+{}
+
+wv::FileID wv::NoAPIFileSystem::openFile( const char* _path, const OpenMode& _mode )
 {
 	FILE* f = nullptr;
 
@@ -19,7 +24,9 @@ wv::FileID wv::NoApFileSystem::openFile( const char* _path, const OpenMode& _mod
 	return FileID( reinterpret_cast<uint64_t>( f ) );
 }
 
-uint64_t wv::NoApFileSystem::getFileSize( FileID& _file )
+///////////////////////////////////////////////////////////////////////////////////////
+
+uint64_t wv::NoAPIFileSystem::getFileSize( FileID& _file )
 {
 	FILE* f = reinterpret_cast<FILE*>( _file.value );
 
@@ -30,21 +37,27 @@ uint64_t wv::NoApFileSystem::getFileSize( FileID& _file )
 	return size;
 }
 
-int wv::NoApFileSystem::readFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
+///////////////////////////////////////////////////////////////////////////////////////
+
+int wv::NoAPIFileSystem::readFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
 	FILE* f = reinterpret_cast<FILE*>( _file.value );
 	size_t size = fread( _buffer, 1, _size, f );
 	return size;
 }
 
-void wv::NoApFileSystem::writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::NoAPIFileSystem::writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size )
 {
 	FILE* f = reinterpret_cast<FILE*>( _file.value );
 
 	fwrite( _buffer, 1, _size, f );
 }
 
-void wv::NoApFileSystem::closeFile( FileID& _file )
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::NoAPIFileSystem::closeFile( FileID& _file )
 {
 	FILE* f = reinterpret_cast<FILE*>( _file.value );
 
