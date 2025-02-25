@@ -25,6 +25,9 @@
 #include "lowlevel/psp2_file_system.h"
 #elif defined( WV_PLATFORM_WINDOWS )
 #include "lowlevel/windows_file_system.h"
+#elif defined( WV_PLATFORM_3DS )
+#include <unistd.h>
+#include <3ds.h>
 #endif
 
 
@@ -37,6 +40,17 @@ wv::FileSystem::FileSystem()
 #elif defined( WV_PLATFORM_WINDOWS )
 	m_pLowLevel = WV_NEW( WindowsFileSystem );
 #endif
+
+#ifdef WV_PLATFORM_3DS
+	Result rc = romfsMountSelf( "data" );
+	if( rc )
+		printf( "romfsInit: %08lX\n", rc );
+	else
+	{
+		printf( "romfs Init Successful!\n" );
+	}
+#endif
+
 	addDirectory( "" );
 }
 
@@ -143,6 +157,13 @@ bool wv::FileSystem::fileExists( const std::string& _path )
 	std::ifstream f( _path );
 	return f.good();
 #else
+	FILE* f = fopen( _path.c_str(), "r");
+	if( f )
+	{
+		fclose( f );
+		return true;
+	}
+
 	return false;
 #endif
 }
@@ -152,7 +173,10 @@ bool wv::FileSystem::fileExists( const std::string& _path )
 std::string wv::FileSystem::getFullPath( const std::string& _fileName )
 {
 	if( fileExists( _fileName ) )
+	{
+		Debug::Print( "L:%s\n", _fileName.c_str() );
 		return _fileName;
+	}
 	
 	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{
@@ -167,11 +191,10 @@ std::string wv::FileSystem::getFullPath( const std::string& _fileName )
 
 		if( fileExists( path ) )
 		{
-			Debug::Print( Debug::WV_PRINT_DEBUG, "Checking '%s' [yes]\n", path.c_str() );
+			Debug::Print( "L:%s\n", _fileName.c_str() );
 			return path;
 		}
 
-		Debug::Print( Debug::WV_PRINT_DEBUG, "Checking '%s' [no]\n", path.c_str() );
 	}
 
 
