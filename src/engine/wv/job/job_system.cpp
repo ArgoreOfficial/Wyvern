@@ -225,8 +225,8 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 
 	if ( worker == _pWorker )
 	{
-		if ( !_pWorker->isHostThread )
-			wv::Thread::sleepFor( 1000000 ); // 1ms
+		//if ( !_pWorker->isHostThread )
+			wv::Thread::sleepFor( 1000 );
 
 		return nullptr;
 	}
@@ -236,8 +236,8 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 	if ( stolenJob )
 		return stolenJob;
 	
-	if ( !_pWorker->isHostThread )
-		wv::Thread::sleepFor( 1000000 ); // 1ms
+	//if ( !_pWorker->isHostThread )
+		wv::Thread::sleepFor( 1000 );
 
 	return nullptr;
 }
