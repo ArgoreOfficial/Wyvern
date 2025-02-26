@@ -5,6 +5,7 @@
 #include <random>
 
 #include <wv/debug/log.h>
+#include <wv/platform/thread.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +59,7 @@ void wv::JobSystem::createWorkers( size_t _count )
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
 		worker->isRenderThread = true;
+		worker->isHostThread   = true;
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
 	}
@@ -223,7 +225,9 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 
 	if ( worker == _pWorker )
 	{
-		std::this_thread::yield();
+		if ( !_pWorker->isHostThread )
+			wv::Thread::sleepFor( 1000000 ); // 1ms
+
 		return nullptr;
 	}
 
@@ -231,8 +235,10 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 
 	if ( stolenJob )
 		return stolenJob;
-		
-	std::this_thread::yield();
+	
+	if ( !_pWorker->isHostThread )
+		wv::Thread::sleepFor( 1000000 ); // 1ms
+
 	return nullptr;
 }
 

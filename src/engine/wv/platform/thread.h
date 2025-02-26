@@ -31,7 +31,7 @@ void sleepFor( uint64_t _nanoseconds );
  * 
  * @param _seconds the amount of seconds to sleep
  */
-void sleepForSeconds( double _seconds ) {
+static void sleepForSeconds( double _seconds ) {
 	wv::Thread::sleepFor( static_cast<uint64_t>( _seconds * 1000000000LL ) );
 }
 

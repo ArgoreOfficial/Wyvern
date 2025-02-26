@@ -14,6 +14,7 @@ struct JobWorker
 	std::atomic_bool isAlive{ true };
 	JobBuffer queue{};
 	
+	bool isHostThread   = false;
 	bool isRenderThread = false;
 };
 
