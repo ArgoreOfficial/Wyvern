@@ -28,6 +28,7 @@ protected:
 	void drawBuildWindow();
 
 	void buildPlatform();
+	void buildAndRun();
 
 	virtual void onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device ) override;
 
@@ -35,6 +36,9 @@ protected:
 	int m_numSpawned = 0;
 
 	bool mIsBuilding3DS = false;
+	wv::Fence* mBuildFence = nullptr;
+
+	int mTargetAddress[ 4 ] = { 0,0,0,0 };
 
 	std::vector<const char*> mBuildPlatforms = {
 		"3DS",
@@ -48,8 +52,8 @@ protected:
 
 	std::vector<const char*> mBuildModes = {
 		"Debug",
-		"Debug-nomt"
-		"Release"
+		"Debug-nomt",
+		"Release",
 		"Package"
 	};
 

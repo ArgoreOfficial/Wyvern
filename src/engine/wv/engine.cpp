@@ -276,7 +276,7 @@ void wv::Engine::run()
 			deathTimer = t - static_cast<double>( deathCounter );
 			if( deathTimer > 1.0 )
 			{
-				wv::Debug::Print( "Automatic Close in: %i\n", timeToDeath - deathCounter );
+				wv::Debug::Print( "AWESOME SAUCE AND COOL: %i\n", timeToDeath - deathCounter );
 				deathCounter++;
 			}
 

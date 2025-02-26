@@ -123,6 +123,26 @@ void DemoWindowComponent::drawBuildWindow()
 {
 #ifdef WV_SUPPORT_IMGUI
 
+
+	ImGui::BeginDisabled( mIsBuilding3DS );
+
+	if( ImGui::Button( "Build" ) )
+		buildPlatform();
+
+	if( ImGui::Button( "Build & Run" ) )
+		buildAndRun();
+
+	ImGui::EndDisabled();
+
+	ImGui::SetNextItemWidth( 256.0f );
+	if( ImGui::InputInt4( "##ip", mTargetAddress ) )
+	{
+		mTargetAddress[ 0 ] = wv::Math::clamp( mTargetAddress[ 0 ], 0, 255 );
+		mTargetAddress[ 1 ] = wv::Math::clamp( mTargetAddress[ 1 ], 0, 255 );
+		mTargetAddress[ 2 ] = wv::Math::clamp( mTargetAddress[ 2 ], 0, 255 );
+		mTargetAddress[ 3 ] = wv::Math::clamp( mTargetAddress[ 3 ], 0, 255 );
+	}
+	
 	ImGui::SetNextItemWidth( 100.0f );
 	if( ImGui::BeginCombo( "##plat", mCurrentBuildPlatform ) )
 	{
@@ -155,15 +175,6 @@ void DemoWindowComponent::drawBuildWindow()
 		ImGui::EndCombo();
 	}
 	
-	ImGui::BeginDisabled( mIsBuilding3DS );
-
-	if( ImGui::Button( "Build" ) )
-		buildPlatform();
-	
-	if( ImGui::Button( "Build & Run" ) )
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "3DS Run Unimplemented\n" );
-
-	ImGui::EndDisabled();
 #endif
 }
 
@@ -175,6 +186,10 @@ void DemoWindowComponent::buildPlatform()
 	mIsBuilding3DS = true;
 
 	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+
+	if( mBuildFence == nullptr )
+		mBuildFence = pJobSystem->createFence();
+
 	wv::Job::JobFunction_t fptr = [&](void*)
 		{
 			wv::Debug::Print( "Launching xmake build\n" );
@@ -208,7 +223,41 @@ void DemoWindowComponent::buildPlatform()
 
 			mIsBuilding3DS = false;
 		};
-	wv::Job* job = pJobSystem->createJob(fptr);
+
+	wv::Job* job = pJobSystem->createJob( fptr, mBuildFence );
+	pJobSystem->submit( { job } );
+}
+
+void DemoWindowComponent::buildAndRun()
+{
+	buildPlatform();
+	
+	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+	wv::Job::JobFunction_t fptr = [ & ]( void* )
+		{
+			wv::Engine::get()->m_pJobSystem->waitForFence( mBuildFence );
+
+			wv::Debug::Print( "Launching\n" );
+
+			std::string addr;
+			addr += std::to_string( mTargetAddress[ 0 ] ) + ".";
+			addr += std::to_string( mTargetAddress[ 1 ] ) + ".";
+			addr += std::to_string( mTargetAddress[ 2 ] ) + ".";
+			addr += std::to_string( mTargetAddress[ 3 ] );
+
+			std::string cmd = "cd . && \"../../tools/3ds/3dslink\"";
+			cmd.append( " -a " + addr );
+			cmd.append( " ../3ds/Sandbox_Release_arm_3ds.3dsx" );
+			
+			wv::Debug::Print( "RUN: %s\n", cmd.c_str() );
+			int err = std::system( cmd.c_str() );
+			
+			if( err )
+				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
+			else
+				wv::Debug::Print( "Done!\n" );
+		};
+	wv::Job* job = pJobSystem->createJob( fptr );
 	pJobSystem->submit( { job } );
 }
 

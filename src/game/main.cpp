@@ -30,8 +30,10 @@ int main()
 	Sandbox sandbox{};
 
 #ifdef WV_PACKAGE
+#ifdef __cpp_exceptions
 	try
 	{
+#endif
 #endif
 		if( sandbox.create() )
 		{
@@ -41,6 +43,7 @@ int main()
 			sandbox.destroy();
 		}
 #ifdef WV_PACKAGE
+#ifdef __cpp_exceptions
 	}
 	catch( const std::runtime_error& re )
 	{
@@ -60,6 +63,7 @@ int main()
 				"\nPossible memory corruption\n\n"
 				"\n[==========================================]\n" );
 	}
+#endif
 #endif
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
