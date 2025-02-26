@@ -118,19 +118,14 @@ std::string wv::IFileSystem::loadString( const std::string& _path )
 
 bool wv::IFileSystem::fileExists( const std::string& _path )
 {
-#ifdef WV_PLATFORM_WINDOWS
-	std::ifstream f( _path );
-	return f.good();
-#else
-	FILE* f = fopen( _path.c_str(), "r");
-	if( f )
+	FileID f = openFile( _path.c_str(), OpenMode::WV_OPEN_MODE_READ );
+	if( f.is_valid() )
 	{
-		fclose( f );
+		closeFile( f );
 		return true;
 	}
 
 	return false;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -138,10 +133,7 @@ bool wv::IFileSystem::fileExists( const std::string& _path )
 std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
 {
 	if( fileExists( _fileName ) )
-	{
-		Debug::Print( "L:%s\n", _fileName.c_str() );
 		return _fileName;
-	}
 	
 	for ( size_t i = 0; i < m_directories.size(); i++ )
 	{
@@ -151,13 +143,8 @@ std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
 		path.append( _fileName );
 
 		if( fileExists( path ) )
-		{
-			Debug::Print( "L:%s\n", _fileName.c_str() );
 			return path;
-		}
-
 	}
-
 
 	return "";
 }
