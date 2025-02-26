@@ -199,19 +199,17 @@ void DemoWindowComponent::buildPlatform()
 			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mCurrentBuildArch, mCurrentBuildMode );
 			
 			{
-				wv::ConsoleCommand cmd {
+				wv::Console::run( "../../", {
 					"xmake",
 					"f -c",
 					"-a", mCurrentBuildArch,
 					"-p", mCurrentBuildPlatform,
 					"-m", mCurrentBuildMode 
-				};
-				cmd.run( "../../" );
+				} );
 			}
 
 			{
-				wv::ConsoleCommand cmd{ "xmake" };
-				if( cmd.run( "../../" ) )
+				if( wv::Console::run( { "xmake" } ) )
 					wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
 				else
 					wv::Debug::Print( "Done!\n" );
@@ -237,7 +235,7 @@ void DemoWindowComponent::buildAndRun()
 
 			std::string launchFile = "Sandbox_" + std::string( mCurrentBuildMode ) + "_arm_3ds";
 
-			int err = wv::ConsoleCommand::runf( "", {
+			int err = wv::Console::run( {
 					"../../tools/3ds/3dslink",
 					"-a", mTargetAddressStr,
 					"../3ds/" + launchFile + ".3dsx"

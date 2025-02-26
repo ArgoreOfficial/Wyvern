@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
+#include <vector>
 
 namespace wv {
 
@@ -80,7 +82,12 @@ void initialize();
 void deinitialize();
 
 void setForegroundColor( Color _color );
-void setBackgroundColor( Color _color );
+//void setBackgroundColor( Color _color );
+
+int run( const std::string& _runDir, const std::vector<std::string>& _cmd );
+static int run( const std::vector<std::string>& _cmd ) {
+	return run( "./", _cmd );
+}
 
 }
 
