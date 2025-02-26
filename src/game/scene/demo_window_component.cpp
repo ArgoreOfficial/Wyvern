@@ -13,6 +13,8 @@
 #include <wv/scene/component/model_component.h>
 #include <wv/scene/component/rigid_body_component.h>
 
+#include <wv/console/command.h>
+
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif
@@ -206,20 +208,27 @@ void DemoWindowComponent::buildPlatform()
 				return;
 			}
 
-			std::string cmd = "cd ../../ && xmake f -c";
-			cmd.append( " -a" ); cmd.append( mBuildArchs[ platIdx ] );
-			cmd.append( " -p" ); cmd.append( mCurrentBuildPlatform );
-			cmd.append( " -m" ); cmd.append( mCurrentBuildMode );
-
 			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mBuildArchs[ platIdx ], mCurrentBuildMode );
-
-			std::system( cmd.c_str() );
-			int err = std::system( "cd ../../ && xmake" );
 			
-			if( err )
-				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
-			else
-				wv::Debug::Print( "Done!\n" );
+			{
+				wv::ConsoleCommand cmd{
+					"xmake f -c",
+					" -a", mBuildArchs[ platIdx ],
+					" -p", mCurrentBuildPlatform,
+					" -m", mCurrentBuildMode 
+				};
+				cmd.run( "../../" );
+			}
+
+			{
+				wv::ConsoleCommand cmd{ "xmake" };
+				int err = cmd.run( "../../" );
+			
+				if( err )
+					wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
+				else
+					wv::Debug::Print( "Done!\n" );
+			}
 
 			mIsBuilding3DS = false;
 		};
@@ -245,12 +254,12 @@ void DemoWindowComponent::buildAndRun()
 			addr += std::to_string( mTargetAddress[ 2 ] ) + ".";
 			addr += std::to_string( mTargetAddress[ 3 ] );
 
-			std::string cmd = "cd . && \"../../tools/3ds/3dslink\"";
-			cmd.append( " -a " + addr );
-			cmd.append( " ../3ds/Sandbox_Release_arm_3ds.3dsx" );
-			
-			wv::Debug::Print( "RUN: %s\n", cmd.c_str() );
-			int err = std::system( cmd.c_str() );
+			wv::ConsoleCommand cmd{
+				"../../tools/3ds/3dslink",
+				"-a", addr,
+				"../3ds/Sandbox_Release_arm_3ds.3dsx"
+			};
+			int err = cmd.run();
 			
 			if( err )
 				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
