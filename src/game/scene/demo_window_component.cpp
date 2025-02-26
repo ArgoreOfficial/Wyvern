@@ -212,7 +212,8 @@ void DemoWindowComponent::buildPlatform()
 			
 			{
 				wv::ConsoleCommand cmd{
-					"xmake f -c",
+					"xmake",
+					"f -c"
 					" -a", mBuildArchs[ platIdx ],
 					" -p", mCurrentBuildPlatform,
 					" -m", mCurrentBuildMode 
@@ -261,6 +262,11 @@ void DemoWindowComponent::buildAndRun()
 			};
 			int err = cmd.run();
 			
+			/// TODO
+			// cmd : arm-none-eabi-gdb Sandbox_Release_arm_3ds.elf
+			// cmd : target remote 192.168.0.160:4003
+			// cmd : 
+
 			if( err )
 				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
 			else

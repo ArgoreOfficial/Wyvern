@@ -33,6 +33,11 @@ void wv::Console::initialize()
 	wv::Console::Internal::g_initialized = true;
 }
 
+void wv::Console::deinitialize()
+{
+	wv::Console::Internal::g_initialized = false;
+}
+
 void wv::Console::setForegroundColor( Color _color )
 {
 	if( !wv::Console::isInitialized() )

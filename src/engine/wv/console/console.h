@@ -77,6 +77,7 @@ enum Color : uint8_t
 
 bool isInitialized();
 void initialize();
+void deinitialize();
 
 void setForegroundColor( Color _color );
 void setBackgroundColor( Color _color );

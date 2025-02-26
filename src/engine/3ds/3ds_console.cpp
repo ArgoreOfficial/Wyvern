@@ -22,6 +22,14 @@ void wv::Console::initialize()
 	wv::Console::Internal::g_initialized = true;
 }
 
+void wv::Console::deinitialize()
+{
+	wv::Console::Internal::g_initialized = false;
+
+	C3D_Fini();
+	gfxExit();
+}
+
 void wv::Console::setForegroundColor( Color _color )
 {
 	if( !wv::Console::isInitialized() )
