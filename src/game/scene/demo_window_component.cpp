@@ -136,15 +136,11 @@ void DemoWindowComponent::drawBuildWindow()
 
 	ImGui::EndDisabled();
 
-	ImGui::SetNextItemWidth( 256.0f );
-	if( ImGui::InputInt4( "##ip", mTargetAddress ) )
-	{
-		mTargetAddress[ 0 ] = wv::Math::clamp( mTargetAddress[ 0 ], 0, 255 );
-		mTargetAddress[ 1 ] = wv::Math::clamp( mTargetAddress[ 1 ], 0, 255 );
-		mTargetAddress[ 2 ] = wv::Math::clamp( mTargetAddress[ 2 ], 0, 255 );
-		mTargetAddress[ 3 ] = wv::Math::clamp( mTargetAddress[ 3 ], 0, 255 );
-	}
-	
+	ImGui::SetNextItemWidth( 100.0f );
+	ImGui::InputText( "##ipinput", mTargetAddressStr, 16 );
+	ImGui::SetNextItemWidth( 38.0f );
+	ImGui::InputInt( "##portinput", &mTargetPort, 0 );
+
 	ImGui::SetNextItemWidth( 100.0f );
 	if( ImGui::BeginCombo( "##plat", mCurrentBuildPlatform ) )
 	{
@@ -194,38 +190,28 @@ void DemoWindowComponent::buildPlatform()
 
 	wv::Job::JobFunction_t fptr = [&](void*)
 		{
-			wv::Debug::Print( "Launching xmake build\n" );
 
-			int platIdx = -1;
 			for( int i = 0; i < mBuildPlatforms.size(); i++ )
 				if( mCurrentBuildPlatform == mBuildPlatforms[ i ] )
-					platIdx = i;
+					mCurrentBuildArch = mBuildArchs[ i ];
 			
-			if( platIdx == -1 )
-			{
-				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "An error occured while creating build command\n" );
-				mIsBuilding3DS = false;
-				return;
-			}
-
-			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mBuildArchs[ platIdx ], mCurrentBuildMode );
+			wv::Debug::Print( "Launching xmake build\n" );
+			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mCurrentBuildArch, mCurrentBuildMode );
 			
 			{
-				wv::ConsoleCommand cmd{
+				wv::ConsoleCommand cmd {
 					"xmake",
-					"f -c"
-					" -a", mBuildArchs[ platIdx ],
-					" -p", mCurrentBuildPlatform,
-					" -m", mCurrentBuildMode 
+					"f -c",
+					"-a", mCurrentBuildArch,
+					"-p", mCurrentBuildPlatform,
+					"-m", mCurrentBuildMode 
 				};
 				cmd.run( "../../" );
 			}
 
 			{
 				wv::ConsoleCommand cmd{ "xmake" };
-				int err = cmd.run( "../../" );
-			
-				if( err )
+				if( cmd.run( "../../" ) )
 					wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
 				else
 					wv::Debug::Print( "Done!\n" );
@@ -249,28 +235,26 @@ void DemoWindowComponent::buildAndRun()
 
 			wv::Debug::Print( "Launching\n" );
 
-			std::string addr;
-			addr += std::to_string( mTargetAddress[ 0 ] ) + ".";
-			addr += std::to_string( mTargetAddress[ 1 ] ) + ".";
-			addr += std::to_string( mTargetAddress[ 2 ] ) + ".";
-			addr += std::to_string( mTargetAddress[ 3 ] );
+			std::string launchFile = "Sandbox_" + std::string( mCurrentBuildMode ) + "_arm_3ds";
 
-			wv::ConsoleCommand cmd{
-				"../../tools/3ds/3dslink",
-				"-a", addr,
-				"../3ds/Sandbox_Release_arm_3ds.3dsx"
-			};
-			int err = cmd.run();
+			int err = wv::ConsoleCommand::runf( "", {
+					"../../tools/3ds/3dslink",
+					"-a", mTargetAddressStr,
+					"../3ds/" + launchFile + ".3dsx"
+				} );
+
+			if ( err )
+			{
+				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
+				return;
+			}
+			else
+				wv::Debug::Print( "Launched on %s:%i\n", mTargetAddressStr, mTargetPort );
 			
 			/// TODO
 			// cmd : arm-none-eabi-gdb Sandbox_Release_arm_3ds.elf
 			// cmd : target remote 192.168.0.160:4003
-			// cmd : 
 
-			if( err )
-				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
-			else
-				wv::Debug::Print( "Done!\n" );
 		};
 	wv::Job* job = pJobSystem->createJob( fptr );
 	pJobSystem->submit( { job } );

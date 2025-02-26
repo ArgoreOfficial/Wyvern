@@ -38,7 +38,8 @@ protected:
 	bool mIsBuilding3DS = false;
 	wv::Fence* mBuildFence = nullptr;
 
-	int mTargetAddress[ 4 ] = { 0,0,0,0 };
+	char mTargetAddressStr[16] = "192.168.0.160";
+	int mTargetPort = 4003;
 
 	std::vector<const char*> mBuildPlatforms = {
 		"3DS",
@@ -58,6 +59,7 @@ protected:
 	};
 
 	const char* mCurrentBuildPlatform = mBuildPlatforms[ 0 ];
+	const char* mCurrentBuildArch     = mBuildArchs[ 0 ];
 	const char* mCurrentBuildMode     = mBuildModes[ 0 ];
 	
 };

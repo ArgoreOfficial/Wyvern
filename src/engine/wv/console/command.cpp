@@ -15,11 +15,9 @@ int wv::ConsoleCommand::run( const std::string& _runDir )
 {
 	// construct command
 	std::string cmd = "cd \"" + _runDir + "\" && ";
-	std::vector<std::string> strings = mStrings;
-	mStrings.clear();
-
+	
 	int i = 0;
-	for ( std::string& str : strings )
+	for ( std::string& str : mStrings )
 	{
 		if( i == 0 )
 			cmd.append( "\"" + str + "\" "); // first one, run with " "
@@ -30,4 +28,10 @@ int wv::ConsoleCommand::run( const std::string& _runDir )
 	
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "%s\n", cmd.c_str());
 	return std::system( cmd.c_str() );
+}
+
+int wv::ConsoleCommand::runf( const std::string& _runDir, std::vector<std::string> _l )
+{
+	wv::ConsoleCommand cmd{ _l };
+	return cmd.run( _runDir );
 }
