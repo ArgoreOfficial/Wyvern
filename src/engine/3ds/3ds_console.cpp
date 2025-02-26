@@ -17,7 +17,7 @@ void wv::Console::initialize()
 	gfxInitDefault();
 	C3D_Init( C3D_DEFAULT_CMDBUF_SIZE );
 	// console init
-	consoleInit( GFX_BOTTOM, 0 );
+	consoleInit( GFX_TOP, 0 );
 
 	wv::Console::Internal::g_initialized = true;
 }
