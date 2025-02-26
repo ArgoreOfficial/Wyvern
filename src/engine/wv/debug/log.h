@@ -17,8 +17,6 @@ namespace wv
 {
 	namespace Debug
 	{
-
-
 		namespace Internal
 		{
 
@@ -73,7 +71,7 @@ namespace wv
 		};
 
 	///////////////////////////////////////////////////////////////////////////////////////
-
+		
 		template<typename... Args>
 		inline void Print( const char* _str, Args... _args )
 		{
@@ -89,6 +87,19 @@ namespace wv
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().unlock();
 		#endif
+		}
+
+		template<typename... Args>
+		inline void logLevelColorStr( const char _levelStr[ 6 ], wv::Console::Color _color, const char* _str, Args... _args )
+		{
+			printf( "[ " );
+			wv::Console::setForegroundColor( _color );
+			printf( _levelStr );
+			wv::Console::setForegroundColor( Console::White );
+			printf( " ] " );
+			
+			printf( _str, _args... );
+
 		}
 
 		template<typename... Args>
@@ -114,18 +125,18 @@ namespace wv
 				return;
 			}
 
-			if( _printLevel != WV_PRINT_INFO )
-			{
-				printf( "[ " );
-				Internal::SetPrintLevelColor( _printLevel );
-				printf( Internal::LEVEL_STR[ _printLevel ] );
-				Internal::SetPrintLevelColor( -1 );
-				printf( " ] " );
-			}
+			if ( _printLevel != WV_PRINT_INFO )
+				Debug::logLevelColorStr( 
+					Internal::LEVEL_STR[ _printLevel ], 
+					Internal::LEVEL_COL[ _printLevel ], 
+					_str, _args...);
 			else
+			{
 				printf( Internal::LEVEL_STR[ _printLevel ] );
+				printf( _str, _args... );
+			}
 
-			printf( _str, _args... );
+			// logColorArr( { White, Red, White }, "%s%s%s %s", "[", "DEBUG", "]", "Some other message" );
 
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().unlock();
