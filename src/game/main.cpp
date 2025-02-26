@@ -3,7 +3,7 @@
 
 #include <wv/debug/trace.h>
 #include <wv/memory/memory.h>
-#include <wv/platform/console.h>
+#include <wv/console/console.h>
 
 #include <stdio.h>
 #include <exception>
