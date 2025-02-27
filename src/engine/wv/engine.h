@@ -81,13 +81,6 @@ namespace wv
 
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
-		wv::Vector2i getViewportSize();
-		float getViewportAspect()
-		{
-			wv::Vector2i size = getViewportSize();
-			return ( float )size.x / ( float )size.y;
-		}
-
 		void run();
 		void terminate();
 		void tick();

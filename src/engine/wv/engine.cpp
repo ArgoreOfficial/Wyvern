@@ -224,14 +224,6 @@ void emscriptenMainLoop() { wv::Engine::get()->tick(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector2i wv::Engine::getViewportSize()
-{
-	return wv::Vector2i{
-		context->getWidth(),
-		context->getHeight()
-	};
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Engine::run()
@@ -606,7 +598,7 @@ void wv::Engine::createScreenQuad()
 
 void wv::Engine::createGBuffer()
 {
-	Vector2i size = getViewportSize();
+	Vector2i size = context->getSize();
 
 	RenderTargetDesc rtDesc;
 	rtDesc.width  = size.x;

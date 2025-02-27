@@ -93,11 +93,12 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 		
-		int    getWidth    () { return m_width; }
-		int    getHeight   () { return m_height; }
-		double getTime     () { return m_time; }
-		double getDeltaTime() { return m_deltaTime; }
-		bool   isAlive     () { return m_alive; }
+		int      getWidth    ( void ) { return m_width; }
+		int      getHeight   ( void ) { return m_height; }
+		Vector2i getSize     ( void ) { return{ m_width, m_height }; }
+		double   getTime     ( void ) { return m_time; }
+		double   getDeltaTime( void ) { return m_deltaTime; }
+		bool     isAlive     ( void ) { return m_alive; }
 
 		void close() { m_alive = false; }
 

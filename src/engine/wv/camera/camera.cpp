@@ -62,7 +62,7 @@ wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
 	wv::Engine* engine = wv::Engine::get();
 	
-	return MatrixUtil::perspective( engine->getViewportAspect(), Math::radians( fov ), m_near, m_far );
+	return MatrixUtil::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
