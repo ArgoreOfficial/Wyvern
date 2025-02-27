@@ -137,8 +137,6 @@ namespace wv
 
 		void recreateScreenRenderTarget( int _width, int _height );
 
-		void _physicsUpdate( double _deltaTime );
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		unsigned int m_fpsCounter = 0;
