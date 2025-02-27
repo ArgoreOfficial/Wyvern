@@ -109,8 +109,8 @@ bool Sandbox::create( void )
 	
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
-	wv::ApplicationState* appState = WV_NEW( wv::ApplicationState );
-	engineDesc.pApplicationState = appState;
+	wv::IAppState* appState = WV_NEW( wv::IAppState );
+	engineDesc.pAppState = appState;
 
 	// create engine
 	m_pEngine = WV_NEW( wv::Engine, &engineDesc );

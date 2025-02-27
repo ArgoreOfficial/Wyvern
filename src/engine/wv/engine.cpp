@@ -59,7 +59,7 @@ wv::Engine::Engine( EngineDesc* _desc )
 {
 	wv::Debug::Print( Debug::WV_PRINT_DEBUG, "Creating Engine\n" );
 
-	if ( !_desc->pApplicationState )
+	if ( !_desc->pAppState )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "No application state provided. Cannot create application\n" );
 		return;
@@ -76,8 +76,8 @@ wv::Engine::Engine( EngineDesc* _desc )
 	rt.height = _desc->windowHeight;
 	rt.fbHandle = 0;
 	
-	m_pApplicationState = _desc->pApplicationState;
-	m_pApplicationState->initialize();
+	m_pAppState = _desc->pAppState;
+	m_pAppState->initialize();
 
 #ifdef WV_SUPPORT_PHYSICS
 	/// TODO: move to descriptor
@@ -193,7 +193,7 @@ void wv::Engine::handleInput()
 		{
 			switch ( inputEvent.key )
 			{
-			case 'R': m_pApplicationState->reloadScene(); break;
+			case 'R': m_pAppState->reloadScene(); break;
 			case 'F': m_drawWireframe ^= 1; break;
 
 			case WV_KEY_ESCAPE: context->close(); break;
@@ -244,7 +244,7 @@ void wv::Engine::run()
 	
 	size_t embeddedResources = m_pResourceRegistry->getNumLoadedResources();
 
-	m_pApplicationState->switchToScene( 0 ); // default scene
+	m_pAppState->switchToScene( 0 ); // default scene
 	
 	// wait for load to be done
 	m_pResourceRegistry->waitForFence();
@@ -282,8 +282,8 @@ void wv::Engine::run()
 
 	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
 	
-	m_pApplicationState->onExit();
-	m_pApplicationState->onDestruct();
+	m_pAppState->onExit();
+	m_pAppState->onDestruct();
 	
 	// wait for unload to be done
 	m_pResourceRegistry->waitForFence();
@@ -322,11 +322,11 @@ void wv::Engine::terminate()
 	// destroy modules
 	Debug::Draw::Internal::deinitDebugDraw( graphics );
 	
-	if( m_pApplicationState )
+	if( m_pAppState )
 	{
-		m_pApplicationState->terminate();
-		WV_FREE( m_pApplicationState );
-		m_pApplicationState = nullptr;
+		m_pAppState->terminate();
+		WV_FREE( m_pAppState );
+		m_pAppState = nullptr;
 	}
 
 #ifdef WV_SUPPORT_PHYSICS
@@ -436,7 +436,7 @@ void wv::Engine::tick()
 	m_pJobSystem->submit( { job } );
 #endif
 
-	m_pApplicationState->onUpdate( dt );
+	m_pAppState->onUpdate( dt );
 	currentCamera->update( dt );
 	
 #ifdef WV_SUPPORT_JOLT_PHYSICS
@@ -477,7 +477,7 @@ void wv::Engine::tick()
 		graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
 		graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
-		m_pApplicationState->onDraw( context, graphics );
+		m_pAppState->onDraw( context, graphics );
 		m_pResourceRegistry->drawMeshInstances();
 
 	#ifdef WV_DEBUG

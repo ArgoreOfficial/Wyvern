@@ -9,14 +9,14 @@
 
 wv::IUpdatable::~IUpdatable()
 {
-	getAppState()->getUpdateManager()->unregisterUpdatable( this );
+	GetAppState()->getUpdateManager()->unregisterUpdatable( this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IUpdatable::_registerUpdatable()
 {
-	getAppState()->getUpdateManager()->registerUpdatable( this );
+	GetAppState()->getUpdateManager()->registerUpdatable( this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

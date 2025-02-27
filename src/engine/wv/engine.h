@@ -22,7 +22,7 @@ namespace wv
 	class ModelObject;
 	class IMaterial;
 	
-	class ApplicationState;
+	class IAppState;
 	class ShaderResource;
 
 	class ResourceRegistry;
@@ -54,7 +54,7 @@ namespace wv
 			IFileSystem* pFileSystem;
 		} systems;
 
-		ApplicationState* pApplicationState = nullptr;
+		IAppState* pAppState = nullptr;
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -100,14 +100,14 @@ namespace wv
 		AudioDevice*       audio    = nullptr;
 
 		// camera 
-		/// TODO: move to applicationstate
+		/// TODO: move to IAppState
 		ICamera* currentCamera    = nullptr;
 		ICamera* orbitCamera      = nullptr;
 		ICamera* freeflightCamera = nullptr;
 
 		RenderTargetID m_screenRenderTarget{};
 
-		ApplicationState* m_pApplicationState = nullptr;
+		IAppState* m_pAppState = nullptr;
 
 		// modules
 		IFileSystem*       m_pFileSystem       = nullptr;

@@ -21,7 +21,7 @@
 
 void DemoWindowComponent::spawnBalls()
 {
-	wv::Scene* sceneRoot = wv::Engine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::Engine::get()->m_pAppState->getCurrentScene();
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
@@ -44,7 +44,7 @@ void DemoWindowComponent::spawnBalls()
 
 void DemoWindowComponent::spawnCubes()
 {
-	wv::Scene* sceneRoot = wv::Engine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* sceneRoot = wv::Engine::get()->m_pAppState->getCurrentScene();
 
 	for( int i = 0; i < m_numToSpawn; i++ )
 	{
@@ -68,7 +68,7 @@ void DemoWindowComponent::spawnCubes()
 
 void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 {
-	wv::Scene* scene = wv::Engine::get()->m_pApplicationState->getCurrentScene();
+	wv::Scene* scene = wv::Engine::get()->m_pAppState->getCurrentScene();
 
 	for( int x = -_halfX; x < _halfX; x++ )
 	{

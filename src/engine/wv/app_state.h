@@ -18,7 +18,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class ApplicationState
+	class IAppState
 	{
 	public:
 		void initialize();
@@ -63,5 +63,5 @@ namespace wv
 		UpdateManager* m_pUpdateManager = nullptr;
 	};
 
-	ApplicationState* getAppState();
+	IAppState* GetAppState();
 }

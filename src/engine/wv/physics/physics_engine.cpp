@@ -212,7 +212,7 @@ void wv::JoltPhysicsEngine::update( double _deltaTime )
 	for ( size_t i = 0; i < collisionSteps; i++ )
 	{
 		m_pPhysicsSystem->Update( m_timestep, 1, m_pTempAllocator, m_pPhysicsJobSystem );
-		Engine::get()->m_pApplicationState->onPhysicsUpdate( m_timestep );
+		Engine::get()->m_pAppState->onPhysicsUpdate( m_timestep );
 	}
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }

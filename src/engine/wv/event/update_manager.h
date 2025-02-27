@@ -16,7 +16,7 @@ namespace wv
 class IDeviceContext;
 class IGraphicsDevice;
 class Engine;
-class ApplicationState;
+class IAppState;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ class UpdateManager
 {
 public:
 	friend class Engine;
-	friend class ApplicationState;
+	friend class IAppState;
 
 	void registerUpdatable( IUpdatable* _pUpdatable );
 	void unregisterUpdatable( IUpdatable* _pUpdatable );
