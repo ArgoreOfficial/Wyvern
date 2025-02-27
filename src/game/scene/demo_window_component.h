@@ -35,31 +35,31 @@ protected:
 	int m_numToSpawn = 10;
 	int m_numSpawned = 0;
 
-	bool mIsBuilding3DS = false;
-	wv::Fence* mBuildFence = nullptr;
+	bool m_isBuilding3DS = false;
+	wv::Fence* m_buildFence = nullptr;
 
-	char mTargetAddressStr[16] = "192.168.0.160";
-	int mTargetPort = 4003;
+	char m_targetAddressStr[16] = "192.168.0.160";
+	int m_targetPort = 4003;
 
-	std::vector<const char*> mBuildPlatforms = {
+	std::vector<const char*> m_buildPlatforms = {
 		"3DS",
 		"PSP2"
 	};
 
-	std::vector<const char*> mBuildArchs = {
+	std::vector<const char*> m_buildArchs = {
 		"arm_3ds",
 		"psp2"
 	};
 
-	std::vector<const char*> mBuildModes = {
+	std::vector<const char*> m_buildModes = {
 		"Debug",
 		"Debug-nomt",
 		"Release",
 		"Package"
 	};
 
-	const char* mCurrentBuildPlatform = mBuildPlatforms[ 0 ];
-	const char* mCurrentBuildArch     = mBuildArchs[ 0 ];
-	const char* mCurrentBuildMode     = mBuildModes[ 0 ];
+	const char* m_currentBuildPlatform = m_buildPlatforms[ 0 ];
+	const char* m_currentBuildArch     = m_buildArchs[ 0 ];
+	const char* m_currentBuildMode     = m_buildModes[ 0 ];
 	
 };

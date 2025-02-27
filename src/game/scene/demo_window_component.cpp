@@ -13,7 +13,7 @@
 #include <wv/scene/component/model_component.h>
 #include <wv/scene/component/rigid_body_component.h>
 
-#include <wv/console/command.h>
+#include <wv/console/console.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
@@ -126,7 +126,7 @@ void DemoWindowComponent::drawBuildWindow()
 #ifdef WV_SUPPORT_IMGUI
 
 
-	ImGui::BeginDisabled( mIsBuilding3DS );
+	ImGui::BeginDisabled( m_isBuilding3DS );
 
 	if( ImGui::Button( "Build" ) )
 		buildPlatform();
@@ -137,19 +137,19 @@ void DemoWindowComponent::drawBuildWindow()
 	ImGui::EndDisabled();
 
 	ImGui::SetNextItemWidth( 100.0f );
-	ImGui::InputText( "##ipinput", mTargetAddressStr, 16 );
+	ImGui::InputText( "##ipinput", m_targetAddressStr, 16 );
 	ImGui::SetNextItemWidth( 38.0f );
-	ImGui::InputInt( "##portinput", &mTargetPort, 0 );
+	ImGui::InputInt( "##portinput", &m_targetPort, 0 );
 
 	ImGui::SetNextItemWidth( 100.0f );
-	if( ImGui::BeginCombo( "##plat", mCurrentBuildPlatform ) )
+	if( ImGui::BeginCombo( "##plat", m_currentBuildPlatform ) )
 	{
-		for( int i = 0; i < mBuildPlatforms.size(); i++ )
+		for( int i = 0; i < m_buildPlatforms.size(); i++ )
 		{
-			bool is_selected = ( mCurrentBuildPlatform == mBuildPlatforms[ i ] );
+			bool is_selected = ( m_currentBuildPlatform == m_buildPlatforms[ i ] );
 			
-			if( ImGui::Selectable( mBuildPlatforms[ i ], is_selected ) )
-				mCurrentBuildPlatform = mBuildPlatforms[ i ];
+			if( ImGui::Selectable( m_buildPlatforms[ i ], is_selected ) )
+				m_currentBuildPlatform = m_buildPlatforms[ i ];
 			
 			if( is_selected )
 				ImGui::SetItemDefaultFocus();
@@ -158,14 +158,14 @@ void DemoWindowComponent::drawBuildWindow()
 	}
 
 	ImGui::SetNextItemWidth( 100.0f );
-	if( ImGui::BeginCombo( "##mode", mCurrentBuildMode ) )
+	if( ImGui::BeginCombo( "##mode", m_currentBuildMode ) )
 	{
-		for( int i = 0; i < mBuildModes.size(); i++ )
+		for( int i = 0; i < m_buildModes.size(); i++ )
 		{
-			bool is_selected = ( mCurrentBuildMode == mBuildModes[ i ] );
+			bool is_selected = ( m_currentBuildMode == m_buildModes[ i ] );
 
-			if( ImGui::Selectable( mBuildModes[ i ], is_selected ) )
-				mCurrentBuildMode = mBuildModes[ i ];
+			if( ImGui::Selectable( m_buildModes[ i ], is_selected ) )
+				m_currentBuildMode = m_buildModes[ i ];
 
 			if( is_selected )
 				ImGui::SetItemDefaultFocus();
@@ -178,33 +178,33 @@ void DemoWindowComponent::drawBuildWindow()
 
 void DemoWindowComponent::buildPlatform()
 {
-	if( mIsBuilding3DS )
+	if( m_isBuilding3DS )
 		return;
 
-	mIsBuilding3DS = true;
+	m_isBuilding3DS = true;
 
 	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
 
-	if( mBuildFence == nullptr )
-		mBuildFence = pJobSystem->createFence();
+	if( m_buildFence == nullptr )
+		m_buildFence = pJobSystem->createFence();
 
 	wv::Job::JobFunction_t fptr = [&](void*)
 		{
 
-			for( int i = 0; i < mBuildPlatforms.size(); i++ )
-				if( mCurrentBuildPlatform == mBuildPlatforms[ i ] )
-					mCurrentBuildArch = mBuildArchs[ i ];
+			for( int i = 0; i < m_buildPlatforms.size(); i++ )
+				if( m_currentBuildPlatform == m_buildPlatforms[ i ] )
+					m_currentBuildArch = m_buildArchs[ i ];
 			
 			wv::Debug::Print( "Launching xmake build\n" );
-			wv::Debug::Print( "    %s(%s) : %s\n", mCurrentBuildPlatform, mCurrentBuildArch, mCurrentBuildMode );
+			wv::Debug::Print( "    %s(%s) : %s\n", m_currentBuildPlatform, m_currentBuildArch, m_currentBuildMode );
 			
 			{
 				wv::Console::run( "../../", {
 					"xmake",
 					"f -c",
-					"-a", mCurrentBuildArch,
-					"-p", mCurrentBuildPlatform,
-					"-m", mCurrentBuildMode 
+					"-a", m_currentBuildArch,
+					"-p", m_currentBuildPlatform,
+					"-m", m_currentBuildMode 
 				} );
 			}
 
@@ -215,10 +215,10 @@ void DemoWindowComponent::buildPlatform()
 					wv::Debug::Print( "Done!\n" );
 			}
 
-			mIsBuilding3DS = false;
+			m_isBuilding3DS = false;
 		};
 
-	wv::Job* job = pJobSystem->createJob( fptr, mBuildFence );
+	wv::Job* job = pJobSystem->createJob( fptr, m_buildFence );
 	pJobSystem->submit( { job } );
 }
 
@@ -229,15 +229,15 @@ void DemoWindowComponent::buildAndRun()
 	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
 	wv::Job::JobFunction_t fptr = [ & ]( void* )
 		{
-			wv::Engine::get()->m_pJobSystem->waitForFence( mBuildFence );
+			wv::Engine::get()->m_pJobSystem->waitForFence( m_buildFence );
 
 			wv::Debug::Print( "Launching\n" );
 
-			std::string launchFile = "Sandbox_" + std::string( mCurrentBuildMode ) + "_arm_3ds";
+			std::string launchFile = "Sandbox_" + std::string( m_currentBuildMode ) + "_arm_3ds";
 
 			int err = wv::Console::run( {
 					"../../tools/3ds/3dslink",
-					"-a", mTargetAddressStr,
+					"-a", m_targetAddressStr,
 					"../3ds/" + launchFile + ".3dsx"
 				} );
 
@@ -247,7 +247,7 @@ void DemoWindowComponent::buildAndRun()
 				return;
 			}
 			else
-				wv::Debug::Print( "Launched on %s:%i\n", mTargetAddressStr, mTargetPort );
+				wv::Debug::Print( "Launched on %s:%i\n", m_targetAddressStr, m_targetPort );
 			
 			/// TODO
 			// cmd : arm-none-eabi-gdb Sandbox_Release_arm_3ds.elf
