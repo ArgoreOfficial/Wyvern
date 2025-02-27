@@ -1,6 +1,8 @@
 #include "Sandbox.h"
 
-#include <wv/app_state.h>
+#include <wv/app_state/editor_app_state.h>
+#include <wv/app_state/runtime_app_state.h>
+
 #include <wv/engine.h>
 
 #include <wv/device/audio_device.h>
@@ -109,13 +111,23 @@ bool Sandbox::create( void )
 	
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
-	wv::IAppState* appState = WV_NEW( wv::IAppState );
+#ifdef WV_PACKAGE
+	wv::IAppState* appState = WV_NEW( wv::RuntimeAppState );
+#else
+	wv::IAppState* appState = WV_NEW( wv::EditorAppState );
+#endif
+
 	engineDesc.pAppState = appState;
 
 	// create engine
 	m_pEngine = WV_NEW( wv::Engine, &engineDesc );
 
 	// load scenes
+	/// TODO: change to appState->addScene( "scenes/playground.json" );
+	/// OR: load scene as template, might allow for easier reload of original states
+	///		loading:   load file -> parse template -> create Scene from template
+	///		reloading: destroy Scene -> create Scene from saved template
+	/// preloads all templates for quick scene switching
 	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
 	
