@@ -85,7 +85,7 @@ void wv::IAppState::onUpdate( double _deltaTime )
 		onEnter();
 	}
 
-	m_pCurrentScene->onUpdate( _deltaTime );
+	m_pCurrentScene->onUpdateTransforms();
 	m_pUpdateManager->onUpdate( _deltaTime );
 }
 

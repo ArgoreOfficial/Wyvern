@@ -49,7 +49,7 @@ void wv::Scene::destroyAllEntities()
 	m_entities.clear();
 }
 
-void wv::Scene::onUpdate( double /*_deltaTime*/ )
+void wv::Scene::onUpdateTransforms()
 {
 	for ( size_t i = 0; i < m_entities.size(); i++ )
 	{
