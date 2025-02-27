@@ -95,15 +95,9 @@ namespace wv
 		RenderTargetID m_gbuffer{};
 		
 		// engine
-		IDeviceContext*    context  = nullptr;
+		IDeviceContext*  context  = nullptr;
 		IGraphicsDevice* graphics = nullptr;
-		AudioDevice*       audio    = nullptr;
-
-		// camera 
-		/// TODO: move to IAppState
-		ICamera* currentCamera    = nullptr;
-		ICamera* orbitCamera      = nullptr;
-		ICamera* freeflightCamera = nullptr;
+		AudioDevice*     audio    = nullptr;
 
 		RenderTargetID m_screenRenderTarget{};
 

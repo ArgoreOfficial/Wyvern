@@ -10,17 +10,44 @@
 #include <wv/engine.h>
 #include <wv/event/update_manager.h>
 
+#include <wv/camera/freeflight_camera.h>
+#include <wv/camera/orbit_camera.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::initialize()
 {
 	m_pUpdateManager = WV_NEW( UpdateManager );
+
+	orbitCamera = WV_NEW( OrbitCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+
+	orbitCamera->onEnter();
+	freeflightCamera->onEnter();
+
+	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
+	currentCamera = freeflightCamera;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::terminate()
 {
+	currentCamera = nullptr;
+
+	if( orbitCamera )
+	{
+		WV_FREE( orbitCamera );
+		orbitCamera = nullptr;
+	}
+
+	if( freeflightCamera )
+	{
+		WV_FREE( freeflightCamera );
+		freeflightCamera = nullptr;
+	}
+	
 	if ( m_pCurrentScene )
 		m_pCurrentScene->destroyAllEntities();
 

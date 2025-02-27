@@ -15,6 +15,7 @@ namespace wv
 	class Scene;
 	class IFileSystem;
 	class UpdateManager;
+	class ICamera;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,11 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		ICamera* currentCamera = nullptr;
+
+		ICamera* orbitCamera = nullptr;
+		ICamera* freeflightCamera = nullptr;
+
 	protected:
 
 		std::vector<Scene*> m_scenes;
@@ -61,6 +67,7 @@ namespace wv
 		Scene* m_pCurrentScene = nullptr;
 
 		UpdateManager* m_pUpdateManager = nullptr;
+
 	};
 
 	IAppState* GetAppState();

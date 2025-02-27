@@ -228,20 +228,10 @@ void emscriptenMainLoop() { wv::Engine::get()->tick(); }
 
 void wv::Engine::run()
 {
-
 	// Subscribe to user input event
 	m_inputListener.hook();
 	m_mouseListener.hook();
 
-	orbitCamera = WV_NEW( OrbitCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	orbitCamera->onEnter();
-	freeflightCamera->onEnter();
-
-	freeflightCamera->getTransform().setPosition( { 0.0f, 0.0f, 20.0f } );
-
-	currentCamera = freeflightCamera;
-	
 	size_t embeddedResources = m_pResourceRegistry->getNumLoadedResources();
 
 	m_pAppState->switchToScene( 0 ); // default scene
@@ -294,19 +284,7 @@ void wv::Engine::run()
 
 void wv::Engine::terminate()
 {
-	currentCamera = nullptr;
 	
-	if( orbitCamera )
-	{
-		WV_FREE( orbitCamera );
-		orbitCamera = nullptr;
-	}
-
-	if( freeflightCamera )
-	{
-		WV_FREE( freeflightCamera );
-		freeflightCamera = nullptr;
-	}
 
 	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( m_gbuffer );
@@ -437,7 +415,7 @@ void wv::Engine::tick()
 #endif
 
 	m_pAppState->onUpdate( dt );
-	currentCamera->update( dt );
+	m_pAppState->currentCamera->update( dt );
 	
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	m_pJobSystem->waitAndDeleteFence( physicsFence );
@@ -472,7 +450,7 @@ void wv::Engine::tick()
 	}
 #endif // WV_SUPPORT_IMGUI
 	
-	if ( currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
+	if ( m_pAppState->currentCamera->beginRender( graphics, m_drawWireframe ? WV_FILL_MODE_WIREFRAME : WV_FILL_MODE_SOLID ) )
 	{
 		graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
 		graphics->cmdClearDepthStencil( {}, 1.0, 0 );
@@ -499,7 +477,7 @@ void wv::Engine::tick()
 	}
 
 	// render screen quad with deferred shader
-	if ( m_pDeferredShader->isComplete() && currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
+	if ( m_pDeferredShader->isComplete() && m_pAppState->currentCamera->beginRender( graphics, WV_FILL_MODE_SOLID ) )
 	{
 		m_pDeferredShader->bind( graphics );
 

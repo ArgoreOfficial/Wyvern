@@ -1,9 +1,13 @@
 #include "material.h"
 
+#include <wv/app_state.h>
+
 #include <wv/texture/texture_resource.h>
 #include <wv/camera/camera.h>
 #include <wv/graphics/graphics_device.h>
+
 #include <wv/engine.h>
+
 #include <wv/math/transform.h>
 #include <wv/mesh/mesh_resource.h>
 #include <wv/graphics/mesh.h>
@@ -105,7 +109,7 @@ void wv::Material::setMaterialUniforms()
 	wv::GPUBufferID instanceBlockID = m_pShader->getShaderBuffer( "UbCameraData" );
 	wv::GPUBuffer& instanceBlock = app->graphics->m_gpuBuffers.at( instanceBlockID );
 
-	GPUBufferID id = app->currentCamera->getBufferID();
+	GPUBufferID id = GetAppState()->currentCamera->getBufferID();
 
 	app->graphics->bindBufferIndex( id, instanceBlock.bindingIndex.value );
 }

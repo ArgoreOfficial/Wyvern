@@ -41,8 +41,9 @@ namespace wv
 
 		Matrix( const Matrix<T, R, C>& _other )
 		{
-			for ( size_t r = 0; r < R; r++ )
-				std::memcpy( m[ r ], _other.m[ r ], sizeof( T ) * C );
+			//for ( size_t r = 0; r < R; r++ )
+			//	std::memcpy( m[ r ], _other.m[ r ], sizeof( T ) * C );
+			std::memcpy( m, _other.m, sizeof( T ) * R * C );
 		}
 
 ///////////////////////////////////////////////////////////////////////////////////////
