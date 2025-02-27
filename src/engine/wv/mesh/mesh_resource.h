@@ -25,8 +25,6 @@ namespace wv
 
 	struct MeshInstance
 	{
-		void draw();
-
 		// removes this instance, mesh may stay loaded
 		void destroy(); 
 

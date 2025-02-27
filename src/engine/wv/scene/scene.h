@@ -2,7 +2,8 @@
 
 #include <wv/decl.h>
 #include <wv/scene/scene_object.h>
-#include "wv/job/job_system.h"
+#include <wv/job/job_system.h>
+
 #include <string>
 
 ///////////////////////////////////////////////////////////////////////////////////////
