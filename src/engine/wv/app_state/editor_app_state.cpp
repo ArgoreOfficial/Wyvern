@@ -1,9 +1,12 @@
 #include "editor_app_state.h"
 
+#include <3ds/3ds_remote_target.h>
+
 #include <wv/debug/log.h>
 #include <wv/engine.h>
+#include <wv/memory/memory.h>
 
-#include <3ds/3ds_remote_target.h>
+#include <wv/editor/target_manager_window.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
@@ -13,6 +16,8 @@ wv::EditorAppState::EditorAppState()
 {
 	m_modeCombo = Combo{ "##modes", m_buildModes };
 	m_platformCombo = Combo{ "##plats", m_buildPlatforms };
+
+	m_editorWindows.push_back( WV_NEW( TargetManagerWindow ) );
 }
 
 void wv::EditorAppState::terminate()
@@ -20,6 +25,10 @@ void wv::EditorAppState::terminate()
 	IAppState::terminate();
 
 	wv::JobSystem* pJobSystem = wv::Engine::get()->m_pJobSystem;
+
+	for ( auto w : m_editorWindows )
+		WV_FREE( w );
+	m_editorWindows.clear();
 
 	if( m_buildFence )
 		pJobSystem->waitAndDeleteFence( m_buildFence );
@@ -55,6 +64,22 @@ void wv::EditorAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pD
 			ImGui::EndMenu();
 		}
 
+		if ( ImGui::BeginMenu( "View" ) )
+		{
+			for ( auto w : m_editorWindows )
+			{
+				std::string name = w->getName() + "##view";
+				if ( ImGui::MenuItem( name.c_str() ) ) 
+					w->toggle();
+			}
+
+			ImGui::EndMenu();
+		}
+
+		for ( auto w : m_editorWindows )
+			if( w->isOpen() )
+				w->draw();
+		
 		drawBuildWindow();
 
 		ImGui::EndMainMenuBar();

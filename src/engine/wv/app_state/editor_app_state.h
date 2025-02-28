@@ -7,6 +7,8 @@
 
 namespace wv {
 
+class IEditorWindow;
+
 struct Combo
 {
 	Combo() = default;
@@ -59,6 +61,8 @@ private:
 
 	Combo m_modeCombo;
 	Combo m_platformCombo;
+
+	std::vector<IEditorWindow*> m_editorWindows;
 };
 
 }

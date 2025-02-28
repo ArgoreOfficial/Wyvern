@@ -25,6 +25,8 @@ bool wv::Remote::isRunningRemoteTarget( int argc, char* argv[] )
 {
 	return false;
 }
+void wv::Remote::remoteMain() { }
+void wv::Remote::remoteMainExit() { }
 #endif
 
 int main( int argc, char* argv[] )

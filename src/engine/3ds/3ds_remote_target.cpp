@@ -2,6 +2,7 @@
 
 #include <wv/debug/log.h>
 
+#ifdef WV_PLATFORM_3DS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,13 +21,10 @@
 
 #include <3ds.h>
 
-
-#ifdef WV_PLATFORM_3DS
 bool wv::Remote::isRunningRemoteTarget( int argc, char* argv[] )
 {
 	return strncmp( argv[ 0 ], "RMT", 3 ) == 0;
 }
-#endif
 
 #define SOC_ALIGN       0x1000
 #define SOC_BUFFERSIZE  0x100000
@@ -88,7 +86,6 @@ void wv::Remote::remoteMainExit()
 	close( sock );
 }
 
-
 //---------------------------------------------------------------------------------
 void failExit( const char* fmt, ... ) {
 //---------------------------------------------------------------------------------
@@ -114,6 +111,8 @@ void failExit( const char* fmt, ... ) {
 		if( kDown & KEY_B ) exit( 0 );
 	}
 }
+#endif
+
 int wv::RemoteTarget3DS::remoteLaunchExecutable( const std::string& _name, const std::vector<std::string>& _args )
 {
 	int pingErr = wv::Console::run( {
