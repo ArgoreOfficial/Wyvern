@@ -56,15 +56,19 @@ void wv::JobSystem::terminate()
 void wv::JobSystem::createWorkers( size_t _count )
 {
 	m_workers.reserve( _count + 1 );
+#ifndef WV_PACKAGE
 	ThreadProfiler* pProfiler = Engine::get()->m_pThreadProfiler;
-
+#endif
 	// host thread worker
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
 		worker->isRenderThread = true;
 		worker->isHostThread   = true;
+	
+	#ifndef WV_PACKAGE
 		worker->workTrace = pProfiler->getWorkTracer( std::this_thread::get_id() );
-		
+	#endif
+
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
 	}
@@ -73,7 +77,10 @@ void wv::JobSystem::createWorkers( size_t _count )
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
 		worker->thread = std::thread( _workerThread, this, worker );
+
+	#ifndef WV_PACKAGE
 		worker->workTrace = pProfiler->getWorkTracer( worker->thread.get_id() );
+	#endif
 
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ worker->thread.get_id() ] = worker;
@@ -204,9 +211,14 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 		
 		if( req == JobThreadType::kANY || ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) )
 		{
+		#ifndef WV_PACKAGE
 			wv::ThreadWorkTrace::StackFrame frame = _pWorker->workTrace->begin();
+		#endif
 			wv::JobSystem::executeJob( nextJob );
+			
+		#ifndef WV_PACKAGE
 			_pWorker->workTrace->end( frame );
+		#endif
 		}
 		else
 			_pWorker->queue.push( nextJob );

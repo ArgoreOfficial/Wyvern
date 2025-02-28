@@ -15,6 +15,8 @@
 
 #include <wv/console/console.h>
 
+#include <3ds/3ds_remote_target.h>
+
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif
@@ -124,21 +126,10 @@ void DemoWindowComponent::drawDemoWindow()
 void DemoWindowComponent::drawBuildWindow()
 {
 #ifdef WV_SUPPORT_IMGUI
+	ImGui::SetNextItemWidth( ImGui::CalcTextSize( "255.255.255.255 " ).x );
+	ImGui::InputText( "##ipinput", m_targetAddressStr, 16, ImGuiInputTextFlags_CharsDecimal );
 
-
-	ImGui::BeginDisabled( m_isBuilding3DS );
-
-	if( ImGui::Button( "Build" ) )
-		buildPlatform();
-
-	if( ImGui::Button( "Build & Run" ) )
-		buildAndRun();
-
-	ImGui::EndDisabled();
-
-	ImGui::SetNextItemWidth( 100.0f );
-	ImGui::InputText( "##ipinput", m_targetAddressStr, 16 );
-	ImGui::SetNextItemWidth( 38.0f );
+	ImGui::SetNextItemWidth( ImGui::CalcTextSize( "65535 " ).x );
 	ImGui::InputInt( "##portinput", &m_targetPort, 0 );
 
 	ImGui::SetNextItemWidth( 100.0f );
@@ -230,25 +221,19 @@ void DemoWindowComponent::buildAndRun()
 	wv::Job::JobFunction_t fptr = [ & ]( void* )
 		{
 			wv::Engine::get()->m_pJobSystem->waitForFence( m_buildFence );
-
-			wv::Debug::Print( "Launching\n" );
-
 			std::string launchFile = "Sandbox_" + std::string( m_currentBuildMode ) + "_arm_3ds";
 
-			int err = wv::Console::run( {
-					"../../tools/3ds/3dslink",
-					"-a", m_targetAddressStr,
-					"../3ds/" + launchFile + ".3dsx"
-				} );
+			wv::Debug::Print( "Launching\n" );
+			wv::RemoteTarget3DS target( m_targetAddressStr, m_targetPort );
 
-			if ( err )
+			if( target.remoteLaunchExecutable( launchFile, {} ) )
 			{
 				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
 				return;
 			}
 			else
 				wv::Debug::Print( "Launched on %s:%i\n", m_targetAddressStr, m_targetPort );
-			
+
 			/// TODO
 			// cmd : arm-none-eabi-gdb Sandbox_Release_arm_3ds.elf
 			// cmd : target remote 192.168.0.160:4003
@@ -264,8 +249,34 @@ void DemoWindowComponent::onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphic
 	drawDemoWindow();
 	
 	if( ImGui::BeginMainMenuBar() )
+	{
+		if( ImGui::BeginMenu( "File" ) )
+		{
+			if( ImGui::MenuItem( "Create" ) )         { WV_WARNING( "Unimplemented\n" ); }
+			if( ImGui::MenuItem( "Open", "Ctrl+O" ) ) { WV_WARNING( "Unimplemented\n" ); }
+			if( ImGui::MenuItem( "Save", "Ctrl+S" ) ) { WV_WARNING( "Unimplemented\n" ); }
+			if( ImGui::MenuItem( "Save as.." ) )      { WV_WARNING( "Unimplemented\n" ); }
+			ImGui::EndMenu();
+		}
+
+		if( ImGui::BeginMenu( "Build" ) )
+		{
+			ImGui::BeginDisabled( m_isBuilding3DS );
+			if( ImGui::MenuItem( "Build" ) ) 
+				buildPlatform();
+
+			if( ImGui::MenuItem( "Build & Run" ) ) 
+				buildAndRun();
+			ImGui::EndDisabled();
+
+			if( ImGui::MenuItem( "Target Manager" ) ) { WV_WARNING( "Unimplemented\n" ); }
+			ImGui::EndMenu();
+		}
+		
 		drawBuildWindow();
-	ImGui::EndMainMenuBar();
+		
+		ImGui::EndMainMenuBar();
+	}
 #endif
 }
 

@@ -2,7 +2,9 @@
 
 #include "matrix_core.h"
 
+#ifdef WV_ENABLE_SIMD
 #include <xmmintrin.h>
+#endif
 
 namespace wv {
 

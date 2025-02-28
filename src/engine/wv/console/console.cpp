@@ -24,6 +24,5 @@ int wv::Console::run( const std::string& _runDir, const std::vector<std::string>
 		i++;
 	}
 
-	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "%s\n", cmd.c_str() );
 	return std::system( cmd.c_str() );
 }

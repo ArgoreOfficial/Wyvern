@@ -86,7 +86,9 @@ wv::Engine::Engine( EngineDesc* _desc )
 	m_pPhysicsEngine->init();
 #endif
 
+#ifndef WV_PACKAGE
 	m_pThreadProfiler = WV_NEW( ThreadProfiler );
+#endif 
 
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
@@ -353,11 +355,13 @@ void wv::Engine::terminate()
 		m_pJobSystem = nullptr;
 	}
 
+#ifndef WV_PACKAGE
 	if( m_pThreadProfiler )
 	{
 		WV_FREE( m_pThreadProfiler );
 		m_pThreadProfiler = nullptr;
 	}
+#endif
 
 	if( m_pFileSystem )
 	{

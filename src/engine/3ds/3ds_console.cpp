@@ -11,8 +11,6 @@
 
 void wv::Console::initialize()
 {
-
-	/// TOOD: move to platform specific
 	// platform init
 	gfxInitDefault();
 	C3D_Init( C3D_DEFAULT_CMDBUF_SIZE );

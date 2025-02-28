@@ -18,12 +18,19 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int main()
+int main( int argc, char* argv[] )
 {
 	wv::Trace::Trace::printEnabled = false;
 
 	if( !wv::Console::isInitialized() )
 		wv::Console::initialize();
+
+	/// TODO: move to platform specific, might not always have access to argv
+	if( strncmp( argv[ 0 ], "RMT", 3 ) == 0 ) // is remote client
+	{
+		wv::Debug::Print( "Launching Remote Client" );
+		std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
+	}
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 

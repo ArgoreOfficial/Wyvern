@@ -146,3 +146,4 @@ namespace wv
 }
 
 
+#define WV_WARNING( ... ) wv::Debug::Print( wv::Debug::WV_PRINT_WARN, __VA_ARGS__ )
