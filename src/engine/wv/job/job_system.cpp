@@ -193,14 +193,17 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 	if( nextJob )
 	{
 		JobThreadType req = nextJob->threadType;
-		
+
 		if( req == JobThreadType::kANY ) // job can run on any thread
 			wv::JobSystem::executeJob( nextJob );
-		else if ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) // job is allowed to run on this thread
+		else if( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) // job is allowed to run on this thread
 			wv::JobSystem::executeJob( nextJob );
 		else
 			_pWorker->queue.push( nextJob );
 	}
+	else 
+		if ( !_pWorker->isHostThread ) 
+			wv::Thread::sleepFor( 1000 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -224,21 +227,13 @@ wv::Job* wv::JobSystem::_getNextJob( wv::JobWorker* _pWorker )
 	JobWorker* worker = m_workers[ r ];
 
 	if ( worker == _pWorker )
-	{
-		//if ( !_pWorker->isHostThread )
-			wv::Thread::sleepFor( 1000 );
-
 		return nullptr;
-	}
-
+	
 	Job* stolenJob = worker->queue.steal();
 
 	if ( stolenJob )
 		return stolenJob;
 	
-	//if ( !_pWorker->isHostThread )
-		wv::Thread::sleepFor( 1000 );
-
 	return nullptr;
 }
 
