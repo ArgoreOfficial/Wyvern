@@ -51,15 +51,6 @@ private:
 	template<typename _Ty>
 	static entry_container_t::iterator _getEntry( _Ty* _ptr ) {
 		entry_container_t::iterator itr = m_entries.begin();
-		/*
-		while( itr != m_entries.end() )
-		{
-			if( itr->ptr == _ptr )
-				break;
-
-			itr++;
-		}
-		*/
 		itr = m_entries.find( _ptr );
 		return itr;
 	}
