@@ -12,7 +12,8 @@ function _add_supports( _target )
 
     _target:add( "defines", { 
         "WV_SUPPORT_OPENGL", 
-        "WV_SUPPORT_OPENGLES"
+        "WV_SUPPORT_OPENGLES",
+        "WV_ENABLE_SIMD"
     } )
 end
 
