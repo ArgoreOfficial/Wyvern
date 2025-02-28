@@ -31,9 +31,14 @@ public:
 
 	StackFrame begin();
 	void end( StackFrame& _frame );
+	
 
 	std::vector<StackFrame> getFrames() { 
 		return m_frames;
+	}
+
+	void resetFrames() {
+		m_frames.clear();
 	}
 
 private:
@@ -49,6 +54,7 @@ public:
 
 	void begin( void );
 	void end  ( void );
+	void reset( void );
 
 	ThreadWorkTrace* getWorkTracer( std::thread::id _threadID );
 	std::vector<ThreadWorkTrace::StackFrame> getStackFrames( std::thread::id _threadID );

@@ -261,6 +261,10 @@ void wv::Engine::run()
 
 	#ifndef WV_PACKAGE
 		m_pThreadProfiler->end();
+
+		/// TODO: thread profiler post-tick event
+
+		m_pThreadProfiler->reset();
 	#endif
 
 		// automatic shutdown if the context is NONE

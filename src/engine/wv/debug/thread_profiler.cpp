@@ -37,6 +37,12 @@ void wv::ThreadProfiler::end()
 	m_mutex.unlock();
 }
 
+void wv::ThreadProfiler::reset( void )
+{
+	for( auto& t : m_threadTraces )
+		t.second->resetFrames();
+}
+
 wv::ThreadWorkTrace* wv::ThreadProfiler::getWorkTracer( std::thread::id _threadID )
 {
 	if( m_threadTraces.count( _threadID ) == 0 )
