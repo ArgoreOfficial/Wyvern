@@ -12,6 +12,7 @@
 #include <wv/device/device_context.h>
 #include <wv/graphics/graphics_device.h>
 #include <wv/device/audio_device.h>
+#include <wv/debug/thread_profiler.h>
 
 #include <wv/job/job_system.h>
 
@@ -84,6 +85,8 @@ wv::Engine::Engine( EngineDesc* _desc )
 	m_pPhysicsEngine = WV_NEW( JoltPhysicsEngine );
 	m_pPhysicsEngine->init();
 #endif
+
+	m_pThreadProfiler = WV_NEW( ThreadProfiler );
 
 	const int concurrency = std::thread::hardware_concurrency();
 	m_pJobSystem = WV_NEW( JobSystem );
@@ -248,7 +251,15 @@ void wv::Engine::run()
 	double deathTimer = 0.0;
 	while( context->isAlive() )
 	{
+	#ifndef WV_PACKAGE
+		m_pThreadProfiler->begin();
+	#endif
+		
 		tick();
+
+	#ifndef WV_PACKAGE
+		m_pThreadProfiler->end();
+	#endif
 
 		// automatic shutdown if the context is NONE
 		if( context->getContextAPI() == WV_DEVICE_CONTEXT_API_NONE )
@@ -284,8 +295,6 @@ void wv::Engine::run()
 
 void wv::Engine::terminate()
 {
-	
-
 	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( m_gbuffer );
 	graphics->deinitEmbeds();
@@ -342,6 +351,12 @@ void wv::Engine::terminate()
 		m_pJobSystem->terminate();
 		WV_FREE( m_pJobSystem );
 		m_pJobSystem = nullptr;
+	}
+
+	if( m_pThreadProfiler )
+	{
+		WV_FREE( m_pThreadProfiler );
+		m_pThreadProfiler = nullptr;
 	}
 
 	if( m_pFileSystem )

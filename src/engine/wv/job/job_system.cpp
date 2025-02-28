@@ -5,7 +5,9 @@
 #include <random>
 
 #include <wv/debug/log.h>
+#include <wv/debug/thread_profiler.h>
 #include <wv/platform/thread.h>
+#include <wv/engine.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,12 +56,15 @@ void wv::JobSystem::terminate()
 void wv::JobSystem::createWorkers( size_t _count )
 {
 	m_workers.reserve( _count + 1 );
-	
-	// main thread worker
+	ThreadProfiler* pProfiler = Engine::get()->m_pThreadProfiler;
+
+	// host thread worker
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
 		worker->isRenderThread = true;
 		worker->isHostThread   = true;
+		worker->workTrace = pProfiler->getWorkTracer( std::this_thread::get_id() );
+		
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
 	}
@@ -68,6 +73,7 @@ void wv::JobSystem::createWorkers( size_t _count )
 	{
 		JobWorker* worker = WV_NEW( JobWorker );
 		worker->thread = std::thread( _workerThread, this, worker );
+		worker->workTrace = pProfiler->getWorkTracer( worker->thread.get_id() );
 
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ worker->thread.get_id() ] = worker;
@@ -97,6 +103,8 @@ wv::Job* wv::JobSystem::createJob( wv::Job::JobFunction_t _fptr, wv::Fence* _pSi
 {
 	return createJob( JobThreadType::kANY, _fptr, _pSignalFence, _pWaitFence, _pData );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Job* wv::JobSystem::createJob( wv::JobThreadType _threadType, wv::Job::JobFunction_t _fptr, wv::Fence* _pSignalFence, wv::Fence* _pWaitFence, void* _pData )
 {
@@ -193,11 +201,13 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 	if( nextJob )
 	{
 		JobThreadType req = nextJob->threadType;
-
-		if( req == JobThreadType::kANY ) // job can run on any thread
+		
+		if( req == JobThreadType::kANY || ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) )
+		{
+			wv::ThreadWorkTrace::StackFrame frame = _pWorker->workTrace->begin();
 			wv::JobSystem::executeJob( nextJob );
-		else if( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) // job is allowed to run on this thread
-			wv::JobSystem::executeJob( nextJob );
+			_pWorker->workTrace->end( frame );
+		}
 		else
 			_pWorker->queue.push( nextJob );
 	}

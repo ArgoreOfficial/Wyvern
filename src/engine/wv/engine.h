@@ -30,6 +30,7 @@ namespace wv
 	class JobSystem;
 
 	class UpdateManager;
+	class ThreadProfiler;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,6 +114,10 @@ namespace wv
 
 		JobSystem*          m_pJobSystem        = nullptr;
 		
+	#ifndef WV_PACKAGE
+		ThreadProfiler* m_pThreadProfiler = nullptr;
+	#endif
+
 		struct FogParams
 		{
 			wv::Vector4f colorDensity{};
