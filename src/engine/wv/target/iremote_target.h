@@ -10,6 +10,8 @@ namespace wv {
 namespace Remote {
 
 bool isRunningRemoteTarget( int argc, char* argv[] );
+void remoteMain();
+void remoteMainExit();
 
 }
 

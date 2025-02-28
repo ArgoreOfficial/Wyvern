@@ -38,6 +38,8 @@ int main( int argc, char* argv[] )
 	{
 		wv::Debug::Print( "Launching Remote Client" );
 		std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
+
+		wv::Remote::remoteMain();
 	}
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
@@ -89,6 +91,9 @@ int main( int argc, char* argv[] )
 	std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 #endif
 
+	if( wv::Remote::isRunningRemoteTarget( argc, argv ) )
+		wv::Remote::remoteMainExit();
+	
 	if ( wv::Console::isInitialized() )
 		wv::Console::deinitialize();
 
