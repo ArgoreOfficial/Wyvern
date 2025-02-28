@@ -5,6 +5,8 @@
 #include <wv/memory/memory.h>
 #include <wv/console/console.h>
 
+#include <wv/target/iremote_target.h>
+
 #include <stdio.h>
 #include <exception>
 #include <typeinfo>
@@ -18,6 +20,13 @@ WV_PSVITA_HEAPSIZE( 1 * 1024 * 1024 );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef WV_PLATFORM_WINDOWS
+bool wv::Remote::isRunningRemoteTarget( int argc, char* argv[] )
+{
+	return false;
+}
+#endif
+
 int main( int argc, char* argv[] )
 {
 	wv::Trace::Trace::printEnabled = false;
@@ -25,8 +34,7 @@ int main( int argc, char* argv[] )
 	if( !wv::Console::isInitialized() )
 		wv::Console::initialize();
 
-	/// TODO: move to platform specific, might not always have access to argv
-	if( strncmp( argv[ 0 ], "RMT", 3 ) == 0 ) // is remote client
+	if( wv::Remote::isRunningRemoteTarget( argc, argv ) )
 	{
 		wv::Debug::Print( "Launching Remote Client" );
 		std::this_thread::sleep_for( std::chrono::seconds( 3 ) );

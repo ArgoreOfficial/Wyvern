@@ -7,6 +7,12 @@
 
 namespace wv {
 
+namespace Remote {
+
+bool isRunningRemoteTarget( int argc, char* argv[] );
+
+}
+
 class IRemoteTarget
 {
 public:

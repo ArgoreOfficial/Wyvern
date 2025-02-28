@@ -2,6 +2,13 @@
 
 #include <wv/debug/log.h>
 
+#ifdef WV_PLATFORM_3DS
+bool wv::Remote::isRunningRemoteTarget( int argc, char* argv[] )
+{
+	return strncmp( argv[ 0 ], "RMT", 3 ) == 0;
+}
+#endif
+
 int wv::RemoteTarget3DS::remoteLaunchExecutable( const std::string& _name, const std::vector<std::string>& _args )
 {
 	int pingErr = wv::Console::run( {
