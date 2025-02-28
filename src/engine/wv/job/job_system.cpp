@@ -203,7 +203,7 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 	}
 	else 
 		if ( !_pWorker->isHostThread ) 
-			wv::Thread::sleepFor( 1000 );
+			wv::Thread::sleepFor( 10 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

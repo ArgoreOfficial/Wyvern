@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/graphics/mesh.h>
 #include <wv/math/transform.h>
 
 #include <vector>
@@ -25,6 +26,7 @@ public:
 private:
 
 	IGraphicsDevice* m_pGraphics{ nullptr };
+	std::vector<MeshInstanceData> m_instanceDatas{};
 
 };
 

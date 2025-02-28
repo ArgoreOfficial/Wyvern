@@ -5,7 +5,6 @@
 #include <wv/texture/texture_resource.h>
 #include <wv/graphics/graphics_device.h>
 #include <wv/shader/shader_resource.h>
-#include <wv/graphics/mesh.h>
 
 void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances )
 {
@@ -14,9 +13,7 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 
 	unordered_array<MeshID, Mesh>& meshObjects = m_pGraphics->m_meshes;
 
-	std::vector<MeshInstanceData> instances;
-	instances.reserve( _numInstances );
-
+	m_instanceDatas.reserve( _numInstances * _pNode->meshes.size() );
 	for ( auto& meshID : _pNode->meshes )
 	{
 		if ( !meshID.is_valid() )
@@ -59,7 +56,7 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 				}
 			}
 
-			instances.push_back( instanceData );
+			m_instanceDatas.push_back( instanceData );
 		}
 
 		wv::GPUBufferID SbVerticesID = pShader->getShaderBuffer( "SbVertices" );
@@ -70,11 +67,11 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 
 			m_pGraphics->bindBufferIndex( mesh.vertexBufferID, SbVertices.bindingIndex.value );
 			m_pGraphics->cmdBindIndexBuffer( {}, mesh.indexBufferID, 0, WV_UNSIGNED_INT );
-			m_pGraphics->cmdUpdateBuffer( {}, SbInstanceData, instances.size() * sizeof( MeshInstanceData ), instances.data() );
-			m_pGraphics->cmdDrawIndexed( {}, mesh.numIndices, instances.size(), mesh.baseIndex, mesh.baseVertex, 0 );
+			m_pGraphics->cmdUpdateBuffer( {}, SbInstanceData, m_instanceDatas.size() * sizeof( MeshInstanceData ), m_instanceDatas.data() );
+			m_pGraphics->cmdDrawIndexed( {}, mesh.numIndices, m_instanceDatas.size(), mesh.baseIndex, mesh.baseVertex, 0 );
 		}
 
-		instances.clear();
+		m_instanceDatas.clear();
 	}
 
 	for ( auto& childNode : _pNode->children )
