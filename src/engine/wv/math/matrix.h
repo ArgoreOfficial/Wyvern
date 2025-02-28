@@ -26,7 +26,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		T m[ R ][ C ];
+		T m[ R * C ];
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace wv
 		{
 			static_assert( R == C, "Cannot create identity matrix from non-square matrix. See output" );
 			for( size_t i = 0; i < R; i++ )
-				m[ i ][ i ] = _val;
+				set( i, i, _val );
 		}
 
 		Matrix( const Matrix<T, R, C>& _other )
@@ -62,27 +62,35 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+		inline void set( size_t _r, size_t _c, T _val ) {
+			m[ _r * C + _c ] = _val;
+		}
+
+		inline T get( size_t _r, size_t _c ) const {
+			return m[ _r * C + _c ];
+		}
+
 		void setRow( const size_t& _r, std::array<T, C> _v );
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& right( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 0 ] ); }
+		Vector4<T>& right( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 0 * 4 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& up   ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 1 ] ); }
+		Vector4<T>& up   ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 1 * 4 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& at   ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 2 ] ); }
+		Vector4<T>& at   ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 2 * 4 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& pos  ( void ) { return *reinterpret_cast< Vector4<T>* >( m[ 3 ] ); }
+		Vector4<T>& pos  ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 3 * 4 ] ); }
 
 	};
 
@@ -92,14 +100,19 @@ namespace wv
 	Vector4<T> operator*( const Matrix<T, 4, 4>& _mat, const Vector4<T>& _vec )
 	{
 		Matrix<T, 4, 1> tmpMat{};
-		tmpMat[ 0 ][ 0 ] = _vec.x;
-		tmpMat[ 1 ][ 0 ] = _vec.y;
-		tmpMat[ 2 ][ 0 ] = _vec.z;
-		tmpMat[ 3 ][ 0 ] = _vec.w;
+		tmpMat.set( 0, 0, _vec.x );
+		tmpMat.set( 1, 0, _vec.y );
+		tmpMat.set( 2, 0, _vec.z );
+		tmpMat.set( 3, 0, _vec.w );
 
 		auto res = _mat * tmpMat;
 		
-		return { res[ 1 ][ 0 ], res[ 1 ][ 0 ], res[ 2 ][ 0 ], res[ 3 ][ 0 ] };
+		return { 
+			res.get( 1, 0 ), 
+			res.get( 1, 0 ), 
+			res.get( 2, 0 ), 
+			res.get( 3, 0 ) 
+		};
 	}
 
 	template<typename T>
@@ -111,10 +124,10 @@ namespace wv
 		auto res = tmpMat * _mat;
 
 		return { 
-			res[ 0 ][ 0 ], 
-			res[ 0 ][ 1 ], 
-			res[ 0 ][ 2 ], 
-			res[ 0 ][ 3 ] 
+			res.get( 0, 0 ), 
+			res.get( 0, 1 ), 
+			res.get( 0, 2 ), 
+			res.get( 0, 3 ) 
 		};
 	}
 
@@ -136,9 +149,9 @@ namespace wv
 					T v = 0;
 
 					for( size_t inner = 0; inner < ColA_RowB; inner++ )
-						v += _a.m[ row ][ inner ] * _b.m[ inner ][ column ];
+						v += _a.get( row, inner ) * _b.get( inner, column );
 
-					res[ row ][ column ] = v;
+					res.set( row, column, v );
 				}
 			}
 			return res;
@@ -147,29 +160,29 @@ namespace wv
 		template<typename T>
 		static inline Matrix<T, 4, 4> inverse( const Matrix<T, 4, 4>& _m )
 		{
-			double A2323 = _m[ 2 ][ 2 ] * _m[ 3 ][ 3 ] - _m[ 2 ][ 3 ] * _m[ 3 ][ 2 ];
-			double A1323 = _m[ 2 ][ 1 ] * _m[ 3 ][ 3 ] - _m[ 2 ][ 3 ] * _m[ 3 ][ 1 ];
-			double A1223 = _m[ 2 ][ 1 ] * _m[ 3 ][ 2 ] - _m[ 2 ][ 2 ] * _m[ 3 ][ 1 ];
-			double A0323 = _m[ 2 ][ 0 ] * _m[ 3 ][ 3 ] - _m[ 2 ][ 3 ] * _m[ 3 ][ 0 ];
-			double A0223 = _m[ 2 ][ 0 ] * _m[ 3 ][ 2 ] - _m[ 2 ][ 2 ] * _m[ 3 ][ 0 ];
-			double A0123 = _m[ 2 ][ 0 ] * _m[ 3 ][ 1 ] - _m[ 2 ][ 1 ] * _m[ 3 ][ 0 ];
-			double A2313 = _m[ 1 ][ 2 ] * _m[ 3 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 3 ][ 2 ];
-			double A1313 = _m[ 1 ][ 1 ] * _m[ 3 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 3 ][ 1 ];
-			double A1213 = _m[ 1 ][ 1 ] * _m[ 3 ][ 2 ] - _m[ 1 ][ 2 ] * _m[ 3 ][ 1 ];
-			double A2312 = _m[ 1 ][ 2 ] * _m[ 2 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 2 ][ 2 ];
-			double A1312 = _m[ 1 ][ 1 ] * _m[ 2 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 2 ][ 1 ];
-			double A1212 = _m[ 1 ][ 1 ] * _m[ 2 ][ 2 ] - _m[ 1 ][ 2 ] * _m[ 2 ][ 1 ];
-			double A0313 = _m[ 1 ][ 0 ] * _m[ 3 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 3 ][ 0 ];
-			double A0213 = _m[ 1 ][ 0 ] * _m[ 3 ][ 2 ] - _m[ 1 ][ 2 ] * _m[ 3 ][ 0 ];
-			double A0312 = _m[ 1 ][ 0 ] * _m[ 2 ][ 3 ] - _m[ 1 ][ 3 ] * _m[ 2 ][ 0 ];
-			double A0212 = _m[ 1 ][ 0 ] * _m[ 2 ][ 2 ] - _m[ 1 ][ 2 ] * _m[ 2 ][ 0 ];
-			double A0113 = _m[ 1 ][ 0 ] * _m[ 3 ][ 1 ] - _m[ 1 ][ 1 ] * _m[ 3 ][ 0 ];
-			double A0112 = _m[ 1 ][ 0 ] * _m[ 2 ][ 1 ] - _m[ 1 ][ 1 ] * _m[ 2 ][ 0 ];
+			double A2323 = _m.get( 2, 2 ) * _m.get( 3, 3 ) - _m.get( 2, 3 ) * _m.get( 3, 2 );
+			double A1323 = _m.get( 2, 1 ) * _m.get( 3, 3 ) - _m.get( 2, 3 ) * _m.get( 3, 1 );
+			double A1223 = _m.get( 2, 1 ) * _m.get( 3, 2 ) - _m.get( 2, 2 ) * _m.get( 3, 1 );
+			double A0323 = _m.get( 2, 0 ) * _m.get( 3, 3 ) - _m.get( 2, 3 ) * _m.get( 3, 0 );
+			double A0223 = _m.get( 2, 0 ) * _m.get( 3, 2 ) - _m.get( 2, 2 ) * _m.get( 3, 0 );
+			double A0123 = _m.get( 2, 0 ) * _m.get( 3, 1 ) - _m.get( 2, 1 ) * _m.get( 3, 0 );
+			double A2313 = _m.get( 1, 2 ) * _m.get( 3, 3 ) - _m.get( 1, 3 ) * _m.get( 3, 2 );
+			double A1313 = _m.get( 1, 1 ) * _m.get( 3, 3 ) - _m.get( 1, 3 ) * _m.get( 3, 1 );
+			double A1213 = _m.get( 1, 1 ) * _m.get( 3, 2 ) - _m.get( 1, 2 ) * _m.get( 3, 1 );
+			double A2312 = _m.get( 1, 2 ) * _m.get( 2, 3 ) - _m.get( 1, 3 ) * _m.get( 2, 2 );
+			double A1312 = _m.get( 1, 1 ) * _m.get( 2, 3 ) - _m.get( 1, 3 ) * _m.get( 2, 1 );
+			double A1212 = _m.get( 1, 1 ) * _m.get( 2, 2 ) - _m.get( 1, 2 ) * _m.get( 2, 1 );
+			double A0313 = _m.get( 1, 0 ) * _m.get( 3, 3 ) - _m.get( 1, 3 ) * _m.get( 3, 0 );
+			double A0213 = _m.get( 1, 0 ) * _m.get( 3, 2 ) - _m.get( 1, 2 ) * _m.get( 3, 0 );
+			double A0312 = _m.get( 1, 0 ) * _m.get( 2, 3 ) - _m.get( 1, 3 ) * _m.get( 2, 0 );
+			double A0212 = _m.get( 1, 0 ) * _m.get( 2, 2 ) - _m.get( 1, 2 ) * _m.get( 2, 0 );
+			double A0113 = _m.get( 1, 0 ) * _m.get( 3, 1 ) - _m.get( 1, 1 ) * _m.get( 3, 0 );
+			double A0112 = _m.get( 1, 0 ) * _m.get( 2, 1 ) - _m.get( 1, 1 ) * _m.get( 2, 0 );
 
-			T det = _m[ 0 ][ 0 ] * ( _m[ 1 ][ 1 ] * A2323 - _m[ 1 ][ 2 ] * A1323 + _m[ 1 ][ 3 ] * A1223 )
-				  - _m[ 0 ][ 1 ] * ( _m[ 1 ][ 0 ] * A2323 - _m[ 1 ][ 2 ] * A0323 + _m[ 1 ][ 3 ] * A0223 )
-				  + _m[ 0 ][ 2 ] * ( _m[ 1 ][ 0 ] * A1323 - _m[ 1 ][ 1 ] * A0323 + _m[ 1 ][ 3 ] * A0123 )
-				  - _m[ 0 ][ 3 ] * ( _m[ 1 ][ 0 ] * A1223 - _m[ 1 ][ 1 ] * A0223 + _m[ 1 ][ 2 ] * A0123 );
+			T det = _m.get( 0, 0 ) * ( _m.get( 1, 1 ) * A2323 - _m.get( 1, 2 ) * A1323 + _m.get( 1, 3 ) * A1223 )
+				  - _m.get( 0, 1 ) * ( _m.get( 1, 0 ) * A2323 - _m.get( 1, 2 ) * A0323 + _m.get( 1, 3 ) * A0223 )
+				  + _m.get( 0, 2 ) * ( _m.get( 1, 0 ) * A1323 - _m.get( 1, 1 ) * A0323 + _m.get( 1, 3 ) * A0123 )
+				  - _m.get( 0, 3 ) * ( _m.get( 1, 0 ) * A1223 - _m.get( 1, 1 ) * A0223 + _m.get( 1, 2 ) * A0123 );
 
 			if ( det == 0.0 ) // determinant is zero, inverse matrix does not exist
 				return Matrix<T, 4, 4>{};
@@ -178,22 +191,22 @@ namespace wv
 
 			Matrix<T, 4, 4> im;
 
-			im[ 0 ][ 0 ] = det *  ( _m[ 1 ][ 1 ] * A2323 - _m[ 1 ][ 2 ] * A1323 + _m[ 1 ][ 3 ] * A1223 );
-			im[ 0 ][ 1 ] = det * -( _m[ 0 ][ 1 ] * A2323 - _m[ 0 ][ 2 ] * A1323 + _m[ 0 ][ 3 ] * A1223 );
-			im[ 0 ][ 2 ] = det *  ( _m[ 0 ][ 1 ] * A2313 - _m[ 0 ][ 2 ] * A1313 + _m[ 0 ][ 3 ] * A1213 );
-			im[ 0 ][ 3 ] = det * -( _m[ 0 ][ 1 ] * A2312 - _m[ 0 ][ 2 ] * A1312 + _m[ 0 ][ 3 ] * A1212 );
-			im[ 1 ][ 0 ] = det * -( _m[ 1 ][ 0 ] * A2323 - _m[ 1 ][ 2 ] * A0323 + _m[ 1 ][ 3 ] * A0223 );
-			im[ 1 ][ 1 ] = det *  ( _m[ 0 ][ 0 ] * A2323 - _m[ 0 ][ 2 ] * A0323 + _m[ 0 ][ 3 ] * A0223 );
-			im[ 1 ][ 2 ] = det * -( _m[ 0 ][ 0 ] * A2313 - _m[ 0 ][ 2 ] * A0313 + _m[ 0 ][ 3 ] * A0213 );
-			im[ 1 ][ 3 ] = det *  ( _m[ 0 ][ 0 ] * A2312 - _m[ 0 ][ 2 ] * A0312 + _m[ 0 ][ 3 ] * A0212 );
-			im[ 2 ][ 0 ] = det *  ( _m[ 1 ][ 0 ] * A1323 - _m[ 1 ][ 1 ] * A0323 + _m[ 1 ][ 3 ] * A0123 );
-			im[ 2 ][ 1 ] = det * -( _m[ 0 ][ 0 ] * A1323 - _m[ 0 ][ 1 ] * A0323 + _m[ 0 ][ 3 ] * A0123 );
-			im[ 2 ][ 2 ] = det *  ( _m[ 0 ][ 0 ] * A1313 - _m[ 0 ][ 1 ] * A0313 + _m[ 0 ][ 3 ] * A0113 );
-			im[ 2 ][ 3 ] = det * -( _m[ 0 ][ 0 ] * A1312 - _m[ 0 ][ 1 ] * A0312 + _m[ 0 ][ 3 ] * A0112 );
-			im[ 3 ][ 0 ] = det * -( _m[ 1 ][ 0 ] * A1223 - _m[ 1 ][ 1 ] * A0223 + _m[ 1 ][ 2 ] * A0123 );
-			im[ 3 ][ 1 ] = det *  ( _m[ 0 ][ 0 ] * A1223 - _m[ 0 ][ 1 ] * A0223 + _m[ 0 ][ 2 ] * A0123 );
-			im[ 3 ][ 2 ] = det * -( _m[ 0 ][ 0 ] * A1213 - _m[ 0 ][ 1 ] * A0213 + _m[ 0 ][ 2 ] * A0113 );
-			im[ 3 ][ 3 ] = det *  ( _m[ 0 ][ 0 ] * A1212 - _m[ 0 ][ 1 ] * A0212 + _m[ 0 ][ 2 ] * A0112 );
+			im.set( 0, 0, det *  ( _m.get( 1, 1 ) * A2323 - _m.get( 1, 2 ) * A1323 + _m.get( 1, 3 ) * A1223 ) );
+			im.set( 0, 1, det * -( _m.get( 0, 1 ) * A2323 - _m.get( 0, 2 ) * A1323 + _m.get( 0, 3 ) * A1223 ) );
+			im.set( 0, 2, det *  ( _m.get( 0, 1 ) * A2313 - _m.get( 0, 2 ) * A1313 + _m.get( 0, 3 ) * A1213 ) );
+			im.set( 0, 3, det * -( _m.get( 0, 1 ) * A2312 - _m.get( 0, 2 ) * A1312 + _m.get( 0, 3 ) * A1212 ) );
+			im.set( 1, 0, det * -( _m.get( 1, 0 ) * A2323 - _m.get( 1, 2 ) * A0323 + _m.get( 1, 3 ) * A0223 ) );
+			im.set( 1, 1, det *  ( _m.get( 0, 0 ) * A2323 - _m.get( 0, 2 ) * A0323 + _m.get( 0, 3 ) * A0223 ) );
+			im.set( 1, 2, det * -( _m.get( 0, 0 ) * A2313 - _m.get( 0, 2 ) * A0313 + _m.get( 0, 3 ) * A0213 ) );
+			im.set( 1, 3, det *  ( _m.get( 0, 0 ) * A2312 - _m.get( 0, 2 ) * A0312 + _m.get( 0, 3 ) * A0212 ) );
+			im.set( 2, 0, det *  ( _m.get( 1, 0 ) * A1323 - _m.get( 1, 1 ) * A0323 + _m.get( 1, 3 ) * A0123 ) );
+			im.set( 2, 1, det * -( _m.get( 0, 0 ) * A1323 - _m.get( 0, 1 ) * A0323 + _m.get( 0, 3 ) * A0123 ) );
+			im.set( 2, 2, det *  ( _m.get( 0, 0 ) * A1313 - _m.get( 0, 1 ) * A0313 + _m.get( 0, 3 ) * A0113 ) );
+			im.set( 2, 3, det * -( _m.get( 0, 0 ) * A1312 - _m.get( 0, 1 ) * A0312 + _m.get( 0, 3 ) * A0112 ) );
+			im.set( 3, 0, det * -( _m.get( 1, 0 ) * A1223 - _m.get( 1, 1 ) * A0223 + _m.get( 1, 2 ) * A0123 ) );
+			im.set( 3, 1, det *  ( _m.get( 0, 0 ) * A1223 - _m.get( 0, 1 ) * A0223 + _m.get( 0, 2 ) * A0123 ) );
+			im.set( 3, 2, det * -( _m.get( 0, 0 ) * A1213 - _m.get( 0, 1 ) * A0213 + _m.get( 0, 2 ) * A0113 ) );
+			im.set( 3, 3, det *  ( _m.get( 0, 0 ) * A1212 - _m.get( 0, 1 ) * A0212 + _m.get( 0, 2 ) * A0112 ) );
 
 			return im;
 		}
@@ -207,7 +220,7 @@ namespace wv
 			/// TODO: optimize
 			for( size_t row = 0; row < R; row++ )
 				for( size_t col = 0; col < C; col++ )
-					res[ col ][ row ] = _m[ row ][ col ];
+					res.set( col, row, _m.get( row, col ) );
 			
 			return res;
 		}
@@ -337,7 +350,7 @@ namespace wv
 	template<typename T, size_t R, size_t C>
 	inline Matrix<T, R, C>& Matrix<T, R, C>::operator=( const Matrix<T, R, C>& _o )
 	{
-		memcpy( &m, &_o.m, sizeof( m ) );
+		std::memcpy( &m, &_o.m, sizeof( m ) );
 		return ( *this );
 	}
 
@@ -364,7 +377,7 @@ namespace wv
 		size_t id = 0;
 		for( auto& v : _v )
 		{
-			m[ _r ][ id ] = v;
+			set( _r, id, v );
 			id++;
 		}
 	}
