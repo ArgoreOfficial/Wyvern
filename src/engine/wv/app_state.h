@@ -23,7 +23,7 @@ namespace wv
 	{
 	public:
 		void initialize();
-		void terminate();
+		virtual void terminate();
 
 		void onConstruct();
 		void onDestruct();
@@ -34,7 +34,7 @@ namespace wv
 		void onUpdate( double _deltaTime );
 		void onPhysicsUpdate( double _deltaTime );
 
-		void onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice );
+		virtual void onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice );
 
 		void reloadScene();
 
