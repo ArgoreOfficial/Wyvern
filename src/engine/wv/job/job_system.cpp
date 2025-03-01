@@ -224,8 +224,8 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 			_pWorker->queue.push( nextJob );
 	}
 	else
-		wv::Thread::sleepFor( 1000 );
-		//std::this_thread::yield();
+		std::this_thread::yield();
+		//wv::Thread::sleepFor( 1000 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

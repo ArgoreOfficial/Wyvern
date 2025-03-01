@@ -148,28 +148,12 @@ void wv::EditorAppState::buildPlatform()
 
 	wv::Job::JobFunction_t fptr = [ & ]( void* )
 		{
-			const char* buildArch = m_buildArchs[ m_platformCombo.currentOptionIndex ];
+			wv::RemoteTarget3DS target( m_targetAddressStr, m_targetPort );
+
+			wv::Debug::Print( "Building...\n" );
+			if ( target.buildExecutable( m_modeCombo.currentOption ) )
+				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Build Failed\n" );
 			
-			wv::Debug::Print( "Launching xmake build\n" );
-			wv::Debug::Print( "    %s(%s) : %s\n", m_platformCombo.currentOption, buildArch, m_modeCombo.currentOption );
-
-			{
-				wv::Console::run( "../../", {
-					"xmake",
-					"f -c",
-					"-a", buildArch,
-					"-p", m_platformCombo.currentOption,
-					"-m", m_modeCombo.currentOption
-								  } );
-			}
-
-			{
-				if( wv::Console::run( { "xmake" } ) )
-					wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Compilation Failed\n" );
-				else
-					wv::Debug::Print( "Done!\n" );
-			}
-
 			m_isBuilding3DS = false;
 		};
 
@@ -191,10 +175,7 @@ void wv::EditorAppState::buildAndRun()
 			wv::RemoteTarget3DS target( m_targetAddressStr, m_targetPort );
 
 			if( target.remoteLaunchExecutable( launchFile, {} ) )
-			{
 				wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Run Failed\n" );
-				return;
-			}
 			else
 				wv::Debug::Print( "Launched on %s:%i\n", m_targetAddressStr, m_targetPort );
 
@@ -202,6 +183,7 @@ void wv::EditorAppState::buildAndRun()
 			// cmd : arm-none-eabi-gdb Sandbox_Release_arm_3ds.elf
 			// cmd : target remote 192.168.0.160:4003
 		};
+
 	wv::Job* job = pJobSystem->createJob( fptr );
 	pJobSystem->submit( { job } );
 }
@@ -253,6 +235,7 @@ wv::ComboButton::ComboButton( const char* _name, const std::vector<const char*>&
 
 int wv::ComboButton::draw( float _width )
 {
+#ifdef WV_SUPPORT_IMGUI
 	std::string buildButtonStr = currentOption + std::string{ "##" } + std::string{ name };
 	ImGui::Button( buildButtonStr.c_str() );
 
@@ -275,4 +258,5 @@ int wv::ComboButton::draw( float _width )
 	}
 
 	return 0;
+#endif
 }

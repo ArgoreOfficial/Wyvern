@@ -33,6 +33,8 @@ public:
 	}
 	
 	virtual const std::string getPlatformName() = 0;
+
+	virtual int buildExecutable( const std::string& _mode ) = 0;
 	virtual int remoteLaunchExecutable( const std::string& _name, const std::vector<std::string>& _args ) = 0;
 
 protected:

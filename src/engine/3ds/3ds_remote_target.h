@@ -16,6 +16,7 @@ public:
 		return "3DS";
 	}
 
+	int buildExecutable( const std::string& _mode ) override;
 	int remoteLaunchExecutable( const std::string& _name, const std::vector<std::string>& _args ) override;
 };
 

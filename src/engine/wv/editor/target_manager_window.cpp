@@ -6,6 +6,7 @@
 
 void wv::TargetManagerWindow::draw()
 {
+#ifdef WV_SUPPORT_IMGUI
 	if ( ImGui::Begin( "Target Manager", 0, ImGuiWindowFlags_AlwaysAutoResize ) )
 	{
 		ImGui::Button( "Add Target" );
@@ -17,4 +18,5 @@ void wv::TargetManagerWindow::draw()
 		ImGui::ListBox( "listbox\n(single select)", &listbox_item_current, listbox_items, IM_ARRAYSIZE( listbox_items ), 4 );
 	}
 	ImGui::End();
+#endif
 }

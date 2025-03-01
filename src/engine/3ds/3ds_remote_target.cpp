@@ -113,6 +113,23 @@ void failExit( const char* fmt, ... ) {
 }
 #endif
 
+int wv::RemoteTarget3DS::buildExecutable( const std::string& _mode )
+{
+	const std::vector<std::string> cmd = {
+		"xmake",
+		"f -c",
+		"-a arm_3ds",
+		"-p 3DS",
+		"-m", _mode
+	};
+	int err = wv::Console::run( "../../", cmd );
+
+	if ( err )
+		return err;
+
+	return wv::Console::run( { "xmake" } );;
+}
+
 int wv::RemoteTarget3DS::remoteLaunchExecutable( const std::string& _name, const std::vector<std::string>& _args )
 {
 	int pingErr = wv::Console::run( {
