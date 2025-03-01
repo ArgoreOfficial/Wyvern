@@ -205,17 +205,17 @@ wv::JobWorker* wv::JobSystem::getThisThreadWorker()
 void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 {
 	Job* nextJob = _getNextJob( _pWorker );
-	if( nextJob )
+	if ( nextJob )
 	{
 		JobThreadType req = nextJob->threadType;
-		
-		if( req == JobThreadType::kANY || ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) )
+
+		if ( req == JobThreadType::kANY || ( req == JobThreadType::kRENDER && _pWorker->isRenderThread ) )
 		{
 		#ifndef WV_PACKAGE
 			wv::ThreadWorkTrace::StackFrame frame = _pWorker->workTrace->begin();
 		#endif
 			wv::JobSystem::executeJob( nextJob );
-			
+
 		#ifndef WV_PACKAGE
 			_pWorker->workTrace->end( frame );
 		#endif
@@ -223,9 +223,9 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 		else
 			_pWorker->queue.push( nextJob );
 	}
-	else 
-		if ( !_pWorker->isHostThread ) 
-			wv::Thread::sleepFor( 10 );
+	else
+		wv::Thread::sleepFor( 1000 );
+		//std::this_thread::yield();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
