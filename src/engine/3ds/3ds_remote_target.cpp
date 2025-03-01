@@ -35,49 +35,26 @@ s32 sock = -1, csock = -1;
 __attribute__( ( format( printf, 1, 2 ) ) )
 void failExit( const char* fmt, ... );
 
-
-//---------------------------------------------------------------------------------
 void socShutdown() {
-//---------------------------------------------------------------------------------
 	printf( "waiting for socExit...\n" );
 	socExit();
 }
 
-
 void wv::Remote::remoteMain()
 {
-
-	// register gfxExit to be run when app quits
-	// this can help simplify error handling
 	atexit( gfxExit );
 
-	printf( "\nlibctru 3dslink demo\n\n" );
-
-	printf( "\nstart 3dslink with -s to see printf output on host\n\n" );
-
-	// allocate buffer for SOC service
 	SOC_buffer = (u32*)memalign( SOC_ALIGN, SOC_BUFFERSIZE );
 
 	if( SOC_buffer == NULL )
-	{
 		failExit( "memalign: failed to allocate\n" );
-	}
-
+	
 	int ret;
-	// Now intialise soc:u service
 	if( ( ret = socInit( SOC_buffer, SOC_BUFFERSIZE ) ) != 0 )
-	{
 		failExit( "socInit: 0x%08X\n", (unsigned int)ret );
-	}
-
-	// register socShutdown to run at exit
-	// atexit functions execute in reverse order so this runs before gfxExit
+	
 	atexit( socShutdown );
-
-
 	link3dsStdio();
-
-	printf( "Hello World!\n" );
 
 }
 
@@ -86,10 +63,7 @@ void wv::Remote::remoteMainExit()
 	close( sock );
 }
 
-//---------------------------------------------------------------------------------
 void failExit( const char* fmt, ... ) {
-//---------------------------------------------------------------------------------
-
 	if( sock > 0 ) close( sock );
 	if( csock > 0 ) close( csock );
 
