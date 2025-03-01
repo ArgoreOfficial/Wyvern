@@ -10,12 +10,15 @@
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_stdlib.h>
 #endif
 
 wv::EditorAppState::EditorAppState()
 {
-	m_modeCombo = Combo{ "##modes", m_buildModes };
-	m_platformCombo = Combo{ "##plats", m_buildPlatforms };
+	m_modeCombo      = Combo{ "##modes", { "Debug", "Debug-nomt", "Release", "Package"} };
+	m_platformCombo  = Combo{ "##plats", { "3DS", "PSP2" } };
+	m_runComboButton = ComboButton{ "##run_button", { "Local Debugger", "Remote Debugger", "Remote Run" } };
 
 	m_editorWindows.push_back( WV_NEW( TargetManagerWindow ) );
 }
@@ -41,52 +44,81 @@ void wv::EditorAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pD
 #ifdef WV_SUPPORT_IMGUI
 	if( ImGui::BeginMainMenuBar() )
 	{
-		if( ImGui::BeginMenu( "File" ) )
-		{
-			if( ImGui::MenuItem( "Create" ) ) { WV_WARNING( "Unimplemented\n" ); }
-			if( ImGui::MenuItem( "Open", "Ctrl+O" ) ) { WV_WARNING( "Unimplemented\n" ); }
-			if( ImGui::MenuItem( "Save", "Ctrl+S" ) ) { WV_WARNING( "Unimplemented\n" ); }
-			if( ImGui::MenuItem( "Save as.." ) ) { WV_WARNING( "Unimplemented\n" ); }
-			ImGui::EndMenu();
-		}
-
-		if( ImGui::BeginMenu( "Build" ) )
-		{
-			ImGui::BeginDisabled( m_isBuilding3DS );
-			if( ImGui::MenuItem( "Build" ) )
-				buildPlatform();
-
-			if( ImGui::MenuItem( "Build & Run" ) )
-				buildAndRun();
-			ImGui::EndDisabled();
-
-			if( ImGui::MenuItem( "Target Manager" ) ) { WV_WARNING( "Unimplemented\n" ); }
-			ImGui::EndMenu();
-		}
-
-		if ( ImGui::BeginMenu( "View" ) )
-		{
-			for ( auto w : m_editorWindows )
-			{
-				std::string name = w->getName() + "##view";
-				if ( ImGui::MenuItem( name.c_str() ) ) 
-					w->toggle();
-			}
-
-			ImGui::EndMenu();
-		}
-
-		for ( auto w : m_editorWindows )
-			if( w->isOpen() )
-				w->draw();
-		
-		drawBuildWindow();
-
+		drawMenuBar();
 		ImGui::EndMainMenuBar();
+	}
+
+	ImGuiViewportP* viewport = (ImGuiViewportP*)(void*)ImGui::GetMainViewport();
+	
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+	float height = ImGui::GetFrameHeight();
+	
+	if ( ImGui::BeginViewportSideBar( "##SecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags ) )
+	{
+		if ( ImGui::BeginMenuBar() )
+		{
+			drawBuildWindow();
+			m_runComboButton.draw();
+			ImGui::EndMenuBar();
+		}
+	}
+
+	if ( ImGui::BeginViewportSideBar( "##MainStatusBar", viewport, ImGuiDir_Down, height, window_flags ) )
+	{
+		if ( ImGui::BeginMenuBar() )
+		{
+			ImGui::Text( "Happy status bar" );
+			ImGui::EndMenuBar();
+		}
+		ImGui::End();
 	}
 #endif
 }
 
+void wv::EditorAppState::drawMenuBar()
+{
+#ifdef WV_SUPPORT_IMGUI
+	if ( ImGui::BeginMenu( "File" ) )
+	{
+		if ( ImGui::MenuItem( "Create" ) ) { WV_WARNING( "Unimplemented\n" ); }
+		if ( ImGui::MenuItem( "Open", "Ctrl+O" ) ) { WV_WARNING( "Unimplemented\n" ); }
+		if ( ImGui::MenuItem( "Save", "Ctrl+S" ) ) { WV_WARNING( "Unimplemented\n" ); }
+		if ( ImGui::MenuItem( "Save as.." ) ) { WV_WARNING( "Unimplemented\n" ); }
+		ImGui::EndMenu();
+	}
+
+	if ( ImGui::BeginMenu( "Build" ) )
+	{
+		ImGui::BeginDisabled( m_isBuilding3DS );
+		if ( ImGui::MenuItem( "Build" ) )
+			buildPlatform();
+
+		if ( ImGui::MenuItem( "Build & Run" ) )
+			buildAndRun();
+		ImGui::EndDisabled();
+
+		if ( ImGui::MenuItem( "Target Manager" ) ) { WV_WARNING( "Unimplemented\n" ); }
+		ImGui::EndMenu();
+	}
+
+	if ( ImGui::BeginMenu( "View" ) )
+	{
+		for ( auto w : m_editorWindows )
+		{
+			std::string name = w->getName() + "##view";
+			if ( ImGui::MenuItem( name.c_str() ) )
+				w->toggle();
+		}
+
+		ImGui::EndMenu();
+	}
+
+	for ( auto w : m_editorWindows )
+		if ( w->isOpen() )
+			w->draw();
+
+#endif
+}
 
 void wv::EditorAppState::drawBuildWindow()
 {
@@ -210,4 +242,37 @@ int wv::Combo::draw( float _width )
 
 	currentOptionIndex = selected;
 	return selected;
+}
+
+wv::ComboButton::ComboButton( const char* _name, const std::vector<const char*>& _options )
+{
+	name = _name;
+	options = _options;
+	currentOption = options[ 0 ];
+}
+
+int wv::ComboButton::draw( float _width )
+{
+	std::string buildButtonStr = currentOption + std::string{ "##" } + std::string{ name };
+	ImGui::Button( buildButtonStr.c_str() );
+
+	float x = ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x;
+	ImGui::SetCursorPosX( x );
+	
+	if ( ImGui::BeginCombo( name, 0, ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft ) )
+	{
+		for ( size_t i = 0; i < options.size(); i++ )
+		{
+			bool is_selected = ( currentOption == options[ i ] );
+
+			if ( ImGui::Selectable( options[ i ], is_selected ) )
+				currentOption = options[ i ];
+			
+			if ( is_selected )
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
+	return 0;
 }

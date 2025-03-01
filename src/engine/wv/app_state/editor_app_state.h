@@ -15,11 +15,26 @@ struct Combo
 	Combo( const char* _name, const std::vector<const char*>& _options );
 	int draw( float _width = 0 );
 
-	const char* name;
-	std::vector<const char*> options;
-	const char* currentOption;
+	const char* name = "";
+	std::vector<const char*> options = {};
+	const char* currentOption = 0;
 	int currentOptionIndex = 0;
 };
+
+
+struct ComboButton
+{
+	ComboButton() = default;
+	ComboButton( const char* _name, const std::vector<const char*>& _options );
+
+	int draw( float _width = 0 );
+
+	const char* name = "";
+	std::vector<const char*> options = {};
+	const char* currentOption = 0;
+	int currentOptionIndex = 0;
+};
+
 
 class EditorAppState : public IAppState
 {
@@ -34,6 +49,7 @@ private:
 	void buildPlatform();
 	void buildAndRun();
 
+	void drawMenuBar();
 	void drawBuildWindow();
 
 	bool m_isBuilding3DS = false;
@@ -42,25 +58,14 @@ private:
 	char m_targetAddressStr[ 16 ] = "192.168.0.160";
 	int m_targetPort = 4003;
 
-	std::vector<const char*> m_buildPlatforms = {
-		"3DS",
-		"PSP2"
-	};
-
 	std::vector<const char*> m_buildArchs = {
 		"arm_3ds",
 		"psp2"
 	};
 
-	std::vector<const char*> m_buildModes = {
-		"Debug",
-		"Debug-nomt",
-		"Release",
-		"Package"
-	};
-
 	Combo m_modeCombo;
 	Combo m_platformCombo;
+	ComboButton m_runComboButton;
 
 	std::vector<IEditorWindow*> m_editorWindows;
 };
