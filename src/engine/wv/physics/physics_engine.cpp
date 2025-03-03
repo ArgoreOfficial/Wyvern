@@ -99,7 +99,7 @@ void wv::JoltPhysicsEngine::init()
 
 	JPH::RegisterTypes();
 
-	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, 200000000 );
+	m_pTempAllocator    = WV_NEW( JPH::TempAllocatorImpl, k_tempAllocSize );
 	m_pPhysicsJobSystem = WV_NEW( JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
 
 	m_pBroadPhaseLayer               = WV_NEW( BroadPhaseLayer );
@@ -108,7 +108,7 @@ void wv::JoltPhysicsEngine::init()
 
 	m_pPhysicsSystem = WV_NEW( JPH::PhysicsSystem );
 	m_pPhysicsSystem->Init(
-		m_maxBodies, m_numBodyMutexes, m_maxBodyPairs, m_maxContactConstraints,
+		k_maxBodies, k_numBodyMutexes, k_maxBodyPairs, k_maxContactConstraints,
 		*m_pBroadPhaseLayer, 
 		*m_pObjectVsBroadPhaseLayerFilter, 
 		*m_pObjectLayerPairFilter );
