@@ -146,18 +146,19 @@ inline void UpdateManager::_runJobs( const std::unordered_set<IUpdatable*>& _set
 {
 	JobSystem* pJobSystem = Engine::get()->m_pJobSystem;
 
-	std::vector<_Ty> userDatas{ _set.size() };
+	std::vector<_Ty> userDatas{};
+	userDatas.reserve( _set.size() );
 	std::vector<Job*> jobs{};
 
 	Fence* fence = pJobSystem->createFence();
 
-	int i = 0;
 	for ( auto& u : _set )
+		userDatas.emplace_back( u, _args... );
+	
+	for ( size_t i = 0; i < userDatas.size(); i++ )
 	{
-		userDatas[ i ] = _Ty{ u, _args... };
 		Job* job = pJobSystem->createJob( _fptr, fence, nullptr, &userDatas[ i ] );
 		jobs.push_back( job );
-		i++;
 	}
 
 	pJobSystem->submit( jobs );
