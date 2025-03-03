@@ -27,13 +27,14 @@ public:
     JobBuffer();
 
     bool push( Job* _pJob );
-    Job* pop();
+	
+	Job* pop();
     Job* steal();
-
+	
 private:
 	static const unsigned int g_NUM_JOBS = 4096u * 2;
 	
-    std::atomic_int32_t m_head, m_tail;
+    int32_t m_head, m_tail;
     std::vector<Job*> m_jobs{};
 
 	std::mutex m_criticalMutex;

@@ -78,6 +78,9 @@ protected:
 
 	std::vector<JobWorker*> m_workers;
 	std::unordered_map<std::thread::id, JobWorker*> m_threadIDWorkerMap;
+	
+	JobWorker* m_pRenderWorker = nullptr;
+	std::atomic_size_t m_work = 0;
 };
 
 }

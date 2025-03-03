@@ -71,6 +71,7 @@ void wv::JobSystem::createWorkers( size_t _count )
 
 		m_workers.push_back( worker );
 		m_threadIDWorkerMap[ std::this_thread::get_id() ] = worker;
+		m_pRenderWorker = worker;
 	}
 
 	for ( size_t i = 0; i < _count; i++ )
@@ -101,6 +102,7 @@ void wv::JobSystem::deleteWorkers()
 	for ( size_t i = 0; i < m_workers.size(); i++ )
 		WV_FREE( m_workers[ i ] );
 	
+	m_pRenderWorker = nullptr;
 	m_workers.clear();
 }
 
@@ -130,6 +132,7 @@ void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 	JobWorker* worker = getThisThreadWorker();
 	for ( auto& j : _jobs )
 	{
+		m_work++;
 		if ( j->pSignalFence )
 			j->pSignalFence->counter++;
 
@@ -221,11 +224,15 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 		#endif
 		}
 		else
-			_pWorker->queue.push( nextJob );
+			m_pRenderWorker->queue.push( nextJob );
 	}
 	else
-		std::this_thread::yield();
-		//wv::Thread::sleepFor( 1000 );
+	{
+		if( m_work > 0 )
+			std::this_thread::yield();
+		else
+			wv::Thread::sleepFor( 10000 );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -283,6 +290,7 @@ void wv::JobSystem::_freeJob( Job* _pJob )
 {
 	std::scoped_lock lock{ m_jobPoolMutex };
 	m_jobPool.push( _pJob );
+	m_work--;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
