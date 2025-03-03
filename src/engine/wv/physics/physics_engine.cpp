@@ -24,6 +24,7 @@
 #endif // WV_SUPPORT_JOLT_PHYSICS
 
 #include <wv/engine.h>
+#include <wv/app_state.h>
 #include <wv/debug/log.h>
 #include <wv/debug/Draw.h>
 

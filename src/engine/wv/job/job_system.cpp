@@ -132,7 +132,7 @@ void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 	JobWorker* worker = getThisThreadWorker();
 	for ( auto& j : _jobs )
 	{
-		m_work++;
+		m_numSubmittedJobs++;
 		if ( j->pSignalFence )
 			j->pSignalFence->counter++;
 
@@ -228,10 +228,10 @@ void wv::JobSystem::_getNextAndExecuteJob( wv::JobWorker* _pWorker )
 	}
 	else
 	{
-		if( m_work > 0 )
-			std::this_thread::yield();
-		else
+		if ( m_numSubmittedJobs == 0 )
 			wv::Thread::sleepFor( 10000 );
+		else
+			wv::Thread::yield();
 	}
 }
 
@@ -290,13 +290,13 @@ void wv::JobSystem::_freeJob( Job* _pJob )
 {
 	std::scoped_lock lock{ m_jobPoolMutex };
 	m_jobPool.push( _pJob );
-	m_work--;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::JobSystem::executeJob( wv::Job* _pJob )
 {
+	m_numSubmittedJobs--;
 	_pJob->pFunction( _pJob->pData );
 	
 	if ( _pJob->pSignalFence )

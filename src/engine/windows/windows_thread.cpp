@@ -10,4 +10,9 @@ void wv::Thread::sleepFor( uint64_t _nanoseconds )
 	std::this_thread::sleep_for( time );
 }
 
+void wv::Thread::yield()
+{
+	std::this_thread::yield();
+}
+
 #endif

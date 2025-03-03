@@ -80,7 +80,7 @@ protected:
 	std::unordered_map<std::thread::id, JobWorker*> m_threadIDWorkerMap;
 	
 	JobWorker* m_pRenderWorker = nullptr;
-	std::atomic_size_t m_work = 0;
+	std::atomic_size_t m_numSubmittedJobs = 0;
 };
 
 }

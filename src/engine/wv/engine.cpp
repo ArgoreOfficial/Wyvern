@@ -433,7 +433,7 @@ void wv::Engine::tick()
 		{
 			Engine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
 		};
-	Job* job = m_pJobSystem->createJob( physicsFence, nullptr, fptr, &dt );
+	Job* job = m_pJobSystem->createJob( fptr, physicsFence, nullptr, &dt );
 	m_pJobSystem->submit( { job } );
 #endif
 
