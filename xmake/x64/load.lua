@@ -9,14 +9,10 @@ function load()
     add_requires( "imgui v1.91.0-docking", { 
         configs={
             opengl3 = true,
-            glfw    = true,
             sdl2    = true
         }})
 
-    if( is_arch( "x64" ) ) then
-        add_requires( "glfw" )
-        -- x86 compiler for w64
-    elseif is_arch( "x86" ) and os.arch() == "x64" then
+    if is_arch( "x86" ) and os.arch() == "x64" then
         set_toolchains( "i686-w64-mingw32" )
     end
     

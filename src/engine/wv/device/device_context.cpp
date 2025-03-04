@@ -2,10 +2,6 @@
 
 #include <noapi/noapi_device_context.h>
 
-#ifdef WV_SUPPORT_GLFW
-#include <glfw/glfw_device_context.h>
-#endif
-
 #ifdef WV_SUPPORT_SDL2
 #include <sdl/sdl_device_context.h>
 #endif
@@ -26,17 +22,6 @@ wv::IDeviceContext* wv::IDeviceContext::getDeviceContext( ContextDesc* _desc )
 
 	switch ( _desc->deviceApi )
 	{
-
-	case WV_DEVICE_CONTEXT_API_NONE:
-		context = WV_NEW( NoAPIDeviceContext );
-		break;
-
-	#ifdef WV_SUPPORT_GLFW
-	case WV_DEVICE_CONTEXT_API_GLFW: 
-		context = WV_NEW( GLFWDeviceContext ); 
-		break;
-	#endif
-
 	#ifdef WV_SUPPORT_SDL2
 	case WV_DEVICE_CONTEXT_API_SDL: 
 		context = WV_NEW( SDLDeviceContext ); 
@@ -49,6 +34,8 @@ wv::IDeviceContext* wv::IDeviceContext::getDeviceContext( ContextDesc* _desc )
 		break;
 	#else
 
+	default:
+		context = WV_NEW( NoAPIDeviceContext );
 	}
 #endif // WV_PLATFORM_PSVITA
 

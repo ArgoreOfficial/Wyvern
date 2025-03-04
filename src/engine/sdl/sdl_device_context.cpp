@@ -243,8 +243,6 @@ wv::SDLDeviceContext::SDLDeviceContext() :
 
 bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 {
-	// glfwSetErrorCallback( glfwErrorCallback );
-
 	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
 		Debug::Print( Debug::WV_PRINT_FATAL, "Failed to initialize Device Context\n" );

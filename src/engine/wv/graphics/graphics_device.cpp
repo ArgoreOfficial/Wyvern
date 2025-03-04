@@ -30,11 +30,6 @@ wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( GraphicsDeviceDesc* _d
 	IGraphicsDevice* device = nullptr;
 	switch( _desc->pContext->getGraphicsAPI() )
 	{
-
-	case GraphicsAPI::WV_GRAPHICS_API_NONE:   
-		device = WV_NEW( NoAPIGraphicsDevice );
-		break;
-
 #ifdef WV_SUPPORT_OPENGL
 	case GraphicsAPI::WV_GRAPHICS_API_OPENGL: 
 		device = WV_NEW( GraphicsDeviceOpenGL );
@@ -46,6 +41,9 @@ wv::IGraphicsDevice* wv::IGraphicsDevice::createGraphics( GraphicsDeviceDesc* _d
 		device = WV_NEW( cPSVitaGraphicsDevice );
 		break;
 #endif
+
+	default:
+		device = WV_NEW( NoAPIGraphicsDevice );
 	}
 
 	if( !device )

@@ -1,10 +1,6 @@
 function _add_supports( _target )
     _target:add( "deps", "GLAD" )
 
-    if _target:is_arch( "x64" ) then
-        import( "support.glfw"  )( _target )
-    end
-
     import( "support.assimp" )( _target )
     import( "support.libsdl" )( _target ) 
     import( "support.imgui" )( _target ) 
