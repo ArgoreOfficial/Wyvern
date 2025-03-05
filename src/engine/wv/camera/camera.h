@@ -38,7 +38,8 @@ namespace wv
 
 		bool beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fillMode );
 
-		Vector3f screenToWorld( float _x, float _y, float _depth );
+		Vector3f screenToWorld( int _pixelX,  int _pixelY,  float _depth );
+		Vector3f screenToWorld( float _clipX, float _clipY, float _depth );
 
 		Matrix4x4f  getProjectionMatrix( void );
 		Matrix4x4f  getViewMatrix      ( void );

@@ -37,5 +37,5 @@ protected:
 
 	bool m_isMovingCube = false;
 
-	wv::InputEventListener m_inputListener;
+	wv::Entity* m_mouseMarker = nullptr;
 };

@@ -46,12 +46,24 @@ bool wv::ICamera::beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fill
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::ICamera::screenToWorld( float _x, float _y, float _depth )
+wv::Vector3f wv::ICamera::screenToWorld( int _pixelX, int _pixelY, float _depth )
+{
+	wv::IDeviceContext* ctx = wv::Engine::get()->context;
+	float clipX = static_cast<float>( _pixelX ) / static_cast<float>( ctx->getWidth() );
+	float clipY = static_cast<float>( _pixelY ) / static_cast<float>( ctx->getHeight() );
+	
+	clipX = clipX * 2.0f - 1.0f;
+	clipY = clipY * 2.0f - 1.0f;
+
+	return screenToWorld( clipX, -clipY, _depth );
+}
+
+wv::Vector3f wv::ICamera::screenToWorld( float _clipX, float _clipY, float _depth )
 {
 	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
 	Matrix4x4f invViewProj = MatrixUtil::inverse( viewProj );
 	
-	Vector4f screenspacePoint{ _x, _y, -_depth, 1.0f };
+	Vector4f screenspacePoint{ _clipX, _clipY, -_depth, 1.0f };
 	Vector4f worldPoint = screenspacePoint * invViewProj;
 
 	return Vector3f{ 

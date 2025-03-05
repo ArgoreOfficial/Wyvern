@@ -26,44 +26,28 @@
 
 void DemoWindowComponent::onEnter( void )
 {
-	m_inputListener.hook();
+	wv::IAppState* state = wv::Engine::get()->m_pAppState;
+	wv::Scene* scene = state->getCurrentScene();
+
+	m_mouseMarker = WV_NEW( wv::Entity, wv::Engine::getUniqueUUID(), "mouseMarker" );
+	m_mouseMarker->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+	m_mouseMarker->m_transform.scale = 0.05f;
+
+	scene->addChild( m_mouseMarker );
 }
 
 void DemoWindowComponent::onUpdate( double _dt )
 {
 	wv::IAppState* state = wv::Engine::get()->m_pAppState;
-	wv::Scene*     scene = state->getCurrentScene();
-	
-	
-	wv::InputEvent inputEvent;
-	while( m_inputListener.pollEvent( inputEvent ) )
-	{
-		if( !inputEvent.repeat )
-		{
-			switch( inputEvent.key )
-			{
-			case wv::WV_KEY_SPACE:
-				if( inputEvent.buttondown )
-				{
-					wv::Entity* rb = WV_NEW( wv::Entity, wv::Engine::getUniqueUUID(), "testcube" );
-					rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+	wv::Vector2i mousePos = wv::Engine::get()->getMousePosition();
 
-					/// TODO: wv::Ray<float>
-					wv::Vector3f raystart = state->currentCamera->screenToWorld( 0, 0, 0.0f );
-					wv::Vector3f rayend   = state->currentCamera->screenToWorld( 0, 0, 1.0f );
-					wv::Vector3f dir = raystart - rayend;
-					dir.normalize();
+	/// TODO: wv::Ray<float>
+	wv::Vector3f raystart = state->currentCamera->screenToWorld( mousePos.x, mousePos.y, 0.0f );
+	wv::Vector3f rayend   = state->currentCamera->screenToWorld( mousePos.x, mousePos.y, 1.0f );
+	wv::Vector3f dir = raystart - rayend;
+	dir.normalize();
 
-					rb->m_transform.position = raystart + dir * 25.0f;
-					
-					scene->addChild( rb );
-					m_numSpawned++;
-				} break;
-			default:
-				break;
-			}
-		}
-	}
+	m_mouseMarker->m_transform.position = raystart + dir;
 }
 
 void DemoWindowComponent::spawnBalls()
