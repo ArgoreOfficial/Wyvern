@@ -153,7 +153,7 @@ inline void UpdateManager::_runJobs( const std::unordered_set<IUpdatable*>& _set
 	Fence* fence = pJobSystem->createFence();
 
 	for ( auto& u : _set )
-		userDatas.emplace_back( u, _args... );
+		userDatas.push_back( _Ty{ u, _args... } );
 	
 	for ( size_t i = 0; i < userDatas.size(); i++ )
 	{
