@@ -65,10 +65,18 @@ namespace wv
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		inline void set( size_t _r, size_t _c, T _val ) {
+		#ifdef __cpp_exceptions
+			if( _r >= R || _c >= C )
+				throw std::runtime_error( "out of range row or column" );
+		#endif
 			m[ _r * C + _c ] = _val;
 		}
 
 		inline T get( size_t _r, size_t _c ) const {
+		#ifdef __cpp_exceptions
+			if( _r >= R || _c >= C )
+				throw std::runtime_error( "out of range row or column" );
+		#endif
 			return m[ _r * C + _c ];
 		}
 
@@ -82,17 +90,17 @@ namespace wv
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& up   ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 1 * 4 ] ); }
+		Vector4<T>& up( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 1 * 4 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& at   ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 2 * 4 ] ); }
+		Vector4<T>& at( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 2 * 4 ] ); }
 
 	#ifdef WV_CPP20
 		template<typename = if_4x4::type>
 	#endif
-		Vector4<T>& pos  ( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 3 * 4 ] ); }
+		Vector4<T>& pos( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 3 * 4 ] ); }
 
 	};
 
@@ -107,10 +115,10 @@ namespace wv
 		tmpMat.set( 2, 0, _vec.z );
 		tmpMat.set( 3, 0, _vec.w );
 
-		auto res = _mat * tmpMat;
+		const Matrix<T, 4, 1> res = _mat * tmpMat;
 		
 		return { 
-			res.get( 1, 0 ), 
+			res.get( 0, 0 ), 
 			res.get( 1, 0 ), 
 			res.get( 2, 0 ), 
 			res.get( 3, 0 ) 
@@ -121,9 +129,9 @@ namespace wv
 	Vector4<T> operator*( const Vector4<T>& _vec, const Matrix<T, 4, 4>& _mat )
 	{
 		Matrix<T, 1, 4> tmpMat{};
-		tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.z } );
+		tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
 		
-		auto res = tmpMat * _mat;
+		const Matrix<T, 1, 4> res = tmpMat * _mat;
 
 		return { 
 			res.get( 0, 0 ), 
@@ -363,11 +371,15 @@ namespace wv
 	template<typename T, size_t R, size_t C>
 	inline void Matrix<T, R, C>::setRow( const size_t& _r, std::array<T, C> _v )
 	{
-		size_t id = 0;
+	#ifdef __cpp_exceptions
+		if( _r >= R )
+			throw std::runtime_error( "out of range row or column" );
+	#endif
+		size_t idx = 0;
 		for( auto& v : _v )
 		{
-			set( _r, id, v );
-			id++;
+			set( _r, idx, v );
+			idx++;
 		}
 	}
 
