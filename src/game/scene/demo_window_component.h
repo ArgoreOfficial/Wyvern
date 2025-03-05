@@ -4,6 +4,7 @@
 
 #include <wv/mesh/mesh_resource.h>
 #include <wv/physics/physics_types.h>
+#include <wv/event/events.h>
 
 struct IPhysicsBodyDesc;
 
@@ -15,8 +16,11 @@ public:
 	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
-		return FunctionFlags::kOnDraw;
+		return kOnDraw | kOnEnter | kOnUpdate;
 	}
+
+	virtual void onEnter( void ) override;
+	virtual void onUpdate( double _dt ) override;
 
 protected:
 
@@ -30,4 +34,8 @@ protected:
 
 	int m_numToSpawn = 10;
 	int m_numSpawned = 0;
+
+	bool m_isMovingCube = false;
+
+	wv::InputEventListener m_inputListener;
 };

@@ -10,6 +10,9 @@
 #include <wv/scene/model.h>
 #include <wv/filesystem/file_system.h>
 
+#include <wv/camera/camera.h>
+#include <wv/math/ray.h>
+
 #include <wv/scene/component/model_component.h>
 #include <wv/scene/component/rigid_body_component.h>
 
@@ -20,6 +23,48 @@
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
 #endif
+
+void DemoWindowComponent::onEnter( void )
+{
+	m_inputListener.hook();
+}
+
+void DemoWindowComponent::onUpdate( double _dt )
+{
+	wv::IAppState* state = wv::Engine::get()->m_pAppState;
+	wv::Scene*     scene = state->getCurrentScene();
+	
+	
+	wv::InputEvent inputEvent;
+	while( m_inputListener.pollEvent( inputEvent ) )
+	{
+		if( !inputEvent.repeat )
+		{
+			switch( inputEvent.key )
+			{
+			case wv::WV_KEY_SPACE:
+				if( inputEvent.buttondown )
+				{
+					wv::Entity* rb = WV_NEW( wv::Entity, wv::Engine::getUniqueUUID(), "testcube" );
+					rb->addComponent<wv::ModelComponent>( "meshes/sphere.dae" );
+
+					/// TODO: wv::Ray<float>
+					wv::Vector3f raystart = state->currentCamera->screenToWorld( 0, 0, 0.0f );
+					wv::Vector3f rayend   = state->currentCamera->screenToWorld( 0, 0, 1.0f );
+					wv::Vector3f dir = raystart - rayend;
+					dir.normalize();
+
+					rb->m_transform.position = raystart + dir * 25.0f;
+					
+					scene->addChild( rb );
+					m_numSpawned++;
+				} break;
+			default:
+				break;
+			}
+		}
+	}
+}
 
 void DemoWindowComponent::spawnBalls()
 {
