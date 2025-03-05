@@ -51,8 +51,8 @@ wv::Vector3f wv::ICamera::screenToWorld( float _x, float _y, float _depth )
 	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
 	Matrix4x4f invViewProj = MatrixUtil::inverse( viewProj );
 	
-	Vector4f screenspacePoint{ _x, _y, -_depth, 1.0f }; // not this
-	Vector4f worldPoint = screenspacePoint * invViewProj; // not this
+	Vector4f screenspacePoint{ _x, _y, -_depth, 1.0f };
+	Vector4f worldPoint = screenspacePoint * invViewProj;
 
 	return Vector3f{ 
 		worldPoint.x / worldPoint.w, 
