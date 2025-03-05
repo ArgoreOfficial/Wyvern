@@ -38,14 +38,14 @@ namespace wv
 
 		bool beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fillMode );
 
-		Matrix4x4f getProjectionMatrix( void );
+		Vector3f screenToWorld( float _x, float _y, float _depth );
 
-		Matrix4x4f getViewMatrix( void );
-
-		Transformf& getTransform( void ) { return m_transform; }
-		Vector3f getViewDirection();
-
-		GPUBufferID getBufferID() { return m_uniformBufferID; }
+		Matrix4x4f  getProjectionMatrix( void );
+		Matrix4x4f  getViewMatrix      ( void );
+		Vector3f    getViewDirection   ( void );
+		
+		Transformf& getTransform       ( void ) { return m_transform; }
+		GPUBufferID getBufferID        ( void ) { return m_uniformBufferID; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

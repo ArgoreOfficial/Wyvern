@@ -8,9 +8,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ICamera::ICamera( CameraType _type, float _fov, float _near, float _far ) :
-	fov{ _fov },
+	fov   { _fov  },
 	m_near{ _near },
-	m_far{ _far },
+	m_far { _far  },
 	m_type{ _type }
 {
 	IGraphicsDevice* pGraphics = Engine::get()->graphics;
@@ -38,12 +38,30 @@ bool wv::ICamera::beginRender( IGraphicsDevice* _pGraphicsDevice, FillMode _fill
 	instanceData.view       = getViewMatrix();
 	instanceData.model      = wv::Matrix4x4f( 1.0f );
 
-	/// TODO: rename UbCameraData to UbCameraData?
 	//BufferBindingIndex index = _pGraphicsDevice->m_uniformBindingNameMap.at( "UbCameraData" );
 	_pGraphicsDevice->bufferSubData( m_uniformBufferID, &instanceData, sizeof( UbCameraData ), 0 );
 
 	return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::Vector3f wv::ICamera::screenToWorld( float _x, float _y, float _depth )
+{
+	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
+	Matrix4x4f invViewProj = MatrixUtil::inverse( viewProj );
+	
+	Vector4f screenspacePoint{ _x, _y, -_depth, 1.0f }; // not this
+	Vector4f worldPoint = screenspacePoint * invViewProj; // not this
+
+	return Vector3f{ 
+		worldPoint.x / worldPoint.w, 
+		worldPoint.y / worldPoint.w, 
+		worldPoint.z / worldPoint.w 
+	};
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
 {
