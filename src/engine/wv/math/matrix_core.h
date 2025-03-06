@@ -21,6 +21,7 @@ class Matrix
 {
 public:
 
+	typedef std::enable_if<_Row == 1 && _Col == 4> if_1x4;
 	typedef std::enable_if<_Row == 4 && _Col == 4> if_4x4;
 	typedef std::enable_if<_Row == 3 && _Col == 3> if_3x3;
 	typedef std::enable_if<_Row == _Col> if_square;
@@ -48,6 +49,16 @@ public:
 	Matrix( const _Ty( &_list )[ _Row * _Col ] )
 	{
 		std::memcpy( m, _list, sizeof( m ) );
+	}
+
+
+#ifdef WV_CPP20
+	template<typename = if_1x4::type>
+#endif
+	Matrix( const Vector4<_Ty>& _vec ):
+		m{ 0 }
+	{
+		setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -164,22 +175,22 @@ static inline Matrix<_Ty, 4, 4> inverse( const Matrix<_Ty, 4, 4>& _m )
 
 	Matrix<_Ty, 4, 4> im;
 
-	im.set( 0, 0, det * ( _m.get( 1, 1 ) * A2323 - _m.get( 1, 2 ) * A1323 + _m.get( 1, 3 ) * A1223 ) );
+	im.set( 0, 0, det *  ( _m.get( 1, 1 ) * A2323 - _m.get( 1, 2 ) * A1323 + _m.get( 1, 3 ) * A1223 ) );
 	im.set( 0, 1, det * -( _m.get( 0, 1 ) * A2323 - _m.get( 0, 2 ) * A1323 + _m.get( 0, 3 ) * A1223 ) );
-	im.set( 0, 2, det * ( _m.get( 0, 1 ) * A2313 - _m.get( 0, 2 ) * A1313 + _m.get( 0, 3 ) * A1213 ) );
+	im.set( 0, 2, det *  ( _m.get( 0, 1 ) * A2313 - _m.get( 0, 2 ) * A1313 + _m.get( 0, 3 ) * A1213 ) );
 	im.set( 0, 3, det * -( _m.get( 0, 1 ) * A2312 - _m.get( 0, 2 ) * A1312 + _m.get( 0, 3 ) * A1212 ) );
 	im.set( 1, 0, det * -( _m.get( 1, 0 ) * A2323 - _m.get( 1, 2 ) * A0323 + _m.get( 1, 3 ) * A0223 ) );
-	im.set( 1, 1, det * ( _m.get( 0, 0 ) * A2323 - _m.get( 0, 2 ) * A0323 + _m.get( 0, 3 ) * A0223 ) );
+	im.set( 1, 1, det *  ( _m.get( 0, 0 ) * A2323 - _m.get( 0, 2 ) * A0323 + _m.get( 0, 3 ) * A0223 ) );
 	im.set( 1, 2, det * -( _m.get( 0, 0 ) * A2313 - _m.get( 0, 2 ) * A0313 + _m.get( 0, 3 ) * A0213 ) );
-	im.set( 1, 3, det * ( _m.get( 0, 0 ) * A2312 - _m.get( 0, 2 ) * A0312 + _m.get( 0, 3 ) * A0212 ) );
-	im.set( 2, 0, det * ( _m.get( 1, 0 ) * A1323 - _m.get( 1, 1 ) * A0323 + _m.get( 1, 3 ) * A0123 ) );
+	im.set( 1, 3, det *  ( _m.get( 0, 0 ) * A2312 - _m.get( 0, 2 ) * A0312 + _m.get( 0, 3 ) * A0212 ) );
+	im.set( 2, 0, det *  ( _m.get( 1, 0 ) * A1323 - _m.get( 1, 1 ) * A0323 + _m.get( 1, 3 ) * A0123 ) );
 	im.set( 2, 1, det * -( _m.get( 0, 0 ) * A1323 - _m.get( 0, 1 ) * A0323 + _m.get( 0, 3 ) * A0123 ) );
-	im.set( 2, 2, det * ( _m.get( 0, 0 ) * A1313 - _m.get( 0, 1 ) * A0313 + _m.get( 0, 3 ) * A0113 ) );
+	im.set( 2, 2, det *  ( _m.get( 0, 0 ) * A1313 - _m.get( 0, 1 ) * A0313 + _m.get( 0, 3 ) * A0113 ) );
 	im.set( 2, 3, det * -( _m.get( 0, 0 ) * A1312 - _m.get( 0, 1 ) * A0312 + _m.get( 0, 3 ) * A0112 ) );
 	im.set( 3, 0, det * -( _m.get( 1, 0 ) * A1223 - _m.get( 1, 1 ) * A0223 + _m.get( 1, 2 ) * A0123 ) );
-	im.set( 3, 1, det * ( _m.get( 0, 0 ) * A1223 - _m.get( 0, 1 ) * A0223 + _m.get( 0, 2 ) * A0123 ) );
+	im.set( 3, 1, det *  ( _m.get( 0, 0 ) * A1223 - _m.get( 0, 1 ) * A0223 + _m.get( 0, 2 ) * A0123 ) );
 	im.set( 3, 2, det * -( _m.get( 0, 0 ) * A1213 - _m.get( 0, 1 ) * A0213 + _m.get( 0, 2 ) * A0113 ) );
-	im.set( 3, 3, det * ( _m.get( 0, 0 ) * A1212 - _m.get( 0, 1 ) * A0212 + _m.get( 0, 2 ) * A0112 ) );
+	im.set( 3, 3, det *  ( _m.get( 0, 0 ) * A1212 - _m.get( 0, 1 ) * A0212 + _m.get( 0, 2 ) * A0112 ) );
 
 	return im;
 }
@@ -337,10 +348,7 @@ Vector4<_Ty> operator*( const Matrix<_Ty, 4, 4>& _mat, const Vector4<_Ty>& _vec 
 template<typename _Ty>
 Vector4<_Ty> operator*( const Vector4<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat )
 {
-	Matrix<_Ty, 1, 4> tmpMat{};
-	tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
-
-	const Matrix<_Ty, 1, 4> res = tmpMat * _mat;
+	const Matrix<_Ty, 1, 4> res = Matrix<_Ty, 1, 4>{ _vec } * _mat;
 
 	return {
 		res.get( 0, 0 ),
