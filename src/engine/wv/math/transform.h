@@ -112,13 +112,13 @@ inline bool Transform<_Ty>::update( Transform<_Ty>* _parent, bool _recalculateMa
 	{
 		Matrix<_Ty, 4, 4> model{ 1 };
 
-		model = MatrixUtil::translate( model, position );
+		model = Math::translate( model, position );
 
-		model = MatrixUtil::rotateZ( model, Math::radians( rotation.z ) );
-		model = MatrixUtil::rotateY( model, Math::radians( rotation.y ) );
-		model = MatrixUtil::rotateX( model, Math::radians( rotation.x ) );
+		model = Math::rotateZ( model, Math::radians( rotation.z ) );
+		model = Math::rotateY( model, Math::radians( rotation.y ) );
+		model = Math::rotateX( model, Math::radians( rotation.x ) );
 
-		model = MatrixUtil::scale( model, scale );
+		model = Math::scale( model, scale );
 
 		m_cachedPosition = position;
 		m_cachedRotation = rotation;

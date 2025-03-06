@@ -42,13 +42,21 @@ public:
 
 	Matrix( const Matrix<_Ty, _Row, _Col>& _other )
 	{
-		std::memcpy( m, _other.m, sizeof( _Ty ) * _Row * _Col );
+		std::memcpy( m, _other.m, sizeof( m ) );
+	}
+
+	Matrix( const _Ty( &_list )[ _Row * _Col ] )
+	{
+		std::memcpy( m, _list, sizeof( m ) );
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	_Ty* operator []( const size_t& _index ) const { return (_Ty*)m[ _index ]; }
-	Matrix<_Ty, _Row, _Col>& operator = ( const Matrix<_Ty, _Row, _Col>& _o );
+	_Ty* operator []( const size_t& _index ) const { 
+		return (_Ty*)m[ _index ]; 
+	}
+
+	                       Matrix<_Ty, _Row, _Col>& operator = ( const Matrix<_Ty, _Row, _Col>&  _o );
 	template<size_t _ColB> Matrix<_Ty, _Row, _ColB> operator * ( const Matrix<_Ty, _Col, _ColB>& _o ) const;
 	template<size_t _ColB> Matrix<_Ty, _Row, _Col>& operator *=( const Matrix<_Ty, _Row, _ColB>& _o );
 
@@ -107,70 +115,12 @@ public:
 		return *reinterpret_cast<Vector4<_Ty>*>( &m[ 3 * 4 ] ); 
 	}
 
-#ifdef WV_CPP20
-	template<typename = if_4x4::type>
-#endif
-	Matrix<_Ty, _Row, _Col> inverse() {
-		return MatrixUtil::inverse<_Ty>( *this );
-	}
+	Matrix<_Ty, _Row, _Col> inverse();
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
-Vector4<_Ty> operator*( const Matrix<_Ty, 4, 4>& _mat, const Vector4<_Ty>& _vec )
-{
-	Matrix<_Ty, 4, 1> tmpMat{};
-	tmpMat.set( 0, 0, _vec.x );
-	tmpMat.set( 1, 0, _vec.y );
-	tmpMat.set( 2, 0, _vec.z );
-	tmpMat.set( 3, 0, _vec.w );
-
-	const Matrix<_Ty, 4, 1> res = _mat * tmpMat;
-
-	return {
-		res.get( 0, 0 ),
-		res.get( 1, 0 ),
-		res.get( 2, 0 ),
-		res.get( 3, 0 )
-	};
-}
-
-template<typename _Ty>
-Vector4<_Ty> operator*( const Vector4<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat )
-{
-	Matrix<_Ty, 1, 4> tmpMat{};
-	tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
-
-	const Matrix<_Ty, 1, 4> res = tmpMat * _mat;
-
-	return {
-		res.get( 0, 0 ),
-		res.get( 0, 1 ),
-		res.get( 0, 2 ),
-		res.get( 0, 3 )
-	};
-}
-
-template<typename _Ty>
-Vector3<_Ty> operator*( const Matrix<_Ty, 4, 4>& _mat, const Vector3<_Ty>& _vec )
-{
-	Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
-	Vector4f ret4 = _mat * vec4;
-	return { ret4.x, ret4.y, ret4.z };
-}
-
-template<typename _Ty>
-Vector3<_Ty> operator*( const Vector3<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat )
-{
-	Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
-	Vector4f ret4 = vec4 * _mat;
-	return { ret4.x, ret4.y, ret4.z };
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-namespace MatrixUtil {
+namespace Math {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -336,9 +286,9 @@ Matrix<_Ty, 4, 4> orthographic( const _Ty& _halfWidth, const _Ty& _halfHeight, c
 	_Ty m32 = -( ( _far + _near ) / ( _far - _near ) );
 
 	res.setRow( 0, { m00,   0,   0, 0 } );
-	res.setRow( 1, { 0, m11,   0, 0 } );
-	res.setRow( 2, { 0,   0, m22, 0 } );
-	res.setRow( 3, { 0,   0, m32, 1 } );
+	res.setRow( 1, { 0,   m11,   0, 0 } );
+	res.setRow( 2, { 0,     0, m22, 0 } );
+	res.setRow( 3, { 0,     0, m32, 1 } );
 
 	return res;
 }
@@ -365,6 +315,59 @@ Matrix<_Ty, 1, 3> fromVector( Vector3<_Ty> _vec )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+template<typename _Ty>
+Vector4<_Ty> operator*( const Matrix<_Ty, 4, 4>& _mat, const Vector4<_Ty>& _vec )
+{
+	Matrix<_Ty, 4, 1> tmpMat{};
+	tmpMat.set( 0, 0, _vec.x );
+	tmpMat.set( 1, 0, _vec.y );
+	tmpMat.set( 2, 0, _vec.z );
+	tmpMat.set( 3, 0, _vec.w );
+
+	const Matrix<_Ty, 4, 1> res = _mat * tmpMat;
+
+	return {
+		res.get( 0, 0 ),
+		res.get( 1, 0 ),
+		res.get( 2, 0 ),
+		res.get( 3, 0 )
+	};
+}
+
+template<typename _Ty>
+Vector4<_Ty> operator*( const Vector4<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat )
+{
+	Matrix<_Ty, 1, 4> tmpMat{};
+	tmpMat.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
+
+	const Matrix<_Ty, 1, 4> res = tmpMat * _mat;
+
+	return {
+		res.get( 0, 0 ),
+		res.get( 0, 1 ),
+		res.get( 0, 2 ),
+		res.get( 0, 3 )
+	};
+}
+
+template<typename _Ty>
+Vector3<_Ty> operator*( const Matrix<_Ty, 4, 4>& _mat, const Vector3<_Ty>& _vec )
+{
+	Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
+	Vector4f ret4 = _mat * vec4;
+	return { ret4.x, ret4.y, ret4.z };
+}
+
+template<typename _Ty>
+Vector3<_Ty> operator*( const Vector3<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat )
+{
+	Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
+	Vector4f ret4 = vec4 * _mat;
+	return { ret4.x, ret4.y, ret4.z };
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 typedef Matrix<float, 4, 4> Matrix4x4f;
 typedef Matrix<float, 3, 3> Matrix3x3f;
 
@@ -374,7 +377,6 @@ template <typename _Ty, size_t _Row, size_t _Col>
 inline Matrix<_Ty, _Row, _Col>& Matrix<_Ty, _Row, _Col>::operator=( const Matrix<_Ty, _Row, _Col>& _o )
 {
 	static_assert( sizeof( m ) == sizeof( _o.m ), "Invalid matrix::m size" );
-
 	std::memcpy( &m, &_o.m, sizeof( m ) );
 	return *this;
 }
@@ -383,7 +385,7 @@ template<typename _Ty, size_t _Row, size_t _Col>
 template<size_t _ColB>
 inline Matrix<_Ty, _Row, _ColB> Matrix<_Ty, _Row, _Col>::operator*( const Matrix<_Ty, _Col, _ColB>& _o ) const
 {
-	return MatrixUtil::multiply( *this, _o );
+	return Math::multiply( *this, _o );
 }
 
 template<typename _Ty, size_t _Row, size_t _Col>
@@ -409,6 +411,12 @@ inline void Matrix<_Ty, _Row, _Col>::setRow( const size_t& _r, std::array<_Ty, _
 		set( _r, idx, v );
 		idx++;
 	}
+}
+
+template<typename _Ty, size_t _Row, size_t _Col>
+inline Matrix<_Ty, _Row, _Col> Matrix<_Ty, _Row, _Col>::inverse()
+{
+	return Math::inverse<_Ty>( *this );
 }
 
 }

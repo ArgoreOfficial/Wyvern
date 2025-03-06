@@ -92,7 +92,7 @@ wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
 	wv::Engine* engine = wv::Engine::get();
 	
-	return MatrixUtil::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
+	return Math::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void )
 	float w = (float)ctx->getWidth()  / 2.0f;
 	float h = (float)ctx->getHeight() / 2.0f;
 
-	return MatrixUtil::orthographic( w, h, -1000.0f, 1000.0f );
+	return Math::orthographic( w, h, -1000.0f, 1000.0f );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
