@@ -8,19 +8,19 @@
 
 namespace wv {
 
-template<typename T, size_t RowA, size_t ColA_RowB, size_t ColB>
+template<typename _Ty, size_t _RowA, size_t _ColA_RowB, size_t _ColB>
 struct MatrixMult
 {
-	static Matrix<T, RowA, ColB> multiply( const Matrix<T, RowA, ColA_RowB>& _a, const Matrix<T, ColA_RowB, ColB>& _b )
+	static Matrix<_Ty, _RowA, _ColB> multiply( const Matrix<_Ty, _RowA, _ColA_RowB>& _a, const Matrix<_Ty, _ColA_RowB, _ColB>& _b )
 	{
-		Matrix<T, RowA, ColB> res;
-		for( size_t row = 0; row < RowA; row++ )
+		Matrix<_Ty, _RowA, _ColB> res;
+		for( size_t row = 0; row < _RowA; row++ )
 		{
-			for( size_t column = 0; column < ColB; column++ )
+			for( size_t column = 0; column < _ColB; column++ )
 			{
-				T v = 0;
+				_Ty v = 0;
 
-				for( size_t inner = 0; inner < ColA_RowB; inner++ )
+				for( size_t inner = 0; inner < _ColA_RowB; inner++ )
 					v += _a.get( row, inner ) * _b.get( inner, column );
 
 				res.set( row, column, v );
