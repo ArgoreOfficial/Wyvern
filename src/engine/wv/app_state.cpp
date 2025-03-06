@@ -13,14 +13,16 @@
 #include <wv/camera/freeflight_camera.h>
 #include <wv/camera/orbit_camera.h>
 
+#include <wv/device/device_context.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::initialize()
 {
 	m_pUpdateManager = WV_NEW( UpdateManager );
 
-	orbitCamera = WV_NEW( OrbitCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
-	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::WV_CAMERA_TYPE_PERSPECTIVE );
+	orbitCamera      = WV_NEW( OrbitCamera,      ICamera::kPerspective );
+	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::kFocal );
 
 	orbitCamera->onEnter();
 	freeflightCamera->onEnter();

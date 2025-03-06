@@ -27,8 +27,9 @@ namespace wv
 
 		enum CameraType
 		{
-			WV_CAMERA_TYPE_PERSPECTIVE,
-			WV_CAMERA_TYPE_ORTHOGRAPHIC
+			kPerspective,
+			kFocal,
+			kOrthographic
 		};
 
 		ICamera( CameraType _type, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
@@ -50,14 +51,20 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		float fov  = 60.0f;
+		float fov = 60.0f;
+		
+		// only used for focal perspective
+		
+		float focalLength = 30.0f;
+		float sensorWidth = 36.0f;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 
-		Matrix4x4f getPerspectiveMatrix( void );
-		Matrix4x4f getOrthographicMatrix( void );
+		Matrix4x4f getPerspectiveMatrix     ( void );
+		Matrix4x4f getFocalPerspectiveMatrix( void );
+		Matrix4x4f getOrthographicMatrix    ( void );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +74,7 @@ namespace wv
 		float m_far  = 100.0f;
 
 		wv::Transformf m_transform;
-		CameraType m_type = WV_CAMERA_TYPE_PERSPECTIVE;
+		CameraType m_type = kPerspective;
 	};
 
 }

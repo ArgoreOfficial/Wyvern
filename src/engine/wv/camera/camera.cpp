@@ -79,8 +79,9 @@ wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
 {
 	switch( m_type )
 	{
-	case WV_CAMERA_TYPE_PERSPECTIVE:  return getPerspectiveMatrix (); break;
-	case WV_CAMERA_TYPE_ORTHOGRAPHIC: return getOrthographicMatrix(); break;
+	case kPerspective:  return getPerspectiveMatrix();      break;
+	case kFocal:        return getFocalPerspectiveMatrix(); break;
+	case kOrthographic: return getOrthographicMatrix();     break;
 	}
 
 	return Matrix4x4f{ 1.0f };
@@ -91,15 +92,20 @@ wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
 wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
 	wv::Engine* engine = wv::Engine::get();
-	
 	float aspect = engine->context->getAspect();
-	float sensorH = 36.0f * aspect;
-	float sensorW = 36.0f;
+	return Math::perspective( aspect, Math::radians( fov ), m_near, m_far );
+}
 
+wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void )
+{
+	wv::Engine* engine = wv::Engine::get();
+
+	float aspect = engine->context->getAspect();
+	float sensorH = sensorWidth * aspect; // allow non-aspect sensor height?
+	
 	/// TODO: class FocalCamera ?
 
-	//return Math::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
-	return Math::focalPerspective( sensorW, sensorH, 30.0f, m_near, m_far );
+	return Math::focalPerspective( sensorWidth, sensorH, focalLength, m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
