@@ -141,6 +141,22 @@ namespace wv
 		};
 	}
 
+	template<typename T>
+	Vector3<T> operator*( const Matrix<T, 4, 4>& _mat, const Vector3<T>& _vec )
+	{
+		Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
+		Vector4f ret4 = _mat * vec4;
+		return { ret4.x, ret4.y, ret4.z };
+	}
+
+	template<typename T>
+	Vector3<T> operator*( const Vector3<T>& _vec, const Matrix<T, 4, 4>& _mat )
+	{
+		Vector4f vec4{ _vec.x, _vec.y, _vec.z, 1.0f };
+		Vector4f ret4 = vec4 * _mat;
+		return { ret4.x, ret4.y, ret4.z };
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	namespace MatrixUtil
