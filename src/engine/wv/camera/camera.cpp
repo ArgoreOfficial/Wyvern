@@ -61,7 +61,7 @@ wv::Vector3f wv::ICamera::screenToWorld( int _pixelX, int _pixelY, float _depth 
 wv::Vector3f wv::ICamera::screenToWorld( float _clipX, float _clipY, float _depth )
 {
 	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
-	Matrix4x4f invViewProj = MatrixUtil::inverse( viewProj );
+	Matrix4x4f invViewProj = viewProj.inverse();
 	
 	Vector4f screenspacePoint{ _clipX, _clipY, -_depth, 1.0f };
 	Vector4f worldPoint = screenspacePoint * invViewProj;
@@ -110,7 +110,7 @@ wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void )
 
 wv::Matrix4x4f wv::ICamera::getViewMatrix( void )
 {
-	return MatrixUtil::inverse( m_transform.getMatrix() );
+	return m_transform.getMatrix().inverse();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

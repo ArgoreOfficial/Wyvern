@@ -102,6 +102,7 @@ namespace wv
 	#endif
 		Vector4<T>& pos( void ) { return *reinterpret_cast< Vector4<T>* >( &m[ 3 * 4 ] ); }
 
+		Matrix<T, R, C> inverse();
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -379,7 +380,7 @@ namespace wv
 	inline Matrix<T, R, C>& Matrix<T, R, C>::operator*=( const Matrix<T, R, C2>& _o )
 	{
 		(*this) = (*this) * _o;
-		return ( *this );
+		return *this;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -397,6 +398,12 @@ namespace wv
 			set( _r, idx, v );
 			idx++;
 		}
+	}
+	
+	template<typename T, size_t R, size_t C>
+	inline Matrix<T, R, C> Matrix<T, R, C>::inverse()
+	{
+		return MatrixUtil::inverse<T>( *this );
 	}
 
 }
