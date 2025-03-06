@@ -74,6 +74,8 @@ void wv::FreeflightCamera::update( double _delta_time )
 {
 	handleInput();
 
+	_delta_time = wv::Math::clamp( _delta_time, 0.0, 1.0 / 12.0 ); // just in case
+
 	m_velocity *= 1.0f - (float)_delta_time * 10.0f;
 
 	if (m_freecam_enabled)
