@@ -92,7 +92,14 @@ wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
 {
 	wv::Engine* engine = wv::Engine::get();
 	
-	return Math::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
+	float aspect = engine->context->getAspect();
+	float sensorH = 36.0f * aspect;
+	float sensorW = 36.0f;
+
+	/// TODO: class FocalCamera ?
+
+	//return Math::perspective( engine->context->getAspect(), Math::radians( fov ), m_near, m_far );
+	return Math::focalPerspective( sensorW, sensorH, 30.0f, m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

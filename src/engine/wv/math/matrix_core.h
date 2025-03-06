@@ -304,22 +304,11 @@ Matrix<_Ty, 4, 4> orthographic( const _Ty& _halfWidth, const _Ty& _halfHeight, c
 	return res;
 }
 
-/// TODO: focal length camera https://paulbourke.net/miscellaneous/lens/
-
 template<typename _Ty>
-Matrix<_Ty, 1, 4> fromVector( const Vector4<_Ty>& _vec )
+Matrix<_Ty, 4, 4> focalPerspective( _Ty _sensorWidth, _Ty _sensorHeight, _Ty _focalLength, _Ty _near, _Ty _far )
 {
-	Matrix<_Ty, 1, 4> m;
-	m.setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
-	return m;
-}
-
-template<typename _Ty>
-Matrix<_Ty, 1, 3> fromVector( Vector3<_Ty> _vec )
-{
-	Matrix<_Ty, 1, 3> m;
-	m.setRow( 0, { _vec.x, _vec.y, _vec.z } );
-	return m;
+	_Ty fov = 2.0 * atan( _sensorWidth / ( 2.0 * _focalLength ) );
+	return perspective<_Ty>( _sensorHeight / _sensorWidth, fov, _near, _far );
 }
 
 }
