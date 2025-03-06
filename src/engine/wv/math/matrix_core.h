@@ -260,17 +260,17 @@ Matrix<_Ty, 4, 4> rotateZ( const Matrix<_Ty, 4, 4>& _m, _Ty _angle )
 template<typename _Ty>
 Matrix<_Ty, 4, 4> perspective( const _Ty& _aspect, const _Ty& _fov, const _Ty& _near, const _Ty& _far )
 {
-	Matrix<_Ty, 4, 4> res{ 0 };
-
 	const _Ty e = 1.0 / std::tan( _fov / 2.0 );
 	const _Ty m00 = e / _aspect;
 	const _Ty m22 = ( _far + _near ) / ( _near - _far );
 	const _Ty m32 = ( 2 * _far * _near ) / ( _near - _far );
 
-	res.setRow( 0, { m00, 0,   0,  0 } );
-	res.setRow( 1, { 0, e,   0,  0 } );
-	res.setRow( 2, { 0, 0, m22, -1 } );
-	res.setRow( 3, { 0, 0, m32,  0 } );
+	Matrix<_Ty, 4, 4> res{ {
+		m00, 0,   0,  0,
+		0,   e,   0,  0,
+		0,   0, m22, -1,
+		0,   0, m32,  0,
+	} };
 
 	return res;
 }
@@ -278,17 +278,17 @@ Matrix<_Ty, 4, 4> perspective( const _Ty& _aspect, const _Ty& _fov, const _Ty& _
 template<typename _Ty>
 Matrix<_Ty, 4, 4> orthographic( const _Ty& _halfWidth, const _Ty& _halfHeight, const _Ty& _far, const _Ty& _near )
 {
-	Matrix<_Ty, 4, 4> res{ 0 };
-
 	_Ty m00 = 1.0 / _halfWidth;
 	_Ty m11 = 1.0 / _halfHeight;
 	_Ty m22 = ( -2.0 ) / ( _far - _near );
 	_Ty m32 = -( ( _far + _near ) / ( _far - _near ) );
 
-	res.setRow( 0, { m00,   0,   0, 0 } );
-	res.setRow( 1, { 0,   m11,   0, 0 } );
-	res.setRow( 2, { 0,     0, m22, 0 } );
-	res.setRow( 3, { 0,     0, m32, 1 } );
+	Matrix<_Ty, 4, 4> res{ {
+		m00,   0,   0, 0,
+		0,   m11,   0, 0,
+		0,     0, m22, 0,
+		0,     0, m32, 1,
+	} };
 
 	return res;
 }
