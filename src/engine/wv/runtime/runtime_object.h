@@ -1,7 +1,9 @@
 #pragma once
 
 #include <wv/runtime/query.h>
+#include <wv/runtime/function.h>
 
+#include <vector>
 #include <string>
 
 namespace wv {
@@ -9,6 +11,7 @@ namespace wv {
 template<typename _Ty> wv::IRuntimeQuery* getRuntimeGlobal();
 
 class IRuntimeQuery;
+class IRuntimeCallableBase;
 
 class IRuntimeObjectBase
 {
@@ -17,6 +20,7 @@ public:
 
 protected:
 	uint8_t IRuntimeObjectBase::* getPropertyImpl( const std::string& _property );
+	IRuntimeCallableBase* getFunctionImpl( const std::string& _property );
 };
 
 template<typename _Ty>
@@ -41,6 +45,15 @@ public:
 			return;
 
 		(_Ty&)(this->*ptr) = _value;
+	}
+
+	void callFunction( const std::string& _function, const std::vector<std::string>& _args ) {
+		IRuntimeCallableBase* callable = getFunctionImpl( _function );
+		callable->call( this, _args );
+	}
+
+	void callFunction( const std::string& _function ) {
+		callFunction( _function, {} );
 	}
 
 };

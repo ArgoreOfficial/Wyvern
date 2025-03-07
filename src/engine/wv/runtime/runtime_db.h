@@ -1,6 +1,8 @@
 #pragma once
 
 #include <wv/runtime/runtime_properties.h>
+#include <wv/runtime/function.h>
+
 #include <wv/runtime/query.h>
 #include <wv/runtime/runtime_object.h>
 
@@ -31,9 +33,10 @@ public:
 	template<typename _Ty>
 	void registerRuntime( IRuntimeQuery* _pRtQuery )
 	{
-		_pRtQuery->pMethods = new RuntimeMethods();
+		_pRtQuery->pMethods = new RuntimeFunctions();
+		_Ty::queryFunctions( _pRtQuery->pMethods );
 		// queryMethodsImpl<_Ty>( _pRtQuery->pMethods, 0 );
-		
+
 		_pRtQuery->pProperties = new RuntimeProperties();
 		queryPropertiesImpl<_Ty>( _pRtQuery->pProperties, 0 );
 

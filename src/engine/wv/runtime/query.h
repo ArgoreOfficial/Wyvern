@@ -2,7 +2,7 @@
 
 namespace wv {
 
-class RuntimeMethods;
+class RuntimeFunctions;
 class RuntimeProperties;
 
 struct IRuntimeQuery
@@ -14,7 +14,7 @@ struct IRuntimeQuery
 	const char* name;
 	const char* base;
 
-	RuntimeMethods*    pMethods    = nullptr;
+	RuntimeFunctions*  pMethods    = nullptr;
 	RuntimeProperties* pProperties = nullptr;
 
 	template<typename _Ty>
