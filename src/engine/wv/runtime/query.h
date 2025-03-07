@@ -14,7 +14,7 @@ struct IRuntimeQuery
 	const char* name;
 	const char* base;
 
-	RuntimeFunctions*  pMethods    = nullptr;
+	RuntimeFunctions*  pFunctions  = nullptr;
 	RuntimeProperties* pProperties = nullptr;
 
 	template<typename _Ty>

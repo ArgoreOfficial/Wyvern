@@ -1,27 +1,22 @@
 #pragma once
 
-#include <wv/runtime/runtime_properties.h>
-#include <wv/runtime/function.h>
+#include <wv/runtime/properties.h>
+#include <wv/runtime/callable.h>
 
 #include <wv/runtime/query.h>
-#include <wv/runtime/runtime_object.h>
+#include <wv/runtime/object.h>
 
 namespace wv {
 
-class RuntimeDataBase
+class RuntimeRegistry
 {
 public:
-	static RuntimeDataBase* get() {
-		static RuntimeDataBase inst{};
+	static RuntimeRegistry* get() {
+		static RuntimeRegistry inst{};
 		return &inst;
 	}
-	/* 
-	template<typename _Ty> static void queryMethodsImpl( decltype( &_Ty::queryMethods ) ) { return _Ty::queryMethods(); }
-	template<typename _Ty> static void queryMethodsImpl( ... ) { return {}; }
-	*/
 
 	void dump();
-
 
 	template<typename _Ty> 
 	static void queryPropertiesImpl( ... ) { }
@@ -30,13 +25,20 @@ public:
 		_Ty::queryProperties( p );
 	}
 
+
+	template<typename _Ty>
+	static void queryFunctionsImpl( ... ) {}
+	template<typename _Ty>
+	static void queryFunctionsImpl( RuntimeFunctions* f, decltype( &_Ty::queryFunctions ) ) {
+		_Ty::queryFunctions( f );
+	}
+
 	template<typename _Ty>
 	void registerRuntime( IRuntimeQuery* _pRtQuery )
 	{
-		_pRtQuery->pMethods = new RuntimeFunctions();
-		_Ty::queryFunctions( _pRtQuery->pMethods );
-		// queryMethodsImpl<_Ty>( _pRtQuery->pMethods, 0 );
-
+		_pRtQuery->pFunctions = new RuntimeFunctions();
+		queryFunctionsImpl<_Ty>( _pRtQuery->pFunctions, 0 );
+		
 		_pRtQuery->pProperties = new RuntimeProperties();
 		queryPropertiesImpl<_Ty>( _pRtQuery->pProperties, 0 );
 

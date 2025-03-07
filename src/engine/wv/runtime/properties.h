@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wv/runtime/runtime_object.h>
-#include <wv/runtime/function.h>
+#include <wv/runtime/object.h>
+#include <wv/runtime/callable.h>
 
 #include <unordered_map>
 #include <string>

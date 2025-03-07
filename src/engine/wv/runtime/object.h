@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/runtime/query.h>
-#include <wv/runtime/function.h>
+#include <wv/runtime/callable.h>
 
 #include <vector>
 #include <string>
@@ -42,13 +42,16 @@ public:
 	void setProperty( const std::string& _property, const _Ty& _value ) {
 		uint8_t IRuntimeObjectBase::* ptr = getPropertyImpl( _property );
 		if( ptr == nullptr )
-			return;
+			return; // error
 
 		(_Ty&)(this->*ptr) = _value;
 	}
 
 	void callFunction( const std::string& _function, const std::vector<std::string>& _args ) {
 		IRuntimeCallableBase* callable = getFunctionImpl( _function );
+		if( callable == nullptr )
+			return; // error
+
 		callable->call( this, _args );
 	}
 

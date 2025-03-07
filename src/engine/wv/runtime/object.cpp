@@ -1,8 +1,8 @@
-#include "runtime_object.h"
+#include "object.h"
 
 #include <wv/runtime/query.h>
-#include <wv/runtime/runtime_properties.h>
-#include <wv/runtime/function.h>
+#include <wv/runtime/properties.h>
+#include <wv/runtime/callable.h>
 
 uint8_t wv::IRuntimeObjectBase::* wv::IRuntimeObjectBase::getPropertyImpl( const std::string& _property )
 {
@@ -12,6 +12,6 @@ uint8_t wv::IRuntimeObjectBase::* wv::IRuntimeObjectBase::getPropertyImpl( const
 
 wv::IRuntimeCallableBase* wv::IRuntimeObjectBase::getFunctionImpl( const std::string& _function )
 {
-    IRuntimeCallableBase* ptr = pQuery->pMethods->getPtr( _function );
+    IRuntimeCallableBase* ptr = pQuery->pFunctions->getPtr( _function );
     return ptr;
 }
