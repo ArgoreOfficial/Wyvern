@@ -58,15 +58,19 @@ public:
 int main( int argc, char* argv[] )
 {
 	wv::IRuntimeObject* hotel = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
-	if( hotel )
-	{
-		int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
-		hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
-		availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
+	if( !hotel )
+		return 1;
+
+	Hotel* h = (Hotel*)hotel;
+
+	int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
+	hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
+	availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
 	
-		hotel->callFunction( "occupyRoom", { "4" } );
-		hotel->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
-	}
+	hotel->callFunction( "occupyRoom", { "4" } );
+	hotel->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
+	
+	hotel->setPropertyStr( "availableRooms", "4" );
 
 	wv::Trace::Trace::printEnabled = false;
 

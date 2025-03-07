@@ -10,6 +10,26 @@ namespace wv {
 
 struct IRuntimeCallable;
 
+enum class RuntimeMemberType // TODO
+{
+    kVoid,
+    kInt,
+    kFloat,
+    kString,
+};
+
+template<typename _Ty> static RuntimeMemberType getRuntimeMemberType() { return RuntimeMemberType::kVoid; }
+template<> RuntimeMemberType getRuntimeMemberType<int>        () { return RuntimeMemberType::kInt;    }
+template<> RuntimeMemberType getRuntimeMemberType<float>      () { return RuntimeMemberType::kFloat;  }
+template<> RuntimeMemberType getRuntimeMemberType<std::string>() { return RuntimeMemberType::kString; }
+
+
+struct RuntimeMemberProperty
+{
+    RuntimeMemberType type;
+    uint8_t IRuntimeObject::* ptr;
+};
+
 struct RuntimeFunctions
 {
     RuntimeFunctions() :
@@ -57,18 +77,21 @@ struct RuntimeProperties
 
     template<typename _Ty, typename _Oty>
     void add( const std::string& _name, _Ty _Oty::* _ptr ) {
-        m_ptrs.emplace( _name, (uint8_t IRuntimeObject::* )_ptr );
+        RuntimeMemberProperty* mp = new RuntimeMemberProperty();
+        mp->ptr = ( uint8_t IRuntimeObject::* )_ptr;
+        mp->type = getRuntimeMemberType<_Ty>();
+        m_ptrs.emplace( _name, mp );
     }
 
-    uint8_t wv::IRuntimeObject::* getPtr( const std::string& _name ) {
+    RuntimeMemberProperty* getPtr( const std::string& _name ) {
         if( m_ptrs.count( _name ) == 0 )
-            return nullptr; // throw warning
+            return {}; // throw warning
 
         return m_ptrs.at( _name );
     }
 
 private:
-    std::unordered_map<std::string, uint8_t IRuntimeObject::*> m_ptrs;
+    std::unordered_map<std::string, RuntimeMemberProperty*> m_ptrs;
 };
 
 }
