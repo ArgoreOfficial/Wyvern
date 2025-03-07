@@ -38,6 +38,7 @@ public:
 	void occupyRoom( int _room ) {
 		printf( "Occupied room nr.%i\n", _room );
 	}
+
 	void addAndPrintTwoNumbers( int _a, int _b ) {
 		printf( "%i + %i = %i\n", _a, _b, _a + _b );
 	}
@@ -56,16 +57,15 @@ public:
 
 int main( int argc, char* argv[] )
 {
-	wv::IRuntimeObject* test = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
-	if( test )
+	wv::IRuntimeObject* hotel = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
+	if( hotel )
 	{
-		int availableRooms = test->getProperty<int>( "availableRooms" ); // 6, default
-		test->setProperty<int>( "availableRooms", 23 );
-		availableRooms = test->getProperty<int>( "availableRooms" ); // 23
+		int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
+		hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
+		availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
 	
-		test->callFunction( "occupyRoom", { "4" } );
-		test->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
-		printf( "y\n" );
+		hotel->callFunction( "occupyRoom", { "4" } );
+		hotel->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
 	}
 
 	wv::Trace::Trace::printEnabled = false;
