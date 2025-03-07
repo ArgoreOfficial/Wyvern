@@ -182,6 +182,8 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	wv::ParseData parseData; /// TODO: fix
 	parseData.json = _json;
 
+#error CHANGE HERE
+
 	wv::IEntity* obj = ( wv::IEntity* )wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
 
 	if( !obj )
@@ -219,7 +221,9 @@ wv::Scene* wv::IAppState::loadScene( IFileSystem* _pFileSystem, const std::strin
 	wv::Scene* scene = WV_NEW( wv::Scene, root[ "name" ].string_value(), _path );
 	
 	for( auto& objJson : root[ "scene" ].array_items() )
+	{
 		scene->addChild( parseSceneObject( objJson ) );
+	}
 
 	return scene;
 }

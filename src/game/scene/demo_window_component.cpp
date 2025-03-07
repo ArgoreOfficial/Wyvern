@@ -54,8 +54,6 @@ void DemoWindowComponent::onEnter( void )
 {
 	hotel = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
 	
-	Hotel* h = (Hotel*)hotel;
-
 	int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
 	hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
 	availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
