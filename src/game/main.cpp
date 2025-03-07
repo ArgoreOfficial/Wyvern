@@ -45,7 +45,7 @@ public:
 		};
 		return m;
 	}
-	
+
 	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
 		_pOutProps->add( "availableRooms", ( uint8_t IRuntimeObjectBase::* )&Hotel::availableRooms );
 	}
@@ -54,19 +54,8 @@ public:
 int main( int argc, char* argv[] )
 {
 	wv::RuntimeDataBase* database = wv::RuntimeDataBase::get();
-	int i = 0;
-	for( auto& query : database->m_queries )
-	{
-		printf( "%02i : %s:%s\n", (int)i, query.second->name, query.second->base );
-		printf( "Methods:\n" );
-		for( auto& m : query.second->pMethods->methods )
-			printf( "   %s\n", m );
-		printf( "Properties:\n" );
-		for( auto& p : query.second->pProperties->list() )
-			printf( "   %s\n", p.c_str() );
-		i++;
-	}
-
+	database->dump();
+	
 	Hotel test;
 	int availableRooms = test.getProperty<int>( "availableRooms" ); // 6, default
 	test.setProperty<int>( "availableRooms", 23 );

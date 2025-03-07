@@ -18,10 +18,15 @@ public:
 	template<typename _Ty> static void queryMethodsImpl( ... ) { return {}; }
 	*/
 
-	template<typename _Ty> static void queryPropertiesImpl( RuntimeProperties* p, decltype( &_Ty::queryProperties ) ) {
+	void dump();
+
+
+	template<typename _Ty> 
+	static void queryPropertiesImpl( ... ) { }
+	template<typename _Ty> 
+	static void queryPropertiesImpl( RuntimeProperties* p, decltype( &_Ty::queryProperties ) ) {
 		_Ty::queryProperties( p );
 	}
-	template<typename _Ty> static void queryPropertiesImpl( ... ) { }
 
 	template<typename _Ty>
 	void registerRuntime( IRuntimeQuery* _pRtQuery )

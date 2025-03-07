@@ -24,7 +24,7 @@ class IRuntimeObject : public IRuntimeObjectBase
 {
 public:
 	IRuntimeObject() {
-		//pQuery = getRuntimeGlobal<_Ty>();
+		pQuery = getRuntimeGlobal<_Ty>();
 	}
 
 	template<typename _Ty>
@@ -35,15 +35,11 @@ public:
 	}
 
 	template<typename _Ty>
-	_Ty getPropertyPtr( const std::string& _property ) {
-		uint8_t IRuntimeObjectBase::* ptr = getPropertyImpl( _property );
-		_Ty* ret = &( this->*ptr );
-		return ret;
-	}
-
-	template<typename _Ty>
 	void setProperty( const std::string& _property, const _Ty& _value ) {
 		uint8_t IRuntimeObjectBase::* ptr = getPropertyImpl( _property );
+		if( ptr == nullptr )
+			return;
+
 		(_Ty&)(this->*ptr) = _value;
 	}
 
