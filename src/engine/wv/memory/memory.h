@@ -64,6 +64,7 @@ private:
 
 #ifdef WV_TRACK_MEMORY
 #define WV_NEW( _Ty, ... ) wv::MemoryTracker::track_new<_Ty>( #_Ty, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
+#define WV_NEW_NAMED( _Ty, _Name, ... ) wv::MemoryTracker::track_new<_Ty>( _Name, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
 #define WV_NEW_ARR( _Ty, _count ) wv::MemoryTracker::track_new_arr<_Ty>( _count, #_Ty , __FILE__, __LINE__, __FUNCTION__ )
 
 #define WV_FREE( _ptr ) wv::MemoryTracker::track_free( _ptr )

@@ -43,7 +43,7 @@ public:
 		_pRtQuery->pProperties = new RuntimeProperties();
 		queryPropertiesImpl<_Ty>( _pRtQuery->pProperties, 0 );
 
-		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* { return WV_NEW( _Ty ); };
+		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* { return WV_NEW_NAMED( _Ty, "IRuntimeObject" ); };
 
 		m_queries.emplace( _pRtQuery->name, _pRtQuery );
 	}
