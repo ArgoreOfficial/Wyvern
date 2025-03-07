@@ -7,6 +7,8 @@
 
 #include <wv/target/iremote_target.h>
 
+#include <wv/runtime.h>
+
 #include <stdio.h>
 #include <exception>
 #include <typeinfo>
@@ -29,8 +31,47 @@ void wv::Remote::remoteMain() { }
 void wv::Remote::remoteMainExit() { }
 #endif
 
+WV_RUNTIME_OBJECT( Hotel, IRuntimeObject )
+class Hotel : public wv::IRuntimeObject<Hotel>
+{
+public:
+	void occupyRoom( uint64_t _room ) {}
+	int availableRooms = 6;
+
+	static wv::RuntimeMethods queryMethods() {
+		wv::RuntimeMethods m;
+		m.methods = {
+			"occupyRoom"
+		};
+		return m;
+	}
+	
+	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
+		_pOutProps->add( "availableRooms", ( uint8_t IRuntimeObjectBase::* )&Hotel::availableRooms );
+	}
+};
+
 int main( int argc, char* argv[] )
 {
+	wv::RuntimeDataBase* database = wv::RuntimeDataBase::get();
+	int i = 0;
+	for( auto& query : database->m_queries )
+	{
+		printf( "%02i : %s:%s\n", (int)i, query.second->name, query.second->base );
+		printf( "Methods:\n" );
+		for( auto& m : query.second->pMethods->methods )
+			printf( "   %s\n", m );
+		printf( "Properties:\n" );
+		for( auto& p : query.second->pProperties->list() )
+			printf( "   %s\n", p.c_str() );
+		i++;
+	}
+
+	Hotel test;
+	int availableRooms = test.getProperty<int>( "availableRooms" ); // 6, default
+	test.setProperty<int>( "availableRooms", 23 );
+	availableRooms = test.getProperty<int>( "availableRooms" ); // 23
+
 	wv::Trace::Trace::printEnabled = false;
 
 	if( !wv::Console::isInitialized() )
