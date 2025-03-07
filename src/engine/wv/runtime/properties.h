@@ -26,7 +26,7 @@ struct RuntimeFunctions
 
     template<typename _Ty, typename... _Args>
     void add( const std::string& _name, void(_Ty::*_fptr)( _Args... ) ) {
-        IRuntimeCallableBase* fptr = new IRuntimeMemberCallable{ _fptr };
+        IRuntimeCallableBase* fptr = new RuntimeMemberCallable{ _fptr };
         m_ptrs.emplace( _name, fptr );
     }
 

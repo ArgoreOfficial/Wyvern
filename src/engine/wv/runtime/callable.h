@@ -19,7 +19,7 @@ struct IRuntimeCallableBase
 };
 
 template<typename... _Args>
-struct IRuntimeMemberCallable : IRuntimeCallableBase
+struct RuntimeMemberCallable : IRuntimeCallableBase
 {
 private:
 
@@ -28,12 +28,12 @@ private:
 
 public:
 	typedef void( wv::IRuntimeObject::* fptr_t )( _Args... );
-	IRuntimeMemberCallable( fptr_t _fptr ) :
+	RuntimeMemberCallable( fptr_t _fptr ) :
 		fptr{ _fptr }
 	{}
 
 	template<typename _Ty>
-	IRuntimeMemberCallable( void( _Ty::* _fptr )( _Args... ) ) :
+	RuntimeMemberCallable( void( _Ty::* _fptr )( _Args... ) ) :
 		fptr{ (fptr_t)_fptr }
 	{}
 
@@ -48,7 +48,7 @@ public:
 
 template<typename ..._Args>
 template<std::size_t ..._S>
-void IRuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args )
+void RuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args )
 {
 	if( sizeof...( _Args ) != (int)_args.size() )
 	{
