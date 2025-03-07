@@ -9,7 +9,7 @@ namespace wv {
 
 struct IRuntimeObject;
 
-struct IRuntimeCallableBase
+struct IRuntimeCallable
 {
 	void operator()( wv::IRuntimeObject* _obj, const std::vector<std::string>& _args ) {
 		call( _obj, _args );
@@ -19,7 +19,7 @@ struct IRuntimeCallableBase
 };
 
 template<typename... _Args>
-struct RuntimeMemberCallable : IRuntimeCallableBase
+struct RuntimeMemberCallable : IRuntimeCallable
 {
 private:
 

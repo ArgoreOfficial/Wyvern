@@ -11,13 +11,13 @@ namespace wv {
 template<typename _Ty> wv::IRuntimeQuery* getRuntimeGlobal() { return nullptr; }
 
 class IRuntimeQuery;
-class IRuntimeCallableBase;
+class IRuntimeCallable;
 
 class IRuntimeObject
 {
 protected:
 	uint8_t IRuntimeObject::* getPropertyImpl( const std::string& _property );
-	IRuntimeCallableBase*     getFunctionImpl( const std::string& _property );
+	IRuntimeCallable*     getFunctionImpl( const std::string& _property );
 
 public:
 	IRuntimeQuery* pQuery = nullptr;
@@ -39,7 +39,7 @@ public:
 	}
 
 	void callFunction( const std::string& _function, const std::vector<std::string>& _args ) {
-		IRuntimeCallableBase* callable = getFunctionImpl( _function );
+		IRuntimeCallable* callable = getFunctionImpl( _function );
 		if( callable == nullptr )
 			return; // error
 

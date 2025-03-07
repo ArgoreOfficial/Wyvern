@@ -8,7 +8,7 @@
 
 namespace wv {
 
-struct IRuntimeCallableBase;
+struct IRuntimeCallable;
 
 struct RuntimeFunctions
 {
@@ -26,11 +26,11 @@ struct RuntimeFunctions
 
     template<typename _Ty, typename... _Args>
     void add( const std::string& _name, void(_Ty::*_fptr)( _Args... ) ) {
-        IRuntimeCallableBase* fptr = new RuntimeMemberCallable{ _fptr };
+        IRuntimeCallable* fptr = new RuntimeMemberCallable{ _fptr };
         m_ptrs.emplace( _name, fptr );
     }
 
-    IRuntimeCallableBase* getPtr( const std::string& _name ) {
+    IRuntimeCallable* getPtr( const std::string& _name ) {
         if( m_ptrs.count( _name ) == 0 )
             return nullptr; // throw warning
 
@@ -38,7 +38,7 @@ struct RuntimeFunctions
     }
 
 private:
-    std::unordered_map<std::string, IRuntimeCallableBase*> m_ptrs;
+    std::unordered_map<std::string, IRuntimeCallable*> m_ptrs;
 };
 
 struct RuntimeProperties

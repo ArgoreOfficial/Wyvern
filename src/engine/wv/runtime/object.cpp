@@ -10,8 +10,8 @@ uint8_t wv::IRuntimeObject::* wv::IRuntimeObject::getPropertyImpl( const std::st
     return ptr;
 }
 
-wv::IRuntimeCallableBase* wv::IRuntimeObject::getFunctionImpl( const std::string& _function )
+wv::IRuntimeCallable* wv::IRuntimeObject::getFunctionImpl( const std::string& _function )
 {
-    IRuntimeCallableBase* ptr = pQuery->pFunctions->getPtr( _function );
+    IRuntimeCallable* ptr = pQuery->pFunctions->getPtr( _function );
     return ptr;
 }
