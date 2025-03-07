@@ -7,14 +7,14 @@
 
 namespace wv {
 
-struct IRuntimeObjectBase;
+struct IRuntimeObject;
 
 struct IRuntimeCallableBase
 {
-	void operator()( wv::IRuntimeObjectBase* _obj, const std::vector<std::string>& _args ) {
+	void operator()( wv::IRuntimeObject* _obj, const std::vector<std::string>& _args ) {
 		call( _obj, _args );
 	}
-	virtual void call( wv::IRuntimeObjectBase* _obj, const std::vector<std::string>& _args ) = 0;
+	virtual void call( wv::IRuntimeObject* _obj, const std::vector<std::string>& _args ) = 0;
 	virtual int getArgCount() = 0;
 };
 
@@ -24,10 +24,10 @@ struct IRuntimeMemberCallable : IRuntimeCallableBase
 private:
 
 	template<std::size_t... _S>
-	void _handleCall( wv::IRuntimeObjectBase* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args );
+	void _handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args );
 
 public:
-	typedef void( wv::IRuntimeObjectBase::* fptr_t )( _Args... );
+	typedef void( wv::IRuntimeObject::* fptr_t )( _Args... );
 	IRuntimeMemberCallable( fptr_t _fptr ) :
 		fptr{ _fptr }
 	{}
@@ -39,7 +39,7 @@ public:
 
 	virtual int getArgCount() override { return (int)sizeof...( _Args ); }
 
-	virtual void call( wv::IRuntimeObjectBase* _obj, const std::vector<std::string>& _args ) override {
+	virtual void call( wv::IRuntimeObject* _obj, const std::vector<std::string>& _args ) override {
 		_handleCall( _obj, std::index_sequence_for<_Args...>{}, _args );
 	}
 
@@ -48,7 +48,7 @@ public:
 
 template<typename ..._Args>
 template<std::size_t ..._S>
-void IRuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObjectBase* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args )
+void IRuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args )
 {
 	if( sizeof...( _Args ) != (int)_args.size() )
 	{

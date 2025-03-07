@@ -31,12 +31,15 @@ void wv::Remote::remoteMain() { }
 void wv::Remote::remoteMainExit() { }
 #endif
 
-WV_RUNTIME_OBJECT( Hotel, IRuntimeObject )
-class Hotel : public wv::IRuntimeObject<Hotel>
+WV_RUNTIME_OBJECT( Hotel, RuntimeObject )
+class Hotel : public wv::RuntimeObject<Hotel>
 {
 public:
 	void occupyRoom( int _room ) {
 		printf( "Occupied room nr.%i\n", _room );
+	}
+	void addAndPrintTwoNumbers( int _a, int _b ) {
+		printf( "%i + %i = %i\n", _a, _b, _a + _b );
 	}
 	
 	int availableRooms = 6;
@@ -47,6 +50,7 @@ public:
 
 	static void queryFunctions( wv::RuntimeFunctions* _pOutFuncs ) {
 		_pOutFuncs->add( "occupyRoom", &Hotel::occupyRoom );
+		_pOutFuncs->add( "addAndPrintTwoNumbers", &Hotel::addAndPrintTwoNumbers );
 	}
 };
 
@@ -58,6 +62,7 @@ int main( int argc, char* argv[] )
 	availableRooms = test.getProperty<int>( "availableRooms" ); // 23
 	
 	test.callFunction( "occupyRoom", { "4" } );
+	test.callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
 
 	wv::Trace::Trace::printEnabled = false;
 

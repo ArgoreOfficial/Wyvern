@@ -57,10 +57,10 @@ struct RuntimeProperties
 
     template<typename _Ty, typename _Oty>
     void add( const std::string& _name, _Ty _Oty::* _ptr ) {
-        m_ptrs.emplace( _name, (uint8_t IRuntimeObjectBase::* )_ptr );
+        m_ptrs.emplace( _name, (uint8_t IRuntimeObject::* )_ptr );
     }
 
-    uint8_t wv::IRuntimeObjectBase::* getPtr( const std::string& _name ) {
+    uint8_t wv::IRuntimeObject::* getPtr( const std::string& _name ) {
         if( m_ptrs.count( _name ) == 0 )
             return nullptr; // throw warning
 
@@ -68,7 +68,7 @@ struct RuntimeProperties
     }
 
 private:
-    std::unordered_map<std::string, uint8_t IRuntimeObjectBase::*> m_ptrs;
+    std::unordered_map<std::string, uint8_t IRuntimeObject::*> m_ptrs;
 };
 
 }

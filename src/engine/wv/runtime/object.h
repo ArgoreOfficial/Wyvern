@@ -8,43 +8,34 @@
 
 namespace wv {
 
-template<typename _Ty> wv::IRuntimeQuery* getRuntimeGlobal();
+template<typename _Ty> wv::IRuntimeQuery* getRuntimeGlobal() { return nullptr; }
 
 class IRuntimeQuery;
 class IRuntimeCallableBase;
 
-class IRuntimeObjectBase
+class IRuntimeObject
 {
+protected:
+	uint8_t IRuntimeObject::* getPropertyImpl( const std::string& _property );
+	IRuntimeCallableBase*     getFunctionImpl( const std::string& _property );
+
 public:
 	IRuntimeQuery* pQuery = nullptr;
 
-protected:
-	uint8_t IRuntimeObjectBase::* getPropertyImpl( const std::string& _property );
-	IRuntimeCallableBase* getFunctionImpl( const std::string& _property );
-};
-
-template<typename _Ty>
-class IRuntimeObject : public IRuntimeObjectBase
-{
-public:
-	IRuntimeObject() {
-		pQuery = getRuntimeGlobal<_Ty>();
-	}
-
 	template<typename _Ty>
 	_Ty getProperty( const std::string& _property ) {
-		uint8_t IRuntimeObjectBase::* ptr = getPropertyImpl( _property );
+		uint8_t IRuntimeObject::* ptr = getPropertyImpl( _property );
 		_Ty ret = ( this->*ptr );
 		return ret;
 	}
 
 	template<typename _Ty>
 	void setProperty( const std::string& _property, const _Ty& _value ) {
-		uint8_t IRuntimeObjectBase::* ptr = getPropertyImpl( _property );
+		uint8_t IRuntimeObject::* ptr = getPropertyImpl( _property );
 		if( ptr == nullptr )
 			return; // error
 
-		(_Ty&)(this->*ptr) = _value;
+		(_Ty&)( this->*ptr ) = _value;
 	}
 
 	void callFunction( const std::string& _function, const std::vector<std::string>& _args ) {
@@ -58,7 +49,15 @@ public:
 	void callFunction( const std::string& _function ) {
 		callFunction( _function, {} );
 	}
+};
 
+template<typename _Ty>
+class RuntimeObject : public IRuntimeObject
+{
+public:
+	RuntimeObject() {
+		pQuery = getRuntimeGlobal<_Ty>();
+	}
 };
 
 }
