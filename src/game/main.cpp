@@ -49,7 +49,7 @@ public:
 	}
 
 	static void queryFunctions( wv::RuntimeFunctions* _pOutFuncs ) {
-		_pOutFuncs->add( "occupyRoom", &Hotel::occupyRoom );
+		_pOutFuncs->add( "occupyRoom",            &Hotel::occupyRoom );
 		_pOutFuncs->add( "addAndPrintTwoNumbers", &Hotel::addAndPrintTwoNumbers );
 	}
 };
