@@ -31,47 +31,9 @@ void wv::Remote::remoteMain() { }
 void wv::Remote::remoteMainExit() { }
 #endif
 
-WV_RUNTIME_OBJECT( Hotel, RuntimeObject )
-class Hotel : public wv::RuntimeObject<Hotel>
-{
-public:
-	void occupyRoom( int _room ) {
-		printf( "Occupied room nr.%i\n", _room );
-	}
-
-	void addAndPrintTwoNumbers( int _a, int _b ) {
-		printf( "%i + %i = %i\n", _a, _b, _a + _b );
-	}
-	
-	int availableRooms = 6;
-
-	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
-		_pOutProps->add( "availableRooms", &Hotel::availableRooms );
-	}
-
-	static void queryFunctions( wv::RuntimeFunctions* _pOutFuncs ) {
-		_pOutFuncs->add( "occupyRoom",            &Hotel::occupyRoom );
-		_pOutFuncs->add( "addAndPrintTwoNumbers", &Hotel::addAndPrintTwoNumbers );
-	}
-};
 
 int main( int argc, char* argv[] )
 {
-	wv::IRuntimeObject* hotel = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
-	if( !hotel )
-		return 1;
-
-	Hotel* h = (Hotel*)hotel;
-
-	int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
-	hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
-	availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
-	
-	hotel->callFunction( "occupyRoom", { "4" } );
-	hotel->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
-	
-	hotel->setPropertyStr( "availableRooms", "4" );
-
 	wv::Trace::Trace::printEnabled = false;
 
 	if( !wv::Console::isInitialized() )

@@ -24,8 +24,48 @@
 #include <imgui.h>
 #endif
 
+#include <wv/runtime.h>
+
+WV_RUNTIME_OBJECT( Hotel, RuntimeObject )
+class Hotel : public wv::RuntimeObject<Hotel>
+{
+public:
+	void occupyRoom( int _room ) {
+		printf( "Occupied room nr.%i\n", _room );
+	}
+
+	void addAndPrintTwoNumbers( int _a, int _b ) {
+		printf( "%i + %i = %i\n", _a, _b, _a + _b );
+	}
+	
+	int availableRooms = 6;
+	
+	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
+		_pOutProps->add( "availableRooms", &Hotel::availableRooms );
+	}
+
+	static void queryFunctions( wv::RuntimeFunctions* _pOutFuncs ) {
+		_pOutFuncs->add( "occupyRoom", &Hotel::occupyRoom );
+		_pOutFuncs->add( "addAndPrintTwoNumbers", &Hotel::addAndPrintTwoNumbers );
+	}
+};
+
 void DemoWindowComponent::onEnter( void )
 {
+	hotel = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
+	
+	Hotel* h = (Hotel*)hotel;
+
+	int availableRooms = hotel->getProperty<int>( "availableRooms" ); // 6, default
+	hotel->setProperty<int>( "availableRooms", availableRooms + 4 );
+	availableRooms = hotel->getProperty<int>( "availableRooms" ); // 10
+
+	hotel->callFunction( "occupyRoom", { "4" } );
+	hotel->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
+
+	hotel->setPropertyStr( "availableRooms", "4" );
+
+
 	wv::IAppState* state = wv::Engine::get()->m_pAppState;
 	wv::Scene* scene = state->getCurrentScene();
 
@@ -144,6 +184,16 @@ void DemoWindowComponent::drawDemoWindow()
 	ImGui::SameLine();
 	if( ImGui::Button( "Spawn Block" ) )
 		spawnBlock( 5, m_numToSpawn / 2, 5 );
+
+	{
+		ImGui::InputInt( "Hotel Rooms", hotel->getPropertyPtr<int>( "availableRooms" ) );
+		ImGui::SameLine();
+		if( ImGui::Button( "Run Code" ) )
+		{
+			int availableRooms = hotel->getProperty<int>( "availableRooms" );
+			hotel->callFunction( "occupyRoom", { std::to_string( availableRooms ) } );
+		}
+	}
 
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
 	ImGui::Text( "Bytes Allocated: %i", wv::MemoryTracker::getTotalAllocationSize() );

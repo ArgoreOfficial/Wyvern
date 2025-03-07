@@ -6,7 +6,9 @@
 #include <wv/physics/physics_types.h>
 #include <wv/event/events.h>
 
-struct IPhysicsBodyDesc;
+namespace wv {
+struct IRuntimeObject;
+}
 
 class DemoWindowComponent : public wv::IComponent
 {
@@ -36,6 +38,8 @@ protected:
 	int m_numSpawned = 0;
 
 	bool m_isMovingCube = false;
+
+	wv::IRuntimeObject* hotel;
 
 	wv::Entity* m_mouseMarker = nullptr;
 };
