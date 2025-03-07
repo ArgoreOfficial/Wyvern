@@ -56,13 +56,17 @@ public:
 
 int main( int argc, char* argv[] )
 {
-	Hotel test;
-	int availableRooms = test.getProperty<int>( "availableRooms" ); // 6, default
-	test.setProperty<int>( "availableRooms", 23 );
-	availableRooms = test.getProperty<int>( "availableRooms" ); // 23
+	wv::IRuntimeObject* test = wv::RuntimeRegistry::get()->instantiate( "Hotel" );
+	if( test )
+	{
+		int availableRooms = test->getProperty<int>( "availableRooms" ); // 6, default
+		test->setProperty<int>( "availableRooms", 23 );
+		availableRooms = test->getProperty<int>( "availableRooms" ); // 23
 	
-	test.callFunction( "occupyRoom", { "4" } );
-	test.callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
+		test->callFunction( "occupyRoom", { "4" } );
+		test->callFunction( "addAndPrintTwoNumbers", { "4", "17" } );
+		printf( "y\n" );
+	}
 
 	wv::Trace::Trace::printEnabled = false;
 

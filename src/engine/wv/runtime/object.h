@@ -17,7 +17,7 @@ class IRuntimeObject
 {
 protected:
 	uint8_t IRuntimeObject::* getPropertyImpl( const std::string& _property );
-	IRuntimeCallable*     getFunctionImpl( const std::string& _property );
+	IRuntimeCallable*         getFunctionImpl( const std::string& _property );
 
 public:
 	IRuntimeQuery* pQuery = nullptr;

@@ -2,8 +2,9 @@
 
 namespace wv {
 
-class RuntimeFunctions;
-class RuntimeProperties;
+struct RuntimeFunctions;
+struct RuntimeProperties;
+struct IRuntimeObject;
 
 struct IRuntimeQuery
 {
@@ -13,6 +14,8 @@ struct IRuntimeQuery
 	{}
 	const char* name;
 	const char* base;
+
+	IRuntimeObject* ( *fptrConstruct )( void ) = nullptr;
 
 	RuntimeFunctions*  pFunctions  = nullptr;
 	RuntimeProperties* pProperties = nullptr;
