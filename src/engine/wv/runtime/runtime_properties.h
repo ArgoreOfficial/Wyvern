@@ -26,8 +26,9 @@ struct RuntimeProperties
         return props;
     }
 
-    void add( const std::string& _name, uint8_t IRuntimeObjectBase::* _ptr ) {
-        m_ptrs.emplace( _name, _ptr );
+    template<typename _Ty, typename _Oty>
+    void add( const std::string& _name, _Ty _Oty::* _ptr ) {
+        m_ptrs.emplace( _name, (uint8_t IRuntimeObjectBase::* )_ptr );
     }
 
     uint8_t wv::IRuntimeObjectBase::* getPtr( const std::string& _name ) {

@@ -47,7 +47,8 @@ public:
 	}
 
 	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
-		_pOutProps->add( "availableRooms", ( uint8_t IRuntimeObjectBase::* )&Hotel::availableRooms );
+		_pOutProps->add( "availableRooms", &Hotel::availableRooms );
+	}
 	}
 };
 
