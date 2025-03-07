@@ -15,7 +15,7 @@ enum class RuntimeMemberType // TODO
     kVoid,
     kInt,
     kFloat,
-    kString,
+    kString
 };
 
 template<typename _Ty> static RuntimeMemberType getRuntimeMemberType() { return RuntimeMemberType::kVoid; }

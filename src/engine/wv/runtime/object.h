@@ -32,6 +32,13 @@ public:
 	}
 
 	template<typename _Ty>
+	_Ty* getPropertyPtr( const std::string& _property ) {
+		uint8_t IRuntimeObject::* ptr = getPropertyPtrImpl( _property );
+		_Ty* ret = reinterpret_cast<_Ty*>( &( this->*ptr ) );
+		return ret;
+	}
+
+	template<typename _Ty>
 	void setProperty( const std::string& _property, const _Ty& _value ) {
 		uint8_t IRuntimeObject::* ptr = getPropertyPtrImpl( _property );
 		if( ptr == nullptr )
