@@ -22,9 +22,8 @@ template<typename... _Args>
 struct RuntimeMemberCallable : IRuntimeCallable
 {
 private:
-
-	template<std::size_t... _S>
-	void _handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args );
+	template<size_t... _Num>
+	void _handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_Num...>, const std::vector<std::string>& _args );
 
 public:
 	typedef void( wv::IRuntimeObject::* fptr_t )( _Args... );
@@ -47,8 +46,8 @@ public:
 };
 
 template<typename ..._Args>
-template<std::size_t ..._S>
-void RuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_S...>, const std::vector<std::string>& _args )
+template<size_t ..._Num>
+void RuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std::index_sequence<_Num...>, const std::vector<std::string>& _args )
 {
 	if( sizeof...( _Args ) != (int)_args.size() )
 	{
@@ -56,7 +55,7 @@ void RuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std
 		return;
 	}
 
-	( _obj->*fptr )( wv::stot<_Args>( _args.data()[ _S ] )... );
+	( _obj->*fptr )( wv::stot<_Args>( _args[ _Num ] )... );
 }
 
 }

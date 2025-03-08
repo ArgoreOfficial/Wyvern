@@ -17,7 +17,8 @@ class IComponent;
 class Entity : public IEntity
 {
 public:
-	Entity( const UUID& _uuid, const std::string& _name );
+	 Entity();
+	 Entity( const UUID& _uuid, const std::string& _name );
 	~Entity();
 
 	template<typename _Ty, typename... _Args>

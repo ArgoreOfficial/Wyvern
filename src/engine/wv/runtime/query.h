@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdio.h>
+#include <vector>
+#include <string>
+
 namespace wv {
 
 struct RuntimeFunctions;
@@ -8,12 +12,12 @@ struct IRuntimeObject;
 
 struct IRuntimeQuery
 {
-	IRuntimeQuery( const char* _name, const char* _base ) :
+	IRuntimeQuery( const std::string& _name, const std::string& _base ) :
 		name{ _name },
 		base{ _base }
 	{}
-	const char* name;
-	const char* base;
+	std::string name;
+	std::string base;
 
 	IRuntimeObject* ( *fptrConstruct )( void ) = nullptr;
 
@@ -25,6 +29,8 @@ struct IRuntimeQuery
 		static _Ty inst{};
 		return 1;
 	}
+
+	void dump();
 };
 
 }

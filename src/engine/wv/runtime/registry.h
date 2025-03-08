@@ -18,7 +18,10 @@ public:
 		return &inst;
 	}
 
-	void dump();
+	void dump() {
+		for ( auto& query : m_queries )
+			query.second->dump();
+	}
 
 	template<typename _Ty> 
 	static void queryPropertiesImpl( ... ) { }
@@ -43,8 +46,12 @@ public:
 		_pRtQuery->pProperties = new RuntimeProperties();
 		queryPropertiesImpl<_Ty>( _pRtQuery->pProperties, 0 );
 
-		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* { return WV_NEW_NAMED( _Ty, "IRuntimeObject" ); };
-
+		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* 
+			{ 
+				_Ty* p = WV_NEW_NAMED( _Ty, "IRuntimeObject" );
+				return (IRuntimeObject*)p;
+			};
+		
 		m_queries.emplace( _pRtQuery->name, _pRtQuery );
 	}
 

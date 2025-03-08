@@ -1,7 +1,13 @@
 #include "Entity.h"
 
+#include <wv/engine.h>
 #include <wv/scene/component/script_component.h>
 #include <wv/scene/component/icomponent.h>
+
+wv::Entity::Entity() : 
+	IEntity{ Engine::get()->getUniqueUUID(), "Entity" }
+{
+}
 
 wv::Entity::Entity( const UUID& _uuid, const std::string& _name ) :
 	IEntity{ _uuid, _name }

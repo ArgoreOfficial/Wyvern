@@ -9,6 +9,7 @@
 
 #include <wv/engine.h>
 #include <wv/event/update_manager.h>
+#include <wv/runtime.h>
 
 #include <wv/camera/freeflight_camera.h>
 #include <wv/camera/orbit_camera.h>
@@ -182,9 +183,13 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	wv::ParseData parseData; /// TODO: fix
 	parseData.json = _json;
 
-#error CHANGE HERE
-
 	wv::IEntity* obj = ( wv::IEntity* )wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
+
+	wv::IRuntimeObject* rtObject = wv::RuntimeRegistry::get()->instantiate( objTypeName );
+	if ( rtObject )
+	{
+		rtObject->pQuery->dump();
+	}
 
 	if( !obj )
 	{

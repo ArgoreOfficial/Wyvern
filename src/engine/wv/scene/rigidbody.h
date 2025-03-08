@@ -6,6 +6,8 @@
 
 #include <wv/physics/physics.h>
 #include <wv/reflection/reflection.h>
+#include <wv/runtime.h>
+#include <wv/memory/memory.h>
 
 #include <string>
 #include <vector>
@@ -17,23 +19,26 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct MeshNode; 
-	struct MeshResource; 
+struct MeshNode; 
+struct MeshResource; 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class Rigidbody : public Entity
-	{
-	public:
-		 Rigidbody( const UUID& _uuid, const std::string& _name );
-		 Rigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, IPhysicsBodyDesc* _bodyDesc );
-		~Rigidbody();
+WV_RUNTIME_OBJECT( Rigidbody, RuntimeObject )
+class Rigidbody : public Entity, RuntimeObject<Rigidbody>
+{
+public:
+	Rigidbody() = default;
+	Rigidbody( const UUID& _uuid, const std::string& _name );
+	Rigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, IPhysicsBodyDesc* _bodyDesc );
+	~Rigidbody();
 
-		static Rigidbody* parseInstance( ParseData& _data );
+	static Rigidbody* parseInstance( ParseData& _data );
 
-		std::string m_meshPath;
-		IPhysicsBodyDesc* m_bodyDesc = nullptr;
-	};
+	std::string m_meshPath;
+	IPhysicsBodyDesc* m_bodyDesc = nullptr;
+};
+
 
 }
 

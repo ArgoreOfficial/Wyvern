@@ -72,6 +72,7 @@ private:
 #define WV_RELINQUISH( _ptr ) wv::MemoryTracker::relinquish( _ptr )
 #else
 #define WV_NEW( _Ty, ... ) new _Ty( __VA_ARGS__ )
+#define WV_NEW_NAMED( _Ty, _Name, ... ) new _Ty( __VA_ARGS__ )
 #define WV_NEW_ARR( _Ty, _count ) new _Ty[ _count ]
 
 #define WV_FREE( _ptr ) delete _ptr
