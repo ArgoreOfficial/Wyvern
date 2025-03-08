@@ -24,6 +24,8 @@ protected:
 public:
 	IRuntimeQuery* pQuery = nullptr;
 
+	virtual ~IRuntimeObject() {}
+
 	template<typename _Ty>
 	_Ty getProperty( const std::string& _property ) {
 		uint8_t IRuntimeObject::* ptr = getPropertyPtrImpl( _property );

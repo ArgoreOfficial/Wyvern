@@ -189,6 +189,7 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	if ( rtObject )
 	{
 		rtObject->pQuery->dump();
+		WV_FREE( rtObject );
 	}
 
 	if( !obj )
