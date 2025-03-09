@@ -184,10 +184,30 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	parseData.json = _json;
 
 	wv::IEntity* obj = ( wv::IEntity* )wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
+	obj->_registerUpdatable();
 
-	wv::IRuntimeObject* rtObject = wv::RuntimeRegistry::get()->instantiate( objTypeName );
-	if ( rtObject )
+	wv::RuntimeRegistry* reg = wv::RuntimeRegistry::get();
+	if ( reg->isRuntimeType( objTypeName ) )
 	{
+		wv::IRuntimeObject* rtObject = reg->safeCast( objTypeName, obj );
+
+		wv::UUID    uuid = _json[ "uuid" ].int_value();
+		std::string name = _json[ "name" ].string_value();
+
+		wv::Json tfm = _json[ "transform" ];
+		wv::Vector3f pos = wv::jsonToVec3( tfm[ "pos" ].array_items() );
+		wv::Vector3f rot = wv::jsonToVec3( tfm[ "rot" ].array_items() );
+		wv::Vector3f scl = wv::jsonToVec3( tfm[ "scl" ].array_items() );
+
+		wv::Transformf transform;
+		transform.setPosition( pos );
+		transform.setRotation( rot );
+		transform.setScale( scl );
+
+		obj->_setUUID( uuid );
+		obj->setName( name );
+		obj->m_transform = transform;
+		
 		auto keys = _json["data"].object_items();
 		for ( auto k : keys )
 		{
@@ -203,8 +223,8 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 			}
 		}
 
-		rtObject->pQuery->dump();
-		WV_FREE( rtObject );
+		if( rtObject->pQuery )
+			rtObject->pQuery->dump();
 	}
 
 	if( !obj )

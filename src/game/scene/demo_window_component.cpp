@@ -27,7 +27,7 @@
 #include <wv/runtime.h>
 
 WV_RUNTIME_OBJECT( Hotel, RuntimeObject )
-class Hotel : public wv::RuntimeObject<Hotel>
+class Hotel : public wv::RuntimeObject
 {
 public:
 	void occupyRoom( int _room ) {
@@ -63,7 +63,6 @@ void DemoWindowComponent::onEnter( void )
 
 	hotel->setPropertyStr( "availableRooms", "4" );
 
-
 	wv::IAppState* state = wv::Engine::get()->m_pAppState;
 	wv::Scene* scene = state->getCurrentScene();
 
@@ -72,6 +71,12 @@ void DemoWindowComponent::onEnter( void )
 	m_mouseMarker->m_transform.scale = 0.05f;
 
 	scene->addChild( m_mouseMarker );
+}
+
+void DemoWindowComponent::onExit( void )
+{
+	if( hotel )
+		WV_FREE( hotel );
 }
 
 void DemoWindowComponent::onUpdate( double _dt )

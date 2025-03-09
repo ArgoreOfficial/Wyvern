@@ -71,12 +71,11 @@ public:
 	}
 };
 
-template<typename _Ty>
 class RuntimeObject : public IRuntimeObject
 {
 public:
 	RuntimeObject() {
-		pQuery = getRuntimeGlobal<_Ty>();
+		//pQuery = getRuntimeGlobal<_Ty>();
 	}
 };
 

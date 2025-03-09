@@ -25,7 +25,7 @@ struct MeshResource;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 WV_RUNTIME_OBJECT( Rigidbody, RuntimeObject )
-class Rigidbody : public Entity, RuntimeObject<Rigidbody>
+class Rigidbody : public Entity, public RuntimeObject
 {
 public:
 	Rigidbody() = default;

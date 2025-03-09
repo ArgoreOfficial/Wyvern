@@ -36,6 +36,12 @@ namespace wv
 		std::string getName( void ) { return m_name; }
 		uint64_t    getUUID( void ) { return m_uuid; }
 		
+		void setName( std::string _name ) { m_name = _name; }
+		
+		// internal use ONLY
+		// .:!:. DO NOT USE .:!:.
+		void _setUUID( uint64_t _uuid ) { m_uuid = _uuid; }
+
 	#ifdef WV_EDITOR
 		bool isEditorSelected() { return m_editorSelected; }
 	#endif

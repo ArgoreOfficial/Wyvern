@@ -21,6 +21,7 @@ struct IRuntimeQuery
 
 	IRuntimeObject* ( *fptrConstruct )( void ) = nullptr;
 	IRuntimeObject* ( *fptrSafeCast  )( void* ) = nullptr;
+	IRuntimeQuery*  ( *fptrGetQuery  )( void ) = nullptr;
 
 	RuntimeFunctions*  pFunctions  = nullptr;
 	RuntimeProperties* pProperties = nullptr;

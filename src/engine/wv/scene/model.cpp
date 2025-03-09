@@ -3,40 +3,47 @@
 #include <wv/memory/memory.h>
 #include <wv/scene/component/model_component.h>
 
+#include <wv/engine.h>
+#include <wv/device/device_context.h>
+#include <wv/graphics/graphics_device.h>
+
+#include <wv/mesh/mesh_resource.h>
+#include <wv/filesystem/file_system.h>
+#include <wv/material/material.h>
+
+#include <wv/resource/resource_registry.h>
+
+#include <wv/scene/entity/entity.h>
+
+#include <fstream>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ModelObject::ModelObject( const UUID& _uuid, const std::string& _name ):
 	Entity{ _uuid, _name }
 {
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ModelObject* wv::ModelObject::parseInstance( ParseData& _data )
+void wv::ModelObject::onConstruct( void )
 {
-	wv::Json& json = _data.json;
+	wv::Engine* app = wv::Engine::get();
 
-	wv::UUID    uuid = json[ "uuid" ].int_value();
-	std::string name = json[ "name" ].string_value();
+	if ( m_meshPath == "" )
+	{
+		Debug::Print( Debug::WV_PRINT_WARN, "No mesh path provided, defaulting to cube\n" );
+		m_meshPath = "meshes/cube.dae";
+	}
 
-	wv::Json tfm = json[ "transform" ];
-	Vector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
-	Vector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
-	Vector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
+	app->m_pResourceRegistry->load<MeshResource>( m_meshPath )->makeInstance( &m_mesh );
+	m_transform.addChild( &m_mesh.transform );
+}
 
-	Transformf transform;
-	transform.setPosition( pos );
-	transform.setRotation( rot );
-	transform.setScale   ( scl );
-
-	wv::Json data = json[ "data" ];
-	std::string meshPath = data["path"].string_value();
-	
-	ModelObject* model = WV_NEW( wv::ModelObject, uuid, name );
-	model->m_transform = transform;
-	model->addComponent<ModelComponent>( meshPath );
-
-	return model;
+void wv::ModelObject::onDestruct( void )
+{
+	m_mesh.destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

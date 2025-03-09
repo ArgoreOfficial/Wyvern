@@ -10,6 +10,17 @@
 
 namespace wv {
 
+namespace Runtime {
+
+// creates object and initializes runtime query
+template<typename _Ty> static _Ty* create() {
+	RuntimeObject* ptr = WV_NEW( _Ty );
+	ptr->pQuery = getRuntimeGlobal<_Ty>();
+	return static_cast<_Ty*>( ptr );
+}
+
+}
+
 class RuntimeRegistry
 {
 public:
@@ -49,6 +60,7 @@ public:
 		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* 
 			{ 
 				_Ty* p = WV_NEW_NAMED( _Ty, "IRuntimeObject" );
+				p->pQuery = getRuntimeGlobal<_Ty>();;
 				return (IRuntimeObject*)p;
 			};
 		
@@ -57,6 +69,12 @@ public:
 				_Ty* pthis = reinterpret_cast<_Ty*>( _ptr );
 				return static_cast<IRuntimeObject*>( pthis );
 			};
+
+		_pRtQuery->fptrGetQuery = []() -> IRuntimeQuery*
+			{
+				return getRuntimeGlobal<_Ty>();
+			};
+
 		m_queries.emplace( _pRtQuery->name, _pRtQuery );
 	}
 

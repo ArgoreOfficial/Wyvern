@@ -22,6 +22,7 @@ public:
 	}
 
 	virtual void onEnter( void ) override;
+	virtual void onExit( void ) override;
 	virtual void onUpdate( double _dt ) override;
 
 protected:
@@ -39,7 +40,7 @@ protected:
 
 	bool m_isMovingCube = false;
 
-	wv::IRuntimeObject* hotel;
+	wv::IRuntimeObject* hotel = nullptr;
 
 	wv::Entity* m_mouseMarker = nullptr;
 };
