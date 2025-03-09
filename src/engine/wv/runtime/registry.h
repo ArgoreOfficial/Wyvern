@@ -52,10 +52,20 @@ public:
 				return (IRuntimeObject*)p;
 			};
 		
+		_pRtQuery->fptrSafeCast = []( void* _ptr ) -> IRuntimeObject*
+			{
+				_Ty* pthis = reinterpret_cast<_Ty*>( _ptr );
+				return static_cast<IRuntimeObject*>( pthis );
+			};
 		m_queries.emplace( _pRtQuery->name, _pRtQuery );
 	}
 
 	IRuntimeObject* instantiate( const std::string& _objectName );
+	IRuntimeObject* safeCast( const std::string& _objectName, void* _pObject );
+	
+	bool isRuntimeType( const std::string& _name ) {
+		return m_queries.count( _name ) != 0;
+	}
 
 	std::unordered_map<std::string, IRuntimeQuery*> m_queries;
 };

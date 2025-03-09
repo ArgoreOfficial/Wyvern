@@ -20,6 +20,7 @@ struct IRuntimeQuery
 	std::string base;
 
 	IRuntimeObject* ( *fptrConstruct )( void ) = nullptr;
+	IRuntimeObject* ( *fptrSafeCast  )( void* ) = nullptr;
 
 	RuntimeFunctions*  pFunctions  = nullptr;
 	RuntimeProperties* pProperties = nullptr;
