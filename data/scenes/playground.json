@@ -11,7 +11,7 @@
         "scl": [100,2,100]
       },
       "data": {
-        "path": "",
+        "path": "cube.dae",
         "shape": 2,
         "kind": 0,
         "halfExtents": [50,1,50]

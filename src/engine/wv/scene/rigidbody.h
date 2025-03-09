@@ -35,6 +35,10 @@ public:
 
 	static Rigidbody* parseInstance( ParseData& _data );
 
+	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
+		_pOutProps->add( "path", &Rigidbody::m_meshPath );
+	}
+
 	std::string m_meshPath;
 	IPhysicsBodyDesc* m_bodyDesc = nullptr;
 };

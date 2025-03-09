@@ -188,6 +188,21 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	wv::IRuntimeObject* rtObject = wv::RuntimeRegistry::get()->instantiate( objTypeName );
 	if ( rtObject )
 	{
+		auto keys = _json["data"].object_items();
+		for ( auto k : keys )
+		{
+			if ( rtObject->hasProperty( k.first ) )
+			{
+				switch ( k.second.type() )
+				{
+				case json11::Json::STRING: rtObject->setPropertyStr( k.first, k.second.string_value() ); break;
+				case json11::Json::BOOL:   rtObject->setPropertyStr( k.first, std::to_string( k.second.bool_value()   ) ); break; // HACK
+				case json11::Json::NUMBER: rtObject->setPropertyStr( k.first, std::to_string( k.second.number_value() ) ); break; // HACK
+				}
+				//wv::Debug::Print( "has property '%s'\n", k.first.c_str() );
+			}
+		}
+
 		rtObject->pQuery->dump();
 		WV_FREE( rtObject );
 	}
@@ -197,13 +212,15 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to create object of type '%s'\n", objTypeName.c_str() );
 		return nullptr;
 	}
-
+	
+	/*
 	for( auto& childJson : _json[ "children" ].array_items() )
 	{
 		wv::IEntity* childObj = parseSceneObject( childJson );
 		if ( childObj != nullptr )
 			obj->m_transform.addChild( &childObj->m_transform );
 	}
+	*/
 
 	return obj;
 }
