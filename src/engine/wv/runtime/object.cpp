@@ -4,18 +4,10 @@
 #include <wv/runtime/properties.h>
 #include <wv/runtime/callable.h>
 
-wv::RuntimeMemberProperty* wv::IRuntimeObject::getPropertyImpl( const std::string& _property )
+wv::IRuntimeProperty* wv::IRuntimeObject::getPropertyImpl( const std::string& _property )
 {
-    RuntimeMemberProperty* ptr = pQuery->pProperties->getPtr( _property );
+	IRuntimeProperty* ptr = pQuery->pProperties->getPtr( _property );
     return ptr;
-}
-
-uint8_t wv::IRuntimeObject::* wv::IRuntimeObject::getPropertyPtrImpl( const std::string& _property )
-{
-    RuntimeMemberProperty* ptr = pQuery->pProperties->getPtr( _property );
-    if( ptr )
-        return ptr->ptr;
-    return nullptr;
 }
 
 wv::IRuntimeCallable* wv::IRuntimeObject::getFunctionImpl( const std::string& _function )
@@ -24,9 +16,15 @@ wv::IRuntimeCallable* wv::IRuntimeObject::getFunctionImpl( const std::string& _f
     return ptr;
 }
 
+bool wv::IRuntimeObject::hasProperty( const std::string& _property )
+{
+	IRuntimeProperty* ptr = pQuery->pProperties->getPtr( _property );
+	return ptr != nullptr;
+}
+
 void wv::IRuntimeObject::setPropertyStr( const std::string& _property, const std::string& _valueStr )
 {
-    RuntimeMemberProperty* ptr = getPropertyImpl( _property );
+    IRuntimeProperty* ptr = getPropertyImpl( _property );
 	if( ptr == nullptr )
 		return; // error
 
@@ -36,4 +34,13 @@ void wv::IRuntimeObject::setPropertyStr( const std::string& _property, const std
     case RuntimeMemberType::kFloat:  setProperty( _property, wv::stot<float>( _valueStr ) ); break;
     case RuntimeMemberType::kString: setProperty( _property, _valueStr );                    break;
     }
+}
+
+void wv::IRuntimeObject::callFunction( const std::string& _function, const std::vector<std::string>& _args )
+{
+	IRuntimeCallable* callable = getFunctionImpl( _function );
+	if ( callable == nullptr )
+		return; // error
+
+	callable->call( this, _args );
 }
