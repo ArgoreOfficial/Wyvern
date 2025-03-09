@@ -14,7 +14,7 @@ namespace Runtime {
 
 // creates object and initializes runtime query
 template<typename _Ty> static _Ty* create() {
-	RuntimeObject* ptr = WV_NEW( _Ty );
+	IRuntimeObject* ptr = WV_NEW( _Ty );
 	ptr->pQuery = getRuntimeGlobal<_Ty>();
 	return static_cast<_Ty*>( ptr );
 }

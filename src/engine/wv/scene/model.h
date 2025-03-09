@@ -12,8 +12,8 @@ namespace wv {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-WV_RUNTIME_OBJECT( ModelObject, RuntimeObject )
-class ModelObject : public Entity, public RuntimeObject
+WV_RUNTIME_OBJECT( ModelObject, IRuntimeObject )
+class ModelObject : public Entity, public IRuntimeObject
 {
 public:
 	ModelObject() = default;

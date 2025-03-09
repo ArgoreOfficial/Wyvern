@@ -71,12 +71,4 @@ public:
 	}
 };
 
-class RuntimeObject : public IRuntimeObject
-{
-public:
-	RuntimeObject() {
-		//pQuery = getRuntimeGlobal<_Ty>();
-	}
-};
-
 }

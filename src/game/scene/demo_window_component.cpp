@@ -26,8 +26,8 @@
 
 #include <wv/runtime.h>
 
-WV_RUNTIME_OBJECT( Hotel, RuntimeObject )
-class Hotel : public wv::RuntimeObject
+WV_RUNTIME_OBJECT( Hotel, IRuntimeObject )
+class Hotel : public wv::IRuntimeObject
 {
 public:
 	void occupyRoom( int _room ) {
