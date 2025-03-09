@@ -36,6 +36,9 @@ public:
 	template<typename _Ty>
 	_Ty getProperty( const std::string& _property ) {
 		_Ty IRuntimeObject::* ptr = getPropertyPtrImpl<_Ty>( _property );
+		if ( !ptr )
+			return _Ty{};
+
 		_Ty ret = ( this->*ptr );
 		return ret;
 	}
@@ -43,6 +46,9 @@ public:
 	template<typename _Ty>
 	_Ty* getPropertyPtr( const std::string& _property ) {
 		_Ty IRuntimeObject::* ptr = getPropertyPtrImpl<_Ty>( _property );
+		if ( !ptr )
+			return nullptr;
+
 		_Ty* ret = &( this->*ptr );
 		return ret;
 	}

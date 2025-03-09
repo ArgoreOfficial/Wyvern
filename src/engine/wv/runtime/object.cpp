@@ -6,18 +6,27 @@
 
 wv::IRuntimeProperty* wv::IRuntimeObject::getPropertyImpl( const std::string& _property )
 {
+	if ( !pQuery || !pQuery->pProperties )
+		return nullptr;
+
 	IRuntimeProperty* ptr = pQuery->pProperties->getPtr( _property );
     return ptr;
 }
 
 wv::IRuntimeCallable* wv::IRuntimeObject::getFunctionImpl( const std::string& _function )
 {
+	if ( !pQuery || !pQuery->pProperties )
+		return nullptr;
+
     IRuntimeCallable* ptr = pQuery->pFunctions->getPtr( _function );
     return ptr;
 }
 
 bool wv::IRuntimeObject::hasProperty( const std::string& _property )
 {
+	if ( !pQuery || !pQuery->pProperties )
+		return false;
+
 	IRuntimeProperty* ptr = pQuery->pProperties->getPtr( _property );
 	return ptr != nullptr;
 }
