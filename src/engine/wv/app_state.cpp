@@ -183,13 +183,19 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	wv::ParseData parseData; /// TODO: fix
 	parseData.json = _json;
 
-	wv::IEntity* obj = ( wv::IEntity* )wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
-	obj->_registerUpdatable();
-
+	wv::IEntity* obj = nullptr;
+	
 	wv::RuntimeRegistry* reg = wv::RuntimeRegistry::get();
-	if ( reg->isRuntimeType( objTypeName ) )
+
+	if ( !reg->isRuntimeType( objTypeName ) )
 	{
-		wv::IRuntimeObject* rtObject = reg->safeCast( objTypeName, obj );
+		obj = (wv::IEntity*)wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
+		obj->_registerUpdatable();
+	}
+	else
+	{
+		obj = static_cast<wv::IEntity*>( reg->instantiate( objTypeName ) );
+		obj->_registerUpdatable();
 
 		wv::UUID    uuid = _json[ "uuid" ].int_value();
 		std::string name = _json[ "name" ].string_value();
@@ -211,20 +217,20 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 		auto keys = _json["data"].object_items();
 		for ( auto k : keys )
 		{
-			if ( rtObject->hasProperty( k.first ) )
+			if ( obj->hasProperty( k.first ) )
 			{
 				switch ( k.second.type() )
 				{
-				case json11::Json::STRING: rtObject->setPropertyStr( k.first, k.second.string_value() ); break;
-				case json11::Json::BOOL:   rtObject->setPropertyStr( k.first, std::to_string( k.second.bool_value()   ) ); break; // HACK
-				case json11::Json::NUMBER: rtObject->setPropertyStr( k.first, std::to_string( k.second.number_value() ) ); break; // HACK
+				case json11::Json::STRING: obj->setPropertyStr( k.first, k.second.string_value() ); break;
+				case json11::Json::BOOL:   obj->setPropertyStr( k.first, std::to_string( k.second.bool_value()   ) ); break; // HACK
+				case json11::Json::NUMBER: obj->setPropertyStr( k.first, std::to_string( k.second.number_value() ) ); break; // HACK
 				}
 				//wv::Debug::Print( "has property '%s'\n", k.first.c_str() );
 			}
 		}
 
-		if( rtObject->pQuery )
-			rtObject->pQuery->dump();
+		if( obj->pQuery )
+			obj->pQuery->dump();
 	}
 
 	if( !obj )

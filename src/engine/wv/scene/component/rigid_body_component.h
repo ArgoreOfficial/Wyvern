@@ -15,9 +15,6 @@ class RigidBodyComponent : public IComponent
 public:
 	RigidBodyComponent( IPhysicsBodyDesc* _bodyDesc ) 
 		: IComponent( "RigidBodyComponent" )
-	#ifdef WV_SUPPORT_PHYSICS
-		, m_pPhysicsBodyDesc{ _bodyDesc }
-	#endif
 	{ }
 
 	virtual FunctionFlags getFunctionFlags() override {
@@ -33,11 +30,7 @@ public:
 
 	virtual void onPhysicsUpdate( double _deltaTime ) override;
 
-protected:
-#ifdef WV_SUPPORT_PHYSICS
-	IPhysicsBodyDesc* m_pPhysicsBodyDesc = nullptr;
-	PhysicsBodyID m_physicsBodyHandle = PhysicsBodyID::InvalidID;
-#endif
+
 };
 
 }

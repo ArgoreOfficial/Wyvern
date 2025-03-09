@@ -42,6 +42,7 @@ void wv::IRuntimeObject::setPropertyStr( const std::string& _property, const std
     case RuntimeMemberType::kInt:    setProperty( _property, wv::stot<int>( _valueStr ) );   break;
     case RuntimeMemberType::kFloat:  setProperty( _property, wv::stot<float>( _valueStr ) ); break;
     case RuntimeMemberType::kString: setProperty( _property, _valueStr );                    break;
+		/// TODO: allow user defined types
     }
 }
 

@@ -45,50 +45,26 @@ wv::Rigidbody::~Rigidbody()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
+void wv::Rigidbody::onConstruct()
 {
-	wv::Json& json = _data.json;
-	std::string name = json[ "name" ].string_value();
-	wv::UUID    uuid = json[ "uuid" ].int_value();
-
-	wv::Json tfm = json[ "transform" ];
-	Vector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
-	Vector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
-	Vector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
-
-	Transformf transform;
-	transform.setPosition( pos );
-	transform.setRotation( rot );
-	transform.setScale   ( scl );
-
-	wv::Json data = json[ "data" ];
-
-	IPhysicsBodyDesc* desc = nullptr;
-	
 #ifdef WV_SUPPORT_PHYSICS
-	PhysicsKind  kind  = ( PhysicsKind  )data[ "kind"  ].int_value();
-	PhysicsShape shape = ( PhysicsShape )data[ "shape" ].int_value();
-
-	switch( shape )
+	switch ( m_shape )
 	{
-	case WV_PHYSICS_NONE: break;
+	case WV_PHYSICS_NONE: 
+		break;
 
 	case WV_PHYSICS_SPHERE:
 	{
 		PhysicsSphereDesc* sphereDesc = WV_NEW( PhysicsSphereDesc );
-		sphereDesc->radius = data[ "radius" ].number_value();
-		desc = sphereDesc;
+		sphereDesc->radius = m_sphereRadius;
+		m_pPhysicsBodyDesc = sphereDesc;
 	} break;
 
 	case WV_PHYSICS_BOX:
 	{
-		wv::Json::array halfExtents = data[ "halfExtents" ].array_items();
-
 		PhysicsBoxDesc* boxDesc = WV_NEW( PhysicsBoxDesc );
-		boxDesc->halfExtent.x = halfExtents[ 0 ].number_value();
-		boxDesc->halfExtent.y = halfExtents[ 1 ].number_value();
-		boxDesc->halfExtent.z = halfExtents[ 2 ].number_value();
-		desc = boxDesc;
+		boxDesc->halfExtent = m_boxExtents;
+		m_pPhysicsBodyDesc = boxDesc;
 	} break;
 
 	case WV_PHYSICS_CAPSULE:          break;
@@ -101,17 +77,58 @@ wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 
 	}
 
-	if( desc )
-		desc->kind = kind;
+	if ( m_pPhysicsBodyDesc )
+		m_pPhysicsBodyDesc->kind = (PhysicsKind)m_kind;
 #endif
 
-	std::string meshPath = data[ "path" ].string_value();
-	Rigidbody* rb = WV_NEW( Rigidbody, uuid, name, meshPath, desc );
-	rb->m_transform = transform;
-	rb->addComponent<ModelComponent>( meshPath );
-	rb->addComponent<RigidBodyComponent>( desc );
+	addComponent<ModelComponent>( m_meshPath );
+	
+}
 
-	return rb;
+void wv::Rigidbody::onDestruct()
+{
+	WV_FREE( m_pPhysicsBodyDesc );
+}
+
+void wv::Rigidbody::onEnter()
+{
+	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
+	//sphereSettings.mRestitution = 0.4f;
+
+#ifdef WV_SUPPORT_PHYSICS
+	Engine* app = wv::Engine::get();
+	m_pPhysicsBodyDesc->transform = m_transform;
+	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
+
+	WV_FREE( m_pPhysicsBodyDesc );
+	m_pPhysicsBodyDesc = nullptr;
+#endif // WV_SUPPORT_PHYSICS
+}
+
+void wv::Rigidbody::onExit()
+{
+#ifdef WV_SUPPORT_PHYSICS
+	wv::Engine* app = wv::Engine::get();
+	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
+	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
+#endif
+}
+
+void wv::Rigidbody::onPhysicsUpdate( double _dt )
+{
+#ifdef WV_SUPPORT_PHYSICS
+	wv::JoltPhysicsEngine* pPhysics = wv::Engine::get()->m_pPhysicsEngine;
+	if ( !m_physicsBodyHandle.is_valid() || !pPhysics->isBodyActive( m_physicsBodyHandle ) )
+		return;
+
+	Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
+	m_transform.setPositionRotation( t.position, t.rotation );
+#endif
+}
+
+wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
+{
+	return Runtime::create<Rigidbody>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
