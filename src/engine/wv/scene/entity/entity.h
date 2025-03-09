@@ -21,8 +21,6 @@ public:
 	 Entity( const UUID& _uuid, const std::string& _name );
 	~Entity();
 
-	
-
 	template<typename _Ty, typename... _Args>
 	void addComponent( _Args... _args ) {
 		static_assert( std::is_base_of_v<IComponent, _Ty>, "Type must be a component" );

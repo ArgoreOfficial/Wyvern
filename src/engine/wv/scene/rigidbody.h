@@ -24,8 +24,8 @@ struct MeshResource;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-WV_RUNTIME_OBJECT( Rigidbody, IRuntimeObject )
-class Rigidbody : public Entity, public IRuntimeObject
+WV_RUNTIME_OBJECT( Rigidbody, Entity )
+class Rigidbody : public Entity
 {
 public:
 	Rigidbody() = default;
