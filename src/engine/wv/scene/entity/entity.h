@@ -21,6 +21,8 @@ public:
 	 Entity( const UUID& _uuid, const std::string& _name );
 	~Entity();
 
+	
+
 	template<typename _Ty, typename... _Args>
 	void addComponent( _Args... _args ) {
 		static_assert( std::is_base_of_v<IComponent, _Ty>, "Type must be a component" );
@@ -53,16 +55,14 @@ protected:
 
 	std::vector<IComponent*> m_components{};
 
+public:
+	virtual FunctionFlags getFunctionFlags() override { return FunctionFlags::kNone; };
 
-	virtual void onConstructImpl( void ) { };
-	virtual void onDeconstructImpl( void ) { };
-
-	virtual void onEnterImpl ( void ) { };
-	virtual void onExitImpl( void ) { };
-
-	virtual void onUpdate( double /*_deltaTime*/ ) { };
-	virtual void onDraw( wv::IDeviceContext* /*_context*/, wv::IGraphicsDevice* /*_device */) { };
-
+	virtual void onConstructImpl  ( void ) override { };
+	virtual void onDeconstructImpl( void ) override { };
+	virtual void onEnterImpl( void ) override { };
+	virtual void onExitImpl ( void ) override { };
+	
 
 };
 

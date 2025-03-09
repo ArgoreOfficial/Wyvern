@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene_object.h"
+#include "entity/entity.h"
 
 #include <string>
 #include <vector>
@@ -20,7 +20,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class SkyboxObject : public IEntity
+	class SkyboxObject : public Entity
 	{
 
 	public:

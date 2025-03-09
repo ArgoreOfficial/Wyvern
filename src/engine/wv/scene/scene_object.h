@@ -9,6 +9,7 @@
 
 #include <wv/engine.h>
 #include <wv/job/job_system.h>
+#include <wv/event/update_manager.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +23,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class IEntity
+	class IEntity : public IUpdatable
 	{
 	public:
 		friend class Scene;
@@ -50,9 +51,6 @@ namespace wv
 
 		virtual void onEnterImpl() = 0;
 		virtual void onExitImpl() = 0;
-
-		virtual void onUpdate( double _deltaTime ) = 0;
-		virtual void onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device ) = 0;
 
 		uint64_t    m_uuid;
 		std::string m_name;

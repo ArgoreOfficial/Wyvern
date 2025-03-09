@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::SkyboxObject::SkyboxObject( const UUID& _uuid, const std::string& _name ) :
-	IEntity{ _uuid, _name }
+	Entity{ _uuid, _name }
 {
 
 }
