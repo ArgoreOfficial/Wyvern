@@ -87,7 +87,9 @@ void wv::Rigidbody::onConstruct()
 
 void wv::Rigidbody::onDestruct()
 {
+#ifdef WV_SUPPORT_PHYSICS
 	WV_FREE( m_pPhysicsBodyDesc );
+#endif
 }
 
 void wv::Rigidbody::onEnter()

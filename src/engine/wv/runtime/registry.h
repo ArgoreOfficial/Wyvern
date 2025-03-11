@@ -60,7 +60,7 @@ public:
 		_pRtQuery->fptrConstruct = []() -> IRuntimeObject* 
 			{ 
 				_Ty* p = WV_NEW_NAMED( _Ty, "IRuntimeObject" );
-				p->pQuery = getRuntimeGlobal<_Ty>();;
+				p->pQuery = getRuntimeGlobal<_Ty>();
 				return (IRuntimeObject*)p;
 			};
 		
