@@ -13,6 +13,7 @@
 #include <exception>
 #include <typeinfo>
 #include <stdexcept>
+#include <wv/debug/error.h>
 
 #ifdef WV_PLATFORM_PSVITA
 #include <wv/Platform/PSVita.h>
@@ -34,7 +35,8 @@ void wv::Remote::remoteMainExit() { }
 
 int main( int argc, char* argv[] )
 {
-	wv::Trace::Trace::printEnabled = false;
+	wv::Trace::Trace::printEnabled = false; // remove?
+	wv::Error::init();
 
 	if( !wv::Console::isInitialized() )
 		wv::Console::initialize();
