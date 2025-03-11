@@ -14,6 +14,7 @@ namespace wv
 
 class IComponent;
 
+WV_RUNTIME_OBJECT( Entity, IEntity )
 class Entity : public IEntity
 {
 public:
@@ -47,6 +48,10 @@ public:
 	void getComponent()
 	{
 		throw std::runtime_error( "unimplemented" );
+	}
+
+	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
+
 	}
 
 protected:
