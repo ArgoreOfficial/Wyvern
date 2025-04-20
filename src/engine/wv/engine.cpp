@@ -190,7 +190,6 @@ void wv::Engine::handleInput()
 		m_mousePosition = mouseEvent.position;
 	}
 	
-
 	InputEvent inputEvent;
 	while ( m_inputListener.pollEvent( inputEvent ) )
 	{
@@ -219,82 +218,6 @@ void wv::Engine::setSize( int _width, int _height, bool _notify )
 	
 	if( _notify )
 		onResize( _width, _height );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef EMSCRIPTEN
-void emscriptenMainLoop() { wv::Engine::get()->tick(); }
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Engine::run()
-{
-	// Subscribe to user input event
-	m_inputListener.hook();
-	m_mouseListener.hook();
-
-	size_t embeddedResources = m_pResourceRegistry->getNumLoadedResources();
-
-	m_pAppState->switchToScene( 0 ); // default scene
-	
-	// wait for load to be done
-	m_pResourceRegistry->waitForFence();
-
-#ifdef EMSCRIPTEN
-	emscripten_set_main_loop( []{ wv::Engine::get()->tick(); }, 0, 1);
-#else
-
-	int timeToDeath = 5;
-	int deathCounter = 0;
-	double deathTimer = 0.0;
-	while( context->isAlive() )
-	{
-	#ifndef WV_PACKAGE
-		m_pThreadProfiler->begin();
-	#endif
-		
-		tick();
-
-	#ifndef WV_PACKAGE
-		m_pThreadProfiler->end();
-
-		/// TODO: thread profiler post-tick event
-
-		m_pThreadProfiler->reset();
-	#endif
-
-		// automatic shutdown if the context is NONE
-		if( context->getContextAPI() == WV_DEVICE_CONTEXT_API_NONE )
-		{
-			double t = context->getTime();
-			
-			deathTimer = t - static_cast<double>( deathCounter );
-			if( deathTimer > 1.0 )
-			{
-				wv::Debug::Print( "AWESOME SAUCE AND COOL: %i\n", timeToDeath - deathCounter );
-				deathCounter++;
-			}
-
-			if( deathCounter > timeToDeath )
-				context->close();
-		}
-	}
-
-#endif
-
-
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Quitting...\n" );
-	
-	m_pAppState->onExit();
-	m_pAppState->onDestruct();
-	
-	// wait for unload to be done
-	m_pResourceRegistry->waitForFence();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

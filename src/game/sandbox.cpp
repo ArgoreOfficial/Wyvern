@@ -7,16 +7,16 @@
 
 #include <wv/device/audio_device.h>
 #include <wv/device/device_context.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/graphics/graphics_device.h>
 
 #include <wv/memory/memory.h>
-#include <wv/filesystem/file_system.h>
+#include <wv/resource/resource_registry.h>
 #include <noapi/noapi_file_system.h>
 
 #include <wv/scene/scene.h>
 
 #include "scene/demo_window.h"
-
 
 #ifdef WV_PLATFORM_PSVITA
 #include <wv/Platform/PSVita.h>
@@ -149,7 +149,66 @@ bool Sandbox::create( void )
 
 void Sandbox::run( void )
 {
-	m_pEngine->run();
+	// Subscribe to user input event
+	m_pEngine->m_inputListener.hook();
+	m_pEngine->m_mouseListener.hook();
+
+	size_t embeddedResources = m_pEngine->m_pResourceRegistry->getNumLoadedResources();
+
+	m_pEngine->m_pAppState->switchToScene( 0 ); // default scene
+
+	// wait for load to be done
+	m_pEngine->m_pResourceRegistry->waitForFence();
+
+#ifdef EMSCRIPTEN
+	emscripten_set_main_loop( [] { wv::Engine::get()->tick(); }, 0, 1 );
+#else
+
+	int timeToDeath = 5;
+	int deathCounter = 0;
+	double deathTimer = 0.0;
+	while ( m_pEngine->context->isAlive() )
+	{
+	#ifndef WV_PACKAGE
+		m_pEngine->m_pThreadProfiler->begin();
+	#endif
+
+		m_pEngine->tick();
+
+	#ifndef WV_PACKAGE
+		m_pEngine->m_pThreadProfiler->end();
+
+		/// TODO: thread profiler post-tick event
+
+		m_pEngine->m_pThreadProfiler->reset();
+	#endif
+
+		// automatic shutdown if the context is NONE
+		if ( m_pEngine->context->getContextAPI() == wv::WV_DEVICE_CONTEXT_API_NONE )
+		{
+			double t = m_pEngine->context->getTime();
+
+			deathTimer = t - static_cast<double>( deathCounter );
+			if ( deathTimer > 1.0 )
+			{
+				wv::Debug::Print( "AWESOME SAUCE AND COOL: %i\n", timeToDeath - deathCounter );
+				deathCounter++;
+			}
+
+			if ( deathCounter > timeToDeath )
+				m_pEngine->context->close();
+		}
+	}
+
+#endif
+
+	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Quitting...\n" );
+
+	m_pEngine->m_pAppState->onExit();
+	m_pEngine->m_pAppState->onDestruct();
+
+	// wait for unload to be done
+	m_pEngine->m_pResourceRegistry->waitForFence();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -82,7 +82,6 @@ namespace wv
 
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
-		void run();
 		void terminate();
 		void tick();
 		void quit();
@@ -126,7 +125,7 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	private:
+	//private:
 
 		void initImgui();
 		void shutdownImgui();
