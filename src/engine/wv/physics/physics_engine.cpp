@@ -255,7 +255,7 @@ wv::PhysicsBodyID wv::JoltPhysicsEngine::createAndAddBody( IPhysicsBodyDesc* _de
 	JPH::EMotionType motionType = JPH::EMotionType::Static;
 	switch( _desc->kind )
 	{
-	case WV_PHYSICS_DYANIMIC:  motionType = JPH::EMotionType::Dynamic;   break;
+	case WV_PHYSICS_DYNAMIC:  motionType = JPH::EMotionType::Dynamic;   break;
 	case WV_PHYSICS_KINEMATIC: motionType = JPH::EMotionType::Kinematic; break;
 	}
 

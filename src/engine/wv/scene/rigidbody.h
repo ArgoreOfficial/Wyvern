@@ -61,8 +61,7 @@ public:
 
 protected:
 	std::string m_meshPath = "";
-	IPhysicsBodyDesc* m_bodyDesc = nullptr;
-
+	
 	int m_kind;
 	int m_shape;
 

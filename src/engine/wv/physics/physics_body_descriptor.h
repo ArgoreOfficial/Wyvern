@@ -29,7 +29,7 @@ namespace wv
 	enum PhysicsKind
 	{
 		WV_PHYSICS_STATIC,
-		WV_PHYSICS_DYANIMIC,
+		WV_PHYSICS_DYNAMIC,
 		WV_PHYSICS_KINEMATIC
 	};
 

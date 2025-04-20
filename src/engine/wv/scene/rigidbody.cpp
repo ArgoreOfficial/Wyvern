@@ -31,7 +31,7 @@ wv::Rigidbody::Rigidbody( const UUID& _uuid, const std::string& _name ) :
 wv::Rigidbody::Rigidbody( const UUID& _uuid, const std::string& _name, const std::string& _meshPath, IPhysicsBodyDesc* _bodyDesc ) : 
 	Entity{ _uuid, _name },
 	m_meshPath{ _meshPath },
-	m_bodyDesc{ _bodyDesc }
+	m_pPhysicsBodyDesc{ _bodyDesc }
 {
 
 }
@@ -85,52 +85,59 @@ void wv::Rigidbody::onConstruct()
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Rigidbody::onDestruct()
 {
-#ifdef WV_SUPPORT_PHYSICS
-	WV_FREE( m_pPhysicsBodyDesc );
-#endif
+	if ( m_pPhysicsBodyDesc )
+	{
+		WV_FREE( m_pPhysicsBodyDesc );
+		m_pPhysicsBodyDesc = nullptr;
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Rigidbody::onEnter()
 {
 	//sphereSettings.mLinearVelocity = JPH::Vec3( 1.0f, 10.0f, 2.0f );
 	//sphereSettings.mRestitution = 0.4f;
 
-#ifdef WV_SUPPORT_PHYSICS
 	Engine* app = wv::Engine::get();
 	m_pPhysicsBodyDesc->transform = m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
 
-	WV_FREE( m_pPhysicsBodyDesc );
-	m_pPhysicsBodyDesc = nullptr;
-#endif // WV_SUPPORT_PHYSICS
+	if ( m_pPhysicsBodyDesc )
+	{
+		WV_FREE( m_pPhysicsBodyDesc );
+		m_pPhysicsBodyDesc = nullptr;
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Rigidbody::onExit()
 {
-#ifdef WV_SUPPORT_PHYSICS
 	wv::Engine* app = wv::Engine::get();
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;
-#endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Rigidbody::onPhysicsUpdate( double _dt )
 {
-#ifdef WV_SUPPORT_PHYSICS
 	wv::JoltPhysicsEngine* pPhysics = wv::Engine::get()->m_pPhysicsEngine;
 	if ( !m_physicsBodyHandle.is_valid() || !pPhysics->isBodyActive( m_physicsBodyHandle ) )
 		return;
 
 	Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
 	m_transform.setPositionRotation( t.position, t.rotation );
-#endif
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 {
 	return Runtime::create<Rigidbody>();
 }
-
-///////////////////////////////////////////////////////////////////////////////////////

@@ -101,7 +101,7 @@ void DemoWindowComponent::spawnBalls()
 	{
 	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsSphereDesc* sphereDesc = WV_NEW( wv::PhysicsSphereDesc );
-		sphereDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+		sphereDesc->kind = wv::WV_PHYSICS_DYNAMIC;
 		sphereDesc->radius = 0.5f;
 	#else
 		wv::PhysicsSphereDesc* sphereDesc = nullptr;
@@ -110,6 +110,7 @@ void DemoWindowComponent::spawnBalls()
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "ball" );
 		rb->addComponent<wv::RigidBodyComponent>( sphereDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/ant.dae" );
+		
 		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 		m_numSpawned++;
@@ -124,7 +125,7 @@ void DemoWindowComponent::spawnCubes()
 	{
 	#ifdef WV_SUPPORT_PHYSICS
 		wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
-		boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+		boxDesc->kind = wv::WV_PHYSICS_DYNAMIC;
 		boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 	#else
 		wv::PhysicsBoxDesc* boxDesc = nullptr;
@@ -133,6 +134,7 @@ void DemoWindowComponent::spawnCubes()
 		wv::Rigidbody* rb = WV_NEW( wv::Rigidbody, wv::Engine::getUniqueUUID(), "cube" );
 		rb->addComponent<wv::RigidBodyComponent>( boxDesc );
 		rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
+		
 		rb->m_transform.position.y = 10.0f;
 		sceneRoot->addChild( rb );
 
@@ -152,7 +154,7 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 			{
 			#ifdef WV_SUPPORT_PHYSICS
 				wv::PhysicsBoxDesc* boxDesc = WV_NEW( wv::PhysicsBoxDesc );
-				boxDesc->kind = wv::WV_PHYSICS_DYANIMIC;
+				boxDesc->kind = wv::WV_PHYSICS_DYNAMIC;
 				boxDesc->halfExtent = { 0.5f,0.5f,0.5f };
 			#else
 				wv::PhysicsBoxDesc* boxDesc = nullptr;
@@ -162,8 +164,8 @@ void DemoWindowComponent::spawnBlock( int _halfX, int _halfY, int _halfZ )
 				rb->m_transform.position = { (float)x, (float)y + _halfY - 6.0f, (float)z };
 				rb->addComponent<wv::RigidBodyComponent>( boxDesc );
 				rb->addComponent<wv::ModelComponent>( "meshes/cube.dae" );
+				
 				scene->addChild( rb );
-
 				m_numSpawned++;
 			}
 		}
