@@ -127,9 +127,6 @@ namespace wv
 
 	//private:
 
-		void initImgui();
-		void shutdownImgui();
-
 		void createScreenQuad();
 		void createGBuffer();
 

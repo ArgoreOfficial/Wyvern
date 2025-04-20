@@ -11,4 +11,7 @@ public:
 	bool create ( void ) override;
 	void run    ( void ) override;
 	void destroy( void ) override;
+
+	void initImgui();
+	void shutdownImgui();
 };
