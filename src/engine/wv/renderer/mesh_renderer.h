@@ -20,14 +20,33 @@ public:
 
 	}
 	
-	virtual void drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances );
-	virtual void drawMesh( MeshResource* _pMesh );
+	void add( MeshResource* _pMesh )
+	{
+		if ( _pMesh == nullptr )
+			return;
 
+		for ( auto m : m_drawList )
+			if ( _pMesh == m ) // already in list
+				return;
+
+		m_drawList.push_back( _pMesh );
+	}
+
+	void render();
+	
+	void flush() 
+	{
+		m_drawList.clear();
+	}
+
+	virtual void drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances );
+	
 private:
 
 	IGraphicsDevice* m_pGraphics{ nullptr };
 	std::vector<MeshInstanceData> m_instanceDatas{};
 
+	std::vector<MeshResource*> m_drawList;
 };
 
 }

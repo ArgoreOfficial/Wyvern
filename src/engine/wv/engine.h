@@ -32,6 +32,8 @@ namespace wv
 	class UpdateManager;
 	class ThreadProfiler;
 
+	class IMeshRenderer;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	struct EngineDesc
@@ -115,6 +117,8 @@ namespace wv
 	#ifndef WV_PACKAGE
 		ThreadProfiler* m_pThreadProfiler = nullptr;
 	#endif
+
+		IMeshRenderer* m_pMeshRenderer = nullptr;
 
 		struct FogParams
 		{

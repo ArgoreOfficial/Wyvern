@@ -31,13 +31,6 @@ wv::ResourceRegistry::~ResourceRegistry()
 	m_pJobSystem->deleteFence( m_resourceFence );
 }
 
-void wv::ResourceRegistry::drawMeshInstances()
-{
-	IMeshRenderer meshRenderer{ m_pGraphicsDevice };
-	for ( auto& meshRes : m_meshes )
-		meshRenderer.drawMesh( meshRes );
-}
-
 wv::IResource* wv::ResourceRegistry::getLoadedResource( const std::string& _name )
 {
 	wv::IResource* res = nullptr;

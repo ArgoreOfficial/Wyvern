@@ -9,6 +9,7 @@
 #include <wv/material/material.h>
 
 #include <wv/resource/resource_registry.h>
+#include <wv/renderer/mesh_renderer.h>
 
 #include <wv/scene/entity/entity.h>
 
@@ -31,4 +32,9 @@ void wv::ModelComponent::onConstruct( void )
 void wv::ModelComponent::onDestruct( void )
 {
 	m_mesh.destroy();
+}
+
+void wv::ModelComponent::onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device )
+{
+	wv::Engine::get()->m_pMeshRenderer->add( m_mesh.pResource );
 }

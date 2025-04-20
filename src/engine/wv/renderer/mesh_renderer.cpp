@@ -6,6 +6,29 @@
 #include <wv/graphics/graphics_device.h>
 #include <wv/shader/shader_resource.h>
 
+void wv::IMeshRenderer::render()
+{
+	for ( auto mesh : m_drawList )
+	{
+		auto& instances = mesh->getInstances();
+		if ( mesh->getMeshNode() == nullptr )
+			return;
+
+		if ( instances.empty() )
+			return;
+
+		// construct instance list
+		std::vector<Matrix4x4f> matrices;
+		matrices.reserve( instances.size() );
+		for ( MeshInstance* instance : instances )
+			matrices.push_back( instance->transform.getMatrix() );
+
+		drawMeshNode( mesh->getMeshNode(), matrices.data(), matrices.size() );
+	}
+
+	flush();
+}
+
 void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMatrices, size_t _numInstances )
 {
 	if ( !_pNode )
@@ -76,22 +99,4 @@ void wv::IMeshRenderer::drawMeshNode( MeshNode* _pNode, Matrix4x4f* _pInstanceMa
 
 	for ( auto& childNode : _pNode->children )
 		drawMeshNode( childNode, _pInstanceMatrices, _numInstances );
-}
-
-void wv::IMeshRenderer::drawMesh( MeshResource* _pMesh )
-{
-	auto& instances = _pMesh->getInstances();
-	if ( _pMesh->getMeshNode() == nullptr )
-		return;
-	
-	if ( instances.empty() )
-		return;
-
-	// construct instance list
-	std::vector<Matrix4x4f> matrices;
-	matrices.reserve( instances.size() );
-	for ( MeshInstance* instance : instances )
-		matrices.push_back( instance->transform.getMatrix() );
-	
-	drawMeshNode( _pMesh->getMeshNode(), matrices.data(), matrices.size() );
 }

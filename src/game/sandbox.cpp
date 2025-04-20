@@ -14,6 +14,7 @@
 #include <wv/graphics/graphics_device.h>
 
 #include <wv/shader/shader_resource.h>
+#include <wv/renderer/mesh_renderer.h>
 #include <wv/physics/physics_engine.h>
 
 #include <wv/memory/memory.h>
@@ -429,7 +430,7 @@ void Sandbox::tick()
 		m_pEngine->graphics->cmdClearDepthStencil( {}, 1.0, 0 );
 
 		m_pEngine->m_pAppState->onDraw( m_pEngine->context, m_pEngine->graphics );
-		m_pEngine->m_pResourceRegistry->drawMeshInstances();
+		m_pEngine->m_pMeshRenderer->render();
 
 	#ifdef WV_DEBUG
 		wv::Debug::Draw::Internal::drawDebug( m_pEngine->graphics );

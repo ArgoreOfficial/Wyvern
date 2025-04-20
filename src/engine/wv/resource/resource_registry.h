@@ -95,10 +95,6 @@ namespace wv
 			}
 		}
 		
-		// should this be moved?
-		//     re: yes
-		void drawMeshInstances();
-
 		IResource* getLoadedResource( const std::string& _name );
 
 		bool isWorking() { 

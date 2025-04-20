@@ -25,6 +25,7 @@
 #include <wv/graphics/render_target.h>
 #include <wv/Resource/resource_registry.h>
 #include <wv/shader/shader_resource.h>
+#include <wv/renderer/mesh_renderer.h>
 
 #include <wv/engine_reflect.h>
 
@@ -102,6 +103,8 @@ wv::Engine::Engine( EngineDesc* _desc )
 	graphics->initEmbeds();
 
 	audio = _desc->device.pAudio;
+
+	m_pMeshRenderer = WV_NEW( IMeshRenderer, graphics );
 
 	/* 
 	 * create deferred rendering objects
@@ -225,6 +228,12 @@ void wv::Engine::terminate()
 	graphics->destroyMesh( m_screenQuad );
 	graphics->destroyRenderTarget( m_gbuffer );
 	graphics->deinitEmbeds();
+
+	if ( m_pMeshRenderer )
+	{
+		m_pMeshRenderer->flush();
+		WV_FREE( m_pMeshRenderer );
+	}
 
 	if( m_pDeferredShader )
 	{
