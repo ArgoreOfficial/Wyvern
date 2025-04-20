@@ -83,7 +83,6 @@ namespace wv
 		wv::Vector2i getMousePosition() { return m_mousePosition; }
 
 		void terminate();
-		void tick();
 		void quit();
 
 
@@ -133,14 +132,6 @@ namespace wv
 		void recreateScreenRenderTarget( int _width, int _height );
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-		unsigned int m_fpsCounter = 0;
-		double m_fpsAccumulator     = 0.0;
-		double m_fpsUpdateInterval  = 0.5;
-		double m_timeSinceFPSUpdate = 0.0;
-
-		double m_averageFps = 0.0;
-		double m_maxFps = 0.0;
 
 		bool m_drawWireframe = false;
 

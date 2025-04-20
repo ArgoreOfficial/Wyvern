@@ -5,10 +5,16 @@
 
 #include <wv/engine.h>
 
+#include <wv/camera/camera.h>
 #include <wv/device/audio_device.h>
 #include <wv/device/device_context.h>
+#include <wv/debug/draw.h>
+
 #include <wv/filesystem/file_system.h>
 #include <wv/graphics/graphics_device.h>
+
+#include <wv/shader/shader_resource.h>
+#include <wv/physics/physics_engine.h>
 
 #include <wv/memory/memory.h>
 #include <wv/resource/resource_registry.h>
@@ -179,7 +185,7 @@ void Sandbox::run( void )
 		m_pEngine->m_pThreadProfiler->begin();
 	#endif
 
-		m_pEngine->tick();
+		tick();
 
 	#ifndef WV_PACKAGE
 		m_pEngine->m_pThreadProfiler->end();
@@ -348,6 +354,158 @@ void Sandbox::shutdownImgui()
 	m_pEngine->context->terminateImGui();
 	ImGui::DestroyContext();
 #endif // WV_SUPPORT_IMGUI
+}
+
+void Sandbox::tick()
+{
+	double dt = m_pEngine->context->getDeltaTime();
+
+#ifdef WV_PLATFORM_WASM
+	// user needs to interact with tab before 
+	// audio device can be initalized
+	if ( !audio->isEnabled() )
+		audio->initialize();
+#endif
+
+	/// ------------------ update ------------------ ///
+
+	m_pEngine->context->pollEvents();
+	m_pEngine->handleInput();
+
+#ifdef WV_PLATFORM_WINDOWS
+	// refresh fps display only on windows
+	refreshFPSDisplay( dt );
+#endif // WV_PLATFORM_WINDOWS
+
+#ifdef WV_SUPPORT_JOLT_PHYSICS
+	wv::Fence* physicsFence = m_pEngine->m_pJobSystem->createFence();
+	wv::Job::JobFunction_t fptr = []( void* _pUserData )
+		{
+			wv::Engine::get()->m_pPhysicsEngine->update( *(double*)_pUserData );
+		};
+	wv::Job* job = m_pEngine->m_pJobSystem->createJob( fptr, physicsFence, nullptr, &dt );
+	m_pEngine->m_pJobSystem->submit( { job } );
+#endif // WV_SUPPORT_JOLT_PHYSICS
+
+	m_pEngine->m_pAppState->onUpdate( dt );
+	m_pEngine->m_pAppState->currentCamera->update( dt );
+
+#ifdef WV_SUPPORT_JOLT_PHYSICS
+	m_pEngine->m_pJobSystem->waitAndDeleteFence( physicsFence );
+#endif // WV_SUPPORT_JOLT_PHYSICS
+
+
+	/// ------------------ render ------------------ ///	
+
+#ifdef WV_PLATFORM_WINDOWS
+	if ( !m_pEngine->m_gbuffer.is_valid() )
+		return;
+#endif
+
+	{
+		wv::RenderTarget& rt = m_pEngine->graphics->m_renderTargets.at( m_pEngine->m_screenRenderTarget );
+		if ( rt.width == 0 || rt.height == 0 )
+			return;
+	}
+
+#ifdef WV_PLATFORM_WINDOWS
+	m_pEngine->graphics->cmdBeginRender( {}, m_pEngine->m_gbuffer );
+#else
+	m_pEngine->graphics->cmdBeginRender( {}, {} );
+#endif
+
+	m_pEngine->graphics->beginRender();
+
+#ifdef WV_SUPPORT_IMGUI
+	if ( m_pEngine->context->newImGuiFrame() )
+	{
+		ImGui::DockSpaceOverViewport( 0, 0, ImGuiDockNodeFlags_PassthruCentralNode );
+	}
+#endif // WV_SUPPORT_IMGUI
+
+	if ( m_pEngine->m_pAppState->currentCamera->beginRender( m_pEngine->graphics, m_pEngine->m_drawWireframe ? wv::WV_FILL_MODE_WIREFRAME : wv::WV_FILL_MODE_SOLID ) )
+	{
+		m_pEngine->graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+		m_pEngine->graphics->cmdClearDepthStencil( {}, 1.0, 0 );
+
+		m_pEngine->m_pAppState->onDraw( m_pEngine->context, m_pEngine->graphics );
+		m_pEngine->m_pResourceRegistry->drawMeshInstances();
+
+	#ifdef WV_DEBUG
+		wv::Debug::Draw::Internal::drawDebug( m_pEngine->graphics );
+	#endif
+	}
+
+#ifdef WV_PLATFORM_WINDOWS
+	m_pEngine->graphics->cmdBeginRender( {}, m_pEngine->m_screenRenderTarget );
+
+	m_pEngine->graphics->cmdClearColor( {}, 0.0f, 0.0f, 0.0f, 1.0f );
+	m_pEngine->graphics->cmdClearDepthStencil( {}, 1.0, 0 );
+
+	// bind gbuffer textures to deferred pass
+	{
+		wv::RenderTarget& rt = m_pEngine->graphics->m_renderTargets.at( m_pEngine->m_gbuffer );
+		for ( int i = 0; i < rt.numTextures; i++ )
+			m_pEngine->graphics->bindTextureToSlot( rt.pTextureIDs[ i ], i );
+	}
+
+	// render screen quad with deferred shader
+	if ( m_pEngine->m_pDeferredShader->isComplete() && m_pEngine->m_pAppState->currentCamera->beginRender( m_pEngine->graphics, wv::WV_FILL_MODE_SOLID ) )
+	{
+		m_pEngine->m_pDeferredShader->bind( m_pEngine->graphics );
+
+		wv::GPUBufferID UbFogParams  = m_pEngine->m_pDeferredShader->getShaderBuffer( "UbFogParams" );
+		wv::GPUBufferID SbVerticesID = m_pEngine->m_pDeferredShader->getShaderBuffer( "SbVertices" );
+		wv::GPUBuffer fogParamBuffer = m_pEngine->graphics->m_gpuBuffers.at( UbFogParams );
+
+		m_pEngine->graphics->bufferSubData( UbFogParams, &m_pEngine->m_fogParams, sizeof( m_pEngine->m_fogParams ), 0 );
+		m_pEngine->graphics->bindBufferIndex( UbFogParams, fogParamBuffer.bindingIndex.value );
+
+		wv::Mesh screenQuad = m_pEngine->graphics->m_meshes.at( m_pEngine->m_screenQuad );
+		{
+			wv::GPUBuffer& SbVertices = m_pEngine->graphics->m_gpuBuffers.at( SbVerticesID );
+			m_pEngine->graphics->bindBufferIndex( screenQuad.vertexBufferID, SbVertices.bindingIndex.value );
+			m_pEngine->graphics->cmdBindIndexBuffer( {}, screenQuad.indexBufferID, 0, {} );
+		}
+
+		// GPUBuffer& ibuffer = graphics->m_gpuBuffers.at( screenQuad.indexBufferID );
+		m_pEngine->graphics->cmdDrawIndexed( {}, screenQuad.numIndices, 1, 0, 0, 0 );
+	}
+#endif
+
+#ifdef WV_SUPPORT_IMGUI
+	m_pEngine->context->renderImGui();
+#endif
+
+	m_pEngine->graphics->endRender();
+
+	m_pEngine->context->swapBuffers();
+}
+
+void Sandbox::refreshFPSDisplay( double _deltaTime )
+{
+	double fps = 1.0 / _deltaTime;
+	if ( fps > m_maxFps )
+		m_maxFps = fps;
+
+	m_timeSinceFPSUpdate += _deltaTime;
+	m_fpsAccumulator += fps;
+	m_fpsCounter++;
+
+	if ( m_timeSinceFPSUpdate >= m_fpsUpdateInterval )
+	{
+		m_averageFps = m_fpsAccumulator / (double)m_fpsCounter;
+
+		m_fpsAccumulator = 0.0;
+		m_timeSinceFPSUpdate = 0.0;
+		m_fpsCounter = 0;
+
+		std::string title =
+			"FPS: " + std::to_string( (int)m_averageFps ) +
+			" (" + std::to_string( 1000.0 / m_averageFps ) + "ms)   "
+			"MAX: " + std::to_string( (int)m_maxFps );
+		m_pEngine->context->setTitle( title.c_str() );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

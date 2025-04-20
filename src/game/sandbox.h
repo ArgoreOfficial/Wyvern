@@ -14,4 +14,17 @@ public:
 
 	void initImgui();
 	void shutdownImgui();
+
+	void tick();
+
+	void refreshFPSDisplay( double _deltaTime );
+
+	unsigned int m_fpsCounter = 0;
+	double m_fpsAccumulator = 0.0;
+	double m_fpsUpdateInterval = 0.5;
+	double m_timeSinceFPSUpdate = 0.0;
+
+	double m_averageFps = 0.0;
+	double m_maxFps = 0.0;
+
 };
