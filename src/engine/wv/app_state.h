@@ -4,6 +4,8 @@
 #include <vector>
 #include <queue>
 
+#include <auxiliary/json/json11.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -20,6 +22,15 @@ namespace wv
 	class IUpdatable;
 
 ///////////////////////////////////////////////////////////////////////////////////////
+	
+	/// TODO: move
+
+	using Json = json11::Json; // dummy
+
+	struct ParseData
+	{
+		wv::Json json;
+	};
 
 	class IAppState
 	{

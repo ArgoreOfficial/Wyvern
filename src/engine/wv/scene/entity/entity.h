@@ -5,7 +5,6 @@
 
 #include <wv/memory/memory.h>
 #include <wv/scene/scene_object.h>
-#include <wv/reflection/reflection.h>
 
 #include <wv/scene/component/script_component.h>
 
@@ -32,7 +31,7 @@ public:
 		m_components.push_back( comp );
 
 	}
-
+	/*
 	static Entity* parseInstance( ParseData& _data ) {
 		auto& json = _data.json;
 		wv::UUID    uuid = json[ "uuid" ].int_value();
@@ -43,6 +42,7 @@ public:
 
 		return entity;
 	}
+	*/
 
 	template<typename _Ty>
 	void getComponent()

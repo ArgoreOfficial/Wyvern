@@ -3,7 +3,6 @@
 #include <wv/debug/log.h>
 #include <wv/Scene/Scene.h>
 
-#include <wv/reflection/reflection.h>
 #include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
@@ -174,6 +173,15 @@ void wv::IAppState::reloadScene()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+static wv::Vector3f jsonToVec3( const wv::Json::array& _arr )
+{
+	return wv::Vector3f(
+		static_cast<float>( _arr[ 0 ].number_value() ),
+		static_cast<float>( _arr[ 1 ].number_value() ),
+		static_cast<float>( _arr[ 2 ].number_value() )
+	);
+}
+
 wv::IEntity* parseSceneObject( const wv::Json& _json )
 {
 	std::string objTypeName = _json[ "type" ].string_value();
@@ -185,11 +193,7 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	
 	wv::RuntimeRegistry* reg = wv::RuntimeRegistry::get();
 
-	if ( !reg->isRuntimeType( objTypeName ) )
-	{
-		obj = (wv::IEntity*)wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
-	}
-	else
+	if ( reg->isRuntimeType( objTypeName ) )
 	{
 		obj = static_cast<wv::IEntity*>( reg->instantiate( objTypeName ) );
 		
@@ -197,9 +201,9 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 		std::string name = _json[ "name" ].string_value();
 
 		wv::Json tfm = _json[ "transform" ];
-		wv::Vector3f pos = wv::jsonToVec3( tfm[ "pos" ].array_items() );
-		wv::Vector3f rot = wv::jsonToVec3( tfm[ "rot" ].array_items() );
-		wv::Vector3f scl = wv::jsonToVec3( tfm[ "scl" ].array_items() );
+		wv::Vector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
+		wv::Vector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
+		wv::Vector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
 
 		wv::Transformf transform;
 		transform.setPosition( pos );

@@ -7,7 +7,6 @@
 #include <wv/physics/physics_engine.h>
 #include <wv/physics/physics_body_descriptor.h>
 
-#include <wv/reflection/reflection.h>
 #include <wv/runtime.h>
 #include <wv/memory/memory.h>
 
@@ -51,7 +50,7 @@ public:
 	virtual void onExit() override;
 	virtual void onPhysicsUpdate( double _dt) override;
 
-	static Rigidbody* parseInstance( ParseData& _data );
+	//static Rigidbody* parseInstance( ParseData& _data );
 
 	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
 		_pOutProps->add( "path", &Rigidbody::m_meshPath );

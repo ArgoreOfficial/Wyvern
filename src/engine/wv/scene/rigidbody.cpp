@@ -134,8 +134,9 @@ void wv::Rigidbody::onPhysicsUpdate( double _dt )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
+/*
 wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
 {
 	return Runtime::create<Rigidbody>();
 }
+*/

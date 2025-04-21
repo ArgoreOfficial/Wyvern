@@ -3,7 +3,6 @@
 #include "demo_window_component.h"
 
 #include <wv/scene/entity/entity.h>
-#include <wv/reflection/reflection.h>
 #include <wv/engine.h>
 
 #include <wv/memory/memory.h>
@@ -24,6 +23,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 	
+/*
 	static DemoWindow* createInstance( void ) { 
 		DemoWindow* dw = WV_NEW( DemoWindow, wv::Engine::getUniqueUUID(), "DemoWindow" );
 		dw->addComponent<DemoWindowComponent>();
@@ -39,5 +39,6 @@ public:
 		dw->addComponent<DemoWindowComponent>();
 		return dw;
 	}
+	*/
 
 };

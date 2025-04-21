@@ -8,10 +8,10 @@
 namespace wv
 {
 
-	REFLECT_CLASS( ModelObject );
-	REFLECT_CLASS( Rigidbody );
-	REFLECT_CLASS( SkyboxObject );
-	REFLECT_CLASS( Entity );
+// REFLECT_CLASS( ModelObject );
+// REFLECT_CLASS( Rigidbody );
+// REFLECT_CLASS( SkyboxObject );
+// REFLECT_CLASS( Entity );
 
 }
 

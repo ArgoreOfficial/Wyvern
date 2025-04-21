@@ -29,7 +29,7 @@ wv::SkyboxObject::~SkyboxObject()
 {
 	
 }
-
+/*
 wv::SkyboxObject* wv::SkyboxObject::parseInstance( ParseData& _data )
 {	
 	auto& json = _data.json;
@@ -51,6 +51,7 @@ wv::SkyboxObject* wv::SkyboxObject::parseInstance( ParseData& _data )
 
 	return skysphere;
 }
+*/
 
 void wv::SkyboxObject::onConstruct()
 {

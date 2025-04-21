@@ -3,7 +3,6 @@
 #include "entity/entity.h"
 
 #include <wv/mesh/mesh_resource.h>
-#include <wv/reflection/reflection.h>
 #include <wv/runtime.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -19,10 +18,11 @@ public:
 	ModelObject() = default;
 	ModelObject( const UUID& _uuid, const std::string& _name );
 	~ModelObject() { }
-
+	/*
 	static ModelObject* parseInstance( ParseData& _data ) {
 		return Runtime::create<ModelObject>();
 	}
+	*/
 
 	virtual FunctionFlags getFunctionFlags() override {
 		return FunctionFlags::kOnConstruct | FunctionFlags::kOnDestruct | FunctionFlags::kOnDraw;
