@@ -13,13 +13,8 @@ void wv::Scene::addChild( IEntity* _node, bool _triggerLoadAndCreate )
 	for ( size_t i = 0; i < m_entities.size(); i++ )
 		if ( m_entities[ i ] == _node ) return; // node already has child
 	
+	_node->_registerUpdatable();
 	m_entities.push_back( _node );
-	
-	if ( _triggerLoadAndCreate )
-	{
-		_node->onEnterImpl();
-		_node->onConstructImpl();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

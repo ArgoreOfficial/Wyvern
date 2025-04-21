@@ -188,13 +188,11 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 	if ( !reg->isRuntimeType( objTypeName ) )
 	{
 		obj = (wv::IEntity*)wv::ReflectionRegistry::parseInstance( objTypeName, parseData );
-		obj->_registerUpdatable();
 	}
 	else
 	{
 		obj = static_cast<wv::IEntity*>( reg->instantiate( objTypeName ) );
-		obj->_registerUpdatable();
-
+		
 		wv::UUID    uuid = _json[ "uuid" ].int_value();
 		std::string name = _json[ "name" ].string_value();
 

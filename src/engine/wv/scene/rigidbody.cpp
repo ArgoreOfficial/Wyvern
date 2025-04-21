@@ -48,33 +48,37 @@ wv::Rigidbody::~Rigidbody()
 void wv::Rigidbody::onConstruct()
 {
 #ifdef WV_SUPPORT_PHYSICS
-	switch ( m_shape )
+	if ( !m_pPhysicsBodyDesc )
 	{
-	case WV_PHYSICS_NONE: 
-		break;
+		switch ( m_shape )
+		{
+		case WV_PHYSICS_NONE: 
+			wv::Debug::Print( Debug::WV_PRINT_ERROR, "wv::Rigidbody->m_shape was PHYSICS_NONE\n" );
+			break;
 
-	case WV_PHYSICS_SPHERE:
-	{
-		PhysicsSphereDesc* sphereDesc = WV_NEW( PhysicsSphereDesc );
-		sphereDesc->radius = m_sphereRadius;
-		m_pPhysicsBodyDesc = sphereDesc;
-	} break;
+		case WV_PHYSICS_SPHERE:
+		{
+			PhysicsSphereDesc* sphereDesc = WV_NEW( PhysicsSphereDesc );
+			sphereDesc->radius = m_sphereRadius;
+			m_pPhysicsBodyDesc = sphereDesc;
+		} break;
 
-	case WV_PHYSICS_BOX:
-	{
-		PhysicsBoxDesc* boxDesc = WV_NEW( PhysicsBoxDesc );
-		boxDesc->halfExtent = m_boxExtents;
-		m_pPhysicsBodyDesc = boxDesc;
-	} break;
+		case WV_PHYSICS_BOX:
+		{
+			PhysicsBoxDesc* boxDesc = WV_NEW( PhysicsBoxDesc );
+			boxDesc->halfExtent = m_boxExtents;
+			m_pPhysicsBodyDesc = boxDesc;
+		} break;
 
-	case WV_PHYSICS_CAPSULE:          break;
-	case WV_PHYSICS_TAPERRED_CAPSULE: break;
-	case WV_PHYSICS_CYLINDER:         break;
-	case WV_PHYSICS_CONVECT_HULL:     break;
-	case WV_PHYSICS_PLANE:            break;
-	case WV_PHYSICS_MESH:             break;
-	case WV_PHYSICS_TERRAIN:          break;
+		case WV_PHYSICS_CAPSULE:          break;
+		case WV_PHYSICS_TAPERRED_CAPSULE: break;
+		case WV_PHYSICS_CYLINDER:         break;
+		case WV_PHYSICS_CONVECT_HULL:     break;
+		case WV_PHYSICS_PLANE:            break;
+		case WV_PHYSICS_MESH:             break;
+		case WV_PHYSICS_TERRAIN:          break;
 
+		}
 	}
 
 	if ( m_pPhysicsBodyDesc )
@@ -106,12 +110,6 @@ void wv::Rigidbody::onEnter()
 	Engine* app = wv::Engine::get();
 	m_pPhysicsBodyDesc->transform = m_transform;
 	m_physicsBodyHandle = app->m_pPhysicsEngine->createAndAddBody( m_pPhysicsBodyDesc, true );
-
-	if ( m_pPhysicsBodyDesc )
-	{
-		WV_FREE( m_pPhysicsBodyDesc );
-		m_pPhysicsBodyDesc = nullptr;
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

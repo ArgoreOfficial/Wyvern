@@ -52,7 +52,7 @@ wv::SkyboxObject* wv::SkyboxObject::parseInstance( ParseData& _data )
 	return skysphere;
 }
 
-void wv::SkyboxObject::onConstructImpl()
+void wv::SkyboxObject::onConstruct()
 {
 	wv::Engine* app = wv::Engine::get();
 	
@@ -62,19 +62,9 @@ void wv::SkyboxObject::onConstructImpl()
 	m_transform.addChild( &m_mesh.transform );
 }
 
-void wv::SkyboxObject::onDeconstructImpl()
+void wv::SkyboxObject::onDestruct()
 {
 	m_mesh.destroy();
-}
-
-void wv::SkyboxObject::onEnterImpl()
-{
-
-}
-
-void wv::SkyboxObject::onExitImpl()
-{
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

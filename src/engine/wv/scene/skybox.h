@@ -36,11 +36,9 @@ namespace wv
 
 	protected:
 
-		void onConstructImpl   () override;
-		void onDeconstructImpl () override;
-		void onEnterImpl () override;
-		void onExitImpl() override;
-
+		virtual void onConstruct( void ) override;
+		virtual void onDestruct ( void ) override;
+		
 		virtual void onUpdate( double _deltaTime ) override;
 		virtual void onDraw  ( IDeviceContext* _context, IGraphicsDevice* _device ) override;
 

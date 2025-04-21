@@ -62,8 +62,8 @@ public:
 protected:
 	std::string m_meshPath = "";
 	
-	int m_kind;
-	int m_shape;
+	int m_kind  = WV_PHYSICS_STATIC;
+	int m_shape = WV_PHYSICS_NONE;
 
 	float m_sphereRadius;
 	Vector3f m_boxExtents{1,1,1};

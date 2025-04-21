@@ -54,12 +54,6 @@ public:
 
 protected:
 
-	virtual void onConstructImpl() = 0;
-	virtual void onDeconstructImpl() = 0;
-
-	virtual void onEnterImpl() = 0;
-	virtual void onExitImpl() = 0;
-
 	uint64_t    m_uuid;
 	std::string m_name;
 		

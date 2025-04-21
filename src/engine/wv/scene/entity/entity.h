@@ -61,12 +61,6 @@ protected:
 public:
 	virtual FunctionFlags getFunctionFlags() override { return FunctionFlags::kNone; };
 
-	virtual void onConstructImpl  ( void ) override { };
-	virtual void onDeconstructImpl( void ) override { };
-	virtual void onEnterImpl( void ) override { };
-	virtual void onExitImpl ( void ) override { };
-	
-
 };
 
 }
