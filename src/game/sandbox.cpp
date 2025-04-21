@@ -138,11 +138,17 @@ bool Sandbox::create( void )
 	///		loading:   load file -> parse template -> create Scene from template
 	///		reloading: destroy Scene -> create Scene from saved template
 	/// preloads all templates for quick scene switching
-	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
-	wv::Scene* scene2 = appState->loadScene( fileSystem, "scenes/defaultScene.json" );
-	appState->addScene( scene ); // the engine will load into scene 0 by default
-	appState->addScene( scene2 );
-	
+
+#ifdef WV_PACKAGE
+	wv::Scene* gameScene = appState->loadScene( fileSystem, "scenes/defaultScene.json" );
+	appState->addScene( gameScene );
+#else
+	wv::Scene* playgroundScene = appState->loadScene( fileSystem, "scenes/playground.json" );
+	wv::Scene* defaultScene = appState->loadScene( fileSystem, "scenes/defaultScene.json" );
+	appState->addScene( playgroundScene );
+	appState->addScene( defaultScene );
+#endif
+
 	// set fog params 
 	/// TODO: move to scene
 	m_pEngine->m_fogParams.colorDensity = { 0.85f, 0.f, 0.f, 0.15f };
