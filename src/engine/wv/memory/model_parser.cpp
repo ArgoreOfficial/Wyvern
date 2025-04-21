@@ -215,7 +215,8 @@ void processAssimpNode( aiNode* _node, const aiScene* _scene, wv::MeshNode* _mes
 	_meshNode->meshes.assign( _node->mNumMeshes, {} );
 	for( unsigned int i = 0; i < _node->mNumMeshes; i++ )
 	{
-		aiMesh* aimesh = _scene->mMeshes[ _node->mMeshes[ i ] ];
+		unsigned int meshIndex = _node->mMeshes[ i ];
+		aiMesh* aimesh = _scene->mMeshes[ meshIndex ];
 		processAssimpMesh( aimesh, _scene, &_meshNode->meshes[ i ], _meshNode, _pResourceRegistry );
 
 	}

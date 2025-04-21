@@ -60,11 +60,12 @@ namespace wv
 		void reloadScene();
 
 		wv::Scene* loadScene( IFileSystem* _pFileSystem, const std::string& _path );
+		void unloadScene( uint32_t _index );
 
 		/// <returns>scene index</returns>
 		int addScene( Scene* _pScene );
 
-		wv::Scene* getCurrentScene() { return m_pCurrentScene; }
+		wv::Scene* getCurrentScene() { return m_scenes[ m_currentScene ]; }
 
 		void switchToScene( const std::string& _name );
 		void switchToScene( int _index );
@@ -83,8 +84,8 @@ namespace wv
 
 		std::vector<Scene*> m_scenes;
 
-		Scene* m_pNextScene = nullptr;
-		Scene* m_pCurrentScene = nullptr;
+		int32_t m_nextScene    = -1;
+		int32_t m_currentScene = 0;
 
 		std::vector<IUpdatable*> m_updatables;
 		std::queue<IUpdatable*> m_addedUpdatableQueue;

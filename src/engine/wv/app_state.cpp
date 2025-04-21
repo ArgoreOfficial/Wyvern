@@ -48,12 +48,9 @@ void wv::IAppState::terminate()
 		freeflightCamera = nullptr;
 	}
 	
-	if ( m_pCurrentScene )
-		m_pCurrentScene->destroyAllEntities();
-
-	for ( auto& scene : m_scenes )
-		WV_FREE( scene );
-
+	for ( size_t i = 0; i < m_scenes.size(); i++ )
+		unloadScene( i );
+	
 	m_scenes.clear();
 }
 
@@ -61,6 +58,9 @@ void wv::IAppState::terminate()
 
 void wv::IAppState::onConstruct()
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnConstruct();
 }
@@ -69,6 +69,9 @@ void wv::IAppState::onConstruct()
 
 void wv::IAppState::onDestruct()
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnDestruct();
 }
@@ -77,6 +80,9 @@ void wv::IAppState::onDestruct()
 
 void wv::IAppState::onEnter()
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnEnter();
 }
@@ -85,6 +91,9 @@ void wv::IAppState::onEnter()
 
 void wv::IAppState::onExit()
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnExit();
 }
@@ -93,22 +102,25 @@ void wv::IAppState::onExit()
 
 void wv::IAppState::onUpdate( double _deltaTime )
 {
+	if ( !getCurrentScene() )
+		return;
+
 	_addQueued();
 	_removeQueued();
 
-	if( m_pNextScene )
+	if( m_nextScene > -1 )
 	{
 		onExit();
 
-		m_pCurrentScene = m_pNextScene;
-		m_pNextScene = nullptr;
+		m_currentScene = m_nextScene;
+		m_nextScene = -1;
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 	}
 	
 	onConstruct();
 	onEnter();
 	
-	m_pCurrentScene->onUpdateTransforms();
+	getCurrentScene()->onUpdateTransforms();
 	
 	for ( auto u : m_updatables )
 		u->callOnUpdate( _deltaTime );
@@ -118,6 +130,9 @@ void wv::IAppState::onUpdate( double _deltaTime )
 
 void wv::IAppState::onPhysicsUpdate( double _deltaTime )
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnPhysicsUpdate( _deltaTime );
 }
@@ -126,6 +141,9 @@ void wv::IAppState::onPhysicsUpdate( double _deltaTime )
 
 void wv::IAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice )
 {
+	if ( !getCurrentScene() )
+		return;
+
 	for ( auto u : m_updatables )
 		u->callOnDraw( _pContext, _pDevice );
 }
@@ -134,41 +152,14 @@ void wv::IAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice
 
 void wv::IAppState::reloadScene()
 {
-	std::string path = m_pCurrentScene->getSourcePath();
-	if( path == "" )
-	{
-		Debug::Print( Debug::WV_PRINT_ERROR, "Cannot reload scene with no source path\n" );
+	if ( !getCurrentScene() )
 		return;
-	}
 
-	onExit();
-	onDestruct();
-
-	m_pCurrentScene->destroyAllEntities();
-
-	_addQueued();
-	_removeQueued();
-
-	int index = -1;
-	for( size_t i = 0; i < m_scenes.size(); i++ )
-	{
-		if( m_scenes[ i ] == m_pCurrentScene )
-		{
-			index = (int)i;
-			break;
-		}
-	}
-
-	WV_FREE( m_pCurrentScene );
-
-	m_pCurrentScene = loadScene( Engine::get()->m_pFileSystem, path );
-	m_scenes[ index ] = m_pCurrentScene;
-
-	_addQueued();
-	_removeQueued();
-
-	onConstruct();
-	onEnter();
+	std::string path = getCurrentScene()->getSourcePath();
+	unloadScene( m_currentScene );
+	m_scenes[ m_currentScene ] = loadScene( wv::Engine::get()->m_pFileSystem, path );
+	
+	switchToScene( m_currentScene );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +172,8 @@ static wv::Vector3f jsonToVec3( const wv::Json::array& _arr )
 		static_cast<float>( _arr[ 2 ].number_value() )
 	);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::IEntity* parseSceneObject( const wv::Json& _json )
 {
@@ -274,6 +267,34 @@ wv::Scene* wv::IAppState::loadScene( IFileSystem* _pFileSystem, const std::strin
 	return scene;
 }
 
+void wv::IAppState::unloadScene( uint32_t _index )
+{
+	if ( _index >= m_scenes.size() )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot switch to scene %i. Out of range\n", _index );
+		return;
+	}
+
+	Scene* pScene = m_scenes[ _index ];
+	if ( !pScene )
+		return;
+
+	if ( _index == m_currentScene )
+	{
+		_addQueued();
+
+		onExit();
+		onDestruct();
+	}
+
+	pScene->destroyAllEntities();
+	WV_FREE( pScene );
+	m_scenes[ _index ] = nullptr;
+
+	if ( _index == m_currentScene )
+		_removeQueued();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int wv::IAppState::addScene( Scene* _pScene )
@@ -309,13 +330,14 @@ int wv::IAppState::addScene( Scene* _pScene )
 
 void wv::IAppState::switchToScene( const std::string& _name )
 {
-	for( auto& scene : m_scenes )
+	for( size_t i = 0; i < m_scenes.size(); i++ )
 	{
-		if( scene->getName() != _name )
+		if( m_scenes[ i ]->getName() != _name )
 			continue;
 		
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switching to scene '%s'\n", _name.c_str() );
-		m_pNextScene = scene;
+		m_nextScene = i;
+		return;
 	}
 
 	Debug::Print( Debug::WV_PRINT_ERROR, "Could not find scene '%s'\n", _name.c_str() );
@@ -325,14 +347,16 @@ void wv::IAppState::switchToScene( const std::string& _name )
 
 void wv::IAppState::switchToScene( int _index )
 {
-	if ( _index < 0 || _index > m_scenes.size() )
+	if ( _index < 0 || _index >= m_scenes.size() )
 	{
 		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Cannot switch to scene %i. Out of range\n", _index );
 		return;
 	}
 
-	m_pNextScene = m_scenes[ _index ];
+	m_nextScene = _index;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::_addQueued()
 {
@@ -344,6 +368,8 @@ void wv::IAppState::_addQueued()
 		m_updatables.push_back( u );
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::_removeQueued()
 {

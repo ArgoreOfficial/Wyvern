@@ -42,6 +42,9 @@ static void unloadMeshNode( wv::MeshNode* _node, wv::IGraphicsDevice* _pGraphics
 
 	for ( auto& meshID : _node->meshes )
 	{
+		if ( !meshID.is_valid() )
+			continue;
+
 		wv::Mesh mesh = _pGraphicsDevice->m_meshes.at( meshID );
 		pResourceRegistry->unload( mesh.pMaterial );
 		_pGraphicsDevice->destroyMesh( meshID );
