@@ -61,8 +61,7 @@ void wv::IAppState::onConstruct()
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnConstruct();
+	getCurrentScene()->onConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +71,7 @@ void wv::IAppState::onDestruct()
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnDestruct();
+	getCurrentScene()->onDestruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +81,7 @@ void wv::IAppState::onEnter()
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnEnter();
+	getCurrentScene()->onEnter();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +91,7 @@ void wv::IAppState::onExit()
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnExit();
+	getCurrentScene()->onExit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -105,10 +101,9 @@ void wv::IAppState::onUpdate( double _deltaTime )
 	if ( !getCurrentScene() )
 		return;
 
-	_addQueued();
-	_removeQueued();
+	getCurrentScene()->_removeQueued();
 
-	if( m_nextScene > -1 )
+	if( m_nextScene != -1 )
 	{
 		onExit();
 
@@ -117,13 +112,14 @@ void wv::IAppState::onUpdate( double _deltaTime )
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 	}
 	
+	getCurrentScene()->_addQueued();
+	
 	onConstruct();
 	onEnter();
 	
 	getCurrentScene()->onUpdateTransforms();
+	getCurrentScene()->onUpdate( _deltaTime );
 	
-	for ( auto u : m_updatables )
-		u->callOnUpdate( _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -133,8 +129,7 @@ void wv::IAppState::onPhysicsUpdate( double _deltaTime )
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnPhysicsUpdate( _deltaTime );
+	getCurrentScene()->onPhysicsUpdate( _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -144,8 +139,7 @@ void wv::IAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice
 	if ( !getCurrentScene() )
 		return;
 
-	for ( auto u : m_updatables )
-		u->callOnDraw( _pContext, _pDevice );
+	getCurrentScene()->onDraw( _pContext, _pDevice );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -281,18 +275,20 @@ void wv::IAppState::unloadScene( uint32_t _index )
 
 	if ( _index == m_currentScene )
 	{
-		_addQueued();
+		pScene->_addQueued();
 
 		onExit();
 		onDestruct();
 	}
 
 	pScene->destroyAllEntities();
+	
+	if ( _index == m_currentScene )
+		pScene->_removeQueued();
+	
 	WV_FREE( pScene );
 	m_scenes[ _index ] = nullptr;
 
-	if ( _index == m_currentScene )
-		_removeQueued();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -354,40 +350,6 @@ void wv::IAppState::switchToScene( int _index )
 	}
 
 	m_nextScene = _index;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::IAppState::_addQueued()
-{
-	while ( !m_addedUpdatableQueue.empty() )
-	{
-		IUpdatable* u = m_addedUpdatableQueue.front();
-		m_addedUpdatableQueue.pop();
-
-		m_updatables.push_back( u );
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::IAppState::_removeQueued()
-{
-	while ( !m_removedUpdatableQueue.empty() )
-	{
-		IUpdatable* u = m_removedUpdatableQueue.front();
-		m_removedUpdatableQueue.pop();
-
-		std::vector<IUpdatable*>::iterator itr;
-		for ( itr = m_updatables.begin(); itr != m_updatables.end(); itr++ )
-		{
-			if ( *itr != u )
-				continue;
-
-			m_updatables.erase( itr );
-			break;
-		}
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

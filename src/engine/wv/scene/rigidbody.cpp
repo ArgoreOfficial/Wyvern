@@ -116,6 +116,9 @@ void wv::Rigidbody::onEnter()
 
 void wv::Rigidbody::onExit()
 {
+	if ( !m_physicsBodyHandle.is_valid() )
+		return;
+
 	wv::Engine* app = wv::Engine::get();
 	app->m_pPhysicsEngine->destroyPhysicsBody( m_physicsBodyHandle );
 	m_physicsBodyHandle = PhysicsBodyID::InvalidID;

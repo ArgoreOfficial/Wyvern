@@ -201,6 +201,9 @@ void DemoWindowComponent::drawDemoWindow()
 	ImGui::Text( "RigidBodies Spawned: %i", m_numSpawned );
 	ImGui::Text( "Bytes Allocated: %i", wv::MemoryTracker::getTotalAllocationSize() );
 	
+	if ( ImGui::Button( "NextScene" ) )
+		wv::GetAppState()->switchToScene( 1 );
+
 	ImGui::End();
 #endif
 }

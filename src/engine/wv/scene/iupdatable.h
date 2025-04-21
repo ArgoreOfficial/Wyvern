@@ -17,17 +17,22 @@ class IDeviceContext;
 class IGraphicsDevice;
 class Engine;
 class IAppState;
+class Scene;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class IUpdatable
 {
 public:
+
+	friend class IAppState;
+	friend class Scene;
 	
 	IUpdatable() { }
 	virtual ~IUpdatable();
 
-	void _registerUpdatable();
+	void registerUpdatable( Scene* _pScene = nullptr );
+	void unregisterUpdatable();
 	
 	enum FunctionFlags
 	{
@@ -94,9 +99,9 @@ protected:
 
 private:
 
-	bool m_isEntered     = false;
-	bool m_isConstructed = false;
-
+	bool   m_isEntered        = false;
+	bool   m_isConstructed    = false;
+	Scene* m_pRegisteredScene = nullptr;
 };
 
 WV_ENUM_BITWISE_OR( IUpdatable::FunctionFlags )

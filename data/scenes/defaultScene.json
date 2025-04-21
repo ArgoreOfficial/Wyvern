@@ -96,27 +96,12 @@
         "scl": [2,2,2]
       },
       "data": {
-        "path": "meshes/sphere",
+        "path": "sphere.dae",
         "shape": 1,
         "kind": 1,
-        "radius": 1
+        "radius": 1.0
       },
-      "children": [
-        {
-          "uuid": 983749,
-          "name": "smallRect",
-          "type": "ModelObject",
-          "transform": {
-            "pos": [0,0,0],
-            "rot": [0,0,0],
-            "scl": [0.3,1.2,0.3]
-          },
-          "data": {
-            "path": ""
-          },
-          "children": []
-        }
-      ]
+      "children": []
     },
     {
       "uuid": 8740140,

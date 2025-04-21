@@ -139,7 +139,9 @@ bool Sandbox::create( void )
 	///		reloading: destroy Scene -> create Scene from saved template
 	/// preloads all templates for quick scene switching
 	wv::Scene* scene = appState->loadScene( fileSystem, "scenes/playground.json" );
+	wv::Scene* scene2 = appState->loadScene( fileSystem, "scenes/defaultScene.json" );
 	appState->addScene( scene ); // the engine will load into scene 0 by default
+	appState->addScene( scene2 );
 	
 	// set fog params 
 	/// TODO: move to scene

@@ -182,6 +182,7 @@ void wv::JoltPhysicsEngine::destroyPhysicsBody( PhysicsBodyID _handle )
 
 	bodyInterface.RemoveBody ( body );
 	bodyInterface.DestroyBody( body );
+	
 	m_bodies.erase( _handle );
 	_handle.invalidate();
 #endif // WV_SUPPORT_JOLT_PHYSICS
@@ -212,6 +213,8 @@ void wv::JoltPhysicsEngine::update( double _deltaTime )
 
 	for ( size_t i = 0; i < collisionSteps; i++ )
 	{
+		std::scoped_lock lock{ m_mutex };
+
 		m_pPhysicsSystem->Update( m_timestep, 1, m_pTempAllocator, m_pPhysicsJobSystem );
 		Engine::get()->m_pAppState->onPhysicsUpdate( m_timestep );
 	}
@@ -246,7 +249,9 @@ wv::PhysicsBodyID wv::JoltPhysicsEngine::createAndAddBody( IPhysicsBodyDesc* _de
 		shape = WV_NEW( JPH::SphereShape, desc->radius );
 	} break;
 
-	default: Debug::Print( Debug::WV_PRINT_ERROR, "Physics shape unimplemented" ); break;
+	default: 
+		Debug::Print( Debug::WV_PRINT_ERROR, "Physics shape unimplemented\n" ); 
+		break;
 	}
 
 	if( shape == nullptr )
@@ -255,12 +260,24 @@ wv::PhysicsBodyID wv::JoltPhysicsEngine::createAndAddBody( IPhysicsBodyDesc* _de
 	JPH::EMotionType motionType = JPH::EMotionType::Static;
 	switch( _desc->kind )
 	{
-	case WV_PHYSICS_DYNAMIC:  motionType = JPH::EMotionType::Dynamic;   break;
-	case WV_PHYSICS_KINEMATIC: motionType = JPH::EMotionType::Kinematic; break;
+	case WV_PHYSICS_STATIC:
+		motionType = JPH::EMotionType::Static; 
+		break;
+
+	case WV_PHYSICS_DYNAMIC:   
+		motionType = JPH::EMotionType::Dynamic;
+		break;
+
+	case WV_PHYSICS_KINEMATIC: 
+		motionType = JPH::EMotionType::Kinematic; 
+		break;
+
+	default: 
+		Debug::Print( Debug::WV_PRINT_ERROR, "Physics kind unimplemented\n" ); 
+		break;
 	}
 
 	const JPH::ObjectLayer layer = _desc->kind == WV_PHYSICS_STATIC ? wv::Layers::STATIC : wv::Layers::DYNAMIC;
-
 
 	JPH::BodyCreationSettings settings( shape, pos, JPH::Quat::sEulerAngles( rot ), motionType, layer );
 	settings.mFriction = 0.5f;
@@ -278,7 +295,7 @@ wv::PhysicsBodyID wv::JoltPhysicsEngine::createAndAddBody( IPhysicsBodyDesc* _de
 	wv::PhysicsBodyID handle{ 0 };
 
 	bodyInterface.AddBody( id, _activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate );
-
+	
 	// setup constraint
 	/*
 	if( m_cameraCollider != 0 )
@@ -314,7 +331,6 @@ wv::Transformf wv::JoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
 	JPH::Vec3  rot;
 
 	const JPH::BodyLockInterface& lockInterface = m_pPhysicsSystem->GetBodyLockInterface();
-	JPH::Vec3 angularVelocity;
 	{
 		JPH::BodyLockRead lock( lockInterface, body );
 		pos = lock.GetBody().GetPosition();
@@ -342,10 +358,16 @@ wv::Transformf wv::JoltPhysicsEngine::getBodyTransform( PhysicsBodyID& _handle )
 wv::Vector3f wv::JoltPhysicsEngine::getBodyVelocity( PhysicsBodyID& _handle )
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
-	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
 	JPH::BodyID body = m_bodies.at( _handle );
 
-	return JPHtoWV( bodyInterface.GetLinearVelocity( body ) );
+	const JPH::BodyLockInterface& lockInterface = m_pPhysicsSystem->GetBodyLockInterface();
+	JPH::Vec3 linearVelocity;
+	{
+		JPH::BodyLockRead lock( lockInterface, body );
+		linearVelocity = lock.GetBody().GetLinearVelocity();
+	}
+
+	return JPHtoWV( linearVelocity );
 #else
 	return {};
 #endif
@@ -394,7 +416,7 @@ void wv::JoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Tran
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
-	JPH::BodyID body = m_bodies.at( _handle );
+	JPH::BodyID bodyID = m_bodies.at( _handle );
 
 	JPH::Vec3 pos = WVtoJPH( _transform.position );
 	JPH::Vec3 rot{
@@ -403,7 +425,7 @@ void wv::JoltPhysicsEngine::setBodyTransform( PhysicsBodyID& _handle, const Tran
 		wv::Math::radians( _transform.rotation.z )
 	};
 	
-	bodyInterface.SetPositionAndRotation( body, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate );
+	bodyInterface.SetPositionAndRotation( bodyID, pos, JPH::Quat::sEulerAngles( rot ), JPH::EActivation::DontActivate );
 #endif // WV_SUPPORT_JOLT_PHYSICS
 }
 
@@ -413,10 +435,10 @@ void wv::JoltPhysicsEngine::setBodyVelocity( PhysicsBodyID& _handle, const Vecto
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
-	JPH::BodyID body = m_bodies.at( _handle );
+	JPH::BodyID bodyID = m_bodies.at( _handle );
 	JPH::Vec3 vel = WVtoJPH( _velocity );
 	
-	bodyInterface.SetLinearVelocity( body, WVtoJPH( _velocity ) );
+	bodyInterface.SetLinearVelocity( bodyID, WVtoJPH( _velocity ) );
 #endif
 }
 
@@ -426,10 +448,10 @@ void wv::JoltPhysicsEngine::setBodyAngularVelocity( PhysicsBodyID& _handle, cons
 {
 #ifdef WV_SUPPORT_JOLT_PHYSICS
 	JPH::BodyInterface& bodyInterface = m_pPhysicsSystem->GetBodyInterface();
-	JPH::BodyID body = m_bodies.at( _handle );
+	JPH::BodyID bodyID = m_bodies.at( _handle );
 	JPH::Vec3 vel = WVtoJPH( _angularVelocity );
 
-	bodyInterface.SetAngularVelocity( body, vel );
+	bodyInterface.SetAngularVelocity( bodyID, vel );
 #endif
 }
 

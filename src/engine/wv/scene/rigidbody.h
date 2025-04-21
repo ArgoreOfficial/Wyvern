@@ -62,7 +62,7 @@ protected:
 	int m_kind  = WV_PHYSICS_STATIC;
 	int m_shape = WV_PHYSICS_NONE;
 
-	float m_sphereRadius;
+	float m_sphereRadius = 1.0f;
 	Vector3f m_boxExtents{1,1,1};
 
 #ifdef WV_SUPPORT_PHYSICS

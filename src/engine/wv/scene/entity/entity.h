@@ -26,7 +26,7 @@ public:
 		static_assert( std::is_base_of_v<IComponent, _Ty>, "Type must be a component" );
 
 		_Ty* comp = WV_NEW( _Ty, _args... );
-		comp->_registerUpdatable();
+		comp->registerUpdatable();
 		comp->m_pParent = this;
 		m_components.push_back( comp );
 
