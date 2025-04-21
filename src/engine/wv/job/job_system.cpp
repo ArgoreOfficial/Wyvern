@@ -136,7 +136,7 @@ void wv::JobSystem::submit( const std::vector<wv::Job*>& _jobs )
 		if ( j->pSignalFence )
 			j->pSignalFence->counter++;
 
-		if ( !worker->queue.push( j ) )
+		if ( !worker->queue.push( j ) || m_workers.size() == 1 )
 			JobSystem::executeJob( j );
 	}
 }

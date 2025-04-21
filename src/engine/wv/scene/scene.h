@@ -30,7 +30,7 @@ namespace wv
 		~Scene() {
 			destroyAllEntities();
 		}
-
+		
 		std::string getSourcePath( void ) { return m_sourcePath; }
 		std::string getName      ( void ) { return m_name; }
 		

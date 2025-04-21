@@ -21,6 +21,8 @@ void wv::MeshInstance::destroy()
 {
 	if ( pResource )
 		pResource->removeInstance( this );
+
+	pResource = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

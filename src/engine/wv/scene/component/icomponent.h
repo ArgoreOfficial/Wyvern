@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/event/update_manager.h>
+#include <wv/scene/iupdatable.h>
 
 #include <vector>
 #include <string>

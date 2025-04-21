@@ -1,0 +1,17 @@
+#include "iupdatable.h"
+
+#include <wv/app_state.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::IUpdatable::~IUpdatable()
+{
+	GetAppState()->unregisterUpdatable( this );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::IUpdatable::_registerUpdatable()
+{
+	GetAppState()->registerUpdatable( this );
+}

@@ -8,7 +8,7 @@
 #include <wv/memory/memory.h>
 
 #include <wv/engine.h>
-#include <wv/event/update_manager.h>
+#include <wv/scene/iupdatable.h>
 #include <wv/runtime.h>
 
 #include <wv/camera/freeflight_camera.h>
@@ -20,8 +20,6 @@
 
 void wv::IAppState::initialize()
 {
-	m_pUpdateManager = WV_NEW( UpdateManager );
-
 	orbitCamera      = WV_NEW( OrbitCamera,      ICamera::kPerspective );
 	freeflightCamera = WV_NEW( FreeflightCamera, ICamera::kFocal );
 
@@ -58,79 +56,79 @@ void wv::IAppState::terminate()
 		WV_FREE( scene );
 
 	m_scenes.clear();
-
-	if ( m_pUpdateManager )
-		WV_FREE( m_pUpdateManager );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onConstruct()
 {
-	m_pUpdateManager->onConstruct();
+	for ( auto u : m_updatables )
+		u->callOnConstruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onDestruct()
 {
-	m_pUpdateManager->onDestruct();
+	for ( auto u : m_updatables )
+		u->callOnDestruct();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onEnter()
 {
-	m_pUpdateManager->onEnter();
+	for ( auto u : m_updatables )
+		u->callOnEnter();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onExit()
 {
-	m_pUpdateManager->onExit();
+	for ( auto u : m_updatables )
+		u->callOnExit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onUpdate( double _deltaTime )
 {
-	m_pUpdateManager->_updateQueued();
+	_addQueued();
+	_removeQueued();
 
 	if( m_pNextScene )
 	{
+		onExit();
+
 		m_pCurrentScene = m_pNextScene;
 		m_pNextScene = nullptr;
-		
-		onConstruct();
-		onEnter();
-		
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Switched Scene\n" );
 	}
-
-	if( m_pCurrentScene )
-	{
-		// if there are any new updatables that needs construction and entering
-		onConstruct();
-		onEnter();
-	}
-
+	
+	onConstruct();
+	onEnter();
+	
 	m_pCurrentScene->onUpdateTransforms();
-	m_pUpdateManager->onUpdate( _deltaTime );
+	
+	for ( auto u : m_updatables )
+		u->callOnUpdate( _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onPhysicsUpdate( double _deltaTime )
 {
-	m_pUpdateManager->onPhysicsUpdate( _deltaTime );
+	for ( auto u : m_updatables )
+		u->callOnPhysicsUpdate( _deltaTime );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::IAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice )
 {
-	m_pUpdateManager->onDraw( _pContext, _pDevice );
+	for ( auto u : m_updatables )
+		u->callOnDraw( _pContext, _pDevice );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -147,9 +145,10 @@ void wv::IAppState::reloadScene()
 	onExit();
 	onDestruct();
 
-	m_pUpdateManager->_updateQueued();
-
 	m_pCurrentScene->destroyAllEntities();
+
+	_addQueued();
+	_removeQueued();
 
 	int index = -1;
 	for( size_t i = 0; i < m_scenes.size(); i++ )
@@ -162,13 +161,12 @@ void wv::IAppState::reloadScene()
 	}
 
 	WV_FREE( m_pCurrentScene );
-	
-	m_pUpdateManager->_updateQueued();
 
 	m_pCurrentScene = loadScene( Engine::get()->m_pFileSystem, path );
 	m_scenes[ index ] = m_pCurrentScene;
 
-	m_pUpdateManager->_updateQueued();
+	_addQueued();
+	_removeQueued();
 
 	onConstruct();
 	onEnter();
@@ -335,6 +333,36 @@ void wv::IAppState::switchToScene( int _index )
 	}
 
 	m_pNextScene = m_scenes[ _index ];
+}
+
+void wv::IAppState::_addQueued()
+{
+	while ( !m_addedUpdatableQueue.empty() )
+	{
+		IUpdatable* u = m_addedUpdatableQueue.front();
+		m_addedUpdatableQueue.pop();
+
+		m_updatables.push_back( u );
+	}
+}
+
+void wv::IAppState::_removeQueued()
+{
+	while ( !m_removedUpdatableQueue.empty() )
+	{
+		IUpdatable* u = m_removedUpdatableQueue.front();
+		m_removedUpdatableQueue.pop();
+
+		std::vector<IUpdatable*>::iterator itr;
+		for ( itr = m_updatables.begin(); itr != m_updatables.end(); itr++ )
+		{
+			if ( *itr != u )
+				continue;
+
+			m_updatables.erase( itr );
+			break;
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

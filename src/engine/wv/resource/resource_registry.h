@@ -48,7 +48,6 @@ namespace wv
 		template<typename T, typename...Args, std::enable_if_t<std::is_base_of_v<wv::IResource, T>, bool> = true>
 		T* load( const std::string& _path, Args... _args )
 		{
-			m_mutex.lock();
 			IResource* res = getLoadedResource( _path );
 
 			if ( res == nullptr )
@@ -57,7 +56,9 @@ namespace wv
 				T* tres = WV_NEW( T,  _path, fullPath, _args... );
 				res = (IResource*)tres;
 
+				m_mutex.lock();
 				handleResourceType<T>( tres );
+				m_mutex.unlock();
 
 				Job::JobFunction_t fptr = []( void* _pData )
 					{
@@ -72,12 +73,13 @@ namespace wv
 				Job* job = pJobSystem->createJob( fptr, m_resourceFence, nullptr, loadData );
 				pJobSystem->submit( { job } );
 
+				m_mutex.lock();
 				addResource( res );
+				m_mutex.unlock();
 			}
 
 			res->incrNumUsers();
 			
-			m_mutex.unlock();
 			return (T*)res;
 		}
 

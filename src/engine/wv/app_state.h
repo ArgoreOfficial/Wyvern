@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +17,7 @@ namespace wv
 	class IFileSystem;
 	class UpdateManager;
 	class ICamera;
+	class IUpdatable;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,6 +26,14 @@ namespace wv
 	public:
 		void initialize();
 		virtual void terminate();
+
+		void registerUpdatable( IUpdatable* _pUpdatable ) {
+			m_addedUpdatableQueue.push( _pUpdatable );
+		}
+
+		void unregisterUpdatable( IUpdatable* _pUpdatable ) {
+			m_removedUpdatableQueue.push( _pUpdatable );
+		}
 
 		void onConstruct();
 		void onDestruct();
@@ -48,10 +58,6 @@ namespace wv
 		void switchToScene( const std::string& _name );
 		void switchToScene( int _index );
 
-		UpdateManager* getUpdateManager() { 
-			return m_pUpdateManager; 
-		}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 		ICamera* currentCamera = nullptr;
@@ -61,12 +67,17 @@ namespace wv
 
 	protected:
 
+		void _addQueued();
+		void _removeQueued();
+
 		std::vector<Scene*> m_scenes;
 
 		Scene* m_pNextScene = nullptr;
 		Scene* m_pCurrentScene = nullptr;
 
-		UpdateManager* m_pUpdateManager = nullptr;
+		std::vector<IUpdatable*> m_updatables;
+		std::queue<IUpdatable*> m_addedUpdatableQueue;
+		std::queue<IUpdatable*> m_removedUpdatableQueue;
 
 	};
 
