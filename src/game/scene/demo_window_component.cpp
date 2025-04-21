@@ -31,11 +31,11 @@ class Hotel : public wv::IRuntimeObject
 {
 public:
 	void occupyRoom( int _room ) {
-		printf( "Occupied room nr.%i\n", _room );
+		wv::Debug::Print( "Occupied room nr.%i\n", _room );
 	}
 
 	void addAndPrintTwoNumbers( int _a, int _b ) {
-		printf( "%i + %i = %i\n", _a, _b, _a + _b );
+		wv::Debug::Print( "%i + %i = %i\n", _a, _b, _a + _b );
 	}
 	
 	int availableRooms = 6;

@@ -2,13 +2,10 @@
 
 #include <wv/app_state.h>
 
-namespace wv {
-
-class RuntimeAppState : public IAppState
+class RuntimeAppState : public wv::IAppState
 {
 public:
 	RuntimeAppState() = default;
 
 };
 
-}

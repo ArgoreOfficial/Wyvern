@@ -5,13 +5,13 @@
 
 void wv::IRuntimeQuery::dump()
 {
-	printf( "# %s:%s\n", name.c_str(), base.c_str() );
+	wv::Debug::Print( "# %s:%s\n", name.c_str(), base.c_str() );
 
-	printf( ": Methods:\n" );
+	wv::Debug::Print( ": Methods:\n" );
 	for ( auto& m : pFunctions->list() )
-		printf( ":   %s\n", m.c_str() );
+		wv::Debug::Print( ":   %s\n", m.c_str() );
 	
-	printf( ": Properties:\n" );
+	wv::Debug::Print( ": Properties:\n" );
 	for ( auto& p : pProperties->list() )
-		printf( ":   %s\n", p.c_str() );
+		wv::Debug::Print( ":   %s\n", p.c_str() );
 }

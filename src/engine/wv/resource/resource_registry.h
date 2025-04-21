@@ -63,8 +63,12 @@ namespace wv
 				Job::JobFunction_t fptr = []( void* _pData )
 					{
 						LoadData* loadData = (LoadData*)_pData;
+						IResource* pResource = loadData->resource;
 
-						loadData->resource->load( loadData->pFileSystem, loadData->pGraphicsDevice );
+						pResource->lock();
+						pResource->load( loadData->pFileSystem, loadData->pGraphicsDevice );
+						pResource->unlock();
+
 						WV_FREE( loadData );
 					};
 
@@ -92,7 +96,9 @@ namespace wv
 
 			if( _res->getNumUsers() == 0 )
 			{
+				_res->lock();
 				_res->unload( m_pFileSystem, m_pGraphicsDevice );
+				_res->unlock();
 				removeResource( _res->getName() );
 			}
 		}

@@ -5,9 +5,7 @@
 
 #include <vector>
 
-namespace wv {
-
-class IEditorWindow;
+namespace wv { class IEditorWindow; }
 
 struct Combo
 {
@@ -36,14 +34,14 @@ struct ComboButton
 };
 
 
-class EditorAppState : public IAppState
+class EditorAppState : public wv::IAppState
 {
 public:
 	EditorAppState();
 	
 	virtual void terminate() override;
 
-	virtual void onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice ) override;
+	virtual void onDraw( wv::IDeviceContext* _pContext, wv::IGraphicsDevice* _pDevice ) override;
 
 private:
 	void buildPlatform();
@@ -67,7 +65,5 @@ private:
 	Combo m_platformCombo;
 	ComboButton m_runComboButton;
 
-	std::vector<IEditorWindow*> m_editorWindows;
+	std::vector<wv::IEditorWindow*> m_editorWindows;
 };
-
-}

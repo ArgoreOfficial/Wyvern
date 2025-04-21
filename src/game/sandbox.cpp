@@ -1,8 +1,5 @@
 #include "Sandbox.h"
 
-#include <wv/app_state/editor_app_state.h>
-#include <wv/app_state/runtime_app_state.h>
-
 #include <wv/engine.h>
 
 #include <wv/camera/camera.h>
@@ -24,6 +21,8 @@
 #include <wv/scene/scene.h>
 
 #include "scene/demo_window.h"
+#include "state/editor_app_state.h"
+#include "state/runtime_app_state.h"
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui.h>
@@ -123,9 +122,9 @@ bool Sandbox::create( void )
 	// setup application state
 	wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Creating Application State\n" );
 #ifdef WV_PACKAGE
-	wv::IAppState* appState = WV_NEW( wv::RuntimeAppState );
+	wv::IAppState* appState = WV_NEW( RuntimeAppState );
 #else
-	wv::IAppState* appState = WV_NEW( wv::EditorAppState );
+	wv::IAppState* appState = WV_NEW( EditorAppState );
 #endif
 
 	engineDesc.pAppState = appState;

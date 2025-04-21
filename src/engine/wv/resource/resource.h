@@ -1,9 +1,10 @@
 #pragma once
 
 #include <wv/types.h>
+#include <wv/debug/log.h>
 
 #include <string>
-#include <wv/debug/log.h>
+#include <mutex>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,9 @@ namespace wv
 
 		bool isComplete ( void ) { return m_complete; }
 
+		void lock  ( void ) { m_resourceMutex.lock();    }
+		void unlock( void ) { m_resourceMutex.unlock(); }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
@@ -54,5 +58,9 @@ namespace wv
 		unsigned int m_numUsers = 0;
 
 		bool m_complete = false;
+
+	private:
+
+		std::mutex m_resourceMutex{};
     };
 }

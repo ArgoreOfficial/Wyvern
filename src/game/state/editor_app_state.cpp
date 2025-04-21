@@ -14,16 +14,16 @@
 #include <imgui_stdlib.h>
 #endif
 
-wv::EditorAppState::EditorAppState()
+EditorAppState::EditorAppState()
 {
 	m_modeCombo      = Combo{ "##modes", { "Debug", "Debug-nomt", "Release", "Package"} };
 	m_platformCombo  = Combo{ "##plats", { "3DS", "PSP2" } };
 	m_runComboButton = ComboButton{ "##run_button", { "Local Debugger", "Remote Debugger", "Remote Run" } };
 
-	m_editorWindows.push_back( WV_NEW( TargetManagerWindow ) );
+	m_editorWindows.push_back( WV_NEW( wv::TargetManagerWindow ) );
 }
 
-void wv::EditorAppState::terminate()
+void EditorAppState::terminate()
 {
 	IAppState::terminate();
 
@@ -37,7 +37,7 @@ void wv::EditorAppState::terminate()
 		pJobSystem->waitAndDeleteFence( m_buildFence );
 }
 
-void wv::EditorAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pDevice )
+void EditorAppState::onDraw( wv::IDeviceContext* _pContext, wv::IGraphicsDevice* _pDevice )
 {
 	IAppState::onDraw( _pContext, _pDevice );
 
@@ -75,7 +75,7 @@ void wv::EditorAppState::onDraw( IDeviceContext* _pContext, IGraphicsDevice* _pD
 #endif
 }
 
-void wv::EditorAppState::drawMenuBar()
+void EditorAppState::drawMenuBar()
 {
 #ifdef WV_SUPPORT_IMGUI
 	if ( ImGui::BeginMenu( "File" ) )
@@ -120,7 +120,7 @@ void wv::EditorAppState::drawMenuBar()
 #endif
 }
 
-void wv::EditorAppState::drawBuildWindow()
+void EditorAppState::drawBuildWindow()
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui::SetNextItemWidth( ImGui::CalcTextSize( "255.255.255.255 " ).x );
@@ -134,7 +134,7 @@ void wv::EditorAppState::drawBuildWindow()
 #endif
 }
 
-void wv::EditorAppState::buildPlatform()
+void EditorAppState::buildPlatform()
 {
 	if( m_isBuilding3DS )
 		return;
@@ -161,7 +161,7 @@ void wv::EditorAppState::buildPlatform()
 	pJobSystem->submit( { job } );
 }
 
-void wv::EditorAppState::buildAndRun()
+void EditorAppState::buildAndRun()
 {
 	buildPlatform();
 
@@ -188,14 +188,14 @@ void wv::EditorAppState::buildAndRun()
 	pJobSystem->submit( { job } );
 }
 
-wv::Combo::Combo( const char* _name, const std::vector<const char*>& _options )
+Combo::Combo( const char* _name, const std::vector<const char*>& _options )
 {
 	name = _name;
 	options = _options;
 	currentOption = options[ 0 ];
 }
 
-int wv::Combo::draw( float _width )
+int Combo::draw( float _width )
 {
 	size_t selected = 0;
 
@@ -226,14 +226,14 @@ int wv::Combo::draw( float _width )
 	return selected;
 }
 
-wv::ComboButton::ComboButton( const char* _name, const std::vector<const char*>& _options )
+ComboButton::ComboButton( const char* _name, const std::vector<const char*>& _options )
 {
 	name = _name;
 	options = _options;
 	currentOption = options[ 0 ];
 }
 
-int wv::ComboButton::draw( float _width )
+int ComboButton::draw( float _width )
 {
 #ifdef WV_SUPPORT_IMGUI
 	std::string buildButtonStr = currentOption + std::string{ "##" } + std::string{ name };

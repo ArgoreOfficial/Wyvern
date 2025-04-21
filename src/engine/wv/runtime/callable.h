@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/string.h>
+#include <wv/debug/log.h>
 
 #include <vector>
 #include <string>
@@ -51,7 +52,7 @@ void RuntimeMemberCallable<_Args...>::_handleCall( wv::IRuntimeObject* _obj, std
 {
 	if( sizeof...( _Args ) != (int)_args.size() )
 	{
-		printf( "Error: Expected %i arguments, got %i", (int)getArgCount(), (int)_args.size() );
+		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Expected %i arguments, got %i", (int)getArgCount(), (int)_args.size() );
 		return;
 	}
 

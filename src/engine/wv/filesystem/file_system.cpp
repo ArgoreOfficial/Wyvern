@@ -35,10 +35,10 @@ wv::IFileSystem::IFileSystem()
 #ifdef WV_PLATFORM_3DS
 	Result rc = romfsMountSelf( "data" );
 	if( rc )
-		printf( "romfsInit: %08lX\n", rc );
+		wv::Debug::Print( "romfsInit: %08lX\n", rc );
 	else
 	{
-		printf( "romfs Init Successful!\n" );
+		wv::Debug::Print( "romfs Init Successful!\n" );
 	}
 #endif
 	
@@ -80,7 +80,7 @@ wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
 #ifdef WV_PLATFORM_PSVITA
 	if( strncmp( mem->data, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
 	{
-		printf( "%s\n", mem->data );
+		wv::Debug::Print( "%s\n", mem->data );
 		return nullptr;
 	}
 #endif

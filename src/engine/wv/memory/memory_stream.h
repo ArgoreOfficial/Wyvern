@@ -51,7 +51,7 @@ inline T& MemoryStream::at( size_t _index )
 {
 	if ( _index < 0 || _index >= m_size )
 	{
-		printf( "index out of range\n" );
+		wv::Debug::Print( "index out of range\n" );
 		return T();
 	}
 
