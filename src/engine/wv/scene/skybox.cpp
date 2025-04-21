@@ -5,15 +5,9 @@
 #include <wv/graphics/graphics_device.h>
 
 #include <wv/mesh/mesh_resource.h>
-#include <wv/material/material.h>
 #include <wv/resource/resource_registry.h>
 
-#ifdef WV_SUPPORT_OPENGL
-#include <glad/glad.h>
-#endif
-
-#include <fstream>
-
+#include <wv/renderer/mesh_renderer.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,29 +23,6 @@ wv::SkyboxObject::~SkyboxObject()
 {
 	
 }
-/*
-wv::SkyboxObject* wv::SkyboxObject::parseInstance( ParseData& _data )
-{	
-	auto& json = _data.json;
-	wv::UUID    uuid = json[ "uuid" ].int_value();
-	std::string name = json[ "name" ].string_value();
-
-	wv::Json tfm = json[ "transform" ];
-	Vector3f pos = jsonToVec3( tfm[ "pos" ].array_items() );
-	Vector3f rot = jsonToVec3( tfm[ "rot" ].array_items() );
-	Vector3f scl = jsonToVec3( tfm[ "scl" ].array_items() );
-
-	Transformf transform;
-	transform.setPosition( pos );
-	transform.setRotation( rot );
-	transform.setScale( scl );
-
-	SkyboxObject* skysphere = WV_NEW( SkyboxObject, uuid, name );
-	skysphere->m_transform = transform;
-
-	return skysphere;
-}
-*/
 
 void wv::SkyboxObject::onConstruct()
 {
@@ -79,5 +50,5 @@ void wv::SkyboxObject::onUpdate( double /*_deltaTime*/ )
 
 void wv::SkyboxObject::onDraw( IDeviceContext* /*_context*/, IGraphicsDevice* /*_device*/ )
 {
-	
+	wv::Engine::get()->m_pMeshRenderer->add( m_mesh.pResource );
 }

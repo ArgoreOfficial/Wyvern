@@ -31,18 +31,6 @@ public:
 		m_components.push_back( comp );
 
 	}
-	/*
-	static Entity* parseInstance( ParseData& _data ) {
-		auto& json = _data.json;
-		wv::UUID    uuid = json[ "uuid" ].int_value();
-		std::string name = json[ "name" ].string_value();
-		
-		Entity* entity = WV_NEW( Entity, uuid, name );
-		entity->addComponent<ScriptComponent>();
-
-		return entity;
-	}
-	*/
 
 	template<typename _Ty>
 	void getComponent()

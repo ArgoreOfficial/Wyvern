@@ -14,34 +14,28 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	struct MeshNode;
-	class Material;
+WV_RUNTIME_OBJECT( SkyboxObject, wv::Entity )
+class SkyboxObject : public Entity
+{
+
+public:
+
+	 SkyboxObject( void ) = default;
+	 SkyboxObject( const UUID& _uuid, const std::string& _name );
+	~SkyboxObject();
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class SkyboxObject : public Entity
-	{
+protected:
 
-	public:
-
-		 SkyboxObject( const UUID& _uuid, const std::string& _name );
-		~SkyboxObject();
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-		// static SkyboxObject* parseInstance( ParseData& _data );
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-	protected:
-
-		virtual void onConstruct( void ) override;
-		virtual void onDestruct ( void ) override;
+	virtual void onConstruct( void ) override;
+	virtual void onDestruct ( void ) override;
 		
-		virtual void onUpdate( double _deltaTime ) override;
-		virtual void onDraw  ( IDeviceContext* _context, IGraphicsDevice* _device ) override;
+	virtual void onUpdate( double _deltaTime ) override;
+	virtual void onDraw  ( IDeviceContext* _context, IGraphicsDevice* _device ) override;
 
-		MeshInstance m_mesh;
+	MeshInstance m_mesh;
 
-	};
+};
+
 }

@@ -50,8 +50,6 @@ public:
 	virtual void onExit() override;
 	virtual void onPhysicsUpdate( double _dt) override;
 
-	//static Rigidbody* parseInstance( ParseData& _data );
-
 	static void queryProperties( wv::RuntimeProperties* _pOutProps ) {
 		_pOutProps->add( "path", &Rigidbody::m_meshPath );
 		_pOutProps->add( "kind", &Rigidbody::m_kind );

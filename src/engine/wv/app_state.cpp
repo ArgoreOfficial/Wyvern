@@ -228,9 +228,6 @@ wv::IEntity* parseSceneObject( const wv::Json& _json )
 				//wv::Debug::Print( "has property '%s'\n", k.first.c_str() );
 			}
 		}
-
-		if( obj->pQuery )
-			obj->pQuery->dump();
 	}
 
 	if( !obj )

@@ -132,11 +132,3 @@ void wv::Rigidbody::onPhysicsUpdate( double _dt )
 	Transformf t = pPhysics->getBodyTransform( m_physicsBodyHandle );
 	m_transform.setPositionRotation( t.position, t.rotation );
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-/*
-wv::Rigidbody* wv::Rigidbody::parseInstance( ParseData& _data )
-{
-	return Runtime::create<Rigidbody>();
-}
-*/
