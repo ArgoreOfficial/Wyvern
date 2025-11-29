@@ -42,10 +42,14 @@ void wv::ModelObject::onConstruct( void )
 	m_transform.addChild( &m_mesh.transform );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::ModelObject::onDestruct( void )
 {
 	m_mesh.destroy();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::ModelObject::onDraw( wv::IDeviceContext* _context, wv::IGraphicsDevice* _device )
 {

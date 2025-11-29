@@ -312,6 +312,8 @@ void wv::Engine::terminate()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Engine::quit()
 {
 	context->close();
@@ -365,6 +367,8 @@ void wv::Engine::createGBuffer()
 
 	m_gbuffer = graphics->createRenderTarget( rtDesc );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Engine::recreateScreenRenderTarget( int _width, int _height )
 {

@@ -289,7 +289,7 @@ bool wv::SDLDeviceContext::initialize( ContextDesc* _desc )
 	EmscriptenWebGLContextAttributes attrs;
 	attrs.antialias = true;
 	attrs.majorVersion = 3;
-	attrs.minorVersion = 0;
+	attrs.minorVersion = 2;
 	attrs.alpha = true;
 	attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_DEFAULT;
 
