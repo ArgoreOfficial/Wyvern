@@ -1,3 +1,5 @@
+#ifdef NOTDEFINED
+
 #include "draw.h"
 
 #include <wv/graphics/graphics_device.h>
@@ -78,3 +80,5 @@ void wv::Debug::Draw::AddCube( Transformf _transform )
 {
 	Internal::cubes.push_back( _transform );
 }
+
+#endif

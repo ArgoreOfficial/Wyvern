@@ -1,10 +1,15 @@
 #pragma once
 
 #include <wv/math/vector3.h>
-#include <wv/renderer.h>
+#include <wv/graphics/renderer.h>
 #include <wv/camera/camera.h>
 
-struct GLFWwindow;
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
+struct SDL_Window;
+typedef void* SDL_GLContext;
 
 namespace wv {
 
@@ -18,23 +23,36 @@ class Application
 public:
 	Application() = default;
 	
-	bool initialize();
+	bool initialize( int _windowWidth, int _windowHeight );
 	bool tick();
 	void shutdown();
 
-	double getApplicationTime( void ) const { return m_time; }
+	double getApplicationTime( void ) const { return m_runtime; }
 	double getDeltaTime      ( void ) const { return m_deltatime; }
 private:
 	
 	void update();
 	void render();
 
-	GLFWwindow* m_window;
-	double m_time = 0.0;
-	double m_deltatime = 0.0;
+#ifdef WV_SUPPORT_SDL2
+	SDL_Window* m_window_context = nullptr;
+#ifdef WV_SUPPORT_OPENGL 
+	SDL_GLContext m_opengl_context = nullptr;
+#endif
+#endif
 
-	int m_windowWidth;
-	int m_windowHeight;
+	bool m_alive = true;
+
+	uint64_t m_performance_counter = 0;
+	double m_runtime = 0.0f;
+	double m_deltatime = 1.0 / 60.0;
+
+	const double m_fixed_delta_time = 0.01;
+	double m_fixed_runtime = 0.0;
+	double m_accumulator = 0.0;
+
+	int m_windowWidth = 0;
+	int m_windowHeight = 0;
 
 	wv::OpenGLRenderer m_renderer;
 

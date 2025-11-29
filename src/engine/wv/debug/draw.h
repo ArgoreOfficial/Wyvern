@@ -1,3 +1,5 @@
+#ifdef NOTDEFINED
+
 #pragma once
 
 #include <wv/math/transform.h>
@@ -49,3 +51,5 @@ namespace wv
 		}
 	}
 }
+
+#endif

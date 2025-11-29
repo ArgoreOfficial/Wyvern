@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <glad/glad.h>
 
-#include <wv/vertex.h>
-#include <wv/shader.h>
-#include <wv/texture.h>
+#include <wv/graphics/vertex.h>
+#include <wv/graphics/shader.h>
+#include <wv/graphics/texture.h>
 
 #include <wv/math/vector2.h>
 #include <wv/helpers/unordered_array.hpp>

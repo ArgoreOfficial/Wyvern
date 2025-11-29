@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/types.h>
-#include <wv/renderer.h>
+#include <wv/graphics/renderer.h>
 #include <wv/math/aabb.h>
 
 #include <wv/math/transform.h>

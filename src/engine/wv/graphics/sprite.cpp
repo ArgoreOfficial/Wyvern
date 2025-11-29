@@ -1,7 +1,7 @@
 #include "sprite.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <auxiliary/stb_image.h>
 
 #include <fstream>
 #include <sstream>
