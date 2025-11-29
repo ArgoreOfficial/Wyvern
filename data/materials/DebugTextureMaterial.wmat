@@ -1,9 +1,0 @@
-{
-  "shader": "unlit",
-  "textures": [
-    {
-      "name": "u_Albedo",
-      "texture": "default_debug.png"
-    }
-  ]
-}

@@ -1,9 +1,0 @@
-{
-  "shader": "basic",
-  "textures": [
-    {
-      "name": "u_Albedo",
-      "texture": "default_notex.png"
-    }
-  ]
-}
