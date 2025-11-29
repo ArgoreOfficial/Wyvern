@@ -5,27 +5,16 @@
 #endif
 
 #include <wv/math/math.h>
+#include <wv/debug/log.h>
 
 #include <cmath>
 #include <stdio.h>
-#include <string>
-#include <fstream>
-#include <sstream>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <GLES2/gl2.h>
 #endif
-
-std::string loadTextFile( const std::string& _path )
-{
-	std::ifstream t( _path );
-	std::stringstream buffer;
-	buffer << t.rdbuf();
-
-	return buffer.str();
-}
 
 void glfwErrorCallback( int error, const char* description )
 {
@@ -36,7 +25,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 {
 	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
-		printf( "Failed to initialize Device Context\n" );
+		WV_LOG_ERROR( "Failed to initialize Device Context\n" );
 		return false;
 	}
 
@@ -88,10 +77,8 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
 
-
 	//SDL_GL_CONTEXT_DEBUG_FLAG
 	//glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, true );
-
 	//glfwWindowHint( GLFW_RESIZABLE, false );
 
 	m_window_context = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _windowWidth, _windowHeight, flags );
@@ -102,12 +89,12 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 
 	SDL_version version;
 	SDL_GetVersion( &version );
-	printf( "Initialized Context Device\n" );
-	printf( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
+	wv::Debug::Print( "Initialized Context Device\n" );
+	wv::Debug::Print( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
 	if ( !m_window_context )
 	{
-		printf( "Failed to create Context\n" );
+		WV_LOG_ERROR( "Failed to create Context\n" );
 		return false;
 	}
 
