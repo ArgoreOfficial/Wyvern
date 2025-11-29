@@ -1,0 +1,5 @@
+﻿.vscode
+.xmake
+bin
+build
+*.lnk
