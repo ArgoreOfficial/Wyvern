@@ -4,16 +4,10 @@
 #include <wv/graphics/renderer.h>
 #include <wv/camera/camera.h>
 
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
-struct SDL_Window;
-typedef void* SDL_GLContext;
-
 namespace wv {
 
 class IFileSystem;
+class DisplayDriver;
 
 struct VertexData
 {
@@ -23,29 +17,33 @@ struct VertexData
 class Application 
 {
 public:
-	Application() = default;
+	Application();
 	
+	static Application* getSingleton() { return Application::singleton; }
+
 	bool initialize( int _windowWidth, int _windowHeight );
 	bool tick();
 	void shutdown();
 
 	double getApplicationTime( void ) const { return m_runtime; }
 	double getDeltaTime      ( void ) const { return m_deltatime; }
+
+	std::string getGraphicsDriverName() const { return m_graphicsDriverName; }
+
+	void quit() { m_alive = false; }
+
 private:
 	
+	static Application* singleton;
+
 	void update();
 	void render();
 
-#ifdef WV_SUPPORT_SDL2
-	SDL_Window* m_window_context = nullptr;
-#ifdef WV_SUPPORT_OPENGL 
-	SDL_GLContext m_opengl_context = nullptr;
-#endif
-#endif
+	std::string m_graphicsDriverName = "None";
 
 	bool m_alive = true;
 
-	uint64_t m_performance_counter = 0;
+	uint64_t m_lastTicks = 0;
 	double m_runtime = 0.0;
 	double m_deltatime = 1.0 / 60.0;
 
@@ -53,12 +51,10 @@ private:
 	double m_fixed_runtime = 0.0;
 	double m_accumulator = 0.0;
 
-	int m_windowWidth = 0;
-	int m_windowHeight = 0;
-
 	/* Subsystems */
 
-	wv::IFileSystem* m_filesystem;
+	wv::DisplayDriver* m_displayDriver = nullptr;
+	wv::IFileSystem* m_filesystem = nullptr;
 	wv::OpenGLRenderer m_renderer;
 
 	wv::ResourceID m_debugPipeline;

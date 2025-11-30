@@ -65,10 +65,9 @@ void APIENTRY debugMessageCallback( GLenum _source, GLenum _type, GLuint _id, GL
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::OpenGLRenderer::setup( GLADloadproc _load_proc )
+bool wv::OpenGLRenderer::setup()
 {
-	
-	if ( !gladLoadGLLoader( _load_proc ) )
+	if ( gladLoadGL() == 0 )
 	{
 		printf( "Failed to load OpenGL.\n" );
 		return false;

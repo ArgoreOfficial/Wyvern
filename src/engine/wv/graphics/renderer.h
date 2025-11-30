@@ -16,7 +16,7 @@ namespace wv {
 class OpenGLRenderer
 {
 public:
-	bool setup( GLADloadproc _load_proc );
+	bool setup();
 	void shutdown();
 
 	void prepare( uint32_t _width, uint32_t _height );
