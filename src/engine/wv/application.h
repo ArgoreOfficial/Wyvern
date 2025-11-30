@@ -13,6 +13,8 @@ typedef void* SDL_GLContext;
 
 namespace wv {
 
+class IFileSystem;
+
 struct VertexData
 {
 	wv::Vector3f position;
@@ -44,7 +46,7 @@ private:
 	bool m_alive = true;
 
 	uint64_t m_performance_counter = 0;
-	double m_runtime = 0.0f;
+	double m_runtime = 0.0;
 	double m_deltatime = 1.0 / 60.0;
 
 	const double m_fixed_delta_time = 0.01;
@@ -54,10 +56,13 @@ private:
 	int m_windowWidth = 0;
 	int m_windowHeight = 0;
 
+	/* Subsystems */
+
+	wv::IFileSystem* m_filesystem;
 	wv::OpenGLRenderer m_renderer;
 
-	wv::GLShaderPipeline shader;
-	wv::GLVertexBuffer vbo;
+	wv::ResourceID m_debugPipeline;
+	wv::ResourceID m_debugVBO;
 
 	wv::ICamera* m_camera = nullptr;
 };

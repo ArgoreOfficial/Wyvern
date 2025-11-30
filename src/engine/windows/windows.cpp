@@ -1,5 +1,9 @@
 #ifdef WV_PLATFORM_WINDOWS
 #include <wv/platform/platform.h>
 
-const char* wv::gFileSystemPathPrefix = "../../data/";
+#ifdef WV_PACKAGE
+const char* wv::gFileSystemPathPrefix = "";
+#else
+const char* wv::gFileSystemPathPrefix = "../../";
+#endif
 #endif

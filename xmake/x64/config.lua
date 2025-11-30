@@ -3,14 +3,6 @@ function _add_supports( _target, _prefix )
     _target:add( "headerfiles", "./libs/**.h" )
     _target:add( "includedirs", "./libs/glad/include/" )
     
-    if is_mode("Package") then
-        _target:set("configdir", "package/bin/dat")
-    else
-        _target:set("configdir", "bin/dat")
-    end
-
-    _target:add("configfiles", "dat/*", {onlycopy = true})
-
     import( "support.libsdl" )( _target, _prefix ) 
     import( "support.imgui" )( _target, _prefix ) 
 
@@ -36,6 +28,12 @@ function on_load( _target, _prefix )
         _target:add( "linkdirs", "C:/msys64/mingw32/lib/" )
     end
 
-	_target:set( "targetdir", "./game/Windows" )
 	_target:set( "objectdir", "./build/obj/Windows/$(mode)" )
+    _target:set( "targetdir", "./game/Windows" )
+    
+    if is_mode("Package") then 
+        _target:set( "configdir", "./package/bin/dat" )
+        _target:add( "configfiles", "dat/*", {onlycopy = true})
+    end
+
 end

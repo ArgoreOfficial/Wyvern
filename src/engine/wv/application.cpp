@@ -6,6 +6,7 @@
 
 #include <wv/math/math.h>
 #include <wv/debug/log.h>
+#include <windows/windows_file_system.h>
 
 #include <cmath>
 #include <stdio.h>
@@ -109,6 +110,15 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_camera->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	m_camera->setOrthoWidth( 6.0f );
 
+	m_filesystem = new WindowsFileSystem();
+	m_filesystem->addDirectory( "./dat/" );
+
+	///////////////////////////////////////////////////////////////////////////
+
+	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
+	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
+
+	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
 }
 
 bool wv::Application::tick()

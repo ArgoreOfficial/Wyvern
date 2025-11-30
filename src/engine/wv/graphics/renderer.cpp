@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include <wv/debug/log.h>
+
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +167,15 @@ wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const 
 	glAttachShader( pipeline.pipeline_handle, pipeline.vert_module_handle );
 	glAttachShader( pipeline.pipeline_handle, pipeline.frag_module_handle );
 	glLinkProgram( pipeline.pipeline_handle );
+	
+	int success = 0;
+	char infoLog[ 512 ];
+	glGetProgramiv( pipeline.pipeline_handle, GL_LINK_STATUS, &success );
+	if ( !success )
+	{
+		glGetProgramInfoLog( pipeline.pipeline_handle, 512, NULL, infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n%s\n", infoLog );
+	}
 
 	return m_pipelines.emplace( pipeline );
 }
@@ -491,25 +502,8 @@ GLuint wv::OpenGLRenderer::compileShaderModule( const char* _source, GLenum _typ
 	if ( !success )
 	{
 		glGetShaderInfoLog( shader, 512, NULL, infoLog );
-		printf( "Shader compilation failed\n %s\n", infoLog );
+		wv::Debug::Print( Debug::WV_PRINT_ERROR, "Shader compilation failed\n %s\n", infoLog );
 	}
+
 	return shader;
-	
-	/*
-	// sShaderProgram* program = new sShaderProgram();
-	GLuint program{};
-	//program = GL_ASSERT( glCreateShaderProgramv, _type, 1, &_source );
-	program = createShaderProgram( _type, 1, &_source );
-
-	int success = 0;
-	char infoLog[ 512 ];
-	glGetProgramiv( program, GL_LINK_STATUS, &success );
-	if ( !success )
-	{
-		glGetProgramInfoLog( program, 512, NULL, infoLog );
-		printf( "Failed to link program\n %s \n", infoLog );
-	}
-
-	return program;
-	*/
 }
