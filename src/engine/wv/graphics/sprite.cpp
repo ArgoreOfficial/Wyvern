@@ -158,13 +158,13 @@ wv::Sprite* wv::SpriteRenderer::createSpriteFromTexture( ResourceID _texture, co
 
 		// Vertices
 		Vertex screen_triangle[] = {
-			Vertex( -0.5f,  0.5f, uv_tl.x, uv_tl.y ), // top left
-			Vertex(  0.5f,  0.5f, uv_br.x, uv_tl.y ), // top right
-			Vertex(  0.5f, -0.5f, uv_br.x, uv_br.y ), // bottom right
+			Vertex( -0.5f,  0.5f, 0.0f, uv_tl.x, uv_tl.y ), // top left
+			Vertex(  0.5f,  0.5f, 0.0f, uv_br.x, uv_tl.y ), // top right
+			Vertex(  0.5f, -0.5f, 0.0f, uv_br.x, uv_br.y ), // bottom right
 
-			Vertex( -0.5f,  0.5f, uv_tl.x, uv_tl.y ), // top left
-			Vertex(  0.5f, -0.5f, uv_br.x, uv_br.y ), // bottom right
-			Vertex( -0.5f, -0.5f, uv_tl.x, uv_br.y ), // bottom left
+			Vertex( -0.5f,  0.5f, 0.0f, uv_tl.x, uv_tl.y ), // top left
+			Vertex(  0.5f, -0.5f, 0.0f, uv_br.x, uv_br.y ), // bottom right
+			Vertex( -0.5f, -0.5f, 0.0f, uv_tl.x, uv_br.y ), // bottom left
 		};
 
 		sprite->vertex_buffer = m_renderer->createVertexBuffer( screen_triangle, sizeof( screen_triangle ) );

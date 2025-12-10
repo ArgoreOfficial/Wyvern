@@ -56,6 +56,15 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
 
 	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
+
+	std::vector<wv::Vertex> vertices{
+		{  0.0f, -0.5f, 0.5f, 0.0f, 0.0f },
+		{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f },
+		{ -0.5f,  0.5f, 0.5f, 0.0f, 0.0f }
+	};
+	
+	m_debugVBO = m_renderer.createVertexBuffer( vertices.data(), sizeof(wv::Vertex) * vertices.size() );
+	
 }
 
 bool wv::Application::tick()
@@ -74,15 +83,16 @@ bool wv::Application::tick()
 
 	render();
 
-
 	m_lastTicks = ticks;
 	return true;
 }
 
 void wv::Application::shutdown()
 {
+	m_renderer.destroyPipeline( m_debugPipeline );
+	m_renderer.shutdown();
+
 	m_displayDriver->shutdown();
-	
 }
 
 void wv::Application::update()
@@ -115,6 +125,14 @@ void wv::Application::render()
 
 	m_renderer.prepare( windowSize.x, windowSize.y );
 	m_renderer.clear( std::sinf( m_runtime * 10.0f ) * 0.5f + 0.5f, 0.0f, 0.0f, 1.0f );
+
+	m_renderer.bindPipeline( m_debugPipeline );
+	m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 1, wv::Matrix4x4f::identity( 1.0 ) );
+	m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 2, wv::Matrix4x4f::identity( 1.0 ) );
+	m_renderer.setVSUniformVector2f( m_debugPipeline, 3, { 0.0f, 0.0f } );
+
+	m_renderer.bindVertexBuffer( m_debugVBO );
+	m_renderer.draw( 0, 3 );
 
 	// m_sprite_renderer->drawSprites();
 
