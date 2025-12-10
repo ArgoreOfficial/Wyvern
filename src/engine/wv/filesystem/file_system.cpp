@@ -4,20 +4,8 @@
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
 
-#ifdef WV_PLATFORM_WINDOWS
-#define STB_IMAGE_IMPLEMENTATION
-#include <auxiliary/stb_image.h>
-#endif
-
-#include <fstream>
 #include <vector>
 #include <string>
-
-#ifdef WV_CPP20
-#include <locale>
-#include <codecvt>
-#include <filesystem>
-#endif
 
 #if defined( WV_PLATFORM_3DS )
 #include <unistd.h>
@@ -38,8 +26,6 @@ wv::IFileSystem::IFileSystem()
 		wv::Debug::Print( "romfs Init Successful!\n" );
 	}
 #endif
-	
-	addDirectory( "" );
 }
 
 wv::IFileSystem::~IFileSystem()
@@ -53,23 +39,22 @@ wv::IFileSystem::~IFileSystem()
 #define ERROR_PREFIX "Error:"
 #endif
 
-wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
+std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
 {
 	std::string path = getFullPath( _path );
 	if( path == "" )
-		return nullptr;
+		return {};
 
 	FileID file = openFile( path.c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
 	if( !file.is_valid() )
-		return nullptr;
+		return {};
 
 	uint64_t size = getFileSize( file );
 
-	Memory* mem = WV_NEW( Memory );
-	mem->data = WV_NEW_ARR( unsigned char, size );
-	mem->size = static_cast<unsigned int>( size );
-
-	readFile( file, mem->data, size );
+	std::vector<uint8_t> mem;
+	mem.resize( size );
+	
+	readFile( file, mem.data(), size);
 	closeFile( file );
 
 	Debug::Print( "Loaded file '%s'\n", path.c_str() );
@@ -77,7 +62,7 @@ wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
 #ifdef WV_PLATFORM_PSVITA
 	if( strncmp( mem->data, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
 	{
-		wv::Debug::Print( "%s\n", mem->data );
+		wv::Debug::Print( "%s\n", mem.data() );
 		return nullptr;
 	}
 #endif
@@ -87,28 +72,15 @@ wv::Memory* wv::IFileSystem::loadMemory( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::IFileSystem::unloadMemory( Memory* _memory )
-{
-	if ( !_memory )
-		return;
-
-	WV_FREE_ARR( _memory->data );
-	*_memory = {};
-	WV_FREE( _memory );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 std::string wv::IFileSystem::loadString( const std::string& _path )
 {
-	Memory* mem = loadMemory( _path );
+	std::vector<uint8_t> mem = loadEntireFile( _path );
 
-	if ( !mem )
+	if ( mem.size() == 0 )
 		return "";
 
-	std::string str( (const char*)mem->data, mem->size );
-	unloadMemory( mem );
-    return str;
+	std::string str( (const char*)mem.data(), mem.size() );
+	return str;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -132,11 +104,11 @@ std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
 	if( fileExists( _fileName ) )
 		return _fileName;
 	
-	for ( size_t i = 0; i < m_directories.size(); i++ )
+	for ( size_t i = 0; i < m_drives.size(); i++ )
 	{
 		std::string path = "";
 		path.append( gFileSystemPathPrefix ); // defined in <target platform>.cpp
-		path.append( m_directories[ i ] );
+		path.append( m_drives[ i ] );
 		path.append( _fileName );
 
 		if( fileExists( path ) )

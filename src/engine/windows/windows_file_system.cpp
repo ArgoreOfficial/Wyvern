@@ -43,6 +43,8 @@ void wv::WindowsFileSystem::initialize()
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::FileID wv::WindowsFileSystem::openFile( const char* _path, const OpenMode& _mode )
 {
 #ifdef WV_PLATFORM_WINDOWS

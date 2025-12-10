@@ -10,58 +10,56 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv
+namespace wv {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+struct Memory
+{
+	uint8_t* data = nullptr;
+	unsigned int size = 0;
+};
+
+typedef wv::strong_type<uint64_t, struct FileID_t> FileID;
+
+enum OpenMode
+{
+	WV_OPEN_MODE_READ,
+	WV_OPEN_MODE_WRITE,
+	WV_OPEN_MODE_READWRITE,
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+class IFileSystem
 {
 
-///////////////////////////////////////////////////////////////////////////////////////
+public:
+	IFileSystem();
+	~IFileSystem();
 
-	struct Memory
-	{
-		uint8_t* data = nullptr;
-		unsigned int size = 0;
-	};
+	void mount( const std::string& _name ) { 
+		m_drives.push_back( _name + "/" );
+	}
 
-	typedef wv::strong_type<uint64_t, struct FileID_t> FileID;
+	std::vector<uint8_t> loadEntireFile( const std::string& _path );
+	std::string loadString( const std::string& _path );
 
-	enum OpenMode
-	{
-		WV_OPEN_MODE_READ,
-		WV_OPEN_MODE_WRITE,
-		WV_OPEN_MODE_READWRITE,
-	};
+	bool fileExists( const std::string& _path );
+	std::string getFullPath( const std::string& _fileName );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class IFileSystem
-	{
+	virtual void initialize() = 0;
 
-	public:
-		 IFileSystem();
-		~IFileSystem();
+	virtual FileID   openFile( const char* _path, const OpenMode& _mode ) = 0;
+	virtual uint64_t getFileSize( FileID& _file ) = 0;
+	virtual int      readFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+	virtual void     writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+	virtual void     closeFile( FileID& _file ) = 0;
 
-		void addDirectory( const std::string& _dir ) { m_directories.push_back( _dir ); }
-
-		// why does this return a heap allocated pointer?
-		// Memory.data is already heap allocated
-		Memory* loadMemory( const std::string& _path );
-		void unloadMemory( Memory* _memory );
-
-		std::string loadString( const std::string& _path );
-		bool fileExists( const std::string& _path );
-		std::string getFullPath( const std::string& _fileName );
-		
-///////////////////////////////////////////////////////////////////////////////////////
-
-		virtual void initialize() = 0;
-
-		virtual FileID   openFile( const char* _path, const OpenMode& _mode ) = 0;
-		virtual uint64_t getFileSize( FileID& _file ) = 0;
-		virtual int      readFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
-		virtual void     writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
-		virtual void     closeFile( FileID& _file ) = 0;
-
-	private:
-		std::vector<std::string> m_directories;
-	};
+private:
+	std::vector<std::string> m_drives;
+};
 
 }

@@ -39,7 +39,7 @@ private:
 	void update();
 	void render();
 
-	std::string m_graphicsDriverName = "None";
+	std::string m_graphicsDriverName = "opengl";
 
 	bool m_alive = true;
 

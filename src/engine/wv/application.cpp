@@ -4,7 +4,8 @@
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 
-#include <windows/windows_file_system.h>
+#include <wv/platform/platform.h>
+#include <wv/filesystem/file_system.h>
 
 #ifdef WV_SUPPORT_SDL2
 #include <sdl/display_driver_sdl.h>
@@ -46,9 +47,9 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_camera->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	m_camera->setOrthoWidth( 6.0f );
 
-	m_filesystem = new WindowsFileSystem();
-	m_filesystem->addDirectory( "./dat/" );
-
+	m_filesystem = Platform::createFileSystem();
+	m_filesystem->mount( "data" );
+	
 	///////////////////////////////////////////////////////////////////////////
 
 	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
