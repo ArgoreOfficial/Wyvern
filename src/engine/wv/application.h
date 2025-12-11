@@ -9,11 +9,6 @@ namespace wv {
 class IFileSystem;
 class DisplayDriver;
 
-struct VertexData
-{
-	wv::Vector3f position;
-};
-
 class Application 
 {
 public:
@@ -58,7 +53,7 @@ private:
 	wv::OpenGLRenderer m_renderer;
 
 	wv::ResourceID m_debugPipeline;
-	wv::ResourceID m_debugVBO;
+	wv::ResourceID m_debugRenderMesh;
 
 	wv::ICamera* m_camera = nullptr;
 };

@@ -61,13 +61,17 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
 	if ( m_debugPipeline.is_valid() )
 	{
-		std::vector<wv::Vertex> vertices{
-			{  0.0f, -0.5f, 0.5f, 0.0f, 0.0f },
-			{  0.5f,  0.5f, 0.5f, 0.0f, 0.0f },
-			{ -0.5f,  0.5f, 0.5f, 0.0f, 0.0f }
-		};
-	
-		m_debugVBO = m_renderer.createVertexBuffer( vertices.data(), sizeof(wv::Vertex) * vertices.size() );
+		wv::MeshSurface surface;
+		surface.addPosition( {  0.0f, -0.5f, 0.5f } );
+		surface.addData( {}, { 1.0f, 0.0f, 0.0f } );
+
+		surface.addPosition( {  0.5f,  0.5f, 0.5f } );
+		surface.addData( {}, { 0.0f, 1.0f, 0.0f } );
+		
+		surface.addPosition( { -0.5f,  0.5f, 0.5f } );
+		surface.addData( {}, { 0.0f, 0.0f, 1.0f } );
+		
+		m_debugRenderMesh = m_renderer.createRenderMesh( surface );
 	}
 	
 }
@@ -95,6 +99,7 @@ bool wv::Application::tick()
 void wv::Application::shutdown()
 {
 	m_renderer.destroyPipeline( m_debugPipeline );
+	m_renderer.destroyRenderMesh( m_debugRenderMesh );
 	m_renderer.shutdown();
 
 	m_displayDriver->shutdown();
@@ -131,15 +136,14 @@ void wv::Application::render()
 	m_renderer.prepare( windowSize.x, windowSize.y );
 	m_renderer.clear( std::sinf( m_runtime * 10.0f ) * 0.5f + 0.5f, 0.0f, 0.0f, 1.0f );
 
-	if ( m_debugPipeline.is_valid() && m_debugVBO.is_valid() )
+	if ( m_debugPipeline.is_valid() && m_debugRenderMesh.is_valid() )
 	{
 		m_renderer.bindPipeline( m_debugPipeline );
-		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 1, wv::Matrix4x4f::identity( 1.0 ) );
 		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 2, wv::Matrix4x4f::identity( 1.0 ) );
-		m_renderer.setVSUniformVector2f( m_debugPipeline, 3, { 0.0f, 0.0f } );
-
-		m_renderer.bindVertexBuffer( m_debugVBO );
-		m_renderer.draw( 0, 3 );
+		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 3, wv::Matrix4x4f::identity( 1.0 ) );
+		m_renderer.setVSUniformVector2f( m_debugPipeline, 4, { 0.0f, 0.0f } );
+	
+		m_renderer.drawRenderMesh( m_debugRenderMesh );
 	}
 
 	// m_sprite_renderer->drawSprites();

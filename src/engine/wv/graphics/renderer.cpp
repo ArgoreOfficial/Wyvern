@@ -132,6 +132,47 @@ void wv::OpenGLRenderer::draw( int _first, uint32_t _count )
 	glDrawArrays( GL_TRIANGLES, _first, _count );
 }
 
+wv::ResourceID wv::OpenGLRenderer::createRenderMesh( const MeshSurface& _meshSurface )
+{
+	GLRenderMesh mesh{};
+
+	mesh.numVertices = _meshSurface.positions.size();
+	mesh.positionBuffer   = createStorageBuffer( (void*)_meshSurface.positions.data(), sizeof( wv::Vector3f ) * _meshSurface.positions.size() );
+	
+	if ( mesh.positionBuffer.storage_buffer_handle == 0 )
+		return wv::ResourceID::InvalidID;
+
+	mesh.vertexDataBuffer = createStorageBuffer( (void*)_meshSurface.datas.data(), sizeof( VertexData ) * _meshSurface.datas.size() );
+
+	if ( mesh.vertexDataBuffer.storage_buffer_handle == 0 )
+		return wv::ResourceID::InvalidID;
+
+	return m_renderMeshes.emplace( mesh );
+}
+
+void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
+{
+	if ( !_handle.is_valid() )
+		return;
+
+	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
+	destroyStorageBuffer( mesh.positionBuffer );
+	destroyStorageBuffer( mesh.vertexDataBuffer );
+	m_renderMeshes.erase( _handle );
+}
+
+void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle )
+{
+	if ( !_handle.is_valid() )
+		return;
+
+	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
+	bindStorageBufferToSlot( mesh.positionBuffer, 0 );
+	bindStorageBufferToSlot( mesh.vertexDataBuffer, 1 );
+
+	draw( 0, mesh.numVertices );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const char* _frag_src )
@@ -174,6 +215,11 @@ wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const 
 	{
 		glGetProgramInfoLog( pipeline.pipeline_handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n%s\n", infoLog );
+
+		ResourceID handle = m_pipelines.emplace( pipeline );
+		destroyPipeline( handle ); // hack
+
+		return ResourceID::InvalidID;
 	}
 
 	return m_pipelines.emplace( pipeline );
@@ -224,9 +270,9 @@ void wv::OpenGLRenderer::bindPipeline( ResourceID _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ResourceID wv::OpenGLRenderer::createVertexBuffer( Vertex* _data, size_t _data_size )
+wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t _data_size )
 {
-	GLVertexBuffer vbuffer{};
+	GLStorageBuffer vbuffer{};
 	
 	GL_ASSERT( glGenBuffers, 1, &vbuffer.storage_buffer_handle );
 	GL_ASSERT( glBindBuffer, GL_SHADER_STORAGE_BUFFER, vbuffer.storage_buffer_handle );
@@ -236,25 +282,21 @@ wv::ResourceID wv::OpenGLRenderer::createVertexBuffer( Vertex* _data, size_t _da
 
 	glBindBuffer( GL_SHADER_STORAGE_BUFFER, 0 );
 
-	return m_vertex_buffers.emplace( vbuffer );
+	return vbuffer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::destroyVertexBuffer( ResourceID _handle )
+void wv::OpenGLRenderer::destroyStorageBuffer( const GLStorageBuffer& _buffer )
 {
-	GLVertexBuffer& vbuffer = m_vertex_buffers[ _handle ];
-	glDeleteBuffers( 1, &vbuffer.storage_buffer_handle );
-
-	m_vertex_buffers.erase( _handle );
+	glDeleteBuffers( 1, &_buffer.storage_buffer_handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::bindVertexBuffer( ResourceID _handle )
+void wv::OpenGLRenderer::bindStorageBufferToSlot( const GLStorageBuffer& _buffer, int _slot )
 {
-	GLVertexBuffer& vbuffer = m_vertex_buffers[ _handle ];
-	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, vbuffer.storage_buffer_handle );
+	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _slot, _buffer.storage_buffer_handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

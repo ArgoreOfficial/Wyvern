@@ -32,7 +32,7 @@ void wv::Sprite::create( OpenGLRenderer& _renderer, const std::string& _texture_
 
 void wv::Sprite::destroy( OpenGLRenderer& _renderer )
 {
-	_renderer.destroyVertexBuffer( vertex_buffer );
+	//_renderer.destroyVertexBuffer( vertex_buffer );
 	_renderer.destroyPipeline( shader_pipeline );
 	_renderer.destroyTexture( texture );
 }
@@ -167,7 +167,7 @@ wv::Sprite* wv::SpriteRenderer::createSpriteFromTexture( ResourceID _texture, co
 			Vertex( -0.5f, -0.5f, 0.0f, uv_tl.x, uv_br.y ), // bottom left
 		};
 
-		sprite->vertex_buffer = m_renderer->createVertexBuffer( screen_triangle, sizeof( screen_triangle ) );
+		//sprite->vertex_buffer = m_renderer->createVertexBuffer( screen_triangle, sizeof( screen_triangle ) );
 
 	}
 
@@ -221,7 +221,7 @@ void wv::SpriteRenderer::drawSprites( wv::ICamera* _camera )
 		m_renderer->setVSUniformVector2f( s->shader_pipeline, 3, s->uv_offset );
 
 		m_renderer->bindTexture( s->texture, 0 );
-		m_renderer->bindVertexBuffer( s->vertex_buffer );
+		//m_renderer->bindStorageBufferToSlot( s->vertex_buffer );
 
 		m_renderer->draw( 0, 6 );
 

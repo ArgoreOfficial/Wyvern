@@ -20,7 +20,7 @@ struct Vertex
 
 };
 
-struct GLVertexBuffer
+struct GLStorageBuffer
 {
 	wv::GLHandle storage_buffer_handle = 0;
 	size_t size = 0;
