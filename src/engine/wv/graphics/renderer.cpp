@@ -24,20 +24,8 @@ _func( __VA_ARGS__ )
 
 void APIENTRY debugMessageCallback( GLenum _source, GLenum _type, GLuint _id, GLenum _severity, GLsizei _length, const GLchar* _msg, const void* _data )
 {
-	const char* source;
 	const char* type;
 	const char* severity;
-
-	switch ( _source )
-	{
-	case GL_DEBUG_SOURCE_API:             source = "API"; break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   source = "WINDOW SYSTEM"; break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER: source = "SHADER COMPILER"; break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:     source = "THIRD PARTY"; break;
-	case GL_DEBUG_SOURCE_APPLICATION:     source = "APPLICATION"; break;
-	case GL_DEBUG_SOURCE_OTHER:           source = "UNKNOWN"; break;
-	default: source = "UNKNOWN"; break;
-	}
 
 	switch ( _type )
 	{
@@ -59,8 +47,29 @@ void APIENTRY debugMessageCallback( GLenum _source, GLenum _type, GLuint _id, GL
 	case GL_DEBUG_SEVERITY_NOTIFICATION: severity = "NOTIFICATION"; break;
 	default: severity = "UNKNOWN"; break;
 	}
+	
+	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_DEBUG;
+	
+	if ( _type == GL_DEBUG_TYPE_ERROR )
+		level = wv::Debug::WV_PRINT_ERROR;
+	else if( _type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR )
+		level = wv::Debug::WV_PRINT_FATAL;
+	else
+	{
+		switch ( _severity )
+		{
+		case GL_DEBUG_SEVERITY_HIGH:         level = wv::Debug::WV_PRINT_WARN; break;
+		case GL_DEBUG_SEVERITY_MEDIUM:       level = wv::Debug::WV_PRINT_WARN; break;
+		case GL_DEBUG_SEVERITY_LOW:          level = wv::Debug::WV_PRINT_WARN; break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: level = wv::Debug::WV_PRINT_DEBUG; break;
+		//default: severity = "UNKNOWN"; break;
+		}
+	}
 
-	printf( "[GLCALLBACK] %s\n  ID: %d\n  Severity: %s\n  Source: %s\n  Msg:\n    %s\n", type, _id, severity, source, _msg );
+	wv::Debug::Print( level, "%s\n", _msg );
+
+	//if ( _severity != GL_DEBUG_SEVERITY_NOTIFICATION && _severity != GL_DEBUG_SEVERITY_LOW )
+	//	printf( "[GLCALLBACK] %s\n  ID: %d\n  Severity: %s\n  Source: %s\n  Msg:\n    %s\n", type, _id, severity, source, _msg );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
