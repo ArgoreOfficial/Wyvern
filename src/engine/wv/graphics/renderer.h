@@ -21,6 +21,17 @@ struct GLRenderMesh
 	bool hasExtraVertexData = false;
 };
 
+struct SceneData
+{
+	wv::Matrix4x4f viewProj;
+};
+
+struct RenderView
+{
+	SceneData sceneData;
+	std::vector<ResourceID> renderMeshes;
+};
+
 class OpenGLRenderer
 {
 public:
@@ -37,6 +48,8 @@ public:
 	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
 	void destroyRenderMesh( ResourceID _handle );
 	void drawRenderMesh( ResourceID _handle, bool _useExtraData = true );
+
+	void drawRenderView( const RenderView& _renderView );
 
 	ResourceID createPipeline( const char* _vert_src, const char* _frag_src );
 	void destroyPipeline( ResourceID _handle );
@@ -67,6 +80,12 @@ private:
 	wv::unordered_array<ResourceID, GLRenderMesh> m_renderMeshes;
 	
 	GLuint m_empty_vao = 0;
+	GLuint m_uboSceneDataBlock = 0;
+	
+	const GLuint m_sceneDataBindPoint  = 0;
+	const GLuint m_objectDataBindPoint = 1;
+
+
 };
 
 

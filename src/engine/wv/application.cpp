@@ -74,6 +74,8 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 
 	m_debugRenderMesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
 	
+	m_renderView.renderMeshes.push_back( m_debugRenderMesh );
+	m_renderView.sceneData.viewProj = wv::Matrix4x4f::identity( 1.0 );
 }
 
 bool wv::Application::tick()
@@ -138,12 +140,11 @@ void wv::Application::render()
 
 	if ( m_debugPipeline.is_valid() && m_debugRenderMesh.is_valid() )
 	{
+		// TODO
 		m_renderer.bindPipeline( m_debugPipeline );
-		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 2, wv::Matrix4x4f::identity( 1.0 ) );
 		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 3, wv::Matrix4x4f::identity( 1.0 ) );
-		m_renderer.setVSUniformVector2f( m_debugPipeline, 4, { 0.0f, 0.0f } );
-	
-		m_renderer.drawRenderMesh( m_debugRenderMesh );
+
+		m_renderer.drawRenderView( m_renderView );
 	}
 
 	// m_sprite_renderer->drawSprites();

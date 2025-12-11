@@ -102,6 +102,14 @@ bool wv::OpenGLRenderer::setup()
 	GL_ASSERT( glEnable, GL_DEPTH_TEST );
 	GL_ASSERT( glDepthFunc, GL_LESS );
 
+	// shader blocks
+	glGenBuffers( 1, &m_uboSceneDataBlock );
+	glBindBuffer( GL_UNIFORM_BUFFER, m_uboSceneDataBlock );
+	glBufferData( GL_UNIFORM_BUFFER, sizeof( SceneData ), NULL, GL_STATIC_DRAW );
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+	
+	glBindBufferBase( GL_UNIFORM_BUFFER, 0, m_uboSceneDataBlock );
+
 	return true;
 }
 
@@ -141,6 +149,8 @@ void wv::OpenGLRenderer::draw( int _first, uint32_t _count )
 	glDrawArrays( GL_TRIANGLES, _first, _count );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData, size_t _sizeExtraVertexData )
 {
 	GLRenderMesh mesh{};
@@ -163,6 +173,8 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 	return m_renderMeshes.emplace( mesh );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 {
 	if ( !_handle.is_valid() )
@@ -177,6 +189,8 @@ void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 	m_renderMeshes.erase( _handle );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData )
 {
 	if ( !_handle.is_valid() )
@@ -189,6 +203,18 @@ void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData 
 		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
 
 	draw( 0, mesh.numVertices );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
+{
+
+	glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
+
+	for ( size_t i = 0; i < _renderView.renderMeshes.size(); i++ )
+		drawRenderMesh( _renderView.renderMeshes[ i ] );
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -239,6 +265,12 @@ wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const 
 
 		return ResourceID::InvalidID;
 	}
+
+	// bind shader indices
+	unsigned int ubo_sceneData = glGetUniformBlockIndex( pipeline.pipeline_handle, "ubo_sceneData" );
+	//unsigned int ubo_objectData = glGetUniformBlockIndex( pipeline.pipeline_handle, "ubo_objectData" );
+	glUniformBlockBinding( pipeline.pipeline_handle, ubo_sceneData,  m_sceneDataBindPoint );
+	//glUniformBlockBinding( pipeline.pipeline_handle, ubo_objectData, m_objectDataBindPoint );
 
 	return m_pipelines.emplace( pipeline );
 }

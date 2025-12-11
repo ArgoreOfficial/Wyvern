@@ -63,6 +63,9 @@ private:
 	wv::ResourceID m_debugRenderMesh;
 
 	wv::ICamera* m_camera = nullptr;
+
+	wv::RenderView m_renderView;
+
 };
 
 }
