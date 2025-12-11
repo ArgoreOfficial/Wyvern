@@ -61,17 +61,19 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
 	if ( m_debugPipeline.is_valid() )
 	{
-		wv::MeshSurface surface;
-		surface.addPosition( {  0.0f, -0.5f, 0.5f } );
-		surface.addData( {}, { 1.0f, 0.0f, 0.0f } );
+		std::vector<wv::Vector3f> positions = {
+			{  0.0f, -0.5f, 0.5f },
+			{  0.5f,  0.5f, 0.5f },
+			{ -0.5f,  0.5f, 0.5f }
+		};
 
-		surface.addPosition( {  0.5f,  0.5f, 0.5f } );
-		surface.addData( {}, { 0.0f, 1.0f, 0.0f } );
-		
-		surface.addPosition( { -0.5f,  0.5f, 0.5f } );
-		surface.addData( {}, { 0.0f, 0.0f, 1.0f } );
-		
-		m_debugRenderMesh = m_renderer.createRenderMesh( surface );
+		std::vector<wv::VertexData> datas = {
+			{ {}, { 1.0f, 0.0f, 0.0f } },
+			{ {}, { 0.0f, 1.0f, 0.0f } },
+			{ {}, { 0.0f, 0.0f, 1.0f } }
+		};
+
+		m_debugRenderMesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
 	}
 	
 }

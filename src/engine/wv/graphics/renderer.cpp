@@ -132,20 +132,24 @@ void wv::OpenGLRenderer::draw( int _first, uint32_t _count )
 	glDrawArrays( GL_TRIANGLES, _first, _count );
 }
 
-wv::ResourceID wv::OpenGLRenderer::createRenderMesh( const MeshSurface& _meshSurface )
+wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData, size_t _sizeExtraVertexData )
 {
 	GLRenderMesh mesh{};
 
-	mesh.numVertices = _meshSurface.positions.size();
-	mesh.positionBuffer   = createStorageBuffer( (void*)_meshSurface.positions.data(), sizeof( wv::Vector3f ) * _meshSurface.positions.size() );
+	mesh.numVertices = _numPositions;
+	mesh.positionBuffer = createStorageBuffer( (void*)_positions, sizeof( wv::Vector3f ) * _numPositions );
 	
 	if ( mesh.positionBuffer.storage_buffer_handle == 0 )
 		return wv::ResourceID::InvalidID;
 
-	mesh.vertexDataBuffer = createStorageBuffer( (void*)_meshSurface.datas.data(), sizeof( VertexData ) * _meshSurface.datas.size() );
+	if ( _extraVertexData )
+	{
+		mesh.hasExtraVertexData = true;
+		mesh.extraVertexDataBuffer = createStorageBuffer( _extraVertexData, _sizeExtraVertexData );
 
-	if ( mesh.vertexDataBuffer.storage_buffer_handle == 0 )
-		return wv::ResourceID::InvalidID;
+		if ( mesh.extraVertexDataBuffer.storage_buffer_handle == 0 )
+			return wv::ResourceID::InvalidID;
+	}
 
 	return m_renderMeshes.emplace( mesh );
 }
@@ -157,7 +161,10 @@ void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 
 	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
 	destroyStorageBuffer( mesh.positionBuffer );
-	destroyStorageBuffer( mesh.vertexDataBuffer );
+	
+	if( mesh.hasExtraVertexData )
+		destroyStorageBuffer( mesh.extraVertexDataBuffer );
+
 	m_renderMeshes.erase( _handle );
 }
 
@@ -168,7 +175,9 @@ void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle )
 
 	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
 	bindStorageBufferToSlot( mesh.positionBuffer, 0 );
-	bindStorageBufferToSlot( mesh.vertexDataBuffer, 1 );
+
+	if( mesh.hasExtraVertexData )
+		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
 
 	draw( 0, mesh.numVertices );
 }

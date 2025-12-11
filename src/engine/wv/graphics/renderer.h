@@ -20,35 +20,12 @@ struct VertexData
 	wv::Vector2f texCoord;
 };
 
-struct MeshSurface
-{
-	std::vector<wv::Vector3f> positions;
-	std::vector<wv::VertexData> datas;
-
-	void addPosition( const wv::Vector3f& _position ) {
-		if ( positions.size() != datas.size() )
-			datas.push_back( {} );
-
-		positions.push_back( _position );
-	}
-
-	void addData( const wv::Vector3f& _normal = {}, const wv::Vector3f& _color = {}, const wv::Vector2f& _texcoord = {} ) {
-		if ( positions.size() - 1 != datas.size() )
-			return;
-
-		VertexData data;
-		data.normal   = _normal;
-		data.color    = _color;
-		data.texCoord = _texcoord;
-		datas.push_back( data );
-	}
-};
-
 struct GLRenderMesh
 {
 	GLStorageBuffer positionBuffer;
-	GLStorageBuffer vertexDataBuffer;
-	size_t numVertices;
+	GLStorageBuffer extraVertexDataBuffer;
+	size_t numVertices = 0;
+	bool hasExtraVertexData = false;
 };
 
 class OpenGLRenderer
@@ -64,7 +41,7 @@ public:
 
 	void draw( int _first, uint32_t _count );
 
-	ResourceID createRenderMesh( const MeshSurface& _meshSurface );
+	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
 	void destroyRenderMesh( ResourceID _handle );
 	void drawRenderMesh( ResourceID _handle );
 
