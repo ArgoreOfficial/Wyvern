@@ -13,13 +13,6 @@
 
 namespace wv {
 
-struct VertexData
-{
-	wv::Vector3f normal;
-	wv::Vector3f color;
-	wv::Vector2f texCoord;
-};
-
 struct GLRenderMesh
 {
 	GLStorageBuffer positionBuffer;
@@ -43,7 +36,7 @@ public:
 
 	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
 	void destroyRenderMesh( ResourceID _handle );
-	void drawRenderMesh( ResourceID _handle );
+	void drawRenderMesh( ResourceID _handle, bool _useExtraData = true );
 
 	ResourceID createPipeline( const char* _vert_src, const char* _frag_src );
 	void destroyPipeline( ResourceID _handle );

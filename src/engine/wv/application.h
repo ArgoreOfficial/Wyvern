@@ -9,6 +9,13 @@ namespace wv {
 class IFileSystem;
 class DisplayDriver;
 
+struct VertexData
+{
+	wv::Vector3f normal;
+	wv::Vector3f color;
+	wv::Vector2f texCoord;
+};
+
 class Application 
 {
 public:

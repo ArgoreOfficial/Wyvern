@@ -168,7 +168,7 @@ void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 	m_renderMeshes.erase( _handle );
 }
 
-void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle )
+void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData )
 {
 	if ( !_handle.is_valid() )
 		return;
@@ -176,7 +176,7 @@ void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle )
 	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
 	bindStorageBufferToSlot( mesh.positionBuffer, 0 );
 
-	if( mesh.hasExtraVertexData )
+	if( _useExtraData && mesh.hasExtraVertexData )
 		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
 
 	draw( 0, mesh.numVertices );

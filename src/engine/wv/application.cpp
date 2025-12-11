@@ -53,28 +53,26 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_camera->setOrthoWidth( 6.0f );
 
 	///////////////////////////////////////////////////////////////////////////
-	// Set up shader stuff (testing)
+	// Set up mesh stuff (testing)
 
 	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
 
 	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
-	if ( m_debugPipeline.is_valid() )
-	{
-		std::vector<wv::Vector3f> positions = {
-			{  0.0f, -0.5f, 0.5f },
-			{  0.5f,  0.5f, 0.5f },
-			{ -0.5f,  0.5f, 0.5f }
-		};
+	
+	std::vector<wv::Vector3f> positions = {
+		{  0.0f,  0.5f, 0.5f },
+		{  0.5f, -0.5f, 0.5f },
+		{ -0.5f, -0.5f, 0.5f }
+	};
 
-		std::vector<wv::VertexData> datas = {
-			{ {}, { 1.0f, 0.0f, 0.0f } },
-			{ {}, { 0.0f, 1.0f, 0.0f } },
-			{ {}, { 0.0f, 0.0f, 1.0f } }
-		};
+	std::vector<wv::VertexData> datas = {
+		{ {}, { 1.0f, 0.0f, 0.0f } },
+		{ {}, { 0.0f, 1.0f, 0.0f } },
+		{ {}, { 0.0f, 0.0f, 1.0f } }
+	};
 
-		m_debugRenderMesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
-	}
+	m_debugRenderMesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
 	
 }
 
