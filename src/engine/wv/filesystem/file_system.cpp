@@ -44,7 +44,7 @@ std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
 	std::string path = getFullPath( _path );
 	if ( path == "" )
 	{
-		WV_LOG_ERROR( "File '%s' does not exist", _path.c_str() );
+		WV_LOG_ERROR( "File '%s' does not exist\n", _path.c_str() );
 		return {};
 	}
 
