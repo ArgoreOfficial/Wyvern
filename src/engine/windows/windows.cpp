@@ -3,14 +3,10 @@
 
 #include <windows/windows_file_system.h>
 
-#ifdef WV_PACKAGE
-const char* wv::gFileSystemPathPrefix = "./";
-#else
-const char* wv::gFileSystemPathPrefix = "../../";
-#endif
-
-wv::IFileSystem* wv::Platform::createFileSystem() {
-	return new WindowsFileSystem();
+wv::IFileSystem* wv::Platform::createFileSystem( const std::string& _mountedName ) {
+	wv::WindowsFileSystem* fs = new WindowsFileSystem();
+	fs->mount( _mountedName );
+	return fs;
 }
 
 #endif

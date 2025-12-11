@@ -38,10 +38,6 @@ public:
 	IFileSystem();
 	~IFileSystem();
 
-	void mount( const std::string& _name ) { 
-		m_drives.push_back( _name + "/" );
-	}
-
 	std::vector<uint8_t> loadEntireFile( const std::string& _path );
 	std::string loadString( const std::string& _path );
 
@@ -52,14 +48,18 @@ public:
 
 	virtual void initialize() = 0;
 
-	virtual FileID   openFile( const char* _path, const OpenMode& _mode ) = 0;
+	virtual void mount( const std::string& _name ) = 0;
+	
 	virtual uint64_t getFileSize( FileID& _file ) = 0;
-	virtual int      readFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
-	virtual void     writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
-	virtual void     closeFile( FileID& _file ) = 0;
 
-private:
-	std::vector<std::string> m_drives;
+	virtual FileID openFile ( const char* _path, const OpenMode& _mode ) = 0;
+	virtual int    readFile ( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+	virtual void   writeFile( FileID& _file, uint8_t* _buffer, const size_t& _size ) = 0;
+	virtual void   closeFile( FileID& _file ) = 0;
+
+protected:
+	std::string m_mounted = "";
+
 };
 
 }

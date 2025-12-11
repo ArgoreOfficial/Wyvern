@@ -41,16 +41,19 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	if ( !m_renderer.setup() )
 		return false;
 
+	m_filesystem = Platform::createFileSystem( "data" );
+
+	///////////////////////////////////////////////////////////////////////////
+	// Set up camera
+
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
 	m_camera = new wv::ICamera( wv::ICamera::kOrthographic, windowSize.x, windowSize.y );
 	m_camera->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	m_camera->setOrthoWidth( 6.0f );
 
-	m_filesystem = Platform::createFileSystem();
-	m_filesystem->mount( "data" );
-	
 	///////////////////////////////////////////////////////////////////////////
+	// Set up shader stuff (testing)
 
 	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );

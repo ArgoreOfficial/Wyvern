@@ -1,14 +1,14 @@
 #pragma once
 
+#include <string>
+
 namespace wv {
 
 class IFileSystem;
 
-extern const char* gFileSystemPathPrefix;
-
 namespace Platform {
 
-IFileSystem* createFileSystem();
+IFileSystem* createFileSystem( const std::string& _mountedName );
 
 }
 

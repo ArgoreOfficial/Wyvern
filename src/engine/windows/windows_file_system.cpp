@@ -43,6 +43,15 @@ void wv::WindowsFileSystem::initialize()
 
 }
 
+void wv::WindowsFileSystem::mount( const std::string& _name )
+{
+#ifdef WV_PACKAGE
+	m_mounted = "./" + _name + "/";
+#else
+	m_mounted = "../../" + _name + "/";
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::FileID wv::WindowsFileSystem::openFile( const char* _path, const OpenMode& _mode )

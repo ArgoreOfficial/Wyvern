@@ -42,8 +42,11 @@ wv::IFileSystem::~IFileSystem()
 std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
 {
 	std::string path = getFullPath( _path );
-	if( path == "" )
+	if ( path == "" )
+	{
+		WV_LOG_ERROR( "File '%s' does not exist", _path.c_str() );
 		return {};
+	}
 
 	FileID file = openFile( path.c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
 	if( !file.is_valid() )
@@ -104,16 +107,9 @@ std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
 	if( fileExists( _fileName ) )
 		return _fileName;
 	
-	for ( size_t i = 0; i < m_drives.size(); i++ )
-	{
-		std::string path = "";
-		path.append( gFileSystemPathPrefix ); // defined in <target platform>.cpp
-		path.append( m_drives[ i ] );
-		path.append( _fileName );
-
-		if( fileExists( path ) )
-			return path;
-	}
+	std::string path = m_mounted + _fileName;
+	if( fileExists( path ) )
+		return path;
 
 	return "";
 }
