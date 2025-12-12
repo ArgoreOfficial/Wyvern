@@ -223,7 +223,7 @@ void wv::SpriteRenderer::drawSprites( wv::ICamera* _camera )
 		m_renderer->bindTexture( s->texture, 0 );
 		//m_renderer->bindStorageBufferToSlot( s->vertex_buffer );
 
-		m_renderer->draw( 0, 6 );
+		//m_renderer->draw( 0, 6 );
 
 		s->transform.setScale( scale );
 	}

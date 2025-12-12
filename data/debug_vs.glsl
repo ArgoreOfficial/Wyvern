@@ -15,7 +15,11 @@ layout (binding = 2, std140) uniform ubo_sceneData
     mat4 u_viewProjMatrix;
 };
 
-layout(location = 3) uniform mat4 u_modelMatrix;
+layout (binding = 3, std140) uniform ubo_materialData
+{
+	mat4 u_modelMatrix;
+};
+
 
 vec3 getPosition(int _idx) {
 	return vec3(

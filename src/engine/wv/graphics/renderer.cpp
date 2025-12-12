@@ -78,12 +78,11 @@ bool wv::OpenGLRenderer::setup()
 {
 	if ( gladLoadGL() == 0 )
 	{
-		printf( "Failed to load OpenGL.\n" );
+		wv::Debug::Print( wv::Debug::WV_PRINT_FATAL, "Failed to load OpenGL.\n" );
 		return false;
 	}
 	
-	printf( "Loaded Graphics Device\n" );
-	printf( "  %s\n", glGetString( GL_VERSION ) );
+	wv::Debug::Print( "OpenGL Loaded. %s\n", glGetString( GL_VERSION ) );
 	
 	// debug output
 	if ( glDebugMessageCallback != nullptr )
@@ -108,7 +107,7 @@ bool wv::OpenGLRenderer::setup()
 	glBufferData( GL_UNIFORM_BUFFER, sizeof( SceneData ), NULL, GL_STATIC_DRAW );
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 	
-	glBindBufferBase( GL_UNIFORM_BUFFER, 0, m_uboSceneDataBlock );
+	glBindBufferBase( GL_UNIFORM_BUFFER, m_sceneDataBindPoint, m_uboSceneDataBlock );
 
 	return true;
 }
@@ -142,11 +141,63 @@ void wv::OpenGLRenderer::clear( float _r, float _g, float _b, float _a )
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::draw( int _first, uint32_t _count )
+wv::ResourceID wv::OpenGLRenderer::createMaterial()
 {
-	glDrawArrays( GL_TRIANGLES, _first, _count );
+	GLRenderMaterial material{};
+	material.shaderProgram = glCreateProgram();
+
+	return m_renderMaterials.emplace( material );
+}
+
+void wv::OpenGLRenderer::destroyMaterial( ResourceID _handle )
+{
+	GLRenderMaterial& material = m_renderMaterials.at( _handle );
+	
+	// TODO
+
+	m_renderMaterials.erase( _handle );
+}
+
+void wv::OpenGLRenderer::setMaterialVertexShader( ResourceID _handle, const char* _src )
+{
+	GLRenderMaterial& material = m_renderMaterials.at( _handle );
+	material.vertModule = compileShaderModule( _src, GL_VERTEX_SHADER );
+
+}
+
+void wv::OpenGLRenderer::setMaterialFragmentShader( ResourceID _handle, const char* _src )
+{
+	GLRenderMaterial& material = m_renderMaterials.at( _handle );
+	material.fragModule = compileShaderModule( _src, GL_FRAGMENT_SHADER );
+}
+
+void wv::OpenGLRenderer::finalizeMaterial( ResourceID _handle )
+{
+	GLRenderMaterial& material = m_renderMaterials.at( _handle );
+
+	if ( material.vertModule != 0 ) glAttachShader( material.shaderProgram, material.vertModule );
+	if ( material.fragModule != 0 ) glAttachShader( material.shaderProgram, material.fragModule );
+
+	glLinkProgram( material.shaderProgram );
+
+	int success = 0;
+	char infoLog[ 512 ];
+	glGetProgramiv( material.shaderProgram, GL_LINK_STATUS, &success );
+	if ( !success )
+	{
+		glGetProgramInfoLog( material.shaderProgram, 512, NULL, infoLog );
+		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n%s\n", infoLog );
+
+		return;
+	}
+
+	material.sceneDataSlot    = glGetUniformBlockIndex( material.shaderProgram, "ubo_sceneData" );
+	material.materialDataSlot = glGetUniformBlockIndex( material.shaderProgram, "ubo_materialData" );
+	
+	// binds shaderProgram uniform slot to block points
+	if( material.sceneDataSlot    != GL_INVALID_INDEX ) glUniformBlockBinding( material.shaderProgram, material.sceneDataSlot,    m_sceneDataBindPoint );
+	if( material.materialDataSlot != GL_INVALID_INDEX ) glUniformBlockBinding( material.shaderProgram, material.materialDataSlot, m_materialDataBindPoint );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +209,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 	mesh.numVertices = _numPositions;
 	mesh.positionBuffer = createStorageBuffer( (void*)_positions, sizeof( wv::Vector3f ) * _numPositions );
 	
-	if ( mesh.positionBuffer.storage_buffer_handle == 0 )
+	if ( mesh.positionBuffer.handle == 0 )
 		return wv::ResourceID::InvalidID;
 
 	if ( _extraVertexData )
@@ -166,7 +217,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 		mesh.hasExtraVertexData = true;
 		mesh.extraVertexDataBuffer = createStorageBuffer( _extraVertexData, _sizeExtraVertexData );
 
-		if ( mesh.extraVertexDataBuffer.storage_buffer_handle == 0 )
+		if ( mesh.extraVertexDataBuffer.handle == 0 )
 			return wv::ResourceID::InvalidID;
 	}
 
@@ -202,77 +253,121 @@ void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData 
 	if( _useExtraData && mesh.hasExtraVertexData )
 		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
 
-	draw( 0, mesh.numVertices );
+	glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle )
+{
+	wv::GLRenderMesh& mesh = m_renderMeshes.at( _meshHandle );
+	wv::GLRenderMaterial& material = m_renderMaterials.at( _materialHandle );
+	
+	mesh.material = _materialHandle;
+	mesh.materialDataBuffer.size = sizeof( MaterialData );
+
+	glGenBuffers( 1, &mesh.materialDataBuffer.handle );
+	glBindBuffer( GL_UNIFORM_BUFFER, mesh.materialDataBuffer.handle );
+	glBufferData( GL_UNIFORM_BUFFER, mesh.materialDataBuffer.size, NULL, GL_STATIC_DRAW );
+	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+	// bind uniform slot to bind point
+	glUniformBlockBinding( material.shaderProgram, material.materialDataSlot, m_materialDataBindPoint );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
 {
-
 	glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
 
-	for ( size_t i = 0; i < _renderView.renderMeshes.size(); i++ )
-		drawRenderMesh( _renderView.renderMeshes[ i ] );
-	
+	for ( auto& meshHandle : _renderView.renderMeshes )
+	{
+		if ( !meshHandle.is_valid() )
+			continue;
+
+		wv::GLRenderMesh& mesh = m_renderMeshes.at( meshHandle );
+		
+		if ( !mesh.material.is_valid() || mesh.materialDataBuffer.handle == 0 )
+			continue;
+
+		wv::GLRenderMaterial& material = m_renderMaterials.at( mesh.material );
+		
+		glUseProgram( material.shaderProgram );
+
+		// Vertex buffers
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, mesh.positionBuffer.handle );
+		if ( mesh.hasExtraVertexData )
+			glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 1, mesh.extraVertexDataBuffer.handle );
+
+		// Material buffers
+		glBindBufferBase( GL_UNIFORM_BUFFER, m_materialDataBindPoint, mesh.materialDataBuffer.handle );
+		
+		MaterialData materialDataTest{};
+		materialDataTest.model = wv::Matrix4x4f::identity( 1.0f );
+		glNamedBufferSubData( mesh.materialDataBuffer.handle, 0, sizeof( MaterialData ), &materialDataTest );
+
+		glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const char* _frag_src )
 {
-	GLShaderPipeline pipeline{};
+	GLShaderPipeline shaderProgram{};
 	
-	pipeline.vert_module_handle = compileShaderModule( _vert_src, GL_VERTEX_SHADER );
-	pipeline.frag_module_handle = compileShaderModule( _frag_src, GL_FRAGMENT_SHADER );
+	shaderProgram.vert_module_handle = compileShaderModule( _vert_src, GL_VERTEX_SHADER );
+	shaderProgram.frag_module_handle = compileShaderModule( _frag_src, GL_FRAGMENT_SHADER );
 
-	if ( pipeline.vert_module_handle == 0 || pipeline.frag_module_handle == 0 )
+	if ( shaderProgram.vert_module_handle == 0 || shaderProgram.frag_module_handle == 0 )
 		return ResourceID::InvalidID;
 	
-	pipeline.pipeline_handle = 0;
+	shaderProgram.pipeline_handle = 0;
 	
 	/*
-	GL_ASSERT(glGenProgramPipelines, 1, &pipeline.pipeline_handle );
-	GL_ASSERT(glBindProgramPipeline, pipeline.pipeline_handle );
+	GL_ASSERT(glGenProgramPipelines, 1, &shaderProgram.pipeline_handle );
+	GL_ASSERT(glBindProgramPipeline, shaderProgram.pipeline_handle );
 	
-	if ( pipeline.pipeline_handle == 0 )
+	if ( shaderProgram.pipeline_handle == 0 )
 	{
 		printf( "error: pipeline_handle is 0\n" );
 		return ResourceID::InvalidID;
 	}
 
-	glUseProgramStages( pipeline.pipeline_handle, GL_VERTEX_SHADER_BIT, pipeline.vert_module_handle );
-	glUseProgramStages( pipeline.pipeline_handle, GL_FRAGMENT_SHADER_BIT, pipeline.frag_module_handle );
+	glUseProgramStages( shaderProgram.pipeline_handle, GL_VERTEX_SHADER_BIT, shaderProgram.vert_module_handle );
+	glUseProgramStages( shaderProgram.pipeline_handle, GL_FRAGMENT_SHADER_BIT, shaderProgram.frag_module_handle );
 
 	glBindProgramPipeline( 0 );
 	*/
 
-	pipeline.pipeline_handle = glCreateProgram();
-	glAttachShader( pipeline.pipeline_handle, pipeline.vert_module_handle );
-	glAttachShader( pipeline.pipeline_handle, pipeline.frag_module_handle );
-	glLinkProgram( pipeline.pipeline_handle );
+	shaderProgram.pipeline_handle = glCreateProgram();
+	glAttachShader( shaderProgram.pipeline_handle, shaderProgram.vert_module_handle );
+	glAttachShader( shaderProgram.pipeline_handle, shaderProgram.frag_module_handle );
+	glLinkProgram( shaderProgram.pipeline_handle );
 	
 	int success = 0;
 	char infoLog[ 512 ];
-	glGetProgramiv( pipeline.pipeline_handle, GL_LINK_STATUS, &success );
+	glGetProgramiv( shaderProgram.pipeline_handle, GL_LINK_STATUS, &success );
 	if ( !success )
 	{
-		glGetProgramInfoLog( pipeline.pipeline_handle, 512, NULL, infoLog );
+		glGetProgramInfoLog( shaderProgram.pipeline_handle, 512, NULL, infoLog );
 		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n%s\n", infoLog );
 
-		ResourceID handle = m_pipelines.emplace( pipeline );
+		ResourceID handle = m_pipelines.emplace( shaderProgram );
 		destroyPipeline( handle ); // hack
 
 		return ResourceID::InvalidID;
 	}
 
 	// bind shader indices
-	unsigned int ubo_sceneData = glGetUniformBlockIndex( pipeline.pipeline_handle, "ubo_sceneData" );
-	//unsigned int ubo_objectData = glGetUniformBlockIndex( pipeline.pipeline_handle, "ubo_objectData" );
-	glUniformBlockBinding( pipeline.pipeline_handle, ubo_sceneData,  m_sceneDataBindPoint );
-	//glUniformBlockBinding( pipeline.pipeline_handle, ubo_objectData, m_objectDataBindPoint );
+	unsigned int ubo_sceneData = glGetUniformBlockIndex( shaderProgram.pipeline_handle, "ubo_sceneData" );
+	//unsigned int ubo_objectData = glGetUniformBlockIndex( shaderProgram.pipeline_handle, "ubo_objectData" );
+	glUniformBlockBinding( shaderProgram.pipeline_handle, ubo_sceneData,  m_sceneDataBindPoint );
+	//glUniformBlockBinding( shaderProgram.pipeline_handle, ubo_objectData, m_materialDataBindPoint );
 
-	return m_pipelines.emplace( pipeline );
+	return m_pipelines.emplace( shaderProgram );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -282,19 +377,19 @@ void wv::OpenGLRenderer::destroyPipeline( ResourceID _handle )
 	if ( !_handle.is_valid() )
 		return;
 
-	wv::GLShaderPipeline& pipeline = m_pipelines[ _handle ];
+	wv::GLShaderPipeline& shaderProgram = m_pipelines[ _handle ];
 	
 	/*
-	glDeleteProgram( pipeline.frag_module_handle );
-	glDeleteProgram( pipeline.vert_module_handle );
+	glDeleteProgram( shaderProgram.frag_module_handle );
+	glDeleteProgram( shaderProgram.vert_module_handle );
 
-	glDeleteProgramPipelines( 1, &pipeline.pipeline_handle );
+	glDeleteProgramPipelines( 1, &shaderProgram.pipeline_handle );
 	*/
 
-	glDeleteShader( pipeline.frag_module_handle );
-	glDeleteShader( pipeline.vert_module_handle );
+	glDeleteShader( shaderProgram.frag_module_handle );
+	glDeleteShader( shaderProgram.vert_module_handle );
 
-	glDeleteProgram( pipeline.pipeline_handle );
+	glDeleteProgram( shaderProgram.pipeline_handle );
 
 	m_pipelines.erase( _handle );
 }
@@ -306,16 +401,16 @@ void wv::OpenGLRenderer::bindPipeline( ResourceID _handle )
 	if ( !_handle.is_valid() )
 		return;
 
-	wv::GLShaderPipeline& pipeline = m_pipelines[ _handle ];
+	wv::GLShaderPipeline& shaderProgram = m_pipelines[ _handle ];
 
-	if ( pipeline.pipeline_handle == 0 )
+	if ( shaderProgram.pipeline_handle == 0 )
 	{
 		printf( "[ERROR] Cannot bind pipeline %hi. Handle is 0\n", _handle.value );
 		return;
 	}
 
-	// glBindProgramPipeline( pipeline.pipeline_handle );
-	glUseProgram( pipeline.pipeline_handle );
+	// glBindProgramPipeline( shaderProgram.pipeline_handle );
+	glUseProgram( shaderProgram.pipeline_handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -324,8 +419,8 @@ wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t
 {
 	GLStorageBuffer vbuffer{};
 	
-	GL_ASSERT( glGenBuffers, 1, &vbuffer.storage_buffer_handle );
-	GL_ASSERT( glBindBuffer, GL_SHADER_STORAGE_BUFFER, vbuffer.storage_buffer_handle );
+	GL_ASSERT( glGenBuffers, 1, &vbuffer.handle );
+	GL_ASSERT( glBindBuffer, GL_SHADER_STORAGE_BUFFER, vbuffer.handle );
 	GL_ASSERT( glBufferData, GL_SHADER_STORAGE_BUFFER, _data_size, _data, GL_STATIC_DRAW );
 	
 	vbuffer.size = _data_size;
@@ -339,14 +434,14 @@ wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t
 
 void wv::OpenGLRenderer::destroyStorageBuffer( const GLStorageBuffer& _buffer )
 {
-	glDeleteBuffers( 1, &_buffer.storage_buffer_handle );
+	glDeleteBuffers( 1, &_buffer.handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OpenGLRenderer::bindStorageBufferToSlot( const GLStorageBuffer& _buffer, int _slot )
 {
-	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _slot, _buffer.storage_buffer_handle );
+	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _slot, _buffer.handle );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

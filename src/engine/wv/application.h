@@ -53,15 +53,14 @@ private:
 	double m_fixed_runtime = 0.0;
 	double m_accumulator = 0.0;
 
-	/* Subsystems */
+	// Subsystems
 
 	wv::DisplayDriver* m_displayDriver = nullptr;
 	wv::IFileSystem* m_filesystem = nullptr;
 	wv::OpenGLRenderer m_renderer;
 
-	wv::ResourceID m_debugPipeline;
-	wv::ResourceID m_debugRenderMesh;
-
+	wv::ResourceID m_material;
+	
 	wv::ICamera* m_camera = nullptr;
 
 	wv::RenderView m_renderView;

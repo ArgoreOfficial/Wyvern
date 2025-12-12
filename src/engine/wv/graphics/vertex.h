@@ -22,7 +22,7 @@ struct Vertex
 
 struct GLStorageBuffer
 {
-	wv::GLHandle storage_buffer_handle = 0;
+	wv::GLHandle handle = 0;
 	size_t size = 0;
 };
 

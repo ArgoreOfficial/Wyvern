@@ -58,8 +58,11 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
 
-	m_debugPipeline = m_renderer.createPipeline( vs.c_str(), fs.c_str() );
-	
+	m_material = m_renderer.createMaterial();
+	m_renderer.setMaterialVertexShader( m_material, vs.c_str() );
+	m_renderer.setMaterialFragmentShader( m_material, fs.c_str() );
+	m_renderer.finalizeMaterial( m_material );
+
 	std::vector<wv::Vector3f> positions = {
 		{  0.0f,  0.5f, 0.5f },
 		{  0.5f, -0.5f, 0.5f },
@@ -72,9 +75,10 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 		{ {}, { 0.0f, 0.0f, 1.0f } }
 	};
 
-	m_debugRenderMesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
-	
-	m_renderView.renderMeshes.push_back( m_debugRenderMesh );
+	ResourceID mesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
+	m_renderer.setRenderMeshMaterial( mesh, m_material );
+
+	m_renderView.renderMeshes.push_back( mesh );
 	m_renderView.sceneData.viewProj = wv::Matrix4x4f::identity( 1.0 );
 }
 
@@ -100,8 +104,11 @@ bool wv::Application::tick()
 
 void wv::Application::shutdown()
 {
-	m_renderer.destroyPipeline( m_debugPipeline );
-	m_renderer.destroyRenderMesh( m_debugRenderMesh );
+	m_renderer.destroyMaterial( m_material );
+
+	for ( auto& mesh : m_renderView.renderMeshes )
+		m_renderer.destroyRenderMesh( mesh );
+	
 	m_renderer.shutdown();
 
 	m_displayDriver->shutdown();
@@ -138,15 +145,8 @@ void wv::Application::render()
 	m_renderer.prepare( windowSize.x, windowSize.y );
 	m_renderer.clear( std::sinf( m_runtime * 10.0f ) * 0.5f + 0.5f, 0.0f, 0.0f, 1.0f );
 
-	if ( m_debugPipeline.is_valid() && m_debugRenderMesh.is_valid() )
-	{
-		// TODO
-		m_renderer.bindPipeline( m_debugPipeline );
-		m_renderer.setVSUniformMatrix4x4( m_debugPipeline, 3, wv::Matrix4x4f::identity( 1.0 ) );
-
-		m_renderer.drawRenderView( m_renderView );
-	}
-
+	m_renderer.drawRenderView( m_renderView );
+	
 	// m_sprite_renderer->drawSprites();
 
 	m_renderer.finalize();
