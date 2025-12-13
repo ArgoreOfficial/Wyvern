@@ -145,6 +145,15 @@ void wv::Application::shutdown()
 	m_renderer.shutdown();
 
 	m_displayDriver->shutdown();
+	WV_FREE( m_displayDriver );
+
+	for ( size_t i = 0; i < m_scenes.size(); i++ )
+	{
+		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
+			WV_FREE( m_scenes[ i ]->cameras[ j ] );
+		
+		WV_FREE( m_scenes[ i ] );
+	}
 }
 
 void wv::Application::update()
