@@ -30,6 +30,9 @@ struct GLRenderMesh
 	GLStorageBuffer extraVertexDataBuffer;
 	size_t numVertices = 0;
 	bool hasExtraVertexData = false;
+	
+	GLuint indexBuffer = 0;
+	size_t numIndices = 0;
 
 	ResourceID material;
 	GLStorageBuffer materialDataBuffer;
@@ -69,6 +72,8 @@ public:
 	void finalizeMaterial( ResourceID _handle );
 
 	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
+	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
+
 	void destroyRenderMesh( ResourceID _handle );
 	void drawRenderMesh( ResourceID _handle, bool _useExtraData = true );
 

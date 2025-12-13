@@ -228,6 +228,28 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 	return m_renderMeshes.emplace( mesh );
 }
 
+wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData, size_t _sizeExtraVertexData )
+{
+	wv::ResourceID meshID = createRenderMesh( _positions, _numPositions, _extraVertexData, _sizeExtraVertexData );
+	if ( !meshID.is_valid() )
+		return meshID;
+
+	if ( _indices && _numIndices > 0 )
+	{
+		GLRenderMesh& mesh = m_renderMeshes[ meshID ];
+		mesh.numIndices = _numIndices;
+		glCreateBuffers( 1, &mesh.indexBuffer );
+
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer );
+		glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( uint16_t ) * _numIndices, _indices, GL_STATIC_DRAW );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+		//glNamedBufferData( mesh.indexBuffer, sizeof( uint16_t ) * _numIndices, _indices, GL_STATIC_DRAW );
+	}
+
+	return meshID;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
@@ -313,7 +335,16 @@ void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
 		materialDataTest.model = wv::Matrix4x4f::identity( 1.0f );
 		glNamedBufferSubData( mesh.materialDataBuffer.handle, 0, sizeof( MaterialData ), &materialDataTest );
 
-		glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
+		if ( mesh.numIndices > 0 && mesh.indexBuffer != 0 )
+		{
+			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer );
+			glDrawElements( GL_TRIANGLES, mesh.numIndices, GL_UNSIGNED_SHORT, nullptr );
+		}
+		else
+		{
+			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+			glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
+		}
 	}
 }
 
