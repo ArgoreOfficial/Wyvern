@@ -18,8 +18,10 @@ void wv::ICamera::setPixelSize( size_t _width, size_t _height )
 	m_pixelWidth  = _width;
 	m_pixelHeight = _height;
 
-	m_aspect = _width / _height;
+	m_aspect = static_cast<float>( _width ) / static_cast<float>( _height );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::ICamera::setPixelSize( size_t _width, float _aspect )
 {
@@ -28,6 +30,8 @@ void wv::ICamera::setPixelSize( size_t _width, float _aspect )
 
 	m_aspect = _aspect;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Vector3f wv::ICamera::screenToWorld( int _pixelX, int _pixelY, float _depth )
 {
