@@ -101,6 +101,10 @@ bool wv::OpenGLRenderer::setup()
 	GL_ASSERT( glEnable, GL_DEPTH_TEST );
 	GL_ASSERT( glDepthFunc, GL_LESS );
 
+	glEnable( GL_CULL_FACE );
+	glCullFace( GL_BACK );
+	glFrontFace( GL_CW );
+
 	// shader blocks
 	glGenBuffers( 1, &m_uboSceneDataBlock );
 	glBindBuffer( GL_UNIFORM_BUFFER, m_uboSceneDataBlock );

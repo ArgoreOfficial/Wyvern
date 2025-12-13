@@ -72,9 +72,9 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_renderer.finalizeMaterial( m_material );
 
 	std::vector<wv::Vector3f> positions = {
+		{ -0.5f, -0.5f, 0.0f },
 		{  0.0f,  0.5f, 0.0f },
-		{  0.5f, -0.5f, 0.0f },
-		{ -0.5f, -0.5f, 0.0f }
+		{  0.5f, -0.5f, 0.0f }
 	};
 
 	std::vector<wv::VertexData> datas = {
@@ -135,11 +135,11 @@ void wv::Application::update()
 
 	camera->getTransform().setPosition(
 		{
-			std::cosf( m_runtime ) * 5,
+			std::cosf( m_runtime ) * 1,
 			0,
-			std::sinf( m_runtime ) * 5
+			std::sinf( m_runtime * 3 ) * 3 + 4
 		} );
-	camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
+	//camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
 
 	camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
 
