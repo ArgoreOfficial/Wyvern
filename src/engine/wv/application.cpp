@@ -31,7 +31,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_graphicsDriverName = "opengl"; // TODO
 
 	m_displayDriver = WV_NEW( DisplayDriverSDL );
-	
+
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
 		WV_FREE( m_displayDriver );
@@ -44,13 +44,21 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_filesystem = Platform::createFileSystem( "data" );
 
 	///////////////////////////////////////////////////////////////////////////
+	// Set up scene
+
+	Scene* scene = WV_NEW( Scene );
+
+
+	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
 
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
-	m_camera = new wv::ICamera( wv::ICamera::kOrthographic, windowSize.x, windowSize.y );
-	m_camera->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
-	m_camera->setOrthoWidth( 6.0f );
+	ICamera* camera = WV_NEW( ICamera, ICamera::kPerspective, windowSize.x, windowSize.y );
+	camera->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
+	// camera->setOrthoWidth( 6.0f );
+
+	scene->cameras.push_back( camera );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up mesh stuff (testing)
@@ -64,9 +72,9 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_renderer.finalizeMaterial( m_material );
 
 	std::vector<wv::Vector3f> positions = {
-		{  0.0f,  0.5f, 0.5f },
-		{  0.5f, -0.5f, 0.5f },
-		{ -0.5f, -0.5f, 0.5f }
+		{  0.0f,  0.5f, 0.0f },
+		{  0.5f, -0.5f, 0.0f },
+		{ -0.5f, -0.5f, 0.0f }
 	};
 
 	std::vector<wv::VertexData> datas = {
@@ -78,8 +86,8 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	ResourceID mesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
 	m_renderer.setRenderMeshMaterial( mesh, m_material );
 
-	m_renderView.renderMeshes.push_back( mesh );
-	m_renderView.sceneData.viewProj = wv::Matrix4x4f::identity( 1.0 );
+	scene->models.push_back( mesh );
+	m_scenes.push_back( scene );
 }
 
 bool wv::Application::tick()
@@ -91,11 +99,12 @@ bool wv::Application::tick()
 	m_displayDriver->processEvents();
 
 	// update runtime and deltatime
-	
+
 	uint64_t ticks = m_displayDriver->getHighResolutionCounter();
 	m_runtime = m_displayDriver->getTicks() / 1000.0;
 	m_deltatime = (double)( ( ticks - m_lastTicks ) / (double)m_displayDriver->getHighResolutionFrequency() );
 
+	update();
 	render();
 
 	m_lastTicks = ticks;
@@ -108,7 +117,7 @@ void wv::Application::shutdown()
 
 	for ( auto& mesh : m_renderView.renderMeshes )
 		m_renderer.destroyRenderMesh( mesh );
-	
+
 	m_renderer.shutdown();
 
 	m_displayDriver->shutdown();
@@ -117,8 +126,22 @@ void wv::Application::shutdown()
 void wv::Application::update()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
-	
-	m_camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
+
+	Scene* activeScene = getActiveScene();
+	if ( !activeScene ) return;
+
+	ICamera* camera = activeScene->getActiveCamera();
+	if ( !camera ) return;
+
+	camera->getTransform().setPosition(
+		{
+			std::cosf( m_runtime ) * 5,
+			0,
+			std::sinf( m_runtime ) * 5
+		} );
+	camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
+
+	camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
 
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
@@ -131,7 +154,7 @@ void wv::Application::update()
 
 	//m_app->preUpdate();
 
-	m_camera->update( m_deltatime );
+	camera->update( m_deltatime );
 	//m_app->onUpdate( m_deltatime );
 	//m_sprite_renderer->update();
 
@@ -141,12 +164,23 @@ void wv::Application::update()
 void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
-
 	m_renderer.prepare( windowSize.x, windowSize.y );
-	m_renderer.clear( std::sinf( m_runtime * 10.0f ) * 0.5f + 0.5f, 0.0f, 0.0f, 1.0f );
+	m_renderer.clear( 0.1f, 0.1f, 0.1f, 1.0f );
+
+	Scene* activeScene = getActiveScene();
+	if ( !activeScene ) return;
+
+	ICamera* camera = activeScene->getActiveCamera();
+	if ( !camera ) return;
+
+	m_renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
+
+	m_renderView.renderMeshes.clear();
+	for ( size_t i = 0; i < activeScene->models.size(); i++ )
+		m_renderView.renderMeshes.push_back( activeScene->models[ i ] );
 
 	m_renderer.drawRenderView( m_renderView );
-	
+
 	// m_sprite_renderer->drawSprites();
 
 	m_renderer.finalize();

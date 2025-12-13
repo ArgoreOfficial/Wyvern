@@ -33,7 +33,7 @@ void wv::Sprite::create( OpenGLRenderer& _renderer, const std::string& _texture_
 void wv::Sprite::destroy( OpenGLRenderer& _renderer )
 {
 	//_renderer.destroyVertexBuffer( vertex_buffer );
-	_renderer.destroyPipeline( shader_pipeline );
+	//_renderer.destroyPipeline( shader_pipeline );
 	_renderer.destroyTexture( texture );
 }
 
@@ -136,8 +136,8 @@ wv::Sprite* wv::SpriteRenderer::createSpriteFromTexture( ResourceID _texture, co
 		std::string shader_src_vert = loadTextFile( _vs_path );
 		std::string shader_src_frag = loadTextFile( _fs_path );
 
-		sprite->shader_pipeline = m_renderer->createPipeline( shader_src_vert.c_str(), shader_src_frag.c_str() );
-		m_renderer->bindPipeline( sprite->shader_pipeline );
+		//sprite->shader_pipeline = m_renderer->createPipeline( shader_src_vert.c_str(), shader_src_frag.c_str() );
+		//m_renderer->bindPipeline( sprite->shader_pipeline );
 
 		wv::Vector2i tex_size = m_renderer->getTextureSize( _texture );
 		
@@ -208,7 +208,7 @@ void wv::SpriteRenderer::drawSprites( wv::ICamera* _camera )
 	
 	for ( auto s : m_drawlist )
 	{
-		m_renderer->bindPipeline( s->shader_pipeline );
+		//m_renderer->bindPipeline( s->shader_pipeline );
 
 		wv::Matrix4x4f view_proj = _camera->getViewMatrix() * _camera->getProjectionMatrix();
 

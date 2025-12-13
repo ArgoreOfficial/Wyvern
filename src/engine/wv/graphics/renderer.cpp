@@ -266,12 +266,13 @@ void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, Resource
 	mesh.material = _materialHandle;
 	mesh.materialDataBuffer.size = sizeof( MaterialData );
 
+	// create buffer for material data
 	glGenBuffers( 1, &mesh.materialDataBuffer.handle );
 	glBindBuffer( GL_UNIFORM_BUFFER, mesh.materialDataBuffer.handle );
 	glBufferData( GL_UNIFORM_BUFFER, mesh.materialDataBuffer.size, NULL, GL_STATIC_DRAW );
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
-	// bind uniform slot to bind point
+	// bind uniform slot (in the shader) to dedicated material bind point
 	glUniformBlockBinding( material.shaderProgram, material.materialDataSlot, m_materialDataBindPoint );
 
 }
@@ -314,114 +315,13 @@ void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ResourceID wv::OpenGLRenderer::createPipeline( const char* _vert_src, const char* _frag_src )
-{
-	GLShaderPipeline shaderProgram{};
-	
-	shaderProgram.vert_module_handle = compileShaderModule( _vert_src, GL_VERTEX_SHADER );
-	shaderProgram.frag_module_handle = compileShaderModule( _frag_src, GL_FRAGMENT_SHADER );
-
-	if ( shaderProgram.vert_module_handle == 0 || shaderProgram.frag_module_handle == 0 )
-		return ResourceID::InvalidID;
-	
-	shaderProgram.pipeline_handle = 0;
-	
-	/*
-	GL_ASSERT(glGenProgramPipelines, 1, &shaderProgram.pipeline_handle );
-	GL_ASSERT(glBindProgramPipeline, shaderProgram.pipeline_handle );
-	
-	if ( shaderProgram.pipeline_handle == 0 )
-	{
-		printf( "error: pipeline_handle is 0\n" );
-		return ResourceID::InvalidID;
-	}
-
-	glUseProgramStages( shaderProgram.pipeline_handle, GL_VERTEX_SHADER_BIT, shaderProgram.vert_module_handle );
-	glUseProgramStages( shaderProgram.pipeline_handle, GL_FRAGMENT_SHADER_BIT, shaderProgram.frag_module_handle );
-
-	glBindProgramPipeline( 0 );
-	*/
-
-	shaderProgram.pipeline_handle = glCreateProgram();
-	glAttachShader( shaderProgram.pipeline_handle, shaderProgram.vert_module_handle );
-	glAttachShader( shaderProgram.pipeline_handle, shaderProgram.frag_module_handle );
-	glLinkProgram( shaderProgram.pipeline_handle );
-	
-	int success = 0;
-	char infoLog[ 512 ];
-	glGetProgramiv( shaderProgram.pipeline_handle, GL_LINK_STATUS, &success );
-	if ( !success )
-	{
-		glGetProgramInfoLog( shaderProgram.pipeline_handle, 512, NULL, infoLog );
-		Debug::Print( Debug::WV_PRINT_ERROR, "Failed to link program\n%s\n", infoLog );
-
-		ResourceID handle = m_pipelines.emplace( shaderProgram );
-		destroyPipeline( handle ); // hack
-
-		return ResourceID::InvalidID;
-	}
-
-	// bind shader indices
-	unsigned int ubo_sceneData = glGetUniformBlockIndex( shaderProgram.pipeline_handle, "ubo_sceneData" );
-	//unsigned int ubo_objectData = glGetUniformBlockIndex( shaderProgram.pipeline_handle, "ubo_objectData" );
-	glUniformBlockBinding( shaderProgram.pipeline_handle, ubo_sceneData,  m_sceneDataBindPoint );
-	//glUniformBlockBinding( shaderProgram.pipeline_handle, ubo_objectData, m_materialDataBindPoint );
-
-	return m_pipelines.emplace( shaderProgram );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::destroyPipeline( ResourceID _handle )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	wv::GLShaderPipeline& shaderProgram = m_pipelines[ _handle ];
-	
-	/*
-	glDeleteProgram( shaderProgram.frag_module_handle );
-	glDeleteProgram( shaderProgram.vert_module_handle );
-
-	glDeleteProgramPipelines( 1, &shaderProgram.pipeline_handle );
-	*/
-
-	glDeleteShader( shaderProgram.frag_module_handle );
-	glDeleteShader( shaderProgram.vert_module_handle );
-
-	glDeleteProgram( shaderProgram.pipeline_handle );
-
-	m_pipelines.erase( _handle );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::bindPipeline( ResourceID _handle )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	wv::GLShaderPipeline& shaderProgram = m_pipelines[ _handle ];
-
-	if ( shaderProgram.pipeline_handle == 0 )
-	{
-		printf( "[ERROR] Cannot bind pipeline %hi. Handle is 0\n", _handle.value );
-		return;
-	}
-
-	// glBindProgramPipeline( shaderProgram.pipeline_handle );
-	glUseProgram( shaderProgram.pipeline_handle );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t _data_size )
 {
 	GLStorageBuffer vbuffer{};
 	
 	GL_ASSERT( glGenBuffers, 1, &vbuffer.handle );
 	GL_ASSERT( glBindBuffer, GL_SHADER_STORAGE_BUFFER, vbuffer.handle );
-	GL_ASSERT( glBufferData, GL_SHADER_STORAGE_BUFFER, _data_size, _data, GL_STATIC_DRAW );
+	GL_ASSERT( glBufferData, GL_SHADER_STORAGE_BUFFER, _data_size, _data, GL_STATIC_COPY );
 	
 	vbuffer.size = _data_size;
 

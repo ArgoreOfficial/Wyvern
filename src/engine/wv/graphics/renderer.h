@@ -76,10 +76,6 @@ public:
 
 	void drawRenderView( const RenderView& _renderView );
 
-	ResourceID createPipeline( const char* _vert_src, const char* _frag_src );
-	void destroyPipeline( ResourceID _handle );
-	void bindPipeline( ResourceID _handle );
-
 	ResourceID createTexture( unsigned char* _data, uint32_t _width, uint32_t _height, uint32_t _channels, TextureFormat _format, bool _generate_mips, TextureFiltering _filtering );
 	void destroyTexture( ResourceID _handle );
 	void bindTexture( ResourceID _handle, uint32_t _slot );
