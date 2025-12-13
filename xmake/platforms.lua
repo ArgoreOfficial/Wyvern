@@ -10,6 +10,7 @@ function init_platform(_prefix)
         set_symbols "debug"
         set_optimize "none"
         set_strip "none"
+        add_defines( "WV_TRACK_MEMORY" )
     elseif is_mode("Release") then 
         set_symbols "debug"
         set_optimize "fast"
