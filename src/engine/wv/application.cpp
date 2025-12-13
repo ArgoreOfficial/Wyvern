@@ -30,7 +30,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
-	m_displayDriver = WV_NEW( DisplayDriverSDL );
+	m_displayDriver = Platform::createDisplayDriver();;
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
@@ -143,9 +143,7 @@ void wv::Application::shutdown()
 		m_renderer.destroyRenderMesh( mesh );
 
 	m_renderer.shutdown();
-
 	m_displayDriver->shutdown();
-	WV_FREE( m_displayDriver );
 
 	for ( size_t i = 0; i < m_scenes.size(); i++ )
 	{

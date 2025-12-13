@@ -6,6 +6,7 @@
 #include <wv/memory/memory.h>
 #include <wv/target/iremote_target.h>
 
+#include <wv/platform/platform.h>
 #include <wv/platform/thread.h>
 
 #ifdef WV_PLATFORM_PSVITA
@@ -25,6 +26,9 @@ void wv::Remote::remoteMainExit() { }
 
 int main( int _argc, char* _argv[] )
 {
+	if ( !wv::Platform::initialize() )
+		return 1;
+
 	wv::Trace::Trace::printEnabled = false; // remove?
 	wv::Error::init();
 
@@ -81,6 +85,8 @@ int main( int _argc, char* _argv[] )
 #endif
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
+
+	wv::Platform::cleanup();
 
 	wv::MemoryTracker::dump();
 
