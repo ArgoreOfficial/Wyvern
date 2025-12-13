@@ -10,7 +10,6 @@
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #include <emscripten/html5.h>
-#include <GLES2/gl2.h>
 #endif
 
 wv::DisplayDriverSDL::DisplayDriverSDL()

@@ -6,6 +6,8 @@
 #include <wv/memory/memory.h>
 #include <wv/target/iremote_target.h>
 
+#include <wv/platform/thread.h>
+
 #ifdef WV_PLATFORM_PSVITA
 #include <wv/Platform/PSVita.h>
 WV_PSVITA_THREAD( "Sandbox" );
@@ -32,8 +34,7 @@ int main( int _argc, char* _argv[] )
 	if ( wv::Remote::isRunningRemoteTarget( _argc, _argv ) )
 	{
 		wv::Debug::Print( "Launching Remote Client" );
-		std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
-
+		wv::Thread::sleepForSeconds( 3 );
 		wv::Remote::remoteMain();
 	}
 
@@ -84,7 +85,7 @@ int main( int _argc, char* _argv[] )
 	wv::MemoryTracker::dump();
 
 #ifdef WV_PLATFORM_3DS
-	std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+	wv::Thread::sleepForSeconds( 1 );
 #endif
 
 	if ( wv::Remote::isRunningRemoteTarget( _argc, _argv ) )

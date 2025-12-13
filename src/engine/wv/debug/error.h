@@ -1,5 +1,8 @@
 #pragma once
 
+// include size_t
+#include <stddef.h>
+
 namespace wv {
 
 extern const char* gErrorMessage;
