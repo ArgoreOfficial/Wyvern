@@ -72,18 +72,42 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_renderer.finalizeMaterial( m_material );
 
 	std::vector<wv::Vector3f> positions = {
-		{ -0.5f, -0.5f, 0.0f },
-		{  0.0f,  0.5f, 0.0f },
-		{  0.5f, -0.5f, 0.0f }
+		Vector3f( -1, -1, -1 ),
+		Vector3f( 1, -1, -1 ),
+		Vector3f( 1, 1, -1 ),
+		Vector3f( -1, 1, -1 ),
+		Vector3f( -1, -1, 1 ),
+		Vector3f( 1, -1, 1 ),
+		Vector3f( 1, 1, 1 ),
+		Vector3f( -1, 1, 1 )
+	};
+
+	std::vector<uint16_t> indices =
+	{
+		0, 1, 3, 3, 1, 2,
+		1, 5, 2, 2, 5, 6,
+		5, 4, 6, 6, 4, 7,
+		4, 0, 7, 7, 0, 3,
+		3, 2, 7, 7, 2, 6,
+		4, 5, 0, 0, 5, 1
 	};
 
 	std::vector<wv::VertexData> datas = {
 		{ {}, { 1.0f, 0.0f, 0.0f } },
 		{ {}, { 0.0f, 1.0f, 0.0f } },
-		{ {}, { 0.0f, 0.0f, 1.0f } }
+		{ {}, { 0.0f, 0.0f, 1.0f } },
+		{ {}, { 0.0f, 0.0f, 0.0f } },
+		{ {}, { 1.0f, 0.0f, 0.0f } },
+		{ {}, { 0.0f, 1.0f, 0.0f } },
+		{ {}, { 0.0f, 0.0f, 1.0f } },
+		{ {}, { 0.0f, 0.0f, 0.0f } },
 	};
 
-	ResourceID mesh = m_renderer.createRenderMesh( positions.data(), positions.size(), datas.data(), sizeof( wv::VertexData ) * datas.size() );
+	ResourceID mesh = m_renderer.createRenderMesh(
+		positions.data(), positions.size(),
+		indices.data(), indices.size(),
+		datas.data(), sizeof( wv::VertexData ) * datas.size() );
+
 	m_renderer.setRenderMeshMaterial( mesh, m_material );
 
 	scene->models.push_back( mesh );
@@ -135,11 +159,11 @@ void wv::Application::update()
 
 	camera->getTransform().setPosition(
 		{
-			std::cosf( m_runtime ) * 1,
+			std::cosf( m_runtime ) * 4,
 			0,
-			std::sinf( m_runtime * 3 ) * 3 + 4
+			std::sinf( m_runtime ) * 4
 		} );
-	//camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
+	camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
 
 	camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
 
