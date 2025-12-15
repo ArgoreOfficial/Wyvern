@@ -43,11 +43,14 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 
 	m_filesystem = Platform::createFileSystem( "data" );
 
+	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
+	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
+	m_renderer.setupDebug( vsDebug.c_str(), fsDebug.c_str() );
+
 	///////////////////////////////////////////////////////////////////////////
 	// Set up scene
 
 	Scene* scene = WV_NEW( Scene );
-
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -63,7 +66,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	///////////////////////////////////////////////////////////////////////////
 	// Set up mesh stuff (testing)
 
-	std::string vs = m_filesystem->loadString( "debug_vs.glsl" );
+	std::string vs = m_filesystem->loadString( "debug_vs.glsl" ); // TODO: rename files
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
 
 	m_material = m_renderer.createMaterial();
@@ -72,18 +75,17 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_renderer.finalizeMaterial( m_material );
 
 	std::vector<wv::Vector3f> positions = {
-		Vector3f( -1, -1, -1 ),
-		Vector3f( 1, -1, -1 ),
-		Vector3f( 1, 1, -1 ),
-		Vector3f( -1, 1, -1 ),
-		Vector3f( -1, -1, 1 ),
-		Vector3f( 1, -1, 1 ),
-		Vector3f( 1, 1, 1 ),
-		Vector3f( -1, 1, 1 )
+		{ -1, -1, -1 },
+		{  1, -1, -1 },
+		{  1,  1, -1 },
+		{ -1,  1, -1 },
+		{ -1, -1,  1 },
+		{  1, -1,  1 },
+		{  1,  1,  1 },
+		{ -1,  1,  1 }
 	};
 
-	std::vector<uint16_t> indices =
-	{
+	std::vector<uint16_t> indices = {
 		0, 1, 3, 3, 1, 2,
 		1, 5, 2, 2, 5, 6,
 		5, 4, 6, 6, 4, 7,
@@ -166,9 +168,9 @@ void wv::Application::update()
 
 	camera->getTransform().setPosition(
 		{
-			std::cosf( m_runtime ) * 4,
+			std::cosf( m_runtime ) * 10,
 			0,
-			std::sinf( m_runtime ) * 4
+			std::sinf( m_runtime ) * 10
 		} );
 	camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
 
@@ -196,7 +198,8 @@ void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	m_renderer.prepare( windowSize.x, windowSize.y );
-	m_renderer.clear( 0.1f, 0.1f, 0.1f, 1.0f );
+	m_renderer.clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+	m_renderer.clearDepth();
 
 	Scene* activeScene = getActiveScene();
 	if ( !activeScene ) return;
@@ -212,7 +215,13 @@ void wv::Application::render()
 
 	m_renderer.drawRenderView( m_renderView );
 
-	// m_sprite_renderer->drawSprites();
+	std::vector<Line3f> lines;
+
+	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } });
+	lines.push_back( Line3f{      lines.back(), { 2.0f, 1.0f, 3.0f } } );
+
+	m_renderer.clearDepth(); // optional
+	m_renderer.drawDebugLines( lines );
 
 	m_renderer.finalize();
 }

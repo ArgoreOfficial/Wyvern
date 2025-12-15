@@ -121,6 +121,36 @@ bool wv::OpenGLRenderer::setup()
 void wv::OpenGLRenderer::shutdown()
 {
 	glDeleteVertexArrays( 1, &m_empty_vao );
+	glDeleteBuffers( 1, &m_uboSceneDataBlock );
+
+	// Debug Objects
+	
+	destroyMaterial( m_debugLineMaterial );
+	destroyStorageBuffer( m_debugLineVertexBuffer );
+	destroyStorageBuffer( m_debugLineMaterialBuffer );
+
+	// Final memory leak check
+
+	if ( m_renderMeshes.count()    > 0 ) WV_LOG_ERROR( "%llu render meshes remaining\n",    m_renderMeshes.count() );
+	if ( m_renderMaterials.count() > 0 ) WV_LOG_ERROR( "%llu render materials remaining\n", m_renderMaterials.count() );
+	if ( m_pipelines.count()       > 0 ) WV_LOG_ERROR( "%llu pipelines remaining\n",        m_pipelines.count() );
+	if ( m_textures.count()        > 0 ) WV_LOG_ERROR( "%llu textures remaining\n",         m_textures.count() );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::setupDebug( const char* _vertexShaderSource, const char* _fragmentShaderSource )
+{
+	// Create debug rendering objects
+
+	m_debugLineVertexBuffer   = createStorageBuffer( nullptr, sizeof( wv::Vector3f ) * 64 );
+	m_debugLineMaterialBuffer = createStorageBuffer( nullptr, sizeof( MaterialData ) );
+	
+	m_debugLineMaterial = createMaterial();
+	setMaterialVertexShader( m_debugLineMaterial, _vertexShaderSource );
+	setMaterialFragmentShader( m_debugLineMaterial, _fragmentShaderSource );
+	finalizeMaterial( m_debugLineMaterial );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -139,11 +169,21 @@ void wv::OpenGLRenderer::finalize()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::clear( float _r, float _g, float _b, float _a )
+void wv::OpenGLRenderer::clearColor( float _r, float _g, float _b, float _a )
 {
 	glClearColor( _r, _g, _b, _a );
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear( GL_COLOR_BUFFER_BIT );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::clearDepth( double _depth )
+{
+	glClearDepth( _depth );
+	glClear( GL_DEPTH_BUFFER_BIT );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ResourceID wv::OpenGLRenderer::createMaterial()
 {
@@ -153,14 +193,23 @@ wv::ResourceID wv::OpenGLRenderer::createMaterial()
 	return m_renderMaterials.emplace( material );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::OpenGLRenderer::destroyMaterial( ResourceID _handle )
 {
+	if ( !_handle.is_valid() )
+		return;
+
 	GLRenderMaterial& material = m_renderMaterials.at( _handle );
 	
-	// TODO
+	if ( material.shaderProgram != 0 ) glDeleteProgram( material.shaderProgram );
+	if ( material.fragModule != 0 ) glDeleteShader( material.fragModule );
+	if ( material.vertModule != 0 ) glDeleteShader( material.vertModule );
 
 	m_renderMaterials.erase( _handle );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OpenGLRenderer::setMaterialVertexShader( ResourceID _handle, const char* _src )
 {
@@ -169,11 +218,15 @@ void wv::OpenGLRenderer::setMaterialVertexShader( ResourceID _handle, const char
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::OpenGLRenderer::setMaterialFragmentShader( ResourceID _handle, const char* _src )
 {
 	GLRenderMaterial& material = m_renderMaterials.at( _handle );
 	material.fragModule = compileShaderModule( _src, GL_FRAGMENT_SHADER );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::OpenGLRenderer::finalizeMaterial( ResourceID _handle )
 {
@@ -227,6 +280,8 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 
 	return m_renderMeshes.emplace( mesh );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData, size_t _sizeExtraVertexData )
 {
@@ -350,15 +405,54 @@ void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t _data_size )
+void wv::OpenGLRenderer::drawDebugLines( const std::vector<wv::Line3f>& _lines )
+{
+	// glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
+
+	if ( !m_debugLineMaterial.is_valid() || m_debugLineVertexBuffer.handle == 0 || m_debugLineMaterialBuffer.handle == 0 )
+		return;
+
+	if ( _lines.size() == 0 )
+		return;
+
+	wv::GLRenderMaterial& material = m_renderMaterials.at( m_debugLineMaterial );
+	glUseProgram( material.shaderProgram );
+
+	std::vector<wv::Vector3f> positions;
+	for ( size_t i = 0; i < _lines.size(); i++ )
+	{
+		positions.push_back( _lines[ i ].a );
+		positions.push_back( _lines[ i ].b );
+	}
+	uploadStorageBuffer( m_debugLineVertexBuffer, positions.data(), positions.size() * sizeof( wv::Vector3f ) );
+
+	// Vertex buffer
+	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, m_debugLineVertexBuffer.handle );
+	
+	// Material buffer
+	glBindBufferBase( GL_UNIFORM_BUFFER, m_materialDataBindPoint, m_debugLineMaterialBuffer.handle );
+
+	MaterialData materialDataTest{};
+	materialDataTest.model = wv::Matrix4x4f::identity( 1.0f );
+	glNamedBufferSubData( m_debugLineMaterialBuffer.handle, 0, sizeof( MaterialData ), &materialDataTest );
+
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	glDrawArrays( GL_LINES, 0, static_cast<GLsizei>( _lines.size() * 2 ) );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // reset back
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+wv::GLStorageBuffer wv::OpenGLRenderer::createStorageBuffer( void* _data, size_t _dataSize )
 {
 	GLStorageBuffer vbuffer{};
 	
 	GL_ASSERT( glGenBuffers, 1, &vbuffer.handle );
 	GL_ASSERT( glBindBuffer, GL_SHADER_STORAGE_BUFFER, vbuffer.handle );
-	GL_ASSERT( glBufferData, GL_SHADER_STORAGE_BUFFER, _data_size, _data, GL_STATIC_COPY );
+	GL_ASSERT( glBufferData, GL_SHADER_STORAGE_BUFFER, _dataSize, _data, GL_STATIC_COPY );
 	
-	vbuffer.size = _data_size;
+	vbuffer.size = _dataSize;
 
 	glBindBuffer( GL_SHADER_STORAGE_BUFFER, 0 );
 
@@ -377,6 +471,21 @@ void wv::OpenGLRenderer::destroyStorageBuffer( const GLStorageBuffer& _buffer )
 void wv::OpenGLRenderer::bindStorageBufferToSlot( const GLStorageBuffer& _buffer, int _slot )
 {
 	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, _slot, _buffer.handle );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::uploadStorageBuffer( const GLStorageBuffer& _buffer, void* _data, size_t _dataSize, size_t _offset )
+{
+	if ( _dataSize == 0 )
+		return;
+
+	size_t requiredSize = _offset + _dataSize;
+	if ( _buffer.size < requiredSize )
+		glNamedBufferData( _buffer.handle, requiredSize, nullptr, GL_STATIC_COPY ); // recreate buffer
+
+	if( _data )
+		glNamedBufferSubData( _buffer.handle, _offset, _dataSize, _data );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

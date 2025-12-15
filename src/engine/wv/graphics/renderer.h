@@ -10,6 +10,7 @@
 #include <wv/math/vector2.h>
 #include <wv/helpers/unordered_array.hpp>
 #include <wv/math/matrix.h>
+#include <wv/math/line.h>
 
 namespace wv {
 
@@ -60,10 +61,13 @@ public:
 	bool setup();
 	void shutdown();
 
+	void setupDebug( const char* _vertexShaderSource, const char* _fragmentShaderSource );
+
 	void prepare( uint32_t _width, uint32_t _height );
 	void finalize();
 
-	void clear( float _r, float _g, float _b, float _a );
+	void clearColor( float _r, float _g, float _b, float _a );
+	void clearDepth( double _v = 1.0 );
 
 	ResourceID createMaterial();
 	void destroyMaterial( ResourceID _handle );
@@ -80,6 +84,7 @@ public:
 	void setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle );
 
 	void drawRenderView( const RenderView& _renderView );
+	void drawDebugLines( const std::vector<wv::Line3f>& _lines );
 
 	ResourceID createTexture( unsigned char* _data, uint32_t _width, uint32_t _height, uint32_t _channels, TextureFormat _format, bool _generate_mips, TextureFiltering _filtering );
 	void destroyTexture( ResourceID _handle );
@@ -94,16 +99,16 @@ public:
 
 private:
 
-	GLStorageBuffer createStorageBuffer( void* _data, size_t _data_size );
+	GLStorageBuffer createStorageBuffer( void* _data, size_t _dataSize );
 	void destroyStorageBuffer( const GLStorageBuffer& _buffer );
 	void bindStorageBufferToSlot( const GLStorageBuffer& _buffer, int _slot );
+	void uploadStorageBuffer( const GLStorageBuffer& _buffer, void* _data, size_t _dataSize, size_t _offset = 0 );
 
 	GLuint compileShaderModule( const char* _source, GLenum _type );
 
 	wv::unordered_array<ResourceID, GLShaderPipeline> m_pipelines;
-	wv::unordered_array<ResourceID, GLTexture> m_textures;
-
-	wv::unordered_array<ResourceID, GLRenderMesh> m_renderMeshes;
+	wv::unordered_array<ResourceID, GLTexture>        m_textures;
+	wv::unordered_array<ResourceID, GLRenderMesh>     m_renderMeshes;
 	wv::unordered_array<ResourceID, GLRenderMaterial> m_renderMaterials;
 	
 	GLuint m_empty_vao = 0;
@@ -112,6 +117,9 @@ private:
 	const GLuint m_sceneDataBindPoint  = 0;
 	const GLuint m_materialDataBindPoint = 1;
 
+	ResourceID m_debugLineMaterial = 0;
+	GLStorageBuffer m_debugLineVertexBuffer{};
+	GLStorageBuffer m_debugLineMaterialBuffer{};
 
 };
 
