@@ -323,22 +323,6 @@ void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
-	bindStorageBufferToSlot( mesh.positionBuffer, 0 );
-
-	if( _useExtraData && mesh.hasExtraVertexData )
-		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
-
-	glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle )
 {
 	wv::GLRenderMesh& mesh = m_renderMeshes.at( _meshHandle );
@@ -639,38 +623,6 @@ wv::Vector2i wv::OpenGLRenderer::getTextureSize( ResourceID _handle )
 		(int)m_textures[ _handle ].width, 
 		(int)m_textures[ _handle ].height 
 	};
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::setVSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	//glProgramUniformMatrix4fv( m_pipelines.at( _handle ).vert_module_handle, _location, 1, GL_FALSE, _matrix.m );
-	glUniformMatrix4fv( _location, 1, GL_FALSE, _matrix.m );
-	
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::setFSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix )
-{
-	if ( !_handle.is_valid() )
-		return;
-	
-	//glProgramUniformMatrix4fv( m_pipelines.at( _handle ).frag_module_handle, _location, 1, GL_FALSE, _matrix.m );
-	glUniformMatrix4fv( _location, 1, GL_FALSE, _matrix.m );
-}
-
-void wv::OpenGLRenderer::setVSUniformVector2f( ResourceID _pipeline, uint32_t _location, const wv::Vector2f& _vector )
-{
-	if ( !_pipeline.is_valid() )
-		return;
-
-	//glProgramUniform2fv( m_pipelines.at( _pipeline ).vert_module_handle, _location, 1, &_vector.x );
-	glUniform2fv( _location, 1, &_vector.x );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
