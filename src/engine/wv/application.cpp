@@ -7,7 +7,7 @@
 #include <wv/platform/platform.h>
 #include <wv/filesystem/file_system.h>
 
-#include <wv/string.h>
+#include <wv/reflection/reflection.h>
 
 #ifdef WV_SUPPORT_SDL2
 #include <sdl/display_driver_sdl.h>
@@ -20,50 +20,14 @@ wv::Application* wv::Application::singleton = nullptr;
 
 namespace wv {
 
-class IReflectedType
-{
-public:
-	virtual std::string getTypeName() const = 0;
-};
-
-template<typename Ty>
-Ty* tryCast( IReflectedType* _type )
-{
-	static_assert( std::is_base_of<IReflectedType, Ty>() );
-	
-	if ( _type == nullptr )
-		return nullptr;
-
-	// require exact match, this should ideally check a chain of derivation
-	if ( _type->getTypeName() != wv::typeName<Ty>() )
-		return nullptr;
-
-	return reinterpret_cast<Ty*>( _type );
-}
-
-}
-
-#define WV_REFLECT_TYPE( _typename ) \
-public: \
-static constexpr const char* typeName() { return #_typename; } \
-virtual std::string getTypeName() const override { return typeName(); }
-
-namespace wv {
-
 class SomeClass : public wv::IReflectedType
 {
 	WV_REFLECT_TYPE( SomeClass )
 public:
-	
 
 };
 
 }
-
-
-
-
-
 
 void glfwErrorCallback( int error, const char* description )
 {
