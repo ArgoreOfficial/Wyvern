@@ -15,14 +15,14 @@ template<> long long   stot( const std::string& _str ) { return std::stoll( _str
 template<> long double stot( const std::string& _str ) { return std::stold( _str ); }
 template<> std::string stot( const std::string& _str ) { return _str; }
 
-template<typename _Ty> 
-inline constexpr const char* type() { return "??? TYPE ???"; }
+template<typename Ty> 
+inline constexpr const char* typeName() { return Ty::typeName(); }
 
-template<> inline constexpr const char* type<int>        () { return "int";         }
-template<> inline constexpr const char* type<double>     () { return "double";      }
-template<> inline constexpr const char* type<float>      () { return "float";       }
-template<> inline constexpr const char* type<long long>  () { return "long long";   }
-template<> inline constexpr const char* type<long double>() { return "long double"; }
-template<> inline constexpr const char* type<std::string>() { return "std::string"; }
+template<> inline constexpr const char* typeName<int>        () { return "int";         }
+template<> inline constexpr const char* typeName<double>     () { return "double";      }
+template<> inline constexpr const char* typeName<float>      () { return "float";       }
+template<> inline constexpr const char* typeName<long long>  () { return "long long";   }
+template<> inline constexpr const char* typeName<long double>() { return "long double"; }
+template<> inline constexpr const char* typeName<std::string>() { return "std::string"; }
 
 }

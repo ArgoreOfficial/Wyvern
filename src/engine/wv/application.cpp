@@ -7,6 +7,8 @@
 #include <wv/platform/platform.h>
 #include <wv/filesystem/file_system.h>
 
+#include <wv/string.h>
+
 #ifdef WV_SUPPORT_SDL2
 #include <sdl/display_driver_sdl.h>
 #endif
@@ -16,14 +18,64 @@
 
 wv::Application* wv::Application::singleton = nullptr;
 
+namespace wv {
+
+class IReflectedType
+{
+public:
+	virtual std::string getTypeName() const = 0;
+};
+
+template<typename Ty>
+Ty* tryCast( IReflectedType* _type )
+{
+	static_assert( std::is_base_of<IReflectedType, Ty>() );
+	
+	if ( _type == nullptr )
+		return nullptr;
+
+	// require exact match, this should ideally check a chain of derivation
+	if ( _type->getTypeName() != wv::typeName<Ty>() )
+		return nullptr;
+
+	return reinterpret_cast<Ty*>( _type );
+}
+
+}
+
+#define WV_REFLECT_TYPE( _typename ) \
+public: \
+static constexpr const char* typeName() { return #_typename; } \
+virtual std::string getTypeName() const override { return typeName(); }
+
+namespace wv {
+
+class SomeClass : public wv::IReflectedType
+{
+	WV_REFLECT_TYPE( SomeClass )
+public:
+	
+
+};
+
+}
+
+
+
+
+
+
 void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
+
+
 }
 
 wv::Application::Application()
 {
 	singleton = this;
+
 }
 
 bool wv::Application::initialize( int _windowWidth, int _windowHeight )
@@ -151,7 +203,7 @@ void wv::Application::shutdown()
 	{
 		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
 			WV_FREE( m_scenes[ i ]->cameras[ j ] );
-		
+
 		WV_FREE( m_scenes[ i ] );
 	}
 }
@@ -217,8 +269,8 @@ void wv::Application::render()
 
 	std::vector<Line3f> lines;
 
-	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } });
-	lines.push_back( Line3f{      lines.back(), { 2.0f, 1.0f, 3.0f } } );
+	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
+	lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
 
 	m_renderer.clearDepth(); // optional
 	m_renderer.drawDebugLines( lines );
