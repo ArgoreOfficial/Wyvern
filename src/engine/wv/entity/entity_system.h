@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include <wv/reflection/reflection.h>
 
 namespace wv {

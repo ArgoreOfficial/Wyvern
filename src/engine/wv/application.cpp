@@ -19,20 +19,6 @@ wv::Application* wv::Application::singleton = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv {
-
-class SomeClass : public wv::IReflectedType
-{
-	WV_REFLECT_TYPE( SomeClass )
-public:
-	
-	
-};
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
