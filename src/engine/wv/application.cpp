@@ -9,6 +9,7 @@
 #include <wv/reflection/reflection.h>
 
 #include <wv/entity/entity.h>
+#include <wv/entity/world_sector.h>
 
 #include <cmath>
 #include <stdio.h>
@@ -31,15 +32,19 @@ wv::Application::Application()
 {
 	singleton = this;
 	
+	WorldSector sector;
+
 	Entity* entity = WV_NEW( Entity );
 	entity->createSystem<TestEntitySystem>();
-
-	entity->initialize();
-
-	for ( size_t i = 0; i < 10; i++ )
-		entity->updateSystems( (double)i );
 	
-	entity->shutdown();
+	sector.addEntity( entity );
+
+	sector.load();
+
+	for ( auto entity : sector.getEntities() )
+		entity->updateSystems( 0.0 );
+	
+	sector.unload();
 
 	WV_FREE( entity );
 }

@@ -5,13 +5,17 @@
 
 #include <wv/reflection/reflection.h>
 #include <wv/memory/memory.h>
+#include <wv/types.h>
 
 namespace wv {
+
+typedef uint32_t EntityID;
 
 class Entity final : wv::IReflectedType
 {
 	WV_REFLECT_TYPE( Entity )
 public:
+
 
 	/*
 	Unloaded     -> created but no data present
@@ -28,8 +32,13 @@ public:
 
 	Entity() = default;
 
+	void load();
+	void unload();
+
 	void initialize();
 	void shutdown();
+
+	EntityID getID() const { return m_ID; }
 
 	Transformf& getTransform() { return m_transform; }
 
@@ -89,9 +98,10 @@ private:
 	void registerComponentWithSystems( IEntityComponent* _component );
 	void unregisterComponentWithSystems( IEntityComponent* _component );
 
-	Transformf m_transform;
-
+	EntityID    m_ID    = wv::Math::randomU32();
 	EntityState m_state = EntityState::UNLOADED;
+
+	Transformf m_transform;
 
 	std::vector<IEntitySystem*>    m_systems;
 	std::vector<IEntityComponent*> m_components;

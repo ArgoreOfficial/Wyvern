@@ -1,5 +1,33 @@
 #include "entity.h"
 
+#include <wv/entity/entity_component.h>
+
+void wv::Entity::load()
+{
+	if ( m_state != EntityState::UNLOADED )
+		return; // assert
+
+	for ( auto component : m_components )
+	{
+		//component->load();
+	}
+
+	m_state = EntityState::LOADED;
+}
+
+void wv::Entity::load()
+{
+	if ( m_state != EntityState::LOADED )
+		return; // assert
+
+	for ( auto component : m_components )
+	{	
+		//component->unload();
+	}
+
+	m_state = EntityState::UNLOADED;
+}
+
 void wv::Entity::initialize() 
 {
 	if ( m_state != EntityState::LOADED )
