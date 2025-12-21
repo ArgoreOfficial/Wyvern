@@ -41,8 +41,9 @@ public:
 	static Application* getSingleton() { return Application::singleton; }
 
 	bool initialize( int _windowWidth, int _windowHeight );
-	bool tick();
 	void shutdown();
+
+	bool tick();
 
 	double getApplicationTime( void ) const { return m_runtime; }
 	double getDeltaTime      ( void ) const { return m_deltatime; }

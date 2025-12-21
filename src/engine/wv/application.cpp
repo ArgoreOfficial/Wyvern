@@ -11,7 +11,11 @@
 #include <cmath>
 #include <stdio.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Application* wv::Application::singleton = nullptr;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv {
 
@@ -19,10 +23,13 @@ class SomeClass : public wv::IReflectedType
 {
 	WV_REFLECT_TYPE( SomeClass )
 public:
-
+	
+	
 };
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void glfwErrorCallback( int error, const char* description )
 {
@@ -30,11 +37,15 @@ void glfwErrorCallback( int error, const char* description )
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Application::Application()
 {
 	singleton = this;
-
+	
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 {
@@ -126,6 +137,31 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_scenes.push_back( scene );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::shutdown()
+{
+	m_renderer.destroyMaterial( m_material );
+
+	for ( auto& mesh : m_renderView.renderMeshes )
+		m_renderer.destroyRenderMesh( mesh );
+
+	m_renderer.shutdown();
+	m_displayDriver->shutdown();
+
+	for ( size_t i = 0; i < m_scenes.size(); i++ )
+	{
+		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
+			WV_FREE( m_scenes[ i ]->cameras[ j ] );
+
+		WV_FREE( m_scenes[ i ] );
+	}
+
+	ReflectionRegistry::destroySingleton();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Application::tick()
 {
 	if ( !m_alive )
@@ -147,24 +183,7 @@ bool wv::Application::tick()
 	return true;
 }
 
-void wv::Application::shutdown()
-{
-	m_renderer.destroyMaterial( m_material );
-
-	for ( auto& mesh : m_renderView.renderMeshes )
-		m_renderer.destroyRenderMesh( mesh );
-
-	m_renderer.shutdown();
-	m_displayDriver->shutdown();
-
-	for ( size_t i = 0; i < m_scenes.size(); i++ )
-	{
-		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
-			WV_FREE( m_scenes[ i ]->cameras[ j ] );
-
-		WV_FREE( m_scenes[ i ] );
-	}
-}
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::update()
 {
@@ -203,6 +222,8 @@ void wv::Application::update()
 
 	//m_app->postUpdate();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::render()
 {
