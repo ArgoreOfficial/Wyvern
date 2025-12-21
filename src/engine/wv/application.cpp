@@ -2,16 +2,11 @@
 
 #include <wv/math/math.h>
 #include <wv/debug/log.h>
-#include <wv/memory/memory.h>
-
-#include <wv/platform/platform.h>
+#include <wv/display_driver.h>
 #include <wv/filesystem/file_system.h>
-
+#include <wv/memory/memory.h>
+#include <wv/platform/platform.h>
 #include <wv/reflection/reflection.h>
-
-#ifdef WV_SUPPORT_SDL2
-#include <sdl/display_driver_sdl.h>
-#endif
 
 #include <cmath>
 #include <stdio.h>
@@ -33,7 +28,6 @@ void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
 
-
 }
 
 wv::Application::Application()
@@ -46,7 +40,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
-	m_displayDriver = Platform::createDisplayDriver();;
+	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
