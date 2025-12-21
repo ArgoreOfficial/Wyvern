@@ -73,6 +73,16 @@ inline uint64_t randomU64() {
 	return dis( gen );
 }
 
+inline uint32_t randomU32() {
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+	std::uniform_int_distribution<unsigned long long> dis{
+		std::numeric_limits<std::uint32_t>::min(),
+		std::numeric_limits<std::uint32_t>::max()
+	};
+	return dis( gen );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _Ty> constexpr _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max )
