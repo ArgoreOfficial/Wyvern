@@ -1,5 +1,8 @@
 #pragma once
 
+#include <random>
+#include <cmath>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace wv
@@ -54,6 +57,20 @@ inline float  degrees( const float& _radians )  {
 
 inline double degrees( const double& _radians ) { 
 	return _radians * ( 180.0 / Const::Double::PI ); 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+// should this be here?
+
+inline uint64_t randomU64() {
+	std::random_device rd;
+	std::mt19937 gen( rd() );
+	std::uniform_int_distribution<unsigned long long> dis{
+		std::numeric_limits<std::uint64_t>::min(),
+		std::numeric_limits<std::uint64_t>::max()
+	};
+	return dis( gen );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
