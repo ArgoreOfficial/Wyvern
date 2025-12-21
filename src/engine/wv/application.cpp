@@ -8,6 +8,8 @@
 #include <wv/platform/platform.h>
 #include <wv/reflection/reflection.h>
 
+#include <wv/entity/entity.h>
+
 #include <cmath>
 #include <stdio.h>
 
@@ -43,6 +45,17 @@ wv::Application::Application()
 {
 	singleton = this;
 	
+	Entity* entity = WV_NEW( Entity );
+	entity->createSystem<TestEntitySystem>();
+
+	entity->initialize();
+
+	for ( size_t i = 0; i < 10; i++ )
+		entity->updateSystems( (double)i );
+	
+	entity->shutdown();
+
+	WV_FREE( entity );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

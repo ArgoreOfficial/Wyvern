@@ -1,0 +1,108 @@
+#pragma once
+
+#include <wv/math/transform.h>
+#include <wv/entity/entity_system.h>
+
+#include <wv/reflection/reflection.h>
+#include <wv/memory/memory.h>
+
+namespace wv {
+
+class Entity final : wv::IReflectedType
+{
+	WV_REFLECT_TYPE( Entity )
+public:
+
+	/*
+	Unloaded     -> created but no data present
+	Loaded       -> data has been loaded in, but entity does not "exist" yet
+	Initiailized -> all components, systems, and entity data has been intiailized and the entity exists in world now
+	*/
+
+	enum class EntityState : uint8_t
+	{
+		UNLOADED = 0,
+		LOADED,
+		INITIALIZED
+	};
+
+	Entity() = default;
+
+	void initialize();
+	void shutdown();
+
+	Transformf& getTransform() { return m_transform; }
+
+	bool isUnloaded()    const { return m_state == EntityState::UNLOADED; }
+	bool isLoaded()      const { return m_state == EntityState::LOADED; }
+	bool isInitialized() const { return m_state == EntityState::INITIALIZED; }
+
+	void addComponent( IEntityComponent* _component ) {
+		if ( _component == nullptr )
+			return;
+
+		m_components.push_back( _component );
+	}
+
+	template<typename Ty>
+	void createSystem();
+
+	template<typename Ty>
+	Ty* getSystem() {
+		static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+
+		for ( size_t i = 0; i < m_systems.size(); i++ )
+		{
+			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+				continue;
+			return static_cast<Ty*>( m_systems[ i ] );
+		}
+
+		// Does not contain system of type
+		return nullptr;
+	}
+
+	template<typename Ty>
+	void destroySystem() {
+		static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+
+		for ( size_t i = 0; i < m_systems.size(); i++ )
+		{
+			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+				continue;
+
+			Ty* system = static_cast<Ty*>( m_systems[ i ] );
+			m_systems.erase( m_systems.begin() + i );
+
+			if ( !system )
+				continue;
+
+			delete system;
+		}
+	}
+
+	void updateSystems( double _deltaTime );
+
+private:
+	void createSystem( IEntitySystem* _system );
+
+	void registerComponentWithSystems( IEntityComponent* _component );
+	void unregisterComponentWithSystems( IEntityComponent* _component );
+
+	Transformf m_transform;
+
+	EntityState m_state = EntityState::UNLOADED;
+
+	std::vector<IEntitySystem*>    m_systems;
+	std::vector<IEntityComponent*> m_components;
+};
+
+template<typename Ty>
+inline void Entity::createSystem()
+{
+	static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+	IEntitySystem* system = WV_NEW( Ty );
+	createSystem( system );
+}
+
+}
