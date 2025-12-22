@@ -14,6 +14,8 @@
 
 namespace wv {
 
+class World;
+
 struct GLRenderMaterial
 {
 	GLuint shaderProgram = 0;
@@ -82,6 +84,8 @@ public:
 
 	void drawRenderView( const RenderView& _renderView );
 	void drawDebugLines( const std::vector<wv::Line3f>& _lines );
+
+	void renderWorld( World* _world );
 
 	ResourceID createTexture( unsigned char* _data, uint32_t _width, uint32_t _height, uint32_t _channels, TextureFormat _format, bool _generate_mips, TextureFiltering _filtering );
 	void destroyTexture( ResourceID _handle );

@@ -12,6 +12,9 @@
 #include <wv/entity/world.h>
 #include <wv/entity/world_sector.h>
 
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
+
 #include <cmath>
 #include <stdio.h>
 
@@ -51,23 +54,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	if ( !m_renderer.setup() )
 		return false;
 
+	m_world = _world;
+
 	m_filesystem = Platform::createFileSystem( "data" );
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
 	m_renderer.setupDebug( vsDebug.c_str(), fsDebug.c_str() );
-
-	///////////////////////////////////////////////////////////////////////////
-	// Set up world
-
-	m_world = _world;
-
-	WorldSector* sector = WV_NEW( WorldSector );
-	Entity* entity = WV_NEW( Entity );
-	entity->createSystem<TestEntitySystem>();
-	sector->addEntity( entity );
-
-	m_world->addSector( sector );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -129,17 +122,31 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_renderer.setRenderMeshMaterial( mesh, m_material );
 
-	models.push_back( mesh );
+	///////////////////////////////////////////////////////////////////////////
+	// Set up world
+
+	m_world->createWorldSystem<RenderWorldSystem>();
+
+	MeshComponent* meshComponent = WV_NEW( MeshComponent );
+	meshComponent->setRenderMesh( mesh );
+
+	Entity* entity = WV_NEW( Entity );
+	entity->addComponent( meshComponent );
+
+	WorldSector* sector = WV_NEW( WorldSector );
+	sector->addEntity( entity );
+	m_world->addSector( sector );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::shutdown()
 {
-	m_renderer.destroyMaterial( m_material );
+	m_world->shutdown();
+	WV_FREE( m_world );
 
-	for ( auto& mesh : m_renderView.renderMeshes )
-		m_renderer.destroyRenderMesh( mesh );
+	m_renderer.destroyMaterial( m_material );
 
 	m_renderer.shutdown();
 	m_displayDriver->shutdown();
@@ -218,17 +225,7 @@ void wv::Application::render()
 	m_renderer.prepare( windowSize.x, windowSize.y );
 	m_renderer.clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 	m_renderer.clearDepth();
-
-	ICamera* camera = m_world->activeCamera;
-	if ( !camera ) return;
-
-	m_renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-
-	m_renderView.renderMeshes.clear();
-	for ( size_t i = 0; i < models.size(); i++ )
-		m_renderView.renderMeshes.push_back( models[ i ] );
-
-	m_renderer.drawRenderView( m_renderView );
+	m_renderer.renderWorld( m_world );
 
 	std::vector<Line3f> lines;
 

@@ -46,13 +46,12 @@ int main( int _argc, char* _argv[] )
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
 	wv::Application app;
-	wv::World* world = WV_NEW( wv::World );
 	
 #if defined( WV_PACKAGE ) and defined( __cpp_exceptions )
 	try 
 	{
 #endif
-		if ( app.initialize( world, 900, 600 ) )
+		if ( app.initialize( WV_NEW( wv::World ), 900, 600 ) )
 		{
 			wv::Debug::Print( "Starting Run Loop\n" );
 
@@ -85,8 +84,6 @@ int main( int _argc, char* _argv[] )
 				"\n[==========================================]\n" );
 	}
 #endif
-
-	WV_FREE( world );
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
 

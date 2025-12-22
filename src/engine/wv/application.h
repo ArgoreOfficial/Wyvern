@@ -63,12 +63,7 @@ private:
 
 	wv::ResourceID m_material;
 	
-	size_t m_activeSceneIndex = 0;
-
-	wv::RenderView m_renderView; // TODO?
-
 	wv::World* m_world = nullptr;
-	std::vector<ResourceID> models;
 };
 
 }

@@ -2,6 +2,12 @@
 
 #include <wv/debug/log.h>
 
+#include <wv/entity/world.h>
+#include <wv/entity/world_sector.h>
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
+#include <wv/camera/camera.h>
+
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -424,6 +430,37 @@ void wv::OpenGLRenderer::drawDebugLines( const std::vector<wv::Line3f>& _lines )
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 	glDrawArrays( GL_LINES, 0, static_cast<GLsizei>( _lines.size() * 2 ) );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // reset back
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::renderWorld( World* _world )
+{
+	WV_ASSERT( _world == nullptr );
+
+	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
+	WV_ASSERT( worldRenderSystem == nullptr );
+
+	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
+
+	ICamera* camera = _world->activeCamera;
+	if ( !camera ) return;
+
+	wv::RenderView renderView{};
+
+	renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
+
+	renderView.renderMeshes.clear();
+	for ( auto component : components )
+	{
+		ResourceID mesh = component->getRenderMesh();
+		if ( !mesh.is_valid() )
+			continue;
+
+		renderView.renderMeshes.push_back( mesh );
+	}
+
+	drawRenderView( renderView );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
