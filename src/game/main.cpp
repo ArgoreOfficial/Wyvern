@@ -5,6 +5,7 @@
 #include <wv/debug/trace.h>
 #include <wv/memory/memory.h>
 #include <wv/target/iremote_target.h>
+#include <wv/entity/world.h>
 
 #include <wv/platform/platform.h>
 #include <wv/platform/thread.h>
@@ -50,7 +51,7 @@ int main( int _argc, char* _argv[] )
 	try 
 	{
 #endif
-		if ( app.initialize( 900, 600 ) )
+		if ( app.initialize( WV_NEW( wv::World ), 900, 600 ) )
 		{
 			wv::Debug::Print( "Starting Run Loop\n" );
 

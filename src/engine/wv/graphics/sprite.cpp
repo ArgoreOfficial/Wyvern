@@ -216,9 +216,9 @@ void wv::SpriteRenderer::drawSprites( wv::ICamera* _camera )
 		s->transform.setScale( s->getTrueSize() );
 
 		s->transform.update( nullptr );
-		m_renderer->setVSUniformMatrix4x4( s->shader_pipeline, 1, view_proj ); // view proj
-		m_renderer->setVSUniformMatrix4x4( s->shader_pipeline, 2, s->transform.getMatrix() ); // model
-		m_renderer->setVSUniformVector2f( s->shader_pipeline, 3, s->uv_offset );
+		// m_renderer->setVSUniformMatrix4x4( s->shader_pipeline, 1, view_proj ); // view proj
+		// m_renderer->setVSUniformMatrix4x4( s->shader_pipeline, 2, s->transform.getMatrix() ); // model
+		// m_renderer->setVSUniformVector2f( s->shader_pipeline, 3, s->uv_offset );
 
 		m_renderer->bindTexture( s->texture, 0 );
 		//m_renderer->bindStorageBufferToSlot( s->vertex_buffer );

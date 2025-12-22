@@ -2,35 +2,48 @@
 
 #include <wv/math/math.h>
 #include <wv/debug/log.h>
-#include <wv/memory/memory.h>
-
-#include <wv/platform/platform.h>
+#include <wv/display_driver.h>
 #include <wv/filesystem/file_system.h>
+#include <wv/memory/memory.h>
+#include <wv/platform/platform.h>
+#include <wv/reflection/reflection.h>
 
-#ifdef WV_SUPPORT_SDL2
-#include <sdl/display_driver_sdl.h>
-#endif
+#include <wv/entity/entity.h>
+#include <wv/entity/world.h>
+#include <wv/entity/world_sector.h>
+
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
 
 #include <cmath>
 #include <stdio.h>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Application* wv::Application::singleton = nullptr;
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
+
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application::Application()
 {
 	singleton = this;
 }
 
-bool wv::Application::initialize( int _windowWidth, int _windowHeight )
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
-	m_displayDriver = Platform::createDisplayDriver();;
+	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
@@ -41,16 +54,13 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	if ( !m_renderer.setup() )
 		return false;
 
+	m_world = _world;
+
 	m_filesystem = Platform::createFileSystem( "data" );
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
 	m_renderer.setupDebug( vsDebug.c_str(), fsDebug.c_str() );
-
-	///////////////////////////////////////////////////////////////////////////
-	// Set up scene
-
-	Scene* scene = WV_NEW( Scene );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -61,7 +71,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	camera->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
 	// camera->setOrthoWidth( 6.0f );
 
-	scene->cameras.push_back( camera );
+	m_world->activeCamera = camera;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up mesh stuff (testing)
@@ -112,9 +122,39 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 
 	m_renderer.setRenderMeshMaterial( mesh, m_material );
 
-	scene->models.push_back( mesh );
-	m_scenes.push_back( scene );
+	///////////////////////////////////////////////////////////////////////////
+	// Set up world
+
+	m_world->createWorldSystem<RenderWorldSystem>();
+
+	MeshComponent* meshComponent = WV_NEW( MeshComponent );
+	meshComponent->setRenderMesh( mesh );
+
+	Entity* entity = WV_NEW( Entity );
+	entity->addComponent( meshComponent );
+
+	WorldSector* sector = WV_NEW( WorldSector );
+	sector->addEntity( entity );
+	m_world->addSector( sector );
+
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::shutdown()
+{
+	m_world->shutdown();
+	WV_FREE( m_world );
+
+	m_renderer.destroyMaterial( m_material );
+
+	m_renderer.shutdown();
+	m_displayDriver->shutdown();
+
+	ReflectionRegistry::destroySingleton();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Application::tick()
 {
@@ -137,33 +177,16 @@ bool wv::Application::tick()
 	return true;
 }
 
-void wv::Application::shutdown()
-{
-	m_renderer.destroyMaterial( m_material );
-
-	for ( auto& mesh : m_renderView.renderMeshes )
-		m_renderer.destroyRenderMesh( mesh );
-
-	m_renderer.shutdown();
-	m_displayDriver->shutdown();
-
-	for ( size_t i = 0; i < m_scenes.size(); i++ )
-	{
-		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
-			WV_FREE( m_scenes[ i ]->cameras[ j ] );
-		
-		WV_FREE( m_scenes[ i ] );
-	}
-}
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Application::update()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
-	Scene* activeScene = getActiveScene();
-	if ( !activeScene ) return;
+	m_world->updateLoading();
+	m_world->updateSectors( m_deltatime );
 
-	ICamera* camera = activeScene->getActiveCamera();
+	ICamera* camera = m_world->activeCamera;
 	if ( !camera ) return;
 
 	camera->getTransform().setPosition(
@@ -194,31 +217,20 @@ void wv::Application::update()
 	//m_app->postUpdate();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	m_renderer.prepare( windowSize.x, windowSize.y );
 	m_renderer.clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 	m_renderer.clearDepth();
-
-	Scene* activeScene = getActiveScene();
-	if ( !activeScene ) return;
-
-	ICamera* camera = activeScene->getActiveCamera();
-	if ( !camera ) return;
-
-	m_renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-
-	m_renderView.renderMeshes.clear();
-	for ( size_t i = 0; i < activeScene->models.size(); i++ )
-		m_renderView.renderMeshes.push_back( activeScene->models[ i ] );
-
-	m_renderer.drawRenderView( m_renderView );
+	m_renderer.renderWorld( m_world );
 
 	std::vector<Line3f> lines;
 
-	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } });
-	lines.push_back( Line3f{      lines.back(), { 2.0f, 1.0f, 3.0f } } );
+	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
+	lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
 
 	m_renderer.clearDepth(); // optional
 	m_renderer.drawDebugLines( lines );

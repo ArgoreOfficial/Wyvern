@@ -14,6 +14,8 @@
 
 namespace wv {
 
+class World;
+
 struct GLRenderMaterial
 {
 	GLuint shaderProgram = 0;
@@ -77,25 +79,18 @@ public:
 
 	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
 	ResourceID createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData = nullptr, size_t _sizeExtraVertexData = 0 );
-
 	void destroyRenderMesh( ResourceID _handle );
-	void drawRenderMesh( ResourceID _handle, bool _useExtraData = true );
-
 	void setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle );
 
 	void drawRenderView( const RenderView& _renderView );
 	void drawDebugLines( const std::vector<wv::Line3f>& _lines );
 
+	void renderWorld( World* _world );
+
 	ResourceID createTexture( unsigned char* _data, uint32_t _width, uint32_t _height, uint32_t _channels, TextureFormat _format, bool _generate_mips, TextureFiltering _filtering );
 	void destroyTexture( ResourceID _handle );
 	void bindTexture( ResourceID _handle, uint32_t _slot );
-
 	Vector2i getTextureSize( ResourceID _handle );
-
-	void setVSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix );
-	void setFSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix );
-
-	void setVSUniformVector2f( ResourceID _pipeline, uint32_t _location, const wv::Vector2f& _vector );
 
 private:
 

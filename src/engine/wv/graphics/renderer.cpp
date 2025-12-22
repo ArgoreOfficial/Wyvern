@@ -2,6 +2,12 @@
 
 #include <wv/debug/log.h>
 
+#include <wv/entity/world.h>
+#include <wv/entity/world_sector.h>
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
+#include <wv/camera/camera.h>
+
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -323,22 +329,6 @@ void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::drawRenderMesh( ResourceID _handle, bool _useExtraData )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
-	bindStorageBufferToSlot( mesh.positionBuffer, 0 );
-
-	if( _useExtraData && mesh.hasExtraVertexData )
-		bindStorageBufferToSlot( mesh.extraVertexDataBuffer, 1 );
-
-	glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle )
 {
 	wv::GLRenderMesh& mesh = m_renderMeshes.at( _meshHandle );
@@ -440,6 +430,37 @@ void wv::OpenGLRenderer::drawDebugLines( const std::vector<wv::Line3f>& _lines )
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 	glDrawArrays( GL_LINES, 0, static_cast<GLsizei>( _lines.size() * 2 ) );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // reset back
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::OpenGLRenderer::renderWorld( World* _world )
+{
+	WV_ASSERT( _world == nullptr );
+
+	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
+	WV_ASSERT( worldRenderSystem == nullptr );
+
+	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
+
+	ICamera* camera = _world->activeCamera;
+	if ( !camera ) return;
+
+	wv::RenderView renderView{};
+
+	renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
+
+	renderView.renderMeshes.clear();
+	for ( auto component : components )
+	{
+		ResourceID mesh = component->getRenderMesh();
+		if ( !mesh.is_valid() )
+			continue;
+
+		renderView.renderMeshes.push_back( mesh );
+	}
+
+	drawRenderView( renderView );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -639,38 +660,6 @@ wv::Vector2i wv::OpenGLRenderer::getTextureSize( ResourceID _handle )
 		(int)m_textures[ _handle ].width, 
 		(int)m_textures[ _handle ].height 
 	};
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::setVSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix )
-{
-	if ( !_handle.is_valid() )
-		return;
-
-	//glProgramUniformMatrix4fv( m_pipelines.at( _handle ).vert_module_handle, _location, 1, GL_FALSE, _matrix.m );
-	glUniformMatrix4fv( _location, 1, GL_FALSE, _matrix.m );
-	
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::OpenGLRenderer::setFSUniformMatrix4x4( ResourceID _handle, uint32_t _location, const wv::Matrix4x4f& _matrix )
-{
-	if ( !_handle.is_valid() )
-		return;
-	
-	//glProgramUniformMatrix4fv( m_pipelines.at( _handle ).frag_module_handle, _location, 1, GL_FALSE, _matrix.m );
-	glUniformMatrix4fv( _location, 1, GL_FALSE, _matrix.m );
-}
-
-void wv::OpenGLRenderer::setVSUniformVector2f( ResourceID _pipeline, uint32_t _location, const wv::Vector2f& _vector )
-{
-	if ( !_pipeline.is_valid() )
-		return;
-
-	//glProgramUniform2fv( m_pipelines.at( _pipeline ).vert_module_handle, _location, 1, &_vector.x );
-	glUniform2fv( _location, 1, &_vector.x );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

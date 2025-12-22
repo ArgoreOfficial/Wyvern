@@ -1,0 +1,114 @@
+#include "entity.h"
+
+#include <wv/entity/entity_component.h>
+#include <wv/entity/world.h>
+
+wv::Entity::~Entity()
+{
+	WV_ASSERT( m_state != EntityState::UNLOADED );
+	
+	for ( IEntityComponent* component : m_components )
+		WV_FREE( component );
+
+	for ( IEntitySystem* system : m_systems )
+		WV_FREE( system );
+}
+
+void wv::Entity::load()
+{
+	WV_ASSERT( m_state != EntityState::UNLOADED );
+	
+	for ( auto component : m_components )
+		component->load();
+	
+	m_state = EntityState::LOADED;
+}
+
+void wv::Entity::unload()
+{
+	WV_ASSERT( m_state != EntityState::LOADED );
+		
+	for ( auto component : m_components )
+		component->unload();
+	
+	m_state = EntityState::UNLOADED;
+}
+
+void wv::Entity::initialize( World* _world )
+{
+	WV_ASSERT( m_state != EntityState::LOADED );
+
+	for ( auto system : m_systems )
+		system->initialize();
+
+	updateLoading();
+
+	m_state = EntityState::INITIALIZED;
+}
+
+void wv::Entity::shutdown() 
+{
+	WV_ASSERT( m_state != EntityState::INITIALIZED );
+
+	for ( auto component : m_components )
+		unregisterComponentWithSystems( component );
+
+	for ( auto system : m_systems )
+		system->shutdown();
+
+	m_state = EntityState::LOADED;
+}
+
+void wv::Entity::updateLoading()
+{
+	if ( m_componentsToRegister.size() > 0 )
+	{
+		for ( auto component : m_componentsToRegister )
+		{
+			registerComponentWithSystems( component );
+			m_parentSector->getParentWorld()->queueComponentForRegistration( this, component );
+		}
+
+		m_componentsToRegister.clear();
+	}
+}
+
+void wv::Entity::updateSystems( double _deltaTime )
+{
+	for ( auto system : m_systems )
+		system->update( _deltaTime );
+}
+
+void wv::Entity::createSystem( IEntitySystem* _system )
+{
+	if ( _system == nullptr )
+		return;
+
+	m_systems.push_back( _system );
+	
+	if ( isInitialized() )
+	{
+		_system->initialize();
+
+		for ( auto component : m_components )
+			_system->registerComponent( component );
+	}
+}
+
+void wv::Entity::registerComponentWithSystems( IEntityComponent* _component )
+{
+	if ( _component == nullptr ) 
+		return;
+	
+	for ( auto system : m_systems )
+		system->registerComponent( _component );
+}
+
+void wv::Entity::unregisterComponentWithSystems( IEntityComponent* _component )
+{
+	if ( _component == nullptr ) 
+		return;
+
+	for ( auto system : m_systems )
+		system->unregisterComponent( _component );
+}
