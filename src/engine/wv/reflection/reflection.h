@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/string.h>
+#include <wv/debug/error.h>
 
 #include <vector>
 

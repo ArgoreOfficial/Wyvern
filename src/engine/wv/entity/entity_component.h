@@ -18,22 +18,26 @@ public:
 	IEntityComponent() = default;
 
 	virtual void load() { 
-		if ( m_state != EntityComponentState::UNLOADED ) return; // assert
+		WV_ASSERT( m_state != EntityComponentState::UNLOADED );
+
 		m_state = EntityComponentState::LOADED;
 	}
 
 	virtual void unload() {
-		if ( m_state != EntityComponentState::LOADED ) return; // assert
+		WV_ASSERT( m_state != EntityComponentState::LOADED );
+
 		m_state = EntityComponentState::UNLOADED;
 	}
 
 	virtual void initialize() {
-		if ( m_state != EntityComponentState::LOADED ) return; // assert
+		WV_ASSERT( m_state != EntityComponentState::LOADED );
+
 		m_state = EntityComponentState::INITIALIZED;
 	}
 
 	virtual void shutdown() {
-		if ( m_state != EntityComponentState::INITIALIZED ) return; // assert
+		WV_ASSERT( m_state != EntityComponentState::INITIALIZED );
+
 		m_state = EntityComponentState::LOADED;
 	}
 

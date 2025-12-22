@@ -4,34 +4,27 @@
 
 void wv::Entity::load()
 {
-	if ( m_state != EntityState::UNLOADED )
-		return; // assert
-
+	WV_ASSERT( m_state != EntityState::UNLOADED );
+	
 	for ( auto component : m_components )
-	{
-		//component->load();
-	}
-
+		component->load();
+	
 	m_state = EntityState::LOADED;
 }
 
-void wv::Entity::load()
+void wv::Entity::unload()
 {
-	if ( m_state != EntityState::LOADED )
-		return; // assert
-
+	WV_ASSERT( m_state != EntityState::LOADED );
+		
 	for ( auto component : m_components )
-	{	
-		//component->unload();
-	}
-
+		component->unload();
+	
 	m_state = EntityState::UNLOADED;
 }
 
 void wv::Entity::initialize() 
 {
-	if ( m_state != EntityState::LOADED )
-		return; // assert
+	WV_ASSERT( m_state != EntityState::LOADED );
 
 	for ( auto system : m_systems )
 		system->initialize();
@@ -44,8 +37,7 @@ void wv::Entity::initialize()
 
 void wv::Entity::shutdown() 
 {
-	if ( m_state != EntityState::INITIALIZED ) 
-		return; // assert
+	WV_ASSERT( m_state != EntityState::INITIALIZED );
 
 	for ( auto component : m_components )
 		unregisterComponentWithSystems( component );
@@ -60,7 +52,6 @@ void wv::Entity::updateSystems( double _deltaTime )
 {
 	for ( auto system : m_systems )
 		system->update( _deltaTime );
-
 }
 
 void wv::Entity::createSystem( IEntitySystem* _system )

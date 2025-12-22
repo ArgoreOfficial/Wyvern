@@ -2,6 +2,8 @@
 
 void wv::WorldSector::load()
 {
+	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
+
 	m_state = WorldSectorState::LOADING;
 
 	int numFailedLoads = 0;
@@ -20,6 +22,8 @@ void wv::WorldSector::load()
 
 void wv::WorldSector::unload()
 {
+	WV_ASSERT( m_state != WorldSectorState::LOADED );
+
 	for ( auto entity : m_entities )
 	{
 		if( entity->isLoaded() )
@@ -31,6 +35,8 @@ void wv::WorldSector::unload()
 
 void wv::WorldSector::initialize()
 {
+	WV_ASSERT( m_state != WorldSectorState::LOADED );
+
 	for ( auto entity : m_entities )
 	{
 		if ( entity->isLoaded() )
@@ -42,6 +48,8 @@ void wv::WorldSector::initialize()
 
 void wv::WorldSector::shutdown()
 {
+	WV_ASSERT( m_state != WorldSectorState::INITIALIZED );
+
 	for ( auto entity : m_entities )
 	{
 		if ( entity->isInitialized() )
