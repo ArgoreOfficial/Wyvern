@@ -10,6 +10,8 @@ typedef uint32_t WorldSectorID;
 
 class WorldSector
 {
+	friend class World;
+
 public:
 	enum class WorldSectorState : uint8_t
 	{
@@ -49,6 +51,8 @@ public:
 	void destroyEntity( EntityID _entityID );
 
 protected:
+	World* m_parentWorld = nullptr;
+
 	WorldSectorID    m_ID    = wv::Math::randomU32();
 	WorldSectorState m_state = WorldSectorState::UNLOADED;
 

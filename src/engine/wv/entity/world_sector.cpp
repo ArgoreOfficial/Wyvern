@@ -40,7 +40,7 @@ void wv::WorldSector::initialize()
 	for ( auto entity : m_entities )
 	{
 		if ( entity->isLoaded() )
-			entity->initialize();
+			entity->initialize( m_parentWorld );
 	}
 
 	m_state = WorldSectorState::INITIALIZED;
@@ -66,7 +66,6 @@ void wv::WorldSector::update( double _deltaTime )
 		if ( entity->isInitialized() )
 			entity->updateSystems( _deltaTime );
 	}
-
 }
 
 void wv::WorldSector::addEntity( Entity* _entity )
@@ -76,6 +75,8 @@ void wv::WorldSector::addEntity( Entity* _entity )
 		WV_LOG_ERROR( "World sector %zu already contains entity %zu", m_ID, _entity->getID() );
 		return;
 	}
+
+	_entity->m_parentSector = this;
 
 	m_entities.push_back( _entity );
 	m_entitiesToLoad.push_back( _entity );
@@ -90,6 +91,8 @@ void wv::WorldSector::destroyEntity( EntityID _entityID )
 		WV_LOG_ERROR( "World sector %zu does not contain entity %zu", m_ID, _entityID );
 		return;
 	}
+
+	entity->m_parentSector = nullptr;
 
 	m_entityMap.erase( _entityID );
 	

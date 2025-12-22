@@ -8,6 +8,10 @@ void wv::World::addSector( WorldSector* _sector )
 		return;
 	}
 
+	WV_ASSERT_MSG( _sector->m_parentWorld != nullptr, "Sector already has a parent world" );
+	
+	_sector->m_parentWorld = this;
+
 	m_sectors.push_back( _sector );
 	m_sectorsToLoad.push_back( _sector );
 	m_sectorMap.emplace( _sector->getID(), _sector );
@@ -21,6 +25,8 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 		WV_LOG_ERROR( "World does not contain sector %zu", _sectorID );
 		return;
 	}
+
+	sector->m_parentWorld = nullptr;
 
 	m_sectorMap.erase( _sectorID );
 
@@ -46,12 +52,47 @@ void wv::World::updateLoading()
 		if( sector->isLoaded() )
 			sector->initialize();
 	}
+
+	for ( auto system : m_systems )
+	{
+		for ( auto component : m_componentsToUnregister )
+			system->unregisterComponent( component.first, component.second );
+
+		for ( auto component : m_componentsToRegister )
+			system->registerComponent( component.first, component.second );
+	}
+
+	m_componentsToUnregister.clear();
+	m_componentsToRegister.clear();
+
 }
 
 void wv::World::updateSectors( double _deltaTime )
 {
 	for ( auto sector : m_sectors )
-	{
 		sector->update( _deltaTime );
+	
+	for ( auto system : m_systems )
+		system->update( _deltaTime );
+	
+}
+
+void wv::World::createWorldSystem( IWorldSystem* _system )
+{
+	if ( _system == nullptr )
+		return;
+
+	m_systems.push_back( _system );
+
+	_system->initialize();
+
+	for ( auto sector : m_sectors )
+	{
+		for ( auto entity : sector->getEntities() )
+		{
+			
+			for ( auto component : entity->getComponents() )
+				_system->registerComponent( entity, component );
+		}
 	}
 }

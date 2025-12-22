@@ -9,10 +9,14 @@
 
 namespace wv {
 
+class World;
+
 typedef uint32_t EntityID;
 
 class Entity final : wv::IReflectedType
 {
+	friend class WorldSector;
+
 	WV_REFLECT_TYPE( Entity )
 public:
 
@@ -35,7 +39,7 @@ public:
 	void load();
 	void unload();
 
-	void initialize();
+	void initialize( World* _world );
 	void shutdown();
 
 	EntityID getID() const { return m_ID; }
@@ -46,6 +50,7 @@ public:
 	bool isLoaded()      const { return m_state == EntityState::LOADED; }
 	bool isInitialized() const { return m_state == EntityState::INITIALIZED; }
 
+	const std::vector<IEntityComponent*>& getComponents() const { return m_components; }
 	void addComponent( IEntityComponent* _component ) {
 		if ( _component == nullptr )
 			return;
@@ -93,9 +98,13 @@ public:
 	void updateSystems( double _deltaTime );
 
 private:
+	// The sector that this entity originates from. 
+	// This may be different from the one it's currently in
+	WorldSector* m_parentSector = nullptr;
+
 	void createSystem( IEntitySystem* _system );
 
-	void registerComponentWithSystems( IEntityComponent* _component );
+	void registerComponentWithSystems  ( IEntityComponent* _component );
 	void unregisterComponentWithSystems( IEntityComponent* _component );
 
 	EntityID    m_ID    = wv::Math::randomU32();

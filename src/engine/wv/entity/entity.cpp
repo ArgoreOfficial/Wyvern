@@ -1,6 +1,7 @@
 #include "entity.h"
 
 #include <wv/entity/entity_component.h>
+#include <wv/entity/world.h>
 
 void wv::Entity::load()
 {
@@ -22,7 +23,7 @@ void wv::Entity::unload()
 	m_state = EntityState::UNLOADED;
 }
 
-void wv::Entity::initialize() 
+void wv::Entity::initialize( World* _world )
 {
 	WV_ASSERT( m_state != EntityState::LOADED );
 
@@ -72,7 +73,8 @@ void wv::Entity::createSystem( IEntitySystem* _system )
 
 void wv::Entity::registerComponentWithSystems( IEntityComponent* _component )
 {
-	if ( _component == nullptr ) return;
+	if ( _component == nullptr ) 
+		return;
 	
 	for ( auto system : m_systems )
 		system->registerComponent( _component );
@@ -80,7 +82,8 @@ void wv::Entity::registerComponentWithSystems( IEntityComponent* _component )
 
 void wv::Entity::unregisterComponentWithSystems( IEntityComponent* _component )
 {
-	if ( _component == nullptr ) return;
+	if ( _component == nullptr ) 
+		return;
 
 	for ( auto system : m_systems )
 		system->unregisterComponent( _component );
