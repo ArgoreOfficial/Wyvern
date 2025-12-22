@@ -16,6 +16,7 @@ public:
 protected:
 	virtual void initialize() { }
 	virtual void shutdown() { }
+
 	virtual void registerComponent  ( IEntityComponent* _component ) = 0;
 	virtual void unregisterComponent( IEntityComponent* _component ) = 0;
 

@@ -36,8 +36,8 @@ wv::Application::Application()
 
 	Entity* entity = WV_NEW( Entity );
 	entity->createSystem<TestEntitySystem>();
-	
 	sector.addEntity( entity );
+	
 
 	sector.load();
 	
