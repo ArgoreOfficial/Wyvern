@@ -59,6 +59,16 @@ void wv::WorldSector::shutdown()
 	m_state = WorldSectorState::LOADED;
 }
 
+void wv::WorldSector::update( double _deltaTime )
+{
+	for ( auto entity : m_entities )
+	{
+		if ( entity->isInitialized() )
+			entity->updateSystems( _deltaTime );
+	}
+
+}
+
 void wv::WorldSector::addEntity( Entity* _entity )
 {
 	if ( findEntity( _entity->getID() ) != nullptr )

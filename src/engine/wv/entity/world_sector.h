@@ -28,6 +28,8 @@ public:
 	void initialize();
 	void shutdown();
 
+	void update( double _deltaTime );
+
 	bool isUnloaded()    const { return m_state == WorldSectorState::UNLOADED; }
 	bool isLoading()     const { return m_state == WorldSectorState::LOADING; }
 	bool isLoaded()      const { return m_state == WorldSectorState::LOADED; }
