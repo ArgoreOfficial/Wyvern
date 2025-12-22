@@ -39,6 +39,7 @@ public:
 		m{ 0 }
 	{
 		static_assert( _Row == _Col, "Cannot create identity matrix from non-square matrix. See output" );
+
 		for( size_t i = 0; i < _Row; i++ )
 			set( i, i, _val );
 	}
@@ -53,12 +54,11 @@ public:
 		std::memcpy( m, _list, sizeof( m ) );
 	}
 
-#if defined( WV_CPP20 ) and defined( WV_PLATFORM_WINDOWS )
-	template<typename = if_1x4::type>
-#endif
 	Matrix( const Vector4<_Ty>& _vec ):
 		m{ 0 }
 	{
+		static_assert( _Row == 1 && _Col == 4, "Only Matrix<1, 4> can be constructed from Vector4" );
+
 		setRow( 0, { _vec.x, _vec.y, _vec.z, _vec.w } );
 	}
 
