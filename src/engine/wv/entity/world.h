@@ -8,6 +8,7 @@
 namespace wv {
 
 class WorldSector;
+class ICamera;
 
 class World : public IReflectedType
 {
@@ -33,6 +34,10 @@ public:
 	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { m_componentsToRegister  .emplace_back( _entity, _component ); }
 	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { m_componentsToUnregister.emplace_back( _entity, _component ); }
 
+	// should cameras be components?
+
+	wv::ICamera* activeCamera = nullptr;
+
 protected:
 
 	void createWorldSystem( IWorldSystem* _system );
@@ -43,10 +48,9 @@ protected:
 	std::vector<WorldSector*> m_sectorsToLoad;
 	std::unordered_map<WorldSectorID, WorldSector*> m_sectorMap;
 	
-	// TODO: DeferredTask ?
-
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToRegister;
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
+
 };
 
 template<typename Ty>

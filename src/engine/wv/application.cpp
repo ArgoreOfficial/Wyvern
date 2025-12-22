@@ -9,6 +9,7 @@
 #include <wv/reflection/reflection.h>
 
 #include <wv/entity/entity.h>
+#include <wv/entity/world.h>
 #include <wv/entity/world_sector.h>
 
 #include <cmath>
@@ -31,34 +32,11 @@ void glfwErrorCallback( int error, const char* description )
 wv::Application::Application()
 {
 	singleton = this;
-	
-	WorldSector sector;
-
-	Entity* entity = WV_NEW( Entity );
-	entity->createSystem<TestEntitySystem>();
-	sector.addEntity( entity );
-	
-
-	sector.load();
-	
-	sector.initialize();
-	for ( auto entity : sector.getEntities() )
-		entity->updateSystems( 0.0 );
-	sector.shutdown();
-	
-	sector.initialize();
-	for ( auto entity : sector.getEntities() )
-		entity->updateSystems( 1.0 );
-	sector.shutdown();
-
-	sector.unload();
-	
-	WV_FREE( entity );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::Application::initialize( int _windowWidth, int _windowHeight )
+bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
@@ -80,9 +58,16 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	m_renderer.setupDebug( vsDebug.c_str(), fsDebug.c_str() );
 
 	///////////////////////////////////////////////////////////////////////////
-	// Set up scene
+	// Set up world
 
-	Scene* scene = WV_NEW( Scene );
+	m_world = _world;
+
+	WorldSector* sector = WV_NEW( WorldSector );
+	Entity* entity = WV_NEW( Entity );
+	entity->createSystem<TestEntitySystem>();
+	sector->addEntity( entity );
+
+	m_world->addSector( sector );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -93,7 +78,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 	camera->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
 	// camera->setOrthoWidth( 6.0f );
 
-	scene->cameras.push_back( camera );
+	m_world->activeCamera = camera;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up mesh stuff (testing)
@@ -144,8 +129,7 @@ bool wv::Application::initialize( int _windowWidth, int _windowHeight )
 
 	m_renderer.setRenderMeshMaterial( mesh, m_material );
 
-	scene->models.push_back( mesh );
-	m_scenes.push_back( scene );
+	models.push_back( mesh );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -159,14 +143,6 @@ void wv::Application::shutdown()
 
 	m_renderer.shutdown();
 	m_displayDriver->shutdown();
-
-	for ( size_t i = 0; i < m_scenes.size(); i++ )
-	{
-		for ( size_t j = 0; j < m_scenes[ i ]->cameras.size(); j++ )
-			WV_FREE( m_scenes[ i ]->cameras[ j ] );
-
-		WV_FREE( m_scenes[ i ] );
-	}
 
 	ReflectionRegistry::destroySingleton();
 }
@@ -200,10 +176,10 @@ void wv::Application::update()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
-	Scene* activeScene = getActiveScene();
-	if ( !activeScene ) return;
+	m_world->updateLoading();
+	m_world->updateSectors( m_deltatime );
 
-	ICamera* camera = activeScene->getActiveCamera();
+	ICamera* camera = m_world->activeCamera;
 	if ( !camera ) return;
 
 	camera->getTransform().setPosition(
@@ -243,17 +219,14 @@ void wv::Application::render()
 	m_renderer.clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 	m_renderer.clearDepth();
 
-	Scene* activeScene = getActiveScene();
-	if ( !activeScene ) return;
-
-	ICamera* camera = activeScene->getActiveCamera();
+	ICamera* camera = m_world->activeCamera;
 	if ( !camera ) return;
 
 	m_renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
 
 	m_renderView.renderMeshes.clear();
-	for ( size_t i = 0; i < activeScene->models.size(); i++ )
-		m_renderView.renderMeshes.push_back( activeScene->models[ i ] );
+	for ( size_t i = 0; i < models.size(); i++ )
+		m_renderView.renderMeshes.push_back( models[ i ] );
 
 	m_renderer.drawRenderView( m_renderView );
 

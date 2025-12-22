@@ -31,11 +31,14 @@ public:
 	TestEntitySystem() = default;
 
 protected:
-	void registerComponent  ( IEntityComponent* _component ) override { }
-	void unregisterComponent( IEntityComponent* _component ) override { }
+	virtual void initialize() override { printf( "TestEntitySystem : initialize\n" ); }
+	virtual void shutdown() override { printf( "TestEntitySystem : shutdown\n" ); }
+
+	void registerComponent( IEntityComponent* _component ) override { printf( "TestEntitySystem : component Registered\n" ); }
+	void unregisterComponent( IEntityComponent* _component ) override { printf( "TestEntitySystem : component Registered\n" ); }
 
 	void update( double _deltaTime ) override { 
-		printf( "TestEntitySystem updated with dt %f\n", _deltaTime );
+		// printf( "TestEntitySystem updated with dt %f\n", _deltaTime );
 	}
 
 };

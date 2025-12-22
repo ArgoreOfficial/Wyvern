@@ -8,29 +8,13 @@ namespace wv {
 
 class IFileSystem;
 class DisplayDriver;
+class World;
 
 struct VertexData
 {
 	wv::Vector3f normal;
 	wv::Vector3f color;
 	wv::Vector2f texCoord;
-};
-
-struct Scene
-{
-	std::vector<ResourceID> models; // TODO: proper object node
-	std::vector<wv::ICamera*> cameras;
-	uint16_t activeCameraIndex = 0;
-
-	wv::ICamera* getActiveCamera() { 
-		if ( activeCameraIndex >= cameras.size() )
-			return nullptr;
-
-		return cameras[ activeCameraIndex ]; 
-	}
-
-	// std::vector<Light> lights;
-	// etc...
 };
 
 class Application 
@@ -40,7 +24,7 @@ public:
 	
 	static Application* getSingleton() { return Application::singleton; }
 
-	bool initialize( int _windowWidth, int _windowHeight );
+	bool initialize( World* _world, int _windowWidth, int _windowHeight );
 	void shutdown();
 
 	bool tick();
@@ -49,13 +33,7 @@ public:
 	double getDeltaTime      ( void ) const { return m_deltatime; }
 
 	std::string getGraphicsDriverName() const { return m_graphicsDriverName; }
-	wv::Scene* getActiveScene() {
-		if ( m_activeSceneIndex >= m_scenes.size() )
-			return nullptr;
-
-		return m_scenes[ m_activeSceneIndex ];
-	}
-
+	
 	void quit() { m_alive = false; }
 
 private:
@@ -85,11 +63,12 @@ private:
 
 	wv::ResourceID m_material;
 	
-	std::vector<Scene*> m_scenes;
 	size_t m_activeSceneIndex = 0;
 
 	wv::RenderView m_renderView; // TODO?
 
+	wv::World* m_world = nullptr;
+	std::vector<ResourceID> models;
 };
 
 }
