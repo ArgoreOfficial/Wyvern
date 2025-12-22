@@ -40,12 +40,19 @@ wv::Application::Application()
 	sector.addEntity( entity );
 
 	sector.load();
-
+	
+	sector.initialize();
 	for ( auto entity : sector.getEntities() )
 		entity->updateSystems( 0.0 );
+	sector.shutdown();
 	
-	sector.unload();
+	sector.initialize();
+	for ( auto entity : sector.getEntities() )
+		entity->updateSystems( 1.0 );
+	sector.shutdown();
 
+	sector.unload();
+	
 	WV_FREE( entity );
 }
 
