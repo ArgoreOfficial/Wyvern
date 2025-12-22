@@ -3,6 +3,17 @@
 #include <wv/entity/entity_component.h>
 #include <wv/entity/world.h>
 
+wv::Entity::~Entity()
+{
+	WV_ASSERT( m_state != EntityState::UNLOADED );
+	
+	for ( IEntityComponent* component : m_components )
+		WV_FREE( component );
+
+	for ( IEntitySystem* system : m_systems )
+		WV_FREE( system );
+}
+
 void wv::Entity::load()
 {
 	WV_ASSERT( m_state != EntityState::UNLOADED );
@@ -30,8 +41,7 @@ void wv::Entity::initialize( World* _world )
 	for ( auto system : m_systems )
 		system->initialize();
 
-	for ( auto component : m_components )
-		registerComponentWithSystems( component );
+	updateLoading();
 
 	m_state = EntityState::INITIALIZED;
 }
@@ -47,6 +57,20 @@ void wv::Entity::shutdown()
 		system->shutdown();
 
 	m_state = EntityState::LOADED;
+}
+
+void wv::Entity::updateLoading()
+{
+	if ( m_componentsToRegister.size() > 0 )
+	{
+		for ( auto component : m_componentsToRegister )
+		{
+			registerComponentWithSystems( component );
+			m_parentSector->getParentWorld()->queueComponentForRegistration( this, component );
+		}
+
+		m_componentsToRegister.clear();
+	}
 }
 
 void wv::Entity::updateSystems( double _deltaTime )

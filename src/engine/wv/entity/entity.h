@@ -19,8 +19,7 @@ class Entity final : wv::IReflectedType
 
 	WV_REFLECT_TYPE( Entity )
 public:
-
-
+	
 	/*
 	Unloaded     -> created but no data present
 	Loaded       -> data has been loaded in, but entity does not "exist" yet
@@ -35,6 +34,7 @@ public:
 	};
 
 	Entity() = default;
+	~Entity();
 
 	void load();
 	void unload();
@@ -56,6 +56,7 @@ public:
 			return;
 
 		m_components.push_back( _component );
+		m_componentsToRegister.push_back( _component );
 	}
 
 	template<typename Ty>
@@ -95,6 +96,7 @@ public:
 		}
 	}
 
+	void updateLoading();
 	void updateSystems( double _deltaTime );
 
 private:
@@ -114,6 +116,7 @@ private:
 
 	std::vector<IEntitySystem*>    m_systems;
 	std::vector<IEntityComponent*> m_components;
+	std::vector<IEntityComponent*> m_componentsToRegister;
 };
 
 template<typename Ty>

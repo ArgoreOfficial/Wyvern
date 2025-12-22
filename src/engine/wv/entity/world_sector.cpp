@@ -1,5 +1,15 @@
 #include "world_sector.h"
 
+wv::WorldSector::~WorldSector()
+{
+	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
+
+	for ( Entity* entity : m_entities )
+		WV_FREE( entity );
+
+	m_entities.clear();
+}
+
 void wv::WorldSector::load()
 {
 	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
@@ -43,6 +53,9 @@ void wv::WorldSector::initialize()
 			entity->initialize( m_parentWorld );
 	}
 
+	for ( auto entity : m_entities )
+		entity->updateLoading();
+
 	m_state = WorldSectorState::INITIALIZED;
 }
 
@@ -57,6 +70,15 @@ void wv::WorldSector::shutdown()
 	}
 
 	m_state = WorldSectorState::LOADED;
+}
+
+void wv::WorldSector::updateLoading()
+{
+	if ( isLoaded() ) // remove?
+		initialize();
+
+	for ( auto entity : m_entities )
+		entity->updateLoading();
 }
 
 void wv::WorldSector::update( double _deltaTime )

@@ -13,6 +13,8 @@ class IWorldSystem : IReflectedType
 
 	WV_REFLECT_TYPE( IWorldSystem )
 public:
+	IWorldSystem() = default;
+	virtual ~IWorldSystem() { };
 	
 protected:
 	virtual void initialize() { }
@@ -32,11 +34,14 @@ public:
 	TestWorldSystem() = default;
 
 protected:
-	void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override { }
-	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override { }
+	virtual void initialize() override { printf( "TestWorldSystem : initialize\n" ); }
+	virtual void shutdown() override { printf( "TestWorldSystem : shutdown\n" ); }
+
+	void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
+	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
 
 	void update( double _deltaTime ) override { 
-		printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
+		// printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
 	}
 
 };

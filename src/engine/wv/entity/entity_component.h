@@ -4,7 +4,7 @@
 
 namespace wv {
 
-class IEntityComponent : wv::IReflectedType
+class IEntityComponent : public wv::IReflectedType
 {
 	WV_REFLECT_TYPE( IEntityComponent )
 public:
@@ -16,6 +16,7 @@ public:
 	};
 
 	IEntityComponent() = default;
+	virtual ~IEntityComponent() { };
 
 	virtual void load() { 
 		WV_ASSERT( m_state != EntityComponentState::UNLOADED );

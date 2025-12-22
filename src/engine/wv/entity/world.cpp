@@ -1,5 +1,40 @@
 #include "world.h"
 
+wv::World::~World()
+{
+	// Destroy world sectors
+	for ( WorldSector* sector : m_sectors )
+		WV_FREE( sector );
+	
+	m_sectors.clear();
+
+	// Destroy world systems
+	for ( IWorldSystem* system : m_systems )
+		WV_FREE( system );
+
+	m_systems.clear();
+
+	if ( activeCamera )
+		WV_FREE( activeCamera );
+}
+
+void wv::World::shutdown()
+{
+	// Unload and shutdown
+
+	for ( auto sector : m_sectors )
+		sector->shutdown();
+	
+	for ( auto sector : m_sectors )
+		sector->unload();
+	
+	updateRegisterUnregisterComponents();
+
+	for ( auto system : m_systems ) 
+		system->shutdown();
+
+}
+
 void wv::World::addSector( WorldSector* _sector )
 {
 	if ( findSector( _sector->getID() ) != nullptr )
@@ -26,6 +61,9 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 		return;
 	}
 
+	if( sector->isInitialized() ) sector->shutdown();
+	if( sector->isLoaded() ) sector->unload();
+
 	sector->m_parentWorld = nullptr;
 
 	m_sectorMap.erase( _sectorID );
@@ -49,22 +87,10 @@ void wv::World::updateLoading()
 
 	for ( auto sector : m_sectors )
 	{
-		if( sector->isLoaded() )
-			sector->initialize();
+		sector->updateLoading();
 	}
 
-	for ( auto system : m_systems )
-	{
-		for ( auto component : m_componentsToUnregister )
-			system->unregisterComponent( component.first, component.second );
-
-		for ( auto component : m_componentsToRegister )
-			system->registerComponent( component.first, component.second );
-	}
-
-	m_componentsToUnregister.clear();
-	m_componentsToRegister.clear();
-
+	updateRegisterUnregisterComponents();
 }
 
 void wv::World::updateSectors( double _deltaTime )
@@ -95,4 +121,19 @@ void wv::World::createWorldSystem( IWorldSystem* _system )
 				_system->registerComponent( entity, component );
 		}
 	}
+}
+
+void wv::World::updateRegisterUnregisterComponents()
+{
+	for ( auto system : m_systems )
+	{
+		for ( auto component : m_componentsToUnregister )
+			system->unregisterComponent( component.first, component.second );
+
+		for ( auto component : m_componentsToRegister )
+			system->registerComponent( component.first, component.second );
+	}
+
+	m_componentsToUnregister.clear();
+	m_componentsToRegister.clear();
 }

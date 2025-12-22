@@ -22,6 +22,7 @@ public:
 	};
 
 	WorldSector() = default;
+	~WorldSector();
 
 	WorldSectorID getID() const { return m_ID; }
 
@@ -30,6 +31,7 @@ public:
 	void initialize();
 	void shutdown();
 
+	void updateLoading();
 	void update( double _deltaTime );
 
 	bool isUnloaded()    const { return m_state == WorldSectorState::UNLOADED; }
@@ -49,6 +51,8 @@ public:
 
 	void addEntity( Entity* _entity );
 	void destroyEntity( EntityID _entityID );
+
+	World* getParentWorld() const { return m_parentWorld; }
 
 protected:
 	World* m_parentWorld = nullptr;

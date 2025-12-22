@@ -12,7 +12,9 @@ class IEntitySystem : IReflectedType
 
 	WV_REFLECT_TYPE( IEntitySystem )
 public:
-	
+	IEntitySystem() = default;
+	virtual ~IEntitySystem() { };
+
 protected:
 	virtual void initialize() { }
 	virtual void shutdown() { }
@@ -32,9 +34,9 @@ public:
 
 protected:
 	virtual void initialize() override { printf( "TestEntitySystem : initialize\n" ); }
-	virtual void shutdown() override { printf( "TestEntitySystem : shutdown\n" ); }
+	virtual void shutdown  () override { printf( "TestEntitySystem : shutdown\n" ); }
 
-	void registerComponent( IEntityComponent* _component ) override { printf( "TestEntitySystem : component Registered\n" ); }
+	void registerComponent  ( IEntityComponent* _component ) override { printf( "TestEntitySystem : component Registered\n" ); }
 	void unregisterComponent( IEntityComponent* _component ) override { printf( "TestEntitySystem : component Registered\n" ); }
 
 	void update( double _deltaTime ) override { 
