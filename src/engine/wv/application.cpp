@@ -14,6 +14,10 @@
 
 #include <wv/graphics/systems/render_world_system.h>
 #include <wv/graphics/components/mesh_component.h>
+#include <wv/graphics/viewport.h>
+
+#include <wv/camera/components/orbit_camera_component.h>
+#include <wv/camera/systems/camera_manager_system.h>
 
 #include <cmath>
 #include <stdio.h>
@@ -67,12 +71,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
-	ICamera* camera = WV_NEW( ICamera, ICamera::kPerspective, windowSize.x, windowSize.y );
-	camera->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
-	// camera->setOrthoWidth( 6.0f );
-
-	m_world->activeCamera = camera;
-
+	Viewport* viewport = m_world->getViewport();
+	if ( !viewport )
+	{
+		viewport = WV_NEW( Viewport );
+		m_world->setViewport( viewport );
+	}
+	
 	///////////////////////////////////////////////////////////////////////////
 	// Set up mesh stuff (testing)
 
@@ -126,6 +131,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	// Set up world
 
 	m_world->createWorldSystem<RenderWorldSystem>();
+	m_world->createWorldSystem<CameraManagerSystem>();
 
 	MeshComponent* meshComponent = WV_NEW( MeshComponent );
 	meshComponent->setRenderMesh( mesh );
@@ -133,8 +139,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	Entity* entity = WV_NEW( Entity );
 	entity->addComponent( meshComponent );
 
+	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
+	cameraComponent->getUnderlyingCamera()->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
+	Entity* cameraEntity = WV_NEW( Entity );
+	cameraEntity->addComponent( cameraComponent );
+
 	WorldSector* sector = WV_NEW( WorldSector );
 	sector->addEntity( entity );
+	sector->addEntity( cameraEntity );
 	m_world->addSector( sector );
 
 }
@@ -186,18 +198,25 @@ void wv::Application::update()
 	m_world->updateLoading();
 	m_world->updateSectors( m_deltatime );
 
-	ICamera* camera = m_world->activeCamera;
-	if ( !camera ) return;
+	//ICamera* camera = m_world->activeCamera;
+	//if ( !camera ) return;
+	//
+	//camera->getTransform().setPosition(
+	//	{
+	//		std::cosf( m_runtime ) * 10,
+	//		0,
+	//		std::sinf( m_runtime ) * 10
+	//	} );
+	//camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
+	//
+	//camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
 
-	camera->getTransform().setPosition(
-		{
-			std::cosf( m_runtime ) * 10,
-			0,
-			std::sinf( m_runtime ) * 10
-		} );
-	camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
-
-	camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
+	CameraManagerSystem* cameraManagerSystem = m_world->getWorldSystem<CameraManagerSystem>();
+	if ( cameraManagerSystem->hasActiveCamera() )
+	{
+		m_world->getViewport()->setSize( windowSize.x, windowSize.y );
+		m_world->getViewport()->setCamera( cameraManagerSystem->getActiveCamera()->getUnderlyingCamera() );
+	}
 
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
@@ -210,7 +229,6 @@ void wv::Application::update()
 
 	//m_app->preUpdate();
 
-	camera->update( m_deltatime );
 	//m_app->onUpdate( m_deltatime );
 	//m_sprite_renderer->update();
 

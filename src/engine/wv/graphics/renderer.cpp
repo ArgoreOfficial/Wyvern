@@ -6,7 +6,11 @@
 #include <wv/entity/world_sector.h>
 #include <wv/graphics/systems/render_world_system.h>
 #include <wv/graphics/components/mesh_component.h>
+#include <wv/graphics/viewport.h>
+
+#include <wv/camera/systems/camera_manager_system.h>
 #include <wv/camera/camera.h>
+#include <wv/camera/components/camera_component.h>
 
 #include <stdio.h>
 
@@ -441,10 +445,15 @@ void wv::OpenGLRenderer::renderWorld( World* _world )
 	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
 	WV_ASSERT( worldRenderSystem == nullptr );
 
+	Viewport* viewport = _world->getViewport();
+	
 	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
 
-	ICamera* camera = _world->activeCamera;
-	if ( !camera ) return;
+	ICamera* camera = viewport->getCamera();
+	if ( !camera ) 
+		return;
+
+	camera->setPixelSize( viewport->getSize() );
 
 	wv::RenderView renderView{};
 

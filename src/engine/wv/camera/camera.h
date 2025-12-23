@@ -38,6 +38,10 @@ namespace wv
 
 		void setPixelSize( size_t _width, size_t _height );
 		void setPixelSize( size_t _width, float _aspect );
+		
+		inline void setPixelSize( const wv::Vector2i& _vec ) { 
+			setPixelSize( (size_t)_vec.x, (size_t)_vec.y ); 
+		}
 
 		Vector3f screenToWorld( int _pixelX,  int _pixelY,  float _depth );
 		Vector3f screenToWorld( float _clipX, float _clipY, float _depth );

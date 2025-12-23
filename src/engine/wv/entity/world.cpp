@@ -1,5 +1,7 @@
 #include "world.h"
 
+#include <wv/graphics/viewport.h>
+
 wv::World::~World()
 {
 	// Destroy world sectors
@@ -14,8 +16,8 @@ wv::World::~World()
 
 	m_systems.clear();
 
-	if ( activeCamera )
-		WV_FREE( activeCamera );
+	if ( m_viewport )
+		WV_FREE( m_viewport );
 }
 
 void wv::World::shutdown()
