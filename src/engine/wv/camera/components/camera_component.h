@@ -4,7 +4,7 @@
 
 namespace wv {
 
-class ICamera;
+class ViewVolume;
 
 class CameraComponent : public IEntityComponent
 {
@@ -15,11 +15,11 @@ public:
 	CameraComponent() = default;
 	virtual ~CameraComponent() { }
 
-	ICamera* getUnderlyingCamera() { return m_camera; }
+	ViewVolume* getUnderlyingCamera() { return m_camera; }
 
 protected:
 
-	ICamera* m_camera;
+	ViewVolume* m_camera;
 
 };
 

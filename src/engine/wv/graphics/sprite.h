@@ -11,7 +11,7 @@
 
 namespace wv {
 
-class ICamera;
+class ViewVolume;
 
 struct Sprite
 {
@@ -66,7 +66,7 @@ public:
 	void destroySprite( Sprite* _sprite );
 
 	void update();
-	void drawSprites( wv::ICamera* _camera );
+	void drawSprites( wv::ViewVolume* _camera );
 
 private:
 	OpenGLRenderer* m_renderer;

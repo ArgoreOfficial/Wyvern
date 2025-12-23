@@ -17,11 +17,8 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	class ICamera
+	class ViewVolume
 	{
-
-	WV_DECLARE_INTERFACE( ICamera )
-
 	public:
 
 		enum CameraType
@@ -31,7 +28,7 @@ namespace wv
 			kOrthographic
 		};
 
-		ICamera( CameraType _type, size_t _width, size_t _height, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
+		ViewVolume( CameraType _type, size_t _width, size_t _height, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
 		virtual void onEnter() { }
 		virtual void update( double /*_delta_time*/ ) { m_transform.update( nullptr ); }

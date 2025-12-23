@@ -1,6 +1,6 @@
 #include "camera_manager_system.h"
 
-#include <wv/camera/camera.h>
+#include <wv/camera/view_volume.h>
 #include <wv/camera/components/camera_component.h>
 #include <wv/camera/components/orbit_camera_component.h>
 
@@ -89,7 +89,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 	if ( m_activeCamera )
 	{
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
-		ICamera* underlyingCamera = m_activeCamera->getUnderlyingCamera();
+		ViewVolume* underlyingCamera = m_activeCamera->getUnderlyingCamera();
 		
 		// TODO: remove transform from camera
 		underlyingCamera->getTransform() = entity->getTransform();

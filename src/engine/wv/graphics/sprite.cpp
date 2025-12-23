@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <wv/camera/camera.h>
+#include <wv/camera/view_volume.h>
 
 #include <algorithm>
 
@@ -198,7 +198,7 @@ void wv::SpriteRenderer::update()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::SpriteRenderer::drawSprites( wv::ICamera* _camera )
+void wv::SpriteRenderer::drawSprites( wv::ViewVolume* _camera )
 {
 	m_drawlist.clear();
 

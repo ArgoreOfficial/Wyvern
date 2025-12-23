@@ -1,8 +1,8 @@
-#include "camera.h"
+#include "view_volume.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ICamera::ICamera( CameraType _type, size_t _width, size_t _height, float _fov, float _near, float _far ) :
+wv::ViewVolume::ViewVolume( CameraType _type, size_t _width, size_t _height, float _fov, float _near, float _far ) :
 	fov   { _fov  },
 	m_near{ _near },
 	m_far { _far  },
@@ -13,7 +13,7 @@ wv::ICamera::ICamera( CameraType _type, size_t _width, size_t _height, float _fo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::ICamera::setPixelSize( size_t _width, size_t _height )
+void wv::ViewVolume::setPixelSize( size_t _width, size_t _height )
 {
 	m_pixelWidth  = _width;
 	m_pixelHeight = _height;
@@ -23,7 +23,7 @@ void wv::ICamera::setPixelSize( size_t _width, size_t _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::ICamera::setPixelSize( size_t _width, float _aspect )
+void wv::ViewVolume::setPixelSize( size_t _width, float _aspect )
 {
 	m_pixelWidth  = _width;
 	m_pixelHeight = _width / _aspect;
@@ -33,7 +33,7 @@ void wv::ICamera::setPixelSize( size_t _width, float _aspect )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::ICamera::screenToWorld( int _pixelX, int _pixelY, float _depth )
+wv::Vector3f wv::ViewVolume::screenToWorld( int _pixelX, int _pixelY, float _depth )
 {
 	float clipX = static_cast<float>( _pixelX ) / m_pixelWidth;
 	float clipY = static_cast<float>( _pixelY ) / m_pixelHeight;
@@ -46,7 +46,7 @@ wv::Vector3f wv::ICamera::screenToWorld( int _pixelX, int _pixelY, float _depth 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::ICamera::screenToWorld( float _clipX, float _clipY, float _depth )
+wv::Vector3f wv::ViewVolume::screenToWorld( float _clipX, float _clipY, float _depth )
 {
 	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
 	Matrix4x4f invViewProj = viewProj.inverse();
@@ -63,7 +63,7 @@ wv::Vector3f wv::ICamera::screenToWorld( float _clipX, float _clipY, float _dept
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::getProjectionMatrix( void ) const
 {
 	switch( m_type )
 	{
@@ -77,12 +77,12 @@ wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void ) const
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::getPerspectiveMatrix( void ) const
 {
 	return Math::perspective( m_aspect, Math::radians( fov ), m_near, m_far );
 }
 
-wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::getFocalPerspectiveMatrix( void ) const
 {
 	float sensorH = m_focalSensorWidth * m_aspect; // allow non-aspect sensor height?
 	
@@ -91,21 +91,21 @@ wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void ) const
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::getOrthographicMatrix( void ) const
 {
 	return Math::orthographic( m_ortho_width / 2.0f, m_ortho_height / 2.0f, -1000.0f, 1000.0f );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getViewMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::getViewMatrix( void ) const
 {
 	return m_transform.getMatrix().inverse();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::ICamera::getViewDirection() const
+wv::Vector3f wv::ViewVolume::getViewDirection() const
 {
 	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
 	float pitch = Math::radians( m_transform.rotation.x );
@@ -119,7 +119,7 @@ wv::Vector3f wv::ICamera::getViewDirection() const
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::ICamera::setOrthoWidth( float _width )
+void wv::ViewVolume::setOrthoWidth( float _width )
 {
 	m_ortho_width  = _width;
 	m_ortho_height = _width / m_aspect;
@@ -127,13 +127,13 @@ void wv::ICamera::setOrthoWidth( float _width )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::ICamera::setOrthoHeight( float _height )
+void wv::ViewVolume::setOrthoHeight( float _height )
 {
 	m_ortho_height = _height;
 	m_ortho_width  = _height * m_aspect;
 }
 
-void wv::ICamera::setFocalSize( float _sensorWidth, float _sensorHeight, float _focalLength )
+void wv::ViewVolume::setFocalSize( float _sensorWidth, float _sensorHeight, float _focalLength )
 {
 	m_focalSensorWidth  = _sensorWidth;
 	m_focalSensorHeight = _sensorHeight;

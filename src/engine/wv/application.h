@@ -2,7 +2,7 @@
 
 #include <wv/math/vector3.h>
 #include <wv/graphics/renderer.h>
-#include <wv/camera/camera.h>
+#include <wv/camera/view_volume.h>
 
 namespace wv {
 

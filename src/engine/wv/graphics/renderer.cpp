@@ -9,7 +9,7 @@
 #include <wv/graphics/viewport.h>
 
 #include <wv/camera/systems/camera_manager_system.h>
-#include <wv/camera/camera.h>
+#include <wv/camera/view_volume.h>
 #include <wv/camera/components/camera_component.h>
 
 #include <stdio.h>

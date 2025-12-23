@@ -8,7 +8,7 @@
 namespace wv {
 
 class WorldSector;
-class ICamera;
+class ViewVolume;
 class Viewport;
 
 struct WorldUpdateContext
