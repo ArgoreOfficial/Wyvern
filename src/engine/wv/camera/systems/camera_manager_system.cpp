@@ -93,7 +93,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		
 		// TODO: remove transform from camera
 		underlyingCamera->getTransform() = entity->getTransform();
-		underlyingCamera->setPixelSize( _ctx.viewport->getSize() );
+		underlyingCamera->setViewDimensions( _ctx.viewport->getSize() );
 		underlyingCamera->update( _ctx.deltaTime );
 
 		_ctx.viewport->setCamera( underlyingCamera );
