@@ -46,10 +46,14 @@ namespace wv
 		Vector3f screenToWorld( int _pixelX,  int _pixelY,  float _depth );
 		Vector3f screenToWorld( float _clipX, float _clipY, float _depth );
 
-		Matrix4x4f  getProjectionMatrix( void );
-		Matrix4x4f  getViewMatrix      ( void );
-		Vector3f    getViewDirection   ( void );
-		
+		Matrix4x4f  getProjectionMatrix() const;
+		Matrix4x4f  getViewMatrix()       const;
+		Vector3f    getViewDirection()    const;
+
+		inline Matrix4x4f getViewProjMatrix() const {
+			return getViewMatrix() * getProjectionMatrix();
+		}
+
 		float getOrthoWidth ( void ) { return m_ortho_width; }
 		float getOrthoHeight( void ) { return m_ortho_height; }
 
@@ -76,9 +80,9 @@ namespace wv
 
 	protected:
 
-		Matrix4x4f getPerspectiveMatrix     ( void );
-		Matrix4x4f getFocalPerspectiveMatrix( void );
-		Matrix4x4f getOrthographicMatrix    ( void );
+		Matrix4x4f getPerspectiveMatrix()      const;
+		Matrix4x4f getFocalPerspectiveMatrix() const;
+		Matrix4x4f getOrthographicMatrix()     const;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

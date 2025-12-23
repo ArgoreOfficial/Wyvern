@@ -63,7 +63,7 @@ wv::Vector3f wv::ICamera::screenToWorld( float _clipX, float _clipY, float _dept
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
+wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void ) const
 {
 	switch( m_type )
 	{
@@ -77,12 +77,12 @@ wv::Matrix4x4f wv::ICamera::getProjectionMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void )
+wv::Matrix4x4f wv::ICamera::getPerspectiveMatrix( void ) const
 {
 	return Math::perspective( m_aspect, Math::radians( fov ), m_near, m_far );
 }
 
-wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void )
+wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void ) const
 {
 	float sensorH = m_focalSensorWidth * m_aspect; // allow non-aspect sensor height?
 	
@@ -91,21 +91,21 @@ wv::Matrix4x4f wv::ICamera::getFocalPerspectiveMatrix( void )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void )
+wv::Matrix4x4f wv::ICamera::getOrthographicMatrix( void ) const
 {
 	return Math::orthographic( m_ortho_width / 2.0f, m_ortho_height / 2.0f, -1000.0f, 1000.0f );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ICamera::getViewMatrix( void )
+wv::Matrix4x4f wv::ICamera::getViewMatrix( void ) const
 {
 	return m_transform.getMatrix().inverse();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Vector3f wv::ICamera::getViewDirection()
+wv::Vector3f wv::ICamera::getViewDirection() const
 {
 	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
 	float pitch = Math::radians( m_transform.rotation.x );
