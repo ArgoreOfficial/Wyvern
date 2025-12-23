@@ -37,9 +37,10 @@ public:
 		y( _y ) 
 	{ }
 
-	Vector2( const Vector2<_Ty>& _other ) :
-		x( _other.x ),
-		y( _other.y )
+	template<typename Ty2>
+	Vector2( const Vector2<Ty2>& _other ) :
+		x( static_cast<_Ty>( _other.x ) ),
+		y( static_cast<_Ty>( _other.y ) )
 	{ }
 
 	_Ty length( void ) const {
