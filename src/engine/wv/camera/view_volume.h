@@ -31,11 +31,13 @@ namespace wv
 
 		virtual void update( double /*_delta_time*/ ) { m_transform.update( nullptr ); }
 
-		void setViewDimensions( size_t _width, size_t _height );
-		void setViewDimensions( size_t _width, float _aspect );
-		
-		inline void setViewDimensions( const wv::Vector2i& _vec ) { 
-			setViewDimensions( (size_t)_vec.x, (size_t)_vec.y ); 
+		inline void setViewDimensions( const wv::Vector2f& _vec ) { 
+			m_viewDimensions = _vec; 
+			m_aspect = _vec.x / _vec.y;
+		}
+
+		inline void setViewDimensions( size_t _width, size_t _height ) { 
+			setViewDimensions( { (float)_width, (float)_height } );
 		}
 
 		Vector3f screenToWorld( int _pixelX,  int _pixelY,  float _depth );

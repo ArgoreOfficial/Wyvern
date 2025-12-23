@@ -13,26 +13,6 @@ wv::ViewVolume::ViewVolume( CameraType _type, size_t _width, size_t _height, flo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::ViewVolume::setViewDimensions( size_t _width, size_t _height )
-{
-	m_viewDimensions.x = _width;
-	m_viewDimensions.y = _height;
-
-	m_aspect = m_viewDimensions.x / m_viewDimensions.y;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::ViewVolume::setViewDimensions( size_t _width, float _aspect )
-{
-	m_viewDimensions.x = _width;
-	m_viewDimensions.y = _width / _aspect;
-
-	m_aspect = _aspect;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::Vector3f wv::ViewVolume::screenToWorld( int _pixelX, int _pixelY, float _depth )
 {
 	float clipX = static_cast<float>( _pixelX ) / m_viewDimensions.x;
