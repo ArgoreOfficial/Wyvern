@@ -5,6 +5,7 @@
 namespace wv {
 
 class MeshComponent;
+struct WorldUpdateContext;
 
 class RenderWorldSystem : public IWorldSystem
 {
@@ -21,7 +22,7 @@ protected:
 	virtual void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override;
 	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
 
-	void update( double _deltaTime ) override;
+	void update( WorldUpdateContext& _ctx ) override;
 
 	std::vector<MeshComponent*> m_registeredMeshComponents;
 	

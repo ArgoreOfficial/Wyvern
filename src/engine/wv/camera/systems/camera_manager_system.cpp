@@ -3,7 +3,10 @@
 #include <wv/camera/camera.h>
 #include <wv/camera/components/camera_component.h>
 #include <wv/camera/components/orbit_camera_component.h>
+
 #include <wv/entity/entity.h>
+#include <wv/entity/world.h>
+#include <wv/graphics/viewport.h>
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
@@ -74,7 +77,7 @@ void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityCompo
 	}
 }
 
-void wv::CameraManagerSystem::update( double _deltaTime )
+void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 {
 	if ( m_cameraComponentsChanged )
 	{
@@ -83,12 +86,17 @@ void wv::CameraManagerSystem::update( double _deltaTime )
 		m_cameraComponentsChanged = false;
 	}
 
-	if ( hasActiveCamera() )
+	if ( m_activeCamera )
 	{
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
+		ICamera* underlyingCamera = m_activeCamera->getUnderlyingCamera();
 		
 		// TODO: remove transform from camera
-		m_activeCamera->getUnderlyingCamera()->getTransform() = entity->getTransform();
-		m_activeCamera->getUnderlyingCamera()->update( _deltaTime );
+		underlyingCamera->getTransform() = entity->getTransform();
+		underlyingCamera->setPixelSize( _ctx.viewport->getSize() );
+		underlyingCamera->update( _ctx.deltaTime );
+
+		_ctx.viewport->setCamera( underlyingCamera );
+
 	}
 }

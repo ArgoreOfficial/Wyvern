@@ -6,6 +6,7 @@ namespace wv {
 
 class Entity;
 class IEntityComponent;
+struct WorldUpdateContext;
 
 class IWorldSystem : IReflectedType
 {
@@ -23,7 +24,7 @@ protected:
 	virtual void registerComponent  ( Entity* _entity, IEntityComponent* _component ) = 0;
 	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) = 0;
 
-	virtual void update( double _deltaTime ) = 0;
+	virtual void update( WorldUpdateContext& _ctx ) = 0;
 
 };
 
@@ -40,7 +41,7 @@ protected:
 	void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
 	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
 
-	void update( double _deltaTime ) override { 
+	void update( WorldUpdateContext& _ctx ) override {
 		// printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
 	}
 

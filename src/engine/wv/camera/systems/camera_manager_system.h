@@ -28,7 +28,7 @@ protected:
 	virtual void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override;
 	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
 
-	void update( double _deltaTime ) override;
+	void update( WorldUpdateContext& _ctx ) override;
 
 	std::vector<CameraComponent*> m_cameraComponents;
 	std::unordered_map<ComponentID, Entity*> m_cameraEntityMap;

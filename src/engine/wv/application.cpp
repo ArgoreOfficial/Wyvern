@@ -193,30 +193,12 @@ bool wv::Application::tick()
 
 void wv::Application::update()
 {
-	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
+	wv::Vector2i windowSize = m_displayDriver->getWindowSize(); // should this be an event?
+	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
 
 	m_world->updateLoading();
 	m_world->updateSectors( m_deltatime );
-
-	//ICamera* camera = m_world->activeCamera;
-	//if ( !camera ) return;
-	//
-	//camera->getTransform().setPosition(
-	//	{
-	//		std::cosf( m_runtime ) * 10,
-	//		0,
-	//		std::sinf( m_runtime ) * 10
-	//	} );
-	//camera->getTransform().setRotation( { 0, wv::Math::degrees( (float)-m_runtime ) + 90, 0 } );
-	//
-	//camera->setPixelSize( (size_t)windowSize.x, (size_t)windowSize.y );
-
-	CameraManagerSystem* cameraManagerSystem = m_world->getWorldSystem<CameraManagerSystem>();
-	if ( cameraManagerSystem->hasActiveCamera() )
-	{
-		m_world->getViewport()->setSize( windowSize.x, windowSize.y );
-		m_world->getViewport()->setCamera( cameraManagerSystem->getActiveCamera()->getUnderlyingCamera() );
-	}
+	m_world->updateSystems( m_deltatime );
 
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )

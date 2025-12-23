@@ -42,7 +42,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 }
 
-void wv::RenderWorldSystem::update( double _deltaTime )
+void wv::RenderWorldSystem::update( WorldUpdateContext& _ctx )
 {
 	// printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
 }

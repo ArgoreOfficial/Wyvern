@@ -11,6 +11,12 @@ class WorldSector;
 class ICamera;
 class Viewport;
 
+struct WorldUpdateContext
+{
+	Viewport* viewport = nullptr;
+	double deltaTime = 0.0;
+};
+
 class World : public IReflectedType
 {
 	WV_REFLECT_TYPE( World ) 
@@ -69,6 +75,7 @@ public:
 
 	void updateLoading();
 	void updateSectors( double _deltaTime );
+	void updateSystems( double _deltaTime );
 
 	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { m_componentsToRegister  .emplace_back( _entity, _component ); }
 	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { m_componentsToUnregister.emplace_back( _entity, _component ); }

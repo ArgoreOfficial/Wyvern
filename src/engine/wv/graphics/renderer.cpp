@@ -446,20 +446,14 @@ void wv::OpenGLRenderer::renderWorld( World* _world )
 	WV_ASSERT( worldRenderSystem == nullptr );
 
 	Viewport* viewport = _world->getViewport();
+	WV_ASSERT( viewport == nullptr );
+	WV_ASSERT( viewport->getCamera() == nullptr );
 	
-	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
-
-	ICamera* camera = viewport->getCamera();
-	if ( !camera ) 
-		return;
-
-	camera->setPixelSize( viewport->getSize() );
-
 	wv::RenderView renderView{};
-
-	renderView.sceneData.viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-
+	renderView.sceneData.viewProj = viewport->getCamera()->getViewProjMatrix();
 	renderView.renderMeshes.clear();
+
+	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
 	for ( auto component : components )
 	{
 		ResourceID mesh = component->getRenderMesh();
