@@ -89,14 +89,13 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 	if ( m_activeCamera )
 	{
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
-		ViewVolume* underlyingCamera = m_activeCamera->getUnderlyingCamera();
+		ViewVolume* viewVolume = m_activeCamera->getViewVolume();
 		
 		// TODO: remove transform from camera
-		underlyingCamera->getTransform() = entity->getTransform();
-		underlyingCamera->setViewDimensions( _ctx.viewport->getSize() );
-		underlyingCamera->update( _ctx.deltaTime );
+		viewVolume->getTransform() = entity->getTransform();
+		viewVolume->setViewDimensions( _ctx.viewport->getSize() );
+		viewVolume->update( _ctx.deltaTime );
 
-		_ctx.viewport->setCamera( underlyingCamera );
-
+		_ctx.viewport->setViewVolume( viewVolume );
 	}
 }

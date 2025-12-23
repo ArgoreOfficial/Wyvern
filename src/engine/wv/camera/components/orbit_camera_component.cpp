@@ -5,11 +5,11 @@
 
 wv::OrbitCameraComponent::OrbitCameraComponent()
 {
-	m_camera = WV_NEW( ViewVolume, ViewVolume::kPerspective, 900, 600 );
+	m_viewVolume = WV_NEW( ViewVolume, ViewVolume::kPerspective, 900, 600 );
 }
 
 wv::OrbitCameraComponent::~OrbitCameraComponent()
 {
-	if ( m_camera ) 
-		WV_FREE( m_camera );
+	if ( m_viewVolume ) 
+		WV_FREE( m_viewVolume );
 }

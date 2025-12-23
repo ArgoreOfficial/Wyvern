@@ -15,11 +15,11 @@ public:
 	CameraComponent() = default;
 	virtual ~CameraComponent() { }
 
-	ViewVolume* getUnderlyingCamera() { return m_camera; }
+	ViewVolume* getViewVolume() { return m_viewVolume; }
 
 protected:
 
-	ViewVolume* m_camera;
+	ViewVolume* m_viewVolume;
 
 };
 
