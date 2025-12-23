@@ -140,8 +140,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	entity->addComponent( meshComponent );
 
 	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
-	cameraComponent->getUnderlyingCamera()->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
 	Entity* cameraEntity = WV_NEW( Entity );
+	cameraEntity->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
 	cameraEntity->addComponent( cameraComponent );
 
 	WorldSector* sector = WV_NEW( WorldSector );

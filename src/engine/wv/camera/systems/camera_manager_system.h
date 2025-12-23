@@ -1,7 +1,10 @@
 #pragma once
 
 #include <wv/entity/world_system.h>
+#include <wv/entity/entity_component.h>
+
 #include <vector>
+#include <unordered_map>
 
 namespace wv {
 
@@ -28,6 +31,8 @@ protected:
 	void update( double _deltaTime ) override;
 
 	std::vector<CameraComponent*> m_cameraComponents;
+	std::unordered_map<ComponentID, Entity*> m_cameraEntityMap;
+
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;

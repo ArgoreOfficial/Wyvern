@@ -3,20 +3,13 @@
 #include <wv/camera/camera.h>
 #include <wv/camera/components/camera_component.h>
 #include <wv/camera/components/orbit_camera_component.h>
+#include <wv/entity/entity.h>
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
-	if ( m_cameraComponents.size() > 0 )
-	{
-		WV_LOG_WARNING( "CameraManagerSystem contains %zu camera components that will be deleted\n", m_cameraComponents.size() );
-	}
-
-	for ( auto camera : m_cameraComponents )
-		WV_FREE( camera );
-	
 	m_cameraComponents.clear();
 }
 
@@ -53,6 +46,7 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		for ( auto registeredComponent : m_cameraComponents )
 			if ( camera == registeredComponent ) return;
 
+		m_cameraEntityMap.insert( { camera->getID(), _entity } );
 		m_cameraComponents.push_back( camera );
 		m_cameraComponentsChanged = true;
 	}
@@ -60,12 +54,19 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 
 void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
 {
+	if ( !m_cameraEntityMap.contains( _component->getID() ) )
+	{
+		WV_LOG_ERROR( "CameraManagerSystem has not registered component %llu\n", _component->getID() );
+		return;
+	}
+
 	if ( auto camera = tryCast<CameraComponent>( _component ) )
 	{
 		for ( size_t i = 0; i < m_cameraComponents.size(); i++ )
 		{
 			if ( camera != m_cameraComponents[ i ] ) continue;
 
+			m_cameraEntityMap.erase( _component->getID() );
 			m_cameraComponents.erase( m_cameraComponents.begin() + i );
 			m_cameraComponentsChanged = true;
 			break;
@@ -82,6 +83,12 @@ void wv::CameraManagerSystem::update( double _deltaTime )
 		m_cameraComponentsChanged = false;
 	}
 
-	if( hasActiveCamera() )
+	if ( hasActiveCamera() )
+	{
+		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
+		
+		// TODO: remove transform from camera
+		m_activeCamera->getUnderlyingCamera()->getTransform() = entity->getTransform();
 		m_activeCamera->getUnderlyingCamera()->update( _deltaTime );
+	}
 }

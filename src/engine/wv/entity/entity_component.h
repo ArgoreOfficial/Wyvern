@@ -1,8 +1,11 @@
 #pragma once
 
 #include <wv/reflection/reflection.h>
+#include <wv/math/math.h>
 
 namespace wv {
+
+typedef uint32_t ComponentID;
 
 class IEntityComponent : public wv::IReflectedType
 {
@@ -17,6 +20,8 @@ public:
 
 	IEntityComponent() = default;
 	virtual ~IEntityComponent() { };
+
+	inline ComponentID getID() const { return m_ID; }
 
 	virtual void load() { 
 		WV_ASSERT( m_state != EntityComponentState::UNLOADED );
@@ -43,6 +48,7 @@ public:
 	}
 
 protected:
+	const ComponentID m_ID = wv::Math::randomU32();
 	EntityComponentState m_state = EntityComponentState::UNLOADED;
 };
 
