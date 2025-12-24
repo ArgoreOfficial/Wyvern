@@ -135,7 +135,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
 	Entity* cameraEntity = WV_NEW( Entity );
-	cameraEntity->getTransform().setPosition( { 0.0f, 0.0f, 10.0f } );
+	cameraEntity->getTransform().setPosition( { -1, 10.0f, 10.0f } );
+	cameraEntity->getTransform().setRotation( { -45.0f, -45.0f, 0.0f } );
+
 	cameraEntity->addComponent( cameraComponent );
 
 	WorldSector* sector = WV_NEW( WorldSector );
@@ -147,7 +149,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		meshComponent->setRenderMesh( mesh );
 
 		Entity* entity = WV_NEW( Entity );
-		entity->getTransform().setPosition( { (float)i, 0.0f, 0.0f } );
+		entity->getTransform().setPosition( { (float)i * 2.1f, std::sinf( i ), 0.0f });
 		entity->addComponent( meshComponent );
 		sector->addEntity( entity );
 	}
