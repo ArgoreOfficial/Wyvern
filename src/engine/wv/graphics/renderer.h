@@ -51,12 +51,6 @@ struct MaterialData
 	wv::Matrix4x4f model;
 };
 
-struct RenderView
-{
-	SceneData sceneData;
-	std::vector<ResourceID> renderMeshes;
-};
-
 struct RenderBucket
 {
 	std::vector<ResourceID> meshes;
