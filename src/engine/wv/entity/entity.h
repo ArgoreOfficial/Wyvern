@@ -43,6 +43,7 @@ public:
 	void shutdown();
 
 	EntityID getID() const { return m_ID; }
+	WorldSector* getParentSector() const { return m_parentSector; }
 
 	Transformf& getTransform() { return m_transform; }
 
