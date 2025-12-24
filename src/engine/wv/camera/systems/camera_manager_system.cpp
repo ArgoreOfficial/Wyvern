@@ -49,6 +49,8 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		for ( auto registeredComponent : m_cameraComponents )
 			if ( camera == registeredComponent ) return;
 
+		camera->getViewVolume()->recalculateProjMatrix( false );
+
 		m_cameraEntityMap.insert( { camera->getID(), _entity } );
 		m_cameraComponents.push_back( camera );
 		m_cameraComponentsChanged = true;
@@ -57,14 +59,14 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 
 void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
 {
-	if ( !m_cameraEntityMap.contains( _component->getID() ) )
-	{
-		WV_LOG_ERROR( "CameraManagerSystem has not registered component %llu\n", _component->getID() );
-		return;
-	}
-
 	if ( auto camera = tryCast<CameraComponent>( _component ) )
 	{
+		if ( !m_cameraEntityMap.contains( camera->getID() ) )
+		{
+			WV_LOG_ERROR( "CameraManagerSystem has not registered component %llu\n", _component->getID() );
+			return;
+		}
+
 		for ( size_t i = 0; i < m_cameraComponents.size(); i++ )
 		{
 			if ( camera != m_cameraComponents[ i ] ) continue;

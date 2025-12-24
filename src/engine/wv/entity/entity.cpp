@@ -51,7 +51,10 @@ void wv::Entity::shutdown()
 	WV_ASSERT( m_state != EntityState::INITIALIZED );
 
 	for ( auto component : m_components )
+	{
 		unregisterComponentWithSystems( component );
+		m_parentSector->getParentWorld()->queueComponentForUnregistration( this, component );
+	}
 
 	for ( auto system : m_systems )
 		system->shutdown();
