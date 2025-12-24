@@ -57,6 +57,11 @@ struct RenderView
 	std::vector<ResourceID> renderMeshes;
 };
 
+struct RenderBucket
+{
+	std::vector<ResourceID> meshes;
+};
+
 class OpenGLRenderer
 {
 public:
@@ -82,7 +87,7 @@ public:
 	void destroyRenderMesh( ResourceID _handle );
 	void setRenderMeshMaterial( ResourceID _meshHandle, ResourceID _materialHandle );
 
-	void drawRenderView( const RenderView& _renderView );
+	void drawRenderBucket( const RenderBucket& _bucket );
 	void drawDebugLines( const std::vector<wv::Line3f>& _lines );
 
 	void renderWorld( World* _world );

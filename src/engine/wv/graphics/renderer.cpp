@@ -354,11 +354,9 @@ void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, Resource
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::OpenGLRenderer::drawRenderView( const RenderView& _renderView )
+void wv::OpenGLRenderer::drawRenderBucket( const RenderBucket& _bucket )
 {
-	glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
-
-	for ( auto& meshHandle : _renderView.renderMeshes )
+	for ( auto& meshHandle : _bucket.meshes )
 	{
 		if ( !meshHandle.is_valid() )
 			continue;
@@ -449,21 +447,14 @@ void wv::OpenGLRenderer::renderWorld( World* _world )
 	WV_ASSERT( viewport == nullptr );
 	WV_ASSERT( viewport->getViewVolume() == nullptr );
 	
-	wv::RenderView renderView{};
-	renderView.sceneData.viewProj = viewport->getViewVolume()->getViewProjMatrix();
-	renderView.renderMeshes.clear();
+	SceneData sceneData;
+	sceneData.viewProj = viewport->getViewVolume()->getViewProjMatrix();
 
-	const std::vector<MeshComponent*>& components = worldRenderSystem->getRegisteredMeshComponents();
-	for ( auto component : components )
-	{
-		ResourceID mesh = component->getRenderMesh();
-		if ( !mesh.is_valid() )
-			continue;
+	glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &sceneData );
 
-		renderView.renderMeshes.push_back( mesh );
-	}
-
-	drawRenderView( renderView );
+	const std::vector<RenderBucket*> renderBuckets = worldRenderSystem->getRenderBuckets();
+	for ( auto bucket : renderBuckets )
+		drawRenderBucket( *bucket );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

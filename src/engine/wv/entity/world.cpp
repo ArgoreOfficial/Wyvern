@@ -1,6 +1,7 @@
 #include "world.h"
 
 #include <wv/graphics/viewport.h>
+#include <wv/camera/view_volume.h>
 
 wv::World::~World()
 {
@@ -99,9 +100,10 @@ void wv::World::updateSectors( double _deltaTime )
 {
 	for ( auto sector : m_sectors )
 		sector->update( _deltaTime );
+
 }
 
-void wv::World::updateSystems( double _deltaTime )
+void wv::World::updateWorldSystems( double _deltaTime )
 {
 	WorldUpdateContext ctx{};
 	ctx.viewport = m_viewport;
@@ -109,6 +111,9 @@ void wv::World::updateSystems( double _deltaTime )
 
 	for ( auto system : m_systems )
 		system->update( ctx );
+
+	if( ViewVolume* viewVolume = m_viewport->getViewVolume() )
+		viewVolume->recalculateViewMatrix();
 }
 
 void wv::World::createWorldSystem( IWorldSystem* _system )

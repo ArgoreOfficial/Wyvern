@@ -75,7 +75,7 @@ public:
 
 	void updateLoading();
 	void updateSectors( double _deltaTime );
-	void updateSystems( double _deltaTime );
+	void updateWorldSystems( double _deltaTime );
 
 	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { m_componentsToRegister  .emplace_back( _entity, _component ); }
 	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { m_componentsToUnregister.emplace_back( _entity, _component ); }

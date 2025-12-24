@@ -28,9 +28,7 @@ wv::Vector3f wv::ViewVolume::screenToWorld( int _pixelX, int _pixelY, float _dep
 
 wv::Vector3f wv::ViewVolume::screenToWorld( float _clipX, float _clipY, float _depth )
 {
-	Matrix4x4f viewProj = getViewMatrix() * getProjectionMatrix();
-	Matrix4x4f invViewProj = viewProj.inverse();
-	
+	Matrix4x4f invViewProj = m_viewProjMatrix.inverse();
 	Vector4f screenspacePoint{ _clipX, _clipY, -_depth, 1.0f };
 	Vector4f worldPoint = screenspacePoint * invViewProj;
 
@@ -43,36 +41,20 @@ wv::Vector3f wv::ViewVolume::screenToWorld( float _clipX, float _clipY, float _d
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ViewVolume::getProjectionMatrix( void ) const
-{
-	switch( m_type )
-	{
-	case kPerspective:  return getPerspectiveMatrix();      break;
-	case kOrthographic: return getOrthographicMatrix();     break;
-	}
-
-	return Matrix4x4f{ 1.0f };
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Matrix4x4f wv::ViewVolume::getPerspectiveMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::calculatePerspectiveMatrix( void ) const
 {
 	return Math::perspective( m_aspect, Math::radians( fov ), m_near, m_far );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::Matrix4x4f wv::ViewVolume::getOrthographicMatrix( void ) const
+wv::Matrix4x4f wv::ViewVolume::calculateOrthographicMatrix( void ) const
 {
-	return Math::orthographic( m_ortho_width / 2.0f, m_ortho_height / 2.0f, -1000.0f, 1000.0f );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Matrix4x4f wv::ViewVolume::getViewMatrix( void ) const
-{
-	return m_transform.getMatrix().inverse();
+	return Math::orthographic( 
+		m_viewDimensions.x * m_orthoScale / 2.0f, 
+		m_viewDimensions.y * m_orthoScale / 2.0f, 
+		-1000.0f, 
+		 1000.0f );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -82,25 +64,9 @@ wv::Vector3f wv::ViewVolume::getViewDirection() const
 	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
 	float pitch = Math::radians( m_transform.rotation.x );
 
-	Vector3f direction;
-	direction.x = std::cos( yaw ) * std::cos( pitch );
-	direction.y = std::sin( pitch );
-	direction.z = std::sin( yaw ) * std::cos( pitch );
-    return direction;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::ViewVolume::setOrthoWidth( float _width )
-{
-	m_ortho_width  = _width;
-	m_ortho_height = _width / m_aspect;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::ViewVolume::setOrthoHeight( float _height )
-{
-	m_ortho_height = _height;
-	m_ortho_width  = _height * m_aspect;
+	return Vector3f{
+		std::cos( yaw )* std::cos( pitch ),
+		std::sin( pitch ),
+		std::sin( yaw )* std::cos( pitch )
+	};
 }

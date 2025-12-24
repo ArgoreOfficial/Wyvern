@@ -198,7 +198,7 @@ void wv::Application::update()
 
 	m_world->updateLoading();
 	m_world->updateSectors( m_deltatime );
-	m_world->updateSystems( m_deltatime );
+	m_world->updateWorldSystems( m_deltatime );
 
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )

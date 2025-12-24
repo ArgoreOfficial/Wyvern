@@ -1,6 +1,8 @@
 #include "render_world_system.h"
 
 #include <wv/graphics/components/mesh_component.h>
+#include <wv/entity/entity.h>
+#include <wv/graphics/renderer.h>
 
 void wv::RenderWorldSystem::initialize()
 {
@@ -14,22 +16,37 @@ void wv::RenderWorldSystem::shutdown()
 
 void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
 {
+	WV_ASSERT( _component == nullptr );
+	
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
-	if ( meshComponent == nullptr )
-		return;
+	if ( meshComponent == nullptr ) return;
+
+	WV_ASSERT( meshComponent->getRenderMesh().is_valid() == false );
 
 	for ( auto registeredComponent : m_registeredMeshComponents )
 		if ( meshComponent == registeredComponent )
 			return;
 	
+	if ( WorldSector* sector = _entity->getParentSector() )
+	{
+		WorldSectorID sectorID = sector->getID();
+		if ( !m_renderBucketMap.contains( sectorID ) )
+		{
+			RenderBucket* bucket = WV_NEW( RenderBucket );
+			m_renderBucketMap.emplace( sectorID, bucket );
+			m_renderBuckets.push_back( bucket );
+		}
+
+		m_renderBucketMap.at( sectorID )->meshes.push_back( meshComponent->getRenderMesh() );
+	}
+
 	m_registeredMeshComponents.push_back( meshComponent );
 }
 
 void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
 {
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
-	if ( meshComponent == nullptr )
-		return;
+	if ( meshComponent == nullptr ) return;
 
 	for ( size_t i = 0; i < m_registeredMeshComponents.size(); i++ )
 	{
@@ -40,6 +57,36 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 		break;
 	}
 
+	// Remove mesh resource from bucket
+
+	WorldSectorID sectorID = _entity->getParentSector()->getID();
+	if ( RenderBucket* bucket = m_renderBucketMap.at( sectorID ) )
+	{
+		for ( size_t i = 0; i < bucket->meshes.size(); i++ )
+		{
+			if ( bucket->meshes[ i ] != meshComponent->getRenderMesh() ) continue;
+
+			bucket->meshes.erase( bucket->meshes.begin() + i );
+
+			// If bucket empty, delete bucket
+
+			if ( bucket->meshes.empty() )
+			{
+				m_renderBucketMap.erase( sectorID );
+				
+				for ( size_t j = 0; j < m_renderBuckets.size(); j++ )
+				{
+					if ( m_renderBuckets[ j ] != bucket ) continue;
+
+					m_renderBuckets.erase( m_renderBuckets.begin() + j );
+					WV_FREE( bucket );
+					break;
+				}
+			}
+
+			break;
+		}
+	}
 }
 
 void wv::RenderWorldSystem::update( WorldUpdateContext& _ctx )
