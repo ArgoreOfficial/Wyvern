@@ -356,11 +356,11 @@ void wv::OpenGLRenderer::setRenderMeshMaterial( ResourceID _meshHandle, Resource
 
 void wv::OpenGLRenderer::drawRenderBucket( const RenderBucket& _bucket )
 {
-	for ( auto& meshHandle : _bucket.meshes )
+	for ( size_t i = 0; i < _bucket.meshes.size(); i++ )
 	{
+		ResourceID meshHandle = _bucket.meshes[ i ];
 		if ( !meshHandle.is_valid() )
 			continue;
-
 		wv::GLRenderMesh& mesh = m_renderMeshes.at( meshHandle );
 		
 		if ( !mesh.material.is_valid() || mesh.materialDataBuffer.handle == 0 )
@@ -379,7 +379,7 @@ void wv::OpenGLRenderer::drawRenderBucket( const RenderBucket& _bucket )
 		glBindBufferBase( GL_UNIFORM_BUFFER, m_materialDataBindPoint, mesh.materialDataBuffer.handle );
 		
 		MaterialData materialDataTest{};
-		materialDataTest.model = wv::Matrix4x4f::identity( 1.0f );
+		materialDataTest.model = _bucket.modelMatrices[ i ];
 		glNamedBufferSubData( mesh.materialDataBuffer.handle, 0, sizeof( MaterialData ), &materialDataTest );
 
 		if ( mesh.numIndices > 0 && mesh.indexBuffer != 0 )

@@ -133,19 +133,25 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->createWorldSystem<RenderWorldSystem>();
 	m_world->createWorldSystem<CameraManagerSystem>();
 
-	MeshComponent* meshComponent = WV_NEW( MeshComponent );
-	meshComponent->setRenderMesh( mesh );
-
-	Entity* entity = WV_NEW( Entity );
-	entity->addComponent( meshComponent );
-
 	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
 	Entity* cameraEntity = WV_NEW( Entity );
-	cameraEntity->getTransform().setPosition( { 0.0f, 0.0f, 5.0f } );
+	cameraEntity->getTransform().setPosition( { 0.0f, 0.0f, 10.0f } );
 	cameraEntity->addComponent( cameraComponent );
 
 	WorldSector* sector = WV_NEW( WorldSector );
-	sector->addEntity( entity );
+
+	// Create meshes
+	for ( size_t i = 0; i < 10; i++ )
+	{
+		MeshComponent* meshComponent = WV_NEW( MeshComponent );
+		meshComponent->setRenderMesh( mesh );
+
+		Entity* entity = WV_NEW( Entity );
+		entity->getTransform().setPosition( { (float)i, 0.0f, 0.0f } );
+		entity->addComponent( meshComponent );
+		sector->addEntity( entity );
+	}
+	
 	sector->addEntity( cameraEntity );
 	m_world->addSector( sector );
 

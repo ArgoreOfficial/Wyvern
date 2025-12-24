@@ -54,6 +54,7 @@ struct MaterialData
 struct RenderBucket
 {
 	std::vector<ResourceID> meshes;
+	std::vector<Matrix4x4f> modelMatrices;
 };
 
 class OpenGLRenderer

@@ -11,7 +11,11 @@ void wv::RenderWorldSystem::initialize()
 
 void wv::RenderWorldSystem::shutdown()
 {
-	
+	for ( auto bucket : m_renderBuckets )
+		WV_FREE( bucket );
+
+	m_renderBuckets.clear();
+	m_renderBucketMap.clear();
 }
 
 void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
@@ -30,14 +34,18 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 	if ( WorldSector* sector = _entity->getParentSector() )
 	{
 		WorldSectorID sectorID = sector->getID();
-		if ( !m_renderBucketMap.contains( sectorID ) )
+		RenderBucket* bucket = m_renderBucketMap[ sectorID ];
+		if ( bucket == nullptr )
 		{
-			RenderBucket* bucket = WV_NEW( RenderBucket );
+			bucket = WV_NEW( RenderBucket );
 			m_renderBucketMap.emplace( sectorID, bucket );
 			m_renderBuckets.push_back( bucket );
 		}
 
-		m_renderBucketMap.at( sectorID )->meshes.push_back( meshComponent->getRenderMesh() );
+		bucket->meshes.push_back( meshComponent->getRenderMesh() );
+
+		_entity->getTransform().update( nullptr );
+		bucket->modelMatrices.push_back( _entity->getTransform().getMatrix() );
 	}
 
 	m_registeredMeshComponents.push_back( meshComponent );
@@ -64,26 +72,11 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 	{
 		for ( size_t i = 0; i < bucket->meshes.size(); i++ )
 		{
-			if ( bucket->meshes[ i ] != meshComponent->getRenderMesh() ) continue;
+			if ( bucket->meshes[ i ] != meshComponent->getRenderMesh() ) 
+				continue;
 
 			bucket->meshes.erase( bucket->meshes.begin() + i );
-
-			// If bucket empty, delete bucket
-
-			if ( bucket->meshes.empty() )
-			{
-				m_renderBucketMap.erase( sectorID );
-				
-				for ( size_t j = 0; j < m_renderBuckets.size(); j++ )
-				{
-					if ( m_renderBuckets[ j ] != bucket ) continue;
-
-					m_renderBuckets.erase( m_renderBuckets.begin() + j );
-					WV_FREE( bucket );
-					break;
-				}
-			}
-
+			bucket->modelMatrices.erase( bucket->modelMatrices.begin() + i );
 			break;
 		}
 	}
@@ -91,5 +84,5 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 void wv::RenderWorldSystem::update( WorldUpdateContext& _ctx )
 {
-	// printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
+
 }
