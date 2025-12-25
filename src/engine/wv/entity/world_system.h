@@ -28,23 +28,4 @@ protected:
 
 };
 
-class TestWorldSystem : public IWorldSystem
-{
-	WV_REFLECT_TYPE( TestWorldSystem )
-public:
-	TestWorldSystem() = default;
-
-protected:
-	virtual void initialize() override { printf( "TestWorldSystem : initialize\n" ); }
-	virtual void shutdown() override { printf( "TestWorldSystem : shutdown\n" ); }
-
-	void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
-	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override { printf( "TestWorldSystem : component Registered\n" ); }
-
-	void update( WorldUpdateContext& _ctx ) override {
-		// printf( "TestWorldSystem updated with dt %f\n", _deltaTime );
-	}
-
-};
-
 }

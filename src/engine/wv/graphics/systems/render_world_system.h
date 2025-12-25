@@ -8,7 +8,6 @@
 namespace wv {
 
 class MeshComponent;
-struct WorldUpdateContext;
 struct RenderBucket;
 
 class RenderWorldSystem : public IWorldSystem
