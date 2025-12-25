@@ -74,7 +74,7 @@ Ty* tryCast( IReflectedType* _type )
 
 #define WV_REFLECT_TYPE( _typename ) \
 public: \
-static inline const TypeInfo* s_typeInfo = wv::ReflectionRegistry::getSingleton()->registerType( #_typename );\
+static inline const wv::TypeInfo* s_typeInfo = wv::ReflectionRegistry::getSingleton()->registerType( #_typename );\
 static constexpr const char* typeName() { return #_typename; } \
 static uint64_t typeUUID() { return s_typeInfo->typeUUID; } \
 virtual std::string getTypeName() const override { return _typename::typeName(); } \
