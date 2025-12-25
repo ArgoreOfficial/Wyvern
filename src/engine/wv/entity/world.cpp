@@ -2,6 +2,7 @@
 
 #include <wv/graphics/viewport.h>
 #include <wv/camera/view_volume.h>
+#include <wv/application.h>
 
 wv::World::~World()
 {
@@ -108,6 +109,7 @@ void wv::World::updateWorldSystems( double _deltaTime )
 	WorldUpdateContext ctx{};
 	ctx.viewport = m_viewport;
 	ctx.deltaTime = _deltaTime;
+	ctx.inputSystem = &wv::Application::getSingleton()->m_inputSystem;
 
 	for ( auto system : m_systems )
 		system->update( ctx );

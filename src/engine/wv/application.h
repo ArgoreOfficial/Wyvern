@@ -17,6 +17,28 @@ struct VertexData
 	wv::Vector2f texCoord;
 };
 
+class InputSystem
+{
+public:
+	struct InputEvent
+	{
+
+	};
+
+	InputSystem() {
+		for ( size_t i = 0; i < 32; i++ )
+			m_mouseButtonStates[ i ] = false;
+	}
+
+	void processInputEvents();
+	wv::Vector2f getMouseMotion() const { return m_mouseMotion; }
+	bool isMouseDown( int _index );
+
+protected:
+	wv::Vector2f m_mouseMotion;
+	bool m_mouseButtonStates[ 32 ];
+};
+
 class Application 
 {
 public:
@@ -35,6 +57,8 @@ public:
 	std::string getGraphicsDriverName() const { return m_graphicsDriverName; }
 	
 	void quit() { m_alive = false; }
+
+	wv::InputSystem m_inputSystem;
 
 private:
 	

@@ -22,6 +22,8 @@
 #include <cmath>
 #include <stdio.h>
 
+#include <SDL2/SDL.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -184,6 +186,8 @@ bool wv::Application::tick()
 	m_displayDriver->swapBuffers();
 	m_displayDriver->processEvents();
 
+	m_inputSystem.processInputEvents();
+
 	// update runtime and deltatime
 
 	uint64_t ticks = m_displayDriver->getHighResolutionCounter();
@@ -244,4 +248,42 @@ void wv::Application::render()
 	m_renderer.drawDebugLines( lines );
 
 	m_renderer.finalize();
+}
+
+void wv::InputSystem::processInputEvents()
+{
+	Application* app = Application::getSingleton();
+	m_mouseMotion.x = 0.0f;
+	m_mouseMotion.y = 0.0f;
+
+	SDL_Event ev;
+	while ( SDL_PollEvent( &ev ) )
+	{
+		switch ( ev.type )
+		{
+		case SDL_EventType::SDL_QUIT: app->quit(); break;
+		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
+
+		case SDL_EventType::SDL_KEYDOWN:
+			break;
+
+		case SDL_EventType::SDL_KEYUP:
+			break;
+
+		case SDL_EventType::SDL_MOUSEBUTTONDOWN: m_mouseButtonStates[ ev.button.button ] = true;  break;
+		case SDL_EventType::SDL_MOUSEBUTTONUP:   m_mouseButtonStates[ ev.button.button ] = false; break;
+
+		case SDL_EventType::SDL_MOUSEMOTION:
+			m_mouseMotion.x = (float)ev.motion.xrel;
+			m_mouseMotion.y = (float)ev.motion.yrel;
+			break;
+		}
+	}
+}
+
+bool wv::InputSystem::isMouseDown( int _index )
+{
+	WV_ASSERT( _index < 0 );
+	WV_ASSERT( _index >= 32 );
+	return m_mouseButtonStates[ _index ];
 }

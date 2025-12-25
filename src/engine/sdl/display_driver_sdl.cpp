@@ -146,17 +146,7 @@ void wv::DisplayDriverSDL::swapBuffers()
 
 void wv::DisplayDriverSDL::processEvents()
 {
-	Application* app = Application::getSingleton();
-
-	SDL_Event ev;
-	while ( SDL_PollEvent( &ev ) )
-	{
-		switch ( ev.type )
-		{
-		case SDL_EventType::SDL_QUIT: app->quit(); break;
-		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
-		}
-	}
+	
 }
 
 uint64_t wv::DisplayDriverSDL::getTicks()

@@ -5,16 +5,21 @@
 #include <wv/entity/world_sector.h>
 #include <wv/entity/world_system.h>
 
+#include <wv/math/vector2.h>
+
 namespace wv {
 
 class WorldSector;
 class ViewVolume;
 class Viewport;
+class InputSystem;
 
 struct WorldUpdateContext
 {
 	Viewport* viewport = nullptr;
 	double deltaTime = 0.0;
+	
+	InputSystem* inputSystem = nullptr;
 };
 
 class World : public IReflectedType
