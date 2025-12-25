@@ -10,6 +10,7 @@
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
+#include <wv/application.h>
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
@@ -93,7 +94,27 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
 		ViewVolume* viewVolume = m_activeCamera->getViewVolume();
 		
-		// TODO: remove transform from camera
+		if ( auto orbitCamera = tryCast<OrbitCameraComponent>( m_activeCamera ) )
+		{
+			wv::Transformf& transform = entity->getTransform();
+			
+			if ( _ctx.inputSystem->isMouseDown( 1 ) )
+			{
+				// this should not be scaled with delta time because 
+				// mouse delta is already scaled by how far it moved
+				// since the last frame
+				wv::Vector2f mouseDelta = _ctx.inputSystem->getMouseMotion() * 0.3f;
+
+				transform.rotation += wv::Vector3f{
+						-mouseDelta.y,
+						-mouseDelta.x,
+						0.0f
+				}; 
+			}
+			
+			transform.setPosition( transform.rotation.eulerToDirection() * 5.0f );
+		}
+
 		viewVolume->getTransform() = entity->getTransform();
 		viewVolume->setViewDimensions( _ctx.viewport->getSize() );
 		viewVolume->update( _ctx.deltaTime );
