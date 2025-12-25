@@ -78,10 +78,10 @@ public:
 		_Ty pitch = wv::Math::radians( _vec.x );
 		_Ty yaw = wv::Math::radians( _vec.y );
 
-		return vec(
-			std::cos( pitch ) * std::sin( yaw ),
+		return Vector3<_Ty>(
+			 std::cos( pitch ) * std::sin( yaw ),
 			-std::sin( pitch ),
-			std::cos( pitch ) * std::cos( yaw )
+			 std::cos( pitch ) * std::cos( yaw )
 		);
 	}
 
