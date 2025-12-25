@@ -9,6 +9,8 @@ typedef uint32_t ComponentID;
 
 class IEntityComponent : public wv::IReflectedType
 {
+	friend class Entity;
+
 	WV_REFLECT_TYPE( IEntityComponent )
 public:
 	enum class EntityComponentState : uint8_t
@@ -23,6 +25,7 @@ public:
 
 	inline ComponentID getID() const { return m_ID; }
 
+protected:
 	virtual void load() { 
 		WV_ASSERT( m_state != EntityComponentState::UNLOADED );
 
