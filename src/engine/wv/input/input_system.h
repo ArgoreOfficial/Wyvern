@@ -4,6 +4,7 @@
 #include <wv/debug/error.h>
 
 #include <wv/math/vector2.h>
+#include <wv/input/action_mapping.h>
 
 #include <vector>
 
@@ -13,10 +14,14 @@ class InputSystem
 {
 public:
 	InputSystem() = default;
+	~InputSystem();
 
 	void updateInputDrivers();
 	void processInputEvents();
 
+	ActionGroup* createActionGroup( const std::string& _name );
+	void destroyActionGroup( const std::string& _name );
+	
 #ifndef WV_PACKAGE
 	inline wv::Vector2f debugGetMouseMotion()   const { return m_debugMouseMotion; }
 	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
@@ -65,6 +70,9 @@ protected:
 #endif
 
 	std::vector<DriverInputEvent> m_driverEvents;
+
+	std::vector<ActionGroup*> m_actionGroups;
+	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 };
 
 }

@@ -1,8 +1,18 @@
 #include "input_system.h"
 
 #include <wv/application.h>
+#include <wv/memory/memory.h>
 
 #include <SDL2/SDL.h>
+
+wv::InputSystem::~InputSystem()
+{
+	for ( auto actionGroup : m_actionGroups )
+		WV_FREE( actionGroup );
+
+	m_actionGroups.clear();
+	m_actionGroupNameMap.clear();
+}
 
 void wv::InputSystem::updateInputDrivers()
 {
@@ -20,10 +30,14 @@ void wv::InputSystem::updateInputDrivers()
 
 		case SDL_EventType::SDL_KEYDOWN:
 			diEvent.eventType = DriverInputEventType::KEY_DOWN;
+			for ( auto group : m_actionGroups )
+				group->handleKeyboardEvent( ev.key.keysym.scancode, true );
 			break;
 
 		case SDL_EventType::SDL_KEYUP:
 			diEvent.eventType = DriverInputEventType::KEY_UP;
+			for ( auto group : m_actionGroups )
+				group->handleKeyboardEvent( ev.key.keysym.scancode, false );
 			break;
 
 		case SDL_EventType::SDL_MOUSEBUTTONDOWN:
@@ -89,4 +103,41 @@ void wv::InputSystem::processInputEvents()
 	}
 
 	m_driverEvents.clear();
+}
+
+wv::ActionGroup* wv::InputSystem::createActionGroup( const std::string& _name )
+{
+	if ( m_actionGroupNameMap.contains( _name ) && m_actionGroupNameMap.at( _name ) != nullptr )
+	{
+		WV_LOG_WARNING( "ActionGroup '%s' already exists, a new one will not be created\n", _name.c_str() );
+		return m_actionGroupNameMap.at( _name );
+	}
+
+	ActionGroup* group = WV_NEW( ActionGroup, _name );
+	m_actionGroups.push_back( group );
+	m_actionGroupNameMap.emplace( _name, group );
+	return group;
+}
+
+void wv::InputSystem::destroyActionGroup( const std::string& _name )
+{
+	if ( !m_actionGroupNameMap.contains( _name ) )
+	{
+		WV_LOG_WARNING( "Cannot delete action group '%s'. it does not exist\n", _name.c_str() );
+		return;
+	}
+
+	ActionGroup* group = m_actionGroupNameMap.at( _name );
+	m_actionGroupNameMap.erase( _name );
+
+	for ( auto it = m_actionGroups.begin(); it != m_actionGroups.end(); )
+	{
+		if ( *it != group )
+			continue;
+
+		m_actionGroups.erase( it );
+		break;
+	}
+
+	WV_FREE( group );
 }

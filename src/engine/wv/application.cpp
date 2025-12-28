@@ -21,6 +21,8 @@
 #include <cmath>
 #include <stdio.h>
 
+#include <SDL2/SDL.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -68,7 +70,16 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_filesystem = Platform::createFileSystem( "data" );
+	
+
 	m_inputSystem = WV_NEW( InputSystem );
+
+	ActionGroup* testGroup = m_inputSystem->createActionGroup( "test" );
+
+	testGroup->createButtonAction( "Jump" )->bindScancode( SDL_Scancode::SDL_SCANCODE_SPACE );
+	testGroup->createButtonAction( "Shoot" )->bindScancode( SDL_Scancode::SDL_SCANCODE_F );
+	
+	testGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
