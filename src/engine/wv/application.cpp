@@ -1,28 +1,25 @@
 #include "application.h"
 
-#include <wv/math/math.h>
-#include <wv/debug/log.h>
-#include <wv/display_driver.h>
-#include <wv/filesystem/file_system.h>
-#include <wv/memory/memory.h>
-#include <wv/platform/platform.h>
-#include <wv/reflection/reflection.h>
-
-#include <wv/entity/entity.h>
-#include <wv/entity/world.h>
-#include <wv/entity/world_sector.h>
-
-#include <wv/graphics/systems/render_world_system.h>
-#include <wv/graphics/components/mesh_component.h>
-#include <wv/graphics/viewport.h>
 
 #include <wv/camera/components/orbit_camera_component.h>
 #include <wv/camera/systems/camera_manager_system.h>
+#include <wv/debug/log.h>
+#include <wv/display_driver.h>
+#include <wv/entity/entity.h>
+#include <wv/entity/world.h>
+#include <wv/entity/world_sector.h>
+#include <wv/filesystem/file_system.h>
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
+#include <wv/graphics/viewport.h>
+#include <wv/reflection/reflection.h>
+#include <wv/input/input_system.h>
+#include <wv/math/math.h>
+#include <wv/memory/memory.h>
+#include <wv/platform/platform.h>
 
 #include <cmath>
 #include <stdio.h>
-
-#include <SDL2/SDL.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +46,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
+	// IEngineSystem ?
+	// might help with cleanup and such
+	// systemManager->createSystem<DisplayDriver>( Platform::createDisplayDriver() );
+	// systemManager->createSystem<Renderer>( Platform::createRenderer() );
+	// systemManager->createSystem<FileSystem>( Platform::createFileSystem( "data" ) );
+	// systemManager->createSystem<InputSystem>();
+	// systemManager->initialize();
+
 	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
@@ -63,6 +68,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_filesystem = Platform::createFileSystem( "data" );
+	m_inputSystem = WV_NEW( InputSystem );
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
@@ -173,6 +179,8 @@ void wv::Application::shutdown()
 	m_renderer.shutdown();
 	m_displayDriver->shutdown();
 
+	WV_FREE( m_inputSystem );
+
 	ReflectionRegistry::destroySingleton();
 }
 
@@ -186,7 +194,7 @@ bool wv::Application::tick()
 	m_displayDriver->swapBuffers();
 	m_displayDriver->processEvents();
 
-	m_inputSystem.processInputEvents();
+	m_inputSystem->processInputEvents();
 
 	// update runtime and deltatime
 
@@ -248,91 +256,4 @@ void wv::Application::render()
 	m_renderer.drawDebugLines( lines );
 
 	m_renderer.finalize();
-}
-
-void wv::InputSystem::updateInputDrivers()
-{
-	Application* app = Application::getSingleton();
-	
-	SDL_Event ev;
-	while ( SDL_PollEvent( &ev ) )
-	{
-		DriverInputEvent diEvent{ DriverInputEventType::UNUSUED };
-
-		switch ( ev.type )
-		{
-		case SDL_EventType::SDL_QUIT: app->quit(); break;
-		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
-
-		case SDL_EventType::SDL_KEYDOWN:
-			diEvent.eventType = DriverInputEventType::KEY_DOWN;
-			break;
-
-		case SDL_EventType::SDL_KEYUP:
-			diEvent.eventType = DriverInputEventType::KEY_UP;
-			break;
-
-		case SDL_EventType::SDL_MOUSEBUTTONDOWN: 
-			diEvent.eventType = DriverInputEventType::MOUSE_DOWN;
-			diEvent.mouseButtonID = ev.button.button;
-			break;
-
-		case SDL_EventType::SDL_MOUSEBUTTONUP:   
-			diEvent.eventType = DriverInputEventType::MOUSE_UP;
-			diEvent.mouseButtonID = ev.button.button;
-			break;
-
-		case SDL_EventType::SDL_MOUSEMOTION:
-			diEvent.eventType = DriverInputEventType::MOUSE_MOVE;
-			diEvent.mouseMotion.x = (float)ev.motion.xrel;
-			diEvent.mouseMotion.y = (float)ev.motion.yrel;
-			diEvent.mousePosition.x = (float)ev.motion.x;
-			diEvent.mousePosition.y = (float)ev.motion.y;
-			break;
-		}
-
-		if ( diEvent.eventType != DriverInputEventType::UNUSUED )
-			m_driverEvents.push_back( diEvent );
-	}
-}
-
-void wv::InputSystem::processInputEvents()
-{
-	// should be part of platform
-	updateInputDrivers();
-
-#ifndef WV_PACKAGE
-	m_debugMouseMotion = { 0.0f, 0.0f };
-#endif
-
-	for ( auto& ev : m_driverEvents )
-	{
-		WV_ASSERT( ev.eventType == DriverInputEventType::UNUSUED );
-
-		switch ( ev.eventType )
-		{
-		case DriverInputEventType::MOUSE_MOVE:
-		#ifndef WV_PACKAGE
-			m_debugMouseMotion   = ev.mouseMotion;
-			m_debugMousePosition = ev.mousePosition;
-		#endif
-			break;
-
-		case DriverInputEventType::MOUSE_UP:
-			WV_ASSERT( ev.mouseButtonID >= 5 );
-		#ifndef WV_PACKAGE
-			m_debugMouseButtonStates[ ev.mouseButtonID ] = false;
-		#endif
-			break;
-
-		case DriverInputEventType::MOUSE_DOWN:
-			WV_ASSERT( ev.mouseButtonID >= 5 );
-		#ifndef WV_PACKAGE
-			m_debugMouseButtonStates[ ev.mouseButtonID ] = true;
-		#endif
-			break;
-		}
-	}
-
-	m_driverEvents.clear();
 }

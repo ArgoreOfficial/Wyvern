@@ -10,7 +10,7 @@
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
-#include <wv/application.h>
+#include <wv/input/input_system.h>
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {

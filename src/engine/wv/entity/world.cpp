@@ -109,7 +109,7 @@ void wv::World::updateWorldSystems( double _deltaTime )
 	WorldUpdateContext ctx{};
 	ctx.viewport = m_viewport;
 	ctx.deltaTime = _deltaTime;
-	ctx.inputSystem = &wv::Application::getSingleton()->m_inputSystem;
+	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
 
 	for ( auto system : m_systems )
 		system->update( ctx );
