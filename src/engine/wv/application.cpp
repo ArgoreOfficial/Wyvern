@@ -13,6 +13,7 @@
 #include <wv/graphics/components/mesh_component.h>
 #include <wv/graphics/viewport.h>
 #include <wv/reflection/reflection.h>
+#include <wv/input/actions/button_action.h>
 #include <wv/input/input_system.h>
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -74,15 +75,17 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_inputSystem = WV_NEW( InputSystem );
 
-	ActionGroup* testGroup = m_inputSystem->createActionGroup( "test" );
+	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player Actions" );
 
-	ButtonAction* jumpAction = testGroup->createButtonAction( "Jump" );
+	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
 	jumpAction->bindScancode( SDL_SCANCODE_SPACE );
+	jumpAction->bindScancode( SDL_SCANCODE_P );
 	jumpAction->bindControllerButton( SDL_CONTROLLER_BUTTON_A );
 
-	testGroup->createButtonAction( "Shoot" )->bindScancode( SDL_Scancode::SDL_SCANCODE_F );
-	
-	testGroup->enable();
+	ButtonAction* shootAction = playerActionGroup->createButtonAction( "Shoot" );
+	shootAction->bindScancode( SDL_Scancode::SDL_SCANCODE_F );
+
+	playerActionGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );

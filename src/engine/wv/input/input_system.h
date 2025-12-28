@@ -4,7 +4,7 @@
 #include <wv/debug/error.h>
 
 #include <wv/math/vector2.h>
-#include <wv/input/action_mapping.h>
+#include <wv/input/action_group.h>
 
 #include <vector>
 
