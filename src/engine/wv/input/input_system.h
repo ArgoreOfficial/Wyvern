@@ -61,6 +61,14 @@ protected:
 		wv::Vector2f mousePosition; // absolute mouse position
 
 		int mouseButtonID; // mouse button index
+
+		// Keyboard
+
+		uint32_t scancode;
+
+		// Controller
+
+		uint32_t controllerButton;
 	};
 
 #ifndef WV_PACKAGE

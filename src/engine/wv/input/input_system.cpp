@@ -14,6 +14,22 @@ wv::InputSystem::~InputSystem()
 	m_actionGroupNameMap.clear();
 }
 
+
+
+static SDL_GameController* findController() {
+	for ( int i = 0; i < SDL_NumJoysticks(); i++ )
+	{
+		if ( SDL_IsGameController( i ) )
+		{
+			return SDL_GameControllerOpen( i );
+		}
+	}
+
+	return nullptr;
+}
+
+static SDL_GameController* controller = nullptr;
+
 void wv::InputSystem::updateInputDrivers()
 {
 	Application* app = Application::getSingleton();
@@ -30,14 +46,12 @@ void wv::InputSystem::updateInputDrivers()
 
 		case SDL_EventType::SDL_KEYDOWN:
 			diEvent.eventType = DriverInputEventType::KEY_DOWN;
-			for ( auto group : m_actionGroups )
-				group->handleKeyboardEvent( ev.key.keysym.scancode, true );
+			diEvent.scancode = (uint32_t)ev.key.keysym.scancode;
 			break;
 
 		case SDL_EventType::SDL_KEYUP:
 			diEvent.eventType = DriverInputEventType::KEY_UP;
-			for ( auto group : m_actionGroups )
-				group->handleKeyboardEvent( ev.key.keysym.scancode, false );
+			diEvent.scancode = (uint32_t)ev.key.keysym.scancode;
 			break;
 
 		case SDL_EventType::SDL_MOUSEBUTTONDOWN:
@@ -56,6 +70,34 @@ void wv::InputSystem::updateInputDrivers()
 			diEvent.mouseMotion.y = (float)ev.motion.yrel;
 			diEvent.mousePosition.x = (float)ev.motion.x;
 			diEvent.mousePosition.y = (float)ev.motion.y;
+			break;
+
+		case SDL_EventType::SDL_CONTROLLERBUTTONDOWN:
+			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_DOWN;
+			diEvent.controllerButton = ev.cbutton.button;
+			break;
+
+		case SDL_EventType::SDL_CONTROLLERBUTTONUP:
+			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_UP;
+			diEvent.controllerButton = ev.cbutton.button;
+			break;
+
+		case SDL_CONTROLLERDEVICEADDED:
+			if ( !controller )
+			{
+				wv::Debug::Print( "Controller connected\n" );
+
+				controller = SDL_GameControllerOpen( ev.cdevice.which );
+			}
+			break;
+		case SDL_CONTROLLERDEVICEREMOVED:
+			if ( controller && ev.cdevice.which == SDL_JoystickInstanceID( SDL_GameControllerGetJoystick( controller ) ) )
+			{
+				wv::Debug::Print( "Controller disconnected\n" );
+				
+				SDL_GameControllerClose( controller );
+				controller = findController();
+			}
 			break;
 		}
 
@@ -85,19 +127,25 @@ void wv::InputSystem::processInputEvents()
 			m_debugMousePosition = ev.mousePosition;
 		#endif
 			break;
-
-		case DriverInputEventType::MOUSE_UP:
-			WV_ASSERT( ev.mouseButtonID >= 5 );
-		#ifndef WV_PACKAGE
-			m_debugMouseButtonStates[ ev.mouseButtonID ] = false;
-		#endif
-			break;
-
+			
+		case DriverInputEventType::MOUSE_UP: [[fallthrough]];
 		case DriverInputEventType::MOUSE_DOWN:
 			WV_ASSERT( ev.mouseButtonID >= 5 );
 		#ifndef WV_PACKAGE
-			m_debugMouseButtonStates[ ev.mouseButtonID ] = true;
+			m_debugMouseButtonStates[ ev.mouseButtonID ] = ( ev.eventType == DriverInputEventType::MOUSE_DOWN );
 		#endif
+			break;
+
+		case DriverInputEventType::KEY_DOWN: [[fallthrough]];
+		case DriverInputEventType::KEY_UP:
+			for ( auto group : m_actionGroups )
+				group->handleKeyboardEvent( ev.scancode, ev.eventType == DriverInputEventType::KEY_DOWN );
+			break;
+
+		case DriverInputEventType::GAMEPAD_BUTTON_DOWN: [[fallthrough]];
+		case DriverInputEventType::GAMEPAD_BUTTON_UP:
+			for ( auto group : m_actionGroups )
+				group->handleControllerEvent( ev.controllerButton, ev.eventType == DriverInputEventType::GAMEPAD_BUTTON_DOWN );
 			break;
 		}
 	}

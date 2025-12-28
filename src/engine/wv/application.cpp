@@ -76,7 +76,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	ActionGroup* testGroup = m_inputSystem->createActionGroup( "test" );
 
-	testGroup->createButtonAction( "Jump" )->bindScancode( SDL_Scancode::SDL_SCANCODE_SPACE );
+	ButtonAction* jumpAction = testGroup->createButtonAction( "Jump" );
+	jumpAction->bindScancode( SDL_SCANCODE_SPACE );
+	jumpAction->bindControllerButton( SDL_CONTROLLER_BUTTON_A );
+
 	testGroup->createButtonAction( "Shoot" )->bindScancode( SDL_Scancode::SDL_SCANCODE_F );
 	
 	testGroup->enable();

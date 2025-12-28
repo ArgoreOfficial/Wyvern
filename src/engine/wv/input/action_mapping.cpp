@@ -13,6 +13,16 @@ void wv::ButtonAction::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
 	m_isDown = _keyDown;
 }
 
+void wv::ButtonAction::handleControllerEvent( uint32_t _button, bool _buttonDown )
+{
+	if ( !isControllerButtonBound( _button ) ) return;
+
+	if ( !m_isDown && _buttonDown )
+		wv::Debug::Print( "The action %s happened\n", m_name.c_str() );
+
+	m_isDown = _buttonDown;
+}
+
 wv::ActionGroup::~ActionGroup()
 {
 	for ( auto action : m_actions )
@@ -21,7 +31,7 @@ wv::ActionGroup::~ActionGroup()
 	m_actions.clear();
 	m_actionNameMap.clear();
 	m_keyboardBoundActions.clear();
-	m_gamepadBoundActions.clear();
+	m_controllerBoundActions.clear();
 	m_mouseBoundActions.clear();
 }
 
@@ -45,7 +55,7 @@ void wv::ActionGroup::enable()
 	if ( m_requiresRemapping )
 	{
 		m_keyboardBoundActions.clear();
-		m_gamepadBoundActions.clear();
+		m_controllerBoundActions.clear();
 		m_mouseBoundActions.clear();
 
 		buildActionMapping();
@@ -100,8 +110,11 @@ void wv::ActionGroup::destroyAction( const std::string& _name )
 void wv::ActionGroup::buildActionMapping()
 {
 	for ( IAction* action : m_actions )
-		if ( action->isBoundToKeyboard() )
-			m_keyboardBoundActions.push_back( action );
+	{
+		if ( action->isBoundToKeyboard() )   m_keyboardBoundActions.push_back( action );
+		if ( action->isBoundToController() ) m_controllerBoundActions.push_back( action );
+		if ( action->isBoundToMouse() )      m_mouseBoundActions.push_back( action );
+	}
 }
 
 void wv::ActionGroup::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
@@ -110,4 +123,12 @@ void wv::ActionGroup::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
 
 	for ( IAction* action : m_keyboardBoundActions )
 		action->handleKeyboardEvent( _scancode, _keyDown );
+}
+
+void wv::ActionGroup::handleControllerEvent( uint32_t _button, bool _buttonDown )
+{
+	if ( !isEnabled() ) return;
+
+	for ( IAction* action : m_controllerBoundActions )
+		action->handleControllerEvent( _button, _buttonDown );
 }
