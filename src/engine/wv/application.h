@@ -3,6 +3,7 @@
 #include <wv/math/vector3.h>
 #include <wv/graphics/renderer.h>
 #include <wv/camera/view_volume.h>
+#include <wv/debug/error.h>
 
 namespace wv {
 
@@ -20,23 +21,63 @@ struct VertexData
 class InputSystem
 {
 public:
-	struct InputEvent
-	{
+	InputSystem() = default;
 
-	};
-
-	InputSystem() {
-		for ( size_t i = 0; i < 32; i++ )
-			m_mouseButtonStates[ i ] = false;
-	}
-
+	void updateInputDrivers();
 	void processInputEvents();
-	wv::Vector2f getMouseMotion() const { return m_mouseMotion; }
-	bool isMouseDown( int _index );
+
+#ifndef WV_PACKAGE
+	// DEBUG ONLY 
+	inline wv::Vector2f debugGetMouseMotion() const { return m_debugMouseMotion; }
+
+	// DEBUG ONLY 
+	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
+
+	// DEBUG ONLY 
+	inline bool debugIsMouseDown( int _index ) {
+		WV_ASSERT( _index < 0 );
+		WV_ASSERT( _index >= 5 );
+		return m_debugMouseButtonStates[ _index ];
+	}
+#endif
 
 protected:
-	wv::Vector2f m_mouseMotion;
-	bool m_mouseButtonStates[ 32 ];
+	enum class DriverInputEventType
+	{
+		UNUSUED = 0,
+
+		GAMEPAD_JOYSTICK_UPDATE,
+		GAMEPAD_BUTTON_DOWN,
+		GAMEPAD_BUTTON_UP,
+
+		KEY_DOWN,
+		KEY_UP,
+
+		MOUSE_DOWN,
+		MOUSE_UP,
+		MOUSE_MOVE,
+		MOUSE_WHEEL
+	};
+
+	struct DriverInputEvent
+	{
+		DriverInputEventType eventType;
+
+		// Mouse
+
+		wv::Vector2f mouseMotion; // delta mouse motion
+		wv::Vector2f mousePosition; // absolute mouse position
+
+		int mouseButtonID; // mouse button index
+	};
+
+#ifndef WV_PACKAGE
+	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
+	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };
+	bool m_debugMouseButtonStates[ 5 ] = { false, false, false, false, false };
+#endif
+
+	std::vector<DriverInputEvent> m_driverEvents;
 };
 
 class Application 

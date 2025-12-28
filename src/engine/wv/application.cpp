@@ -250,40 +250,89 @@ void wv::Application::render()
 	m_renderer.finalize();
 }
 
-void wv::InputSystem::processInputEvents()
+void wv::InputSystem::updateInputDrivers()
 {
 	Application* app = Application::getSingleton();
-	m_mouseMotion.x = 0.0f;
-	m_mouseMotion.y = 0.0f;
-
+	
 	SDL_Event ev;
 	while ( SDL_PollEvent( &ev ) )
 	{
+		DriverInputEvent diEvent{ DriverInputEventType::UNUSUED };
+
 		switch ( ev.type )
 		{
 		case SDL_EventType::SDL_QUIT: app->quit(); break;
 		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 
 		case SDL_EventType::SDL_KEYDOWN:
+			diEvent.eventType = DriverInputEventType::KEY_DOWN;
 			break;
 
 		case SDL_EventType::SDL_KEYUP:
+			diEvent.eventType = DriverInputEventType::KEY_UP;
 			break;
 
-		case SDL_EventType::SDL_MOUSEBUTTONDOWN: m_mouseButtonStates[ ev.button.button ] = true;  break;
-		case SDL_EventType::SDL_MOUSEBUTTONUP:   m_mouseButtonStates[ ev.button.button ] = false; break;
+		case SDL_EventType::SDL_MOUSEBUTTONDOWN: 
+			diEvent.eventType = DriverInputEventType::MOUSE_DOWN;
+			diEvent.mouseButtonID = ev.button.button;
+			break;
+
+		case SDL_EventType::SDL_MOUSEBUTTONUP:   
+			diEvent.eventType = DriverInputEventType::MOUSE_UP;
+			diEvent.mouseButtonID = ev.button.button;
+			break;
 
 		case SDL_EventType::SDL_MOUSEMOTION:
-			m_mouseMotion.x = (float)ev.motion.xrel;
-			m_mouseMotion.y = (float)ev.motion.yrel;
+			diEvent.eventType = DriverInputEventType::MOUSE_MOVE;
+			diEvent.mouseMotion.x = (float)ev.motion.xrel;
+			diEvent.mouseMotion.y = (float)ev.motion.yrel;
+			diEvent.mousePosition.x = (float)ev.motion.x;
+			diEvent.mousePosition.y = (float)ev.motion.y;
 			break;
 		}
+
+		if ( diEvent.eventType != DriverInputEventType::UNUSUED )
+			m_driverEvents.push_back( diEvent );
 	}
 }
 
-bool wv::InputSystem::isMouseDown( int _index )
+void wv::InputSystem::processInputEvents()
 {
-	WV_ASSERT( _index < 0 );
-	WV_ASSERT( _index >= 32 );
-	return m_mouseButtonStates[ _index ];
+	// should be part of platform
+	updateInputDrivers();
+
+#ifndef WV_PACKAGE
+	m_debugMouseMotion = { 0.0f, 0.0f };
+#endif
+
+	for ( auto& ev : m_driverEvents )
+	{
+		WV_ASSERT( ev.eventType == DriverInputEventType::UNUSUED );
+
+		switch ( ev.eventType )
+		{
+		case DriverInputEventType::MOUSE_MOVE:
+		#ifndef WV_PACKAGE
+			m_debugMouseMotion   = ev.mouseMotion;
+			m_debugMousePosition = ev.mousePosition;
+		#endif
+			break;
+
+		case DriverInputEventType::MOUSE_UP:
+			WV_ASSERT( ev.mouseButtonID >= 5 );
+		#ifndef WV_PACKAGE
+			m_debugMouseButtonStates[ ev.mouseButtonID ] = false;
+		#endif
+			break;
+
+		case DriverInputEventType::MOUSE_DOWN:
+			WV_ASSERT( ev.mouseButtonID >= 5 );
+		#ifndef WV_PACKAGE
+			m_debugMouseButtonStates[ ev.mouseButtonID ] = true;
+		#endif
+			break;
+		}
+	}
+
+	m_driverEvents.clear();
 }

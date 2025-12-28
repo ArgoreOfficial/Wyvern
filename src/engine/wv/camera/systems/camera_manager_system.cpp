@@ -98,12 +98,12 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		{
 			wv::Transformf& transform = entity->getTransform();
 			
-			if ( _ctx.inputSystem->isMouseDown( 1 ) )
+			if ( _ctx.inputSystem->debugIsMouseDown( 1 ) )
 			{
 				// this should not be scaled with delta time because 
 				// mouse delta is already scaled by how far it moved
 				// since the last frame
-				wv::Vector2f mouseDelta = _ctx.inputSystem->getMouseMotion() * 0.3f;
+				wv::Vector2f mouseDelta = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
 
 				transform.rotation += wv::Vector3f{
 						-mouseDelta.y,
