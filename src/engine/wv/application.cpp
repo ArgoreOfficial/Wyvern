@@ -76,7 +76,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_inputSystem = WV_NEW( InputSystem );
 
-	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player Actions" );
+	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
 	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
 	jumpAction->bindScancode( SDL_SCANCODE_SPACE );
@@ -88,6 +88,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	AxisAction* moveAction = playerActionGroup->createAxisAction( "Move" );
 	moveAction->bindScancodes( SDL_SCANCODE_D, SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_S );
+
 	playerActionGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );

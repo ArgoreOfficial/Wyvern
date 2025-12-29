@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <wv/math/vector2.h>
 
 namespace wv {
 
@@ -39,6 +40,8 @@ public:
 
 	void handleKeyboardEvent( uint32_t _scancode, bool _keyDown );
 	void handleControllerEvent( uint32_t _button, bool _buttonDown );
+
+	wv::Vector2<double> getAxisValue( const std::string& _name ) const;
 
 private:
 	IAction* createAction( IAction* _action );

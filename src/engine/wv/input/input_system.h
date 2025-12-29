@@ -19,6 +19,14 @@ public:
 	void updateInputDrivers();
 	void processInputEvents();
 
+	ActionGroup* getActionGroup( const std::string& _name ) const { 
+		if ( !m_actionGroupNameMap.contains( _name ) )
+		{
+			WV_LOG_ERROR( "There is no action group named '%s'\n", _name.c_str() );
+			return nullptr;
+		}
+		return m_actionGroupNameMap.at( _name ); 
+	}
 	ActionGroup* createActionGroup( const std::string& _name );
 	void destroyActionGroup( const std::string& _name );
 	

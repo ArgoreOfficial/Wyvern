@@ -127,3 +127,18 @@ void wv::ActionGroup::handleControllerEvent( uint32_t _button, bool _buttonDown 
 	for ( IAction* action : m_controllerBoundActions )
 		action->handleControllerEvent( _button, _buttonDown );
 }
+
+wv::Vector2<double> wv::ActionGroup::getAxisValue( const std::string& _name ) const
+{
+	if ( !m_actionNameMap.contains( _name ) )
+	{
+		WV_LOG_ERROR( "Action group %s does not contain axis action '%s'\n", m_name.c_str(), _name.c_str() );
+		return { 0.0, 0.0 };
+	}
+
+	if ( AxisAction* action = tryCast<AxisAction>( m_actionNameMap.at( _name ) ) )
+		return action->getValue();
+
+	WV_LOG_ERROR( "Action '%s' in group '%s' is not an AxisAction\n", m_name.c_str(), _name.c_str() );
+	return { 0.0, 0.0 };
+}

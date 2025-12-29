@@ -34,13 +34,15 @@ public:
 	void bindScancode( uint32_t _scancode, AxisDirection _direction );
 
 	void bindScancodes( uint32_t _posX, uint32_t _negX, uint32_t _posY, uint32_t _negY ) {
-		bindScancode( _posY, wv::AxisAction::AxisDirection::VERTICAL_NEGATIVE );
-		bindScancode( _negY, wv::AxisAction::AxisDirection::VERTICAL_POSITIVE );
-		bindScancode( _negX, wv::AxisAction::AxisDirection::HORIZONTAL_NEGATIVE );
-		bindScancode( _posX, wv::AxisAction::AxisDirection::HORIZONTAL_POSITIVE );
+		bindScancode( _posY, AxisDirection::VERTICAL_NEGATIVE );
+		bindScancode( _negY, AxisDirection::VERTICAL_POSITIVE );
+		bindScancode( _negX, AxisDirection::HORIZONTAL_NEGATIVE );
+		bindScancode( _posX, AxisDirection::HORIZONTAL_POSITIVE );
 	}
 
 	void unbindScancode( uint32_t _scancode );
+
+	wv::Vector2<double> getValue() const { return m_value; }
 
 //	inline void bindControllerButton( uint32_t _button, AxisDirection _direction ) {
 //		if ( isControllerButtonBound( _button ) ) return;

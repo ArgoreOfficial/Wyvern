@@ -11,6 +11,7 @@
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 #include <wv/input/input_system.h>
+#include <wv/input/actions/axis_action.h>
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
@@ -89,6 +90,13 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		m_cameraComponentsChanged = false;
 	}
 
+	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
+	{
+		wv::Vector2f move = playerActions->getAxisValue( "Move" );
+		m_orbitDistance += move.y * _ctx.deltaTime * 10.0;
+		m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
+	}
+
 	if ( m_activeCamera )
 	{
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
@@ -112,7 +120,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 				}; 
 			}
 			
-			transform.setPosition( transform.rotation.eulerToDirection() * 5.0f );
+			transform.setPosition( transform.rotation.eulerToDirection() * m_orbitDistance );
 		}
 
 		viewVolume->getTransform() = entity->getTransform();
