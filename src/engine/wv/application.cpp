@@ -213,10 +213,8 @@ bool wv::Application::tick()
 		return false;
 
 	m_displayDriver->swapBuffers();
-	m_displayDriver->processEvents();
-
+	
 	m_inputSystem->processInputEvents( m_eventManager );
-
 	m_eventManager->processEvents();
 
 	// update runtime and deltatime

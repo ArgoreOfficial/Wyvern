@@ -1,5 +1,6 @@
 #include "camera_manager_system.h"
 
+#include <wv/application.h>
 #include <wv/camera/view_volume.h>
 #include <wv/camera/components/camera_component.h>
 #include <wv/camera/components/orbit_camera_component.h>
@@ -11,7 +12,14 @@
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 #include <wv/input/input_system.h>
+#include <wv/input/actions/button_action.h>
 #include <wv/input/actions/axis_action.h>
+#include <wv/event/event_manager.h>
+
+wv::CameraManagerSystem::CameraManagerSystem()
+{
+	m_jumpEventListener = WV_NEW( ButtonActionEventListener );
+}
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
@@ -34,6 +42,16 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 
 void wv::CameraManagerSystem::initialize()
 {
+	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
+	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
+
+	m_jumpEventListener->setAction( inputSystem->getActionGroup( "Player" )->getButtonAction( "Jump" ) );
+	eventManager->subscribe(
+		m_jumpEventListener,
+		[]( const ButtonActionEvent& _event )
+		{
+			wv::Debug::Print( "Jump happened (event)\n" );
+		} );
 }
 
 void wv::CameraManagerSystem::shutdown()

@@ -9,12 +9,13 @@
 namespace wv {
 
 class CameraComponent;
+class ButtonActionEventListener;
 
 class CameraManagerSystem : public IWorldSystem
 {
 	WV_REFLECT_TYPE( CameraManagerSystem )
 public:
-	CameraManagerSystem() = default;
+	CameraManagerSystem();
 	~CameraManagerSystem();
 
 	bool hasActiveCamera() const { return m_activeCamera != nullptr; }
@@ -37,6 +38,8 @@ protected:
 
 	CameraComponent* m_activeCamera = nullptr;
 	float m_orbitDistance = 5.0f;
+
+	ButtonActionEventListener* m_jumpEventListener;
 };
 
 }

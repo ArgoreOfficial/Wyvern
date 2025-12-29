@@ -1,6 +1,8 @@
 #pragma once
 
 #include <wv/input/action.h>
+#include <wv/event/event.h>
+#include <wv/event/event_listener.h>
 
 #include <set>
 
@@ -47,11 +49,59 @@ public:
 	}
 
 private:
+	void publishEvent( bool _state );
 
 	std::set<wv::Scancode> m_boundScancodes;
 	std::set<wv::ControllerButton> m_boundControllerButtons;
 	bool m_isDown = false;
 
 };
+
+// Events
+
+class ButtonActionEvent : public IEvent
+{
+	WV_REFLECT_TYPE( ButtonActionEvent )
+public:
+	uint64_t actionID = 0;
+	bool state = false;
+};
+
+class ButtonActionEventListener : public IEventListener
+{
+	friend class EventManager;
+
+public:
+	typedef std::function<void( const ButtonActionEvent& _event )> EventFunction_t;
+
+	ButtonActionEventListener() :
+		IEventListener( ButtonActionEvent::getStaticTypeUUID() )
+	{
+	}
+
+	ButtonActionEventListener( const EventFunction_t& _function ) :
+		IEventListener( ButtonActionEvent::getStaticTypeUUID() ),
+		m_eventFunction{ _function }
+	{
+	}
+
+	void setAction( ButtonAction* _buttonAction ) {
+		m_buttonActionID = _buttonAction->getActionID();
+	}
+
+protected:
+	virtual void triggerEvent( const IEvent& _event ) {
+		const ButtonActionEvent& event = static_cast<const ButtonActionEvent&>( _event );
+		if( event.actionID == m_buttonActionID )
+			m_eventFunction( event );
+	}
+
+private:
+	EventFunction_t m_eventFunction;
+	uint64_t m_buttonActionID = 0;
+};
+
+
+
 
 }
