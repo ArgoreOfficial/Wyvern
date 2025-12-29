@@ -50,7 +50,7 @@ public:
 
 		for ( size_t i = 0; i < m_systems.size(); i++ )
 		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
 				continue;
 			return static_cast<Ty*>( m_systems[ i ] );
 		}
@@ -65,7 +65,7 @@ public:
 
 		for ( size_t i = 0; i < m_systems.size(); i++ )
 		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
 				continue;
 
 			Ty* system = static_cast<Ty*>( m_systems[ i ] );
