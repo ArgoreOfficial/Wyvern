@@ -3,22 +3,26 @@
 #include <wv/debug/log.h>
 #include <wv/debug/error.h>
 
+#include <wv/event/event_listener.h>
 #include <wv/math/vector2.h>
 #include <wv/input/action_group.h>
 #include <wv/input/input_enums.h>
+#include <wv/input/input_events.h>
 
 #include <vector>
 
 namespace wv {
 
+class EventManager;
+
 class InputSystem
 {
 public:
-	InputSystem() = default;
+	InputSystem();
 	~InputSystem();
 
-	void updateInputDrivers();
-	void processInputEvents();
+	void updateInputDrivers( EventManager* _eventManager );
+	void processInputEvents( EventManager* _eventManager );
 
 	ActionGroup* getActionGroup( const std::string& _name ) const { 
 		if ( !m_actionGroupNameMap.contains( _name ) )
@@ -43,6 +47,8 @@ public:
 #endif
 
 protected:
+	void onMouseMove( const MouseMoveEvent& _event );
+
 	enum class DriverInputEventType
 	{
 		UNUSUED = 0,
@@ -91,6 +97,8 @@ protected:
 
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
+
+	EventListener<MouseMoveEvent> m_mouseMoveEvent;
 };
 
 }

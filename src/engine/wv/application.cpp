@@ -3,11 +3,11 @@
 
 #include <wv/camera/components/orbit_camera_component.h>
 #include <wv/camera/systems/camera_manager_system.h>
-#include <wv/debug/log.h>
 #include <wv/display_driver.h>
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
 #include <wv/entity/world_sector.h>
+#include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
 #include <wv/graphics/systems/render_world_system.h>
 #include <wv/graphics/components/mesh_component.h>
@@ -20,11 +20,6 @@
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
 
-#include <cmath>
-#include <stdio.h>
-
-#include <SDL2/SDL.h>
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -34,7 +29,6 @@ wv::Application* wv::Application::singleton = nullptr;
 void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +52,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	// systemManager->createSystem<InputSystem>();
 	// systemManager->initialize();
 
+	m_eventManager = WV_NEW( EventManager );
+	m_inputSystem  = WV_NEW( InputSystem );
+
 	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
@@ -73,9 +70,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_filesystem = Platform::createFileSystem( "data" );
 	
-
-	m_inputSystem = WV_NEW( InputSystem );
-
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
 	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
@@ -164,7 +158,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
-
 	m_world->createWorldSystem<RenderWorldSystem>();
 	m_world->createWorldSystem<CameraManagerSystem>();
 
@@ -207,6 +200,7 @@ void wv::Application::shutdown()
 	m_displayDriver->shutdown();
 
 	WV_FREE( m_inputSystem );
+	WV_FREE( m_eventManager );
 
 	ReflectionRegistry::destroySingleton();
 }
@@ -221,7 +215,9 @@ bool wv::Application::tick()
 	m_displayDriver->swapBuffers();
 	m_displayDriver->processEvents();
 
-	m_inputSystem->processInputEvents();
+	m_inputSystem->processInputEvents( m_eventManager );
+
+	m_eventManager->processEvents();
 
 	// update runtime and deltatime
 

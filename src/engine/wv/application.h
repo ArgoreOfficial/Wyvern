@@ -11,6 +11,7 @@ class IFileSystem;
 class DisplayDriver;
 class World;
 class InputSystem;
+class EventManager;
 
 struct VertexData
 {
@@ -34,8 +35,9 @@ public:
 	inline double getApplicationTime( void ) const { return m_runtime; }
 	inline double getDeltaTime      ( void ) const { return m_deltatime; }
 
-	inline std::string      getGraphicsDriverName() const { return m_graphicsDriverName; }
-	inline wv::InputSystem* getInputSystem()        const { return m_inputSystem; }
+	inline std::string       getGraphicsDriverName() const { return m_graphicsDriverName; }
+	inline wv::InputSystem*  getInputSystem()        const { return m_inputSystem; }
+	inline wv::EventManager* getEventManager()       const { return m_eventManager; }
 
 	void quit() { m_alive = false; }
 private:
@@ -62,6 +64,7 @@ private:
 	wv::DisplayDriver* m_displayDriver = nullptr;
 	wv::IFileSystem*   m_filesystem    = nullptr;
 	wv::InputSystem*   m_inputSystem   = nullptr;
+	wv::EventManager*  m_eventManager  = nullptr;
 	wv::OpenGLRenderer m_renderer;
 
 	wv::ResourceID m_material;

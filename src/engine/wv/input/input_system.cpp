@@ -1,9 +1,18 @@
 #include "input_system.h"
 
 #include <wv/application.h>
+#include <wv/event/event_manager.h>
 #include <wv/memory/memory.h>
 
 #include <SDL2/SDL.h>
+
+wv::InputSystem::InputSystem() :
+	WV_BIND_EVENT_FUNCTION( m_mouseMoveEvent, onMouseMove )
+{
+	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
+
+	eventManager->subscribe( &m_mouseMoveEvent );
+}
 
 wv::InputSystem::~InputSystem()
 {
@@ -59,7 +68,7 @@ static wv::ControllerButton sdlToWvControllerButton( SDL_GameControllerButton _b
 
 static SDL_GameController* controller = nullptr;
 
-void wv::InputSystem::updateInputDrivers()
+void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 {
 	Application* app = Application::getSingleton();
 
@@ -95,11 +104,11 @@ void wv::InputSystem::updateInputDrivers()
 			break;
 
 		case SDL_EventType::SDL_MOUSEMOTION:
-			diEvent.eventType = DriverInputEventType::MOUSE_MOVE;
-			diEvent.mouseMotion.x = (float)ev.motion.xrel;
-			diEvent.mouseMotion.y = (float)ev.motion.yrel;
-			diEvent.mousePosition.x = (float)ev.motion.x;
-			diEvent.mousePosition.y = (float)ev.motion.y;
+			_eventManager->queueEvent<MouseMoveEvent>( 
+				{
+					wv::Vector2f{ (float)ev.motion.xrel, (float)ev.motion.yrel },
+					wv::Vector2i{ ev.motion.x, ev.motion.y }
+				} );
 			break;
 
 		case SDL_EventType::SDL_CONTROLLERBUTTONDOWN:
@@ -136,10 +145,10 @@ void wv::InputSystem::updateInputDrivers()
 	}
 }
 
-void wv::InputSystem::processInputEvents()
+void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
 	// should be part of platform
-	updateInputDrivers();
+	updateInputDrivers( _eventManager );
 
 #ifndef WV_PACKAGE
 	m_debugMouseMotion = { 0.0f, 0.0f };
@@ -150,14 +159,7 @@ void wv::InputSystem::processInputEvents()
 		WV_ASSERT( ev.eventType == DriverInputEventType::UNUSUED );
 
 		switch ( ev.eventType )
-		{
-		case DriverInputEventType::MOUSE_MOVE:
-		#ifndef WV_PACKAGE
-			m_debugMouseMotion = ev.mouseMotion;
-			m_debugMousePosition = ev.mousePosition;
-		#endif
-			break;
-			
+		{			
 		case DriverInputEventType::MOUSE_UP: [[fallthrough]];
 		case DriverInputEventType::MOUSE_DOWN:
 			WV_ASSERT( ev.mouseButtonID >= 5 );
@@ -219,4 +221,12 @@ void wv::InputSystem::destroyActionGroup( const std::string& _name )
 	}
 
 	WV_FREE( group );
+}
+
+void wv::InputSystem::onMouseMove( const MouseMoveEvent& _event )
+{
+#ifndef WV_PACKAGE
+	m_debugMouseMotion = _event.move;
+	m_debugMousePosition = _event.position;
+#endif
 }
