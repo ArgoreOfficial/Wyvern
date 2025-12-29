@@ -7,11 +7,17 @@
 #include <SDL2/SDL.h>
 
 wv::InputSystem::InputSystem() :
-	WV_BIND_EVENT_FUNCTION( m_mouseMoveEvent, onMouseMove )
+	WV_BIND_EVENT_FUNCTION( m_mouseMoveListener, onMouseMoveEvent ),
+	WV_BIND_EVENT_FUNCTION( m_mouseButtonListener, onMouseButtonEvent ),
+	WV_BIND_EVENT_FUNCTION( m_keyboardListener, onKeyboardEvent ),
+	WV_BIND_EVENT_FUNCTION( m_controllerButtonListener, onControllerButtonEvent )
 {
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
 
-	eventManager->subscribe( &m_mouseMoveEvent );
+	eventManager->subscribe( &m_mouseMoveListener );
+	eventManager->subscribe( &m_mouseButtonListener );
+	eventManager->subscribe( &m_keyboardListener );
+	eventManager->subscribe( &m_controllerButtonListener );
 }
 
 wv::InputSystem::~InputSystem()
@@ -75,51 +81,46 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 	SDL_Event ev;
 	while ( SDL_PollEvent( &ev ) )
 	{
-		DriverInputEvent diEvent{ DriverInputEventType::UNUSUED };
-
 		switch ( ev.type )
 		{
-		case SDL_EventType::SDL_QUIT: app->quit(); break;
+		case SDL_QUIT: app->quit(); break;
 		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 
-		case SDL_EventType::SDL_KEYDOWN:
-			diEvent.eventType = DriverInputEventType::KEY_DOWN;
-			diEvent.scancode = sdlToWvScancode( ev.key.keysym.scancode );
-			diEvent.isRepeat = ev.key.repeat;
-			break;
+		case SDL_KEYDOWN: [[fallthrough]];
+		case SDL_KEYUP:
+		{
+			KeyboardEvent event;
+			event.state = ev.type == SDL_EventType::SDL_KEYDOWN;
+			event.isRepeat = ev.key.repeat;
+			event.scancode = sdlToWvScancode( ev.key.keysym.scancode );
+			_eventManager->queueEvent( event );
+		} break;
 
-		case SDL_EventType::SDL_KEYUP:
-			diEvent.eventType = DriverInputEventType::KEY_UP;
-			diEvent.scancode = sdlToWvScancode( ev.key.keysym.scancode );
-			break;
+		case SDL_MOUSEBUTTONDOWN: [[fallthrough]];
+		case SDL_MOUSEBUTTONUP:
+		{
+			MouseButtonEvent event;
+			event.buttonID = ev.button.button;
+			event.state = ev.type == SDL_MOUSEBUTTONDOWN;
+			_eventManager->queueEvent( event );
+		} break;
 
-		case SDL_EventType::SDL_MOUSEBUTTONDOWN:
-			diEvent.eventType = DriverInputEventType::MOUSE_DOWN;
-			diEvent.mouseButtonID = ev.button.button;
-			break;
+		case SDL_MOUSEMOTION:
+		{
+			MouseMoveEvent event;
+			event.move = { (float)ev.motion.xrel, (float)ev.motion.yrel };
+			event.position = { ev.motion.x, ev.motion.y };
+			_eventManager->queueEvent( event );
+		} break;
 
-		case SDL_EventType::SDL_MOUSEBUTTONUP:
-			diEvent.eventType = DriverInputEventType::MOUSE_UP;
-			diEvent.mouseButtonID = ev.button.button;
-			break;
-
-		case SDL_EventType::SDL_MOUSEMOTION:
-			_eventManager->queueEvent<MouseMoveEvent>( 
-				{
-					wv::Vector2f{ (float)ev.motion.xrel, (float)ev.motion.yrel },
-					wv::Vector2i{ ev.motion.x, ev.motion.y }
-				} );
-			break;
-
-		case SDL_EventType::SDL_CONTROLLERBUTTONDOWN:
-			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_DOWN;
-			diEvent.controllerButton = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
-			break;
-
-		case SDL_EventType::SDL_CONTROLLERBUTTONUP:
-			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_UP;
-			diEvent.controllerButton = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
-			break;
+		case SDL_CONTROLLERBUTTONDOWN: [[fallthrough]];
+		case SDL_CONTROLLERBUTTONUP:
+		{
+			ControllerButtonEvent event;
+			event.state = ev.type == SDL_CONTROLLERBUTTONDOWN;
+			event.button = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
+			_eventManager->queueEvent( event );
+		} break;
 
 		case SDL_CONTROLLERDEVICEADDED:
 			if ( !controller )
@@ -139,9 +140,6 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 			}
 			break;
 		}
-
-		if ( diEvent.eventType != DriverInputEventType::UNUSUED )
-			m_driverEvents.push_back( diEvent );
 	}
 }
 
@@ -154,36 +152,6 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	m_debugMouseMotion = { 0.0f, 0.0f };
 #endif
 
-	for ( auto& ev : m_driverEvents )
-	{
-		WV_ASSERT( ev.eventType == DriverInputEventType::UNUSUED );
-
-		switch ( ev.eventType )
-		{			
-		case DriverInputEventType::MOUSE_UP: [[fallthrough]];
-		case DriverInputEventType::MOUSE_DOWN:
-			WV_ASSERT( ev.mouseButtonID >= 5 );
-		#ifndef WV_PACKAGE
-			m_debugMouseButtonStates[ ev.mouseButtonID ] = ( ev.eventType == DriverInputEventType::MOUSE_DOWN );
-		#endif
-			break;
-
-		case DriverInputEventType::KEY_DOWN: [[fallthrough]];
-		case DriverInputEventType::KEY_UP:
-			if( !ev.isRepeat )
-				for ( auto group : m_actionGroups )
-					group->handleKeyboardEvent( ev.scancode, ev.eventType == DriverInputEventType::KEY_DOWN );
-			break;
-
-		case DriverInputEventType::GAMEPAD_BUTTON_DOWN: [[fallthrough]];
-		case DriverInputEventType::GAMEPAD_BUTTON_UP:
-			for ( auto group : m_actionGroups )
-				group->handleControllerEvent( ev.controllerButton, ev.eventType == DriverInputEventType::GAMEPAD_BUTTON_DOWN );
-			break;
-		}
-	}
-
-	m_driverEvents.clear();
 }
 
 wv::ActionGroup* wv::InputSystem::createActionGroup( const std::string& _name )
@@ -223,10 +191,31 @@ void wv::InputSystem::destroyActionGroup( const std::string& _name )
 	WV_FREE( group );
 }
 
-void wv::InputSystem::onMouseMove( const MouseMoveEvent& _event )
+void wv::InputSystem::onMouseMoveEvent( const MouseMoveEvent& _event )
 {
 #ifndef WV_PACKAGE
-	m_debugMouseMotion = _event.move;
+	m_debugMouseMotion   = _event.move;
 	m_debugMousePosition = _event.position;
 #endif
+}
+
+void wv::InputSystem::onMouseButtonEvent( const MouseButtonEvent& _event )
+{
+	WV_ASSERT( _event.buttonID >= 5 );
+#ifndef WV_PACKAGE
+	m_debugMouseButtonStates[ _event.buttonID ] = _event.state;
+#endif
+}
+
+void wv::InputSystem::onKeyboardEvent( const KeyboardEvent& _event )
+{
+	if ( !_event.isRepeat )
+		for ( auto group : m_actionGroups )
+			group->handleKeyboardEvent( _event.scancode, _event.state );
+}
+
+void wv::InputSystem::onControllerButtonEvent( const ControllerButtonEvent& _event )
+{
+	for ( auto group : m_actionGroups )
+		group->handleControllerEvent( _event.button, _event.state );
 }

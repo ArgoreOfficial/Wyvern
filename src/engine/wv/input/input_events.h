@@ -3,21 +3,50 @@
 #include <wv/event/event.h>
 #include <wv/math/vector2.h>
 
+#include <wv/input/input_events.h>
+
 namespace wv {
 
-class MouseMoveEvent : public wv::IEvent
+class MouseMoveEvent : public IEvent
 {
 	WV_REFLECT_TYPE( MouseMoveEvent )
 public:
-	MouseMoveEvent() = default;
-	MouseMoveEvent( const wv::Vector2f& _move, const Vector2i& _position ) :
-		move{ _move },
-		position{ _position }
-	{
-	}
+	Vector2f move{};
+	Vector2i position{};
+};
 
-	wv::Vector2f move;
-	wv::Vector2i position;
+class MouseButtonEvent : public IEvent
+{
+	WV_REFLECT_TYPE( MouseButtonEvent )
+public:
+	inline bool isDown() const { return state; }
+	inline bool isUp()   const { return !state; }
+
+	bool state = false;
+	int buttonID = 0;
+};
+
+class KeyboardEvent : public IEvent
+{
+	WV_REFLECT_TYPE( KeyboardEvent )
+public:
+	inline bool isDown() const { return state; }
+	inline bool isUp()   const { return !state; }
+
+	bool state = false;
+	bool isRepeat = false;
+	Scancode scancode = Scancode::NONE;
+};
+
+class ControllerButtonEvent : public IEvent
+{
+	WV_REFLECT_TYPE( ControllerButtonEvent )
+public:
+	inline bool isDown() const { return state; }
+	inline bool isUp()   const { return !state; }
+
+	bool state = false;
+	ControllerButton button = ControllerButton::NONE;
 };
 
 }

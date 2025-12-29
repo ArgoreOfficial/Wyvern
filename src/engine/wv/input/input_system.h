@@ -47,45 +47,10 @@ public:
 #endif
 
 protected:
-	void onMouseMove( const MouseMoveEvent& _event );
-
-	enum class DriverInputEventType
-	{
-		UNUSUED = 0,
-
-		GAMEPAD_JOYSTICK_UPDATE,
-		GAMEPAD_BUTTON_DOWN,
-		GAMEPAD_BUTTON_UP,
-
-		KEY_DOWN,
-		KEY_UP,
-
-		MOUSE_DOWN,
-		MOUSE_UP,
-		MOUSE_MOVE,
-		MOUSE_WHEEL
-	};
-
-	struct DriverInputEvent
-	{
-		DriverInputEventType eventType = DriverInputEventType::UNUSUED;
-
-		// Mouse
-
-		wv::Vector2f mouseMotion{ 0.0f, 0.0f }; // delta mouse motion
-		wv::Vector2f mousePosition{ 0.0f, 0.0f }; // absolute mouse position
-
-		int mouseButtonID = 0; // mouse button index
-
-		// Keyboard
-
-		wv::Scancode scancode = Scancode::NONE;
-		bool isRepeat = false;
-
-		// Controller
-
-		wv::ControllerButton controllerButton = wv::ControllerButton::NONE;
-	};
+	void onMouseMoveEvent( const MouseMoveEvent& _event );
+	void onMouseButtonEvent( const MouseButtonEvent& _event );
+	void onKeyboardEvent( const KeyboardEvent& _event );
+	void onControllerButtonEvent( const ControllerButtonEvent& _event );
 
 #ifndef WV_PACKAGE
 	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
@@ -93,12 +58,14 @@ protected:
 	bool m_debugMouseButtonStates[ 5 ] = { false, false, false, false, false };
 #endif
 
-	std::vector<DriverInputEvent> m_driverEvents;
-
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 
-	EventListener<MouseMoveEvent> m_mouseMoveEvent;
+	EventListener<MouseMoveEvent> m_mouseMoveListener;
+	EventListener<MouseButtonEvent> m_mouseButtonListener;
+	EventListener<KeyboardEvent> m_keyboardListener;
+	EventListener<ControllerButtonEvent> m_controllerButtonListener;
+
 };
 
 }
