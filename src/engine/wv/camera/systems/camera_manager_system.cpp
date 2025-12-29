@@ -23,7 +23,12 @@ wv::CameraManagerSystem::CameraManagerSystem()
 
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
+	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
+
 	m_cameraComponents.clear();
+
+	eventManager->unsubscribe( m_jumpEventListener );
+	WV_FREE( m_jumpEventListener );
 }
 
 void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
@@ -45,7 +50,9 @@ void wv::CameraManagerSystem::initialize()
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
 
-	m_jumpEventListener->setAction( inputSystem->getActionGroup( "Player" )->getButtonAction( "Jump" ) );
+	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
+
+	m_jumpEventListener->setAction( playerActions->getButtonAction( "Jump" ) );
 	eventManager->subscribe(
 		m_jumpEventListener,
 		[]( const ButtonActionEvent& _event )
