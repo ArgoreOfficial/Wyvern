@@ -14,8 +14,6 @@ wv::InputSystem::~InputSystem()
 	m_actionGroupNameMap.clear();
 }
 
-
-
 static SDL_GameController* findController() {
 	for ( int i = 0; i < SDL_NumJoysticks(); i++ )
 	{
@@ -26,6 +24,12 @@ static SDL_GameController* findController() {
 	}
 
 	return nullptr;
+}
+
+static wv::Scancode sdlToWvScancode( SDL_Scancode _scancode )
+{
+	// identical
+	return static_cast<wv::Scancode>( _scancode );
 }
 
 static SDL_GameController* controller = nullptr;
@@ -46,13 +50,13 @@ void wv::InputSystem::updateInputDrivers()
 
 		case SDL_EventType::SDL_KEYDOWN:
 			diEvent.eventType = DriverInputEventType::KEY_DOWN;
-			diEvent.scancode = (uint32_t)ev.key.keysym.scancode;
+			diEvent.scancode = sdlToWvScancode( ev.key.keysym.scancode );
 			diEvent.isRepeat = ev.key.repeat;
 			break;
 
 		case SDL_EventType::SDL_KEYUP:
 			diEvent.eventType = DriverInputEventType::KEY_UP;
-			diEvent.scancode = (uint32_t)ev.key.keysym.scancode;
+			diEvent.scancode = sdlToWvScancode( ev.key.keysym.scancode );
 			break;
 
 		case SDL_EventType::SDL_MOUSEBUTTONDOWN:

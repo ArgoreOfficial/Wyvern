@@ -2,7 +2,7 @@
 
 #include <wv/debug/log.h>
 
-void wv::ButtonAction::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
+void wv::ButtonAction::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown )
 {
 	if ( !isScancodeBound( _scancode ) ) return;
 

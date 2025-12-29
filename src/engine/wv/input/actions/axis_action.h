@@ -21,20 +21,20 @@ public:
 
 	AxisAction( const std::string& _name ) : IAction( _name ) { }
 
-	virtual void handleKeyboardEvent( uint32_t _scancode, bool _keyDown ) override;
+	virtual void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown ) override;
 	virtual void handleControllerEvent( uint32_t _button, bool _buttonDown ) override;
 
 	virtual bool isBoundToKeyboard() const override { return !m_boundScancodes.empty(); }
 	virtual bool isBoundToController() const override { return !m_boundControllerButtons.empty(); }
 	virtual bool isBoundToMouse() const override { return false; }
 
-	inline bool isScancodeBound( uint32_t _scancode ) const { return m_boundScancodes.contains( _scancode ); }
+	inline bool isScancodeBound( wv::Scancode _scancode ) const { return m_boundScancodes.contains( _scancode ); }
 	inline bool isControllerButtonBound( uint32_t _button ) const { return m_boundControllerButtons.contains( _button ); }
 
-	void bindScancode( uint32_t _scancode, AxisDirection _direction );
-	void unbindScancode( uint32_t _scancode );
+	void bindScancode( wv::Scancode _scancode, AxisDirection _direction );
+	void unbindScancode( wv::Scancode _scancode );
 
-	void bindScancodes( uint32_t _posX, uint32_t _negX, uint32_t _posY, uint32_t _negY ) {
+	void bindScancodes( wv::Scancode _posX, wv::Scancode _negX, wv::Scancode _posY, wv::Scancode _negY ) {
 		bindScancode( _posY, AxisDirection::VERTICAL_NEGATIVE );
 		bindScancode( _negY, AxisDirection::VERTICAL_POSITIVE );
 		bindScancode( _negX, AxisDirection::HORIZONTAL_NEGATIVE );
@@ -74,7 +74,7 @@ private:
 
 	struct ScancodeMapping : AxisMapping 
 	{ 
-		uint32_t scancode; 
+		wv::Scancode scancode;
 	};
 	
 	struct ControllerButtonMapping : AxisMapping 
@@ -84,7 +84,7 @@ private:
 
 	void handleKeyButton( AxisDirection _direction, bool _down );
 
-	std::set<uint32_t> m_boundScancodes;
+	std::set<wv::Scancode> m_boundScancodes;
 	std::set<uint32_t> m_boundControllerButtons;
 
 	std::vector<ScancodeMapping> m_scancodeMappings;

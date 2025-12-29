@@ -5,6 +5,7 @@
 
 #include <wv/math/vector2.h>
 #include <wv/input/action_group.h>
+#include <wv/input/input_enums.h>
 
 #include <vector>
 
@@ -72,7 +73,7 @@ protected:
 
 		// Keyboard
 
-		uint32_t scancode = 0;
+		wv::Scancode scancode = Scancode::NONE;
 		bool isRepeat = false;
 
 		// Controller

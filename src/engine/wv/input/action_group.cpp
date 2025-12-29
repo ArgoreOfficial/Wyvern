@@ -112,7 +112,7 @@ void wv::ActionGroup::buildActionMapping()
 	}
 }
 
-void wv::ActionGroup::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
+void wv::ActionGroup::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown )
 {
 	if ( !isEnabled() ) return;
 

@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::handleKeyboardEvent( uint32_t _scancode, bool _keyDown )
+void wv::AxisAction::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown )
 {
 	if ( !isScancodeBound( _scancode ) ) return;
 
@@ -40,7 +40,7 @@ void wv::AxisAction::handleControllerEvent( uint32_t _button, bool _buttonDown )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::bindScancode( uint32_t _scancode, AxisDirection _direction )
+void wv::AxisAction::bindScancode( wv::Scancode _scancode, AxisDirection _direction )
 {
 	if ( isScancodeBound( _scancode ) ) 
 		return;
@@ -56,7 +56,7 @@ void wv::AxisAction::bindScancode( uint32_t _scancode, AxisDirection _direction 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::unbindScancode( uint32_t _scancode ) 
+void wv::AxisAction::unbindScancode( wv::Scancode _scancode )
 {
 	if ( !isScancodeBound( _scancode ) ) 
 		return;

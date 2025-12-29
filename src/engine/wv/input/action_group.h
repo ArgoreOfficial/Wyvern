@@ -1,12 +1,13 @@
 #pragma once
 
 #include <wv/debug/error.h>
+#include <wv/input/input_enums.h>
+#include <wv/math/vector2.h>
 #include <wv/memory/memory.h>
 
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <wv/math/vector2.h>
 
 namespace wv {
 
@@ -38,7 +39,7 @@ public:
 
 	void destroyAction( const std::string& _name );
 
-	void handleKeyboardEvent( uint32_t _scancode, bool _keyDown );
+	void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown );
 	void handleControllerEvent( uint32_t _button, bool _buttonDown );
 
 	wv::Vector2<double> getAxisValue( const std::string& _name ) const;
