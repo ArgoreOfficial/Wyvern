@@ -12,8 +12,9 @@ class IAction : public IReflectedType
 public:
 	IAction( const std::string& _name ) : m_name{ _name } { }
 
-	virtual void handleKeyboardEvent( uint32_t _scancode, bool _keyDown ) = 0;
-	virtual void handleControllerEvent( uint32_t _button, bool _buttonDown ) = 0;
+	virtual void handleKeyboardEvent( uint32_t _scancode, bool _keyDown ) { };
+	virtual void handleControllerEvent( uint32_t _button, bool _buttonDown ) { };
+	virtual void handleJoystickEvent( float _x, float _y, float _relativeX, float _relativeY ) { };
 
 	virtual bool isBoundToKeyboard() const = 0;
 	virtual bool isBoundToController() const = 0;

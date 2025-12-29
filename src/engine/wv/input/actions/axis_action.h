@@ -32,6 +32,7 @@ public:
 	inline bool isControllerButtonBound( uint32_t _button ) const { return m_boundControllerButtons.contains( _button ); }
 
 	void bindScancode( uint32_t _scancode, AxisDirection _direction );
+	void unbindScancode( uint32_t _scancode );
 
 	void bindScancodes( uint32_t _posX, uint32_t _negX, uint32_t _posY, uint32_t _negY ) {
 		bindScancode( _posY, AxisDirection::VERTICAL_NEGATIVE );
@@ -40,32 +41,54 @@ public:
 		bindScancode( _posX, AxisDirection::HORIZONTAL_POSITIVE );
 	}
 
-	void unbindScancode( uint32_t _scancode );
-
 	wv::Vector2<double> getValue() const { return m_value; }
 
-//	inline void bindControllerButton( uint32_t _button, AxisDirection _direction ) {
-//		if ( isControllerButtonBound( _button ) ) return;
-//		m_boundControllerButtons.insert( _button );
-//		m_requiresRemapping = true;
-//	}
-//
-//	inline void unbindControllerButton( uint32_t _button ) {
-//		if ( !isControllerButtonBound( _button ) ) return;
-//		m_boundControllerButtons.erase( _button );
-//		m_requiresRemapping = true;
-//	}
+	void bindControllerButton( uint32_t _button, AxisDirection _direction );
+	void unbindControllerButton( uint32_t _button );
+
+	void bindControllerButtons( uint32_t _posX, uint32_t _negX, uint32_t _posY, uint32_t _negY ) {
+		bindControllerButton( _posY, AxisDirection::VERTICAL_NEGATIVE );
+		bindControllerButton( _negY, AxisDirection::VERTICAL_POSITIVE );
+		bindControllerButton( _negX, AxisDirection::HORIZONTAL_NEGATIVE );
+		bindControllerButton( _posX, AxisDirection::HORIZONTAL_POSITIVE );
+	}
 
 private:
-	struct ScancodeMapping { 
+	struct AxisMapping 
+	{
+		bool shouldActOn( bool _down ) {
+			return !hasBeenActedOn || ( _down && wasPressedUp ) || ( !_down && wasPressedDown );
+		}
+
+		void actOn( bool _down ) {
+			hasBeenActedOn = true;
+			if ( _down ) { wasPressedUp = false; wasPressedDown = true; }
+			else         { wasPressedUp = true;  wasPressedDown = false; }
+		}
+
 		AxisDirection direction;
+		bool hasBeenActedOn = false;
+		bool wasPressedDown = false;
+		bool wasPressedUp = false;
+	};
+
+	struct ScancodeMapping : AxisMapping 
+	{ 
 		uint32_t scancode; 
 	};
+	
+	struct ControllerButtonMapping : AxisMapping 
+	{ 
+		uint32_t button; 
+	};
+
+	void handleKeyButton( AxisDirection _direction, bool _down );
 
 	std::set<uint32_t> m_boundScancodes;
 	std::set<uint32_t> m_boundControllerButtons;
 
 	std::vector<ScancodeMapping> m_scancodeMappings;
+	std::vector<ControllerButtonMapping> m_controllerButtonMappings;
 
 	double m_rawX = 0.0;
 	double m_rawY = 0.0;
