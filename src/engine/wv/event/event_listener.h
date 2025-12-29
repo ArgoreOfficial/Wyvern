@@ -44,3 +44,6 @@ private:
 };
 
 }
+
+// Helper macro
+#define WV_BIND_EVENT_FUNCTION(_listener, _function) _listener{ [ = ]( const auto& _event ) { this->_function( _event ); } }
