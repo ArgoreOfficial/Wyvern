@@ -53,22 +53,23 @@ protected:
 
 	struct DriverInputEvent
 	{
-		DriverInputEventType eventType;
+		DriverInputEventType eventType = DriverInputEventType::UNUSUED;
 
 		// Mouse
 
-		wv::Vector2f mouseMotion; // delta mouse motion
-		wv::Vector2f mousePosition; // absolute mouse position
+		wv::Vector2f mouseMotion{ 0.0f, 0.0f }; // delta mouse motion
+		wv::Vector2f mousePosition{ 0.0f, 0.0f }; // absolute mouse position
 
-		int mouseButtonID; // mouse button index
+		int mouseButtonID = 0; // mouse button index
 
 		// Keyboard
 
-		uint32_t scancode;
+		uint32_t scancode = 0;
+		bool isRepeat = false;
 
 		// Controller
 
-		uint32_t controllerButton;
+		uint32_t controllerButton = 0;
 	};
 
 #ifndef WV_PACKAGE

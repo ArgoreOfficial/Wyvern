@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/debug/error.h>
+#include <wv/memory/memory.h>
 
 #include <string>
 #include <vector>
@@ -10,6 +11,7 @@ namespace wv {
 
 class IAction;
 class ButtonAction;
+class AxisAction;
 
 class ActionGroup
 {
@@ -31,12 +33,16 @@ public:
 	std::string getName() const { return m_name; }
 
 	ButtonAction* createButtonAction( const std::string& _name );
+	AxisAction* createAxisAction( const std::string& _name );
+
 	void destroyAction( const std::string& _name );
 
 	void handleKeyboardEvent( uint32_t _scancode, bool _keyDown );
 	void handleControllerEvent( uint32_t _button, bool _buttonDown );
 
 private:
+	IAction* createAction( IAction* _action );
+
 	void buildActionMapping();
 
 	std::string m_name;

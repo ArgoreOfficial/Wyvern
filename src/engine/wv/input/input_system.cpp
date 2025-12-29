@@ -47,6 +47,7 @@ void wv::InputSystem::updateInputDrivers()
 		case SDL_EventType::SDL_KEYDOWN:
 			diEvent.eventType = DriverInputEventType::KEY_DOWN;
 			diEvent.scancode = (uint32_t)ev.key.keysym.scancode;
+			diEvent.isRepeat = ev.key.repeat;
 			break;
 
 		case SDL_EventType::SDL_KEYUP:
@@ -138,8 +139,9 @@ void wv::InputSystem::processInputEvents()
 
 		case DriverInputEventType::KEY_DOWN: [[fallthrough]];
 		case DriverInputEventType::KEY_UP:
-			for ( auto group : m_actionGroups )
-				group->handleKeyboardEvent( ev.scancode, ev.eventType == DriverInputEventType::KEY_DOWN );
+			if( !ev.isRepeat )
+				for ( auto group : m_actionGroups )
+					group->handleKeyboardEvent( ev.scancode, ev.eventType == DriverInputEventType::KEY_DOWN );
 			break;
 
 		case DriverInputEventType::GAMEPAD_BUTTON_DOWN: [[fallthrough]];

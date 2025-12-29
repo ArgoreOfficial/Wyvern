@@ -13,6 +13,7 @@
 #include <wv/graphics/components/mesh_component.h>
 #include <wv/graphics/viewport.h>
 #include <wv/reflection/reflection.h>
+#include <wv/input/actions/axis_action.h>
 #include <wv/input/actions/button_action.h>
 #include <wv/input/input_system.h>
 #include <wv/math/math.h>
@@ -85,6 +86,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	ButtonAction* shootAction = playerActionGroup->createButtonAction( "Shoot" );
 	shootAction->bindScancode( SDL_Scancode::SDL_SCANCODE_F );
 
+	AxisAction* moveAction = playerActionGroup->createAxisAction( "Move" );
+	moveAction->bindScancodes( SDL_SCANCODE_D, SDL_SCANCODE_A, SDL_SCANCODE_W, SDL_SCANCODE_S );
 	playerActionGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );

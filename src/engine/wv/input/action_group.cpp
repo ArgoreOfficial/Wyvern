@@ -4,6 +4,7 @@
 #include <wv/debug/log.h>
 
 #include <wv/input/actions/button_action.h>
+#include <wv/input/actions/axis_action.h>
 
 wv::ActionGroup::~ActionGroup()
 {
@@ -49,18 +50,13 @@ void wv::ActionGroup::enable()
 wv::ButtonAction* wv::ActionGroup::createButtonAction( const std::string& _name )
 {
 	WV_ASSERT_MSG( m_isEnabled == true, "Enabled action groups cannot be modified" );
+	return static_cast<ButtonAction*>( createAction( WV_NEW( ButtonAction, _name ) ) );
+}
 
-	if ( m_actionNameMap.contains( _name ) && m_actionNameMap.at( _name ) != nullptr )
-	{
-		WV_LOG_WARNING( "ActionGroup '%s' already contains '%s', a new one will not be created\n", m_name.c_str(), _name.c_str() );
-		return (ButtonAction*)m_actionNameMap.at( _name );
-	}
-
-	ButtonAction* action = WV_NEW( ButtonAction, _name );
-	m_actions.push_back( action );
-	m_actionNameMap.emplace( _name, action );
-	m_requiresRemapping = true;
-	return action;
+wv::AxisAction* wv::ActionGroup::createAxisAction( const std::string& _name )
+{
+	WV_ASSERT_MSG( m_isEnabled == true, "Enabled action groups cannot be modified" );
+	return static_cast<AxisAction*>( createAction( WV_NEW( AxisAction, _name ) ) );
 }
 
 void wv::ActionGroup::destroyAction( const std::string& _name )
@@ -87,6 +83,23 @@ void wv::ActionGroup::destroyAction( const std::string& _name )
 
 	WV_FREE( action );
 	m_requiresRemapping = true;
+}
+
+wv::IAction* wv::ActionGroup::createAction( IAction* _action )
+{
+	std::string name = _action->m_name;
+
+	if ( m_actionNameMap.contains( name ) && m_actionNameMap.at( name ) != nullptr )
+	{
+		WV_LOG_WARNING( "ActionGroup '%s' already contains an action named '%s', a new one will not be created\n", m_name.c_str(), name.c_str() );
+		WV_FREE( _action );
+		return m_actionNameMap.at( name );
+	}
+
+	m_actions.push_back( _action );
+	m_actionNameMap.emplace( name, _action );
+	m_requiresRemapping = true;
+	return _action;
 }
 
 void wv::ActionGroup::buildActionMapping()
