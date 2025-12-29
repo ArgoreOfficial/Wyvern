@@ -26,6 +26,8 @@ protected:
 template<typename EventType>
 class EventListener : public IEventListener
 {
+	friend class EventManager;
+
 public:
 	typedef std::function<void( const EventType& _event )> EventFunction_t;
 
@@ -39,11 +41,10 @@ public:
 	{ }
 
 protected:
-	virtual void triggerEvent( const IEvent& _event ) {
+	virtual void triggerEvent( const IEvent& _event ) override {
 		m_eventFunction( static_cast<const EventType&>( _event ) );
 	}
 
-private:
 	EventFunction_t m_eventFunction;
 };
 

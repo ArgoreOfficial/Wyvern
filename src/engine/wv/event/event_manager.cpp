@@ -53,13 +53,13 @@ void wv::EventManager::unsubscribe( IEventListener* _listener )
 
 void wv::EventManager::processEvents()
 {
-	for ( auto event : m_eventQueue )
+	for ( size_t i = 0; i < m_eventQueue.size(); i++ )
 	{
 		m_isRunningEvent = true;
-		triggerEventInternal( event.eventTypeUUID, *event.event );
+		triggerEventInternal( m_eventQueue[ i ].eventTypeUUID, *m_eventQueue[ i ].event);
 		m_isRunningEvent = false;
 
-		WV_FREE( event.event ); // TODO: pool event copy allocations
+		WV_FREE( m_eventQueue[ i ].event ); // TODO: pool event copy allocations
 	}
 
 	m_eventQueue.clear();

@@ -43,7 +43,7 @@ public:
 	void subscribe( Ty* _listener, Ty::EventFunction_t _function ) {
 		static_assert( std::is_base_of<IEventListener, Ty>(), "Must be an event listener" );
 
-		*_listener = Ty( _function );
+		_listener->m_eventFunction = _function;
 		subscribe( static_cast<IEventListener*>( _listener ) );
 	}
 
