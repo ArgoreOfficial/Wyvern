@@ -38,6 +38,15 @@ public:
 
 	void subscribe( IEventListener* _listener );
 	void unsubscribe( IEventListener* _listener );
+
+	template<typename Ty>
+	void subscribe( Ty* _listener, Ty::EventFunction_t _function ) {
+		static_assert( std::is_base_of<IEventListener, Ty>(), "Must be an event listener" );
+
+		*_listener = Ty( _function );
+		subscribe( static_cast<IEventListener*>( _listener ) );
+	}
+
 private:
 	void processEvents();
 

@@ -29,6 +29,10 @@ class EventListener : public IEventListener
 public:
 	typedef std::function<void( const EventType& _event )> EventFunction_t;
 
+	EventListener() :
+		IEventListener( EventType::getStaticTypeUUID() )
+	{ }
+
 	EventListener( const EventFunction_t& _function ) : 
 		IEventListener( EventType::getStaticTypeUUID() ),
 		m_eventFunction{ _function }
@@ -45,5 +49,4 @@ private:
 
 }
 
-// Helper macro
-#define WV_BIND_EVENT_FUNCTION(_listener, _function) _listener{ [ = ]( const auto& _event ) { this->_function( _event ); } }
+#define WV_FORWARD_EVENT(_function) [ = ]( const auto& _event ) { this->_function( _event ); }

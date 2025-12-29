@@ -6,18 +6,14 @@
 
 #include <SDL2/SDL.h>
 
-wv::InputSystem::InputSystem() :
-	WV_BIND_EVENT_FUNCTION( m_mouseMoveListener, onMouseMoveEvent ),
-	WV_BIND_EVENT_FUNCTION( m_mouseButtonListener, onMouseButtonEvent ),
-	WV_BIND_EVENT_FUNCTION( m_keyboardListener, onKeyboardEvent ),
-	WV_BIND_EVENT_FUNCTION( m_controllerButtonListener, onControllerButtonEvent )
+wv::InputSystem::InputSystem()
 {
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
 
-	eventManager->subscribe( &m_mouseMoveListener );
-	eventManager->subscribe( &m_mouseButtonListener );
-	eventManager->subscribe( &m_keyboardListener );
-	eventManager->subscribe( &m_controllerButtonListener );
+	eventManager->subscribe( &m_mouseMoveListener,        WV_FORWARD_EVENT( onMouseMoveEvent ) );
+	eventManager->subscribe( &m_mouseButtonListener,      WV_FORWARD_EVENT( onMouseButtonEvent ) );
+	eventManager->subscribe( &m_keyboardListener,         WV_FORWARD_EVENT( onKeyboardEvent ) );
+	eventManager->subscribe( &m_controllerButtonListener, WV_FORWARD_EVENT( onControllerButtonEvent ) );
 }
 
 wv::InputSystem::~InputSystem()
