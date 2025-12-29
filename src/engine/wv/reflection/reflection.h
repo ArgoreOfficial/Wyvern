@@ -7,17 +7,19 @@
 
 namespace wv {
 
+typedef uint64_t TypeUUID;
+
 struct TypeInfo
 {
 	const char* name;
-	uint64_t typeUUID;
+	TypeUUID typeUUID;
 };
 
 class IReflectedType
 {
 public:
 	virtual std::string getTypeName() const = 0;
-	virtual uint64_t    getTypeUUID() const = 0;
+	virtual TypeUUID    getTypeUUID() const = 0;
 };
 
 class ReflectionRegistry
@@ -76,6 +78,6 @@ Ty* tryCast( IReflectedType* _type )
 public: \
 static inline const wv::TypeInfo* s_typeInfo = wv::ReflectionRegistry::getSingleton()->registerType( #_typename );\
 static constexpr const char* typeName() { return #_typename; } \
-static uint64_t typeUUID() { return s_typeInfo->typeUUID; } \
+static wv::TypeUUID typeUUID() { return s_typeInfo->typeUUID; } \
 virtual std::string getTypeName() const override { return _typename::typeName(); } \
-virtual uint64_t getTypeUUID()    const override { return _typename::typeUUID(); }
+virtual wv::TypeUUID getTypeUUID()    const override { return _typename::typeUUID(); }
