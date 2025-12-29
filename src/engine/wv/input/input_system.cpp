@@ -116,7 +116,7 @@ void wv::InputSystem::updateInputDrivers()
 			if ( !controller )
 			{
 				wv::Debug::Print( "Controller connected\n" );
-
+				WV_LOG_ERROR( "TODO: proper controller handling\n" );
 				controller = SDL_GameControllerOpen( ev.cdevice.which );
 			}
 			break;
