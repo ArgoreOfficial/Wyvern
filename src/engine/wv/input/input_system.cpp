@@ -32,6 +32,31 @@ static wv::Scancode sdlToWvScancode( SDL_Scancode _scancode )
 	return static_cast<wv::Scancode>( _scancode );
 }
 
+static wv::ControllerButton sdlToWvControllerButton( SDL_GameControllerButton _button )
+{
+	switch ( _button )
+	{
+	case SDL_CONTROLLER_BUTTON_INVALID:       return wv::ControllerButton::NONE;           break;
+	case SDL_CONTROLLER_BUTTON_A:             return wv::ControllerButton::A;              break;
+	case SDL_CONTROLLER_BUTTON_B:             return wv::ControllerButton::B;              break;
+	case SDL_CONTROLLER_BUTTON_X:             return wv::ControllerButton::X;              break;
+	case SDL_CONTROLLER_BUTTON_Y:             return wv::ControllerButton::Y;              break;
+	case SDL_CONTROLLER_BUTTON_BACK:          return wv::ControllerButton::SELECT;         break;
+	case SDL_CONTROLLER_BUTTON_GUIDE:         return wv::ControllerButton::HOME;           break;
+	case SDL_CONTROLLER_BUTTON_START:         return wv::ControllerButton::START;          break;
+	case SDL_CONTROLLER_BUTTON_LEFTSTICK:     return wv::ControllerButton::JOYSTICK_LEFT;  break;
+	case SDL_CONTROLLER_BUTTON_RIGHTSTICK:    return wv::ControllerButton::JOYSTICK_RIGHT; break;
+	case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:  return wv::ControllerButton::SHOULDER_LEFT;  break;
+	case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return wv::ControllerButton::SHOULDER_RIGHT; break;
+	case SDL_CONTROLLER_BUTTON_DPAD_UP:       return wv::ControllerButton::DPAD_UP;        break;
+	case SDL_CONTROLLER_BUTTON_DPAD_DOWN:     return wv::ControllerButton::DPAD_DOWN;      break;
+	case SDL_CONTROLLER_BUTTON_DPAD_LEFT:     return wv::ControllerButton::DPAD_LEFT;      break;
+	case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:    return wv::ControllerButton::DPAD_RIGHT;     break;
+	}
+
+	return wv::ControllerButton::NONE;
+}
+
 static SDL_GameController* controller = nullptr;
 
 void wv::InputSystem::updateInputDrivers()
@@ -79,12 +104,12 @@ void wv::InputSystem::updateInputDrivers()
 
 		case SDL_EventType::SDL_CONTROLLERBUTTONDOWN:
 			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_DOWN;
-			diEvent.controllerButton = ev.cbutton.button;
+			diEvent.controllerButton = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
 			break;
 
 		case SDL_EventType::SDL_CONTROLLERBUTTONUP:
 			diEvent.eventType = DriverInputEventType::GAMEPAD_BUTTON_UP;
-			diEvent.controllerButton = ev.cbutton.button;
+			diEvent.controllerButton = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
 			break;
 
 		case SDL_CONTROLLERDEVICEADDED:

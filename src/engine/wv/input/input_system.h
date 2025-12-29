@@ -78,7 +78,7 @@ protected:
 
 		// Controller
 
-		uint32_t controllerButton = 0;
+		wv::ControllerButton controllerButton = wv::ControllerButton::NONE;
 	};
 
 #ifndef WV_PACKAGE

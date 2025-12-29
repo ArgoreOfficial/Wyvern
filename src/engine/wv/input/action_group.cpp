@@ -120,7 +120,7 @@ void wv::ActionGroup::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown
 		action->handleKeyboardEvent( _scancode, _keyDown );
 }
 
-void wv::ActionGroup::handleControllerEvent( uint32_t _button, bool _buttonDown )
+void wv::ActionGroup::handleControllerEvent( wv::ControllerButton _button, bool _buttonDown )
 {
 	if ( !isEnabled() ) return;
 

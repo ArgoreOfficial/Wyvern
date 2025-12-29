@@ -35,4 +35,28 @@ enum class Scancode
 	CAPSLOCK = 57,
 };
 
+enum class ControllerButton
+{
+	NONE = 0,
+	A, 
+	B, 
+	X, 
+	Y,
+	
+	DPAD_UP, 
+	DPAD_RIGHT, 
+	DPAD_DOWN, 
+	DPAD_LEFT,
+
+	START, 
+	SELECT,
+	HOME, // Centre Button
+
+	JOYSTICK_LEFT,
+	JOYSTICK_RIGHT,
+
+	SHOULDER_LEFT,
+	SHOULDER_RIGHT
+};
+
 }

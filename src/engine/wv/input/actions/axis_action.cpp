@@ -22,7 +22,7 @@ void wv::AxisAction::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::handleControllerEvent( uint32_t _button, bool _buttonDown )
+void wv::AxisAction::handleControllerEvent( wv::ControllerButton _button, bool _buttonDown )
 {
 	if ( !isControllerButtonBound( _button ) ) return;
 
@@ -74,7 +74,7 @@ void wv::AxisAction::unbindScancode( wv::Scancode _scancode )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::bindControllerButton( uint32_t _button, AxisDirection _direction )
+void wv::AxisAction::bindControllerButton( wv::ControllerButton _button, AxisDirection _direction )
 {
 	if ( isControllerButtonBound( _button ) ) 
 		return;
@@ -89,7 +89,7 @@ void wv::AxisAction::bindControllerButton( uint32_t _button, AxisDirection _dire
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::AxisAction::unbindControllerButton( uint32_t _button )
+void wv::AxisAction::unbindControllerButton( wv::ControllerButton _button )
 {
 	if ( !isControllerButtonBound( _button ) ) 
 		return;

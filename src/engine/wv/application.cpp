@@ -81,7 +81,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
 	jumpAction->bindScancode( Scancode::SPACE );
 	jumpAction->bindScancode( Scancode::P );
-	jumpAction->bindControllerButton( SDL_CONTROLLER_BUTTON_A );
+	jumpAction->bindControllerButton( wv::ControllerButton::A );
 
 	ButtonAction* shootAction = playerActionGroup->createButtonAction( "Shoot" );
 	shootAction->bindScancode( Scancode::F );
@@ -89,10 +89,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	AxisAction* moveAction = playerActionGroup->createAxisAction( "Move" );
 	moveAction->bindScancodes( Scancode::D, Scancode::A, Scancode::W, Scancode::S );
 	moveAction->bindControllerButtons( 
-		SDL_CONTROLLER_BUTTON_DPAD_RIGHT, 
-		SDL_CONTROLLER_BUTTON_DPAD_LEFT, 
-		SDL_CONTROLLER_BUTTON_DPAD_UP, 
-		SDL_CONTROLLER_BUTTON_DPAD_DOWN
+		wv::ControllerButton::DPAD_RIGHT, 
+		wv::ControllerButton::DPAD_LEFT, 
+		wv::ControllerButton::DPAD_UP, 
+		wv::ControllerButton::DPAD_DOWN
 	);
 
 	playerActionGroup->enable();

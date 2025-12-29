@@ -12,7 +12,7 @@ void wv::ButtonAction::handleKeyboardEvent( wv::Scancode _scancode, bool _keyDow
 	m_isDown = _keyDown;
 }
 
-void wv::ButtonAction::handleControllerEvent( uint32_t _button, bool _buttonDown )
+void wv::ButtonAction::handleControllerEvent( wv::ControllerButton _button, bool _buttonDown )
 {
 	if ( !isControllerButtonBound( _button ) ) return;
 

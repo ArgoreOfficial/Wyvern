@@ -40,7 +40,7 @@ public:
 	void destroyAction( const std::string& _name );
 
 	void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown );
-	void handleControllerEvent( uint32_t _button, bool _buttonDown );
+	void handleControllerEvent( wv::ControllerButton _button, bool _buttonDown );
 
 	wv::Vector2<double> getAxisValue( const std::string& _name ) const;
 
