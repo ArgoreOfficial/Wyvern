@@ -37,6 +37,8 @@ public:
 	ButtonAction* createButtonAction( const std::string& _name );
 	AxisAction* createAxisAction( const std::string& _name );
 
+	ButtonAction* getButtonAction( const std::string& _name );
+
 	void destroyAction( const std::string& _name );
 
 	void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown );

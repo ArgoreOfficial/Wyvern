@@ -2,6 +2,7 @@
 
 #include <wv/reflection/reflection.h>
 #include <wv/input/input_enums.h>
+#include <wv/math/math.h>
 
 namespace wv {
 
@@ -22,9 +23,10 @@ public:
 	virtual bool isBoundToMouse() const = 0;
 
 	bool requiresRemapping() const { return m_requiresRemapping; };
-
+	uint64_t getActionID() const { return m_actionID; }
 protected:
 	std::string m_name;
+	const uint64_t m_actionID = wv::Math::randomU64();
 	bool m_requiresRemapping = true;
 };
 

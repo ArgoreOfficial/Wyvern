@@ -59,6 +59,12 @@ wv::AxisAction* wv::ActionGroup::createAxisAction( const std::string& _name )
 	return static_cast<AxisAction*>( createAction( WV_NEW( AxisAction, _name ) ) );
 }
 
+wv::ButtonAction* wv::ActionGroup::getButtonAction( const std::string& _name )
+{
+	if ( !m_actionNameMap.contains( _name ) ) return nullptr;
+	return wv::tryCast<ButtonAction>( m_actionNameMap.at( _name ) );
+}
+
 void wv::ActionGroup::destroyAction( const std::string& _name )
 {
 	WV_ASSERT_MSG( m_isEnabled == true, "Enabled action groups cannot be modified" );
