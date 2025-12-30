@@ -19,11 +19,7 @@
 
 wv::CameraManagerSystem::CameraManagerSystem()
 {
-	m_jumpEventListener = WV_NEW( 
-		ButtonActionEventListener, 
-		[]( const ButtonActionEvent& _event ) {
-			wv::Debug::Print( "Jump happened (event)\n" );
-		} );
+
 }
 
 wv::CameraManagerSystem::~CameraManagerSystem()
@@ -31,9 +27,6 @@ wv::CameraManagerSystem::~CameraManagerSystem()
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
 
 	m_cameraComponents.clear();
-
-	eventManager->unsubscribeListener( m_jumpEventListener );
-	WV_FREE( m_jumpEventListener );
 }
 
 void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
@@ -53,17 +46,24 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 void wv::CameraManagerSystem::initialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
-	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-
 	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
 	ButtonAction* jumpAction = playerActions->getButtonAction( "Jump" );
-	m_jumpEventListener->setAction( jumpAction );
+	
+	m_jumpEventListenerID = jumpAction->subscribeOnPressed(
+		[]( const ButtonOnPressedEvent& _event )
+		{
+			wv::Debug::Print( "Jump happened (event)\n" );
+		} );
 
-	eventManager->subscribeListener( m_jumpEventListener );
 }
 
 void wv::CameraManagerSystem::shutdown()
 {
+	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
+	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
+	ButtonAction* jumpAction = playerActions->getButtonAction( "Jump" );
+
+	jumpAction->unsubscribeOnPressed( m_jumpEventListenerID );
 }
 
 void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )

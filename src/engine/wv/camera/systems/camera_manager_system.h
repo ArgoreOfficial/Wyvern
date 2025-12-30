@@ -39,7 +39,7 @@ protected:
 	CameraComponent* m_activeCamera = nullptr;
 	float m_orbitDistance = 5.0f;
 
-	ButtonActionEventListener* m_jumpEventListener;
+	uint32_t m_jumpEventListenerID;
 };
 
 }
