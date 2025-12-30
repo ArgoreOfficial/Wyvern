@@ -6,6 +6,15 @@ wv::EventManager::~EventManager()
 	for ( auto event : m_eventQueue )
 		WV_FREE( event.event );
 
+	// free up any left over listeners
+	for ( auto key : m_allocatedListeners.keys() )
+	{
+		IEventListener* listener = m_allocatedListeners.at( key );;
+		if ( listener )
+			WV_FREE( listener );
+	}
+
+	m_allocatedListeners.clear();
 	m_eventQueue.clear();
 	m_subscribedListeners.clear();
 }

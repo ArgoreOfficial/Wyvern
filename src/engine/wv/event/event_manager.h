@@ -67,7 +67,7 @@ private:
 
 	// Listeners allocated with subscribe<Ty>()
 	wv::unordered_array<uint32_t, IEventListener*> m_allocatedListeners;
-
+	
 	// All currently subscribed listeners. 
 	// May include externally implemented and allocated listeners
 	std::unordered_map<TypeUUID, std::vector<IEventListener*>> m_subscribedListeners;
