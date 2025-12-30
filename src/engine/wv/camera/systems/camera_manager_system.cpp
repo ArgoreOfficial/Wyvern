@@ -46,24 +46,19 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 void wv::CameraManagerSystem::initialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
-	ButtonAction* jumpAction = playerActions->getButtonAction( "Jump" );
 	
-	m_jumpEventListenerID = jumpAction->subscribeOnPressed(
-		[]( const ButtonOnPressedEvent& _event )
-		{
-			wv::Debug::Print( "Jump happened (event)\n" );
-		} );
+	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
+	{
+		if( m_jumpAction = playerActions->getButtonAction( "Jump" ) )
+			m_jumpEventListenerID = m_jumpAction->subscribeOnPressed( []( const auto& _event ) { wv::Debug::Print( "Jump happened (event)\n" ); } );
 
+	}
 }
 
 void wv::CameraManagerSystem::shutdown()
 {
-	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
-	ButtonAction* jumpAction = playerActions->getButtonAction( "Jump" );
-
-	jumpAction->unsubscribeOnPressed( m_jumpEventListenerID );
+	if( m_jumpAction )
+		m_jumpAction->unsubscribeOnPressed( m_jumpEventListenerID );
 }
 
 void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
