@@ -1,8 +1,9 @@
 #include "world.h"
 
-#include <wv/graphics/viewport.h>
-#include <wv/camera/view_volume.h>
 #include <wv/application.h>
+#include <wv/camera/view_volume.h>
+#include <wv/graphics/viewport.h>
+#include <wv/input/input_system.h>
 
 wv::World::~World()
 {
@@ -110,6 +111,7 @@ void wv::World::updateWorldSystems( double _deltaTime )
 	ctx.viewport = m_viewport;
 	ctx.deltaTime = _deltaTime;
 	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
+	ctx.actionQueue = ctx.inputSystem->getActionQueue();
 
 	for ( auto system : m_systems )
 		system->update( ctx );

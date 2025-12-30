@@ -38,6 +38,10 @@ public:
 	ActionGroup* createActionGroup( const std::string& _name );
 	void destroyActionGroup( const std::string& _name );
 	
+	std::vector<IAction*> getActionQueue() { return m_actionQueue; }
+
+	void postActionEvent( IAction* _action ) { m_actionQueue.push_back( _action ); }
+	
 #ifndef WV_PACKAGE
 	inline wv::Vector2f debugGetMouseMotion()   const { return m_debugMouseMotion; }
 	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
@@ -60,6 +64,8 @@ protected:
 	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };
 	bool m_debugMouseButtonStates[ 5 ] = { false, false, false, false, false };
 #endif
+	
+	std::vector<IAction*> m_actionQueue;
 
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;

@@ -49,16 +49,14 @@ void wv::CameraManagerSystem::initialize()
 	
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
-		if( m_jumpAction = playerActions->getButtonAction( "Jump" ) )
-			m_jumpEventListenerID = m_jumpAction->subscribeOnPressed( []( const auto& _event ) { wv::Debug::Print( "Jump happened (event)\n" ); } );
-
+		m_jumpAction = playerActions->getButtonAction( "Jump" );
+		
 	}
 }
 
 void wv::CameraManagerSystem::shutdown()
 {
-	if( m_jumpAction )
-		m_jumpAction->unsubscribeOnPressed( m_jumpEventListenerID );
+	
 }
 
 void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
@@ -116,6 +114,16 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		wv::Vector2f move = playerActions->getAxisValue( "Move" );
 		m_orbitDistance += move.y * _ctx.deltaTime * 10.0;
 		m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
+	}
+
+	uint64_t jumpActionID = m_jumpAction->getActionID();
+
+	for ( IAction* action : _ctx.actionQueue )
+	{
+		if ( action->getActionID() == jumpActionID )
+			wv::Debug::Print( "Jumped!\n" );
+		
+
 	}
 
 	if ( m_activeCamera )

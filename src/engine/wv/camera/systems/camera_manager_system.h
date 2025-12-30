@@ -9,7 +9,7 @@
 namespace wv {
 
 class CameraComponent;
-class ButtonActionEventListener;
+class ButtonAction;
 
 class CameraManagerSystem : public IWorldSystem
 {
@@ -41,6 +41,7 @@ protected:
 
 	ButtonAction* m_jumpAction = nullptr;
 	uint32_t m_jumpEventListenerID;
+	uint32_t m_jumpReleaseEventListenerID;
 };
 
 }

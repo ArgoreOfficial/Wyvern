@@ -143,6 +143,8 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
+	m_actionQueue.clear();
+
 	// should be part of platform
 	updateInputDrivers( _eventManager );
 
@@ -207,9 +209,11 @@ void wv::InputSystem::onMouseButtonEvent( const MouseButtonEvent& _event )
 
 void wv::InputSystem::onKeyboardEvent( const KeyboardEvent& _event )
 {
-	if ( !_event.isRepeat )
-		for ( auto group : m_actionGroups )
-			group->handleKeyboardEvent( _event.scancode, _event.state );
+	if ( _event.isRepeat )
+		return;
+
+	for ( auto group : m_actionGroups )
+		group->handleKeyboardEvent( _event.scancode, _event.state );
 }
 
 void wv::InputSystem::onControllerButtonEvent( const ControllerButtonEvent& _event )
