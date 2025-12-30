@@ -3,6 +3,7 @@
 #include <wv/event/event_listener.h>
 #include <wv/reflection/reflection.h>
 #include <wv/memory/memory.h>
+#include <wv/helpers/unordered_array.hpp>
 
 #include <vector>
 #include <unordered_map>
@@ -25,7 +26,7 @@ public:
 	template<typename Ty>
 	void queueEvent( const Ty& _event )
 	{
-		static_assert( std::is_base_of<IEvent, Ty>(), "Event type must derive from IEvent" );
+		static_assert( std::is_base_of<IEvent, Ty>(), "Must be a valid IEvent type" );
 
 		EventPacket packet{};
 		packet.eventTypeUUID = Ty::getStaticTypeUUID();
@@ -36,26 +37,40 @@ public:
 	template<typename Ty>
 	void triggerEvent( const Ty& _event );
 
-	void subscribe( IEventListener* _listener );
-	void unsubscribe( IEventListener* _listener );
+	void subscribeListener( IEventListener* _listener );
+	void unsubscribeListener( IEventListener* _listener );
 
 	template<typename Ty>
-	void subscribe( Ty* _listener, Ty::EventFunction_t _function ) {
-		static_assert( std::is_base_of<IEventListener, Ty>(), "Must be an event listener" );
+	uint32_t subscribe( std::function<void( const Ty& _event )> _callback )
+	{
+		static_assert( std::is_base_of<IEvent, Ty>(), "Must be a valid IEvent type" );
 
-		_listener->m_eventFunction = _function;
-		subscribe( static_cast<IEventListener*>( _listener ) );
+		EventListener<Ty>* listener = WV_NEW( EventListener<Ty>, _callback );
+		subscribeListener( static_cast<IEventListener*>( listener ) );
+
+		return m_allocatedListeners.emplace( static_cast<IEventListener*>( listener ) );
+	}
+
+	void unsubscribe( uint32_t _listenerID ) {
+		if ( !m_allocatedListeners.contains( _listenerID ) ) return;
+		
+		WV_FREE( m_allocatedListeners.at( _listenerID ) );
+		m_allocatedListeners.erase( _listenerID );
 	}
 
 private:
 	void processEvents();
-
 	void triggerEventInternal( TypeUUID _eventTypeUUID, const IEvent& _event );
 
 	bool m_isRunningEvent = false;
 	std::vector<EventPacket> m_eventQueue;
 
-	std::unordered_map<TypeUUID, std::vector<IEventListener*>> m_listeners;
+	// Listeners allocated with subscribe<Ty>()
+	wv::unordered_array<uint32_t, IEventListener*> m_allocatedListeners;
+
+	// All currently subscribed listeners. 
+	// May include externally implemented and allocated listeners
+	std::unordered_map<TypeUUID, std::vector<IEventListener*>> m_subscribedListeners;
 };
 
 template<typename Ty>

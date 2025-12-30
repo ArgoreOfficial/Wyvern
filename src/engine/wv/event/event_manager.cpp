@@ -7,18 +7,18 @@ wv::EventManager::~EventManager()
 		WV_FREE( event.event );
 
 	m_eventQueue.clear();
-	m_listeners.clear();
+	m_subscribedListeners.clear();
 }
 
-void wv::EventManager::subscribe( IEventListener* _listener )
+void wv::EventManager::subscribeListener( IEventListener* _listener )
 {
 	if ( _listener == nullptr )
 		return;
 
-	if ( m_listeners.contains( _listener->m_eventTypeUUID ) )
+	if ( m_subscribedListeners.contains( _listener->m_eventTypeUUID ) )
 	{
 		// make sure listener is not already subscribed
-		for ( auto listener : m_listeners[ _listener->m_eventTypeUUID ] )
+		for ( auto listener : m_subscribedListeners[ _listener->m_eventTypeUUID ] )
 		{
 			if ( listener != _listener )
 				continue;
@@ -28,18 +28,18 @@ void wv::EventManager::subscribe( IEventListener* _listener )
 		}
 	}
 	
-	m_listeners[ _listener->m_eventTypeUUID ].push_back( _listener );
+	m_subscribedListeners[ _listener->m_eventTypeUUID ].push_back( _listener );
 }
 
-void wv::EventManager::unsubscribe( IEventListener* _listener )
+void wv::EventManager::unsubscribeListener( IEventListener* _listener )
 {
 	if ( _listener == nullptr )
 		return;
 
-	if ( !m_listeners.contains( _listener->m_eventTypeUUID ) )
+	if ( !m_subscribedListeners.contains( _listener->m_eventTypeUUID ) )
 		return;
 
-	std::vector<IEventListener*>& vec = m_listeners[ _listener->m_eventTypeUUID ];
+	std::vector<IEventListener*>& vec = m_subscribedListeners[ _listener->m_eventTypeUUID ];
 	
 	// make sure listener is not already subscribed
 	for ( auto it = vec.begin(); it != vec.end(); )
@@ -67,9 +67,9 @@ void wv::EventManager::processEvents()
 
 void wv::EventManager::triggerEventInternal( TypeUUID _eventTypeUUID, const IEvent& _event )
 {
-	if ( !m_listeners.contains( _eventTypeUUID ) )
+	if ( !m_subscribedListeners.contains( _eventTypeUUID ) )
 		return;
 
-	for ( auto& listener : m_listeners.at( _eventTypeUUID ) )
+	for ( auto& listener : m_subscribedListeners.at( _eventTypeUUID ) )
 		listener->triggerEvent( _event );
 }

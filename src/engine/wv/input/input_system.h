@@ -7,13 +7,16 @@
 #include <wv/math/vector2.h>
 #include <wv/input/action_group.h>
 #include <wv/input/input_enums.h>
-#include <wv/input/input_events.h>
 
 #include <vector>
 
 namespace wv {
 
 class EventManager;
+class MouseMoveEvent;
+class MouseButtonEvent;
+class KeyboardEvent;
+class ControllerButtonEvent;
 
 class InputSystem
 {
@@ -61,10 +64,10 @@ protected:
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 
-	EventListener<MouseMoveEvent> m_mouseMoveListener;
-	EventListener<MouseButtonEvent> m_mouseButtonListener;
-	EventListener<KeyboardEvent> m_keyboardListener;
-	EventListener<ControllerButtonEvent> m_controllerButtonListener;
+	uint32_t m_mouseMoveListener        = 0;
+	uint32_t m_mouseButtonListener      = 0;
+	uint32_t m_keyboardListener         = 0;
+	uint32_t m_controllerButtonListener = 0;
 
 };
 

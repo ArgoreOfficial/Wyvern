@@ -18,6 +18,8 @@ public:
 		m_eventTypeUUID{ _eventTypeUUID } 
 	{ }
 
+	virtual ~IEventListener() { }
+
 protected:
 	virtual void triggerEvent( const IEvent& _event ) = 0;
 	TypeUUID m_eventTypeUUID;
@@ -38,6 +40,9 @@ public:
 	EventListener( const EventFunction_t& _function ) : 
 		IEventListener( EventType::getStaticTypeUUID() ),
 		m_eventFunction{ _function }
+	{ }
+
+	virtual ~EventListener() 
 	{ }
 
 protected:

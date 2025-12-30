@@ -12,13 +12,18 @@
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 #include <wv/input/input_system.h>
+#include <wv/input/input_events.h>
 #include <wv/input/actions/button_action.h>
 #include <wv/input/actions/axis_action.h>
 #include <wv/event/event_manager.h>
 
 wv::CameraManagerSystem::CameraManagerSystem()
 {
-	m_jumpEventListener = WV_NEW( ButtonActionEventListener );
+	m_jumpEventListener = WV_NEW( 
+		ButtonActionEventListener, 
+		[]( const ButtonActionEvent& _event ) {
+			wv::Debug::Print( "Jump happened (event)\n" );
+		} );
 }
 
 wv::CameraManagerSystem::~CameraManagerSystem()
@@ -27,7 +32,7 @@ wv::CameraManagerSystem::~CameraManagerSystem()
 
 	m_cameraComponents.clear();
 
-	eventManager->unsubscribe( m_jumpEventListener );
+	eventManager->unsubscribeListener( m_jumpEventListener );
 	WV_FREE( m_jumpEventListener );
 }
 
@@ -51,14 +56,10 @@ void wv::CameraManagerSystem::initialize()
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
 
 	ActionGroup* playerActions = inputSystem->getActionGroup( "Player" );
+	ButtonAction* jumpAction = playerActions->getButtonAction( "Jump" );
+	m_jumpEventListener->setAction( jumpAction );
 
-	m_jumpEventListener->setAction( playerActions->getButtonAction( "Jump" ) );
-	eventManager->subscribe(
-		m_jumpEventListener,
-		[]( const ButtonActionEvent& _event )
-		{
-			wv::Debug::Print( "Jump happened (event)\n" );
-		} );
+	eventManager->subscribeListener( m_jumpEventListener );
 }
 
 void wv::CameraManagerSystem::shutdown()

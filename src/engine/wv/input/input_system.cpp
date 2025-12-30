@@ -3,17 +3,17 @@
 #include <wv/application.h>
 #include <wv/event/event_manager.h>
 #include <wv/memory/memory.h>
+#include <wv/input/input_events.h>
 
 #include <SDL2/SDL.h>
 
 wv::InputSystem::InputSystem()
 {
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-
-	eventManager->subscribe( &m_mouseMoveListener,        WV_FORWARD_EVENT( onMouseMoveEvent ) );
-	eventManager->subscribe( &m_mouseButtonListener,      WV_FORWARD_EVENT( onMouseButtonEvent ) );
-	eventManager->subscribe( &m_keyboardListener,         WV_FORWARD_EVENT( onKeyboardEvent ) );
-	eventManager->subscribe( &m_controllerButtonListener, WV_FORWARD_EVENT( onControllerButtonEvent ) );
+	m_mouseMoveListener        = eventManager->subscribe<MouseMoveEvent>       ( WV_FORWARD_EVENT( onMouseMoveEvent ) );
+	m_mouseButtonListener      = eventManager->subscribe<MouseButtonEvent>     ( WV_FORWARD_EVENT( onMouseButtonEvent ) );
+	m_keyboardListener         = eventManager->subscribe<KeyboardEvent>        ( WV_FORWARD_EVENT( onKeyboardEvent ) );
+	m_controllerButtonListener = eventManager->subscribe<ControllerButtonEvent>( WV_FORWARD_EVENT( onControllerButtonEvent ) );
 }
 
 wv::InputSystem::~InputSystem()
@@ -21,19 +21,21 @@ wv::InputSystem::~InputSystem()
 	for ( auto actionGroup : m_actionGroups )
 		WV_FREE( actionGroup );
 
+	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
+	eventManager->unsubscribe( m_mouseMoveListener );
+	eventManager->unsubscribe( m_mouseButtonListener );
+	eventManager->unsubscribe( m_keyboardListener );
+	eventManager->unsubscribe( m_controllerButtonListener );
+
 	m_actionGroups.clear();
 	m_actionGroupNameMap.clear();
 }
 
 static SDL_GameController* findController() {
 	for ( int i = 0; i < SDL_NumJoysticks(); i++ )
-	{
 		if ( SDL_IsGameController( i ) )
-		{
 			return SDL_GameControllerOpen( i );
-		}
-	}
-
+	
 	return nullptr;
 }
 
