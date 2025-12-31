@@ -96,8 +96,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	);
 	*/
 
-	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", wv::SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   wv::SCANCODE_SPACE );
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_A );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_JOYSTICK_RIGHT );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_SHOULDER_LEFT );
 
 	//group->bindValueAction( "Throttle", "Keyboard", Scancode::W );
 	//group->bindValueAction( "Throttle", "Controller", ControllerTrigger::Right );

@@ -20,7 +20,9 @@ protected:
 
 	void updateDeviceState( InputSystem* _inputSystem, int _deviceID, const XINPUT_STATE& _state );
 
-	void handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state );
+	void updateButtonStates( InputSystem* _inputSystem, ControllerDevice* _device, const XINPUT_STATE& _state );
+
+	std::unordered_map<int, WORD> m_xinputButtonStateMap;
 };
 
 }

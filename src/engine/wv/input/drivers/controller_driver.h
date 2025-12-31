@@ -11,6 +11,8 @@
 
 namespace wv {
 
+struct TriggerAction;
+
 struct ControllerDevice
 {
 	int deviceID = -1;
@@ -20,6 +22,17 @@ struct ControllerDevice
 
 	// Mask, use ControllerButton enum for bits 
 	uint32_t buttonStates = CONTROLLER_BUTTON_NONE;
+
+	inline bool getButtonState( ControllerButton _button ) {
+		return ( buttonStates & _button ) != 0;
+	}
+
+	inline void setButtonState( ControllerButton _button, bool _state ) {
+		if ( _state )
+			buttonStates |= _button;
+		else
+			buttonStates &= ~_button;
+	}
 };
 
 class IControllerDriver : public IInputDriver
@@ -43,6 +56,10 @@ protected:
 	}
 
 	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
+
+	void handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state );
+
+	virtual void sendTriggerEvents( InputSystem* _inputSystem, ControllerDevice* _device );
 
 	std::set<int> m_connectedDeviceIDs;
 	std::vector<ControllerDevice*> m_connectedDevices;

@@ -3,7 +3,6 @@
 #include <wv/debug/log.h>
 #include <wv/debug/error.h>
 
-#include <wv/event/event_listener.h>
 #include <wv/math/vector2.h>
 #include <wv/input/action_group.h>
 #include <wv/input/input_enums.h>

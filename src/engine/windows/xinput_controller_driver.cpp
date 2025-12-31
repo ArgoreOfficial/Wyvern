@@ -28,6 +28,7 @@ void wv::XInputControllerDriver::handleDeviceConnected( int _deviceID )
 {
 	wv::Debug::Print( "XInput Device %i connected\n", _deviceID );
 	m_connectedDeviceIDs.insert( _deviceID );
+	m_xinputButtonStateMap.emplace( _deviceID, 0 );
 
 	ControllerDevice* device = WV_NEW( ControllerDevice );
 	device->deviceID = _deviceID;
@@ -41,6 +42,7 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( int _deviceID )
 	wv::Debug::Print( "XInput Device %i disconnected\n", _deviceID );
 
 	m_connectedDeviceIDs.erase( _deviceID );
+	m_xinputButtonStateMap.erase( _deviceID );
 
 	auto it = getDevice( _deviceID );
 	if ( it == m_connectedDevices.end() )
@@ -71,60 +73,40 @@ void wv::XInputControllerDriver::updateDeviceState( InputSystem* _inputSystem, i
 		fmaxf( -1, (float)_state.Gamepad.sThumbRY / 32767 )
 	};
 
-	// Check state changes
-	/*
-	std::vector<Action*> actions = _inputSystem->getActionsByDevice( "Controller" );
-	
-
-	_inputSystem->pushActionChange("Controller", );
-	
-	*/
-
 	if ( device->leftJoystick  != oldState.leftJoystick  ) wv::Debug::Print( "LEFT: %f, %f\n", device->leftJoystick.x, device->leftJoystick.y );
 	if ( device->rightJoystick != oldState.rightJoystick ) wv::Debug::Print( "RIGHT: %f, %f\n", device->rightJoystick.x, device->rightJoystick.y );
 
-	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_A ) device->buttonStates |= CONTROLLER_BUTTON_A; else device->buttonStates &= ~CONTROLLER_BUTTON_A;
-	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_B ) device->buttonStates |= CONTROLLER_BUTTON_B; else device->buttonStates &= ~CONTROLLER_BUTTON_B;
-	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_X ) device->buttonStates |= CONTROLLER_BUTTON_X; else device->buttonStates &= ~CONTROLLER_BUTTON_X;
-	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_Y ) device->buttonStates |= CONTROLLER_BUTTON_Y; else device->buttonStates &= ~CONTROLLER_BUTTON_Y;
+	updateButtonStates( _inputSystem, device, _state );
+
 
 	if ( device->buttonStates != oldState.buttonStates )
-	{
-		uint32_t buttonStateXor = device->buttonStates ^ oldState.buttonStates;
-
-		for ( ActionGroup* group : _inputSystem->getActionGroups() )
-		{
-			if ( !group->isEnabled() )
-				continue;
-			
-			for ( auto& mapping : group->getTriggerActionsByDevice( "Controller" ) )
-			{
-				switch ( mapping.inputID )
-				{
-				case CONTROLLER_BUTTON_A: 
-					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A ); 
-					break;
-				case CONTROLLER_BUTTON_B:
-					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
-					break;
-				case CONTROLLER_BUTTON_X:
-					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
-					break;
-				case CONTROLLER_BUTTON_Y:
-					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
-					break;
-				}
-			}
-		}
-	}
-
+		sendTriggerEvents( _inputSystem );
+	
 }
 
-void wv::XInputControllerDriver::handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state )
+void wv::XInputControllerDriver::updateButtonStates( InputSystem* _inputSystem, ControllerDevice* _device, const XINPUT_STATE& _state )
 {
-	if ( _action->currentState == _state )
+	if ( m_xinputButtonStateMap.at( _device->deviceID ) == _state.Gamepad.wButtons )
 		return;
-	
-	_action->currentState = _state;
-	_inputSystem->pushActionEvent( _action );
+
+	m_xinputButtonStateMap.at( _device->deviceID ) = _state.Gamepad.wButtons;
+
+	_device->setButtonState( CONTROLLER_BUTTON_A, _state.Gamepad.wButtons & XINPUT_GAMEPAD_A );
+	_device->setButtonState( CONTROLLER_BUTTON_B, _state.Gamepad.wButtons & XINPUT_GAMEPAD_B );
+	_device->setButtonState( CONTROLLER_BUTTON_X, _state.Gamepad.wButtons & XINPUT_GAMEPAD_X );
+	_device->setButtonState( CONTROLLER_BUTTON_Y, _state.Gamepad.wButtons & XINPUT_GAMEPAD_Y );
+	_device->setButtonState( CONTROLLER_BUTTON_DPAD_UP, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP );
+	_device->setButtonState( CONTROLLER_BUTTON_DPAD_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT );
+	_device->setButtonState( CONTROLLER_BUTTON_DPAD_DOWN, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN );
+	_device->setButtonState( CONTROLLER_BUTTON_DPAD_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT );
+
+	_device->setButtonState( CONTROLLER_BUTTON_START, _state.Gamepad.wButtons & XINPUT_GAMEPAD_START );
+	_device->setButtonState( CONTROLLER_BUTTON_SELECT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK );
+	_device->setButtonState( CONTROLLER_BUTTON_HOME, false );
+
+	_device->setButtonState( CONTROLLER_BUTTON_JOYSTICK_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB );
+	_device->setButtonState( CONTROLLER_BUTTON_JOYSTICK_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB );
+	_device->setButtonState( CONTROLLER_BUTTON_SHOULDER_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER );
+	_device->setButtonState( CONTROLLER_BUTTON_SHOULDER_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER );
+
 }
