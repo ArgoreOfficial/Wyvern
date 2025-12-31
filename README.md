@@ -14,7 +14,7 @@ Wyvern uses the free and open-source build system [xmake](https://github.com/xma
 [xmake installation guide](https://xmake.io/#/guide/installation)  
 
 ### Visual Studio Solution
-Run the `generate-project-files.ps1` script to generate a Visual Studio 2022 solution.  
+Run the `generate-project-files.ps1` script to generate a Visual Studio 2026 solution.  
 The default name will be `_Game.sln`, which can be configured at the top of the `xmake.lua` file.
 
 ### Command Line

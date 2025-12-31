@@ -3,7 +3,7 @@ function _add_supports( _target, _prefix )
     _target:add( "headerfiles", "./libs/**.h" )
     _target:add( "includedirs", "./libs/glad/include/" )
     
-    import( "support.libsdl" )( _target, _prefix ) 
+    import( "support.libsdl2" )( _target, _prefix ) 
     import( "support.imgui" )( _target, _prefix ) 
 
     _target:add( "defines", { 
