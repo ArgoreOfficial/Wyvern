@@ -6,6 +6,7 @@
 #include <wv/entity/world_system.h>
 
 #include <wv/math/vector2.h>
+#include <wv/input/input_system.h>
 
 namespace wv {
 
@@ -13,7 +14,6 @@ class WorldSector;
 class ViewVolume;
 class Viewport;
 class InputSystem;
-class IAction;
 
 struct WorldUpdateContext
 {
@@ -21,7 +21,7 @@ struct WorldUpdateContext
 	double deltaTime = 0.0;
 	
 	InputSystem* inputSystem = nullptr;
-	std::vector<IAction*> actionQueue;
+	std::vector<ActionEvent> actionEventQueue;
 };
 
 class World : public IReflectedType

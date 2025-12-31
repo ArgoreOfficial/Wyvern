@@ -49,7 +49,7 @@ void wv::CameraManagerSystem::initialize()
 	
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
-		// m_jumpAction = playerActions->getButtonAction( "Jump" );
+		m_jumpAction = playerActions->getTriggerActionID( "Jump" );
 		
 	}
 }
@@ -107,6 +107,12 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		if ( m_activeCamera == nullptr && m_cameraComponents.size() > 0 )
 			m_activeCamera = m_cameraComponents[ 0 ];
 		m_cameraComponentsChanged = false;
+	}
+
+	for ( const ActionEvent& event : _ctx.actionEventQueue )
+	{
+		if ( event.actionID == m_jumpAction && event.action.triggerState )
+			wv::Debug::Print( "Jumped!\n" );
 	}
 
 	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )

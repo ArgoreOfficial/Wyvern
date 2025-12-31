@@ -19,6 +19,18 @@ class MouseButtonEvent;
 class KeyboardEvent;
 class ControllerButtonEvent;
 
+struct ActionEvent
+{
+	uint64_t actionID;
+	ActionType type = ACTION_TYPE_TRIGGER;
+	union ActionEventValue
+	{
+		bool triggerState;
+		float value = 0.0f;
+		wv::Vector2d axis;
+	} action; 
+};
+
 class InputSystem
 {
 public:
@@ -34,6 +46,22 @@ public:
 
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
+
+	void pushActionEvent( const ActionEvent& _event ) {
+		m_actionEventQueue.push_back( _event );
+	}
+
+	void pushActionEvent( TriggerAction* _action ) {
+		ActionEvent event;
+		event.actionID = _action->actionID;
+		event.action.triggerState = _action->currentState;
+		event.type = ACTION_TYPE_TRIGGER;
+		m_actionEventQueue.push_back( event );
+	}
+
+	std::vector<ActionEvent> getActionEventQueue() const {
+		return m_actionEventQueue;
+	}
 
 	ActionGroup* getActionGroup( const std::string& _name ) const { 
 		if ( !m_actionGroupNameMap.contains( _name ) )
@@ -72,6 +100,7 @@ protected:
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 
+	std::vector<ActionEvent> m_actionEventQueue;
 };
 
 }

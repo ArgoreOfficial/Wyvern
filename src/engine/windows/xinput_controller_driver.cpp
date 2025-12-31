@@ -126,7 +126,5 @@ void wv::XInputControllerDriver::handleTriggerAction( InputSystem* _inputSystem,
 		return;
 	
 	_action->currentState = _state;
-	//_inputSystem->pushTriggerActionChange( _action, _state );
-	
-	wv::Debug::Print( "Action %s became state %s\n", _action->name.c_str(), _action->currentState ? "true" : "false" );
+	_inputSystem->pushActionEvent( _action );
 }

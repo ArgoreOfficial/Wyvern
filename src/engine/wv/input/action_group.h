@@ -15,6 +15,13 @@ class IAction;
 class ButtonAction;
 class AxisAction;
 
+enum ActionType
+{
+	ACTION_TYPE_TRIGGER,
+	ACTION_TYPE_VALUE,
+	ACTION_TYPE_AXIS
+};
+
 struct TriggerAction
 {
 	TriggerAction( const std::string& _name ) : name{ _name } { }
@@ -36,6 +43,11 @@ struct ActionContainer
 	std::vector<Ty*> actions;
 	std::unordered_map<std::string, Ty*> nameMap;
 	std::unordered_map<std::string, std::vector<MapTy>> deviceMaps;
+
+	~ActionContainer() {
+		for ( Ty* action : actions )
+			WV_FREE( action );
+	}
 
 	Ty* getAction( const std::string& _actionName ) {
 		if ( !nameMap.contains( _actionName ) )

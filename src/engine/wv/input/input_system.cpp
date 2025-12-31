@@ -138,6 +138,8 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
+	m_actionEventQueue.clear();
+	
 	// should be part of platform
 	updateInputDrivers( _eventManager );
 
