@@ -5,6 +5,8 @@
 #include <wv/memory/memory.h>
 #include <wv/input/input_events.h>
 
+#include <wv/input/drivers/input_driver.h>
+
 #include <SDL2/SDL.h>
 
 wv::InputSystem::InputSystem()
@@ -29,6 +31,9 @@ wv::InputSystem::~InputSystem()
 
 	m_actionGroups.clear();
 	m_actionGroupNameMap.clear();
+
+	for ( IInputDriver* driver : m_inputDrivers )
+		WV_FREE( driver );
 }
 
 static SDL_GameController* findController() {
@@ -111,32 +116,32 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 			_eventManager->queueEvent( event );
 		} break;
 
-		case SDL_CONTROLLERBUTTONDOWN: [[fallthrough]];
-		case SDL_CONTROLLERBUTTONUP:
-		{
-			ControllerButtonEvent event;
-			event.state = ev.type == SDL_CONTROLLERBUTTONDOWN;
-			event.button = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
-			_eventManager->queueEvent( event );
-		} break;
-
-		case SDL_CONTROLLERDEVICEADDED:
-			if ( !controller )
-			{
-				wv::Debug::Print( "Controller connected\n" );
-				WV_LOG_ERROR( "TODO: proper controller handling\n" );
-				controller = SDL_GameControllerOpen( ev.cdevice.which );
-			}
-			break;
-		case SDL_CONTROLLERDEVICEREMOVED:
-			if ( controller && ev.cdevice.which == SDL_JoystickInstanceID( SDL_GameControllerGetJoystick( controller ) ) )
-			{
-				wv::Debug::Print( "Controller disconnected\n" );
-				
-				SDL_GameControllerClose( controller );
-				controller = findController();
-			}
-			break;
+		//case SDL_CONTROLLERBUTTONDOWN: [[fallthrough]];
+		//case SDL_CONTROLLERBUTTONUP:
+		//{
+		//	ControllerButtonEvent event;
+		//	event.state = ev.type == SDL_CONTROLLERBUTTONDOWN;
+		//	event.button = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
+		//	_eventManager->queueEvent( event );
+		//} break;
+		//
+		//case SDL_CONTROLLERDEVICEADDED:
+		//	if ( !controller )
+		//	{
+		//		wv::Debug::Print( "Controller connected\n" );
+		//		WV_LOG_ERROR( "TODO: proper controller handling\n" );
+		//		controller = SDL_GameControllerOpen( ev.cdevice.which );
+		//	}
+		//	break;
+		//case SDL_CONTROLLERDEVICEREMOVED:
+		//	if ( controller && ev.cdevice.which == SDL_JoystickInstanceID( SDL_GameControllerGetJoystick( controller ) ) )
+		//	{
+		//		wv::Debug::Print( "Controller disconnected\n" );
+		//		
+		//		SDL_GameControllerClose( controller );
+		//		controller = findController();
+		//	}
+		//	break;
 		}
 	}
 }
@@ -148,6 +153,9 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	// should be part of platform
 	updateInputDrivers( _eventManager );
 
+	for ( IInputDriver* driver : m_inputDrivers )
+		driver->updateDriver( this );
+	
 #ifndef WV_PACKAGE
 	m_debugMouseMotion = { 0.0f, 0.0f };
 #endif

@@ -20,6 +20,8 @@ function on_load( _target, _prefix )
         -- icon resource
         _target:add( "files", "$(projectdir)\\resources\\resource.rc" )
         _target:add( "filegroups", "Resources", { rootdir = "$(projectdir)" } ) -- TODO: allow x86 icon resource
+        
+        _target:add( "syslinks", "Xinput9_1_0.lib" ) -- xinput, TODO move?
 
     elseif _target:is_arch( "x86" ) and os.arch() == "x64" then
         _target:add( "ldflags", "-static-libgcc -static-libstdc++" )

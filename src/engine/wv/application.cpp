@@ -20,6 +20,10 @@
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
 
+
+// TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
+#include <windows/xinput_controller_driver.h>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -55,6 +59,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
 
+	m_inputSystem->createInputDriver<XInputControllerDriver>();
+
 	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
@@ -88,6 +94,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		ControllerButton::DPAD_UP, 
 		ControllerButton::DPAD_DOWN
 	);
+
+	/*
+	
+	jumpAction->bind("Keyboard", Scancode::SPACE);
+	jumpAction->bind("Keyboard", Scancode::P);
+	jumpAction->bind("Controller", ControllerButton::A);
+
+	*/
 
 	playerActionGroup->enable();
 

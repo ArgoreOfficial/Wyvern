@@ -12,6 +12,7 @@
 
 namespace wv {
 
+class IInputDriver;
 class EventManager;
 class MouseMoveEvent;
 class MouseButtonEvent;
@@ -23,6 +24,13 @@ class InputSystem
 public:
 	InputSystem();
 	~InputSystem();
+	
+	template<typename Ty>
+	void createInputDriver() {
+		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
+		m_inputDrivers.push_back( WV_NEW( Ty ) );
+		// driver->initialize() ?
+	}
 
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
@@ -65,6 +73,8 @@ protected:
 	bool m_debugMouseButtonStates[ 5 ] = { false, false, false, false, false };
 #endif
 	
+	std::vector<IInputDriver*> m_inputDrivers;
+
 	std::vector<IAction*> m_actionQueue;
 
 	std::vector<ActionGroup*> m_actionGroups;
