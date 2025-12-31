@@ -111,7 +111,7 @@ void wv::World::updateWorldSystems( double _deltaTime )
 	ctx.viewport = m_viewport;
 	ctx.deltaTime = _deltaTime;
 	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ctx.actionQueue = ctx.inputSystem->getActionQueue();
+	//ctx.actionQueue = ctx.inputSystem->getActionQueue();
 
 	for ( auto system : m_systems )
 		system->update( ctx );

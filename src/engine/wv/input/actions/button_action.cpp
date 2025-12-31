@@ -8,6 +8,6 @@ void wv::ButtonAction::updateState( bool _newState )
 	bool oldState = m_state;
 	m_state = _newState;
 	
-	if ( oldState != _newState )
-		wv::Application::getSingleton()->getInputSystem()->postActionEvent( this );
+	//if ( oldState != _newState )
+	//	wv::Application::getSingleton()->getInputSystem()->postActionEvent( this );
 }

@@ -11,23 +11,13 @@
 
 wv::InputSystem::InputSystem()
 {
-	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-	m_mouseMoveListener        = eventManager->subscribe<MouseMoveEvent>       ( WV_FORWARD_EVENT( onMouseMoveEvent ) );
-	m_mouseButtonListener      = eventManager->subscribe<MouseButtonEvent>     ( WV_FORWARD_EVENT( onMouseButtonEvent ) );
-	m_keyboardListener         = eventManager->subscribe<KeyboardEvent>        ( WV_FORWARD_EVENT( onKeyboardEvent ) );
-	m_controllerButtonListener = eventManager->subscribe<ControllerButtonEvent>( WV_FORWARD_EVENT( onControllerButtonEvent ) );
+
 }
 
 wv::InputSystem::~InputSystem()
 {
 	for ( auto actionGroup : m_actionGroups )
 		WV_FREE( actionGroup );
-
-	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-	eventManager->unsubscribe( m_mouseMoveListener );
-	eventManager->unsubscribe( m_mouseButtonListener );
-	eventManager->unsubscribe( m_keyboardListener );
-	eventManager->unsubscribe( m_controllerButtonListener );
 
 	m_actionGroups.clear();
 	m_actionGroupNameMap.clear();
@@ -54,25 +44,25 @@ static wv::ControllerButton sdlToWvControllerButton( SDL_GameControllerButton _b
 {
 	switch ( _button )
 	{
-	case SDL_CONTROLLER_BUTTON_INVALID:       return wv::ControllerButton::NONE;           break;
-	case SDL_CONTROLLER_BUTTON_A:             return wv::ControllerButton::A;              break;
-	case SDL_CONTROLLER_BUTTON_B:             return wv::ControllerButton::B;              break;
-	case SDL_CONTROLLER_BUTTON_X:             return wv::ControllerButton::X;              break;
-	case SDL_CONTROLLER_BUTTON_Y:             return wv::ControllerButton::Y;              break;
-	case SDL_CONTROLLER_BUTTON_BACK:          return wv::ControllerButton::SELECT;         break;
-	case SDL_CONTROLLER_BUTTON_GUIDE:         return wv::ControllerButton::HOME;           break;
-	case SDL_CONTROLLER_BUTTON_START:         return wv::ControllerButton::START;          break;
-	case SDL_CONTROLLER_BUTTON_LEFTSTICK:     return wv::ControllerButton::JOYSTICK_LEFT;  break;
-	case SDL_CONTROLLER_BUTTON_RIGHTSTICK:    return wv::ControllerButton::JOYSTICK_RIGHT; break;
-	case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:  return wv::ControllerButton::SHOULDER_LEFT;  break;
-	case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return wv::ControllerButton::SHOULDER_RIGHT; break;
-	case SDL_CONTROLLER_BUTTON_DPAD_UP:       return wv::ControllerButton::DPAD_UP;        break;
-	case SDL_CONTROLLER_BUTTON_DPAD_DOWN:     return wv::ControllerButton::DPAD_DOWN;      break;
-	case SDL_CONTROLLER_BUTTON_DPAD_LEFT:     return wv::ControllerButton::DPAD_LEFT;      break;
-	case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:    return wv::ControllerButton::DPAD_RIGHT;     break;
+	case SDL_CONTROLLER_BUTTON_INVALID:       return wv::CONTROLLER_BUTTON_NONE;           break;
+	case SDL_CONTROLLER_BUTTON_A:             return wv::CONTROLLER_BUTTON_A;              break;
+	case SDL_CONTROLLER_BUTTON_B:             return wv::CONTROLLER_BUTTON_B;              break;
+	case SDL_CONTROLLER_BUTTON_X:             return wv::CONTROLLER_BUTTON_X;              break;
+	case SDL_CONTROLLER_BUTTON_Y:             return wv::CONTROLLER_BUTTON_Y;              break;
+	case SDL_CONTROLLER_BUTTON_BACK:          return wv::CONTROLLER_BUTTON_SELECT;         break;
+	case SDL_CONTROLLER_BUTTON_GUIDE:         return wv::CONTROLLER_BUTTON_HOME;           break;
+	case SDL_CONTROLLER_BUTTON_START:         return wv::CONTROLLER_BUTTON_START;          break;
+	case SDL_CONTROLLER_BUTTON_LEFTSTICK:     return wv::CONTROLLER_BUTTON_JOYSTICK_LEFT;  break;
+	case SDL_CONTROLLER_BUTTON_RIGHTSTICK:    return wv::CONTROLLER_BUTTON_JOYSTICK_RIGHT; break;
+	case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:  return wv::CONTROLLER_BUTTON_SHOULDER_LEFT;  break;
+	case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return wv::CONTROLLER_BUTTON_SHOULDER_RIGHT; break;
+	case SDL_CONTROLLER_BUTTON_DPAD_UP:       return wv::CONTROLLER_BUTTON_DPAD_UP;        break;
+	case SDL_CONTROLLER_BUTTON_DPAD_DOWN:     return wv::CONTROLLER_BUTTON_DPAD_DOWN;      break;
+	case SDL_CONTROLLER_BUTTON_DPAD_LEFT:     return wv::CONTROLLER_BUTTON_DPAD_LEFT;      break;
+	case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:    return wv::CONTROLLER_BUTTON_DPAD_RIGHT;     break;
 	}
 
-	return wv::ControllerButton::NONE;
+	return wv::CONTROLLER_BUTTON_NONE;
 }
 
 static SDL_GameController* controller = nullptr;
@@ -148,8 +138,6 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
-	m_actionQueue.clear();
-
 	// should be part of platform
 	updateInputDrivers( _eventManager );
 
@@ -197,35 +185,4 @@ void wv::InputSystem::destroyActionGroup( const std::string& _name )
 	}
 
 	WV_FREE( group );
-}
-
-void wv::InputSystem::onMouseMoveEvent( const MouseMoveEvent& _event )
-{
-#ifndef WV_PACKAGE
-	m_debugMouseMotion   = _event.move;
-	m_debugMousePosition = _event.position;
-#endif
-}
-
-void wv::InputSystem::onMouseButtonEvent( const MouseButtonEvent& _event )
-{
-	WV_ASSERT( _event.buttonID >= 5 );
-#ifndef WV_PACKAGE
-	m_debugMouseButtonStates[ _event.buttonID ] = _event.state;
-#endif
-}
-
-void wv::InputSystem::onKeyboardEvent( const KeyboardEvent& _event )
-{
-	if ( _event.isRepeat )
-		return;
-
-	for ( auto group : m_actionGroups )
-		group->handleKeyboardEvent( _event.scancode, _event.state );
-}
-
-void wv::InputSystem::onControllerButtonEvent( const ControllerButtonEvent& _event )
-{
-	for ( auto group : m_actionGroups )
-		group->handleControllerEvent( _event.button, _event.state );
 }

@@ -46,10 +46,8 @@ public:
 	ActionGroup* createActionGroup( const std::string& _name );
 	void destroyActionGroup( const std::string& _name );
 	
-	std::vector<IAction*> getActionQueue() { return m_actionQueue; }
+	const std::vector<ActionGroup*>& getActionGroups() const { return m_actionGroups; }
 
-	void postActionEvent( IAction* _action ) { m_actionQueue.push_back( _action ); }
-	
 #ifndef WV_PACKAGE
 	inline wv::Vector2f debugGetMouseMotion()   const { return m_debugMouseMotion; }
 	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
@@ -62,11 +60,7 @@ public:
 #endif
 
 protected:
-	void onMouseMoveEvent( const MouseMoveEvent& _event );
-	void onMouseButtonEvent( const MouseButtonEvent& _event );
-	void onKeyboardEvent( const KeyboardEvent& _event );
-	void onControllerButtonEvent( const ControllerButtonEvent& _event );
-
+	
 #ifndef WV_PACKAGE
 	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
 	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };
@@ -75,15 +69,8 @@ protected:
 	
 	std::vector<IInputDriver*> m_inputDrivers;
 
-	std::vector<IAction*> m_actionQueue;
-
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
-
-	uint32_t m_mouseMoveListener        = 0;
-	uint32_t m_mouseButtonListener      = 0;
-	uint32_t m_keyboardListener         = 0;
-	uint32_t m_controllerButtonListener = 0;
 
 };
 

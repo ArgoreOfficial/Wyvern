@@ -6,6 +6,8 @@
 
 namespace wv {
 
+class TriggerAction;
+
 class XInputControllerDriver : public IControllerDriver
 {
 public:
@@ -16,7 +18,9 @@ protected:
 	void handleDeviceConnected( int _deviceID );
 	void handleDeviceDisconnected( int _deviceID );
 
-	void updateDeviceState( int _deviceID, const XINPUT_STATE& _state );
+	void updateDeviceState( InputSystem* _inputSystem, int _deviceID, const XINPUT_STATE& _state );
+
+	void handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state );
 };
 
 }

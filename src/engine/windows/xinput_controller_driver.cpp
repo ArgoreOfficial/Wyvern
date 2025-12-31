@@ -13,7 +13,7 @@ void wv::XInputControllerDriver::updateDriver( InputSystem* _inputSystem )
 			if ( !m_connectedDeviceIDs.contains( i ) ) // device was just connected
 				handleDeviceConnected( i );
 
-			updateDeviceState( i, state );
+			updateDeviceState( _inputSystem, i, state );
 		}
 		else
 		{
@@ -50,7 +50,7 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( int _deviceID )
 	m_connectedDevices.erase( it );
 }
 
-void wv::XInputControllerDriver::updateDeviceState( int _deviceID, const XINPUT_STATE& _state )
+void wv::XInputControllerDriver::updateDeviceState( InputSystem* _inputSystem, int _deviceID, const XINPUT_STATE& _state )
 {
 	auto it = getDevice( _deviceID );
 	if ( it == m_connectedDevices.end() )
@@ -72,7 +72,61 @@ void wv::XInputControllerDriver::updateDeviceState( int _deviceID, const XINPUT_
 	};
 
 	// Check state changes
+	/*
+	std::vector<Action*> actions = _inputSystem->getActionsByDevice( "Controller" );
+	
+
+	_inputSystem->pushActionChange("Controller", );
+	
+	*/
 
 	if ( device->leftJoystick  != oldState.leftJoystick  ) wv::Debug::Print( "LEFT: %f, %f\n", device->leftJoystick.x, device->leftJoystick.y );
 	if ( device->rightJoystick != oldState.rightJoystick ) wv::Debug::Print( "RIGHT: %f, %f\n", device->rightJoystick.x, device->rightJoystick.y );
+
+	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_A ) device->buttonStates |= CONTROLLER_BUTTON_A; else device->buttonStates &= ~CONTROLLER_BUTTON_A;
+	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_B ) device->buttonStates |= CONTROLLER_BUTTON_B; else device->buttonStates &= ~CONTROLLER_BUTTON_B;
+	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_X ) device->buttonStates |= CONTROLLER_BUTTON_X; else device->buttonStates &= ~CONTROLLER_BUTTON_X;
+	if ( _state.Gamepad.wButtons & XINPUT_GAMEPAD_Y ) device->buttonStates |= CONTROLLER_BUTTON_Y; else device->buttonStates &= ~CONTROLLER_BUTTON_Y;
+
+	if ( device->buttonStates != oldState.buttonStates )
+	{
+		uint32_t buttonStateXor = device->buttonStates ^ oldState.buttonStates;
+
+		for ( ActionGroup* group : _inputSystem->getActionGroups() )
+		{
+			if ( !group->isEnabled() )
+				continue;
+			
+			for ( auto& mapping : group->getTriggerActionsByDevice( "Controller" ) )
+			{
+				switch ( mapping.inputID )
+				{
+				case CONTROLLER_BUTTON_A: 
+					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A ); 
+					break;
+				case CONTROLLER_BUTTON_B:
+					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
+					break;
+				case CONTROLLER_BUTTON_X:
+					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
+					break;
+				case CONTROLLER_BUTTON_Y:
+					if ( buttonStateXor & CONTROLLER_BUTTON_A ) handleTriggerAction( _inputSystem, mapping.action, device->buttonStates & CONTROLLER_BUTTON_A );
+					break;
+				}
+			}
+		}
+	}
+
+}
+
+void wv::XInputControllerDriver::handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state )
+{
+	if ( _action->currentState == _state )
+		return;
+	
+	_action->currentState = _state;
+	//_inputSystem->pushTriggerActionChange( _action, _state );
+	
+	wv::Debug::Print( "Action %s became state %s\n", _action->name.c_str(), _action->currentState ? "true" : "false" );
 }

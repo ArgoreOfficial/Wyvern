@@ -35,7 +35,7 @@ public:
 
 	bool state = false;
 	bool isRepeat = false;
-	Scancode scancode = Scancode::NONE;
+	Scancode scancode = wv::SCANCODE_NONE;
 };
 
 class ControllerButtonEvent : public IEvent
@@ -46,7 +46,7 @@ public:
 	inline bool isUp()   const { return !state; }
 
 	bool state = false;
-	ControllerButton button = ControllerButton::NONE;
+	ControllerButton button = wv::CONTROLLER_BUTTON_NONE;
 };
 
 }

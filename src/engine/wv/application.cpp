@@ -77,7 +77,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_filesystem = Platform::createFileSystem( "data" );
 	
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
-
+	/*
 	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
 	jumpAction->bindScancode( Scancode::SPACE );
 	jumpAction->bindScancode( Scancode::P );
@@ -89,19 +89,21 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	AxisAction* moveAction = playerActionGroup->createAxisAction( "Move" );
 	moveAction->bindScancodes( Scancode::D, Scancode::A, Scancode::W, Scancode::S );
 	moveAction->bindControllerButtons( 
-		ControllerButton::DPAD_RIGHT, 
-		ControllerButton::DPAD_LEFT, 
-		ControllerButton::DPAD_UP, 
-		ControllerButton::DPAD_DOWN
+		CONTROLLER_BUTTON_DPAD_RIGHT, 
+		CONTROLLER_BUTTON_DPAD_LEFT, 
+		CONTROLLER_BUTTON_DPAD_UP, 
+		CONTROLLER_BUTTON_DPAD_DOWN
 	);
-
-	/*
-	
-	jumpAction->bind("Keyboard", Scancode::SPACE);
-	jumpAction->bind("Keyboard", Scancode::P);
-	jumpAction->bind("Controller", ControllerButton::A);
-
 	*/
+
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", wv::SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_A );
+
+	//group->bindValueAction( "Throttle", "Keyboard", Scancode::W );
+	//group->bindValueAction( "Throttle", "Controller", ControllerTrigger::Right );
+	//group->bindAxisActionX( "Aim", "Keyboard", Scancode::LEFT, Scancode::RIGHT );
+	//group->bindAxisActionY( "Aim", "Keyboard", Scancode::UP, Scancode::DOWN );
+	//group->bindAxisAction( "Aim", "Controller", ControllerJoystick::RIGHT );
 
 	playerActionGroup->enable();
 
@@ -199,6 +201,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	sector->addEntity( cameraEntity );
 	m_world->addSector( sector );
 
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

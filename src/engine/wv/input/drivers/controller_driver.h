@@ -1,9 +1,10 @@
 #pragma once
 
 #include <wv/input/drivers/input_driver.h>
-#include <wv/memory/memory.h>
+#include <wv/input/input_enums.h>
 
 #include <wv/math/vector2.h>
+#include <wv/memory/memory.h>
 
 #include <vector>
 #include <set>
@@ -12,10 +13,13 @@ namespace wv {
 
 struct ControllerDevice
 {
-	int deviceID;
+	int deviceID = -1;
 
 	wv::Vector2f leftJoystick;
 	wv::Vector2f rightJoystick;
+
+	// Mask, use ControllerButton enum for bits 
+	uint32_t buttonStates = CONTROLLER_BUTTON_NONE;
 };
 
 class IControllerDriver : public IInputDriver
