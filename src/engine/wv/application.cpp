@@ -21,6 +21,7 @@
 
 // TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
 #include <windows/xinput_controller_driver.h>
+#include <windows/windows_keyboard_driver.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +59,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_inputSystem  = WV_NEW( InputSystem );
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
+	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
 
 	m_displayDriver = Platform::createDisplayDriver();
 
@@ -80,9 +82,16 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
 	
 	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
-	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
+	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_ARROW_UP );
+	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_ARROW_DOWN );
+	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_ARROW_RIGHT );
+	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_ARROW_LEFT );
 	
-	playerActionGroup->bindValueAction( "Throttle", "Keyboard", SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
+	
+	playerActionGroup->bindValueAction( "Throttle", "Keyboard", SCANCODE_E );
 	playerActionGroup->bindValueAction( "Throttle", "Controller", CONTROLLER_TRIGGER_LEFT );
 	
 	playerActionGroup->enable();

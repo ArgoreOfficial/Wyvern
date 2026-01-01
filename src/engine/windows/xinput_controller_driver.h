@@ -6,8 +6,6 @@
 
 namespace wv {
 
-class TriggerAction;
-
 class XInputControllerDriver : public IControllerDriver
 {
 public:
