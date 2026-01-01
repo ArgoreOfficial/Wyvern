@@ -1,6 +1,14 @@
 #include "keyboard_driver.h"
 
-#include <wv/input/input_system.h>
+void wv::IKeyboardDriver::initiailize( InputSystem* _inputSystem )
+{
+	m_vdID = _inputSystem->requestVirtualDeviceID();
+}
+
+void wv::IKeyboardDriver::shutdown( InputSystem* _inputSystem )
+{
+	_inputSystem->freeVirtualDeviceID( m_vdID );
+}
 
 void wv::IKeyboardDriver::sendTriggerEvents( InputSystem* _inputSystem )
 {
@@ -14,7 +22,7 @@ void wv::IKeyboardDriver::sendTriggerEvents( InputSystem* _inputSystem )
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
 			if ( mapping.inputID >= SCANCODE_MAX ) continue;
 
-			handleTriggerAction( _inputSystem, mapping.action, m_scancodeStates[ mapping.inputID ] );
+			handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_scancodeStates[ mapping.inputID ] );
 		}
 	}
 }
@@ -31,7 +39,7 @@ void wv::IKeyboardDriver::sendValueEvents( InputSystem* _inputSystem )
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
 			if ( mapping.inputID >= SCANCODE_MAX ) continue;
 
-			handleValueAction( _inputSystem, mapping.action, m_scancodeStates[ mapping.inputID ] ? 1.0f : 0.0f );
+			handleValueAction( _inputSystem, m_vdID, mapping.action, m_scancodeStates[ mapping.inputID ] ? 1.0f : 0.0f );
 		}
 	}
 }
@@ -48,7 +56,7 @@ void wv::IKeyboardDriver::sendAxisEvents( InputSystem* _inputSystem )
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
 			if ( mapping.inputID >= SCANCODE_MAX ) continue;
 
-			handleAxisAction( _inputSystem, mapping.action, mapping.direction, m_scancodeStates[ mapping.inputID ] ? 1.0f : -1.0f, true );
+			handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, m_scancodeStates[ mapping.inputID ] ? 1.0f : -1.0f, true );
 		}
 	}
 }

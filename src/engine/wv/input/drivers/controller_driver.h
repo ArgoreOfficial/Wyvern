@@ -14,6 +14,7 @@ namespace wv {
 struct ControllerDevice
 {
 	int deviceID = -1;
+	uint32_t vdID = 0; // virtual device ID, not tied to real device ID
 
 	wv::Vector2f leftJoystick;
 	wv::Vector2f rightJoystick;

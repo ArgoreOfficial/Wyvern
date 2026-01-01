@@ -3,6 +3,8 @@
 #include <wv/entity/world_system.h>
 #include <wv/entity/entity_component.h>
 
+#include <wv/math/vector2.h>
+
 #include <vector>
 #include <unordered_map>
 
@@ -43,6 +45,11 @@ protected:
 
 	uint32_t m_jumpEventListenerID = 0;
 	uint32_t m_jumpReleaseEventListenerID = 0;
+
+	int m_playerIndex = 0;
+
+	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };
+
 };
 
 }

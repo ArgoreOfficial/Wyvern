@@ -13,8 +13,8 @@ public:
 
 protected:
 	void updateDriver( InputSystem* _inputSystem ) override;
-	void handleDeviceConnected( int _deviceID );
-	void handleDeviceDisconnected( int _deviceID );
+	void handleDeviceConnected( InputSystem* _inputSystem, int _deviceID );
+	void handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID );
 
 	void updateDeviceState( InputSystem* _inputSystem, int _deviceID, const XINPUT_STATE& _state );
 

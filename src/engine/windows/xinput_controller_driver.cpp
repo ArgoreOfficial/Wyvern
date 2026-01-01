@@ -11,19 +11,19 @@ void wv::XInputControllerDriver::updateDriver( InputSystem* _inputSystem )
 		if ( XInputGetState( i, &state ) == ERROR_SUCCESS )
 		{
 			if ( !m_connectedDeviceIDs.contains( i ) ) // device was just connected
-				handleDeviceConnected( i );
+				handleDeviceConnected( _inputSystem, i );
 
 			updateDeviceState( _inputSystem, i, state );
 		}
 		else
 		{
 			if ( m_connectedDeviceIDs.contains( i ) ) // device was just disconnected
-				handleDeviceDisconnected( i );
+				handleDeviceDisconnected( _inputSystem, i );
 		}
 	}
 }
 
-void wv::XInputControllerDriver::handleDeviceConnected( int _deviceID )
+void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSystem, int _deviceID )
 {
 	wv::Debug::Print( "XInput Device %i connected\n", _deviceID );
 	m_connectedDeviceIDs.insert( _deviceID );
@@ -31,12 +31,13 @@ void wv::XInputControllerDriver::handleDeviceConnected( int _deviceID )
 
 	ControllerDevice* device = WV_NEW( ControllerDevice );
 	device->deviceID = _deviceID;
+	device->vdID = _inputSystem->requestVirtualDeviceID();
 
 	m_connectedDevices.push_back( device );
 	
 }
 
-void wv::XInputControllerDriver::handleDeviceDisconnected( int _deviceID )
+void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID )
 {
 	wv::Debug::Print( "XInput Device %i disconnected\n", _deviceID );
 
@@ -47,6 +48,8 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( int _deviceID )
 	if ( it == m_connectedDevices.end() )
 		return;
 	
+	_inputSystem->freeVirtualDeviceID( ( *it )->vdID );
+
 	WV_FREE( *it );
 	m_connectedDevices.erase( it );
 }

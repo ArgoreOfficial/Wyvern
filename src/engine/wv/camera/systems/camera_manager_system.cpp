@@ -43,6 +43,7 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 void wv::CameraManagerSystem::initialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
+	inputSystem->mapNextAvailableDeviceToPlayer( 0 );
 	
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
@@ -106,23 +107,22 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		m_cameraComponentsChanged = false;
 	}
 
-	Vector2f cameraMove = { 0.0f, 0.0f };
-
 	for ( const ActionEvent& event : _ctx.actionEventQueue )
 	{
-		if ( event.actionID == m_jumpAction && event.action.trigger->state )
+		if ( event.playerIndex != m_playerIndex )
+			continue;
+		
+		if ( event.actionID == m_jumpAction && event.action.trigger->getValue( m_playerIndex ) )
 			wv::Debug::Print( "Jumped!\n" );
 		if ( event.actionID == m_lookAction )
-			cameraMove = event.action.axis->value * 90.0f * _ctx.deltaTime;
+			m_cameraMove = event.action.axis->getValue( m_playerIndex ) * 90.0f * _ctx.deltaTime;
 	}
 
 	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
 	{
-		wv::Vector2f move = playerActions->getAxisValue( "Move" );
+		wv::Vector2f move = playerActions->getAxisValue( m_playerIndex, "Move" );
 		m_orbitDistance -= move.y * _ctx.deltaTime * 10.0;
 		m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
-
-		cameraMove = playerActions->getAxisValue( "Look" );
 	}
 
 	if ( m_activeCamera )
@@ -135,11 +135,11 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			wv::Transformf& transform = entity->getTransform();
 			
 			if ( _ctx.inputSystem->debugIsMouseDown( 1 ) )
-				cameraMove = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
+				m_cameraMove = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
 			
 			transform.rotation += wv::Vector3f{
-					-cameraMove.y,
-					-cameraMove.x,
+					-m_cameraMove.y,
+					-m_cameraMove.x,
 					0.0f
 			}; 
 			transform.setPosition( transform.rotation.eulerToDirection() * m_orbitDistance );

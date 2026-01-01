@@ -15,14 +15,32 @@ wv::InputSystem::InputSystem()
 
 wv::InputSystem::~InputSystem()
 {
+	for ( IInputDriver* driver : m_inputDrivers )
+		WV_FREE( driver );
+
 	for ( auto actionGroup : m_actionGroups )
 		WV_FREE( actionGroup );
 
+	m_inputDrivers.clear();
+	
 	m_actionGroups.clear();
 	m_actionGroupNameMap.clear();
+	m_actionEventQueue.clear();
 
+	m_virtualDeviceIDs.clear();
+	m_vdPlayerMap.clear();
+}
+
+void wv::InputSystem::initialize()
+{
 	for ( IInputDriver* driver : m_inputDrivers )
-		WV_FREE( driver );
+		driver->initiailize( this );
+}
+
+void wv::InputSystem::shutdown()
+{
+	for ( IInputDriver* driver : m_inputDrivers )
+		driver->shutdown( this );
 }
 
 static SDL_GameController* findController() {
@@ -66,6 +84,17 @@ static wv::ControllerInputs sdlToWvControllerButton( SDL_GameControllerButton _b
 
 static SDL_GameController* controller = nullptr;
 
+void wv::InputSystem::mapNextAvailableDeviceToPlayer( int _playerIndex )
+{
+	if ( _playerIndex < 0 )
+	{
+		WV_LOG_WARNING( "Unmapping devices must be done manually\n" );
+		return;
+	}
+
+	m_playerDeviceMapQueue.push( _playerIndex );
+}
+
 void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 {
 	Application* app = Application::getSingleton();
@@ -107,6 +136,43 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->updateDriver( this );
+	
+	for ( ActionEvent& action : m_actionEventQueue )
+	{
+		if ( getMappedPlayerIndex( action.vdID ) != -1 )
+		{
+			// this happens if a previous event mapped a device to a player index
+			if ( action.playerIndex == -1 )
+			{
+				action.playerIndex = getMappedPlayerIndex( action.vdID );
+
+				switch ( action.type )
+				{
+				case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( action.playerIndex, action.action.trigger->getValue( -1 ) ); break;
+				case ACTION_TYPE_VALUE:   action.action.value->setValue( action.playerIndex, action.action.value->getValue( -1 ) ); break;
+				case ACTION_TYPE_AXIS:    action.action.axis->setValue( action.playerIndex, action.action.axis->getValue( -1 ) ); break;
+				}
+			}
+
+			continue;
+		}
+
+		if ( !m_playerDeviceMapQueue.empty() )
+		{
+			int playerID = m_playerDeviceMapQueue.front();
+			m_playerDeviceMapQueue.pop();
+
+			mapVirtualDeviceToPlayer( action.vdID, playerID );
+			wv::Debug::Print( "Mapped device %u to player index %i\n", action.vdID, playerID );
+			action.playerIndex = playerID;
+			switch ( action.type )
+			{
+			case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( action.playerIndex, action.action.trigger->getValue( -1 ) ); break;
+			case ACTION_TYPE_VALUE:   action.action.value->setValue( action.playerIndex, action.action.value->getValue( -1 ) ); break;
+			case ACTION_TYPE_AXIS:    action.action.axis->setValue( action.playerIndex, action.action.axis->getValue( -1 ) ); break;
+			}
+		}
+	}
 	
 #ifndef WV_PACKAGE
 	m_debugMouseMotion = { 0.0f, 0.0f };

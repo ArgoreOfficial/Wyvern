@@ -61,6 +61,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
 
+	m_inputSystem->initialize();
+
 	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
@@ -205,7 +207,9 @@ void wv::Application::shutdown()
 	m_renderer.shutdown();
 	m_displayDriver->shutdown();
 
+	m_inputSystem->shutdown();
 	WV_FREE( m_inputSystem );
+	
 	WV_FREE( m_eventManager );
 
 	ReflectionRegistry::destroySingleton();

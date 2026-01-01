@@ -67,19 +67,19 @@ public:
 	bool        isEnabled() const { return m_isEnabled; }
 	std::string getName()   const { return m_name; }
 
-	bool getTriggerState( const std::string& _name ) const {
+	bool getTriggerState( int _playerID, const std::string& _name ) const {
 		if ( !m_triggerActions.nameMap.contains( _name ) ) return false;
-		return m_triggerActions.nameMap.at( _name )->state;
+		return m_triggerActions.nameMap.at( _name )->getValue( _playerID );
 	}
 
-	wv::Vector2f getAxisValue( const std::string& _name ) const {
+	wv::Vector2f getAxisValue( int _playerID, const std::string& _name ) const {
 		if ( !m_axisActions.nameMap.contains( _name ) ) return { 0.0f, 0.0f };
-		return m_axisActions.nameMap.at( _name )->value;
+		return m_axisActions.nameMap.at( _name )->getValue( _playerID );
 	}
 	
-	float getValue( const std::string& _name ) const {
+	float getValue( int _playerID, const std::string& _name ) const {
 		if ( !m_valueActions.nameMap.contains( _name ) ) return 0.0f;
-		return m_valueActions.nameMap.at( _name )->value;
+		return m_valueActions.nameMap.at( _name )->getValue( _playerID );
 	}
 
 	inline ActionID getTriggerActionID( const std::string& _name ) const { return m_triggerActions.getActionID( _name ); }

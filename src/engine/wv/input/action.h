@@ -1,25 +1,58 @@
 #pragma once
 
 #include <wv/math/vector2.h>
+#include <wv/debug/error.h>
+#include <unordered_map>
 
 namespace wv {
 
 typedef uint32_t ActionID;
 
+template<typename Ty>
+struct IAction
+{
+	IAction( const std::string& _name ) : name{ _name } { }
+
+	const std::string name;
+	const ActionID actionID = wv::Math::randomU32();
+	std::unordered_map<int, Ty> values = {}; 
+
+	// player -1 is a special case but still needs to be tracked
+
+	bool setValue( int _playerIndex, Ty _value ) {
+		if ( _playerIndex < -1 ) return false;
+		if ( values.contains( _playerIndex + 1 ) && values[ _playerIndex + 1 ] == _value ) return false;
+
+		values[ _playerIndex + 1 ] = _value;
+		return true;
+	}
+
+	Ty getValue( int _playerIndex ) const {
+		if ( _playerIndex < -1 || !values.contains( _playerIndex + 1 ) ) return {};
+		return values.at( _playerIndex + 1 );
+	}
+};
+
+struct TriggerAction : IAction<bool> { 
+	TriggerAction( const std::string& _name ) : IAction( _name ) { }
+};
+
+struct ValueAction : IAction<float> { 
+	ValueAction( const std::string& _name ) : IAction( _name ) { }
+};
+
+struct AxisAction : IAction<wv::Vector2f> { 
+	AxisAction( const std::string& _name ) : IAction( _name ) { }
+};
+
 enum ActionType
 {
 	ACTION_TYPE_TRIGGER,
 	ACTION_TYPE_VALUE,
-	ACTION_TYPE_AXIS
-};
+	ACTION_TYPE_AXIS,
 
-struct TriggerAction
-{
-	TriggerAction( const std::string& _name ) : name{ _name } { }
-
-	const std::string name;
-	const ActionID actionID = wv::Math::randomU32();
-	bool state = false;
+	ACTION_DEVICE_CONNECTED,
+	ACTION_DEVICE_DISCONNECTED
 };
 
 struct TriggerActionMapping
@@ -28,29 +61,10 @@ struct TriggerActionMapping
 	TriggerAction* action;
 };
 
-struct ValueAction
-{
-	ValueAction( const std::string& _name ) : name{ _name } { }
-
-	const std::string name;
-	const ActionID actionID = wv::Math::randomU32();
-	float value = 0.0f;
-};
-
 struct ValueActionMapping
 {
 	uint32_t inputID;
 	ValueAction* action;
-};
-
-struct AxisAction
-{
-	AxisAction( const std::string& _name ) : name{ _name } { }
-
-	const std::string name;
-	const ActionID actionID = wv::Math::randomU32();
-
-	wv::Vector2f value;
 };
 
 enum AxisActionDirection

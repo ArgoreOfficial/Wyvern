@@ -2,52 +2,50 @@
 
 #include <wv/input/input_system.h>
 
-void wv::IInputDriver::handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state )
+void wv::IInputDriver::handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state )
 {
-	if ( _action->state == _state )
+	if ( !_action->setValue( _inputSystem->getMappedPlayerIndex( _vdID ), _state ) )
 		return;
 
-	_action->state = _state;
-	_inputSystem->pushActionEvent( _action );
+	_inputSystem->pushActionEvent( _action, _vdID );
 }
 
-void wv::IInputDriver::handleValueAction( InputSystem* _inputSystem, ValueAction* _action, float _value )
+void wv::IInputDriver::handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value )
 {
-	if ( _action->value == _value )
+	if ( !_action->setValue( _inputSystem->getMappedPlayerIndex( _vdID ), _value ) )
 		return;
 
-	_action->value = _value;
-	_inputSystem->pushActionEvent( _action );
+	_inputSystem->pushActionEvent( _action, _vdID );
 }
 
-void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive )
+void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive )
 {
-	wv::Vector2f oldValue = _action->value;
-
+	wv::Vector2f value = _action->getValue( _inputSystem->getMappedPlayerIndex( _vdID ) );
+	
 	if ( _additive )
 	{
 		switch ( _direction )
 		{
-		case AXIS_DIRECTION_NORTH: _action->value.y += _value.x; break;
-		case AXIS_DIRECTION_SOUTH: _action->value.y -= _value.x; break;
-		case AXIS_DIRECTION_EAST:  _action->value.x += _value.x; break;
-		case AXIS_DIRECTION_WEST:  _action->value.x -= _value.x; break;
+		case AXIS_DIRECTION_NORTH: value.y += _value.x; break;
+		case AXIS_DIRECTION_SOUTH: value.y -= _value.x; break;
+		case AXIS_DIRECTION_EAST:  value.x += _value.x; break;
+		case AXIS_DIRECTION_WEST:  value.x -= _value.x; break;
 		}
 	}
 	else
 	{
 		switch ( _direction )
 		{
-		case AXIS_DIRECTION_NORTH:      _action->value.y = _value.x; break;
-		case AXIS_DIRECTION_SOUTH:      _action->value.y = _value.x; break;
-		case AXIS_DIRECTION_EAST:       _action->value.x = _value.x; break;
-		case AXIS_DIRECTION_WEST:       _action->value.x = _value.x; break;
-		case AXIS_DIRECTION_VERTICAL:   _action->value = _value; break;
-		case AXIS_DIRECTION_HORIZONTAL: _action->value = _value; break;
-		case AXIS_DIRECTION_ALL:        _action->value = _value; break;
+		case AXIS_DIRECTION_NORTH:      value.y = _value.x; break;
+		case AXIS_DIRECTION_SOUTH:      value.y = _value.x; break;
+		case AXIS_DIRECTION_EAST:       value.x = _value.x; break;
+		case AXIS_DIRECTION_WEST:       value.x = _value.x; break;
+		case AXIS_DIRECTION_VERTICAL:   value = _value; break;
+		case AXIS_DIRECTION_HORIZONTAL: value = _value; break;
+		case AXIS_DIRECTION_ALL:        value = _value; break;
 		}
 	}
 
-	if ( _action->value != oldValue )
-		_inputSystem->pushActionEvent( _action );
+	if ( _action->setValue( _inputSystem->getMappedPlayerIndex( _vdID ), value ) )
+		_inputSystem->pushActionEvent( _action, _vdID );
 }

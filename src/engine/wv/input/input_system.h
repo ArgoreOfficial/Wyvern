@@ -8,6 +8,8 @@
 #include <wv/input/input_enums.h>
 
 #include <vector>
+#include <set>
+#include <queue>
 
 namespace wv {
 
@@ -17,12 +19,15 @@ class EventManager;
 struct ActionEvent
 {
 	ActionType type = ACTION_TYPE_TRIGGER;
+	uint32_t vdID = 0;
+	int playerIndex = -1;
 	ActionID actionID = 0;
+
 	union ActionEventValue
 	{
-		const TriggerAction* trigger = nullptr;
-		const ValueAction* value;
-		const AxisAction* axis;
+		TriggerAction* trigger = nullptr;
+		ValueAction* value;
+		AxisAction* axis;
 	} action{};
 };
 
@@ -31,31 +36,60 @@ class InputSystem
 public:
 	InputSystem();
 	~InputSystem();
+
+	void initialize();
+	void shutdown();
 	
 	template<typename Ty>
 	void createInputDriver() {
 		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
 		m_inputDrivers.push_back( WV_NEW( Ty ) );
-		// driver->initialize() ?
 	}
+
+	void mapNextAvailableDeviceToPlayer( int _playerIndex );
 
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
 
-	void pushActionEvent( TriggerAction* _action ) {
-		ActionEvent event{ ACTION_TYPE_TRIGGER, _action->actionID };
+	uint32_t requestVirtualDeviceID() {
+		uint32_t vdID = 1;
+		while ( m_virtualDeviceIDs.contains( vdID ) )
+			vdID++;
+
+		m_virtualDeviceIDs.insert( vdID );
+		return vdID;
+	}
+
+	void freeVirtualDeviceID( uint32_t _vdID ) {
+		if ( m_virtualDeviceIDs.contains( _vdID ) )
+			m_virtualDeviceIDs.erase( _vdID );
+	}
+
+	void mapVirtualDeviceToPlayer( uint32_t _vdID, int _playerIndex ) {
+		if ( !m_virtualDeviceIDs.contains( _vdID ) ) return;
+		m_vdPlayerMap[ _vdID ] = _playerIndex;
+	}
+
+	int getMappedPlayerIndex( uint32_t _vdID ) {
+		if ( m_vdPlayerMap.contains( _vdID ) )
+			return m_vdPlayerMap.at( _vdID );
+		return -1;
+	}
+
+	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) {
+		ActionEvent event{ ACTION_TYPE_TRIGGER, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
 		event.action.trigger = _action;
 		m_actionEventQueue.push_back( event );
 	}
 
-	void pushActionEvent( ValueAction* _action ) {
-		ActionEvent event{ ACTION_TYPE_VALUE, _action->actionID };
+	void pushActionEvent( ValueAction* _action, uint32_t _vdID ) {
+		ActionEvent event{ ACTION_TYPE_VALUE, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
 		event.action.value = _action;
 		m_actionEventQueue.push_back( event );
 	}
 
-	void pushActionEvent( AxisAction* _action ) {
-		ActionEvent event{ ACTION_TYPE_AXIS, _action->actionID };
+	void pushActionEvent( AxisAction* _action, uint32_t _vdID ) {
+		ActionEvent event{ ACTION_TYPE_AXIS, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
 		event.action.axis = _action;
 		m_actionEventQueue.push_back( event );
 	}
@@ -89,6 +123,7 @@ public:
 #endif
 
 protected:
+	
 #ifndef WV_PACKAGE
 	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
 	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };
@@ -96,11 +131,15 @@ protected:
 #endif
 	
 	std::vector<IInputDriver*> m_inputDrivers;
+	std::queue<int> m_playerDeviceMapQueue; // mapNextAvailableDeviceToPlayer
 
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 
 	std::vector<ActionEvent> m_actionEventQueue;
+
+	std::set<uint32_t> m_virtualDeviceIDs;
+	std::unordered_map<uint32_t, int> m_vdPlayerMap;
 };
 
 }

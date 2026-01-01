@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/input/drivers/input_driver.h>
-#include <wv/input/input_enums.h>
+#include <wv/input/input_system.h>
 
 namespace wv {
 
@@ -13,6 +13,8 @@ public:
 	}
 
 protected:
+	virtual void initiailize( InputSystem* _inputSystem ) override;
+	virtual void shutdown( InputSystem* _inputSystem ) override;
 	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
 
 	bool scancodeStateChanged( uint32_t _scancode ) { return m_scancodeStates[ _scancode ] != m_prevScancodeStates[ _scancode ]; }
@@ -23,6 +25,8 @@ protected:
 
 	bool m_prevScancodeStates[ SCANCODE_MAX ] = { 0 };
 	bool m_scancodeStates[ SCANCODE_MAX ] = { 0 };
+
+	uint32_t m_vdID = 0;
 };
 
 }
