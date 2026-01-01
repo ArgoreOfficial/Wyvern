@@ -40,7 +40,7 @@ static wv::Scancode sdlToWvScancode( SDL_Scancode _scancode )
 	return static_cast<wv::Scancode>( _scancode );
 }
 
-static wv::ControllerButton sdlToWvControllerButton( SDL_GameControllerButton _button )
+static wv::ControllerInputs sdlToWvControllerButton( SDL_GameControllerButton _button )
 {
 	switch ( _button )
 	{

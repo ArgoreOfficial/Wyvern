@@ -69,7 +69,7 @@ enum Scancode : uint32_t
 	SCANCODE_CAPSLOCK = 57,
 };
 
-enum ControllerButton : uint32_t
+enum ControllerInputs : uint32_t
 {
 	CONTROLLER_BUTTON_NONE = 0,
 	CONTROLLER_BUTTON_A = 1 << 0, 

@@ -22,14 +22,14 @@ public:
 	AxisAction( const std::string& _name ) : IAction( _name ) { }
 
 	virtual void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown ) override;
-	virtual void handleControllerEvent( wv::ControllerButton _button, bool _buttonDown ) override;
+	virtual void handleControllerEvent( wv::ControllerInputs _button, bool _buttonDown ) override;
 
 	virtual bool isBoundToKeyboard() const override { return !m_boundScancodes.empty(); }
 	virtual bool isBoundToController() const override { return !m_boundControllerButtons.empty(); }
 	virtual bool isBoundToMouse() const override { return false; }
 
 	inline bool isScancodeBound( wv::Scancode _scancode ) const { return m_boundScancodes.contains( _scancode ); }
-	inline bool isControllerButtonBound( wv::ControllerButton _button ) const { return m_boundControllerButtons.contains( _button ); }
+	inline bool isControllerButtonBound( wv::ControllerInputs _button ) const { return m_boundControllerButtons.contains( _button ); }
 
 	void bindScancode( wv::Scancode _scancode, AxisDirection _direction );
 	void unbindScancode( wv::Scancode _scancode );
@@ -43,10 +43,10 @@ public:
 
 	wv::Vector2<double> getValue() const { return m_value; }
 
-	void bindControllerButton( wv::ControllerButton _button, AxisDirection _direction );
-	void unbindControllerButton( wv::ControllerButton _button );
+	void bindControllerButton( wv::ControllerInputs _button, AxisDirection _direction );
+	void unbindControllerButton( wv::ControllerInputs _button );
 
-	void bindControllerButtons( wv::ControllerButton _posX, wv::ControllerButton _negX, wv::ControllerButton _posY, wv::ControllerButton _negY ) {
+	void bindControllerButtons( wv::ControllerInputs _posX, wv::ControllerInputs _negX, wv::ControllerInputs _posY, wv::ControllerInputs _negY ) {
 		bindControllerButton( _posY, AxisDirection::VERTICAL_NEGATIVE );
 		bindControllerButton( _negY, AxisDirection::VERTICAL_POSITIVE );
 		bindControllerButton( _negX, AxisDirection::HORIZONTAL_NEGATIVE );
@@ -79,13 +79,13 @@ private:
 	
 	struct ControllerButtonMapping : AxisMapping 
 	{ 
-		wv::ControllerButton button;
+		wv::ControllerInputs button;
 	};
 
 	void handleKeyButton( AxisDirection _direction, bool _down );
 
 	std::set<wv::Scancode> m_boundScancodes;
-	std::set<wv::ControllerButton> m_boundControllerButtons;
+	std::set<wv::ControllerInputs> m_boundControllerButtons;
 
 	std::vector<ScancodeMapping> m_scancodeMappings;
 	std::vector<ControllerButtonMapping> m_controllerButtonMappings;

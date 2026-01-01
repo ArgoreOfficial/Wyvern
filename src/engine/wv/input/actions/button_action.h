@@ -17,7 +17,7 @@ public:
 		updateState( _keyDown );
 	}
 
-	virtual void handleControllerEvent( wv::ControllerButton _button, bool _buttonDown ) override {
+	virtual void handleControllerEvent( wv::ControllerInputs _button, bool _buttonDown ) override {
 		if ( !isControllerButtonBound( _button ) ) return;
 		updateState( _buttonDown );
 	}
@@ -27,7 +27,7 @@ public:
 	virtual bool isBoundToMouse() const override { return false; }
 
 	inline bool isScancodeBound( wv::Scancode _scancode ) const { return m_boundScancodes.contains( _scancode ); }
-	inline bool isControllerButtonBound( wv::ControllerButton _button ) const { return m_boundControllerButtons.contains( _button ); }
+	inline bool isControllerButtonBound( wv::ControllerInputs _button ) const { return m_boundControllerButtons.contains( _button ); }
 
 	inline void bindScancode( wv::Scancode _scancode ) {
 		if ( isScancodeBound( _scancode ) ) return;
@@ -41,13 +41,13 @@ public:
 		m_requiresRemapping = true;
 	}
 
-	inline void bindControllerButton( wv::ControllerButton _button ) {
+	inline void bindControllerButton( wv::ControllerInputs _button ) {
 		if ( isControllerButtonBound( _button ) ) return;
 		m_boundControllerButtons.insert( _button );
 		m_requiresRemapping = true;
 	}
 
-	inline void unbindControllerButton( wv::ControllerButton _button ) {
+	inline void unbindControllerButton( wv::ControllerInputs _button ) {
 		if ( !isControllerButtonBound( _button ) ) return;
 		m_boundControllerButtons.erase( _button );
 		m_requiresRemapping = true;
@@ -57,7 +57,7 @@ private:
 	void updateState( bool _newState );
 	
 	std::set<wv::Scancode> m_boundScancodes;
-	std::set<wv::ControllerButton> m_boundControllerButtons;
+	std::set<wv::ControllerInputs> m_boundControllerButtons;
 	bool m_state = false;
 };
 

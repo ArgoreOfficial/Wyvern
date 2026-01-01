@@ -15,7 +15,7 @@ public:
 	IAction( const std::string& _name ) : m_name{ _name } { }
 
 	virtual void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown ) { }
-	virtual void handleControllerEvent( wv::ControllerButton _button, bool _buttonDown ) { }
+	virtual void handleControllerEvent( wv::ControllerInputs _button, bool _buttonDown ) { }
 	virtual void handleJoystickEvent( float _x, float _y, float _relativeX, float _relativeY ) { }
 
 	virtual bool isBoundToKeyboard() const = 0;

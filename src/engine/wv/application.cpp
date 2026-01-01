@@ -81,7 +81,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
 	jumpAction->bindScancode( Scancode::SPACE );
 	jumpAction->bindScancode( Scancode::P );
-	jumpAction->bindControllerButton( ControllerButton::A );
+	jumpAction->bindControllerButton( ControllerInputs::A );
 
 	ButtonAction* shootAction = playerActionGroup->createButtonAction( "Shoot" );
 	shootAction->bindScancode( Scancode::F );

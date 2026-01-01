@@ -1,6 +1,7 @@
 #include "controller_driver.h"
 
 #include <wv/input/input_system.h>
+#include <inttypes.h>
 
 void wv::IControllerDriver::handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state )
 {
@@ -41,6 +42,9 @@ void wv::IControllerDriver::sendTriggerEvents( InputSystem* _inputSystem, Contro
 
 			case CONTROLLER_BUTTON_SHOULDER_LEFT:  handleTriggerAction( _inputSystem, mapping.action, _device->getButtonState( CONTROLLER_BUTTON_SHOULDER_LEFT ) ); break;
 			case CONTROLLER_BUTTON_SHOULDER_RIGHT: handleTriggerAction( _inputSystem, mapping.action, _device->getButtonState( CONTROLLER_BUTTON_SHOULDER_RIGHT ) ); break;
+
+			default:
+				WV_LOG_WARNING( "Input ID " PRIu32 " is not handled as a trigger input.\n", mapping.inputID );
 			}
 		}
 	}

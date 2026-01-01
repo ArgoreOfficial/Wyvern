@@ -20,14 +20,14 @@ struct ControllerDevice
 	wv::Vector2f leftJoystick;
 	wv::Vector2f rightJoystick;
 
-	// Mask, use ControllerButton enum for bits 
+	// Mask, use ControllerInputs enum for bits 
 	uint32_t buttonStates = CONTROLLER_BUTTON_NONE;
 
-	inline bool getButtonState( ControllerButton _button ) {
+	inline bool getButtonState( ControllerInputs _button ) {
 		return ( buttonStates & _button ) != 0;
 	}
 
-	inline void setButtonState( ControllerButton _button, bool _state ) {
+	inline void setButtonState( ControllerInputs _button, bool _state ) {
 		if ( _state )
 			buttonStates |= _button;
 		else

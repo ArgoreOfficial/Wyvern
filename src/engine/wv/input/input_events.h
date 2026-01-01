@@ -46,7 +46,7 @@ public:
 	inline bool isUp()   const { return !state; }
 
 	bool state = false;
-	ControllerButton button = wv::CONTROLLER_BUTTON_NONE;
+	ControllerInputs button = wv::CONTROLLER_BUTTON_NONE;
 };
 
 }
