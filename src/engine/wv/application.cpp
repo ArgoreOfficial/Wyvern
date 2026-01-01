@@ -13,8 +13,6 @@
 #include <wv/graphics/components/mesh_component.h>
 #include <wv/graphics/viewport.h>
 #include <wv/reflection/reflection.h>
-#include <wv/input/actions/axis_action.h>
-#include <wv/input/actions/button_action.h>
 #include <wv/input/input_system.h>
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -83,11 +81,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
 	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
-	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_NORTH, CONTROLLER_BUTTON_DPAD_UP );
-	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_SOUTH, CONTROLLER_BUTTON_DPAD_DOWN );
 	
-	//playerActionGroup->bindValueAction( "Throttle", "Keyboard", Scancode::W );
-	//playerActionGroup->bindValueAction( "Throttle", "Controller", ControllerTrigger::Right );
+	playerActionGroup->bindValueAction( "Throttle", "Keyboard", SCANCODE_W );
+	playerActionGroup->bindValueAction( "Throttle", "Controller", CONTROLLER_TRIGGER_LEFT );
 	
 	playerActionGroup->enable();
 

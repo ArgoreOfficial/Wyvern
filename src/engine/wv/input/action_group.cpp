@@ -3,9 +3,6 @@
 #include <wv/memory/memory.h>
 #include <wv/debug/log.h>
 
-#include <wv/input/actions/button_action.h>
-#include <wv/input/actions/axis_action.h>
-
 wv::ActionGroup::~ActionGroup()
 {
 	
@@ -29,6 +26,26 @@ void wv::ActionGroup::bindTriggerAction( const std::string& _action, const std::
 	}
 
 	m_triggerActions.deviceMaps[ _device ].emplace_back( _inputID, action );
+}
+
+void wv::ActionGroup::bindValueAction( const std::string& _action, const std::string& _device, uint32_t _inputID )
+{
+	ValueAction* action = m_valueActions.getAction( _action );
+
+	if ( m_valueActions.deviceMaps.contains( _device ) )
+	{
+		// make sure action hasn't already been bound
+		for ( auto& map : m_valueActions.deviceMaps.at( _device ) )
+		{
+			if ( map.inputID != _inputID || map.action != action )
+				continue;
+
+			WV_LOG_WARNING( "Action %s has already been bound to %s:%llu", _action, _device, _inputID );
+			return;
+		}
+	}
+
+	m_valueActions.deviceMaps[ _device ].emplace_back( _inputID, action );
 }
 
 void wv::ActionGroup::bindAxisAction( const std::string& _action, const std::string& _device, AxisActionDirection _direction, uint32_t _inputID )

@@ -13,18 +13,15 @@ namespace wv {
 
 class IInputDriver;
 class EventManager;
-class MouseMoveEvent;
-class MouseButtonEvent;
-class KeyboardEvent;
-class ControllerButtonEvent;
 
 struct ActionEvent
 {
-	ActionID actionID = 0;
 	ActionType type = ACTION_TYPE_TRIGGER;
+	ActionID actionID = 0;
 	union ActionEventValue
 	{
 		const TriggerAction* trigger = nullptr;
+		const ValueAction* value;
 		const AxisAction* axis;
 	} action{};
 };
@@ -45,23 +42,21 @@ public:
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
 
-	void pushActionEvent( const ActionEvent& _event ) {
-		m_actionEventQueue.push_back( _event );
+	void pushActionEvent( TriggerAction* _action ) {
+		ActionEvent event{ ACTION_TYPE_TRIGGER, _action->actionID };
+		event.action.trigger = _action;
+		m_actionEventQueue.push_back( event );
 	}
 
-	void pushActionEvent( TriggerAction* _action ) {
-		ActionEvent event;
-		event.actionID = _action->actionID;
-		event.action.trigger = _action;
-		event.type = ACTION_TYPE_TRIGGER;
+	void pushActionEvent( ValueAction* _action ) {
+		ActionEvent event{ ACTION_TYPE_VALUE, _action->actionID };
+		event.action.value = _action;
 		m_actionEventQueue.push_back( event );
 	}
 
 	void pushActionEvent( AxisAction* _action ) {
-		ActionEvent event;
-		event.actionID = _action->actionID;
+		ActionEvent event{ ACTION_TYPE_AXIS, _action->actionID };
 		event.action.axis = _action;
-		event.type = ACTION_TYPE_AXIS;
 		m_actionEventQueue.push_back( event );
 	}
 
@@ -94,7 +89,6 @@ public:
 #endif
 
 protected:
-	
 #ifndef WV_PACKAGE
 	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
 	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };

@@ -3,7 +3,6 @@
 #include <wv/application.h>
 #include <wv/event/event_manager.h>
 #include <wv/memory/memory.h>
-#include <wv/input/input_events.h>
 
 #include <wv/input/drivers/input_driver.h>
 
@@ -82,56 +81,19 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 		case SDL_KEYDOWN: [[fallthrough]];
 		case SDL_KEYUP:
 		{
-			KeyboardEvent event;
-			event.state = ev.type == SDL_EventType::SDL_KEYDOWN;
-			event.isRepeat = ev.key.repeat;
-			event.scancode = sdlToWvScancode( ev.key.keysym.scancode );
-			_eventManager->queueEvent( event );
+			
 		} break;
 
 		case SDL_MOUSEBUTTONDOWN: [[fallthrough]];
 		case SDL_MOUSEBUTTONUP:
 		{
-			MouseButtonEvent event;
-			event.buttonID = ev.button.button;
-			event.state = ev.type == SDL_MOUSEBUTTONDOWN;
-			_eventManager->queueEvent( event );
+			
 		} break;
 
 		case SDL_MOUSEMOTION:
 		{
-			MouseMoveEvent event;
-			event.move = { (float)ev.motion.xrel, (float)ev.motion.yrel };
-			event.position = { ev.motion.x, ev.motion.y };
-			_eventManager->queueEvent( event );
+			
 		} break;
-
-		//case SDL_CONTROLLERBUTTONDOWN: [[fallthrough]];
-		//case SDL_CONTROLLERBUTTONUP:
-		//{
-		//	ControllerButtonEvent event;
-		//	event.state = ev.type == SDL_CONTROLLERBUTTONDOWN;
-		//	event.button = sdlToWvControllerButton( (SDL_GameControllerButton)ev.cbutton.button );
-		//	_eventManager->queueEvent( event );
-		//} break;
-		//
-		//case SDL_CONTROLLERDEVICEADDED:
-		//	if ( !controller )
-		//	{
-		//		wv::Debug::Print( "Controller connected\n" );
-		//		WV_LOG_ERROR( "TODO: proper controller handling\n" );
-		//		controller = SDL_GameControllerOpen( ev.cdevice.which );
-		//	}
-		//	break;
-		//case SDL_CONTROLLERDEVICEREMOVED:
-		//	if ( controller && ev.cdevice.which == SDL_JoystickInstanceID( SDL_GameControllerGetJoystick( controller ) ) )
-		//	{
-		//		wv::Debug::Print( "Controller disconnected\n" );
-		//		
-		//		SDL_GameControllerClose( controller );
-		//		controller = findController();
-		//	}
-		//	break;
 		}
 	}
 }

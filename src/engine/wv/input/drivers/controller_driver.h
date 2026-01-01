@@ -13,6 +13,7 @@ namespace wv {
 
 struct TriggerAction;
 struct AxisAction;
+struct ValueAction;
 enum AxisActionDirection;
 
 struct ControllerDevice
@@ -63,9 +64,11 @@ protected:
 	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
 
 	void handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state );
+	void handleValueAction( InputSystem* _inputSystem, ValueAction* _action, float _value );
 	void handleAxisAction( InputSystem* _inputSystem, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive = false );
 
 	virtual void sendTriggerEvents( InputSystem* _inputSystem, ControllerDevice* _device );
+	virtual void sendValueEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 	virtual void sendAxisEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 
 	std::set<int> m_connectedDeviceIDs;

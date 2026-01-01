@@ -1,34 +1,76 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
-#include <wv/input/input_enums.h>
-#include <wv/math/math.h>
+#include <wv/math/vector2.h>
 
 namespace wv {
 
-class IAction : public IReflectedType
+typedef uint32_t ActionID;
+
+enum ActionType
 {
-	friend class ActionGroup;
+	ACTION_TYPE_TRIGGER,
+	ACTION_TYPE_VALUE,
+	ACTION_TYPE_AXIS
+};
 
-	WV_REFLECT_TYPE( IAction )
-public:
-	IAction( const std::string& _name ) : m_name{ _name } { }
+struct TriggerAction
+{
+	TriggerAction( const std::string& _name ) : name{ _name } { }
 
-	virtual void handleKeyboardEvent( wv::Scancode _scancode, bool _keyDown ) { }
-	virtual void handleControllerEvent( wv::ControllerInputs _button, bool _buttonDown ) { }
-	virtual void handleJoystickEvent( float _x, float _y, float _relativeX, float _relativeY ) { }
+	const std::string name;
+	const ActionID actionID = wv::Math::randomU32();
+	bool state = false;
+};
 
-	virtual bool isBoundToKeyboard() const = 0;
-	virtual bool isBoundToController() const = 0;
-	virtual bool isBoundToMouse() const = 0;
+struct TriggerActionMapping
+{
+	uint32_t inputID;
+	TriggerAction* action;
+};
 
-	bool requiresRemapping() const { return m_requiresRemapping; };
-	uint64_t getActionID() const { return m_actionID; }
+struct ValueAction
+{
+	ValueAction( const std::string& _name ) : name{ _name } { }
 
-protected:
-	std::string m_name;
-	const uint64_t m_actionID = wv::Math::randomU64();
-	bool m_requiresRemapping = true;
+	const std::string name;
+	const ActionID actionID = wv::Math::randomU32();
+	float value = 0.0f;
+};
+
+struct ValueActionMapping
+{
+	uint32_t inputID;
+	ValueAction* action;
+};
+
+struct AxisAction
+{
+	AxisAction( const std::string& _name ) : name{ _name } { }
+
+	const std::string name;
+	const ActionID actionID = wv::Math::randomU32();
+
+	wv::Vector2f value;
+};
+
+enum AxisActionDirection
+{
+	AXIS_DIRECTION_NORTH,
+	AXIS_DIRECTION_SOUTH,
+	AXIS_DIRECTION_EAST,
+	AXIS_DIRECTION_WEST,
+
+	AXIS_DIRECTION_VERTICAL,
+	AXIS_DIRECTION_HORIZONTAL,
+
+	AXIS_DIRECTION_ALL // Used with joysticks
+};
+
+struct AxisActionMapping
+{
+	uint32_t inputID = 0;
+	AxisActionDirection direction = AXIS_DIRECTION_ALL;
+	AxisAction* action = nullptr;
 };
 
 }

@@ -9,7 +9,6 @@
 namespace wv {
 
 class CameraComponent;
-class ButtonAction;
 
 class CameraManagerSystem : public IWorldSystem
 {

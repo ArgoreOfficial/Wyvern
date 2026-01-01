@@ -12,9 +12,6 @@
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
 #include <wv/input/input_system.h>
-#include <wv/input/input_events.h>
-#include <wv/input/actions/button_action.h>
-#include <wv/input/actions/axis_action.h>
 #include <wv/event/event_manager.h>
 
 wv::CameraManagerSystem::CameraManagerSystem()
@@ -113,7 +110,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 	for ( const ActionEvent& event : _ctx.actionEventQueue )
 	{
-		if ( event.actionID == m_jumpAction && event.action.trigger->currentState )
+		if ( event.actionID == m_jumpAction && event.action.trigger->state )
 			wv::Debug::Print( "Jumped!\n" );
 		if ( event.actionID == m_lookAction )
 			cameraMove = event.action.axis->value * 90.0f * _ctx.deltaTime;

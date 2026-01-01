@@ -5,11 +5,22 @@
 
 void wv::IControllerDriver::handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state )
 {
-	if ( _action->currentState == _state )
+	if ( _action->state == _state )
 		return;
 
-	_action->currentState = _state;
+	_action->state = _state;
 	_inputSystem->pushActionEvent( _action );
+	wv::Debug::Print( "%s: %f\n", _action->name.c_str(), _action->state ? "true" : "false" );
+}
+
+void wv::IControllerDriver::handleValueAction( InputSystem* _inputSystem, ValueAction* _action, float _value )
+{
+	if ( _action->value == _value )
+		return;
+
+	_action->value = _value;
+	_inputSystem->pushActionEvent( _action );
+	wv::Debug::Print( "%s: %f\n", _action->name.c_str(), _action->value );
 }
 
 void wv::IControllerDriver::handleAxisAction( InputSystem* _inputSystem, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive )
@@ -59,7 +70,46 @@ void wv::IControllerDriver::sendTriggerEvents( InputSystem* _inputSystem, Contro
 			if( mapping.inputID >= CONTROLLER_BUTTON_A && mapping.inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
 				handleTriggerAction( _inputSystem, mapping.action, _device->getButtonState( (ControllerInputs)mapping.inputID ) ); 
 			else
-				WV_LOG_WARNING( "Input ID " PRIu32 " is not handled as a trigger input.\n", mapping.inputID );
+				WV_LOG_WARNING( "Input ID %u is not handled as a TriggerAction input.\n", mapping.inputID );
+		}
+	}
+}
+
+void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState )
+{
+	for ( ActionGroup* group : _inputSystem->getActionGroups() )
+	{
+		if ( !group->isEnabled() )
+			continue;
+
+		for ( auto& mapping : group->getValueActionsByDevice( "Controller" ) )
+		{
+			const ControllerInputs inputID = (ControllerInputs)mapping.inputID;
+
+			switch ( inputID )
+			{
+			case CONTROLLER_TRIGGER_LEFT:
+				if ( _device->leftTrigger != _prevDeviceState->leftTrigger )
+					handleValueAction( _inputSystem, mapping.action, _device->leftTrigger );
+				break;
+
+			case CONTROLLER_TRIGGER_RIGHT:
+				if ( _device->rightTrigger != _prevDeviceState->rightTrigger )
+					handleValueAction( _inputSystem, mapping.action, _device->rightTrigger );
+				break;
+
+			default:
+			{
+				// if mapping is button
+				if ( inputID >= CONTROLLER_BUTTON_A && inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
+				{
+					if ( _device->getButtonState( inputID ) != _prevDeviceState->getButtonState( inputID ) )
+						handleValueAction( _inputSystem, mapping.action, _device->getButtonState( inputID ) ? 1.0f : 0.0f );
+				}
+				else
+					WV_LOG_WARNING( "Input ID %u is not handled as a ValueAction input.\n", inputID );
+			}
+			}
 		}
 	}
 }
@@ -105,7 +155,7 @@ void wv::IControllerDriver::sendAxisEvents( InputSystem* _inputSystem, Controlle
 				break;
 
 			default:
-				WV_LOG_WARNING( "Input ID " PRIu32 " is not handled as an axis input.\n", mapping.inputID );
+				WV_LOG_WARNING( "Input ID %u is not handled as an AxisAction input.\n", mapping.inputID );
 			}
 		}
 	}

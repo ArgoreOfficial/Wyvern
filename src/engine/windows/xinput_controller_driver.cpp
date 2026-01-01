@@ -81,6 +81,7 @@ void wv::XInputControllerDriver::updateDeviceState( InputSystem* _inputSystem, i
 		sendTriggerEvents( _inputSystem, device );
 	
 	sendAxisEvents( _inputSystem, device, &oldState );
+	sendValueEvents( _inputSystem, device, &oldState );
 }
 
 void wv::XInputControllerDriver::updateButtonStates( InputSystem* _inputSystem, ControllerDevice* _device, const XINPUT_STATE& _state )
