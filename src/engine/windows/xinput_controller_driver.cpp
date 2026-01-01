@@ -21,7 +21,6 @@ void wv::XInputControllerDriver::updateDriver( InputSystem* _inputSystem )
 				handleDeviceDisconnected( i );
 		}
 	}
-
 }
 
 void wv::XInputControllerDriver::handleDeviceConnected( int _deviceID )
@@ -73,15 +72,15 @@ void wv::XInputControllerDriver::updateDeviceState( InputSystem* _inputSystem, i
 		fmaxf( -1, (float)_state.Gamepad.sThumbRY / 32767 )
 	};
 
-	if ( device->leftJoystick  != oldState.leftJoystick  ) wv::Debug::Print( "LEFT: %f, %f\n", device->leftJoystick.x, device->leftJoystick.y );
-	if ( device->rightJoystick != oldState.rightJoystick ) wv::Debug::Print( "RIGHT: %f, %f\n", device->rightJoystick.x, device->rightJoystick.y );
+	device->leftTrigger  = (float)_state.Gamepad.bLeftTrigger / 255;
+	device->rightTrigger = (float)_state.Gamepad.bRightTrigger / 255;
 
 	updateButtonStates( _inputSystem, device, _state );
-
-
-	if ( device->buttonStates != oldState.buttonStates )
-		sendTriggerEvents( _inputSystem );
 	
+	if ( device->buttonStates != oldState.buttonStates )
+		sendTriggerEvents( _inputSystem, device );
+	
+	sendAxisEvents( _inputSystem, device, &oldState );
 }
 
 void wv::XInputControllerDriver::updateButtonStates( InputSystem* _inputSystem, ControllerDevice* _device, const XINPUT_STATE& _state )

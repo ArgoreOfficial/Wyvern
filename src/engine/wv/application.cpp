@@ -77,36 +77,18 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_filesystem = Platform::createFileSystem( "data" );
 	
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
-	/*
-	ButtonAction* jumpAction = playerActionGroup->createButtonAction( "Jump" );
-	jumpAction->bindScancode( Scancode::SPACE );
-	jumpAction->bindScancode( Scancode::P );
-	jumpAction->bindControllerButton( ControllerInputs::A );
 
-	ButtonAction* shootAction = playerActionGroup->createButtonAction( "Shoot" );
-	shootAction->bindScancode( Scancode::F );
-
-	AxisAction* moveAction = playerActionGroup->createAxisAction( "Move" );
-	moveAction->bindScancodes( Scancode::D, Scancode::A, Scancode::W, Scancode::S );
-	moveAction->bindControllerButtons( 
-		CONTROLLER_BUTTON_DPAD_RIGHT, 
-		CONTROLLER_BUTTON_DPAD_LEFT, 
-		CONTROLLER_BUTTON_DPAD_UP, 
-		CONTROLLER_BUTTON_DPAD_DOWN
-	);
-	*/
-
-	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   wv::SCANCODE_SPACE );
-	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_A );
-	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_JOYSTICK_RIGHT );
-	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::CONTROLLER_BUTTON_SHOULDER_LEFT );
-
-	//group->bindValueAction( "Throttle", "Keyboard", Scancode::W );
-	//group->bindValueAction( "Throttle", "Controller", ControllerTrigger::Right );
-	//group->bindAxisActionX( "Aim", "Keyboard", Scancode::LEFT, Scancode::RIGHT );
-	//group->bindAxisActionY( "Aim", "Keyboard", Scancode::UP, Scancode::DOWN );
-	//group->bindAxisAction( "Aim", "Controller", ControllerJoystick::RIGHT );
-
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
+	
+	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
+	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
+	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_NORTH, CONTROLLER_BUTTON_DPAD_UP );
+	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_SOUTH, CONTROLLER_BUTTON_DPAD_DOWN );
+	
+	//playerActionGroup->bindValueAction( "Throttle", "Keyboard", Scancode::W );
+	//playerActionGroup->bindValueAction( "Throttle", "Controller", ControllerTrigger::Right );
+	
 	playerActionGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );

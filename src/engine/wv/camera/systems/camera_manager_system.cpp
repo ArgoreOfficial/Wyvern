@@ -50,7 +50,7 @@ void wv::CameraManagerSystem::initialize()
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
 		m_jumpAction = playerActions->getTriggerActionID( "Jump" );
-		
+		m_lookAction = playerActions->getAxisActionID( "Look" );
 	}
 }
 
@@ -109,17 +109,23 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		m_cameraComponentsChanged = false;
 	}
 
+	Vector2f cameraMove = { 0.0f, 0.0f };
+
 	for ( const ActionEvent& event : _ctx.actionEventQueue )
 	{
-		if ( event.actionID == m_jumpAction && event.action.triggerState )
+		if ( event.actionID == m_jumpAction && event.action.trigger->currentState )
 			wv::Debug::Print( "Jumped!\n" );
+		if ( event.actionID == m_lookAction )
+			cameraMove = event.action.axis->value * 90.0f * _ctx.deltaTime;
 	}
 
 	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
 	{
 		wv::Vector2f move = playerActions->getAxisValue( "Move" );
-		m_orbitDistance += move.y * _ctx.deltaTime * 10.0;
+		m_orbitDistance -= move.y * _ctx.deltaTime * 10.0;
 		m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
+
+		cameraMove = playerActions->getAxisValue( "Look" );
 	}
 
 	if ( m_activeCamera )
@@ -132,19 +138,13 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			wv::Transformf& transform = entity->getTransform();
 			
 			if ( _ctx.inputSystem->debugIsMouseDown( 1 ) )
-			{
-				// this should not be scaled with delta time because 
-				// mouse delta is already scaled by how far it moved
-				// since the last frame
-				wv::Vector2f mouseDelta = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
-
-				transform.rotation += wv::Vector3f{
-						-mouseDelta.y,
-						-mouseDelta.x,
-						0.0f
-				}; 
-			}
+				cameraMove = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
 			
+			transform.rotation += wv::Vector3f{
+					-cameraMove.y,
+					-cameraMove.x,
+					0.0f
+			}; 
 			transform.setPosition( transform.rotation.eulerToDirection() * m_orbitDistance );
 		}
 

@@ -20,14 +20,13 @@ class ControllerButtonEvent;
 
 struct ActionEvent
 {
-	uint64_t actionID;
+	ActionID actionID = 0;
 	ActionType type = ACTION_TYPE_TRIGGER;
 	union ActionEventValue
 	{
-		bool triggerState;
-		float value = 0.0f;
-		wv::Vector2d axis;
-	} action; 
+		const TriggerAction* trigger = nullptr;
+		const AxisAction* axis;
+	} action{};
 };
 
 class InputSystem
@@ -53,8 +52,16 @@ public:
 	void pushActionEvent( TriggerAction* _action ) {
 		ActionEvent event;
 		event.actionID = _action->actionID;
-		event.action.triggerState = _action->currentState;
+		event.action.trigger = _action;
 		event.type = ACTION_TYPE_TRIGGER;
+		m_actionEventQueue.push_back( event );
+	}
+
+	void pushActionEvent( AxisAction* _action ) {
+		ActionEvent event;
+		event.actionID = _action->actionID;
+		event.action.axis = _action;
+		event.type = ACTION_TYPE_AXIS;
 		m_actionEventQueue.push_back( event );
 	}
 

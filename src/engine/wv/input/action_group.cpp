@@ -11,11 +11,6 @@ wv::ActionGroup::~ActionGroup()
 	
 }
 
-wv::Vector2<double> wv::ActionGroup::getAxisValue( const std::string& _name ) const
-{
-	return { 0.0, 0.0 };
-}
-
 void wv::ActionGroup::bindTriggerAction( const std::string& _action, const std::string& _device, uint32_t _inputID )
 {
 	TriggerAction* action = m_triggerActions.getAction( _action );
@@ -24,9 +19,34 @@ void wv::ActionGroup::bindTriggerAction( const std::string& _action, const std::
 	{
 		// make sure action hasn't already been bound
 		for ( auto& map : m_triggerActions.deviceMaps.at( _device ) )
-			if ( map.inputID == _inputID && map.action == action )
-				return;
+		{
+			if ( map.inputID != _inputID || map.action != action )
+				continue;
+
+			WV_LOG_WARNING( "Action %s has already been bound to %s:%llu", _action, _device, _inputID );
+			return;
+		}
 	}
 
 	m_triggerActions.deviceMaps[ _device ].emplace_back( _inputID, action );
+}
+
+void wv::ActionGroup::bindAxisAction( const std::string& _action, const std::string& _device, AxisActionDirection _direction, uint32_t _inputID )
+{
+	AxisAction* action = m_axisActions.getAction( _action );
+
+	if ( m_axisActions.deviceMaps.contains( _device ) )
+	{
+		// make sure action hasn't already been bound
+		for ( auto& map : m_axisActions.deviceMaps.at( _device ) )
+		{
+			if ( map.inputID != _inputID || map.action != action || map.direction != _direction )
+				continue;
+
+			WV_LOG_WARNING( "Action %s has already been bound to %s:%llu", _action, _device, _inputID );
+			return;
+		}
+	}
+
+	m_axisActions.deviceMaps[ _device ].emplace_back( _inputID, _direction, action );
 }

@@ -13,7 +13,8 @@ namespace wv {
 
 class IAction;
 class ButtonAction;
-class AxisAction;
+
+typedef uint32_t ActionID;
 
 enum ActionType
 {
@@ -27,7 +28,7 @@ struct TriggerAction
 	TriggerAction( const std::string& _name ) : name{ _name } { }
 
 	const std::string name;
-	const uint64_t actionID = wv::Math::randomU64();
+	const ActionID actionID = wv::Math::randomU32();
 	bool currentState = false;
 };
 
@@ -35,6 +36,36 @@ struct TriggerActionMapping
 {
 	uint32_t inputID;
 	TriggerAction* action;
+};
+
+struct AxisAction
+{
+	AxisAction( const std::string& _name ) : name{ _name } { }
+
+	const std::string name;
+	const ActionID actionID = wv::Math::randomU32();
+
+	wv::Vector2f value;
+};
+
+enum AxisActionDirection
+{
+	AXIS_DIRECTION_NORTH,
+	AXIS_DIRECTION_SOUTH,
+	AXIS_DIRECTION_EAST,
+	AXIS_DIRECTION_WEST,
+	
+	AXIS_DIRECTION_VERTICAL,
+	AXIS_DIRECTION_HORIZONTAL,
+
+	AXIS_DIRECTION_ALL // Used with joysticks
+};
+
+struct AxisActionMapping
+{
+	uint32_t inputID = 0;
+	AxisActionDirection direction = AXIS_DIRECTION_ALL;
+	AxisAction* action = nullptr;
 };
 
 template<typename Ty, typename MapTy>
@@ -84,19 +115,32 @@ public:
 	bool        isEnabled() const { return m_isEnabled; }
 	std::string getName()   const { return m_name; }
 
-	wv::Vector2d getAxisValue( const std::string& _name ) const;
-
 	void bindTriggerAction( const std::string& _action, const std::string& _device, uint32_t _inputID );
+	void bindAxisAction( const std::string& _action, const std::string& _device, AxisActionDirection _direction, uint32_t _inputID );
 
-	uint64_t getTriggerActionID( const std::string& _name ) {
-		if ( !m_triggerActions.nameMap.contains( _name ) )
-			return 0;
+	wv::Vector2f getAxisValue( const std::string& _name ) const {
+		if ( !m_axisActions.nameMap.contains( _name ) ) return { 0.0f, 0.0f };
+		return m_axisActions.nameMap.at( _name )->value;
+	}
+
+	ActionID getTriggerActionID( const std::string& _name ) {
+		if ( !m_triggerActions.nameMap.contains( _name ) ) return 0;
 		return m_triggerActions.nameMap.at( _name )->actionID;
+	}
+
+	ActionID getAxisActionID( const std::string& _name ) {
+		if ( !m_axisActions.nameMap.contains( _name ) ) return 0;
+		return m_axisActions.nameMap.at( _name )->actionID;
 	}
 
 	std::vector<TriggerActionMapping> getTriggerActionsByDevice( const std::string& _deviceName ) {
 		if ( !m_triggerActions.deviceMaps.contains( _deviceName ) ) return {};
 		return m_triggerActions.deviceMaps.at( _deviceName );
+	}
+
+	std::vector<AxisActionMapping> getAxisActionsByDevice( const std::string& _deviceName ) {
+		if ( !m_axisActions.deviceMaps.contains( _deviceName ) ) return {};
+		return m_axisActions.deviceMaps.at( _deviceName );
 	}
 
 private:
@@ -105,6 +149,8 @@ private:
 	bool m_isEnabled = false;
 
 	ActionContainer<TriggerAction, TriggerActionMapping> m_triggerActions;
+	ActionContainer<AxisAction, AxisActionMapping> m_axisActions;
+
 };
 
 }

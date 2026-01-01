@@ -12,6 +12,8 @@
 namespace wv {
 
 struct TriggerAction;
+struct AxisAction;
+enum AxisActionDirection;
 
 struct ControllerDevice
 {
@@ -19,6 +21,9 @@ struct ControllerDevice
 
 	wv::Vector2f leftJoystick;
 	wv::Vector2f rightJoystick;
+
+	float leftTrigger = 0.0f;
+	float rightTrigger = 0.0f;
 
 	// Mask, use ControllerInputs enum for bits 
 	uint32_t buttonStates = CONTROLLER_BUTTON_NONE;
@@ -58,8 +63,10 @@ protected:
 	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
 
 	void handleTriggerAction( InputSystem* _inputSystem, TriggerAction* _action, bool _state );
+	void handleAxisAction( InputSystem* _inputSystem, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive = false );
 
 	virtual void sendTriggerEvents( InputSystem* _inputSystem, ControllerDevice* _device );
+	virtual void sendAxisEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 
 	std::set<int> m_connectedDeviceIDs;
 	std::vector<ControllerDevice*> m_connectedDevices;
