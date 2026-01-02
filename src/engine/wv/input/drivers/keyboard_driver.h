@@ -15,7 +15,7 @@ public:
 protected:
 	virtual void initiailize( InputSystem* _inputSystem ) override;
 	virtual void shutdown( InputSystem* _inputSystem ) override;
-	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
+	virtual void pollActions( InputSystem* _inputSystem ) = 0;
 
 	bool scancodeStateChanged( uint32_t _scancode ) { return m_scancodeStates[ _scancode ] != m_prevScancodeStates[ _scancode ]; }
 

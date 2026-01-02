@@ -44,6 +44,8 @@ public:
 		for ( ControllerDevice* device : m_connectedDevices )
 			WV_FREE( device );
 	}
+	
+	virtual void setRumble( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode ) = 0;
 
 protected:
 	std::vector<ControllerDevice*>::iterator getDevice( int _deviceID ) {
@@ -57,8 +59,8 @@ protected:
 		return m_connectedDevices.end();
 	}
 
-	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
-
+	virtual void pollActions( InputSystem* _inputSystem ) = 0;
+	
 	virtual void sendTriggerEvents( InputSystem* _inputSystem, ControllerDevice* _device );
 	virtual void sendValueEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 	virtual void sendAxisEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );

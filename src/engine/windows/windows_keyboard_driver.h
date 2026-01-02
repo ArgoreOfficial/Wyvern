@@ -10,7 +10,7 @@ public:
 	WindowsKeyboardDriver() = default;
 
 protected:
-	virtual void updateDriver( InputSystem* _inputSystem ) override;
+	virtual void pollActions( InputSystem* _inputSystem ) override;
 
 };
 

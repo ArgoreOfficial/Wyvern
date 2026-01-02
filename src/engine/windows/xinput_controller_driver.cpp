@@ -2,7 +2,26 @@
 
 #include <wv/input/input_system.h>
 
-void wv::XInputControllerDriver::updateDriver( InputSystem* _inputSystem )
+void wv::XInputControllerDriver::setRumble( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode )
+{
+	int userIndex = -1;
+
+	for ( ControllerDevice* device : m_connectedDevices )
+	{
+		if ( device->vdID != _vdID )
+			continue;
+		userIndex = device->deviceID;
+	}
+
+	if ( userIndex == -1 ) return;
+
+	XINPUT_VIBRATION vibration{};
+	vibration.wLeftMotorSpeed = _left;
+	vibration.wRightMotorSpeed = _right;
+	XInputSetState( userIndex, &vibration );
+}
+
+void wv::XInputControllerDriver::pollActions( InputSystem* _inputSystem )
 {
 	XINPUT_STATE state{};
 
@@ -31,10 +50,9 @@ void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSyste
 
 	ControllerDevice* device = WV_NEW( ControllerDevice );
 	device->deviceID = _deviceID;
-	device->vdID = _inputSystem->requestVirtualDeviceID();
+	device->vdID = _inputSystem->requestVirtualDeviceID( this, "Controller" );
 
-	m_connectedDevices.push_back( device );
-	
+	m_connectedDevices.push_back( device );	
 }
 
 void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID )
@@ -48,7 +66,7 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSy
 	if ( it == m_connectedDevices.end() )
 		return;
 	
-	_inputSystem->freeVirtualDeviceID( ( *it )->vdID );
+	_inputSystem->releaseVirtualDeviceID( ( *it )->vdID );
 
 	WV_FREE( *it );
 	m_connectedDevices.erase( it );

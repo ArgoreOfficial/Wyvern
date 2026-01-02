@@ -5,6 +5,7 @@
 #include <wv/memory/memory.h>
 
 #include <wv/input/drivers/input_driver.h>
+#include <wv/input/drivers/controller_driver.h>
 
 #include <SDL2/SDL.h>
 
@@ -82,8 +83,6 @@ static wv::ControllerInputs sdlToWvControllerButton( SDL_GameControllerButton _b
 	return wv::CONTROLLER_BUTTON_NONE;
 }
 
-static SDL_GameController* controller = nullptr;
-
 void wv::InputSystem::mapNextAvailableDeviceToPlayer( int _playerIndex )
 {
 	if ( _playerIndex < 0 )
@@ -106,23 +105,6 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 		{
 		case SDL_QUIT: app->quit(); break;
 		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
-
-		case SDL_KEYDOWN: [[fallthrough]];
-		case SDL_KEYUP:
-		{
-			
-		} break;
-
-		case SDL_MOUSEBUTTONDOWN: [[fallthrough]];
-		case SDL_MOUSEBUTTONUP:
-		{
-			
-		} break;
-
-		case SDL_MOUSEMOTION:
-		{
-			
-		} break;
 		}
 	}
 }
@@ -135,7 +117,7 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	updateInputDrivers( _eventManager );
 
 	for ( IInputDriver* driver : m_inputDrivers )
-		driver->updateDriver( this );
+		driver->pollActions( this );
 	
 	for ( ActionEvent& action : m_actionEventQueue )
 	{
@@ -178,6 +160,17 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	m_debugMouseMotion = { 0.0f, 0.0f };
 #endif
 
+}
+
+void wv::InputSystem::setControllerRumble( uint32_t _vdID, uint16_t _left, uint16_t _right )
+{
+	if ( !m_virtualDevices.contains( _vdID ) ) return;
+	VirtualDevice& device = m_virtualDevices[ _vdID ];
+	if ( device.deviceType == "Controller" )
+	{
+		IControllerDriver* controllerDriver = static_cast<IControllerDriver*>( device.driver );
+		controllerDriver->setRumble( _vdID, _left, _right, 0 );
+	}
 }
 
 wv::ActionGroup* wv::InputSystem::createActionGroup( const std::string& _name )

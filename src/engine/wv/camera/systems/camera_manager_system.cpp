@@ -100,6 +100,9 @@ void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityCompo
 
 void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 {
+	if ( rumble > 0.0f )
+		rumble = wv::Math::max( 0.0f, rumble - (float)_ctx.deltaTime );
+
 	if ( m_cameraComponentsChanged )
 	{
 		if ( m_activeCamera == nullptr && m_cameraComponents.size() > 0 )
@@ -113,9 +116,18 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			continue;
 		
 		if ( event.actionID == m_jumpAction && event.action.trigger->getValue( m_playerIndex ) )
+		{
 			wv::Debug::Print( "Jumped!\n" );
+			rumble = 1.0f;
+			m_playerDeviceID = event.vdID;
+		}
 		if ( event.actionID == m_lookAction )
 			m_cameraMove = event.action.axis->getValue( m_playerIndex ) * 90.0f * _ctx.deltaTime;
+	}
+
+	if ( m_playerDeviceID != 0 )
+	{
+		_ctx.inputSystem->setControllerRumble( m_playerDeviceID, (uint16_t)( rumble * UINT16_MAX ), (uint16_t)( rumble * UINT16_MAX ) );
 	}
 
 	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )

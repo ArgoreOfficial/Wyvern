@@ -2,12 +2,12 @@
 
 void wv::IKeyboardDriver::initiailize( InputSystem* _inputSystem )
 {
-	m_vdID = _inputSystem->requestVirtualDeviceID();
+	m_vdID = _inputSystem->requestVirtualDeviceID( this, "Keyboard" );
 }
 
 void wv::IKeyboardDriver::shutdown( InputSystem* _inputSystem )
 {
-	_inputSystem->freeVirtualDeviceID( m_vdID );
+	_inputSystem->releaseVirtualDeviceID( m_vdID );
 }
 
 void wv::IKeyboardDriver::sendTriggerEvents( InputSystem* _inputSystem )

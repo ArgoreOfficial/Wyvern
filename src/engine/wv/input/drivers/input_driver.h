@@ -22,7 +22,7 @@ public:
 protected:
 	virtual void initiailize( InputSystem* _inputSystem ) { }
 	virtual void shutdown( InputSystem* _inputSystem ) { }
-	virtual void updateDriver( InputSystem* _inputSystem ) = 0;
+	virtual void pollActions( InputSystem* _inputSystem ) = 0;
 
 	void handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state );
 	void handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value );

@@ -353,7 +353,7 @@ UINT wvToWinScancode( wv::Scancode _scancode ) {
 	return 0;
 }
 
-void wv::WindowsKeyboardDriver::updateDriver( InputSystem* _inputSystem )
+void wv::WindowsKeyboardDriver::pollActions( InputSystem* _inputSystem )
 {
 	for ( size_t i = 1; i < SCANCODE_MAX; i++ )
 	{

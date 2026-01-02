@@ -47,6 +47,8 @@ protected:
 	uint32_t m_jumpReleaseEventListenerID = 0;
 
 	int m_playerIndex = 0;
+	uint32_t m_playerDeviceID = 0;
+	float rumble = 0.0f;
 
 	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };
 

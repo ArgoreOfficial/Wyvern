@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <set>
+#include <string>
 #include <queue>
 
 namespace wv {
@@ -31,6 +32,13 @@ struct ActionEvent
 	} action{};
 };
 
+struct VirtualDevice
+{
+	uint32_t virtualDeviceID = 0;
+	IInputDriver* driver = nullptr;
+	std::string deviceType;
+};
+
 class InputSystem
 {
 public:
@@ -51,23 +59,38 @@ public:
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
 
-	uint32_t requestVirtualDeviceID() {
+	// Virtual Device
+
+	uint32_t requestVirtualDeviceID( IInputDriver* _driver, const std::string& _deviceType ) {
 		uint32_t vdID = 1;
 		while ( m_virtualDeviceIDs.contains( vdID ) )
 			vdID++;
 
 		m_virtualDeviceIDs.insert( vdID );
+		m_virtualDevices[ vdID ] = { vdID, _driver, _deviceType };
 		return vdID;
 	}
 
-	void freeVirtualDeviceID( uint32_t _vdID ) {
-		if ( m_virtualDeviceIDs.contains( _vdID ) )
-			m_virtualDeviceIDs.erase( _vdID );
+	void releaseVirtualDeviceID( uint32_t _vdID ) {
+		if ( !m_virtualDeviceIDs.contains( _vdID ) )
+			return;
+		m_virtualDeviceIDs.erase( _vdID );
+		m_virtualDevices[ _vdID ] = {};
 	}
+
+	void setControllerRumble( uint32_t _vdID, uint16_t _left, uint16_t _right );
+
+	// Players
 
 	void mapVirtualDeviceToPlayer( uint32_t _vdID, int _playerIndex ) {
 		if ( !m_virtualDeviceIDs.contains( _vdID ) ) return;
 		m_vdPlayerMap[ _vdID ] = _playerIndex;
+	}
+
+	void unmapPlayer( int _playerIndex ) {
+		auto it = m_vdPlayerMap.find( _playerIndex );
+		if ( it == m_vdPlayerMap.end() ) return;
+		m_vdPlayerMap.erase( it );
 	}
 
 	int getMappedPlayerIndex( uint32_t _vdID ) {
@@ -75,6 +98,8 @@ public:
 			return m_vdPlayerMap.at( _vdID );
 		return -1;
 	}
+
+	// Action Events
 
 	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) {
 		ActionEvent event{ ACTION_TYPE_TRIGGER, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
@@ -98,6 +123,8 @@ public:
 		return m_actionEventQueue;
 	}
 
+	// Action Group
+
 	ActionGroup* getActionGroup( const std::string& _name ) const { 
 		if ( !m_actionGroupNameMap.contains( _name ) )
 		{
@@ -106,6 +133,7 @@ public:
 		}
 		return m_actionGroupNameMap.at( _name ); 
 	}
+
 	ActionGroup* createActionGroup( const std::string& _name );
 	void destroyActionGroup( const std::string& _name );
 	
@@ -140,6 +168,7 @@ protected:
 
 	std::set<uint32_t> m_virtualDeviceIDs;
 	std::unordered_map<uint32_t, int> m_vdPlayerMap;
+	std::unordered_map<uint32_t, VirtualDevice> m_virtualDevices;
 };
 
 }
