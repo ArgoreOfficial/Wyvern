@@ -134,9 +134,11 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		{
 			wv::Transformf& transform = entity->getTransform();
 			
+		#ifndef WV_PACKAGE
 			if ( _ctx.inputSystem->debugIsMouseDown( 1 ) )
 				m_cameraMove = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
-			
+		#endif
+
 			transform.rotation += wv::Vector3f{
 					-m_cameraMove.y,
 					-m_cameraMove.x,

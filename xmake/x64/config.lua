@@ -1,6 +1,6 @@
 function _add_supports( _target, _prefix )
     _target:add( "files", "./libs/**.c" )
-    _target:add( "headerfiles", "./libs/**.h" )
+    _target:add( "headerfiles", "./libs/**.h", {install = false} )
     _target:add( "includedirs", "./libs/glad/include/" )
     
     import( "support.libsdl2" )( _target, _prefix ) 
@@ -34,8 +34,9 @@ function on_load( _target, _prefix )
     _target:set( "targetdir", "./game/Windows" )
     
     if is_mode("Package") then 
-        _target:set( "configdir", "./package/bin/dat" )
-        _target:add( "configfiles", "dat/*", {onlycopy = true})
+        -- _target:set( "configdir", "./package/bin/data" )
+        -- _target:add( "configfiles", "./data/*", {onlycopy = true})
+        _target:add("installfiles", "./data/**", {prefixdir = "bin/data/"})
     end
 
 end
