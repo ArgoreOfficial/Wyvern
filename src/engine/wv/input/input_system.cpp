@@ -35,7 +35,7 @@ wv::InputSystem::~InputSystem()
 void wv::InputSystem::initialize()
 {
 	for ( IInputDriver* driver : m_inputDrivers )
-		driver->initiailize( this );
+		driver->initialize( this );
 }
 
 void wv::InputSystem::shutdown()
@@ -107,6 +107,17 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
 	}
+
+	// SDL does this internally, important if a SDL is removed
+	//if ( m_hMouseHook != 0 )
+	//{
+	//	MSG msg{};
+	//	while ( PeekMessage( &msg, hwnd, 0, 0, PM_REMOVE) )
+	//	{
+	//		TranslateMessage( &msg );
+	//		DispatchMessage( &msg );
+	//	}
+	//}
 }
 
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )

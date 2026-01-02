@@ -13,7 +13,7 @@ public:
 	}
 
 protected:
-	virtual void initiailize( InputSystem* _inputSystem ) override;
+	virtual void initialize( InputSystem* _inputSystem ) override;
 	virtual void shutdown( InputSystem* _inputSystem ) override;
 	virtual void pollActions( InputSystem* _inputSystem ) = 0;
 

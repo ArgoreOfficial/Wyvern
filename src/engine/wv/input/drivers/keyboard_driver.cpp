@@ -1,6 +1,6 @@
 #include "keyboard_driver.h"
 
-void wv::IKeyboardDriver::initiailize( InputSystem* _inputSystem )
+void wv::IKeyboardDriver::initialize( InputSystem* _inputSystem )
 {
 	m_vdID = _inputSystem->requestVirtualDeviceID( this, "Keyboard" );
 }

@@ -30,13 +30,17 @@ public:
 	virtual uint64_t getTicks() override;
 	virtual uint64_t getHighResolutionCounter() override;
 	virtual uint64_t getHighResolutionFrequency() override;
-	
+
+#ifdef WV_PLATFORM_WINDOWS
+	virtual HWND winGetHandle() override;
+#endif
+
 private:
 
-	SDL_Window* m_window_context = nullptr;
+	SDL_Window* m_windowContext = nullptr;
 
 #ifdef WV_SUPPORT_OPENGL 
-	SDL_GLContext m_opengl_context = nullptr;
+	SDL_GLContext m_openglContext = nullptr;
 #endif
 
 };

@@ -20,7 +20,7 @@ public:
 	virtual ~IInputDriver() { }
 
 protected:
-	virtual void initiailize( InputSystem* _inputSystem ) { }
+	virtual void initialize( InputSystem* _inputSystem ) { }
 	virtual void shutdown( InputSystem* _inputSystem ) { }
 	virtual void pollActions( InputSystem* _inputSystem ) = 0;
 

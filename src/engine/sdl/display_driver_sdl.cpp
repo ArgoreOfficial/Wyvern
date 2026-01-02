@@ -6,6 +6,7 @@
 #include <wv/debug/log.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -89,10 +90,10 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	//glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, true );
 	//glfwWindowHint( GLFW_RESIZABLE, false );
 
-	m_window_context = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
+	m_windowContext = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
 
 #ifdef WV_SUPPORT_OPENGL 
-	m_opengl_context = SDL_GL_CreateContext( m_window_context );
+	m_openglContext = SDL_GL_CreateContext( m_windowContext );
 #endif
 
 	SDL_version version;
@@ -100,7 +101,7 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	wv::Debug::Print( "Initialized Context Device\n" );
 	wv::Debug::Print( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
-	if ( !m_window_context )
+	if ( !m_windowContext )
 	{
 		WV_LOG_ERROR( "Failed to create Context\n" );
 		return false;
@@ -115,17 +116,17 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 
 void wv::DisplayDriverSDL::shutdown()
 {
-	SDL_DestroyWindow( m_window_context );
+	SDL_DestroyWindow( m_windowContext );
 	SDL_Quit();
 }
 
 wv::Vector2i wv::DisplayDriverSDL::getWindowSize( void )
 {
-	if ( !m_window_context )
+	if ( !m_windowContext )
 		return {};
 
 	int width, height;
-	SDL_GetWindowSize( m_window_context, &width, &height );
+	SDL_GetWindowSize( m_windowContext, &width, &height );
 
 	return wv::Vector2i{ width, height };
 }
@@ -141,7 +142,7 @@ wv::Vector2i wv::DisplayDriverSDL::getDisplaySize( int _displayIndex )
 
 void wv::DisplayDriverSDL::swapBuffers()
 {
-	SDL_GL_SwapWindow( m_window_context );
+	SDL_GL_SwapWindow( m_windowContext );
 }
 
 void wv::DisplayDriverSDL::processEvents()
@@ -163,5 +164,16 @@ uint64_t wv::DisplayDriverSDL::getHighResolutionFrequency()
 {
 	return SDL_GetPerformanceFrequency();
 }
+
+#ifdef WV_PLATFORM_WINDOWS
+HWND wv::DisplayDriverSDL::winGetHandle()
+{
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION( &wmInfo.version );
+	SDL_GetWindowWMInfo( m_windowContext, &wmInfo );
+
+	return wmInfo.info.win.window;
+}
+#endif
 
 #endif

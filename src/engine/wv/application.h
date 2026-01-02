@@ -35,9 +35,10 @@ public:
 	inline double getApplicationTime( void ) const { return m_runtime; }
 	inline double getDeltaTime      ( void ) const { return m_deltatime; }
 
-	inline std::string       getGraphicsDriverName() const { return m_graphicsDriverName; }
-	inline wv::InputSystem*  getInputSystem()        const { return m_inputSystem; }
-	inline wv::EventManager* getEventManager()       const { return m_eventManager; }
+	inline std::string    getGraphicsDriverName() const { return m_graphicsDriverName; }
+	inline InputSystem*   getInputSystem()        const { return m_inputSystem; }
+	inline EventManager*  getEventManager()       const { return m_eventManager; }
+	inline DisplayDriver* getDisplayDriver()      const { return m_displayDriver; }
 
 	void quit() { m_alive = false; }
 private:

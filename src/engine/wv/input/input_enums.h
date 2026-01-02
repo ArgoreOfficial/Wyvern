@@ -74,6 +74,24 @@ enum Scancode : uint32_t
 	SCANCODE_MAX
 };
 
+enum MouseInputs : uint32_t
+{
+	// Only Trigger and Value actions
+
+	MOUSE_BUTTON_LEFT = 0,
+	MOUSE_BUTTON_RIGHT,
+	MOUSE_BUTTON_MIDDLE,
+	MOUSE_BUTTON_X1,
+	MOUSE_BUTTON_X2,
+
+	MOUSE_SCROLL_DELTA,
+
+	// Only axis actions
+
+	MOUSE_POSITION_AXIS,
+	MOUSE_MOTION_AXIS
+};
+
 enum ControllerInputs : uint32_t
 {
 	CONTROLLER_BUTTON_NONE = 0,

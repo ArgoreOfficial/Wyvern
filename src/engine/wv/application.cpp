@@ -22,6 +22,7 @@
 // TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
 #include <windows/xinput_controller_driver.h>
 #include <windows/windows_keyboard_driver.h>
+#include <windows/windows_mouse_driver.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +61,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
+	m_inputSystem->createInputDriver<WindowsMouseDriver>();
 
 	m_inputSystem->initialize();
 
@@ -82,13 +84,11 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   SCANCODE_SPACE );
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
+	playerActionGroup->bindTriggerAction( "Jump", "Mouse",      MOUSE_SCROLL_DELTA );
 	
 	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
-	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_ARROW_UP );
-	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_ARROW_DOWN );
-	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_ARROW_RIGHT );
-	playerActionGroup->bindAxisAction( "Look", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_ARROW_LEFT );
-	
+	playerActionGroup->bindAxisAction( "Look", "Mouse",      AXIS_DIRECTION_ALL, MOUSE_MOTION_AXIS );
+
 	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
