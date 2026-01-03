@@ -44,6 +44,7 @@ void wv::CameraManagerSystem::initialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
 	inputSystem->mapNextAvailableDeviceToPlayer( 0 );
+	inputSystem->mapNextAvailableDeviceToPlayer( 0 );
 	
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
@@ -123,6 +124,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		}
 		if ( event.actionID == m_lookAction )
 			m_cameraMove = event.action.axis->getValue( m_playerIndex ) * 90.0f * _ctx.deltaTime;
+		
 	}
 
 	if ( m_playerDeviceID != 0 )
@@ -142,24 +144,20 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		Entity* entity = m_cameraEntityMap.at( m_activeCamera->getID() );
 		ViewVolume* viewVolume = m_activeCamera->getViewVolume();
 		
+		wv::Transformf& transform = entity->getTransform();
+		
 		if ( auto orbitCamera = tryCast<OrbitCameraComponent>( m_activeCamera ) )
 		{
-			wv::Transformf& transform = entity->getTransform();
-			
-		#ifndef WV_PACKAGE
-			if ( _ctx.inputSystem->debugIsMouseDown( 1 ) )
-				m_cameraMove = _ctx.inputSystem->debugGetMouseMotion() * 0.3f;
-		#endif
-
 			transform.rotation += wv::Vector3f{
 					-m_cameraMove.y,
 					-m_cameraMove.x,
 					0.0f
 			}; 
+
 			transform.setPosition( transform.rotation.eulerToDirection() * m_orbitDistance );
 		}
 
-		viewVolume->getTransform() = entity->getTransform();
+		viewVolume->getTransform() = transform;
 		viewVolume->setViewDimensions( _ctx.viewport->getSize() );
 		viewVolume->update( _ctx.deltaTime );
 
