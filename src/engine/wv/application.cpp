@@ -192,6 +192,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	sector->addEntity( cameraEntity );
 	m_world->addSector( sector );
 
+	m_lastTicks = m_displayDriver->getHighResolutionCounter();
+
 	return true;
 }
 
@@ -232,6 +234,7 @@ bool wv::Application::tick()
 	uint64_t ticks = m_displayDriver->getHighResolutionCounter();
 	m_runtime = m_displayDriver->getTicks() / 1000.0;
 	m_deltatime = (double)( ( ticks - m_lastTicks ) / (double)m_displayDriver->getHighResolutionFrequency() );
+	m_deltatime = wv::Math::min( m_deltatime, 1.0 ); // hard cap just in case
 
 	update();
 	render();
