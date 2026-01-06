@@ -44,7 +44,6 @@ void wv::XInputControllerDriver::pollActions( InputSystem* _inputSystem )
 
 void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSystem, int _deviceID )
 {
-	wv::Debug::Print( "XInput Device %i connected\n", _deviceID );
 	m_connectedDeviceIDs.insert( _deviceID );
 	m_xinputButtonStateMap.emplace( _deviceID, 0 );
 
@@ -59,8 +58,6 @@ void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSyste
 
 void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID )
 {
-	wv::Debug::Print( "XInput Device %i disconnected\n", _deviceID );
-
 	m_connectedDeviceIDs.erase( _deviceID );
 	m_xinputButtonStateMap.erase( _deviceID );
 

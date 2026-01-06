@@ -99,10 +99,13 @@ void wv::PlayerInputSystem::update( WorldUpdateContext& _ctx )
 
 	for ( ActionEvent& action : _ctx.actionEventQueue )
 	{
-		if ( action.type != ACTION_TYPE_TRIGGER )
+		if ( action.type != ACTION_TYPE_TRIGGER ) // must be a trigger action. TODO: any (unmapped or mapped) button
 			continue;
 
-		if ( action.playerIndex != -1 )
+		if ( action.playerIndex != -1 ) // must be an unused device
+			continue;
+
+		if ( action.action.trigger->getValue( -1 ) == false ) // must be a press, not a release
 			continue;
 
 		if ( m_selectionMode == SelectionMode::ANY_TRIGGER_ACTION )
