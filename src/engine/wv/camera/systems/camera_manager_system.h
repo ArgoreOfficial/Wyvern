@@ -11,11 +11,19 @@
 namespace wv {
 
 class CameraComponent;
+class PlayerInputComponent;
 
 class CameraManagerSystem : public IWorldSystem
 {
 	WV_REFLECT_TYPE( CameraManagerSystem )
 public:
+	struct EntityData
+	{
+		Entity* entity;
+		PlayerInputComponent* playerInput;
+		CameraComponent* camera;
+	};
+
 	CameraManagerSystem();
 	~CameraManagerSystem();
 
@@ -32,23 +40,27 @@ protected:
 
 	void update( WorldUpdateContext& _ctx ) override;
 
+	std::vector<EntityData>::iterator findEntity( Entity* _entity ) {
+		for ( auto it = m_entityDatas.begin(); it != m_entityDatas.end(); it++ )
+			if ( it->entity == _entity ) return it;
+		return m_entityDatas.end();
+	}
+
 	std::vector<CameraComponent*> m_cameraComponents;
-	std::unordered_map<ComponentID, Entity*> m_cameraEntityMap;
+	std::vector<PlayerInputComponent*> m_playerInputComponents;
+
+	std::unordered_map<ComponentID, Entity*> m_componentEntityMap;
+	std::vector<EntityData> m_entityDatas;
 
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;
 	float m_orbitDistance = 5.0f;
 
-	uint32_t m_jumpAction = 0;
 	uint32_t m_lookAction = 0;
 
 	uint32_t m_jumpEventListenerID = 0;
 	uint32_t m_jumpReleaseEventListenerID = 0;
-
-	int m_playerIndex = 0;
-	uint32_t m_playerDeviceID = 0;
-	float rumble = 0.0f;
 
 	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };
 

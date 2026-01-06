@@ -14,6 +14,8 @@
 #include <wv/graphics/viewport.h>
 #include <wv/reflection/reflection.h>
 #include <wv/input/input_system.h>
+#include <wv/input/components/player_input_component.h>
+#include <wv/input/systems/player_input_system.h>
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
@@ -165,16 +167,23 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
+
 	m_world->createWorldSystem<RenderWorldSystem>();
 	m_world->createWorldSystem<CameraManagerSystem>();
+	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
+	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
 	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
+	PlayerInputComponent* cameraInputComponent = WV_NEW( PlayerInputComponent );
+	cameraInputComponent->setPlayerIndex( 0 );
+
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->getTransform().setPosition( { -1, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -45.0f, -45.0f, 0.0f } );
 
 	cameraEntity->addComponent( cameraComponent );
-
+	cameraEntity->addComponent( cameraInputComponent );
+	
 	WorldSector* sector = WV_NEW( WorldSector );
 
 	// Create meshes
