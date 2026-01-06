@@ -50,7 +50,7 @@ public:
 
 protected:
 	std::vector<ControllerDevice*>::iterator getDevice( int _deviceID ) {
-		for ( auto it = m_connectedDevices.begin(); it != m_connectedDevices.end(); )
+		for ( auto it = m_connectedDevices.begin(); it != m_connectedDevices.end(); it++ )
 		{
 			if ( ( *it )->deviceID != _deviceID )
 				continue;
