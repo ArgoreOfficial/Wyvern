@@ -53,6 +53,8 @@ void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSyste
 	device->vdID = wv::Math::randomU32();
 
 	m_connectedDevices.push_back( device );	
+
+	_inputSystem->pushActionEvent( { ActionType::ACTION_DEVICE_CONNECTED, device->vdID } );
 }
 
 void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID )
@@ -65,7 +67,9 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSy
 	auto it = getDevice( _deviceID );
 	if ( it == m_connectedDevices.end() )
 		return;
-	
+
+	_inputSystem->pushActionEvent( { ActionType::ACTION_DEVICE_DISCONNECTED, ( *it )->vdID } );
+
 	WV_FREE( *it );
 	m_connectedDevices.erase( it );
 }

@@ -62,9 +62,10 @@ public:
 	void setDevicePlayer( uint32_t _vdID, int _playerIndex );
 	int  getDevicePlayer( uint32_t _vdID );
 	
-	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_TRIGGER, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
-	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_VALUE,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
-	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_AXIS,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( const ActionEvent& _event ) { m_actionEventQueue.push_back( _event ); }
+	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_TRIGGER, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_VALUE,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_AXIS,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 
 	std::vector<ActionEvent> getActionEventQueue() const {
 		return m_actionEventQueue;
