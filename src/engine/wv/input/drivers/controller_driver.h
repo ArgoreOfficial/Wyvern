@@ -66,8 +66,17 @@ protected:
 	virtual void sendValueEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 	virtual void sendAxisEvents( InputSystem* _inputSystem, ControllerDevice* _device, ControllerDevice* _prevDeviceState );
 
+	wv::Vector2f calibrateDeadzone( const wv::Vector2f& _raw ) const {
+		return wv::Vector2f{
+			( wv::Math::abs( _raw.x ) < m_deadZone.x ? 0 : _raw.x ),
+			( wv::Math::abs( _raw.y ) < m_deadZone.y ? 0 : _raw.y )
+		};
+	}
+
 	std::set<int> m_connectedDeviceIDs;
 	std::vector<ControllerDevice*> m_connectedDevices;
+
+	wv::Vector2f m_deadZone{ 0.05f, 0.02f };
 };
 
 }

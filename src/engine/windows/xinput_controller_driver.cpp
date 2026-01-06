@@ -91,6 +91,9 @@ void wv::XInputControllerDriver::updateDeviceState( InputSystem* _inputSystem, i
 		fmaxf( -1, (float)_state.Gamepad.sThumbRY / 32767 )
 	};
 
+	device->leftJoystick  = calibrateDeadzone( device->leftJoystick );
+	device->rightJoystick = calibrateDeadzone( device->rightJoystick );
+
 	device->leftTrigger  = (float)_state.Gamepad.bLeftTrigger / 255;
 	device->rightTrigger = (float)_state.Gamepad.bRightTrigger / 255;
 
