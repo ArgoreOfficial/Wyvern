@@ -120,24 +120,6 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	
 	for ( ActionEvent& action : m_actionEventQueue )
 	{
-		if ( getDevicePlayer( action.vdID ) != -1 )
-		{
-			// this happens if a previous event mapped a device to a player index
-			if ( action.playerIndex == -1 )
-			{
-				action.playerIndex = getDevicePlayer( action.vdID );
-
-				switch ( action.type )
-				{
-				case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( action.playerIndex, action.action.trigger->getValue( -1 ) ); break;
-				case ACTION_TYPE_VALUE:   action.action.value->setValue( action.playerIndex, action.action.value->getValue( -1 ) ); break;
-				case ACTION_TYPE_AXIS:    action.action.axis->setValue( action.playerIndex, action.action.axis->getValue( -1 ) ); break;
-				}
-			}
-
-			continue;
-		}
-
 		if ( action.type != ACTION_TYPE_TRIGGER )
 			continue;
 
@@ -147,14 +129,7 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 			m_playerDeviceMapQueue.pop();
 
 			setDevicePlayer( action.vdID, playerID );
-			wv::Debug::Print( "Mapped device %u to player index %i\n", action.vdID, playerID );
-			action.playerIndex = playerID;
-			switch ( action.type )
-			{
-			case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( action.playerIndex, action.action.trigger->getValue( -1 ) ); break;
-			case ACTION_TYPE_VALUE:   action.action.value->setValue( action.playerIndex, action.action.value->getValue( -1 ) ); break;
-			case ACTION_TYPE_AXIS:    action.action.axis->setValue( action.playerIndex, action.action.axis->getValue( -1 ) ); break;
-			}
+			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Mapped device %u to player index %i\n", action.vdID, playerID );
 		}
 	}
 	
@@ -182,19 +157,44 @@ void wv::InputSystem::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _r
 
 void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 {
-	if ( _playerIndex < -1 ) _playerIndex = -1;
+	if ( _playerIndex < -1 ) 
+		_playerIndex = -1;
 	
+	bool requiresNew = true;
+	int prevPlayerIndex = -1;
+
 	for ( auto& device : m_virtualDevices )
 	{
 		if ( device.virtualDeviceID != _vdID )
 			continue;
 		
+		prevPlayerIndex = device.playerIndex;
 		device.playerIndex = _playerIndex;
-		return;
+		requiresNew = false;
+		break;
 	}
 
 	// create new virtual device
-	m_virtualDevices.emplace_back( _vdID, _playerIndex );
+	if( requiresNew )
+		m_virtualDevices.emplace_back( _vdID, _playerIndex );
+
+	for ( auto& action : m_actionEventQueue )
+	{
+		if ( action.vdID != _vdID )
+			continue;
+
+		if ( action.playerIndex == _playerIndex )
+			continue;
+
+		action.playerIndex = _playerIndex;
+		
+		switch ( action.type )
+		{
+		case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
+		case ACTION_TYPE_VALUE:   action.action.value  ->setValue( _playerIndex, action.action.value  ->getValue( prevPlayerIndex ) ); break;
+		case ACTION_TYPE_AXIS:    action.action.axis   ->setValue( _playerIndex, action.action.axis   ->getValue( prevPlayerIndex ) ); break;
+		}
+	}
 }
 
 int wv::InputSystem::getDevicePlayer( uint32_t _vdID )
