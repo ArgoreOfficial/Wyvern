@@ -19,9 +19,9 @@ class IMouseDriver : public IInputDriver
 {
 public:
 	IMouseDriver() = default;
-	virtual ~IMouseDriver() {
-		
-	}
+	virtual ~IMouseDriver() { }
+
+	virtual const std::string getDriverType() const override { return "Mouse"; }
 
 protected:
 	virtual void initialize( InputSystem* _inputSystem ) override;
@@ -49,7 +49,7 @@ protected:
 	MouseState m_state{};
 	MouseState m_prevState{};
 
-	uint32_t m_vdID = 0;
+	uint32_t m_vdID = wv::Math::randomU32();
 };
 
 }

@@ -43,8 +43,6 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 void wv::CameraManagerSystem::initialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
-	inputSystem->mapNextAvailableDeviceToPlayer( 0 );
-	inputSystem->mapNextAvailableDeviceToPlayer( 0 );
 	
 	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
 	{
@@ -129,7 +127,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 	if ( m_playerDeviceID != 0 )
 	{
-		_ctx.inputSystem->setControllerRumble( m_playerDeviceID, (uint16_t)( rumble * UINT16_MAX ), (uint16_t)( rumble * UINT16_MAX ) );
+		_ctx.inputSystem->setMotorSpeed( m_playerDeviceID, (uint16_t)( rumble * UINT16_MAX ), (uint16_t)( rumble * UINT16_MAX ) );
 	}
 
 	if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )

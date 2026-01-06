@@ -11,7 +11,7 @@
 
 wv::InputSystem::InputSystem()
 {
-
+	m_playerDeviceMapQueue.push( 0 );
 }
 
 wv::InputSystem::~InputSystem()
@@ -28,8 +28,7 @@ wv::InputSystem::~InputSystem()
 	m_actionGroupNameMap.clear();
 	m_actionEventQueue.clear();
 
-	m_virtualDeviceIDs.clear();
-	m_vdPlayerMap.clear();
+	m_virtualDevices.clear();
 }
 
 void wv::InputSystem::initialize()
@@ -83,17 +82,6 @@ static wv::ControllerInputs sdlToWvControllerButton( SDL_GameControllerButton _b
 	return wv::CONTROLLER_BUTTON_NONE;
 }
 
-void wv::InputSystem::mapNextAvailableDeviceToPlayer( int _playerIndex )
-{
-	if ( _playerIndex < 0 )
-	{
-		WV_LOG_WARNING( "Unmapping devices must be done manually\n" );
-		return;
-	}
-
-	m_playerDeviceMapQueue.push( _playerIndex );
-}
-
 void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 {
 	Application* app = Application::getSingleton();
@@ -132,12 +120,12 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	
 	for ( ActionEvent& action : m_actionEventQueue )
 	{
-		if ( getMappedPlayerIndex( action.vdID ) != -1 )
+		if ( getDevicePlayer( action.vdID ) != -1 )
 		{
 			// this happens if a previous event mapped a device to a player index
 			if ( action.playerIndex == -1 )
 			{
-				action.playerIndex = getMappedPlayerIndex( action.vdID );
+				action.playerIndex = getDevicePlayer( action.vdID );
 
 				switch ( action.type )
 				{
@@ -150,12 +138,15 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 			continue;
 		}
 
+		if ( action.type != ACTION_TYPE_TRIGGER )
+			continue;
+
 		if ( !m_playerDeviceMapQueue.empty() )
 		{
 			int playerID = m_playerDeviceMapQueue.front();
 			m_playerDeviceMapQueue.pop();
 
-			mapVirtualDeviceToPlayer( action.vdID, playerID );
+			setDevicePlayer( action.vdID, playerID );
 			wv::Debug::Print( "Mapped device %u to player index %i\n", action.vdID, playerID );
 			action.playerIndex = playerID;
 			switch ( action.type )
@@ -173,15 +164,50 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 
 }
 
-void wv::InputSystem::setControllerRumble( uint32_t _vdID, uint16_t _left, uint16_t _right )
+void wv::InputSystem::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right )
 {
-	if ( !m_virtualDevices.contains( _vdID ) ) return;
-	VirtualDevice& device = m_virtualDevices[ _vdID ];
-	if ( device.deviceType == "Controller" )
+	IControllerDriver* controllerDriver = nullptr;
+	for ( IInputDriver* driver : m_inputDrivers )
 	{
-		IControllerDriver* controllerDriver = static_cast<IControllerDriver*>( device.driver );
-		controllerDriver->setRumble( _vdID, _left, _right, 0 );
+		if ( driver->getDriverType() != "Controller" )
+			continue;
+		controllerDriver = static_cast<IControllerDriver*>( driver );
 	}
+
+	if ( controllerDriver == nullptr )
+		return;
+	
+	controllerDriver->setMotorSpeed( _vdID, _left, _right, 0 );
+}
+
+void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
+{
+	if ( _playerIndex < -1 ) _playerIndex = -1;
+	
+	for ( auto& device : m_virtualDevices )
+	{
+		if ( device.virtualDeviceID != _vdID )
+			continue;
+		
+		device.playerIndex = _playerIndex;
+		return;
+	}
+
+	// create new virtual device
+	m_virtualDevices.emplace_back( _vdID, _playerIndex );
+}
+
+int wv::InputSystem::getDevicePlayer( uint32_t _vdID )
+{
+	for ( auto& device : m_virtualDevices )
+	{
+		if ( device.virtualDeviceID != _vdID )
+			continue;
+
+		return device.playerIndex;
+	}
+
+	return -1;
 }
 
 wv::ActionGroup* wv::InputSystem::createActionGroup( const std::string& _name )

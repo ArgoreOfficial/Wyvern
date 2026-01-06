@@ -17,6 +17,12 @@ namespace wv {
 class IInputDriver;
 class EventManager;
 
+struct VirtualDevice
+{
+	uint32_t virtualDeviceID = 0;
+	int playerIndex = -1;
+};
+
 struct ActionEvent
 {
 	ActionType type = ACTION_TYPE_TRIGGER;
@@ -26,17 +32,11 @@ struct ActionEvent
 
 	union ActionEventValue
 	{
-		TriggerAction* trigger = nullptr;
+		void* ptr = nullptr;
+		TriggerAction* trigger;
 		ValueAction* value;
 		AxisAction* axis;
 	} action{};
-};
-
-struct VirtualDevice
-{
-	uint32_t virtualDeviceID = 0;
-	IInputDriver* driver = nullptr;
-	std::string deviceType;
 };
 
 class InputSystem
@@ -54,70 +54,17 @@ public:
 		m_inputDrivers.push_back( WV_NEW( Ty ) );
 	}
 
-	void mapNextAvailableDeviceToPlayer( int _playerIndex );
-
 	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
 
-	// Virtual Device
+	void setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right );
 
-	uint32_t requestVirtualDeviceID( IInputDriver* _driver, const std::string& _deviceType ) {
-		uint32_t vdID = 1;
-		while ( m_virtualDeviceIDs.contains( vdID ) )
-			vdID++;
+	void setDevicePlayer( uint32_t _vdID, int _playerIndex );
+	int  getDevicePlayer( uint32_t _vdID );
 
-		m_virtualDeviceIDs.insert( vdID );
-		m_virtualDevices[ vdID ] = { vdID, _driver, _deviceType };
-		return vdID;
-	}
-
-	void releaseVirtualDeviceID( uint32_t _vdID ) {
-		if ( !m_virtualDeviceIDs.contains( _vdID ) )
-			return;
-		m_virtualDeviceIDs.erase( _vdID );
-		m_virtualDevices[ _vdID ] = {};
-	}
-
-	void setControllerRumble( uint32_t _vdID, uint16_t _left, uint16_t _right );
-
-	// Players
-
-	void mapVirtualDeviceToPlayer( uint32_t _vdID, int _playerIndex ) {
-		if ( !m_virtualDeviceIDs.contains( _vdID ) ) return;
-		m_vdPlayerMap[ _vdID ] = _playerIndex;
-	}
-
-	void unmapPlayer( int _playerIndex ) {
-		auto it = m_vdPlayerMap.find( _playerIndex );
-		if ( it == m_vdPlayerMap.end() ) return;
-		m_vdPlayerMap.erase( it );
-	}
-
-	int getMappedPlayerIndex( uint32_t _vdID ) {
-		if ( m_vdPlayerMap.contains( _vdID ) )
-			return m_vdPlayerMap.at( _vdID );
-		return -1;
-	}
-
-	// Action Events
-
-	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) {
-		ActionEvent event{ ACTION_TYPE_TRIGGER, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
-		event.action.trigger = _action;
-		m_actionEventQueue.push_back( event );
-	}
-
-	void pushActionEvent( ValueAction* _action, uint32_t _vdID ) {
-		ActionEvent event{ ACTION_TYPE_VALUE, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
-		event.action.value = _action;
-		m_actionEventQueue.push_back( event );
-	}
-
-	void pushActionEvent( AxisAction* _action, uint32_t _vdID ) {
-		ActionEvent event{ ACTION_TYPE_AXIS, _vdID, getMappedPlayerIndex( _vdID ), _action->actionID };
-		event.action.axis = _action;
-		m_actionEventQueue.push_back( event );
-	}
+	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_TRIGGER, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_VALUE,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_AXIS,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 
 	std::vector<ActionEvent> getActionEventQueue() const {
 		return m_actionEventQueue;
@@ -164,11 +111,10 @@ protected:
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 
+	std::vector<VirtualDevice> m_virtualDevices;
+
 	std::vector<ActionEvent> m_actionEventQueue;
 
-	std::set<uint32_t> m_virtualDeviceIDs;
-	std::unordered_map<uint32_t, int> m_vdPlayerMap;
-	std::unordered_map<uint32_t, VirtualDevice> m_virtualDevices;
 };
 
 }

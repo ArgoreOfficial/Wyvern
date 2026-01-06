@@ -19,6 +19,8 @@ public:
 	IInputDriver() = default;
 	virtual ~IInputDriver() { }
 
+	virtual const std::string getDriverType() const = 0;
+
 protected:
 	virtual void initialize( InputSystem* _inputSystem ) { }
 	virtual void shutdown( InputSystem* _inputSystem ) { }

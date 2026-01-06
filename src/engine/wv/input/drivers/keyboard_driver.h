@@ -8,9 +8,9 @@ namespace wv {
 class IKeyboardDriver : public IInputDriver
 {
 public:
-	virtual ~IKeyboardDriver() {
-		
-	}
+	virtual ~IKeyboardDriver() {}
+
+	virtual const std::string getDriverType() const override { return "Keyboard"; }
 
 protected:
 	virtual void initialize( InputSystem* _inputSystem ) override;
@@ -26,7 +26,7 @@ protected:
 	bool m_prevScancodeStates[ SCANCODE_MAX ] = { 0 };
 	bool m_scancodeStates[ SCANCODE_MAX ] = { 0 };
 
-	uint32_t m_vdID = 0;
+	uint32_t m_vdID = wv::Math::randomU32();
 };
 
 }

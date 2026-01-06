@@ -45,7 +45,8 @@ public:
 			WV_FREE( device );
 	}
 	
-	virtual void setRumble( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode ) = 0;
+	virtual void setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode ) = 0;
+	virtual const std::string getDriverType() const override { return "Controller"; }
 
 protected:
 	std::vector<ControllerDevice*>::iterator getDevice( int _deviceID ) {

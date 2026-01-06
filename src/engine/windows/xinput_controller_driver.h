@@ -11,7 +11,7 @@ class XInputControllerDriver : public IControllerDriver
 public:
 	XInputControllerDriver() = default;
 
-	virtual void setRumble( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode ) override;
+	virtual void setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode ) override;
 
 protected:
 	virtual void pollActions( InputSystem* _inputSystem ) override;

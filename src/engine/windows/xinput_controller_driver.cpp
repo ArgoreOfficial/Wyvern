@@ -2,7 +2,7 @@
 
 #include <wv/input/input_system.h>
 
-void wv::XInputControllerDriver::setRumble( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode )
+void wv::XInputControllerDriver::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right, int _mode )
 {
 	int userIndex = -1;
 
@@ -50,7 +50,7 @@ void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSyste
 
 	ControllerDevice* device = WV_NEW( ControllerDevice );
 	device->deviceID = _deviceID;
-	device->vdID = _inputSystem->requestVirtualDeviceID( this, "Controller" );
+	device->vdID = wv::Math::randomU32();
 
 	m_connectedDevices.push_back( device );	
 }
@@ -66,8 +66,6 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSy
 	if ( it == m_connectedDevices.end() )
 		return;
 	
-	_inputSystem->releaseVirtualDeviceID( ( *it )->vdID );
-
 	WV_FREE( *it );
 	m_connectedDevices.erase( it );
 }

@@ -4,12 +4,12 @@
 
 void wv::IMouseDriver::initialize( InputSystem* _inputSystem )
 {
-	m_vdID = _inputSystem->requestVirtualDeviceID( this, "Mouse" );
+
 }
 
 void wv::IMouseDriver::shutdown( InputSystem* _inputSystem )
 {
-	_inputSystem->releaseVirtualDeviceID( m_vdID );
+
 }
 
 void wv::IMouseDriver::sendTriggerEvents( InputSystem* _inputSystem )
