@@ -61,7 +61,7 @@ public:
 
 	void setDevicePlayer( uint32_t _vdID, int _playerIndex );
 	int  getDevicePlayer( uint32_t _vdID );
-
+	
 	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_TRIGGER, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_VALUE,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { m_actionEventQueue.push_back( { ACTION_TYPE_AXIS,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
@@ -106,8 +106,7 @@ protected:
 #endif
 	
 	std::vector<IInputDriver*> m_inputDrivers;
-	std::queue<int> m_playerDeviceMapQueue; // mapNextAvailableDeviceToPlayer
-
+	
 	std::vector<ActionGroup*> m_actionGroups;
 	std::unordered_map<std::string, ActionGroup*> m_actionGroupNameMap;
 

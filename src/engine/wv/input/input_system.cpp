@@ -11,7 +11,7 @@
 
 wv::InputSystem::InputSystem()
 {
-	m_playerDeviceMapQueue.push( 0 );
+	
 }
 
 wv::InputSystem::~InputSystem()
@@ -117,22 +117,7 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->pollActions( this );
-	
-	for ( ActionEvent& action : m_actionEventQueue )
-	{
-		if ( action.type != ACTION_TYPE_TRIGGER )
-			continue;
-
-		if ( !m_playerDeviceMapQueue.empty() )
-		{
-			int playerID = m_playerDeviceMapQueue.front();
-			m_playerDeviceMapQueue.pop();
-
-			setDevicePlayer( action.vdID, playerID );
-			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Mapped device %u to player index %i\n", action.vdID, playerID );
-		}
-	}
-	
+		
 #ifndef WV_PACKAGE
 	m_debugMouseMotion = { 0.0f, 0.0f };
 #endif
