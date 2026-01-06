@@ -99,7 +99,8 @@ void wv::PlayerInputSystem::update( WorldUpdateContext& _ctx )
 
 	for ( ActionEvent& action : _ctx.actionEventQueue )
 	{
-		if ( action.type != ACTION_TYPE_TRIGGER ) // must be a trigger action. TODO: any (unmapped or mapped) button
+		// TODO: any (unmapped or mapped) button
+		if ( action.type != ACTION_TYPE_TRIGGER ) // must be a trigger action
 			continue;
 
 		if ( action.playerIndex != -1 ) // must be an unused device
