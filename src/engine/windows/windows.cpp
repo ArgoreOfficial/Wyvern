@@ -5,6 +5,9 @@
 #include <sdl/display_driver_sdl.h>
 
 #include <wv/memory/memory.h>
+#include <wv/debug/log.h>
+
+#include "windows.h"
 
 static wv::WindowsFileSystem* g_filesystem = nullptr;
 static wv::DisplayDriverSDL*  g_displaydriver = nullptr;
@@ -32,3 +35,26 @@ void wv::Platform::cleanup() {
 }
 
 #endif
+
+void wv::Windows::printLastError()
+{
+	LPVOID lpMsgBuf;
+	DWORD dw = GetLastError();
+
+	if ( FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dw,
+		MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),
+		(LPTSTR)&lpMsgBuf,
+		0, NULL ) == 0 )
+	{
+		WV_LOG_ERROR( "WINDOWS ERROR: UNKNOWN - FAILED TO FORMAT\n" );
+	}
+
+	WV_LOG_ERROR( "WINDOWS ERROR: %s\n", (LPCTSTR)lpMsgBuf );
+
+	LocalFree( lpMsgBuf );
+}

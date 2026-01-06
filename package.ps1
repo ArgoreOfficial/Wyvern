@@ -1,4 +1,4 @@
-& "xmake" f -c -y -m "release"
+& "xmake" f -c -y -m "Package"
 & "xmake" build -y 
 & "xmake" install -o package
 

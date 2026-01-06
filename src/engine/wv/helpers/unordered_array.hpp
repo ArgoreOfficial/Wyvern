@@ -55,6 +55,8 @@ public:
 	
 	size_t count( void ) { return m_keys.size(); }
 	size_t size ( void ) { return m_buffer.size(); }
+	
+	const std::set<_Kty>& keys() const { return m_keys; }
 
 	void lock( const _Kty& _key ) { 
 	#ifdef __cpp_exceptions

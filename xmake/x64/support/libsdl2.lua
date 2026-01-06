@@ -6,6 +6,6 @@ function main( target, _prefix )
         target:add( "linkdirs", "./libs/SDL2/i686-w64-mingw32/lib/" )
         target:add( "links", "mingw32", "SDL2main", "SDL2" )
     else
-        target:add( "packages", "libsdl" )
+        target:add( "packages", "libsdl2" )
     end
 end

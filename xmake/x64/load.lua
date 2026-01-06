@@ -6,7 +6,7 @@ function load(_prefix)
     add_defines( _prefix .. "_PLATFORM_WINDOWS" )
     add_defines( _prefix .. "_SUPPORT_OPENGL" )
 
-    add_requires( "libsdl" )
+    add_requires( "libsdl2" )
     add_requires( "imgui v1.91.0-docking", { 
         configs={
             opengl3 = true,

@@ -3,12 +3,15 @@
 #include <wv/math/vector3.h>
 #include <wv/graphics/renderer.h>
 #include <wv/camera/view_volume.h>
+#include <wv/debug/error.h>
 
 namespace wv {
 
 class IFileSystem;
 class DisplayDriver;
 class World;
+class InputSystem;
+class EventManager;
 
 struct VertexData
 {
@@ -29,13 +32,15 @@ public:
 
 	bool tick();
 
-	double getApplicationTime( void ) const { return m_runtime; }
-	double getDeltaTime      ( void ) const { return m_deltatime; }
+	inline double getApplicationTime( void ) const { return m_runtime; }
+	inline double getDeltaTime      ( void ) const { return m_deltatime; }
 
-	std::string getGraphicsDriverName() const { return m_graphicsDriverName; }
-	
+	inline std::string    getGraphicsDriverName() const { return m_graphicsDriverName; }
+	inline InputSystem*   getInputSystem()        const { return m_inputSystem; }
+	inline EventManager*  getEventManager()       const { return m_eventManager; }
+	inline DisplayDriver* getDisplayDriver()      const { return m_displayDriver; }
+
 	void quit() { m_alive = false; }
-
 private:
 	
 	static Application* singleton;
@@ -58,7 +63,9 @@ private:
 	// Subsystems
 
 	wv::DisplayDriver* m_displayDriver = nullptr;
-	wv::IFileSystem* m_filesystem = nullptr;
+	wv::IFileSystem*   m_filesystem    = nullptr;
+	wv::InputSystem*   m_inputSystem   = nullptr;
+	wv::EventManager*  m_eventManager  = nullptr;
 	wv::OpenGLRenderer m_renderer;
 
 	wv::ResourceID m_material;

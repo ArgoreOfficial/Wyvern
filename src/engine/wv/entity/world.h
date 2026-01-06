@@ -5,16 +5,23 @@
 #include <wv/entity/world_sector.h>
 #include <wv/entity/world_system.h>
 
+#include <wv/math/vector2.h>
+#include <wv/input/input_system.h>
+
 namespace wv {
 
 class WorldSector;
 class ViewVolume;
 class Viewport;
+class InputSystem;
 
 struct WorldUpdateContext
 {
 	Viewport* viewport = nullptr;
 	double deltaTime = 0.0;
+	
+	InputSystem* inputSystem = nullptr;
+	std::vector<ActionEvent> actionEventQueue;
 };
 
 class World : public IReflectedType
@@ -37,7 +44,7 @@ public:
 	void destroySector( WorldSectorID _sectorID );
 
 	template<typename Ty>
-	void createWorldSystem();
+	Ty* createWorldSystem();
 
 	template<typename Ty>
 	Ty* getWorldSystem() {
@@ -45,7 +52,7 @@ public:
 
 		for ( size_t i = 0; i < m_systems.size(); i++ )
 		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
 				continue;
 			return static_cast<Ty*>( m_systems[ i ] );
 		}
@@ -60,7 +67,7 @@ public:
 
 		for ( size_t i = 0; i < m_systems.size(); i++ )
 		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::typeUUID() )
+			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
 				continue;
 
 			Ty* system = static_cast<Ty*>( m_systems[ i ] );
@@ -101,11 +108,12 @@ protected:
 };
 
 template<typename Ty>
-inline void World::createWorldSystem()
+inline Ty* World::createWorldSystem()
 {
 	static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IEntitySystem" );
 	IWorldSystem* system = WV_NEW( Ty );
 	createWorldSystem( system );
+	return static_cast<Ty*>( system );
 }
 
 }

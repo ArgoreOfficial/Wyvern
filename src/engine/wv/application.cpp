@@ -1,26 +1,30 @@
 #include "application.h"
 
-#include <wv/math/math.h>
-#include <wv/debug/log.h>
-#include <wv/display_driver.h>
-#include <wv/filesystem/file_system.h>
-#include <wv/memory/memory.h>
-#include <wv/platform/platform.h>
-#include <wv/reflection/reflection.h>
-
-#include <wv/entity/entity.h>
-#include <wv/entity/world.h>
-#include <wv/entity/world_sector.h>
-
-#include <wv/graphics/systems/render_world_system.h>
-#include <wv/graphics/components/mesh_component.h>
-#include <wv/graphics/viewport.h>
 
 #include <wv/camera/components/orbit_camera_component.h>
 #include <wv/camera/systems/camera_manager_system.h>
+#include <wv/display_driver.h>
+#include <wv/entity/entity.h>
+#include <wv/entity/world.h>
+#include <wv/entity/world_sector.h>
+#include <wv/event/event_manager.h>
+#include <wv/filesystem/file_system.h>
+#include <wv/graphics/systems/render_world_system.h>
+#include <wv/graphics/components/mesh_component.h>
+#include <wv/graphics/viewport.h>
+#include <wv/reflection/reflection.h>
+#include <wv/input/input_system.h>
+#include <wv/input/components/player_input_component.h>
+#include <wv/input/systems/player_input_system.h>
+#include <wv/math/math.h>
+#include <wv/memory/memory.h>
+#include <wv/platform/platform.h>
 
-#include <cmath>
-#include <stdio.h>
+
+// TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
+#include <windows/xinput_controller_driver.h>
+#include <windows/windows_keyboard_driver.h>
+#include <windows/windows_mouse_driver.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +35,6 @@ wv::Application* wv::Application::singleton = nullptr;
 void glfwErrorCallback( int error, const char* description )
 {
 	printf( "Error: %s\n", description );
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +50,23 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 {
 	m_graphicsDriverName = "opengl"; // TODO
 
+	// IEngineSystem ?
+	// might help with cleanup and such
+	// systemManager->createSystem<DisplayDriver>( Platform::createDisplayDriver() );
+	// systemManager->createSystem<Renderer>( Platform::createRenderer() );
+	// systemManager->createSystem<FileSystem>( Platform::createFileSystem( "data" ) );
+	// systemManager->createSystem<InputSystem>();
+	// systemManager->initialize();
+
+	m_eventManager = WV_NEW( EventManager );
+	m_inputSystem  = WV_NEW( InputSystem );
+
+	m_inputSystem->createInputDriver<XInputControllerDriver>();
+	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
+	m_inputSystem->createInputDriver<WindowsMouseDriver>();
+
+	m_inputSystem->initialize();
+
 	m_displayDriver = Platform::createDisplayDriver();
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
@@ -61,6 +81,24 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_filesystem = Platform::createFileSystem( "data" );
+	
+	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
+
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
+	playerActionGroup->bindTriggerAction( "Jump", "Mouse",      MOUSE_SCROLL_DELTA );
+	
+	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
+	playerActionGroup->bindAxisAction( "Look", "Mouse",      AXIS_DIRECTION_ALL, MOUSE_MOTION_AXIS );
+
+	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
+	
+	playerActionGroup->bindValueAction( "Throttle", "Keyboard", SCANCODE_E );
+	playerActionGroup->bindValueAction( "Throttle", "Controller", CONTROLLER_TRIGGER_LEFT );
+	
+	playerActionGroup->enable();
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
@@ -132,14 +170,20 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->createWorldSystem<RenderWorldSystem>();
 	m_world->createWorldSystem<CameraManagerSystem>();
+	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
+	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
 	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
+	PlayerInputComponent* cameraInputComponent = WV_NEW( PlayerInputComponent );
+	cameraInputComponent->setPlayerIndex( 0 );
+
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->getTransform().setPosition( { -1, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -45.0f, -45.0f, 0.0f } );
 
 	cameraEntity->addComponent( cameraComponent );
-
+	cameraEntity->addComponent( cameraInputComponent );
+	
 	WorldSector* sector = WV_NEW( WorldSector );
 
 	// Create meshes
@@ -157,6 +201,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	sector->addEntity( cameraEntity );
 	m_world->addSector( sector );
 
+	m_lastTicks = m_displayDriver->getHighResolutionCounter();
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -171,6 +218,11 @@ void wv::Application::shutdown()
 	m_renderer.shutdown();
 	m_displayDriver->shutdown();
 
+	m_inputSystem->shutdown();
+	WV_FREE( m_inputSystem );
+	
+	WV_FREE( m_eventManager );
+
 	ReflectionRegistry::destroySingleton();
 }
 
@@ -182,13 +234,16 @@ bool wv::Application::tick()
 		return false;
 
 	m_displayDriver->swapBuffers();
-	m_displayDriver->processEvents();
+	
+	m_inputSystem->processInputEvents( m_eventManager );
+	m_eventManager->processEvents();
 
 	// update runtime and deltatime
 
 	uint64_t ticks = m_displayDriver->getHighResolutionCounter();
 	m_runtime = m_displayDriver->getTicks() / 1000.0;
 	m_deltatime = (double)( ( ticks - m_lastTicks ) / (double)m_displayDriver->getHighResolutionFrequency() );
+	m_deltatime = wv::Math::min( m_deltatime, 1.0 ); // hard cap just in case
 
 	update();
 	render();

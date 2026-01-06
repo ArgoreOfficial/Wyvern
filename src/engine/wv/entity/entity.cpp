@@ -5,8 +5,6 @@
 
 wv::Entity::~Entity()
 {
-	WV_ASSERT( m_state != EntityState::UNLOADED );
-	
 	for ( IEntityComponent* component : m_components )
 		WV_FREE( component );
 

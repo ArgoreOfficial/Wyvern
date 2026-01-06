@@ -5,31 +5,26 @@ local ROOTDIR = "../../"
 target "Wyvern" 
     set_kind "static"
 
-    set_warnings( "extra" )
+    set_warnings("extra")
 
     if not is_mode("Package") then
         set_basename("Wyvern_$(mode)_$(arch)")
     end
     
-    if not is_arch( "x64" ) then
+    if not is_arch("x64") then
         set_prefixname("lib")
     end
 
+    add_headerfiles("**.h", {install = false})
+    add_headerfiles("**.hpp", {install = false})   
     
-    add_headerfiles( 
-        "**.h", 
-        "**.hpp"
-    )
-    
-    add_files( "**.cpp" )
-
-    -- add_filegroups("wv", { rootdir = ROOTDIR .. "libs/libWyvern/include/wv/" } )
+    add_files("**.cpp")
 
     add_includedirs("./")
     
-    if is_arch( "psvita" ) and has_vitasdk then 
-        add_rules( "vitaCg" )
-        add_files( ROOTDIR .. "game/shaders/**.cg" )
+    if is_arch("psvita") and has_vitasdk then 
+        add_rules("vitaCg")
+        add_files(ROOTDIR .. "game/shaders/**.cg")
     end
 
     target_platform(ENGINE_NAMESPACE)

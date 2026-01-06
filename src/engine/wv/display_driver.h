@@ -4,6 +4,10 @@
 
 #include <wv/math/vector2.h>
 
+#ifdef WV_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
 namespace wv {
 
 class DisplayDriver
@@ -25,6 +29,10 @@ public:
 	virtual uint64_t getHighResolutionCounter() { return 0; }
 	virtual uint64_t getHighResolutionFrequency() { return 1; }
 	
+#ifdef WV_PLATFORM_WINDOWS
+	virtual HWND winGetHandle() = 0;
+#endif
+
 protected:
 
 	bool m_initialized = false;
