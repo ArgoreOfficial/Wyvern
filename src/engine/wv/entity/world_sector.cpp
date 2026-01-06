@@ -2,8 +2,6 @@
 
 wv::WorldSector::~WorldSector()
 {
-	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
-
 	for ( Entity* entity : m_entities )
 		WV_FREE( entity );
 
