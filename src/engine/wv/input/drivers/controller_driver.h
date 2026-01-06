@@ -76,7 +76,7 @@ protected:
 	std::set<int> m_connectedDeviceIDs;
 	std::vector<ControllerDevice*> m_connectedDevices;
 
-	wv::Vector2f m_deadZone{ 0.05f, 0.02f };
+	wv::Vector2f m_deadZone{ 0.05f, 0.05f };
 };
 
 }
