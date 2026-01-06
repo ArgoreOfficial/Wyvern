@@ -100,11 +100,8 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
 {
 	if ( !m_componentEntityMap.contains( _component->getID() ) )
-	{
-		WV_LOG_ERROR( "CameraManagerSystem has not registered component %llu\n", _component->getID() );
-		return;
-	}
-
+		return; // component not tracked, skip out early
+	
 	m_componentEntityMap.erase( _component->getID() );
 
 	auto entityIt = findEntity( _entity );
