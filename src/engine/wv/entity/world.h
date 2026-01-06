@@ -44,7 +44,7 @@ public:
 	void destroySector( WorldSectorID _sectorID );
 
 	template<typename Ty>
-	void createWorldSystem();
+	Ty* createWorldSystem();
 
 	template<typename Ty>
 	Ty* getWorldSystem() {
@@ -108,11 +108,12 @@ protected:
 };
 
 template<typename Ty>
-inline void World::createWorldSystem()
+inline Ty* World::createWorldSystem()
 {
 	static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IEntitySystem" );
 	IWorldSystem* system = WV_NEW( Ty );
 	createWorldSystem( system );
+	return static_cast<Ty*>( system );
 }
 
 }
