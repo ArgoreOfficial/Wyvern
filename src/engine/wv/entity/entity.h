@@ -63,41 +63,16 @@ public:
 	}
 
 	template<typename Ty>
-	void createSystem();
+	Ty* createComponent();
 
 	template<typename Ty>
-	Ty* getSystem() {
-		static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
-
-		for ( size_t i = 0; i < m_systems.size(); i++ )
-		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
-				continue;
-			return static_cast<Ty*>( m_systems[ i ] );
-		}
-
-		// Does not contain system of type
-		return nullptr;
-	}
+	Ty* createSystem();
 
 	template<typename Ty>
-	void destroySystem() {
-		static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+	Ty* getSystem();
 
-		for ( size_t i = 0; i < m_systems.size(); i++ )
-		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
-				continue;
-
-			Ty* system = static_cast<Ty*>( m_systems[ i ] );
-			m_systems.erase( m_systems.begin() + i );
-
-			if ( !system )
-				continue;
-
-			delete system;
-		}
-	}
+	template<typename Ty>
+	void destroySystem();
 
 	void updateLoading();
 	void updateSystems( WorldUpdateContext& _ctx );
@@ -123,11 +98,57 @@ private:
 };
 
 template<typename Ty>
-inline void Entity::createSystem()
+inline Ty* Entity::createComponent()
+{
+	static_assert( std::is_base_of<IEntityComponent, Ty>(), "Type must derive from IEntityComponent" );
+	IEntityComponent* component = WV_NEW( Ty );
+	addComponent( component );
+	return static_cast<Ty*>( component );
+}
+
+template<typename Ty>
+inline Ty* Entity::createSystem()
 {
 	static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
 	IEntitySystem* system = WV_NEW( Ty );
 	createSystem( system );
+	return static_cast<Ty*>( system );
+}
+
+template<typename Ty>
+inline Ty* Entity::getSystem()
+{
+	static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+
+	for ( size_t i = 0; i < m_systems.size(); i++ )
+	{
+		if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
+			continue;
+		return static_cast<Ty*>( m_systems[ i ] );
+	}
+
+	// Does not contain system of type
+	return nullptr;
+}
+
+template<typename Ty>
+inline void Entity::destroySystem()
+{
+	static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
+
+	for ( size_t i = 0; i < m_systems.size(); i++ )
+	{
+		if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
+			continue;
+
+		Ty* system = static_cast<Ty*>( m_systems[ i ] );
+		m_systems.erase( m_systems.begin() + i );
+
+		if ( !system )
+			continue;
+
+		delete system;
+	}
 }
 
 }

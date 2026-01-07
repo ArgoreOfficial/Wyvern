@@ -183,38 +183,22 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
-		MeshComponent* meshComponent = WV_NEW( MeshComponent );
-		meshComponent->setRenderMesh( mesh );
-
-		PlayerInputComponent* inputComponent = WV_NEW( PlayerInputComponent );
-		inputComponent->setPlayerIndex( 0 );
-
-		PlayerControllerComponent* playerComponent = WV_NEW( PlayerControllerComponent );
-		
-		playerEntity1->getTransform().setPosition( { -1.0f, 0.0f, 0.0 } );
-		
-		playerEntity1->addComponent( meshComponent );
-		playerEntity1->addComponent( inputComponent );
-		playerEntity1->addComponent( playerComponent );
+		playerEntity1->createComponent<MeshComponent>()->setRenderMesh( mesh );
+		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
+		playerEntity1->createComponent<PlayerControllerComponent>();
 		playerEntity1->createSystem<PlayerControllerSystem>();
+
+		playerEntity1->getTransform().setPosition( { -1.0f, 0.0f, 0.0 } );
 	}
 	
 	Entity* playerEntity2 = WV_NEW( Entity );
 	{
-		MeshComponent* meshComponent = WV_NEW( MeshComponent );
-		meshComponent->setRenderMesh( mesh );
-
-		PlayerInputComponent* inputComponent = WV_NEW( PlayerInputComponent );
-		inputComponent->setPlayerIndex( 1 );
-
-		PlayerControllerComponent* playerComponent = WV_NEW( PlayerControllerComponent );
-		
-		playerEntity2->getTransform().setPosition( { 1.0f, 0.0f, 0.0 } );
-		
-		playerEntity2->addComponent( meshComponent );
-		playerEntity2->addComponent( inputComponent );
-		playerEntity2->addComponent( playerComponent );
+		playerEntity2->createComponent<MeshComponent>()->setRenderMesh( mesh );
+		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
+		playerEntity2->createComponent<PlayerControllerComponent>();
 		playerEntity2->createSystem<PlayerControllerSystem>();
+
+		playerEntity2->getTransform().setPosition( { 1.0f, 0.0f, 0.0 } );
 	}
 
 	WorldSector* sector = WV_NEW( WorldSector );
