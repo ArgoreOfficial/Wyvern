@@ -14,6 +14,7 @@
 
 namespace wv {
 
+class Entity;
 class World;
 
 struct GLRenderMaterial
@@ -53,6 +54,7 @@ struct MaterialData
 
 struct RenderBucket
 {
+	std::vector<Entity*> entities;
 	std::vector<ResourceID> meshes;
 	std::vector<Matrix4x4f> modelMatrices;
 };

@@ -42,9 +42,10 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 			m_renderBuckets.push_back( bucket );
 		}
 
-		bucket->meshes.push_back( meshComponent->getRenderMesh() );
-
 		_entity->getTransform().update( nullptr );
+
+		bucket->entities.push_back( _entity );
+		bucket->meshes.push_back( meshComponent->getRenderMesh() );
 		bucket->modelMatrices.push_back( _entity->getTransform().getMatrix() );
 	}
 
@@ -77,6 +78,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 			bucket->meshes.erase( bucket->meshes.begin() + i );
 			bucket->modelMatrices.erase( bucket->modelMatrices.begin() + i );
+			bucket->entities.erase( bucket->entities.begin() + i );
 			break;
 		}
 	}
@@ -84,5 +86,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 void wv::RenderWorldSystem::update( WorldUpdateContext& _ctx )
 {
-
+	for ( RenderBucket* bucket : m_renderBuckets )
+		for ( size_t i = 0; i < bucket->modelMatrices.size(); i++ )
+			bucket->modelMatrices[ i ] = bucket->entities[ i ]->getTransform().getMatrix();
 }
