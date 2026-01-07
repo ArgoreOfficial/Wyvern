@@ -37,7 +37,10 @@ void wv::Entity::initialize( World* _world )
 	WV_ASSERT( m_state != EntityState::LOADED );
 
 	for ( auto system : m_systems )
+	{
+		system->m_entity = this;
 		system->initialize();
+	}
 
 	updateLoading();
 
@@ -55,7 +58,10 @@ void wv::Entity::shutdown()
 	}
 
 	for ( auto system : m_systems )
+	{
 		system->shutdown();
+		system->m_entity = nullptr;
+	}
 
 	m_state = EntityState::LOADED;
 }
@@ -74,10 +80,10 @@ void wv::Entity::updateLoading()
 	}
 }
 
-void wv::Entity::updateSystems( double _deltaTime )
+void wv::Entity::updateSystems( WorldUpdateContext& _ctx )
 {
 	for ( auto system : m_systems )
-		system->update( _deltaTime );
+		system->update( _ctx );
 }
 
 void wv::Entity::createSystem( IEntitySystem* _system )

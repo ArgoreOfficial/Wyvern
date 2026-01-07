@@ -6,6 +6,8 @@ namespace wv {
 
 class IEntityComponent;
 
+struct WorldUpdateContext;
+
 class IEntitySystem : IReflectedType
 {
 	friend class Entity;
@@ -22,8 +24,9 @@ protected:
 	virtual void registerComponent  ( IEntityComponent* _component ) = 0;
 	virtual void unregisterComponent( IEntityComponent* _component ) = 0;
 
-	virtual void update( double _deltaTime ) = 0;
+	virtual void update( WorldUpdateContext& _ctx ) = 0;
 
+	Entity* m_entity = nullptr;
 };
 
 }

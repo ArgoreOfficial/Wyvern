@@ -100,9 +100,14 @@ void wv::World::updateLoading()
 
 void wv::World::updateSectors( double _deltaTime )
 {
-	for ( auto sector : m_sectors )
-		sector->update( _deltaTime );
+	WorldUpdateContext ctx{};
+	ctx.viewport = m_viewport;
+	ctx.deltaTime = _deltaTime;
+	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
+	ctx.actionEventQueue = ctx.inputSystem->getActionEventQueue();
 
+	for ( auto sector : m_sectors )
+		sector->update( ctx );
 }
 
 void wv::World::updateWorldSystems( double _deltaTime )

@@ -32,7 +32,7 @@ public:
 	void shutdown();
 
 	void updateLoading();
-	void update( double _deltaTime );
+	void update( WorldUpdateContext& _ctx );
 
 	bool isUnloaded()    const { return m_state == WorldSectorState::UNLOADED; }
 	bool isLoading()     const { return m_state == WorldSectorState::LOADING; }

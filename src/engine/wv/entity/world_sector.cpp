@@ -79,12 +79,12 @@ void wv::WorldSector::updateLoading()
 		entity->updateLoading();
 }
 
-void wv::WorldSector::update( double _deltaTime )
+void wv::WorldSector::update( WorldUpdateContext& _ctx )
 {
 	for ( auto entity : m_entities )
 	{
 		if ( entity->isInitialized() )
-			entity->updateSystems( _deltaTime );
+			entity->updateSystems( _ctx );
 	}
 }
 

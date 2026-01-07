@@ -11,6 +11,8 @@ namespace wv {
 
 class World;
 
+struct WorldUpdateContext;
+
 typedef uint32_t EntityID;
 
 class Entity final : wv::IReflectedType
@@ -98,7 +100,7 @@ public:
 	}
 
 	void updateLoading();
-	void updateSystems( double _deltaTime );
+	void updateSystems( WorldUpdateContext& _ctx );
 
 private:
 	// The sector that this entity originates from. 
