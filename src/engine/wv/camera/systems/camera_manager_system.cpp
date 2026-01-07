@@ -164,7 +164,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 			if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
 			{
-				wv::Vector2f move = playerActions->getAxisValue( playerIndex, "Move" );
+				wv::Vector2f move = playerActions->getAxisValue( playerIndex, "CameraZoom" );
 				m_orbitDistance -= move.y * _ctx.deltaTime * 10.0;
 				m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
 			}

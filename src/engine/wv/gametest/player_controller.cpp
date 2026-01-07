@@ -53,6 +53,7 @@ void wv::PlayerControllerSystem::update( WorldUpdateContext& _ctx )
 		return;
 
 	int playerIndex = m_playerInput->getPlayerIndex();
+	auto& transform = m_entity->getTransform();
 
 	for ( const ActionEvent& event : _ctx.actionEventQueue )
 	{
@@ -63,10 +64,9 @@ void wv::PlayerControllerSystem::update( WorldUpdateContext& _ctx )
 			m_move = event.action.axis->getValue( playerIndex );
 		else if ( event.actionID == m_jumpActionID )
 		{
-			if ( event.action.trigger->getValue( playerIndex ) )
+			if ( event.action.trigger->getValue( playerIndex ) && transform.position.y <= 0 )
 				m_velocity.y += 5.0f;
 		}
-
 	}
 
 	// Physics Update
@@ -86,7 +86,6 @@ void wv::PlayerControllerSystem::update( WorldUpdateContext& _ctx )
 	// Gravity
 	m_velocity.y = yvel - ( 9.81f * _ctx.deltaTime );
 
-	auto& transform = m_entity->getTransform();
 	transform.position += m_velocity * _ctx.deltaTime;
 	if ( transform.position.y <= 0 )
 	{

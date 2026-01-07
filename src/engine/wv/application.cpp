@@ -87,13 +87,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
-	//playerActionGroup->bindTriggerAction( "Jump", "Keyboard", SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", SCANCODE_SPACE );
 	
 	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
-	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
-	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
-	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_D );
-	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_A );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_D );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_A );
 	
 	playerActionGroup->enable();
 
@@ -170,17 +170,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
 	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
-	OrbitCameraComponent* cameraComponent = WV_NEW( OrbitCameraComponent );
-	PlayerInputComponent* cameraInputComponent = WV_NEW( PlayerInputComponent );
-	cameraInputComponent->setPlayerIndex( 0 );
-
 	Entity* cameraEntity = WV_NEW( Entity );
+	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
+	cameraEntity->createComponent<OrbitCameraComponent>();
+	
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
 
-	//cameraEntity->addComponent( cameraInputComponent );
-	cameraEntity->addComponent( cameraComponent );
-	
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
 		playerEntity1->createComponent<MeshComponent>()->setRenderMesh( mesh );
@@ -299,8 +295,8 @@ void wv::Application::render()
 
 	std::vector<Line3f> lines;
 
-	lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
-	lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
+	//lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
+	//lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
 
 	m_renderer.clearDepth(); // optional
 	m_renderer.drawDebugLines( lines );
