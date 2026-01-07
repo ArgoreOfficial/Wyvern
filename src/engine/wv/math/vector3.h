@@ -58,7 +58,7 @@ public:
 		);
 	}
 
-	void normalize( int _magnitude = 1.0f ) {
+	void normalize( _Ty _magnitude = 1.0f ) {
 		_Ty magnitude = length();
 		x /= magnitude;
 		y /= magnitude;
