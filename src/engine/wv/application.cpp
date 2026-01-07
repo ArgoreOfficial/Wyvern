@@ -20,6 +20,8 @@
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
 
+#include <wv/gametest/player_component.h>
+#include <wv/gametest/player_controller.h>
 
 // TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
 #include <windows/xinput_controller_driver.h>
@@ -84,19 +86,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
-	playerActionGroup->bindTriggerAction( "Jump", "Keyboard",   SCANCODE_SPACE );
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
-	playerActionGroup->bindTriggerAction( "Jump", "Mouse",      MOUSE_SCROLL_DELTA );
+	//playerActionGroup->bindTriggerAction( "Jump", "Keyboard", SCANCODE_SPACE );
 	
-	playerActionGroup->bindAxisAction( "Look", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_RIGHT );
-	playerActionGroup->bindAxisAction( "Look", "Mouse",      AXIS_DIRECTION_ALL, MOUSE_MOTION_AXIS );
-
 	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
-	
-	playerActionGroup->bindValueAction( "Throttle", "Keyboard", SCANCODE_E );
-	playerActionGroup->bindValueAction( "Throttle", "Controller", CONTROLLER_TRIGGER_LEFT );
+	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
+	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
+	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_D );
+	//playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_A );
 	
 	playerActionGroup->enable();
 
@@ -178,27 +175,53 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	cameraInputComponent->setPlayerIndex( 0 );
 
 	Entity* cameraEntity = WV_NEW( Entity );
-	cameraEntity->getTransform().setPosition( { -1, 10.0f, 10.0f } );
-	cameraEntity->getTransform().setRotation( { -45.0f, -45.0f, 0.0f } );
+	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
+	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
 
+	//cameraEntity->addComponent( cameraInputComponent );
 	cameraEntity->addComponent( cameraComponent );
-	cameraEntity->addComponent( cameraInputComponent );
 	
-	WorldSector* sector = WV_NEW( WorldSector );
-
-	// Create meshes
-	for ( size_t i = 0; i < 10; i++ )
+	Entity* playerEntity1 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = WV_NEW( MeshComponent );
 		meshComponent->setRenderMesh( mesh );
 
-		Entity* entity = WV_NEW( Entity );
-		entity->getTransform().setPosition( { (float)i * 2.1f, std::sinf( i ), 0.0f });
-		entity->addComponent( meshComponent );
-		sector->addEntity( entity );
+		PlayerInputComponent* inputComponent = WV_NEW( PlayerInputComponent );
+		inputComponent->setPlayerIndex( 0 );
+
+		PlayerControllerComponent* playerComponent = WV_NEW( PlayerControllerComponent );
+		
+		playerEntity1->getTransform().setPosition( { -1.0f, 0.0f, 0.0 } );
+		
+		playerEntity1->addComponent( meshComponent );
+		playerEntity1->addComponent( inputComponent );
+		playerEntity1->addComponent( playerComponent );
+		playerEntity1->createSystem<PlayerControllerSystem>();
 	}
 	
+	Entity* playerEntity2 = WV_NEW( Entity );
+	{
+		MeshComponent* meshComponent = WV_NEW( MeshComponent );
+		meshComponent->setRenderMesh( mesh );
+
+		PlayerInputComponent* inputComponent = WV_NEW( PlayerInputComponent );
+		inputComponent->setPlayerIndex( 1 );
+
+		PlayerControllerComponent* playerComponent = WV_NEW( PlayerControllerComponent );
+		
+		playerEntity2->getTransform().setPosition( { 1.0f, 0.0f, 0.0 } );
+		
+		playerEntity2->addComponent( meshComponent );
+		playerEntity2->addComponent( inputComponent );
+		playerEntity2->addComponent( playerComponent );
+		playerEntity2->createSystem<PlayerControllerSystem>();
+	}
+
+	WorldSector* sector = WV_NEW( WorldSector );
+
 	sector->addEntity( cameraEntity );
+	sector->addEntity( playerEntity1 );
+	sector->addEntity( playerEntity2 );
 	m_world->addSector( sector );
 
 	m_lastTicks = m_displayDriver->getHighResolutionCounter();
