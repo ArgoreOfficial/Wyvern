@@ -65,20 +65,20 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		return;
 	}
 
-	auto entityIt = findEntity( _entity );
-	if ( entityIt == m_entityDatas.end() )
-	{
-		m_entityDatas.emplace_back( _entity );
-		entityIt = findEntity( _entity );
-		WV_ASSERT( entityIt == m_entityDatas.end() );
-	}
-
 	CameraComponent* camera = tryCast<CameraComponent>( _component );
 	if ( camera == 0 ) 
 		camera = tryCast<OrbitCameraComponent>( _component ); // TODO: derivation chain
 
 	if ( camera )
 	{
+		auto entityIt = findEntity( _entity );
+		if ( entityIt == m_entityDatas.end() )
+		{
+			m_entityDatas.emplace_back( _entity );
+			entityIt = findEntity( _entity );
+			WV_ASSERT( entityIt == m_entityDatas.end() );
+		}
+
 		camera->getViewVolume()->recalculateProjMatrix( false );
 
 		m_componentEntityMap.insert( { camera->getID(), _entity } );
@@ -90,6 +90,14 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 
 	if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
+		auto entityIt = findEntity( _entity );
+		if ( entityIt == m_entityDatas.end() )
+		{
+			m_entityDatas.emplace_back( _entity );
+			entityIt = findEntity( _entity );
+			WV_ASSERT( entityIt == m_entityDatas.end() );
+		}
+
 		m_componentEntityMap.insert( { playerInput->getID(), _entity } );
 		m_playerInputComponents.push_back( playerInput );
 
@@ -138,6 +146,9 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 	for ( auto& [entity, playerInput, camera] : m_entityDatas )
 	{
+		if ( !camera )
+			continue;
+
 		if ( playerInput )
 		{
 			int playerIndex = playerInput->getPlayerIndex();
