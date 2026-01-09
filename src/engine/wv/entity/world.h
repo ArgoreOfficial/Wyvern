@@ -15,6 +15,16 @@ class ViewVolume;
 class Viewport;
 class InputSystem;
 
+class AssetManager;
+class MeshAssetLoader;
+
+struct WorldLoadContext
+{
+	InputSystem* inputSystem = nullptr;
+	AssetManager* worldAssetManager = nullptr;
+	MeshAssetLoader* meshAssetLoader = nullptr;
+};
+
 struct WorldUpdateContext
 {
 	Viewport* viewport = nullptr;
@@ -105,6 +115,8 @@ protected:
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
 
 	Viewport* m_viewport = nullptr;
+
+	AssetManager* m_worldAssetManager = nullptr;
 };
 
 template<typename Ty>

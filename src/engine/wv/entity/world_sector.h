@@ -8,6 +8,9 @@ namespace wv {
 
 typedef uint32_t WorldSectorID;
 
+class AssetManager;
+class MeshAssetLoader;
+
 class WorldSector
 {
 	friend class World;
@@ -21,17 +24,17 @@ public:
 		INITIALIZED
 	};
 
-	WorldSector() = default;
+	WorldSector();
 	~WorldSector();
 
 	WorldSectorID getID() const { return m_ID; }
 
-	void load();
-	void unload();
+	void load( WorldLoadContext& _ctx );
+	void unload( WorldLoadContext& _ctx );
 	void initialize();
 	void shutdown();
 
-	void updateLoading();
+	void updateLoading( WorldLoadContext& _ctx );
 	void update( WorldUpdateContext& _ctx );
 
 	bool isUnloaded()    const { return m_state == WorldSectorState::UNLOADED; }
@@ -63,6 +66,10 @@ protected:
 	std::vector<Entity*> m_entities;
 	std::vector<Entity*> m_entitiesToLoad;
 	std::unordered_map<EntityID, Entity*> m_entityMap;
+
+	AssetManager* m_assetManager;
+
+	MeshAssetLoader* m_meshAssetLoader;
 };
 
 }

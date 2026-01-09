@@ -1,23 +1,42 @@
 #include "world_sector.h"
 
+#include <wv/entity/world.h>
+
+#include <wv/filesystem/asset_manager.h>
+#include <wv/filesystem/loaders/mesh_asset_loader.h>
+
+wv::WorldSector::WorldSector()
+{
+	m_assetManager    = WV_NEW( AssetManager );
+	m_meshAssetLoader = WV_NEW( MeshAssetLoader, m_assetManager );
+}
+
 wv::WorldSector::~WorldSector()
 {
 	for ( Entity* entity : m_entities )
 		WV_FREE( entity );
 
 	m_entities.clear();
+
+	// free loaders
+	WV_FREE( m_meshAssetLoader );
+
+	// free asset manager
+	WV_FREE( m_assetManager );
 }
 
-void wv::WorldSector::load()
+void wv::WorldSector::load( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
 
 	m_state = WorldSectorState::LOADING;
 
+	_ctx.meshAssetLoader = m_meshAssetLoader;
+
 	int numFailedLoads = 0;
 	for ( auto entity : m_entitiesToLoad )
 	{
-		entity->load();
+		entity->load( _ctx );
 		if ( !entity->isLoaded() )
 			numFailedLoads++;
 	}
@@ -28,14 +47,16 @@ void wv::WorldSector::load()
 	m_state = WorldSectorState::LOADED;
 }
 
-void wv::WorldSector::unload()
+void wv::WorldSector::unload( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != WorldSectorState::LOADED );
+
+	_ctx.meshAssetLoader = m_meshAssetLoader;
 
 	for ( auto entity : m_entities )
 	{
 		if( entity->isLoaded() )
-			entity->unload();
+			entity->unload( _ctx );
 	}
 
 	m_state = WorldSectorState::UNLOADED;
@@ -70,10 +91,12 @@ void wv::WorldSector::shutdown()
 	m_state = WorldSectorState::LOADED;
 }
 
-void wv::WorldSector::updateLoading()
+void wv::WorldSector::updateLoading( WorldLoadContext& _ctx )
 {
 	if ( isLoaded() ) // remove?
 		initialize();
+
+	_ctx.meshAssetLoader = m_meshAssetLoader;
 
 	for ( auto entity : m_entities )
 		entity->updateLoading();

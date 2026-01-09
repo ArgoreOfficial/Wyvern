@@ -38,7 +38,7 @@ public:
 	MeshAsset* getMeshAsset( ResourceID _resource ) const {
 		if ( !m_meshAssets.contains( _resource ) )
 			return nullptr;
-		return &m_meshAssets.at( _resource );
+		return const_cast<MeshAsset*>( &m_meshAssets.at(_resource) ); 
 	}
 
 private:
