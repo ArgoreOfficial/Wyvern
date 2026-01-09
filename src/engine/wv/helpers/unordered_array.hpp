@@ -43,18 +43,18 @@ public:
 
 	template<typename...Args>
 	[[nodiscard]] _Kty emplace( const Args&... _args );
-	[[nodiscard]] _Ty& at( const _Kty& _key );
+	[[nodiscard]] _Ty& at( const _Kty& _key ) const;
 	[[nodiscard]] _Ty& at_locked( const _Kty& _key );
 	[[nodiscard]] scoped_lock_ref<_Kty, _Ty, unordered_array<_Kty, _Ty>> at_scope_locked( const _Kty& _key );
-	[[nodiscard]] bool contains( const _Kty& _key );
+	[[nodiscard]] bool contains( const _Kty& _key ) const;
 
 	[[nodiscard]] _Ty& operator[]( const _Kty& _key ) { return at( _key ); }
 
 	void erase( const _Kty& _key );
 	void clear();
 	
-	size_t count( void ) { return m_keys.size(); }
-	size_t size ( void ) { return m_buffer.size(); }
+	size_t count( void ) const { return m_keys.size(); }
+	size_t size ( void ) const { return m_buffer.size(); }
 	
 	const std::set<_Kty>& keys() const { return m_keys; }
 
@@ -105,7 +105,7 @@ inline _Kty unordered_array<_Kty, _Ty>::emplace( const Args&... _args ) {
 }
 
 template<typename _Kty, typename _Ty>
-inline _Ty& unordered_array<_Kty, _Ty>::at( const _Kty& _key ) {
+inline _Ty& unordered_array<_Kty, _Ty>::at( const _Kty& _key ) const {
 	size_t index = (size_t)_key - 1;
 	return m_buffer[ index ];
 }
@@ -122,7 +122,7 @@ inline scoped_lock_ref<_Kty, _Ty, unordered_array<_Kty, _Ty>> unordered_array<_K
 }
 
 template<typename _Kty, typename _Ty>
-inline bool unordered_array<_Kty, _Ty>::contains( const _Kty& _key ) {
+inline bool unordered_array<_Kty, _Ty>::contains( const _Kty& _key ) const {
 	return m_keys.count( _key ) != 0;
 }
 
