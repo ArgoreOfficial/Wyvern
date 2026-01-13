@@ -86,12 +86,11 @@ wv::ResourceID wv::MeshAssetLoader::load( const std::filesystem::path& _path )
 				return {};
 			}
 
-			Debug::Print( "Loaded file '%s'\n", _path.string().c_str() );
-
 			// Create mesh asset
 
 			fastgltf::Asset& asset = load.get();
 			MeshAsset meshAsset{};
+			meshAsset.path = _path;
 			
 			for ( fastgltf::Mesh& mesh : asset.meshes )
 			{
