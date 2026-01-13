@@ -3,6 +3,7 @@
 #include <wv/filesystem/asset_manager.h>
 
 #include <wv/debug/log.h>
+#include <wv/filesystem/file_system.h>
 
 #include <string>
 
@@ -66,23 +67,30 @@ wv::ResourceID wv::MeshAssetLoader::load( const std::filesystem::path& _path )
 		}
 		else
 		{
+			// Load and parse file 
+
 			fastgltf::Parser parser;
-			auto data = fastgltf::GltfDataBuffer::FromPath( _path );
+			std::filesystem::path fullpath = m_filesystem->getFullPath( _path );
+			
+			fastgltf::Expected<fastgltf::GltfDataBuffer> data = fastgltf::GltfDataBuffer::FromPath( fullpath );
 			if ( data.error() != fastgltf::Error::None )
 			{
 				WV_LOG_ERROR( "Failed to load model %s\n", _path.string().c_str() );
 				return {};
 			}
 
-			auto load = parser.loadGltf( data.get(), _path.parent_path(), fastgltf::Options::LoadExternalBuffers );
-			if ( auto error = load.error(); error != fastgltf::Error::None )
+			fastgltf::Expected<fastgltf::Asset> load = parser.loadGltf( data.get(), fullpath.parent_path(), fastgltf::Options::LoadExternalBuffers );
+			if ( load.error() != fastgltf::Error::None )
 			{
 				WV_LOG_ERROR( "Failed to parse model%s\n", _path.string().c_str() );
 				return {};
 			}
 
-			fastgltf::Asset& asset = load.get();
+			Debug::Print( "Loaded file '%s'\n", _path.string().c_str() );
 
+			// Create mesh asset
+
+			fastgltf::Asset& asset = load.get();
 			MeshAsset meshAsset{};
 			
 			for ( fastgltf::Mesh& mesh : asset.meshes )

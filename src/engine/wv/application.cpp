@@ -147,7 +147,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "../../data/monkey.gltf" );
+		meshComponent->setFilePath( "monkey.gltf" );
 		meshComponent->setMaterial( m_material );
 
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
@@ -160,7 +160,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	Entity* playerEntity2 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "../../data/cube.gltf" );
+		meshComponent->setFilePath( "monkey.gltf" );
 		meshComponent->setMaterial( m_material );
 
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );

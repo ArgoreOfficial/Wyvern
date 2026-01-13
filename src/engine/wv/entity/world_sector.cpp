@@ -5,10 +5,13 @@
 #include <wv/filesystem/asset_manager.h>
 #include <wv/filesystem/loaders/mesh_asset_loader.h>
 
+#include <wv/application.h>
+
 wv::WorldSector::WorldSector()
 {
+	IFileSystem* filesystem = Application::getSingleton()->getFileSystem();
 	m_assetManager    = WV_NEW( AssetManager );
-	m_meshAssetLoader = WV_NEW( MeshAssetLoader, m_assetManager );
+	m_meshAssetLoader = WV_NEW( MeshAssetLoader, filesystem, m_assetManager );
 }
 
 wv::WorldSector::~WorldSector()

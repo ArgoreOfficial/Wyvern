@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <filesystem>
 
 #include <wv/types.h>
 #include <wv/helpers/strong_type.hpp>
@@ -38,11 +39,11 @@ public:
 	IFileSystem();
 	~IFileSystem();
 
-	std::vector<uint8_t> loadEntireFile( const std::string& _path );
-	std::string loadString( const std::string& _path );
+	std::vector<uint8_t> loadEntireFile( const std::filesystem::path& _path );
+	std::string loadString( const std::filesystem::path& _path );
 
-	bool fileExists( const std::string& _path );
-	std::string getFullPath( const std::string& _fileName );
+	bool fileExists( const std::filesystem::path& _path );
+	std::filesystem::path getFullPath( const std::filesystem::path& _fileName );
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

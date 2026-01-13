@@ -34,7 +34,7 @@ struct MeshAsset
 class MeshAssetLoader : public IAssetLoader
 {
 public:
-	MeshAssetLoader( AssetManager* _assetManager ) : IAssetLoader( _assetManager ) { }
+	MeshAssetLoader( IFileSystem* _filesystem, AssetManager* _assetManager ) : IAssetLoader( _filesystem, _assetManager ) { }
 
 	ResourceID add( const MeshAsset& _meshAsset ) {
 		return m_meshAssets.emplace( _meshAsset );

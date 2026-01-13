@@ -7,12 +7,14 @@
 namespace wv {
 
 class AssetManager;
+class IFileSystem;
 
 class IAssetLoader
 {
 public:
 
-	IAssetLoader( AssetManager* _assetManager ) : 
+	IAssetLoader( IFileSystem* _filesystem, AssetManager* _assetManager ) :
+		m_filesystem{ _filesystem },
 		m_assetManager{ _assetManager } 
 	{ }
 
@@ -26,6 +28,7 @@ public:
 protected:
 
 	AssetManager* m_assetManager = nullptr;
+	IFileSystem* m_filesystem = nullptr;
 
 };
 

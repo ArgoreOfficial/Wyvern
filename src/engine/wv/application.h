@@ -36,9 +36,10 @@ public:
 	inline double getDeltaTime      ( void ) const { return m_deltatime; }
 
 	inline std::string     getGraphicsDriverName() const { return m_graphicsDriverName; }
+	inline DisplayDriver*  getDisplayDriver()      const { return m_displayDriver; }
+	inline IFileSystem*    getFileSystem()         const { return m_filesystem; }
 	inline InputSystem*    getInputSystem()        const { return m_inputSystem; }
 	inline EventManager*   getEventManager()       const { return m_eventManager; }
-	inline DisplayDriver*  getDisplayDriver()      const { return m_displayDriver; }
 	inline OpenGLRenderer* getRenderer()           const { return m_renderer; }
 
 	void quit() { m_alive = false; }

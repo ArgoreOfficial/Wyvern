@@ -39,16 +39,16 @@ wv::IFileSystem::~IFileSystem()
 #define ERROR_PREFIX "Error:"
 #endif
 
-std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
+std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::filesystem::path& _path )
 {
-	std::string path = getFullPath( _path );
+	std::filesystem::path path = getFullPath( _path );
 	if ( path == "" )
 	{
-		WV_LOG_ERROR( "File '%s' does not exist\n", _path.c_str() );
+		WV_LOG_ERROR( "File '%s' does not exist\n", _path.string().c_str() );
 		return {};
 	}
 
-	FileID file = openFile( path.c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
+	FileID file = openFile( path.string().c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
 	if( !file.is_valid() )
 		return {};
 
@@ -60,7 +60,7 @@ std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
 	readFile( file, mem.data(), size);
 	closeFile( file );
 
-	Debug::Print( "Loaded file '%s'\n", path.c_str() );
+	Debug::Print( "Loaded file '%s'\n", _path.string().c_str() );
 
 #ifdef WV_PLATFORM_PSVITA
 	if( strncmp( mem->data, ERROR_PREFIX, strlen( ERROR_PREFIX ) ) == 0 )
@@ -75,7 +75,7 @@ std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string wv::IFileSystem::loadString( const std::string& _path )
+std::string wv::IFileSystem::loadString( const std::filesystem::path& _path )
 {
 	std::vector<uint8_t> mem = loadEntireFile( _path );
 
@@ -88,9 +88,9 @@ std::string wv::IFileSystem::loadString( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::IFileSystem::fileExists( const std::string& _path )
+bool wv::IFileSystem::fileExists( const std::filesystem::path& _path )
 {
-	FileID f = openFile( _path.c_str(), OpenMode::WV_OPEN_MODE_READ );
+	FileID f = openFile( _path.string().c_str(), OpenMode::WV_OPEN_MODE_READ );
 	if( f.is_valid() )
 	{
 		closeFile( f );
@@ -102,12 +102,12 @@ bool wv::IFileSystem::fileExists( const std::string& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string wv::IFileSystem::getFullPath( const std::string& _fileName )
+std::filesystem::path wv::IFileSystem::getFullPath( const std::filesystem::path& _fileName )
 {
 	if( fileExists( _fileName ) )
 		return _fileName;
 	
-	std::string path = m_mounted + _fileName;
+	std::filesystem::path path = m_mounted / _fileName;
 	if( fileExists( path ) )
 		return path;
 
