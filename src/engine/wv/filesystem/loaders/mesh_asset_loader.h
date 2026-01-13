@@ -11,16 +11,24 @@
 
 namespace wv {
 
+struct GeometrySurface
+{
+	uint32_t startIndex;
+	uint32_t count;
+};
+
 struct MeshAsset
 {
 	std::filesystem::path path;
-
+	std::vector<GeometrySurface> surfaces;
+	
 	std::vector<uint16_t> indices;
 
 	std::vector<Vector3f> vertexPositions;
 	std::vector<Vector3f> vertexNormals;
 	std::vector<Vector2f> vertexUVs;
 	std::vector<Vector3f> vertexColours;
+
 };
 
 class MeshAssetLoader : public IAssetLoader

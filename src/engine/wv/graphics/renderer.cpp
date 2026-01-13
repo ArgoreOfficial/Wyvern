@@ -113,7 +113,7 @@ bool wv::OpenGLRenderer::setup()
 
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
-	glFrontFace( GL_CW );
+	glFrontFace( GL_CCW );
 
 	// shader blocks
 	glGenBuffers( 1, &m_uboSceneDataBlock );
