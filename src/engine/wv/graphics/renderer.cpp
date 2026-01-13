@@ -277,7 +277,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 	mesh.positionBuffer = createStorageBuffer( (void*)_positions, sizeof( wv::Vector3f ) * _numPositions );
 	
 	if ( mesh.positionBuffer.handle == 0 )
-		return wv::ResourceID::InvalidID;
+		return {};
 
 	if ( _extraVertexData )
 	{
@@ -285,7 +285,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 		mesh.extraVertexDataBuffer = createStorageBuffer( _extraVertexData, _sizeExtraVertexData );
 
 		if ( mesh.extraVertexDataBuffer.handle == 0 )
-			return wv::ResourceID::InvalidID;
+			return {};
 	}
 
 	return m_renderMeshes.emplace( mesh );

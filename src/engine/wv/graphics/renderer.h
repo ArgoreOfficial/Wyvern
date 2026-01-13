@@ -114,7 +114,7 @@ private:
 	const GLuint m_sceneDataBindPoint  = 0;
 	const GLuint m_materialDataBindPoint = 1;
 
-	ResourceID m_debugLineMaterial = 0;
+	ResourceID m_debugLineMaterial{};
 	GLStorageBuffer m_debugLineVertexBuffer{};
 	GLStorageBuffer m_debugLineMaterialBuffer{};
 

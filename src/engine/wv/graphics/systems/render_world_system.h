@@ -31,6 +31,8 @@ protected:
 	std::vector<MeshComponent*> m_registeredMeshComponents;
 	std::vector<RenderBucket*> m_renderBuckets;
 	std::unordered_map<WorldSectorID, RenderBucket*> m_renderBucketMap;
+
+	std::unordered_map<ResourceID, ResourceID> m_assetMeshMap;
 };
 
 }
