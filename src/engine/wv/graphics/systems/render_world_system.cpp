@@ -25,7 +25,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;
 
-	WV_ASSERT( meshComponent->getRenderMesh().is_valid() == false );
+	WV_ASSERT( meshComponent->getRenderMesh().isValid() == false );
 
 	for ( auto registeredComponent : m_registeredMeshComponents )
 		if ( meshComponent == registeredComponent )

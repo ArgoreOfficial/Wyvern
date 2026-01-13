@@ -207,7 +207,7 @@ wv::ResourceID wv::OpenGLRenderer::createMaterial()
 
 void wv::OpenGLRenderer::destroyMaterial( ResourceID _handle )
 {
-	if ( !_handle.is_valid() )
+	if ( !_handle.isValid() )
 		return;
 
 	GLRenderMaterial& material = m_renderMaterials.at( _handle );
@@ -296,7 +296,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData, size_t _sizeExtraVertexData )
 {
 	wv::ResourceID meshID = createRenderMesh( _positions, _numPositions, _extraVertexData, _sizeExtraVertexData );
-	if ( !meshID.is_valid() )
+	if ( !meshID.isValid() )
 		return meshID;
 
 	if ( _indices && _numIndices > 0 )
@@ -319,7 +319,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 
 void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 {
-	if ( !_handle.is_valid() )
+	if ( !_handle.isValid() )
 		return;
 
 	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
@@ -359,11 +359,11 @@ void wv::OpenGLRenderer::drawRenderBucket( const RenderBucket& _bucket )
 	for ( size_t i = 0; i < _bucket.meshes.size(); i++ )
 	{
 		ResourceID meshHandle = _bucket.meshes[ i ];
-		if ( !meshHandle.is_valid() )
+		if ( !meshHandle.isValid() )
 			continue;
 		wv::GLRenderMesh& mesh = m_renderMeshes.at( meshHandle );
 		
-		if ( !mesh.material.is_valid() || mesh.materialDataBuffer.handle == 0 )
+		if ( !mesh.material.isValid() || mesh.materialDataBuffer.handle == 0 )
 			continue;
 
 		wv::GLRenderMaterial& material = m_renderMaterials.at( mesh.material );
@@ -401,7 +401,7 @@ void wv::OpenGLRenderer::drawDebugLines( const std::vector<wv::Line3f>& _lines )
 {
 	// glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
 
-	if ( !m_debugLineMaterial.is_valid() || m_debugLineVertexBuffer.handle == 0 || m_debugLineMaterialBuffer.handle == 0 )
+	if ( !m_debugLineMaterial.isValid() || m_debugLineVertexBuffer.handle == 0 || m_debugLineMaterialBuffer.handle == 0 )
 		return;
 
 	if ( _lines.size() == 0 )

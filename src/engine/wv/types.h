@@ -43,7 +43,7 @@ public:
 	{ }
 
 	inline void invalidate() { value = InvalidID; }
-	inline bool is_valid() const { return value != InvalidID; }
+	inline bool isValid() const { return value != InvalidID; }
 
 	bool operator==( const ResourceID& _other ) const { return value == _other.value; }
 	bool operator!=( const ResourceID& _other ) const { return value != _other.value; }
