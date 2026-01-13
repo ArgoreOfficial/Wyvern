@@ -24,9 +24,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;
 
-	for ( auto registeredComponent : m_registeredMeshComponents )
-		if ( meshComponent == registeredComponent )
-			return;
+	m_meshComponents.registerComponent( _entity, _component );
 	
 	if ( WorldSector* sector = _entity->getParentSector() )
 	{
@@ -73,8 +71,6 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 		bucket.renderMeshes.push_back( mesh );
 		bucket.matrices.push_back( _entity->getTransform().getMatrix() );
 	}
-
-	m_registeredMeshComponents.push_back( meshComponent );
 }
 
 void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
@@ -82,14 +78,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;
 
-	for ( size_t i = 0; i < m_registeredMeshComponents.size(); i++ )
-	{
-		if ( meshComponent != m_registeredMeshComponents[ i ] )
-			continue;
-
-		m_registeredMeshComponents.erase( m_registeredMeshComponents.begin() + i );
-		break;
-	}
+	m_meshComponents.unregisterComponent( _entity, _component );
 
 	// Remove mesh resource from bucket
 	

@@ -1,12 +1,10 @@
 #pragma once
 
 #include <wv/entity/entity_component.h>
+#include <wv/entity/entity_component_container.h>
 #include <wv/entity/world_system.h>
 #include <wv/entity/world_sector.h>
 #include <wv/types.h>
-
-#include <unordered_map>
-#include <set>
 
 namespace wv {
 
@@ -33,7 +31,7 @@ class RenderWorldSystem : public IWorldSystem
 public:
 	RenderWorldSystem() = default;
 
-	const std::vector<MeshComponent*>& getRegisteredMeshComponents() const { return m_registeredMeshComponents; }
+	const std::vector<MeshComponent*>& getRegisteredMeshComponents() const { return m_meshComponents.getComponents(); }
 
 	std::vector<SectorRenderBucket> getRenderBuckets() const {
 		std::vector<SectorRenderBucket> buckets;
@@ -53,11 +51,8 @@ protected:
 
 	void update( WorldUpdateContext& _ctx ) override;
 
-	std::vector<MeshComponent*> m_registeredMeshComponents;
-
+	EntityComponentContainer<MeshComponent> m_meshComponents;
 	std::unordered_map<WorldSectorID, SectorRenderBucket> m_renderBucketMap;
-
-	
 };
 
 }
