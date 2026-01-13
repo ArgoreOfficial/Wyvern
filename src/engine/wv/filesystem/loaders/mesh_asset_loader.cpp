@@ -7,7 +7,7 @@ wv::ResourceID wv::MeshAssetLoader::load( const std::filesystem::path& _path )
 	// TODO: actual mesh loading lmfao
 	ResourceID res{};
 
-	if ( !m_assetManager->containsAsset( _path ) )
+	if ( m_assetManager->containsAsset( _path ) )
 	{
 		res = m_assetManager->getAsset( _path );
 	}

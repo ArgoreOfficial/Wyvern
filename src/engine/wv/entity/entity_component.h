@@ -16,9 +16,12 @@ class IEntityComponent : public wv::IReflectedType
 
 	WV_REFLECT_TYPE( IEntityComponent )
 public:
-	enum class EntityComponentState : uint8_t
+	enum class EntityComponentState : int
 	{
-		UNLOADED,
+		FAILED_LOAD = -1,
+
+		UNLOADED = 0,
+		LOADING,
 		LOADED,
 		INITIALIZED
 	};

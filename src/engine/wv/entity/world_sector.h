@@ -42,6 +42,8 @@ public:
 	bool isLoaded()      const { return m_state == WorldSectorState::LOADED; }
 	bool isInitialized() const { return m_state == WorldSectorState::INITIALIZED; }
 
+	MeshAssetLoader* getMeshAssetLoader() const { return m_meshAssetLoader; }
+
 	Entity* findEntity( EntityID _entityID ) const {
 		auto it = m_entityMap.find( _entityID );
 		if ( it == m_entityMap.end() )
