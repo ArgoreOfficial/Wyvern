@@ -35,17 +35,29 @@ public:
 protected:
 
 	bool initVulkan();
-	bool initSwapchain();
+	bool initSwapchain( uint32_t _width, uint32_t _height );
 	bool initCommands();
 	bool initSyncStructures();
 
+	void createSwapchain( uint32_t _width, uint32_t _height );
+	void destroySwapchain();
+
 	const bool m_useValidationLayers = true;
+
+	bool m_initialized = false;
 
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkPhysicalDevice m_physicalDevice;
 	VkDevice m_device;
 	VkSurfaceKHR m_surface;
+
+	VkSwapchainKHR m_swapchain;
+	VkFormat m_swapchainImageFormat;
+
+	std::vector<VkImage> m_swapchainImages;
+	std::vector<VkImageView> m_swapchainImageViews;
+	VkExtent2D m_swapchainExtent;
 
 };
 

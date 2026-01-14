@@ -21,16 +21,37 @@
 
 bool wv::Renderer::initialize()
 {
-	if ( !initVulkan() ) return false;
-	if ( !initSwapchain() ) return false;
-	if ( !initCommands() ) return false;
-	if ( !initSyncStructures() ) return false;
+	if ( !initVulkan() ) 
+		return false;
 
+	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
+	Vector2i windowSize = displayDriver->getWindowSize();
+
+	if ( !initSwapchain( windowSize.x, windowSize.y ) ) 
+		return false;
+
+	if ( !initCommands() ) 
+		return false;
+
+	if ( !initSyncStructures() ) 
+		return false;
+
+	m_initialized = true;
 	return true;
 }
 
 void wv::Renderer::shutdown()
 {
+	if ( m_initialized )
+	{
+		destroySwapchain();
+
+		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
+		vkDestroyDevice( m_device, nullptr );
+
+		vkb::destroy_debug_utils_messenger( m_instance, m_debugMessenger );
+		vkDestroyInstance( m_instance, nullptr );
+	}
 }
 
 void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
@@ -95,8 +116,9 @@ bool wv::Renderer::initVulkan()
 	return true;
 }
 
-bool wv::Renderer::initSwapchain()
+bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 {
+	createSwapchain( _width, _height );
 	return true;
 }
 
@@ -108,4 +130,33 @@ bool wv::Renderer::initCommands()
 bool wv::Renderer::initSyncStructures()
 {
 	return true;
+}
+
+void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
+{
+	vkb::SwapchainBuilder builder{ m_physicalDevice, m_device, m_surface };
+	
+	m_swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+
+	vkb::Swapchain vkbSwapchain = builder
+		.set_desired_format( VkSurfaceFormatKHR{ .format = m_swapchainImageFormat, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR } )
+		.set_desired_present_mode( VK_PRESENT_MODE_FIFO_KHR )
+		.set_desired_extent( _width, _height )
+		.add_image_usage_flags( VK_IMAGE_USAGE_TRANSFER_DST_BIT )
+		.build()
+		.value();
+
+	m_swapchainExtent = vkbSwapchain.extent;
+	m_swapchain = vkbSwapchain.swapchain;
+	m_swapchainImages = vkbSwapchain.get_images().value();
+	m_swapchainImageViews = vkbSwapchain.get_image_views().value();
+}
+
+void wv::Renderer::destroySwapchain()
+{
+	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
+	
+	for ( auto imageView : m_swapchainImageViews )
+		vkDestroyImageView( m_device, imageView, nullptr );
+	
 }
