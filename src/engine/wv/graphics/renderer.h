@@ -70,11 +70,11 @@ protected:
 
 	std::vector<VkImage> m_swapchainImages;
 	std::vector<VkImageView> m_swapchainImageViews;
+	std::vector<VkSemaphore> m_submitSemaphores;
 	VkExtent2D m_swapchainExtent;
 
 	uint32_t m_frameNumber;
 	FrameData m_frames[ FRAME_OVERLAP ];
-	std::vector<VkSemaphore> m_submitSemaphores;
 
 	VkQueue m_graphicsQueue;
 	uint32_t m_graphicsQueueFamily;

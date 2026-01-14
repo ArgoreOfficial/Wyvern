@@ -118,11 +118,6 @@ void wv::Renderer::shutdown()
 			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
 		}
 
-		for( auto semaphore : m_submitSemaphores )
-			vkDestroySemaphore( m_device, semaphore, nullptr );
-		
-		m_submitSemaphores.clear();
-
 		destroySwapchain();
 
 		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
@@ -305,10 +300,6 @@ bool wv::Renderer::initSyncStructures()
 		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
 	}
 
-	m_submitSemaphores.resize( m_swapchainImages.size() );
-	for ( size_t i = 0; i < m_swapchainImages.size(); i++ )
-		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
-	
 	return true;
 }
 
@@ -330,6 +321,12 @@ void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 	m_swapchain = vkbSwapchain.swapchain;
 	m_swapchainImages = vkbSwapchain.get_images().value();
 	m_swapchainImageViews = vkbSwapchain.get_image_views().value();
+
+	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+	m_submitSemaphores.resize( m_swapchainImages.size() );
+	for ( size_t i = 0; i < m_swapchainImages.size(); i++ )
+		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
+
 }
 
 void wv::Renderer::destroySwapchain()
@@ -338,7 +335,11 @@ void wv::Renderer::destroySwapchain()
 	
 	for ( auto imageView : m_swapchainImageViews )
 		vkDestroyImageView( m_device, imageView, nullptr );
-	
+
+	for ( auto semaphore : m_submitSemaphores )
+		vkDestroySemaphore( m_device, semaphore, nullptr );
+
 	m_swapchainImages.clear();
 	m_swapchainImageViews.clear();
+	m_submitSemaphores.clear();
 }
