@@ -44,6 +44,11 @@ void wv::Renderer::shutdown()
 {
 	if ( m_initialized )
 	{
+		vkDeviceWaitIdle( m_device );
+
+		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
+			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
+		
 		destroySwapchain();
 
 		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
@@ -56,6 +61,11 @@ void wv::Renderer::shutdown()
 
 void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 {
+}
+
+void wv::Renderer::render( World* _world )
+{
+
 }
 
 void wv::Renderer::finalize()
@@ -113,6 +123,9 @@ bool wv::Renderer::initVulkan()
 	m_device = vkbDevice.device;
 	m_physicalDevice = physicalDevice.physical_device;
 
+	m_graphicsQueue = vkbDevice.get_queue( vkb::QueueType::graphics ).value();
+	m_graphicsQueueFamily = vkbDevice.get_queue_index( vkb::QueueType::graphics ).value();
+
 	return true;
 }
 
@@ -124,6 +137,22 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 
 bool wv::Renderer::initCommands()
 {
+	VkCommandPoolCreateInfo commandPoolInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	commandPoolInfo.queueFamilyIndex = m_graphicsQueueFamily;
+
+	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
+	{
+		vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_frames[ i ].commandPool );
+
+		VkCommandBufferAllocateInfo cmdAllocInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+		cmdAllocInfo.commandPool = m_frames[ i ].commandPool;
+		cmdAllocInfo.commandBufferCount = 1;
+		cmdAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+		vkAllocateCommandBuffers( m_device, &cmdAllocInfo, &m_frames[ i ].mainCommandBuffer );
+	}
+
 	return true;
 }
 

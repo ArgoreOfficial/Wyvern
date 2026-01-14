@@ -10,7 +10,6 @@
 
 namespace wv {
 
-class Entity;
 class World;
 
 struct SceneData
@@ -23,6 +22,14 @@ struct MaterialData
 	wv::Matrix4x4f model;
 };
 
+struct FrameData
+{
+	VkCommandPool commandPool;
+	VkCommandBuffer mainCommandBuffer;
+};
+
+constexpr uint32_t FRAME_OVERLAP = 2;
+
 class Renderer
 {
 public:
@@ -30,6 +37,7 @@ public:
 	void shutdown();
 
 	void prepare( uint32_t _width, uint32_t _height );
+	void render( World* _world );
 	void finalize();
 
 protected:
@@ -41,6 +49,8 @@ protected:
 
 	void createSwapchain( uint32_t _width, uint32_t _height );
 	void destroySwapchain();
+
+	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
 	const bool m_useValidationLayers = true;
 
@@ -59,6 +69,11 @@ protected:
 	std::vector<VkImageView> m_swapchainImageViews;
 	VkExtent2D m_swapchainExtent;
 
+	uint32_t m_frameNumber;
+	FrameData m_frames[ FRAME_OVERLAP ];
+
+	VkQueue m_graphicsQueue;
+	uint32_t m_graphicsQueueFamily;
 };
 
 
