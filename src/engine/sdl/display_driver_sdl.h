@@ -35,6 +35,8 @@ public:
 	virtual HWND winGetHandle() override;
 #endif
 
+	SDL_Window* getSDLWindowContext() const { return m_windowContext; }
+
 private:
 
 	SDL_Window* m_windowContext = nullptr;

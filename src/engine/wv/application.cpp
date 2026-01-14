@@ -50,7 +50,7 @@ wv::Application::Application()
 
 bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
-	m_graphicsDriverName = "opengl"; // TODO
+	m_graphicsDriverName = "vulkan"; // TODO
 	m_world = _world;
 
 	// IEngineSystem ?

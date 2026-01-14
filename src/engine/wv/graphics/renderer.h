@@ -6,6 +6,8 @@
 #include <wv/math/vector2.h>
 #include <wv/math/matrix.h>
 
+#include <vulkan/vulkan.h>
+
 namespace wv {
 
 class Entity;
@@ -30,7 +32,20 @@ public:
 	void prepare( uint32_t _width, uint32_t _height );
 	void finalize();
 
-private:
+protected:
+
+	bool initVulkan();
+	bool initSwapchain();
+	bool initCommands();
+	bool initSyncStructures();
+
+	const bool m_useValidationLayers = true;
+
+	VkInstance m_instance;
+	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkPhysicalDevice m_physicalDevice;
+	VkDevice m_device;
+	VkSurfaceKHR m_surface;
 
 };
 

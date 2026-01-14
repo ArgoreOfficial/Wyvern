@@ -70,6 +70,13 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	}
 #endif
 
+#ifdef WV_SUPPORT_VULKAN
+	if ( renderer == "vulkan" ) // vk 1.4
+	{
+		flags |= SDL_WINDOW_VULKAN;
+	}
+#endif
+
 #ifdef EMSCRIPTEN
 	EmscriptenWebGLContextAttributes attrs;
 	attrs.antialias = true;
@@ -92,13 +99,15 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 
 	m_windowContext = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
 
-#ifdef WV_SUPPORT_OPENGL 
-	m_openglContext = SDL_GL_CreateContext( m_windowContext );
+#ifdef WV_SUPPORT_OPENGL
+	if( renderer == "opengl" || renderer == "gles" )
+		m_openglContext = SDL_GL_CreateContext( m_windowContext );
 #endif
 
 	SDL_version version;
 	SDL_GetVersion( &version );
-	wv::Debug::Print( "Initialized Context Device\n" );
+	wv::Debug::Print( "Initialized Display Driver\n" );
+	wv::Debug::Print( "  Renderer: %s\n", renderer.c_str() );
 	wv::Debug::Print( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
 	if ( !m_windowContext )
