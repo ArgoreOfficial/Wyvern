@@ -12,22 +12,22 @@ wv::Entity::~Entity()
 		WV_FREE( system );
 }
 
-void wv::Entity::load()
+void wv::Entity::load( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityState::UNLOADED );
 	
 	for ( auto component : m_components )
-		component->load();
+		component->load( _ctx );
 	
 	m_state = EntityState::LOADED;
 }
 
-void wv::Entity::unload()
+void wv::Entity::unload( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityState::LOADED );
 		
 	for ( auto component : m_components )
-		component->unload();
+		component->unload( _ctx );
 	
 	m_state = EntityState::UNLOADED;
 }

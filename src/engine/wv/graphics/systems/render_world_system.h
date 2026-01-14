@@ -1,14 +1,29 @@
 #pragma once
 
+#include <wv/entity/entity_component.h>
+#include <wv/entity/entity_component_container.h>
 #include <wv/entity/world_system.h>
 #include <wv/entity/world_sector.h>
-
-#include <unordered_map>
+#include <wv/types.h>
 
 namespace wv {
 
 class MeshComponent;
-struct RenderBucket;
+
+struct RenderMesh
+{
+	ResourceID assetID;
+	ResourceID meshID;
+
+	Entity* entity;
+	MeshComponent* component;
+};
+
+struct SectorRenderBucket
+{
+	std::vector<RenderMesh> renderMeshes;
+	std::vector<Matrix4x4f> matrices;
+};
 
 class RenderWorldSystem : public IWorldSystem
 {
@@ -16,8 +31,16 @@ class RenderWorldSystem : public IWorldSystem
 public:
 	RenderWorldSystem() = default;
 
-	const std::vector<MeshComponent*>& getRegisteredMeshComponents() const { return m_registeredMeshComponents; }
-	const std::vector<RenderBucket*>&  getRenderBuckets()            const { return m_renderBuckets; }
+	const std::vector<MeshComponent*>& getRegisteredMeshComponents() const { return m_meshComponents.getComponents(); }
+
+	std::vector<SectorRenderBucket> getRenderBuckets() const {
+		std::vector<SectorRenderBucket> buckets;
+
+		for ( auto bucket : m_renderBucketMap )
+			buckets.push_back( bucket.second );
+
+		return buckets; 
+	}
 
 protected:
 	virtual void initialize() override;
@@ -28,9 +51,8 @@ protected:
 
 	void update( WorldUpdateContext& _ctx ) override;
 
-	std::vector<MeshComponent*> m_registeredMeshComponents;
-	std::vector<RenderBucket*> m_renderBuckets;
-	std::unordered_map<WorldSectorID, RenderBucket*> m_renderBucketMap;
+	EntityComponentContainer<MeshComponent> m_meshComponents;
+	std::unordered_map<WorldSectorID, SectorRenderBucket> m_renderBucketMap;
 };
 
 }

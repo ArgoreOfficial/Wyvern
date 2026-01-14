@@ -11,6 +11,7 @@ namespace wv {
 
 class World;
 
+struct WorldLoadContext;
 struct WorldUpdateContext;
 
 typedef uint32_t EntityID;
@@ -38,8 +39,8 @@ public:
 	Entity() = default;
 	~Entity();
 
-	void load();
-	void unload();
+	void load( WorldLoadContext& _ctx );
+	void unload( WorldLoadContext& _ctx );
 
 	void initialize( World* _world );
 	void shutdown();

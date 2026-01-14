@@ -3,9 +3,12 @@
 #include <wv/reflection/reflection.h>
 #include <wv/math/math.h>
 
+
 namespace wv {
 
 typedef uint32_t ComponentID;
+
+struct WorldLoadContext;
 
 class IEntityComponent : public wv::IReflectedType
 {
@@ -13,9 +16,12 @@ class IEntityComponent : public wv::IReflectedType
 
 	WV_REFLECT_TYPE( IEntityComponent )
 public:
-	enum class EntityComponentState : uint8_t
+	enum class EntityComponentState : int
 	{
-		UNLOADED,
+		FAILED_LOAD = -1,
+
+		UNLOADED = 0,
+		LOADING,
 		LOADED,
 		INITIALIZED
 	};
@@ -26,13 +32,13 @@ public:
 	inline ComponentID getID() const { return m_ID; }
 
 protected:
-	virtual void load() { 
+	virtual void load( WorldLoadContext& _ctx ) {
 		WV_ASSERT( m_state != EntityComponentState::UNLOADED );
 
 		m_state = EntityComponentState::LOADED;
 	}
 
-	virtual void unload() {
+	virtual void unload( WorldLoadContext& _ctx ) {
 		WV_ASSERT( m_state != EntityComponentState::LOADED );
 
 		m_state = EntityComponentState::UNLOADED;

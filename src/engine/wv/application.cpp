@@ -77,8 +77,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		return false;
 	}
 
-	if ( !m_renderer.setup() )
+	m_renderer = WV_NEW( OpenGLRenderer );
+
+	if ( !m_renderer->setup() )
+	{
+		shutdown();
 		return false;
+	}
 
 	m_world = _world;
 
@@ -99,7 +104,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
 	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
-	m_renderer.setupDebug( vsDebug.c_str(), fsDebug.c_str() );
+	m_renderer->setupDebug( vsDebug.c_str(), fsDebug.c_str() );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -119,48 +124,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	std::string vs = m_filesystem->loadString( "debug_vs.glsl" ); // TODO: rename files
 	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
 
-	m_material = m_renderer.createMaterial();
-	m_renderer.setMaterialVertexShader( m_material, vs.c_str() );
-	m_renderer.setMaterialFragmentShader( m_material, fs.c_str() );
-	m_renderer.finalizeMaterial( m_material );
-
-	std::vector<wv::Vector3f> positions = {
-		{ -1, -1, -1 },
-		{  1, -1, -1 },
-		{  1,  1, -1 },
-		{ -1,  1, -1 },
-		{ -1, -1,  1 },
-		{  1, -1,  1 },
-		{  1,  1,  1 },
-		{ -1,  1,  1 }
-	};
-
-	std::vector<uint16_t> indices = {
-		0, 1, 3, 3, 1, 2,
-		1, 5, 2, 2, 5, 6,
-		5, 4, 6, 6, 4, 7,
-		4, 0, 7, 7, 0, 3,
-		3, 2, 7, 7, 2, 6,
-		4, 5, 0, 0, 5, 1
-	};
-
-	std::vector<wv::VertexData> datas = {
-		{ {}, { 1.0f, 0.0f, 0.0f } },
-		{ {}, { 0.0f, 1.0f, 0.0f } },
-		{ {}, { 0.0f, 0.0f, 1.0f } },
-		{ {}, { 0.0f, 0.0f, 0.0f } },
-		{ {}, { 1.0f, 0.0f, 0.0f } },
-		{ {}, { 0.0f, 1.0f, 0.0f } },
-		{ {}, { 0.0f, 0.0f, 1.0f } },
-		{ {}, { 0.0f, 0.0f, 0.0f } },
-	};
-
-	ResourceID mesh = m_renderer.createRenderMesh(
-		positions.data(), positions.size(),
-		indices.data(), indices.size(),
-		datas.data(), sizeof( wv::VertexData ) * datas.size() );
-
-	m_renderer.setRenderMeshMaterial( mesh, m_material );
+	m_material = m_renderer->createMaterial();
+	m_renderer->setMaterialVertexShader( m_material, vs.c_str() );
+	m_renderer->setMaterialFragmentShader( m_material, fs.c_str() );
+	m_renderer->finalizeMaterial( m_material );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
@@ -179,7 +146,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
-		playerEntity1->createComponent<MeshComponent>()->setRenderMesh( mesh );
+		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
+		meshComponent->setFilePath( "monkey.gltf" );
+		meshComponent->setMaterial( m_material );
+
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 		playerEntity1->createComponent<PlayerControllerComponent>();
 		playerEntity1->createSystem<PlayerControllerSystem>();
@@ -189,7 +159,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	Entity* playerEntity2 = WV_NEW( Entity );
 	{
-		playerEntity2->createComponent<MeshComponent>()->setRenderMesh( mesh );
+		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
+		meshComponent->setFilePath( "monkey.gltf" );
+		meshComponent->setMaterial( m_material );
+
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
 		playerEntity2->createComponent<PlayerControllerComponent>();
 		playerEntity2->createSystem<PlayerControllerSystem>();
@@ -216,16 +189,17 @@ void wv::Application::shutdown()
 	m_world->shutdown();
 	WV_FREE( m_world );
 
-	m_renderer.destroyMaterial( m_material );
-
-	m_renderer.shutdown();
 	m_displayDriver->shutdown();
 
 	m_inputSystem->shutdown();
 	WV_FREE( m_inputSystem );
 	
 	WV_FREE( m_eventManager );
-
+	
+	m_renderer->destroyMaterial( m_material );
+	m_renderer->shutdown();
+	WV_FREE( m_renderer );
+	
 	ReflectionRegistry::destroySingleton();
 }
 
@@ -288,18 +262,18 @@ void wv::Application::update()
 void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
-	m_renderer.prepare( windowSize.x, windowSize.y );
-	m_renderer.clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-	m_renderer.clearDepth();
-	m_renderer.renderWorld( m_world );
+	m_renderer->prepare( windowSize.x, windowSize.y );
+	m_renderer->clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+	m_renderer->clearDepth();
+	m_renderer->renderWorld( m_world );
 
 	std::vector<Line3f> lines;
 
 	//lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
 	//lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
 
-	m_renderer.clearDepth(); // optional
-	m_renderer.drawDebugLines( lines );
+	m_renderer->clearDepth(); // optional
+	m_renderer->drawDebugLines( lines );
 
-	m_renderer.finalize();
+	m_renderer->finalize();
 }

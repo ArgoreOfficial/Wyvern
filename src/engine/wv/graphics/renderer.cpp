@@ -113,7 +113,7 @@ bool wv::OpenGLRenderer::setup()
 
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
-	glFrontFace( GL_CW );
+	glFrontFace( GL_CCW );
 
 	// shader blocks
 	glGenBuffers( 1, &m_uboSceneDataBlock );
@@ -207,7 +207,7 @@ wv::ResourceID wv::OpenGLRenderer::createMaterial()
 
 void wv::OpenGLRenderer::destroyMaterial( ResourceID _handle )
 {
-	if ( !_handle.is_valid() )
+	if ( !_handle.isValid() )
 		return;
 
 	GLRenderMaterial& material = m_renderMaterials.at( _handle );
@@ -277,7 +277,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 	mesh.positionBuffer = createStorageBuffer( (void*)_positions, sizeof( wv::Vector3f ) * _numPositions );
 	
 	if ( mesh.positionBuffer.handle == 0 )
-		return wv::ResourceID::InvalidID;
+		return {};
 
 	if ( _extraVertexData )
 	{
@@ -285,7 +285,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 		mesh.extraVertexDataBuffer = createStorageBuffer( _extraVertexData, _sizeExtraVertexData );
 
 		if ( mesh.extraVertexDataBuffer.handle == 0 )
-			return wv::ResourceID::InvalidID;
+			return {};
 	}
 
 	return m_renderMeshes.emplace( mesh );
@@ -296,7 +296,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, size_t _numPositions, uint16_t* _indices, size_t _numIndices, void* _extraVertexData, size_t _sizeExtraVertexData )
 {
 	wv::ResourceID meshID = createRenderMesh( _positions, _numPositions, _extraVertexData, _sizeExtraVertexData );
-	if ( !meshID.is_valid() )
+	if ( !meshID.isValid() )
 		return meshID;
 
 	if ( _indices && _numIndices > 0 )
@@ -319,7 +319,7 @@ wv::ResourceID wv::OpenGLRenderer::createRenderMesh( wv::Vector3f* _positions, s
 
 void wv::OpenGLRenderer::destroyRenderMesh( ResourceID _handle )
 {
-	if ( !_handle.is_valid() )
+	if ( !_handle.isValid() )
 		return;
 
 	GLRenderMesh& mesh = m_renderMeshes.at( _handle );
@@ -359,11 +359,11 @@ void wv::OpenGLRenderer::drawRenderBucket( const RenderBucket& _bucket )
 	for ( size_t i = 0; i < _bucket.meshes.size(); i++ )
 	{
 		ResourceID meshHandle = _bucket.meshes[ i ];
-		if ( !meshHandle.is_valid() )
+		if ( !meshHandle.isValid() )
 			continue;
 		wv::GLRenderMesh& mesh = m_renderMeshes.at( meshHandle );
 		
-		if ( !mesh.material.is_valid() || mesh.materialDataBuffer.handle == 0 )
+		if ( !mesh.material.isValid() || mesh.materialDataBuffer.handle == 0 )
 			continue;
 
 		wv::GLRenderMaterial& material = m_renderMaterials.at( mesh.material );
@@ -401,7 +401,7 @@ void wv::OpenGLRenderer::drawDebugLines( const std::vector<wv::Line3f>& _lines )
 {
 	// glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &_renderView.sceneData );
 
-	if ( !m_debugLineMaterial.is_valid() || m_debugLineVertexBuffer.handle == 0 || m_debugLineMaterialBuffer.handle == 0 )
+	if ( !m_debugLineMaterial.isValid() || m_debugLineVertexBuffer.handle == 0 || m_debugLineMaterialBuffer.handle == 0 )
 		return;
 
 	if ( _lines.size() == 0 )
@@ -452,9 +452,47 @@ void wv::OpenGLRenderer::renderWorld( World* _world )
 
 	glNamedBufferSubData( m_uboSceneDataBlock, 0, sizeof( SceneData ), &sceneData );
 
-	const std::vector<RenderBucket*> renderBuckets = worldRenderSystem->getRenderBuckets();
+	const std::vector<SectorRenderBucket> renderBuckets = worldRenderSystem->getRenderBuckets();
 	for ( auto bucket : renderBuckets )
-		drawRenderBucket( *bucket );
+	{
+		for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
+		{
+			ResourceID meshHandle = bucket.renderMeshes[ i ].meshID;
+			if ( !meshHandle.isValid() )
+				continue;
+			wv::GLRenderMesh& mesh = m_renderMeshes.at( meshHandle );
+
+			if ( !mesh.material.isValid() || mesh.materialDataBuffer.handle == 0 )
+				continue;
+
+			wv::GLRenderMaterial& material = m_renderMaterials.at( mesh.material );
+
+			glUseProgram( material.shaderProgram );
+
+			// Vertex buffers
+			glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, mesh.positionBuffer.handle );
+			if ( mesh.hasExtraVertexData )
+				glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 1, mesh.extraVertexDataBuffer.handle );
+
+			// Material buffers
+			glBindBufferBase( GL_UNIFORM_BUFFER, m_materialDataBindPoint, mesh.materialDataBuffer.handle );
+
+			MaterialData materialDataTest{};
+			materialDataTest.model = bucket.matrices[ i ];
+			glNamedBufferSubData( mesh.materialDataBuffer.handle, 0, sizeof( MaterialData ), &materialDataTest );
+
+			if ( mesh.numIndices > 0 && mesh.indexBuffer != 0 )
+			{
+				glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer );
+				glDrawElements( GL_TRIANGLES, mesh.numIndices, GL_UNSIGNED_SHORT, nullptr );
+			}
+			else
+			{
+				glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+				glDrawArrays( GL_TRIANGLES, 0, static_cast<GLsizei>( mesh.numVertices ) );
+			}
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

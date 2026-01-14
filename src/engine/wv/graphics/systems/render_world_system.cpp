@@ -2,7 +2,10 @@
 
 #include <wv/graphics/components/mesh_component.h>
 #include <wv/entity/entity.h>
+
+#include <wv/application.h>
 #include <wv/graphics/renderer.h>
+#include <wv/filesystem/loaders/mesh_asset_loader.h>
 
 void wv::RenderWorldSystem::initialize()
 {
@@ -11,10 +14,6 @@ void wv::RenderWorldSystem::initialize()
 
 void wv::RenderWorldSystem::shutdown()
 {
-	for ( auto bucket : m_renderBuckets )
-		WV_FREE( bucket );
-
-	m_renderBuckets.clear();
 	m_renderBucketMap.clear();
 }
 
@@ -25,31 +24,53 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;
 
-	WV_ASSERT( meshComponent->getRenderMesh().is_valid() == false );
-
-	for ( auto registeredComponent : m_registeredMeshComponents )
-		if ( meshComponent == registeredComponent )
-			return;
+	m_meshComponents.registerComponent( _entity, _component );
 	
 	if ( WorldSector* sector = _entity->getParentSector() )
 	{
 		WorldSectorID sectorID = sector->getID();
-		RenderBucket* bucket = m_renderBucketMap[ sectorID ];
-		if ( bucket == nullptr )
-		{
-			bucket = WV_NEW( RenderBucket );
-			m_renderBucketMap.emplace( sectorID, bucket );
-			m_renderBuckets.push_back( bucket );
-		}
-
+		SectorRenderBucket& bucket = m_renderBucketMap[ sectorID ];
+		
 		_entity->getTransform().update( nullptr );
 
-		bucket->entities.push_back( _entity );
-		bucket->meshes.push_back( meshComponent->getRenderMesh() );
-		bucket->modelMatrices.push_back( _entity->getTransform().getMatrix() );
-	}
+		meshComponent->getMeshAsset();
 
-	m_registeredMeshComponents.push_back( meshComponent );
+		RenderMesh mesh;
+		mesh.assetID = meshComponent->getMeshAsset();
+		mesh.component = meshComponent;
+		mesh.entity = _entity;
+
+		if ( mesh.assetID.isValid() )
+		{
+			OpenGLRenderer* renderer = Application::getSingleton()->getRenderer();
+
+			MeshAssetLoader* meshAssetLoader = sector->getMeshAssetLoader();
+			MeshAsset* meshAsset = meshAssetLoader->getMeshAsset( mesh.assetID );
+
+			std::vector<VertexData> datas;
+			for ( size_t i = 0; i < meshAsset->vertexPositions.size(); i++ )
+			{
+				VertexData data;
+
+				if( meshAsset->vertexNormals.size() > 0 ) data.normal   = meshAsset->vertexNormals[ i ];
+				if( meshAsset->vertexColours.size() > 0 ) data.color    = meshAsset->vertexColours[ i ];
+				if( meshAsset->vertexUVs.size() > 0 )     data.texCoord = meshAsset->vertexUVs[ i ];
+
+				datas.push_back( data );
+			}
+
+			mesh.meshID = renderer->createRenderMesh(
+				meshAsset->vertexPositions.data(), meshAsset->vertexPositions.size(),
+				meshAsset->indices.data(), meshAsset->indices.size(),
+				datas.data(), sizeof( wv::VertexData ) * datas.size() );
+			
+			if ( mesh.meshID.isValid() )
+				renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
+		}
+
+		bucket.renderMeshes.push_back( mesh );
+		bucket.matrices.push_back( _entity->getTransform().getMatrix() );
+	}
 }
 
 void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
@@ -57,36 +78,33 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;
 
-	for ( size_t i = 0; i < m_registeredMeshComponents.size(); i++ )
-	{
-		if ( meshComponent != m_registeredMeshComponents[ i ] )
-			continue;
-
-		m_registeredMeshComponents.erase( m_registeredMeshComponents.begin() + i );
-		break;
-	}
+	m_meshComponents.unregisterComponent( _entity, _component );
 
 	// Remove mesh resource from bucket
-
+	
 	WorldSectorID sectorID = _entity->getParentSector()->getID();
-	if ( RenderBucket* bucket = m_renderBucketMap.at( sectorID ) )
+	auto& bucket = m_renderBucketMap.at( sectorID );
+	for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
 	{
-		for ( size_t i = 0; i < bucket->meshes.size(); i++ )
-		{
-			if ( bucket->meshes[ i ] != meshComponent->getRenderMesh() ) 
-				continue;
+		if ( bucket.renderMeshes[ i ].component != meshComponent ) 
+			continue;
 
-			bucket->meshes.erase( bucket->meshes.begin() + i );
-			bucket->modelMatrices.erase( bucket->modelMatrices.begin() + i );
-			bucket->entities.erase( bucket->entities.begin() + i );
-			break;
-		}
+		bucket.renderMeshes.erase( bucket.renderMeshes.begin() + i );
+		bucket.matrices.erase( bucket.matrices.begin() + i );
+		break;
 	}
 }
 
 void wv::RenderWorldSystem::update( WorldUpdateContext& _ctx )
 {
-	for ( RenderBucket* bucket : m_renderBuckets )
-		for ( size_t i = 0; i < bucket->modelMatrices.size(); i++ )
-			bucket->modelMatrices[ i ] = bucket->entities[ i ]->getTransform().getMatrix();
+	for ( auto& pair : m_renderBucketMap )
+	{
+		SectorRenderBucket& bucket = pair.second;
+
+		for ( size_t i = 0; i < bucket.matrices.size(); i++ )
+		{
+			auto matrix = bucket.renderMeshes[ i ].entity->getTransform().getMatrix();
+			bucket.matrices[ i ] = matrix;
+		}
+	}
 }

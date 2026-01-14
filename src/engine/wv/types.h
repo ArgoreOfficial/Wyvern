@@ -24,8 +24,39 @@ typedef void* ( *GraphicsDriverLoadProc )( const char* _name );
 
 typedef unsigned int GLHandle; // same as GLuint
 
-WV_DEFINE_ID( ResourceID );
+// WV_DEFINE_ID( ResourceID );
 WV_DEFINE_ID( ObjectID );
+
+class ResourceID
+{
+public:
+	ResourceID() :
+		value{ InvalidID }
+	{ }
+
+	explicit ResourceID( uint16_t _v ) :
+		value{ _v }
+	{ }
+
+	ResourceID( const ResourceID& _other ) : 
+		value{ _other.value } 
+	{ }
+
+	inline void invalidate() { value = InvalidID; }
+	inline bool isValid() const { return value != InvalidID; }
+
+	bool operator==( const ResourceID& _other ) const { return value == _other.value; }
+	bool operator!=( const ResourceID& _other ) const { return value != _other.value; }
+	bool operator> ( const ResourceID& _other ) const { return value > _other.value; }
+	bool operator< ( const ResourceID& _other ) const { return value < _other.value; }
+	uint16_t operator- ( const ResourceID& _other ) const { return value - _other.value; }
+	uint16_t operator+ ( const ResourceID& _other ) const { return value + _other.value; }
+
+	operator uint16_t() const { return value; }
+
+	static constexpr uint16_t InvalidID = 0;
+	uint16_t value = InvalidID;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,3 +114,10 @@ union GenericVersion
 
 }
 
+template <>
+struct std::hash<wv::ResourceID>
+{
+	size_t operator()( const wv::ResourceID& _type ) const { 
+		return _type.value; 
+	}
+};

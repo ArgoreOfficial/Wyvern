@@ -46,12 +46,12 @@ vec2 getTexCoord0(int _idx) {
 }
 
 out vec4 vertexColor;
-out vec2 texcoord;
+out vec2 texCoord0;
 
 out gl_PerVertex{ vec4 gl_Position; };
 
 void main() {
-	texcoord = getTexCoord0(gl_VertexID);
+	texCoord0 = getTexCoord0(gl_VertexID);
 	vertexColor = getVertexColor(gl_VertexID);
 	gl_Position = u_viewProjMatrix * u_modelMatrix * vec4( getPosition(gl_VertexID).xyz, 1.0 );
 }

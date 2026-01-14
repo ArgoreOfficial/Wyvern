@@ -2,6 +2,7 @@
 
 #include <wv/entity/world_system.h>
 #include <wv/entity/entity_component.h>
+#include <wv/entity/entity_component_container.h>
 
 #include <wv/math/vector2.h>
 
@@ -11,6 +12,7 @@
 namespace wv {
 
 class CameraComponent;
+class OrbitCameraComponent;
 class PlayerInputComponent;
 
 class CameraManagerSystem : public IWorldSystem
@@ -46,16 +48,15 @@ protected:
 		return m_entityDatas.end();
 	}
 
-	std::vector<CameraComponent*> m_cameraComponents;
-	std::vector<PlayerInputComponent*> m_playerInputComponents;
+	EntityComponentContainer<OrbitCameraComponent> m_cameraComponents;
+	EntityComponentContainer<PlayerInputComponent> m_playerInputComponents;
 
-	std::unordered_map<ComponentID, Entity*> m_componentEntityMap;
 	std::vector<EntityData> m_entityDatas;
 
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;
-	float m_orbitDistance = 25.0f;
+	float m_orbitDistance = 5.0f;
 
 	uint32_t m_lookAction = 0;
 

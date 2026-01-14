@@ -24,13 +24,11 @@ wv::CameraManagerSystem::CameraManagerSystem()
 wv::CameraManagerSystem::~CameraManagerSystem()
 {
 	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-
-	m_cameraComponents.clear();
 }
 
 void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 {
-	for ( CameraComponent* comp : m_cameraComponents )
+	for ( CameraComponent* comp : m_cameraComponents.getComponents() )
 	{
 		if ( comp != _camera )
 			continue;
@@ -59,18 +57,15 @@ void wv::CameraManagerSystem::shutdown()
 
 void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
 {
-	if ( m_componentEntityMap.contains( _component->getID() ) )
-	{
-		WV_LOG_ERROR( "CameraManagerSystem has already registered component %u\n", _component->getID() );
-		return;
-	}
-
 	CameraComponent* camera = tryCast<CameraComponent>( _component );
 	if ( camera == 0 ) 
 		camera = tryCast<OrbitCameraComponent>( _component ); // TODO: derivation chain
 
 	if ( camera )
 	{
+		if ( !m_cameraComponents.registerComponent( _entity, _component ) )
+			return;
+
 		auto entityIt = findEntity( _entity );
 		if ( entityIt == m_entityDatas.end() )
 		{
@@ -80,9 +75,6 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		}
 
 		camera->getViewVolume()->recalculateProjMatrix( false );
-
-		m_componentEntityMap.insert( { camera->getID(), _entity } );
-		m_cameraComponents.push_back( camera );
 		m_cameraComponentsChanged = true;
 		
 		entityIt->camera = camera;
@@ -90,6 +82,9 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 
 	if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
+		if ( !m_playerInputComponents.registerComponent( _entity, _component ) )
+			return;
+
 		auto entityIt = findEntity( _entity );
 		if ( entityIt == m_entityDatas.end() )
 		{
@@ -98,38 +93,28 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 			WV_ASSERT( entityIt == m_entityDatas.end() );
 		}
 
-		m_componentEntityMap.insert( { playerInput->getID(), _entity } );
-		m_playerInputComponents.push_back( playerInput );
-
 		entityIt->playerInput = playerInput;
 	}
 }
 
 void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
 {
-	if ( !m_componentEntityMap.contains( _component->getID() ) )
-		return; // component not tracked, skip out early
-	
-	m_componentEntityMap.erase( _component->getID() );
-
-	auto entityIt = findEntity( _entity );
-
 	if ( auto camera = tryCast<CameraComponent>( _component ) )
 	{
-		auto it = std::find( m_cameraComponents.begin(), m_cameraComponents.end(), camera );
-		if ( it != m_cameraComponents.end() )
-			m_cameraComponents.erase( it );
-
+		if ( !m_cameraComponents.unregisterComponent( _entity, _component ) )
+			return;
+		
+		auto entityIt = findEntity( _entity );
 		if ( entityIt != m_entityDatas.end() && entityIt->camera == camera )
 			entityIt->camera = nullptr;
 	}
 
 	if ( auto playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
-		auto it = std::find( m_playerInputComponents.begin(), m_playerInputComponents.end(), playerInput );
-		if( it != m_playerInputComponents.end() )
-			m_playerInputComponents.erase( it );
+		if ( !m_playerInputComponents.unregisterComponent( _entity, _component ) )
+			return;
 
+		auto entityIt = findEntity( _entity );
 		if ( entityIt != m_entityDatas.end() && entityIt->playerInput == playerInput )
 			entityIt->playerInput = nullptr;
 	}
@@ -139,8 +124,8 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 {
 	if ( m_cameraComponentsChanged )
 	{
-		if ( m_activeCamera == nullptr && m_cameraComponents.size() > 0 )
-			m_activeCamera = m_cameraComponents[ 0 ];
+		if ( m_activeCamera == nullptr && m_cameraComponents.getComponents().size() > 0 )
+			m_activeCamera = m_cameraComponents.getComponents()[ 0 ];
 		m_cameraComponentsChanged = false;
 	}
 
@@ -186,7 +171,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 	ViewVolume* viewVolume = m_activeCamera->getViewVolume();
 
-	viewVolume->getTransform() = m_componentEntityMap[ m_activeCamera->getID() ]->getTransform();
+	viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
 	viewVolume->setViewDimensions( _ctx.viewport->getSize() );
 	viewVolume->update( _ctx.deltaTime );
 

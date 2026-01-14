@@ -35,9 +35,9 @@ struct Sprite
 
 	wv::AABB2Df collider_box{ };
 
-	ResourceID shader_pipeline = 0;
-	ResourceID vertex_buffer = 0;
-	ResourceID texture = 0;
+	ResourceID shader_pipeline{};
+	ResourceID vertex_buffer{};
+	ResourceID texture{};
 
 	bool is_visible = true;
 };

@@ -2,6 +2,7 @@
 
 #include <wv/application.h>
 #include <wv/camera/view_volume.h>
+#include <wv/filesystem/asset_manager.h>
 #include <wv/graphics/viewport.h>
 #include <wv/input/input_system.h>
 
@@ -28,15 +29,31 @@ void wv::World::shutdown()
 	// Unload and shutdown
 
 	for ( auto sector : m_sectors )
+	{
+		if ( !sector->isInitialized() )
+			continue;
+
 		sector->shutdown();
+	}
 	
 	for ( auto sector : m_sectors )
-		sector->unload();
+	{
+		if ( !sector->isLoaded() )
+			continue;
+
+		WorldLoadContext ctx;
+		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
+		ctx.worldAssetManager = m_worldAssetManager;
+
+		sector->unload( ctx );
+	}
 	
 	updateRegisterUnregisterComponents();
 
-	for ( auto system : m_systems ) 
+	for ( auto system : m_systems )
+	{
 		system->shutdown();
+	}
 
 }
 
@@ -66,8 +83,17 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 		return;
 	}
 
-	if( sector->isInitialized() ) sector->shutdown();
-	if( sector->isLoaded() ) sector->unload();
+	if( sector->isInitialized() ) 
+		sector->shutdown();
+	
+	if ( sector->isLoaded() )
+	{
+		WorldLoadContext ctx;
+		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
+		ctx.worldAssetManager = m_worldAssetManager;
+
+		sector->unload( ctx );
+	}
 
 	sector->m_parentWorld = nullptr;
 
@@ -85,15 +111,23 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 
 void wv::World::updateLoading()
 {
-	for ( auto sector : m_sectorsToLoad )
-		sector->load();
+	WorldLoadContext ctx;
+	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
+	ctx.worldAssetManager = m_worldAssetManager;
 
+	for ( auto sector : m_sectorsToLoad )
+	{
+		sector->load( ctx );
+	}
+	ctx.meshAssetLoader = nullptr;
+	
 	m_sectorsToLoad.clear();
 
 	for ( auto sector : m_sectors )
 	{
-		sector->updateLoading();
+		sector->updateLoading( ctx );
 	}
+	ctx.meshAssetLoader = nullptr;
 
 	updateRegisterUnregisterComponents();
 }
