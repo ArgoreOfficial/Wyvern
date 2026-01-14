@@ -42,7 +42,9 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 
 		if ( mesh.assetID.isValid() )
 		{
-			OpenGLRenderer* renderer = Application::getSingleton()->getRenderer();
+			WV_LOG_WARNING( "Mesh creation\n" );
+			/*
+			Renderer* renderer = Application::getSingleton()->getRenderer();
 
 			MeshAssetLoader* meshAssetLoader = sector->getMeshAssetLoader();
 			MeshAsset* meshAsset = meshAssetLoader->getMeshAsset( mesh.assetID );
@@ -66,6 +68,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 			
 			if ( mesh.meshID.isValid() )
 				renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
+			*/
 		}
 
 		bucket.renderMeshes.push_back( mesh );

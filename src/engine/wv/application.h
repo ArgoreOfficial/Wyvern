@@ -5,6 +5,8 @@
 #include <wv/camera/view_volume.h>
 #include <wv/debug/error.h>
 
+#include <wv/resource_id.h>
+
 namespace wv {
 
 class IFileSystem;
@@ -35,12 +37,12 @@ public:
 	inline double getApplicationTime( void ) const { return m_runtime; }
 	inline double getDeltaTime      ( void ) const { return m_deltatime; }
 
-	inline std::string     getGraphicsDriverName() const { return m_graphicsDriverName; }
-	inline DisplayDriver*  getDisplayDriver()      const { return m_displayDriver; }
-	inline IFileSystem*    getFileSystem()         const { return m_filesystem; }
-	inline InputSystem*    getInputSystem()        const { return m_inputSystem; }
-	inline EventManager*   getEventManager()       const { return m_eventManager; }
-	inline OpenGLRenderer* getRenderer()           const { return m_renderer; }
+	inline std::string    getGraphicsDriverName() const { return m_graphicsDriverName; }
+	inline DisplayDriver* getDisplayDriver()      const { return m_displayDriver; }
+	inline IFileSystem*   getFileSystem()         const { return m_filesystem; }
+	inline InputSystem*   getInputSystem()        const { return m_inputSystem; }
+	inline EventManager*  getEventManager()       const { return m_eventManager; }
+	inline Renderer*      getRenderer()           const { return m_renderer; }
 
 	void quit() { m_alive = false; }
 private:
@@ -68,10 +70,8 @@ private:
 	wv::IFileSystem*    m_filesystem    = nullptr;
 	wv::InputSystem*    m_inputSystem   = nullptr;
 	wv::EventManager*   m_eventManager  = nullptr;
-	wv::OpenGLRenderer* m_renderer      = nullptr;
+	wv::Renderer* m_renderer      = nullptr;
 
-	wv::ResourceID m_material;
-	
 	wv::World* m_world = nullptr;
 };
 

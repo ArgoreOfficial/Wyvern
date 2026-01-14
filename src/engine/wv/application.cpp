@@ -51,6 +51,7 @@ wv::Application::Application()
 bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "opengl"; // TODO
+	m_world = _world;
 
 	// IEngineSystem ?
 	// might help with cleanup and such
@@ -73,19 +74,19 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
+		WV_LOG_ERROR( "Failed to initalize display\n" );
 		WV_FREE( m_displayDriver );
 		return false;
 	}
 
-	m_renderer = WV_NEW( OpenGLRenderer );
+	m_renderer = WV_NEW( Renderer );
 
-	if ( !m_renderer->setup() )
+	if ( !m_renderer->initialize() )
 	{
+		WV_LOG_ERROR( "Failed to initalize renderer\n" );
 		shutdown();
 		return false;
 	}
-
-	m_world = _world;
 
 	m_filesystem = Platform::createFileSystem( "data" );
 	
@@ -102,10 +103,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	playerActionGroup->enable();
 
-	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
-	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
-	m_renderer->setupDebug( vsDebug.c_str(), fsDebug.c_str() );
-
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
 
@@ -118,17 +115,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		m_world->setViewport( viewport );
 	}
 	
-	///////////////////////////////////////////////////////////////////////////
-	// Set up mesh stuff (testing)
-
-	std::string vs = m_filesystem->loadString( "debug_vs.glsl" ); // TODO: rename files
-	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
-
-	m_material = m_renderer->createMaterial();
-	m_renderer->setMaterialVertexShader( m_material, vs.c_str() );
-	m_renderer->setMaterialFragmentShader( m_material, fs.c_str() );
-	m_renderer->finalizeMaterial( m_material );
-
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
@@ -148,7 +134,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "monkey.gltf" );
-		meshComponent->setMaterial( m_material );
+		// meshComponent->setMaterial( m_material );
 
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 		playerEntity1->createComponent<PlayerControllerComponent>();
@@ -161,7 +147,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "monkey.gltf" );
-		meshComponent->setMaterial( m_material );
+		// meshComponent->setMaterial( m_material );
 
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
 		playerEntity2->createComponent<PlayerControllerComponent>();
@@ -186,19 +172,34 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
-	m_world->shutdown();
-	WV_FREE( m_world );
+	if ( m_world )
+	{
+		m_world->shutdown();
+		WV_FREE( m_world );
+	}
 
-	m_displayDriver->shutdown();
+	if ( m_displayDriver )
+	{
+		m_displayDriver->shutdown();
+		WV_FREE( m_displayDriver );
+	}
 
-	m_inputSystem->shutdown();
-	WV_FREE( m_inputSystem );
+	if ( m_inputSystem )
+	{
+		m_inputSystem->shutdown();
+		WV_FREE( m_inputSystem );
+	}
 	
-	WV_FREE( m_eventManager );
+	if ( m_eventManager )
+	{
+		WV_FREE( m_eventManager );
+	}
 	
-	m_renderer->destroyMaterial( m_material );
-	m_renderer->shutdown();
-	WV_FREE( m_renderer );
+	if ( m_renderer )
+	{
+		m_renderer->shutdown();
+		WV_FREE( m_renderer );
+	}
 	
 	ReflectionRegistry::destroySingleton();
 }
@@ -263,17 +264,6 @@ void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	m_renderer->prepare( windowSize.x, windowSize.y );
-	m_renderer->clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-	m_renderer->clearDepth();
-	m_renderer->renderWorld( m_world );
-
-	std::vector<Line3f> lines;
-
-	//lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
-	//lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
-
-	m_renderer->clearDepth(); // optional
-	m_renderer->drawDebugLines( lines );
-
+	
 	m_renderer->finalize();
 }
