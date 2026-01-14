@@ -264,6 +264,6 @@ void wv::Application::render()
 {
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	m_renderer->prepare( windowSize.x, windowSize.y );
-	
+	m_renderer->render( m_world );
 	m_renderer->finalize();
 }

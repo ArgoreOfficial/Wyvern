@@ -26,6 +26,9 @@ struct FrameData
 {
 	VkCommandPool commandPool;
 	VkCommandBuffer mainCommandBuffer;
+
+	VkSemaphore acquireSemaphore;
+	VkFence fence;
 };
 
 constexpr uint32_t FRAME_OVERLAP = 2;
@@ -71,6 +74,7 @@ protected:
 
 	uint32_t m_frameNumber;
 	FrameData m_frames[ FRAME_OVERLAP ];
+	std::vector<VkSemaphore> m_submitSemaphores;
 
 	VkQueue m_graphicsQueue;
 	uint32_t m_graphicsQueueFamily;

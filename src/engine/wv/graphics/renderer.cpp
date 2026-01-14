@@ -19,6 +19,70 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+VkImageSubresourceRange imageSubresourceRange( VkImageAspectFlags _aspectMask )
+{
+	VkImageSubresourceRange subImage{};
+	subImage.aspectMask = _aspectMask;
+	subImage.baseMipLevel = 0;
+	subImage.levelCount = VK_REMAINING_MIP_LEVELS;
+	subImage.baseArrayLayer = 0;
+	subImage.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+	return subImage;
+}
+
+void transitionImage( VkCommandBuffer cmd, VkImage image, VkImageLayout currentLayout, VkImageLayout newLayout )
+{
+	VkImageMemoryBarrier2 imageBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
+	
+	imageBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+	imageBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+	imageBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+	imageBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+
+	imageBarrier.oldLayout = currentLayout;
+	imageBarrier.newLayout = newLayout;
+
+	VkImageAspectFlags aspectMask = ( newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL ) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+	imageBarrier.subresourceRange = imageSubresourceRange( aspectMask );
+	imageBarrier.image = image;
+
+	VkDependencyInfo depInfo{ .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+	
+	depInfo.imageMemoryBarrierCount = 1;
+	depInfo.pImageMemoryBarriers = &imageBarrier;
+
+	vkCmdPipelineBarrier2( cmd, &depInfo );
+}
+
+VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkSemaphore _semaphore )
+{
+	VkSemaphoreSubmitInfo submitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
+	submitInfo.semaphore = _semaphore;
+	submitInfo.stageMask = _stageMask;
+	submitInfo.deviceIndex = 0;
+	submitInfo.value = 1;
+
+	return submitInfo;
+}
+
+VkSubmitInfo2 submitInfo2( VkCommandBufferSubmitInfo* _cmd, VkSemaphoreSubmitInfo* _signalSemaphoreInfo, VkSemaphoreSubmitInfo* _waitSemaphoreInfo )
+{
+	VkSubmitInfo2 info = { .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
+	info.waitSemaphoreInfoCount = _waitSemaphoreInfo == nullptr ? 0 : 1;
+	info.pWaitSemaphoreInfos    = _waitSemaphoreInfo;
+
+	info.signalSemaphoreInfoCount = _signalSemaphoreInfo == nullptr ? 0 : 1;
+	info.pSignalSemaphoreInfos    = _signalSemaphoreInfo;
+
+	info.commandBufferInfoCount = 1;
+	info.pCommandBufferInfos = _cmd;
+
+	return info;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Renderer::initialize()
 {
 	if ( !initVulkan() ) 
@@ -47,8 +111,18 @@ void wv::Renderer::shutdown()
 		vkDeviceWaitIdle( m_device );
 
 		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
+		{
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
+
+			vkDestroyFence( m_device, m_frames[ i ].fence, nullptr );
+			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
+		}
+
+		for( auto semaphore : m_submitSemaphores )
+			vkDestroySemaphore( m_device, semaphore, nullptr );
 		
+		m_submitSemaphores.clear();
+
 		destroySwapchain();
 
 		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
@@ -61,15 +135,76 @@ void wv::Renderer::shutdown()
 
 void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 {
+	
+
 }
 
 void wv::Renderer::render( World* _world )
 {
+	vkWaitForFences( m_device, 1, &getCurrentFrame().fence, true, 1000000000 );
+	vkResetFences( m_device, 1, &getCurrentFrame().fence );
 
+	uint32_t swapchainImageIndex;
+	vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
+
+	// Draw
+	VkCommandBuffer cmd = getCurrentFrame().mainCommandBuffer;
+	
+	{
+		// Command buffer reset & begin
+		vkResetCommandBuffer( cmd, 0 );
+
+		VkCommandBufferBeginInfo cmdBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer( cmd, &cmdBeginInfo );
+
+		// Clear image
+		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
+
+		float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
+		VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+		VkImageSubresourceRange clearRange = imageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
+
+		vkCmdClearColorImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
+
+		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+
+		vkEndCommandBuffer( cmd );
+	}
+
+	// Submit
+
+	VkCommandBufferSubmitInfo cmdInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO };
+	cmdInfo.commandBuffer = cmd;
+
+	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
+	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_submitSemaphores[ swapchainImageIndex ] );
+
+	VkSubmitInfo2 submitInfo = submitInfo2( &cmdInfo, &signalInfo, &waitInfo );
+	vkQueueSubmit2( m_graphicsQueue, 1, &submitInfo, getCurrentFrame().fence );
+
+	// Present
+
+	VkPresentInfoKHR presentInfo{ .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+	presentInfo.pSwapchains = &m_swapchain;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pWaitSemaphores = &m_submitSemaphores[ swapchainImageIndex ];
+	presentInfo.waitSemaphoreCount = 1;
+
+	presentInfo.pImageIndices = &swapchainImageIndex;
+	
+	vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
+
+	// HACK - BAD - TODO:
+	//vkDeviceWaitIdle( m_device );
+	
+	m_frameNumber++;
 }
 
 void wv::Renderer::finalize()
 {
+	
 }
 
 bool wv::Renderer::initVulkan()
@@ -107,7 +242,7 @@ bool wv::Renderer::initVulkan()
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
 	features12.bufferDeviceAddress = true;
 	features12.descriptorIndexing  = true;
-
+	
 	vkb::PhysicalDeviceSelector selector{ vkbInstance };
 	vkb::PhysicalDevice physicalDevice = selector
 		.set_minimum_version( 1, 3 )
@@ -119,7 +254,7 @@ bool wv::Renderer::initVulkan()
 
 	vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 	vkb::Device vkbDevice = deviceBuilder.build().value();
-
+	
 	m_device = vkbDevice.device;
 	m_physicalDevice = physicalDevice.physical_device;
 
@@ -158,6 +293,22 @@ bool wv::Renderer::initCommands()
 
 bool wv::Renderer::initSyncStructures()
 {
+	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+
+	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
+	{
+		vkCreateFence( m_device, &fenceCreateInfo, nullptr, &m_frames[ i ].fence );
+
+		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
+	}
+
+	m_submitSemaphores.resize( m_swapchainImages.size() );
+	for ( size_t i = 0; i < m_swapchainImages.size(); i++ )
+		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
+	
 	return true;
 }
 
@@ -188,4 +339,6 @@ void wv::Renderer::destroySwapchain()
 	for ( auto imageView : m_swapchainImageViews )
 		vkDestroyImageView( m_device, imageView, nullptr );
 	
+	m_swapchainImages.clear();
+	m_swapchainImageViews.clear();
 }
