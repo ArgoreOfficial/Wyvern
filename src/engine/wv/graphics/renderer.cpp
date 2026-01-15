@@ -31,6 +31,8 @@ VkImageSubresourceRange imageSubresourceRange( VkImageAspectFlags _aspectMask )
 	return subImage;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void transitionImage( VkCommandBuffer cmd, VkImage image, VkImageLayout currentLayout, VkImageLayout newLayout )
 {
 	VkImageMemoryBarrier2 imageBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
@@ -55,6 +57,8 @@ void transitionImage( VkCommandBuffer cmd, VkImage image, VkImageLayout currentL
 	vkCmdPipelineBarrier2( cmd, &depInfo );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkSemaphore _semaphore )
 {
 	VkSemaphoreSubmitInfo submitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
@@ -65,6 +69,8 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 
 	return submitInfo;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 VkSubmitInfo2 submitInfo2( VkCommandBufferSubmitInfo* _cmd, VkSemaphoreSubmitInfo* _signalSemaphoreInfo, VkSemaphoreSubmitInfo* _waitSemaphoreInfo )
 {
@@ -104,6 +110,8 @@ bool wv::Renderer::initialize()
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Renderer::shutdown()
 {
 	if ( m_initialized )
@@ -128,11 +136,15 @@ void wv::Renderer::shutdown()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 {
 	
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Renderer::render( World* _world )
 {
@@ -191,16 +203,17 @@ void wv::Renderer::render( World* _world )
 	
 	vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
 
-	// HACK - BAD - TODO:
-	//vkDeviceWaitIdle( m_device );
-	
 	m_frameNumber++;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Renderer::finalize()
 {
 	
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Renderer::initVulkan()
 {
@@ -259,11 +272,15 @@ bool wv::Renderer::initVulkan()
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 {
 	createSwapchain( _width, _height );
 	return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Renderer::initCommands()
 {
@@ -286,6 +303,8 @@ bool wv::Renderer::initCommands()
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Renderer::initSyncStructures()
 {
 	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
@@ -302,6 +321,8 @@ bool wv::Renderer::initSyncStructures()
 
 	return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 {
@@ -328,6 +349,8 @@ void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Renderer::destroySwapchain()
 {
