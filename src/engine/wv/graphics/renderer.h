@@ -50,6 +50,15 @@ struct DeleteQueue
 
 constexpr uint32_t FRAME_OVERLAP = 2;
 
+struct AllocatedImage
+{
+	VkImage image;
+	VkImageView imageView;
+	VmaAllocation allocation;
+	VkExtent3D imageExtent;
+	VkFormat imageFormat;
+};
+
 class Renderer
 {
 public:
@@ -69,6 +78,8 @@ protected:
 
 	void createSwapchain( uint32_t _width, uint32_t _height );
 	void destroySwapchain();
+
+	void drawBackground( VkCommandBuffer _cmd );
 
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
@@ -91,6 +102,9 @@ protected:
 	std::vector<VkImageView> m_swapchainImageViews;
 	std::vector<VkSemaphore> m_submitSemaphores;
 	VkExtent2D m_swapchainExtent;
+
+	AllocatedImage m_drawImage;
+	VkExtent2D m_drawExtent;
 
 	uint32_t m_frameNumber;
 	FrameData m_frames[ FRAME_OVERLAP ];

@@ -92,6 +92,82 @@ VkSubmitInfo2 submitInfo2( VkCommandBufferSubmitInfo* _cmd, VkSemaphoreSubmitInf
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+VkImageCreateInfo imageCreateInfo( VkFormat _format, VkImageUsageFlags _usageFlags, VkExtent3D _extent )
+{
+	VkImageCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+	info.imageType = VK_IMAGE_TYPE_2D;
+	
+	info.format = _format;
+	info.extent = _extent;
+	
+	info.mipLevels = 1;
+	info.arrayLayers = 1;
+	
+	info.samples = VK_SAMPLE_COUNT_1_BIT;
+	
+	info.tiling = VK_IMAGE_TILING_OPTIMAL;
+	info.usage = _usageFlags;
+
+	return info;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+VkImageViewCreateInfo imageViewCreateInfo( VkFormat _format, VkImage _image, VkImageAspectFlags _aspectFlags )
+{
+	VkImageViewCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	info.image = _image;
+	info.format = _format;
+	info.subresourceRange.baseMipLevel = 0;
+	info.subresourceRange.levelCount = 1;
+	info.subresourceRange.baseArrayLayer = 0;
+	info.subresourceRange.layerCount = 1;
+	info.subresourceRange.aspectMask = _aspectFlags;
+
+	return info;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void copyImageToImage( VkCommandBuffer _cmd, VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize )
+{
+	VkImageBlit2 blitRegion{ .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2 };
+
+	blitRegion.srcOffsets[ 1 ].x = _srcSize.width;
+	blitRegion.srcOffsets[ 1 ].y = _srcSize.height;
+	blitRegion.srcOffsets[ 1 ].z = 1;
+
+	blitRegion.dstOffsets[ 1 ].x = _dstSize.width;
+	blitRegion.dstOffsets[ 1 ].y = _dstSize.height;
+	blitRegion.dstOffsets[ 1 ].z = 1;
+
+	blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	blitRegion.srcSubresource.baseArrayLayer = 0;
+	blitRegion.srcSubresource.layerCount = 1;
+	blitRegion.srcSubresource.mipLevel = 0;
+
+	blitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	blitRegion.dstSubresource.baseArrayLayer = 0;
+	blitRegion.dstSubresource.layerCount = 1;
+	blitRegion.dstSubresource.mipLevel = 0;
+
+	VkBlitImageInfo2 blitInfo{ .sType = VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2 };
+	blitInfo.dstImage = _destination;
+	blitInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	blitInfo.srcImage = _source;
+	blitInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	blitInfo.filter = VK_FILTER_LINEAR;
+	blitInfo.regionCount = 1;
+	blitInfo.pRegions = &blitRegion;
+
+	vkCmdBlitImage2( _cmd, &blitInfo );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Renderer::initialize()
 {
 	if ( !initVulkan() ) 
@@ -154,26 +230,29 @@ void wv::Renderer::render( World* _world )
 
 	// Draw
 	VkCommandBuffer cmd = getCurrentFrame().mainCommandBuffer;
+	vkResetCommandBuffer( cmd, 0 );
 	
 	{
-		// Command buffer reset & begin
-		vkResetCommandBuffer( cmd, 0 );
+		m_drawExtent.width  = m_drawImage.imageExtent.width;
+		m_drawExtent.height = m_drawImage.imageExtent.height;
 
 		VkCommandBufferBeginInfo cmdBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 		vkBeginCommandBuffer( cmd, &cmdBeginInfo );
 
-		// Clear image
-		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
+		transitionImage( cmd, m_drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
-		float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
-		VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
-		VkImageSubresourceRange clearRange = imageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
+		// draw background colour
+		drawBackground( cmd );
 
-		vkCmdClearColorImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
+		transitionImage( cmd, m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
-		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		// copy draw to swapchain
+		copyImageToImage( cmd, m_drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
+
+		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
 		vkEndCommandBuffer( cmd );
 	}
@@ -301,6 +380,31 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 		destroySwapchain();
 	} );
 
+	VkExtent3D drawImageExtent = { _width, _height, 1 };
+	m_drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
+	m_drawImage.imageExtent = drawImageExtent;
+
+	VkImageUsageFlags drawImageUsage{};
+	drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	drawImageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
+	drawImageUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+	VkImageCreateInfo drawImageInfo = imageCreateInfo( m_drawImage.imageFormat, drawImageUsage, drawImageExtent );
+	VmaAllocationCreateInfo drawImageAllocInfo{};
+	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY; // needed?
+	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+	vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &m_drawImage.image, &m_drawImage.allocation, nullptr );
+
+	VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( m_drawImage.imageFormat, m_drawImage.image, VK_IMAGE_ASPECT_COLOR_BIT );
+	vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &m_drawImage.imageView );
+
+	m_mainDeleteQueue.push( [ & ]() {
+		vkDestroyImageView( m_device, m_drawImage.imageView, nullptr );
+		vmaDestroyImage( m_allocator, m_drawImage.image, m_drawImage.allocation );
+	} );
+
 	return true;
 }
 
@@ -389,4 +493,15 @@ void wv::Renderer::destroySwapchain()
 	m_swapchainImages.clear();
 	m_swapchainImageViews.clear();
 	m_submitSemaphores.clear();
+}
+
+void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
+{ 
+
+	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
+	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+	VkImageSubresourceRange clearRange = imageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
+
+	vkCmdClearColorImage( _cmd, m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
+
 }
