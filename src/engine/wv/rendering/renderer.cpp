@@ -363,6 +363,14 @@ bool wv::Renderer::initCommands()
 		m_frames[ i ].mainCommandBuffer = WV_NEW( CommandBuffer, m_device, m_frames[ i ].commandPool );
 	}
 
+	vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_immediateCommandPool );
+	m_immediateCommandBuffer = WV_NEW( CommandBuffer, m_device, m_immediateCommandPool );
+	m_mainDeleteQueue.push( [ = ]() {
+		WV_FREE( m_immediateCommandBuffer );
+
+		vkDestroyCommandPool( m_device, m_immediateCommandPool, nullptr );
+	} );
+
 	return true;
 }
 
@@ -381,6 +389,9 @@ bool wv::Renderer::initSyncStructures()
 
 		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
 	}
+
+	vkCreateFence( m_device, &fenceCreateInfo, nullptr, &m_immediateFence );
+	m_mainDeleteQueue.push( [ = ]() { vkDestroyFence( m_device, m_immediateFence, nullptr ); } );
 
 	return true;
 }
@@ -540,4 +551,18 @@ VkPipeline wv::Renderer::createComputePipeline( VkShaderModule _shaderModule, Vk
 		return VK_NULL_HANDLE;
 
 	return pipeline;
+}
+
+void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )
+{
+	vkResetFences( m_device, 1, &m_immediateFence );
+	m_immediateCommandBuffer->reset();
+	m_immediateCommandBuffer->begin();
+
+	_func( *m_immediateCommandBuffer );
+
+	m_immediateCommandBuffer->end();
+	m_immediateCommandBuffer->submit( m_graphicsQueue, nullptr, nullptr, m_immediateFence );
+
+	vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );
 }

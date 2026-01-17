@@ -140,6 +140,8 @@ protected:
 	VkShaderModule createShaderModule( uint32_t* _data, size_t _dataSize );
 	VkPipeline createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
 
+	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
+
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
 	const bool m_useValidationLayers = true;
@@ -172,6 +174,10 @@ protected:
 	uint32_t m_graphicsQueueFamily;
 
 	VmaAllocator m_allocator;
+
+	VkFence m_immediateFence;
+	VkCommandPool m_immediateCommandPool;
+	CommandBuffer* m_immediateCommandBuffer = nullptr;
 
 	// TESTING STUFF
 
