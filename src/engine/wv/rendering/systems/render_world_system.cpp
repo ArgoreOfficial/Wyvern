@@ -1,10 +1,10 @@
 #include "render_world_system.h"
 
-#include <wv/graphics/components/mesh_component.h>
+#include <wv/rendering/components/mesh_component.h>
 #include <wv/entity/entity.h>
 
 #include <wv/application.h>
-#include <wv/graphics/renderer.h>
+#include <wv/rendering/renderer.h>
 #include <wv/filesystem/loaders/mesh_asset_loader.h>
 
 void wv::RenderWorldSystem::initialize()

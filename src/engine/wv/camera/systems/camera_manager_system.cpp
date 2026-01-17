@@ -9,7 +9,7 @@
 
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
-#include <wv/graphics/viewport.h>
+#include <wv/rendering/viewport.h>
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/math/vector3.h>
-#include <wv/graphics/renderer.h>
+#include <wv/rendering/renderer.h>
 #include <wv/camera/view_volume.h>
 #include <wv/debug/error.h>
 

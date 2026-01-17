@@ -2,7 +2,7 @@
 
 #include "draw.h"
 
-#include <wv/graphics/graphics_device.h>
+#include <wv/rendering/graphics_device.h>
 #include <wv/material/material.h>
 #include <wv/mesh/mesh_resource.h>
 #include <wv/memory/model_parser.h>

@@ -7,7 +7,7 @@
 #include <wv/debug/log.h>
 
 #include <wv/entity/world.h>
-#include <wv/graphics/viewport.h>
+#include <wv/rendering/viewport.h>
 
 #ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>

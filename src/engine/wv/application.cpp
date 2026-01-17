@@ -9,9 +9,9 @@
 #include <wv/entity/world_sector.h>
 #include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
-#include <wv/graphics/systems/render_world_system.h>
-#include <wv/graphics/components/mesh_component.h>
-#include <wv/graphics/viewport.h>
+#include <wv/rendering/systems/render_world_system.h>
+#include <wv/rendering/components/mesh_component.h>
+#include <wv/rendering/viewport.h>
 #include <wv/reflection/reflection.h>
 #include <wv/input/input_system.h>
 #include <wv/input/components/player_input_component.h>
