@@ -22,46 +22,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-VkImageSubresourceRange imageSubresourceRange( VkImageAspectFlags _aspectMask )
-{
-	VkImageSubresourceRange subImage{};
-	subImage.aspectMask = _aspectMask;
-	subImage.baseMipLevel = 0;
-	subImage.levelCount = VK_REMAINING_MIP_LEVELS;
-	subImage.baseArrayLayer = 0;
-	subImage.layerCount = VK_REMAINING_ARRAY_LAYERS;
-
-	return subImage;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void transitionImage( VkCommandBuffer cmd, VkImage image, VkImageLayout currentLayout, VkImageLayout newLayout )
-{
-	VkImageMemoryBarrier2 imageBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
-	
-	imageBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-	imageBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
-	imageBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-	imageBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-
-	imageBarrier.oldLayout = currentLayout;
-	imageBarrier.newLayout = newLayout;
-
-	VkImageAspectFlags aspectMask = ( newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL ) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-	imageBarrier.subresourceRange = imageSubresourceRange( aspectMask );
-	imageBarrier.image = image;
-
-	VkDependencyInfo depInfo{ .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-	
-	depInfo.imageMemoryBarrierCount = 1;
-	depInfo.pImageMemoryBarriers = &imageBarrier;
-
-	vkCmdPipelineBarrier2( cmd, &depInfo );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkSemaphore _semaphore )
 {
 	VkSemaphoreSubmitInfo submitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
@@ -71,23 +31,6 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 	submitInfo.value = 1;
 
 	return submitInfo;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-VkSubmitInfo2 submitInfo2( VkCommandBufferSubmitInfo* _cmd, VkSemaphoreSubmitInfo* _signalSemaphoreInfo, VkSemaphoreSubmitInfo* _waitSemaphoreInfo )
-{
-	VkSubmitInfo2 info = { .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
-	info.waitSemaphoreInfoCount = _waitSemaphoreInfo == nullptr ? 0 : 1;
-	info.pWaitSemaphoreInfos    = _waitSemaphoreInfo;
-
-	info.signalSemaphoreInfoCount = _signalSemaphoreInfo == nullptr ? 0 : 1;
-	info.pSignalSemaphoreInfos    = _signalSemaphoreInfo;
-
-	info.commandBufferInfoCount = 1;
-	info.pCommandBufferInfos = _cmd;
-
-	return info;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -130,42 +73,6 @@ VkImageViewCreateInfo imageViewCreateInfo( VkFormat _format, VkImage _image, VkI
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void copyImageToImage( VkCommandBuffer _cmd, VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize )
-{
-	VkImageBlit2 blitRegion{ .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2 };
-
-	blitRegion.srcOffsets[ 1 ].x = _srcSize.width;
-	blitRegion.srcOffsets[ 1 ].y = _srcSize.height;
-	blitRegion.srcOffsets[ 1 ].z = 1;
-
-	blitRegion.dstOffsets[ 1 ].x = _dstSize.width;
-	blitRegion.dstOffsets[ 1 ].y = _dstSize.height;
-	blitRegion.dstOffsets[ 1 ].z = 1;
-
-	blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	blitRegion.srcSubresource.baseArrayLayer = 0;
-	blitRegion.srcSubresource.layerCount = 1;
-	blitRegion.srcSubresource.mipLevel = 0;
-
-	blitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	blitRegion.dstSubresource.baseArrayLayer = 0;
-	blitRegion.dstSubresource.layerCount = 1;
-	blitRegion.dstSubresource.mipLevel = 0;
-
-	VkBlitImageInfo2 blitInfo{ .sType = VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2 };
-	blitInfo.dstImage = _destination;
-	blitInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	blitInfo.srcImage = _source;
-	blitInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-	blitInfo.filter = VK_FILTER_LINEAR;
-	blitInfo.regionCount = 1;
-	blitInfo.pRegions = &blitRegion;
-
-	vkCmdBlitImage2( _cmd, &blitInfo );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Renderer::initialize()
@@ -200,6 +107,7 @@ void wv::Renderer::shutdown()
 		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
 		{
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
+			WV_FREE( m_frames[ i ].mainCommandBuffer );
 
 			vkDestroyFence( m_device, m_frames[ i ].fence, nullptr );
 			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
@@ -229,44 +137,36 @@ void wv::Renderer::render( World* _world )
 	vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
 
 	// Draw
-	VkCommandBuffer cmd = getCurrentFrame().mainCommandBuffer;
-	vkResetCommandBuffer( cmd, 0 );
+	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
+	cmd->reset();
+	
 	
 	{
 		m_drawExtent.width  = m_drawImage.imageExtent.width;
 		m_drawExtent.height = m_drawImage.imageExtent.height;
+		cmd->begin();
 
-		VkCommandBufferBeginInfo cmdBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer( cmd, &cmdBeginInfo );
-
-		transitionImage( cmd, m_drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
+		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
 		// draw background colour
 		drawBackground( cmd );
-
-		transitionImage( cmd, m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
-		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+		
+		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
-		copyImageToImage( cmd, m_drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
+		cmd->copyImageToImage( m_drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
 
-		transitionImage( cmd, m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
-		vkEndCommandBuffer( cmd );
+		cmd->end();
 	}
 
 	// Submit
 
-	VkCommandBufferSubmitInfo cmdInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO };
-	cmdInfo.commandBuffer = cmd;
-
 	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_submitSemaphores[ swapchainImageIndex ] );
-
-	VkSubmitInfo2 submitInfo = submitInfo2( &cmdInfo, &signalInfo, &waitInfo );
-	vkQueueSubmit2( m_graphicsQueue, 1, &submitInfo, getCurrentFrame().fence );
+	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, getCurrentFrame().fence );
 
 	// Present
 
@@ -420,12 +320,7 @@ bool wv::Renderer::initCommands()
 	{
 		vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_frames[ i ].commandPool );
 
-		VkCommandBufferAllocateInfo cmdAllocInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-		cmdAllocInfo.commandPool = m_frames[ i ].commandPool;
-		cmdAllocInfo.commandBufferCount = 1;
-		cmdAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
-		vkAllocateCommandBuffers( m_device, &cmdAllocInfo, &m_frames[ i ].mainCommandBuffer );
+		m_frames[ i ].mainCommandBuffer = WV_NEW( CommandBuffer, m_device, m_frames[ i ].commandPool );
 	}
 
 	return true;
@@ -495,13 +390,10 @@ void wv::Renderer::destroySwapchain()
 	m_submitSemaphores.clear();
 }
 
-void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
+void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 { 
-
 	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
 	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
-	VkImageSubresourceRange clearRange = imageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
 
-	vkCmdClearColorImage( _cmd, m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
-
+	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 }

@@ -5,6 +5,8 @@
 #include <wv/math/vector2.h>
 #include <wv/math/matrix.h>
 
+#include <wv/rendering/command_buffer.h>
+
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -29,7 +31,7 @@ struct MaterialData
 struct FrameData
 {
 	VkCommandPool commandPool;
-	VkCommandBuffer mainCommandBuffer;
+	CommandBuffer* mainCommandBuffer = nullptr;
 
 	VkSemaphore acquireSemaphore;
 	VkFence fence;
@@ -79,7 +81,7 @@ protected:
 	void createSwapchain( uint32_t _width, uint32_t _height );
 	void destroySwapchain();
 
-	void drawBackground( VkCommandBuffer _cmd );
+	void drawBackground( CommandBuffer* _cmd );
 
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
