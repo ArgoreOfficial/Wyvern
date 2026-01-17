@@ -137,6 +137,9 @@ protected:
 
 	void drawBackground( CommandBuffer* _cmd );
 
+	VkShaderModule createShaderModule( uint32_t* _data, size_t _dataSize );
+	VkPipeline createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
+
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
 	const bool m_useValidationLayers = true;

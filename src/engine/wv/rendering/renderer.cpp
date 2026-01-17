@@ -111,28 +111,16 @@ bool wv::Renderer::initialize()
 		IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
 
 		std::vector<uint8_t> buffer = fileSystem->loadEntireFile( "shaders/gradient.comp.spv" );
-
 		if ( buffer.empty() )
 			return false;
 
-		VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-		createInfo.codeSize = buffer.size();
-		createInfo.pCode = (uint32_t*)buffer.data();
-
-		// check that the creation goes well.
-		VkShaderModule shaderModule;
-		if ( vkCreateShaderModule( m_device, &createInfo, nullptr, &shaderModule ) != VK_SUCCESS )
+		VkShaderModule shaderModule = createShaderModule( (uint32_t*)buffer.data(), buffer.size() );
+		if ( shaderModule == VK_NULL_HANDLE )
 			return false;
 
-		VkPipelineShaderStageCreateInfo stageInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
-		stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-		stageInfo.module = shaderModule;
-		stageInfo.pName = "main";
-
-		VkComputePipelineCreateInfo compPipelinCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
-		compPipelinCreateInfo.layout = m_gradientPipelineLayout;
-		compPipelinCreateInfo.stage = stageInfo;
-		vkCreateComputePipelines( m_device, VK_NULL_HANDLE, 1, &compPipelinCreateInfo, nullptr, &m_gradientPipeline );
+		m_gradientPipeline = createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
+		if ( m_gradientPipeline == VK_NULL_HANDLE )
+			return false;
 
 		// destroy module, it's not needed anymore
 		vkDestroyShaderModule( m_device, shaderModule, nullptr );
@@ -142,7 +130,6 @@ bool wv::Renderer::initialize()
 			vkDestroyPipeline( m_device, m_gradientPipeline, nullptr );
 		} );
 	}
-
 
 	m_initialized = true;
 
@@ -521,4 +508,36 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 	_cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
 
 	_cmd->dispatch( std::ceil( m_drawExtent.width / 16.0 ), std::ceil( m_drawExtent.height / 16.0 ), 1 );
+}
+
+VkShaderModule wv::Renderer::createShaderModule( uint32_t* _data, size_t _dataSize )
+{
+	VkShaderModule shaderModule{ VK_NULL_HANDLE };
+
+	VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+	createInfo.codeSize = _dataSize;
+	createInfo.pCode = _data;
+
+	if ( vkCreateShaderModule( m_device, &createInfo, nullptr, &shaderModule ) != VK_SUCCESS )
+		return VK_NULL_HANDLE;
+
+	return shaderModule;
+}
+
+VkPipeline wv::Renderer::createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint )
+{
+	VkPipelineShaderStageCreateInfo stageInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
+	stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+	stageInfo.module = _shaderModule;
+	stageInfo.pName = _entryPoint;
+
+	VkComputePipelineCreateInfo compPipelinCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+	compPipelinCreateInfo.layout = _layout;
+	compPipelinCreateInfo.stage = stageInfo;
+
+	VkPipeline pipeline{ VK_NULL_HANDLE };
+	if ( vkCreateComputePipelines( m_device, VK_NULL_HANDLE, 1, &compPipelinCreateInfo, nullptr, &pipeline ) != VK_SUCCESS )
+		return VK_NULL_HANDLE;
+
+	return pipeline;
 }
