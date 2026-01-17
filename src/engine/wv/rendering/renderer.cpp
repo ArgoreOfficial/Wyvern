@@ -3,10 +3,10 @@
 #include <auxiliary/vk-bootstrap/VkBootstrap.h>
 
 #include <wv/application.h>
-#include <wv/display_driver.h>
 #include <wv/debug/log.h>
-
+#include <wv/display_driver.h>
 #include <wv/entity/world.h>
+#include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
 
 #ifdef WV_SUPPORT_SDL2
@@ -39,15 +39,15 @@ VkImageCreateInfo imageCreateInfo( VkFormat _format, VkImageUsageFlags _usageFla
 {
 	VkImageCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 	info.imageType = VK_IMAGE_TYPE_2D;
-	
+
 	info.format = _format;
 	info.extent = _extent;
-	
+
 	info.mipLevels = 1;
 	info.arrayLayers = 1;
-	
+
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
-	
+
 	info.tiling = VK_IMAGE_TILING_OPTIMAL;
 	info.usage = _usageFlags;
 
@@ -77,22 +77,75 @@ VkImageViewCreateInfo imageViewCreateInfo( VkFormat _format, VkImage _image, VkI
 
 bool wv::Renderer::initialize()
 {
-	if ( !initVulkan() ) 
+	if ( !initVulkan() )
 		return false;
 
 	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
 	Vector2i windowSize = displayDriver->getWindowSize();
 
-	if ( !initSwapchain( windowSize.x, windowSize.y ) ) 
+	if ( !initSwapchain( windowSize.x, windowSize.y ) )
 		return false;
 
-	if ( !initCommands() ) 
+	if ( !initCommands() )
 		return false;
 
-	if ( !initSyncStructures() ) 
+	if ( !initSyncStructures() )
 		return false;
+
+	if ( !initDescriptors() )
+		return false;
+
+
+
+	// create compute pipeline layout
+	{
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		pipelineLayoutInfo.pSetLayouts = &m_drawImageDescriptorLayout;
+		pipelineLayoutInfo.setLayoutCount = 1;
+		vkCreatePipelineLayout( m_device, &pipelineLayoutInfo, nullptr, &m_gradientPipelineLayout );
+	}
+
+
+	// create shader module
+	{
+		IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
+
+		std::vector<uint8_t> buffer = fileSystem->loadEntireFile( "shaders/gradient.comp.spv" );
+
+		if ( buffer.empty() )
+			return false;
+
+		VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+		createInfo.codeSize = buffer.size();
+		createInfo.pCode = (uint32_t*)buffer.data();
+
+		// check that the creation goes well.
+		VkShaderModule shaderModule;
+		if ( vkCreateShaderModule( m_device, &createInfo, nullptr, &shaderModule ) != VK_SUCCESS )
+			return false;
+
+		VkPipelineShaderStageCreateInfo stageInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
+		stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+		stageInfo.module = shaderModule;
+		stageInfo.pName = "main";
+
+		VkComputePipelineCreateInfo compPipelinCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+		compPipelinCreateInfo.layout = m_gradientPipelineLayout;
+		compPipelinCreateInfo.stage = stageInfo;
+		vkCreateComputePipelines( m_device, VK_NULL_HANDLE, 1, &compPipelinCreateInfo, nullptr, &m_gradientPipeline );
+
+		// destroy module, it's not needed anymore
+		vkDestroyShaderModule( m_device, shaderModule, nullptr );
+
+		m_mainDeleteQueue.push( [ & ]() {
+			vkDestroyPipelineLayout( m_device, m_gradientPipelineLayout, nullptr );
+			vkDestroyPipeline( m_device, m_gradientPipeline, nullptr );
+		} );
+	}
+
 
 	m_initialized = true;
+
 	return true;
 }
 
@@ -122,7 +175,7 @@ void wv::Renderer::shutdown()
 
 void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 {
-	
+
 
 }
 
@@ -139,10 +192,10 @@ void wv::Renderer::render( World* _world )
 	// Draw
 	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
 	cmd->reset();
-	
-	
+
+
 	{
-		m_drawExtent.width  = m_drawImage.imageExtent.width;
+		m_drawExtent.width = m_drawImage.imageExtent.width;
 		m_drawExtent.height = m_drawImage.imageExtent.height;
 		cmd->begin();
 
@@ -150,7 +203,7 @@ void wv::Renderer::render( World* _world )
 
 		// draw background colour
 		drawBackground( cmd );
-		
+
 		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
@@ -164,7 +217,7 @@ void wv::Renderer::render( World* _world )
 
 	// Submit
 
-	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
+	VkSemaphoreSubmitInfo waitInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_submitSemaphores[ swapchainImageIndex ] );
 	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, getCurrentFrame().fence );
 
@@ -177,7 +230,7 @@ void wv::Renderer::render( World* _world )
 	presentInfo.waitSemaphoreCount = 1;
 
 	presentInfo.pImageIndices = &swapchainImageIndex;
-	
+
 	vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
 
 	m_frameNumber++;
@@ -187,7 +240,7 @@ void wv::Renderer::render( World* _world )
 
 void wv::Renderer::finalize()
 {
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -217,11 +270,11 @@ bool wv::Renderer::initVulkan()
 	} );
 
 	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
-	
+
 #ifdef WV_SUPPORT_SDL2
 	{
 		DisplayDriverSDL* sdlDisplayDriver = static_cast<DisplayDriverSDL*>( displayDriver );
-		SDL_Vulkan_CreateSurface( sdlDisplayDriver->getSDLWindowContext(), m_instance, &m_surface);
+		SDL_Vulkan_CreateSurface( sdlDisplayDriver->getSDLWindowContext(), m_instance, &m_surface );
 	}
 #endif
 
@@ -231,8 +284,8 @@ bool wv::Renderer::initVulkan()
 
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
 	features12.bufferDeviceAddress = true;
-	features12.descriptorIndexing  = true;
-	
+	features12.descriptorIndexing = true;
+
 	vkb::PhysicalDeviceSelector selector{ vkbInstance };
 	vkb::PhysicalDevice physicalDevice = selector
 		.set_minimum_version( 1, 3 )
@@ -244,7 +297,7 @@ bool wv::Renderer::initVulkan()
 
 	vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 	vkb::Device vkbDevice = deviceBuilder.build().value();
-	
+
 	m_device = vkbDevice.device;
 	m_physicalDevice = physicalDevice.physical_device;
 
@@ -345,12 +398,78 @@ bool wv::Renderer::initSyncStructures()
 	return true;
 }
 
+bool wv::Renderer::initDescriptors()
+{
+	std::vector<DescriptorAllocator::PoolSizeRatio> sizes =
+	{
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1 }
+	};
+
+	m_globalDescriptorAllocator.initialize( m_device, 10, sizes );
+
+
+	// create descriptor set layout
+	{
+		std::vector<VkDescriptorSetLayoutBinding> bindings;
+
+		{
+			VkDescriptorSetLayoutBinding newbind{
+				.binding = 0,
+				.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+				.descriptorCount = 1
+			};
+			bindings.push_back( newbind );
+		}
+
+		for ( auto& b : bindings )
+			b.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+
+		VkDescriptorSetLayoutCreateInfo info = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+		info.pNext = nullptr;
+
+		info.pBindings = bindings.data();
+		info.bindingCount = (uint32_t)bindings.size();
+		//info.flags = flags;
+
+		VkDescriptorSetLayout set;
+		vkCreateDescriptorSetLayout( m_device, &info, nullptr, &set );
+
+		m_drawImageDescriptorLayout = set;
+	}
+
+	// create and update descriptor set layout
+	{
+		m_drawImageDescriptors = m_globalDescriptorAllocator.allocate( m_device, m_drawImageDescriptorLayout );
+
+		VkDescriptorImageInfo imgInfo{};
+		imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		imgInfo.imageView = m_drawImage.imageView;
+
+		VkWriteDescriptorSet drawImageWrite{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		drawImageWrite.dstBinding = 0;
+		drawImageWrite.dstSet = m_drawImageDescriptors;
+		drawImageWrite.descriptorCount = 1;
+		drawImageWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		drawImageWrite.pImageInfo = &imgInfo;
+
+		vkUpdateDescriptorSets( m_device, 1, &drawImageWrite, 0, nullptr );
+	}
+
+	m_mainDeleteQueue.push( [ & ]() {
+		m_globalDescriptorAllocator.destroy( m_device );
+
+		vkDestroyDescriptorSetLayout( m_device, m_drawImageDescriptorLayout, nullptr );
+	} );
+
+	return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 {
 	vkb::SwapchainBuilder builder{ m_physicalDevice, m_device, m_surface };
-	
+
 	m_swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
 	vkb::Swapchain vkbSwapchain = builder
@@ -378,7 +497,7 @@ void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 void wv::Renderer::destroySwapchain()
 {
 	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
-	
+
 	for ( auto imageView : m_swapchainImageViews )
 		vkDestroyImageView( m_device, imageView, nullptr );
 
@@ -391,9 +510,18 @@ void wv::Renderer::destroySwapchain()
 }
 
 void wv::Renderer::drawBackground( CommandBuffer* _cmd )
-{ 
-	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
-	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+{
+//	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
+//	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+//
+//	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 
-	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
+	vkCmdBindPipeline( _cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipeline );
+	vkCmdBindDescriptorSets( _cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors, 0, nullptr );
+
+	vkCmdDispatch( 
+		_cmd->m_cmd, 
+		std::ceil( m_drawExtent.width / 16.0 ), 
+		std::ceil( m_drawExtent.height / 16.0 ), 
+		1 );
 }

@@ -63,6 +63,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
+	m_filesystem   = Platform::createFileSystem( "data" );
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
@@ -88,8 +89,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		return false;
 	}
 
-	m_filesystem = Platform::createFileSystem( "data" );
-	
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
