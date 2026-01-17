@@ -516,12 +516,9 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 //
 //	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 
-	vkCmdBindPipeline( _cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipeline );
-	vkCmdBindDescriptorSets( _cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors, 0, nullptr );
+	_cmd->bindPipeline( VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipeline );
+	
+	_cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
 
-	vkCmdDispatch( 
-		_cmd->m_cmd, 
-		std::ceil( m_drawExtent.width / 16.0 ), 
-		std::ceil( m_drawExtent.height / 16.0 ), 
-		1 );
+	_cmd->dispatch( std::ceil( m_drawExtent.width / 16.0 ), std::ceil( m_drawExtent.height / 16.0 ), 1 );
 }

@@ -32,6 +32,18 @@ public:
 	void copyImageToImage( VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize );
 	void clearColorImage( VkImage _image, VkImageLayout _layout, VkClearColorValue* _clearValue );
 
+	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline ) {
+		vkCmdBindPipeline( m_cmd, _bindPoint, _pipeline );
+	}
+
+	void bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets ) {
+		vkCmdBindDescriptorSets( m_cmd, _bindPoint, _layout, _firstSet, _descriptorSetCount, _descriptorSets, 0, nullptr );
+	}
+
+	void dispatch( uint32_t _groupCountX, uint32_t _groupCountY, uint32_t _groupCountZ ) {
+		vkCmdDispatch( m_cmd, _groupCountX, _groupCountY, _groupCountZ );
+	}
+
 protected:
 
 	VkCommandBuffer m_cmd{};
