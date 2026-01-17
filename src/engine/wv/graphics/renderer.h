@@ -1,12 +1,16 @@
 #pragma once
 
-#include <stdint.h>
 
 #include <wv/helpers/unordered_array.hpp>
 #include <wv/math/vector2.h>
 #include <wv/math/matrix.h>
 
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
+
+#include <functional>
+#include <stdint.h>
+#include <vector>
 
 namespace wv {
 
@@ -29,6 +33,19 @@ struct FrameData
 
 	VkSemaphore acquireSemaphore;
 	VkFence fence;
+};
+
+struct DeleteQueue
+{
+	std::vector<std::function<void()>> deleteQueue;
+
+	void push( const std::function<void()>& _func ) { deleteQueue.push_back( _func ); }
+
+	void flush() {
+		for ( auto it = deleteQueue.rbegin(); it != deleteQueue.rend(); it++ )
+			( *it )( );
+		deleteQueue.clear();
+	}
 };
 
 constexpr uint32_t FRAME_OVERLAP = 2;
@@ -59,6 +76,8 @@ protected:
 
 	bool m_initialized = false;
 
+	DeleteQueue m_mainDeleteQueue;
+
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkPhysicalDevice m_physicalDevice;
@@ -78,6 +97,8 @@ protected:
 
 	VkQueue m_graphicsQueue;
 	uint32_t m_graphicsQueueFamily;
+
+	VmaAllocator m_allocator;
 };
 
 

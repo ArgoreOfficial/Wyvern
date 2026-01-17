@@ -15,6 +15,9 @@
 #include <sdl/display_driver_sdl.h>
 #endif
 
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
+
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -126,13 +129,8 @@ void wv::Renderer::shutdown()
 			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
 		}
 
-		destroySwapchain();
+		m_mainDeleteQueue.flush();
 
-		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
-		vkDestroyDevice( m_device, nullptr );
-
-		vkb::destroy_debug_utils_messenger( m_instance, m_debugMessenger );
-		vkDestroyInstance( m_instance, nullptr );
 	}
 }
 
@@ -234,6 +232,11 @@ bool wv::Renderer::initVulkan()
 	m_instance = vkbInstance.instance;
 	m_debugMessenger = vkbInstance.debug_messenger;
 
+	m_mainDeleteQueue.push( [ & ]() {
+		vkb::destroy_debug_utils_messenger( m_instance, m_debugMessenger );
+		vkDestroyInstance( m_instance, nullptr );
+	} );
+
 	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
 	
 #ifdef WV_SUPPORT_SDL2
@@ -266,8 +269,24 @@ bool wv::Renderer::initVulkan()
 	m_device = vkbDevice.device;
 	m_physicalDevice = physicalDevice.physical_device;
 
+	m_mainDeleteQueue.push( [ & ]() {
+		vkDestroySurfaceKHR( m_instance, m_surface, nullptr );
+		vkDestroyDevice( m_device, nullptr );
+	} );
+
 	m_graphicsQueue = vkbDevice.get_queue( vkb::QueueType::graphics ).value();
 	m_graphicsQueueFamily = vkbDevice.get_queue_index( vkb::QueueType::graphics ).value();
+
+	VmaAllocatorCreateInfo vmaInfo{};
+	vmaInfo.physicalDevice = m_physicalDevice;
+	vmaInfo.device = m_device;
+	vmaInfo.instance = m_instance;
+	vmaInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+	vmaCreateAllocator( &vmaInfo, &m_allocator );
+
+	m_mainDeleteQueue.push( [ & ]() {
+		vmaDestroyAllocator( m_allocator );
+	} );
 
 	return true;
 }
@@ -277,6 +296,11 @@ bool wv::Renderer::initVulkan()
 bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 {
 	createSwapchain( _width, _height );
+
+	m_mainDeleteQueue.push( [ & ]() {
+		destroySwapchain();
+	} );
+
 	return true;
 }
 
