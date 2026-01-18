@@ -27,7 +27,10 @@ public:
 	void destroyShaderModule( VkShaderModule _shaderModule );
 
 	PipelineID createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
+	PipelineID createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout );
+
 	void destroyPipeline( PipelineID _pipelineID );
+
 
 	Pipeline getPipeline( PipelineID _pipelineID ) const {
 		if ( m_pipelines.contains( _pipelineID ) )

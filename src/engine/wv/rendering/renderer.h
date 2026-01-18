@@ -139,6 +139,7 @@ protected:
 	void destroySwapchain();
 
 	void drawBackground( CommandBuffer* _cmd );
+	void drawGeometry( CommandBuffer* _cmd );
 
 	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
 
@@ -187,8 +188,11 @@ protected:
 	VkDescriptorSet m_drawImageDescriptors;
 	VkDescriptorSetLayout m_drawImageDescriptorLayout;
 
-	wv::PipelineID m_gradientPipeline;
+	PipelineID m_gradientPipelineID;
 	VkPipelineLayout m_gradientPipelineLayout;
+
+	PipelineID m_trianglePipelineID;
+	VkPipelineLayout m_trianglePipelineLayout;
 };
 
 

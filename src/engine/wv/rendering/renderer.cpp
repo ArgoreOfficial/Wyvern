@@ -95,9 +95,10 @@ bool wv::Renderer::initialize()
 	if ( !initDescriptors() )
 		return false;
 
+	IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
 
 
-	// create compute pipeline layout
+	// Create gradient pipeline layout
 	{
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 		pipelineLayoutInfo.pSetLayouts = &m_drawImageDescriptorLayout;
@@ -106,10 +107,8 @@ bool wv::Renderer::initialize()
 	}
 
 
-	// create shader module
+	// Create gradient pipeline
 	{
-		IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
-
 		std::vector<uint8_t> buffer = fileSystem->loadEntireFile( "shaders/gradient.comp.spv" );
 		if ( buffer.empty() )
 			return false;
@@ -118,8 +117,8 @@ bool wv::Renderer::initialize()
 		if ( shaderModule == VK_NULL_HANDLE )
 			return false;
 
-		m_gradientPipeline = m_pipelineManager.createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
-		if ( !m_gradientPipeline.isValid() )
+		m_gradientPipelineID = m_pipelineManager.createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
+		if ( !m_gradientPipelineID.isValid() )
 			return false;
 
 		// destroy module, it's not needed anymore
@@ -127,9 +126,44 @@ bool wv::Renderer::initialize()
 
 		m_mainDeleteQueue.push( [ & ]() {
 			vkDestroyPipelineLayout( m_device, m_gradientPipelineLayout, nullptr );
-			m_pipelineManager.destroyPipeline( m_gradientPipeline );
+			m_pipelineManager.destroyPipeline( m_gradientPipelineID );
 		} );
 	}
+
+
+
+
+	// Triangle
+
+
+
+	// Create triangle pipeline layout
+	{
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		vkCreatePipelineLayout( m_device, &pipelineLayoutInfo, nullptr, &m_trianglePipelineLayout );
+	}
+
+	// Create triangle pipline
+	{
+		std::vector<uint8_t> vertShaderData = fileSystem->loadEntireFile( "shaders/coloured_triangle.vert.spv" );
+		std::vector<uint8_t> fragShaderData = fileSystem->loadEntireFile( "shaders/coloured_triangle.frag.spv" );
+		VkShaderModule vertShader = m_pipelineManager.createShaderModule( (uint32_t*)vertShaderData.data(), vertShaderData.size() );
+		VkShaderModule fragShader = m_pipelineManager.createShaderModule( (uint32_t*)fragShaderData.data(), fragShaderData.size() );
+		
+		if ( vertShader == VK_NULL_HANDLE || fragShader == VK_NULL_HANDLE )
+			return false;
+
+		m_trianglePipelineID = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_trianglePipelineLayout );
+		m_pipelineManager.destroyShaderModule( vertShader );
+		m_pipelineManager.destroyShaderModule( fragShader );
+
+		m_mainDeleteQueue.push( [ & ]() {
+			vkDestroyPipelineLayout( m_device, m_trianglePipelineLayout, nullptr );
+			m_pipelineManager.destroyPipeline( m_trianglePipelineID );
+		} );
+	}
+
+
 
 	m_initialized = true;
 
@@ -191,13 +225,17 @@ void wv::Renderer::render( World* _world )
 		// draw background colour
 		drawBackground( cmd );
 
-		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+		
+		drawGeometry( cmd );
+
+		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
 		cmd->copyImageToImage( m_drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
 
-		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
 		cmd->end();
 	}
@@ -514,12 +552,60 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 //
 //	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 
-	Pipeline pipeline = m_pipelineManager.getPipeline( m_gradientPipeline );
+	Pipeline pipeline = m_pipelineManager.getPipeline( m_gradientPipelineID );
 	
 	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 	_cmd->bindDescriptorSets( pipeline.bindPoint, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
 
 	_cmd->dispatch( std::ceil( m_drawExtent.width / 16.0 ), std::ceil( m_drawExtent.height / 16.0 ), 1 );
+}
+
+void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
+{ 
+	VkRenderingAttachmentInfo colorAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+	colorAttachment.imageView = m_drawImage.imageView;
+	colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	//colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	//if ( clear ) colorAttachment.clearValue = *clear;
+
+	VkRenderingInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO };
+	renderInfo.renderArea = VkRect2D{ VkOffset2D { 0, 0 }, m_drawExtent };
+	renderInfo.layerCount = 1;
+	renderInfo.colorAttachmentCount = 1;
+	renderInfo.pColorAttachments = &colorAttachment;
+	renderInfo.pDepthAttachment = nullptr;
+	renderInfo.pStencilAttachment = nullptr;
+
+	vkCmdBeginRendering( _cmd->m_cmd, &renderInfo );
+
+	Pipeline pipeline = m_pipelineManager.getPipeline( m_trianglePipelineID );
+	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
+
+	{
+		VkViewport viewport = {};
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width    = m_drawExtent.width;
+		viewport.height   = m_drawExtent.height;
+		viewport.minDepth = 0.f;
+		viewport.maxDepth = 1.f;
+
+		vkCmdSetViewport( _cmd->m_cmd, 0, 1, &viewport );
+
+		VkRect2D scissor = {};
+		scissor.offset.x      = 0;
+		scissor.offset.y      = 0;
+		scissor.extent.width  = m_drawExtent.width;
+		scissor.extent.height = m_drawExtent.height;
+
+		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
+
+		// launch a draw command to draw 3 vertices
+		vkCmdDraw( _cmd->m_cmd, 3, 1, 0, 0 );
+	}
+	
+	vkCmdEndRendering( _cmd->m_cmd );
 }
 
 void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )

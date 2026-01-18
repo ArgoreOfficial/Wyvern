@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <unordered_map>
+
 namespace wv {
 
 class CommandBuffer
@@ -13,6 +15,7 @@ public:
 
 	void reset() { 
 		vkResetCommandBuffer( m_cmd, 0 ); 
+		m_imageLastKnownLayout.clear();
 	}
 
 	void begin() {
@@ -29,6 +32,13 @@ public:
 	void submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence );
 
 	void transitionImage( VkImage _image, VkImageLayout _currentLayout, VkImageLayout _newLayout );
+	void transitionImage( VkImage _image, VkImageLayout _newLayout ) {
+		if ( m_imageLastKnownLayout.contains( _image ) )
+			transitionImage( _image, m_imageLastKnownLayout.at( _image ), _newLayout);
+		else
+			transitionImage( _image, VK_IMAGE_LAYOUT_UNDEFINED, _newLayout );
+	}
+
 	void copyImageToImage( VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize );
 	void clearColorImage( VkImage _image, VkImageLayout _layout, VkClearColorValue* _clearValue );
 
@@ -45,6 +55,8 @@ public:
 	}
 
 protected:
+
+	std::unordered_map<VkImage, VkImageLayout> m_imageLastKnownLayout;
 
 	VkCommandBuffer m_cmd{};
 	

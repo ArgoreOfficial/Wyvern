@@ -76,6 +76,7 @@ void wv::CommandBuffer::transitionImage( VkImage _image, VkImageLayout _currentL
 	depInfo.pImageMemoryBarriers = &imageBarrier;
 
 	vkCmdPipelineBarrier2( m_cmd, &depInfo );
+	m_imageLastKnownLayout[ _image ] = _newLayout;
 }
 
 void wv::CommandBuffer::copyImageToImage( VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize )
