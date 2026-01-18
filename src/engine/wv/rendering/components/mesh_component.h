@@ -9,7 +9,7 @@ namespace wv {
 
 class MeshComponent : public IEntityComponent
 {
-	WV_REFLECT_TYPE( MeshComponent )
+	WV_REFLECT_TYPE( MeshComponent, IEntityComponent )
 public:
 	MeshComponent() = default;
 	virtual ~MeshComponent();

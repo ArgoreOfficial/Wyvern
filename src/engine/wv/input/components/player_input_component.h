@@ -8,7 +8,7 @@ class PlayerInputComponent : public IEntityComponent
 {
 	friend class PlayerInputSystem;
 
-	WV_REFLECT_TYPE( PlayerInputComponent )
+	WV_REFLECT_TYPE( PlayerInputComponent, IEntityComponent )
 public:
 	PlayerInputComponent() = default;
 	virtual ~PlayerInputComponent() { }

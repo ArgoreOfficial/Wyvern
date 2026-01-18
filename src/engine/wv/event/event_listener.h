@@ -12,7 +12,7 @@ class IEventListener : public IReflectedType
 {
 	friend class EventManager;
 
-	WV_REFLECT_TYPE( IEventListener )
+	WV_REFLECT_TYPE( IEventListener, IReflectedType )
 public:
 	IEventListener( TypeUUID _eventTypeUUID ) : 
 		m_eventTypeUUID{ _eventTypeUUID } 

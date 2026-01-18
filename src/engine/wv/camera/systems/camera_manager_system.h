@@ -17,7 +17,7 @@ class PlayerInputComponent;
 
 class CameraManagerSystem : public IWorldSystem
 {
-	WV_REFLECT_TYPE( CameraManagerSystem )
+	WV_REFLECT_TYPE( CameraManagerSystem, IWorldSystem )
 public:
 	struct EntityData
 	{

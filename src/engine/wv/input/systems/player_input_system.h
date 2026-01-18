@@ -17,7 +17,7 @@ class InputSystem;
 
 class PlayerInputSystem : public IWorldSystem
 {
-	WV_REFLECT_TYPE( PlayerInputSystem )
+	WV_REFLECT_TYPE( PlayerInputSystem, IWorldSystem )
 public:
 	enum class SelectionMode
 	{

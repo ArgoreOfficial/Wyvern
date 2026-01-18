@@ -10,7 +10,7 @@ class CameraComponent : public IEntityComponent
 {
 	friend class CameraManagerSystem;
 
-	WV_REFLECT_TYPE( CameraComponent )
+	WV_REFLECT_TYPE( CameraComponent, IEntityComponent )
 public:
 	CameraComponent() = default;
 	virtual ~CameraComponent() { }

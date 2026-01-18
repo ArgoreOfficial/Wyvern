@@ -14,7 +14,7 @@ class IEntityComponent : public wv::IReflectedType
 {
 	friend class Entity;
 
-	WV_REFLECT_TYPE( IEntityComponent )
+	WV_REFLECT_TYPE( IEntityComponent, IReflectedType )
 public:
 	enum class EntityComponentState : int
 	{

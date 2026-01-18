@@ -12,7 +12,7 @@ class IEntitySystem : IReflectedType
 {
 	friend class Entity;
 
-	WV_REFLECT_TYPE( IEntitySystem )
+	WV_REFLECT_TYPE( IEntitySystem, IReflectedType )
 public:
 	IEntitySystem() = default;
 	virtual ~IEntitySystem() { };

@@ -36,7 +36,7 @@ struct WorldUpdateContext
 
 class World : public IReflectedType
 {
-	WV_REFLECT_TYPE( World ) 
+	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World() = default;
 	~World();

@@ -27,7 +27,7 @@ struct SectorRenderBucket
 
 class RenderWorldSystem : public IWorldSystem
 {
-	WV_REFLECT_TYPE( RenderWorldSystem )
+	WV_REFLECT_TYPE( RenderWorldSystem, IWorldSystem )
 public:
 	RenderWorldSystem() = default;
 
