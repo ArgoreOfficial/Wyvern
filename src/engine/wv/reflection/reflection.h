@@ -23,14 +23,20 @@ void vectorConcat( std::vector<Ty>& _a, const std::vector<Ty>& _b ) {
 template<typename... Ty>
 struct InheritenceRegister
 {
+	static inline std::vector<TypeUUID> s_cachedRecursiveTypeUUIDs;
+
 	static std::vector<TypeUUID> getTypeUUIDs() {
 		return { Ty::getStaticTypeUUID()... };
 	}
 
 	static std::vector<TypeUUID> getRecursiveTypeUUIDs() {
-		std::vector<TypeUUID> uuids{ Ty::getStaticTypeUUID()... };
-		vectorConcat( uuids, Ty::Inheritence_t::getRecursiveTypeUUIDs()... );
-		return uuids;
+		if ( s_cachedRecursiveTypeUUIDs.size() == 0 )
+		{
+			s_cachedRecursiveTypeUUIDs = { Ty::getStaticTypeUUID()... };
+			vectorConcat( s_cachedRecursiveTypeUUIDs, Ty::Inheritence_t::getRecursiveTypeUUIDs()... );
+		}
+		
+		return s_cachedRecursiveTypeUUIDs;
 	}
 };
 
