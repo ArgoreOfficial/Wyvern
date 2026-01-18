@@ -114,20 +114,20 @@ bool wv::Renderer::initialize()
 		if ( buffer.empty() )
 			return false;
 
-		VkShaderModule shaderModule = createShaderModule( (uint32_t*)buffer.data(), buffer.size() );
+		VkShaderModule shaderModule = m_pipelineManager.createShaderModule( (uint32_t*)buffer.data(), buffer.size() );
 		if ( shaderModule == VK_NULL_HANDLE )
 			return false;
 
-		m_gradientPipeline = createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
-		if ( m_gradientPipeline == VK_NULL_HANDLE )
+		m_gradientPipeline = m_pipelineManager.createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
+		if ( !m_gradientPipeline.isValid() )
 			return false;
 
 		// destroy module, it's not needed anymore
-		vkDestroyShaderModule( m_device, shaderModule, nullptr );
+		m_pipelineManager.destroyShaderModule( shaderModule );
 
 		m_mainDeleteQueue.push( [ & ]() {
 			vkDestroyPipelineLayout( m_device, m_gradientPipelineLayout, nullptr );
-			vkDestroyPipeline( m_device, m_gradientPipeline, nullptr );
+			m_pipelineManager.destroyPipeline( m_gradientPipeline );
 		} );
 	}
 
@@ -177,9 +177,9 @@ void wv::Renderer::render( World* _world )
 	vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
 
 	// Draw
+
 	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
 	cmd->reset();
-
 
 	{
 		m_drawExtent.width = m_drawImage.imageExtent.width;
@@ -514,43 +514,12 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 //
 //	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 
-	_cmd->bindPipeline( VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipeline );
+	Pipeline pipeline = m_pipelineManager.getPipeline( m_gradientPipeline );
 	
-	_cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
+	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
+	_cmd->bindDescriptorSets( pipeline.bindPoint, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
 
 	_cmd->dispatch( std::ceil( m_drawExtent.width / 16.0 ), std::ceil( m_drawExtent.height / 16.0 ), 1 );
-}
-
-VkShaderModule wv::Renderer::createShaderModule( uint32_t* _data, size_t _dataSize )
-{
-	VkShaderModule shaderModule{ VK_NULL_HANDLE };
-
-	VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-	createInfo.codeSize = _dataSize;
-	createInfo.pCode = _data;
-
-	if ( vkCreateShaderModule( m_device, &createInfo, nullptr, &shaderModule ) != VK_SUCCESS )
-		return VK_NULL_HANDLE;
-
-	return shaderModule;
-}
-
-VkPipeline wv::Renderer::createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint )
-{
-	VkPipelineShaderStageCreateInfo stageInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
-	stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-	stageInfo.module = _shaderModule;
-	stageInfo.pName = _entryPoint;
-
-	VkComputePipelineCreateInfo compPipelinCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
-	compPipelinCreateInfo.layout = _layout;
-	compPipelinCreateInfo.stage = stageInfo;
-
-	VkPipeline pipeline{ VK_NULL_HANDLE };
-	if ( vkCreateComputePipelines( m_device, VK_NULL_HANDLE, 1, &compPipelinCreateInfo, nullptr, &pipeline ) != VK_SUCCESS )
-		return VK_NULL_HANDLE;
-
-	return pipeline;
 }
 
 void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )

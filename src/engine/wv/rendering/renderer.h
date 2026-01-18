@@ -6,6 +6,7 @@
 #include <wv/math/matrix.h>
 
 #include <wv/rendering/command_buffer.h>
+#include <wv/rendering/pipeline_manager.h>
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
@@ -116,6 +117,8 @@ struct DescriptorAllocator
 
 class Renderer
 {
+	friend class PipelineManager;
+
 public:
 	bool initialize();
 	void shutdown();
@@ -137,9 +140,6 @@ protected:
 
 	void drawBackground( CommandBuffer* _cmd );
 
-	VkShaderModule createShaderModule( uint32_t* _data, size_t _dataSize );
-	VkPipeline createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
-
 	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
 
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
@@ -147,6 +147,8 @@ protected:
 	const bool m_useValidationLayers = true;
 
 	bool m_initialized = false;
+
+	PipelineManager m_pipelineManager{ this };
 
 	DeleteQueue m_mainDeleteQueue;
 
@@ -185,7 +187,7 @@ protected:
 	VkDescriptorSet m_drawImageDescriptors;
 	VkDescriptorSetLayout m_drawImageDescriptorLayout;
 
-	VkPipeline m_gradientPipeline;
+	wv::PipelineID m_gradientPipeline;
 	VkPipelineLayout m_gradientPipelineLayout;
 };
 
