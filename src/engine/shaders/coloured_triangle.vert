@@ -32,5 +32,5 @@ void main()
 
 	//output the position of each vertex
 	gl_Position = pos;
-	outColor = colors[gl_VertexIndex];
+	outColor = colors[gl_VertexIndex % 3];
 }

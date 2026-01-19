@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <vector>
 #include <span>
+#include <wv/resource_id.h>
 
 namespace wv {
 
@@ -83,6 +84,8 @@ struct GPUMeshBuffers
 	AllocatedBuffer indexBuffer;
 	AllocatedBuffer vertexBuffer;
 	VkDeviceAddress vertexBufferAddress;
+
+	uint32_t numIndices;
 };
 
 struct GPUDrawPushConstants
@@ -103,6 +106,9 @@ public:
 	void render( World* _world );
 	void finalize();
 
+	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions );
+	void destroyMesh( ResourceID _mesh );
+
 protected:
 
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
@@ -117,15 +123,12 @@ protected:
 	void destroySwapchain();
 
 	void drawBackground( CommandBuffer* _cmd );
-	void drawGeometry( CommandBuffer* _cmd );
+	void drawGeometry( CommandBuffer* _cmd, World* _world );
 
 	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
 
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
-
-	GPUMeshBuffers uploadMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions );
-	void destroyMesh( const GPUMeshBuffers& _mesh );
 
 	const bool m_useValidationLayers = true;
 
@@ -182,7 +185,9 @@ protected:
 	// TESTING STUFF
 
 	PipelineID m_trianglePipelineID = {};
-	GPUMeshBuffers m_triangleBuffers = {};
+	
+	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;
+
 };
 
 

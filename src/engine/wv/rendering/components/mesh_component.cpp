@@ -6,7 +6,7 @@
 
 wv::MeshComponent::~MeshComponent()
 {
-	WV_LOG_WARNING( "TODO: Destroy render mesh\n" );
+
 }
 
 void wv::MeshComponent::load( WorldLoadContext& _ctx )

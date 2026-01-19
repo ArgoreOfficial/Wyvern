@@ -43,7 +43,6 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 		if ( mesh.assetID.isValid() )
 		{
 			WV_LOG_WARNING( "Mesh creation\n" );
-			/*
 			Renderer* renderer = Application::getSingleton()->getRenderer();
 
 			MeshAssetLoader* meshAssetLoader = sector->getMeshAssetLoader();
@@ -61,14 +60,10 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 				datas.push_back( data );
 			}
 
-			mesh.meshID = renderer->createRenderMesh(
-				meshAsset->vertexPositions.data(), meshAsset->vertexPositions.size(),
-				meshAsset->indices.data(), meshAsset->indices.size(),
-				datas.data(), sizeof( wv::VertexData ) * datas.size() );
-			
-			if ( mesh.meshID.isValid() )
-				renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
-			*/
+			mesh.meshID = renderer->createMesh( meshAsset->indices, meshAsset->vertexPositions );
+				
+		//	if ( mesh.meshID.isValid() )
+		//		renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
 		}
 
 		bucket.renderMeshes.push_back( mesh );
@@ -85,12 +80,16 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 	// Remove mesh resource from bucket
 	
+	Renderer* renderer = Application::getSingleton()->getRenderer();
+	
 	WorldSectorID sectorID = _entity->getParentSector()->getID();
 	auto& bucket = m_renderBucketMap.at( sectorID );
 	for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
 	{
 		if ( bucket.renderMeshes[ i ].component != meshComponent ) 
 			continue;
+		
+		renderer->destroyMesh( bucket.renderMeshes[ i ].meshID );
 
 		bucket.renderMeshes.erase( bucket.renderMeshes.begin() + i );
 		bucket.matrices.erase( bucket.matrices.begin() + i );

@@ -9,6 +9,9 @@
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
 
+#include <wv/rendering/components/mesh_component.h>
+#include <wv/rendering/systems/render_world_system.h>
+
 #ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
@@ -118,26 +121,6 @@ bool wv::Renderer::initialize()
 		} );
 	}
 
-	//{
-	//	
-	//	VkDescriptorBufferInfo bufInfo{};
-	//	
-	//	VkDescriptorImageInfo imgInfo{};
-	//	imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	//	imgInfo.imageView = m_drawImage.imageView;
-
-	//	VkWriteDescriptorSet write{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-	//	write.dstBinding = 0;
-	//	write.dstSet = m_bindlessDescriptorSet;
-	//	write.descriptorCount = 1;
-	//	write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-	//	write.pImageInfo = &imgInfo;
-	//	vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
-
-	//}
-
-
-
 	// Triangle
 
 	// Create triangle pipline
@@ -156,23 +139,6 @@ bool wv::Renderer::initialize()
 
 		m_mainDeleteQueue.push( [ & ]() {
 			m_pipelineManager.destroyPipeline( m_trianglePipelineID );
-		} );
-	}
-
-	// Create triangle
-	{
-		m_triangleBuffers = uploadMesh(
-			{ 0, 1, 2 },
-			{ 
-				Vector3f( 0.5f, 0.5f, 0.0f ),
-				Vector3f(-0.5f, 0.5f, 0.0f),
-				Vector3f( 0.0f,-0.5f, 0.0f)
-			} 
-		);
-
-		m_mainDeleteQueue.push( [ & ]() {
-			destroyMesh( m_triangleBuffers );
-			m_triangleBuffers = {};
 		} );
 	}
 
@@ -241,7 +207,7 @@ void wv::Renderer::render( World* _world )
 
 		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
 		
-		drawGeometry( cmd );
+		drawGeometry( cmd, _world );
 
 		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
@@ -280,6 +246,72 @@ void wv::Renderer::render( World* _world )
 void wv::Renderer::finalize()
 {
 
+}
+
+wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions )
+{
+	const size_t indexBufferSize = _indices.size() * sizeof( uint16_t );
+	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
+
+	GPUMeshBuffers surface{};
+	surface.numIndices = (uint32_t)_indices.size();
+
+	surface.indexBuffer = createBuffer(
+		indexBufferSize,
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+		VMA_MEMORY_USAGE_GPU_ONLY );
+
+	//create vertex buffer
+	surface.vertexBuffer = createBuffer(
+		vertexBufferSize,
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+		VMA_MEMORY_USAGE_GPU_ONLY );
+
+	//find the adress of the vertex buffer
+	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = surface.vertexBuffer.buffer };
+	surface.vertexBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+
+	// Upload buffers
+
+	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
+
+	void* data = staging.allocation->GetMappedData();
+	// copy vertex buffer
+	memcpy( data, _vertexPositions.data(), vertexBufferSize );
+	// copy index buffer
+	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize );
+
+	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
+		VkBufferCopy vertexCopy{ 0 };
+		vertexCopy.dstOffset = 0;
+		vertexCopy.srcOffset = 0;
+		vertexCopy.size = vertexBufferSize;
+
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexBuffer.buffer, 1, &vertexCopy );
+
+		VkBufferCopy indexCopy{ 0 };
+		indexCopy.dstOffset = 0;
+		indexCopy.srcOffset = vertexBufferSize;
+		indexCopy.size = indexBufferSize;
+
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.indexBuffer.buffer, 1, &indexCopy );
+	} );
+
+	destroyBuffer( staging );
+
+	return m_meshBuffers.emplace( surface );
+}
+
+void wv::Renderer::destroyMesh( ResourceID _mesh )
+{ 
+	if ( !m_meshBuffers.contains( _mesh ) )
+		return;
+
+	GPUMeshBuffers surface = m_meshBuffers.at( _mesh );
+	m_meshBuffers.erase( _mesh );
+
+	destroyBuffer( surface.vertexBuffer );
+	destroyBuffer( surface.indexBuffer );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -572,7 +604,7 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 }
 
-void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
+void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
 	VkRenderingAttachmentInfo colorAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 	colorAttachment.imageView = m_drawImage.imageView;
@@ -614,17 +646,38 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
 		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
 
 
-		GPUDrawPushConstants pc{};
-		pc.worldMatrix = Matrix4x4f::identity( 1.0f );
-		pc.vertexBuffer = m_triangleBuffers.vertexBufferAddress;
+		Viewport* worldViewport = _world->getViewport();
+		WV_ASSERT( worldViewport == nullptr );
+		WV_ASSERT( worldViewport->getViewVolume() == nullptr );
 
-		vkCmdBindIndexBuffer( _cmd->m_cmd, m_triangleBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+		Matrix4x4f viewProj = worldViewport->getViewVolume()->getViewProjMatrix();
 
-		vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
+		// draw meshes
+		{
+			RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
+			auto buckets = worldRenderSystem->getRenderBuckets();
 
-		// launch a draw command to draw 3 vertices
-		// vkCmdDraw( _cmd->m_cmd, 3, 1, 0, 0 );
-		vkCmdDrawIndexed( _cmd->m_cmd, 3, 1, 0, 0, 0 );
+			for ( auto bucket : buckets )
+			{
+				for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
+				{
+					ResourceID meshHandle = bucket.renderMeshes[ i ].meshID;
+					if ( !meshHandle.isValid() )
+						continue;
+					
+					const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
+
+					GPUDrawPushConstants pc{};
+					pc.vertexBuffer = mesh.vertexBufferAddress;
+					pc.worldMatrix  = bucket.matrices[ i ] * viewProj;
+
+					vkCmdBindIndexBuffer( _cmd->m_cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+					vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
+
+					vkCmdDrawIndexed( _cmd->m_cmd, mesh.numIndices, 1, 0, 0, 0 );
+				}
+			}
+		}
 	}
 	
 	vkCmdEndRendering( _cmd->m_cmd );
@@ -663,63 +716,4 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 { 
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
-}
-
-wv::GPUMeshBuffers wv::Renderer::uploadMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions )
-{
-	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
-	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
-
-	GPUMeshBuffers surface{};
-
-	surface.indexBuffer = createBuffer( 
-		indexBufferSize, 
-		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
-		VMA_MEMORY_USAGE_GPU_ONLY );
-
-	//create vertex buffer
-	surface.vertexBuffer = createBuffer( 
-		vertexBufferSize, 
-		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-		VMA_MEMORY_USAGE_GPU_ONLY );
-
-	//find the adress of the vertex buffer
-	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = surface.vertexBuffer.buffer };
-	surface.vertexBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
-
-	// Upload buffers
-
-	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
-
-	void* data = staging.allocation->GetMappedData();
-	// copy vertex buffer
-	memcpy( data, _vertexPositions.data(), vertexBufferSize );
-	// copy index buffer
-	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize );
-
-	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
-		VkBufferCopy vertexCopy{ 0 };
-		vertexCopy.dstOffset = 0;
-		vertexCopy.srcOffset = 0;
-		vertexCopy.size = vertexBufferSize;
-
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexBuffer.buffer, 1, &vertexCopy );
-
-		VkBufferCopy indexCopy{ 0 };
-		indexCopy.dstOffset = 0;
-		indexCopy.srcOffset = vertexBufferSize;
-		indexCopy.size = indexBufferSize;
-
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.indexBuffer.buffer, 1, &indexCopy );
-	} );
-
-	destroyBuffer( staging );
-
-	return surface;
-}
-
-void wv::Renderer::destroyMesh( const GPUMeshBuffers& _mesh )
-{ 
-	destroyBuffer( _mesh.vertexBuffer );
-	destroyBuffer( _mesh.indexBuffer );
 }
