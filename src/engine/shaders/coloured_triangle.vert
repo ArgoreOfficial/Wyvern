@@ -1,23 +1,28 @@
 #version 450
+#extension GL_EXT_buffer_reference : require
+
+struct Vertex {
+	float posX;
+	float posY;
+	float posZ;
+}; 
+
+layout(buffer_reference, std430) readonly buffer VertexBuffer{ 
+	Vertex vertices[];
+};
 
 layout (location = 0) out vec3 outColor;
 
-layout(push_constant) uniform _PushConstant {
-    float offsetX;
-    float offsetY;
-    float offsetZ;
-	uint pad0;
+layout(push_constant) uniform pushConstant {
+    mat4 worldMatrix;
+	VertexBuffer vertexBuffer;
 };
 
 void main() 
 {
-	//const array of positions for the triangle
-	const vec3 positions[3] = vec3[3](
-		vec3( 0.5f, 0.5f, 0.0f),
-		vec3(-0.5f, 0.5f, 0.0f),
-		vec3( 0.0f,-0.5f, 0.0f)
-	);
-
+	Vertex v = vertexBuffer.vertices[gl_VertexIndex];
+	vec4 pos = worldMatrix * vec4(v.posX, v.posY, v.posZ, 1.0f);
+	
 	//const array of colors for the triangle
 	const vec3 colors[3] = vec3[3](
 		vec3(1.0f, 0.0f, 0.0f), //red
@@ -26,6 +31,6 @@ void main()
 	);
 
 	//output the position of each vertex
-	gl_Position = vec4(positions[gl_VertexIndex] + vec3(offsetX, offsetY, offsetZ), 1.0f);
+	gl_Position = pos;
 	outColor = colors[gl_VertexIndex];
 }

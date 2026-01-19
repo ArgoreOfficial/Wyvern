@@ -159,7 +159,22 @@ bool wv::Renderer::initialize()
 		} );
 	}
 
+	// Create triangle
+	{
+		m_triangleBuffers = uploadMesh(
+			{ 0, 1, 2 },
+			{ 
+				Vector3f( 0.5f, 0.5f, 0.0f ),
+				Vector3f(-0.5f, 0.5f, 0.0f),
+				Vector3f( 0.0f,-0.5f, 0.0f)
+			} 
+		);
 
+		m_mainDeleteQueue.push( [ & ]() {
+			destroyMesh( m_triangleBuffers );
+			m_triangleBuffers = {};
+		} );
+	}
 
 	m_initialized = true;
 
@@ -599,22 +614,17 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
 		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
 
 
-		struct PushConstant
-		{
-			float x = 0.0f;
-			float y = 0.0f;
-			float z = 0.0f;
+		GPUDrawPushConstants pc{};
+		pc.worldMatrix = Matrix4x4f::identity( 1.0f );
+		pc.vertexBuffer = m_triangleBuffers.vertexBufferAddress;
 
-			uint32_t pad0 = 0;
-		} pc;
+		vkCmdBindIndexBuffer( _cmd->m_cmd, m_triangleBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
-		pc.x = std::abs( std::sin( m_frameNumber / 120.f ) ) / 2.0f;
-		
-		vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( PushConstant ), &pc );
-
+		vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
 
 		// launch a draw command to draw 3 vertices
-		vkCmdDraw( _cmd->m_cmd, 3, 1, 0, 0 );
+		// vkCmdDraw( _cmd->m_cmd, 3, 1, 0, 0 );
+		vkCmdDrawIndexed( _cmd->m_cmd, 3, 1, 0, 0, 0 );
 	}
 	
 	vkCmdEndRendering( _cmd->m_cmd );
@@ -632,4 +642,84 @@ void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )
 	m_immediateCommandBuffer->submit( m_graphicsQueue, nullptr, nullptr, m_immediateFence );
 
 	vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );
+}
+
+wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage )
+{
+	VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+	bufferInfo.size = _size;
+	bufferInfo.usage = _usage;
+
+	VmaAllocationCreateInfo allocInfo{};
+	allocInfo.usage = _memoryUsage;
+	allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+	AllocatedBuffer buffer{};
+	vmaCreateBuffer( m_allocator, &bufferInfo, &allocInfo, &buffer.buffer, &buffer.allocation, &buffer.info );
+
+	return buffer;
+}
+
+void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
+{ 
+	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
+}
+
+wv::GPUMeshBuffers wv::Renderer::uploadMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions )
+{
+	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
+	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
+
+	GPUMeshBuffers surface{};
+
+	surface.indexBuffer = createBuffer( 
+		indexBufferSize, 
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+		VMA_MEMORY_USAGE_GPU_ONLY );
+
+	//create vertex buffer
+	surface.vertexBuffer = createBuffer( 
+		vertexBufferSize, 
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+		VMA_MEMORY_USAGE_GPU_ONLY );
+
+	//find the adress of the vertex buffer
+	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = surface.vertexBuffer.buffer };
+	surface.vertexBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+
+	// Upload buffers
+
+	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
+
+	void* data = staging.allocation->GetMappedData();
+	// copy vertex buffer
+	memcpy( data, _vertexPositions.data(), vertexBufferSize );
+	// copy index buffer
+	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize );
+
+	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
+		VkBufferCopy vertexCopy{ 0 };
+		vertexCopy.dstOffset = 0;
+		vertexCopy.srcOffset = 0;
+		vertexCopy.size = vertexBufferSize;
+
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexBuffer.buffer, 1, &vertexCopy );
+
+		VkBufferCopy indexCopy{ 0 };
+		indexCopy.dstOffset = 0;
+		indexCopy.srcOffset = vertexBufferSize;
+		indexCopy.size = indexBufferSize;
+
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.indexBuffer.buffer, 1, &indexCopy );
+	} );
+
+	destroyBuffer( staging );
+
+	return surface;
+}
+
+void wv::Renderer::destroyMesh( const GPUMeshBuffers& _mesh )
+{ 
+	destroyBuffer( _mesh.vertexBuffer );
+	destroyBuffer( _mesh.indexBuffer );
 }
