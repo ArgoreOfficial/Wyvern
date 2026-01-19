@@ -155,6 +155,7 @@ protected:
 	VkExtent2D m_swapchainExtent = {};
 
 	AllocatedImage m_drawImage  = {};
+	AllocatedImage m_depthImage = {};
 	VkExtent2D     m_drawExtent = {};
 
 	uint32_t  m_frameNumber = 0;

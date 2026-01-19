@@ -1,15 +1,15 @@
 #version 450
+#extension GL_ARB_shading_language_include : require
 #extension GL_EXT_buffer_reference : require
+
+#include "vertex.glsl"
 
 struct Vertex {
 	float posX;
 	float posY;
 	float posZ;
 }; 
-
-layout(buffer_reference, std430) readonly buffer VertexBuffer{ 
-	Vertex vertices[];
-};
+defineVertexBuffer(Vertex)
 
 layout (location = 0) out vec3 outColor;
 
@@ -20,7 +20,7 @@ layout(push_constant) uniform pushConstant {
 
 void main() 
 {
-	Vertex v = vertexBuffer.vertices[gl_VertexIndex];
+	Vertex v = getVertex(gl_VertexIndex);
 	vec4 pos = worldMatrix * vec4(v.posX, v.posY, v.posZ, 1.0f);
 	
 	//const array of colors for the triangle

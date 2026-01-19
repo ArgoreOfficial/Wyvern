@@ -103,17 +103,29 @@ wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
 
-	VkFormat colorAttachmentformat = m_renderer->m_drawImage.imageFormat; // TODO ?
+	VkFormat colorAttachmentformat = m_renderer->m_drawImage.imageFormat;
+	VkFormat depthAttachmentformat = m_renderer->m_depthImage.imageFormat;
 
 	VkPipelineRenderingCreateInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	renderInfo.colorAttachmentCount = 1;
 	renderInfo.pColorAttachmentFormats = &colorAttachmentformat;
-	renderInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+	renderInfo.depthAttachmentFormat   = depthAttachmentformat;
 
 	VkPipelineDepthStencilStateCreateInfo depthStencil{ .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-	depthStencil.depthTestEnable = VK_FALSE;
-	depthStencil.depthWriteEnable = VK_FALSE;
-	depthStencil.depthCompareOp = VK_COMPARE_OP_NEVER;
+	
+	if ( false ) // disable depth
+	{
+		depthStencil.depthTestEnable = VK_FALSE;
+		depthStencil.depthWriteEnable = VK_FALSE;
+		depthStencil.depthCompareOp = VK_COMPARE_OP_NEVER;
+	}
+	else
+	{
+		depthStencil.depthTestEnable = VK_TRUE;
+		depthStencil.depthWriteEnable = VK_TRUE;
+		depthStencil.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+	}
+
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.stencilTestEnable = VK_FALSE;
 	depthStencil.front = {};

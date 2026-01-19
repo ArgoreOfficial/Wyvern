@@ -206,6 +206,7 @@ void wv::Renderer::render( World* _world )
 		drawBackground( cmd );
 
 		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+		cmd->transitionImage( m_depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
 		
 		drawGeometry( cmd, _world );
 
@@ -405,29 +406,54 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 	} );
 
 	VkExtent3D drawImageExtent = { _width, _height, 1 };
-	m_drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
-	m_drawImage.imageExtent = drawImageExtent;
 
-	VkImageUsageFlags drawImageUsage{};
-	drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-	drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	drawImageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
-	drawImageUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-	VkImageCreateInfo drawImageInfo = imageCreateInfo( m_drawImage.imageFormat, drawImageUsage, drawImageExtent );
 	VmaAllocationCreateInfo drawImageAllocInfo{};
 	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY; // needed?
 	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-	vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &m_drawImage.image, &m_drawImage.allocation, nullptr );
+	// Create draw image
+	{
+		m_drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
+		m_drawImage.imageExtent = drawImageExtent;
 
-	VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( m_drawImage.imageFormat, m_drawImage.image, VK_IMAGE_ASPECT_COLOR_BIT );
-	vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &m_drawImage.imageView );
+		VkImageUsageFlags drawImageUsage{};
+		drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+		drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		drawImageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
+		drawImageUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+		VkImageCreateInfo drawImageInfo = imageCreateInfo( m_drawImage.imageFormat, drawImageUsage, drawImageExtent );
+	
+		vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &m_drawImage.image, &m_drawImage.allocation, nullptr );
+
+		VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( m_drawImage.imageFormat, m_drawImage.image, VK_IMAGE_ASPECT_COLOR_BIT );
+		vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &m_drawImage.imageView );
+	}
+
+	// Create depth image
+	{
+		m_depthImage.imageFormat = VK_FORMAT_D32_SFLOAT;
+		m_depthImage.imageExtent = drawImageExtent;
+
+		VkImageUsageFlags depthImageUsage{};
+		depthImageUsage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+		VkImageCreateInfo depthImageInfo = imageCreateInfo( m_depthImage.imageFormat, depthImageUsage, drawImageExtent );
+		vmaCreateImage( m_allocator, &depthImageInfo, &drawImageAllocInfo, &m_depthImage.image, &m_depthImage.allocation, nullptr );
+
+		VkImageViewCreateInfo depthImageViewInfo = imageViewCreateInfo( m_depthImage.imageFormat, m_depthImage.image, VK_IMAGE_ASPECT_DEPTH_BIT );
+
+		vkCreateImageView( m_device, &depthImageViewInfo, nullptr, &m_depthImage.imageView );
+	}
 
 	m_mainDeleteQueue.push( [ & ]() {
 		vkDestroyImageView( m_device, m_drawImage.imageView, nullptr );
 		vmaDestroyImage( m_allocator, m_drawImage.image, m_drawImage.allocation );
+
+		vkDestroyImageView( m_device, m_depthImage.imageView, nullptr );
+		vmaDestroyImage( m_allocator, m_depthImage.image, m_depthImage.allocation );
 	} );
+
 
 	return true;
 }
@@ -613,12 +639,19 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	//if ( clear ) colorAttachment.clearValue = *clear;
 
+	VkRenderingAttachmentInfo depthAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+	depthAttachment.imageView   = m_depthImage.imageView;
+	depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+	depthAttachment.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	depthAttachment.clearValue.depthStencil.depth = 0.f;
+
 	VkRenderingInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO };
 	renderInfo.renderArea = VkRect2D{ VkOffset2D { 0, 0 }, m_drawExtent };
 	renderInfo.layerCount = 1;
 	renderInfo.colorAttachmentCount = 1;
-	renderInfo.pColorAttachments = &colorAttachment;
-	renderInfo.pDepthAttachment = nullptr;
+	renderInfo.pColorAttachments  = &colorAttachment;
+	renderInfo.pDepthAttachment   = &depthAttachment;
 	renderInfo.pStencilAttachment = nullptr;
 
 	vkCmdBeginRendering( _cmd->m_cmd, &renderInfo );
@@ -650,7 +683,9 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 		WV_ASSERT( worldViewport == nullptr );
 		WV_ASSERT( worldViewport->getViewVolume() == nullptr );
 
-		Matrix4x4f viewProj = worldViewport->getViewVolume()->getViewProjMatrix();
+		ViewVolume* viewVolume = worldViewport->getViewVolume();
+
+		Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
 
 		// draw meshes
 		{
