@@ -2,6 +2,13 @@
 
 layout (location = 0) out vec3 outColor;
 
+layout(push_constant) uniform _PushConstant {
+    float offsetX;
+    float offsetY;
+    float offsetZ;
+	uint pad0;
+};
+
 void main() 
 {
 	//const array of positions for the triangle
@@ -19,6 +26,6 @@ void main()
 	);
 
 	//output the position of each vertex
-	gl_Position = vec4(positions[gl_VertexIndex], 1.0f);
+	gl_Position = vec4(positions[gl_VertexIndex] + vec3(offsetX, offsetY, offsetZ), 1.0f);
 	outColor = colors[gl_VertexIndex];
 }

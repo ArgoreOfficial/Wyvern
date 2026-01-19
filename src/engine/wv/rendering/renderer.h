@@ -149,50 +149,58 @@ protected:
 
 	bool m_initialized = false;
 
-	PipelineManager m_pipelineManager{ this };
+	PipelineManager m_pipelineManager = { this };
 
-	DeleteQueue m_mainDeleteQueue;
+	DeleteQueue m_mainDeleteQueue = {};
 
-	VkInstance m_instance;
-	VkDebugUtilsMessengerEXT m_debugMessenger;
-	VkPhysicalDevice m_physicalDevice;
-	VkDevice m_device;
-	VkSurfaceKHR m_surface;
+	VkInstance               m_instance       = VK_NULL_HANDLE;
+	VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
+	VkPhysicalDevice         m_physicalDevice = VK_NULL_HANDLE;
+	VkDevice                 m_device         = VK_NULL_HANDLE;
+	VkSurfaceKHR             m_surface        = VK_NULL_HANDLE;
 
-	VkSwapchainKHR m_swapchain;
-	VkFormat m_swapchainImageFormat;
+	VkSwapchainKHR m_swapchain            = VK_NULL_HANDLE;
+	VkFormat       m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
 
-	std::vector<VkImage> m_swapchainImages;
-	std::vector<VkImageView> m_swapchainImageViews;
-	std::vector<VkSemaphore> m_submitSemaphores;
-	VkExtent2D m_swapchainExtent;
+	std::vector<VkImage>     m_swapchainImages     = {};
+	std::vector<VkImageView> m_swapchainImageViews = {};
+	std::vector<VkSemaphore> m_submitSemaphores    = {};
+	VkExtent2D m_swapchainExtent = {};
 
-	AllocatedImage m_drawImage;
-	VkExtent2D m_drawExtent;
+	AllocatedImage m_drawImage  = {};
+	VkExtent2D     m_drawExtent = {};
 
-	uint32_t m_frameNumber;
+	uint32_t  m_frameNumber = 0;
 	FrameData m_frames[ FRAME_OVERLAP ];
 
-	VkQueue m_graphicsQueue;
-	uint32_t m_graphicsQueueFamily;
+	VkQueue  m_graphicsQueue = VK_NULL_HANDLE;
+	uint32_t m_graphicsQueueFamily = 0;
 
-	VmaAllocator m_allocator;
+	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-	VkFence m_immediateFence;
-	VkCommandPool m_immediateCommandPool;
+	VkFence        m_immediateFence         = VK_NULL_HANDLE;
+	VkCommandPool  m_immediateCommandPool   = VK_NULL_HANDLE;
 	CommandBuffer* m_immediateCommandBuffer = nullptr;
+
+	// Bindless
+
+	const uint32_t STORAGE_BINDING = 0;
+	const uint32_t SAMPLER_BINDING = 1;
+	const uint32_t IMAGE_BINDING   = 2;
+	
+	const uint32_t STORAGE_COUNT = 65536;
+	const uint32_t SAMPLER_COUNT = 65536;
+	const uint32_t IMAGE_COUNT   = 65536;
+
+	VkDescriptorPool      m_bindlessPool;
+	VkDescriptorSetLayout m_bindlessLayout;
+	VkDescriptorSet       m_bindlessDescriptorSet;
+	VkPipelineLayout      m_bindlessPipelineLayout;
 
 	// TESTING STUFF
 
-	DescriptorAllocator m_globalDescriptorAllocator;
-	VkDescriptorSet m_drawImageDescriptors;
-	VkDescriptorSetLayout m_drawImageDescriptorLayout;
-
-	PipelineID m_gradientPipelineID;
-	VkPipelineLayout m_gradientPipelineLayout;
-
-	PipelineID m_trianglePipelineID;
-	VkPipelineLayout m_trianglePipelineLayout;
+	PipelineID m_trianglePipelineID = {};
+	
 };
 
 

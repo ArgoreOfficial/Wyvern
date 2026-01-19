@@ -98,50 +98,47 @@ bool wv::Renderer::initialize()
 	IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
 
 
-	// Create gradient pipeline layout
+	// Create bindless pipeline layout
 	{
+		VkPushConstantRange pushConstantRange{ };
+		pushConstantRange.offset = 0;
+		pushConstantRange.size = 128;
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		pipelineLayoutInfo.pSetLayouts = &m_drawImageDescriptorLayout;
+		pipelineLayoutInfo.pSetLayouts = &m_bindlessLayout;
 		pipelineLayoutInfo.setLayoutCount = 1;
-		vkCreatePipelineLayout( m_device, &pipelineLayoutInfo, nullptr, &m_gradientPipelineLayout );
-	}
+		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+		pipelineLayoutInfo.pushConstantRangeCount = 1;
 
-
-	// Create gradient pipeline
-	{
-		std::vector<uint8_t> buffer = fileSystem->loadEntireFile( "shaders/gradient.comp.spv" );
-		if ( buffer.empty() )
-			return false;
-
-		VkShaderModule shaderModule = m_pipelineManager.createShaderModule( (uint32_t*)buffer.data(), buffer.size() );
-		if ( shaderModule == VK_NULL_HANDLE )
-			return false;
-
-		m_gradientPipelineID = m_pipelineManager.createComputePipeline( shaderModule, m_gradientPipelineLayout, "main" );
-		if ( !m_gradientPipelineID.isValid() )
-			return false;
-
-		// destroy module, it's not needed anymore
-		m_pipelineManager.destroyShaderModule( shaderModule );
+		vkCreatePipelineLayout( m_device, &pipelineLayoutInfo, nullptr, &m_bindlessPipelineLayout );
 
 		m_mainDeleteQueue.push( [ & ]() {
-			vkDestroyPipelineLayout( m_device, m_gradientPipelineLayout, nullptr );
-			m_pipelineManager.destroyPipeline( m_gradientPipelineID );
+			vkDestroyPipelineLayout( m_device, m_bindlessPipelineLayout, nullptr );
 		} );
 	}
 
+	//{
+	//	
+	//	VkDescriptorBufferInfo bufInfo{};
+	//	
+	//	VkDescriptorImageInfo imgInfo{};
+	//	imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+	//	imgInfo.imageView = m_drawImage.imageView;
+
+	//	VkWriteDescriptorSet write{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	//	write.dstBinding = 0;
+	//	write.dstSet = m_bindlessDescriptorSet;
+	//	write.descriptorCount = 1;
+	//	write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+	//	write.pImageInfo = &imgInfo;
+	//	vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
+
+	//}
 
 
 
 	// Triangle
-
-
-
-	// Create triangle pipeline layout
-	{
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		vkCreatePipelineLayout( m_device, &pipelineLayoutInfo, nullptr, &m_trianglePipelineLayout );
-	}
 
 	// Create triangle pipline
 	{
@@ -153,12 +150,11 @@ bool wv::Renderer::initialize()
 		if ( vertShader == VK_NULL_HANDLE || fragShader == VK_NULL_HANDLE )
 			return false;
 
-		m_trianglePipelineID = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_trianglePipelineLayout );
+		m_trianglePipelineID = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_bindlessPipelineLayout );
 		m_pipelineManager.destroyShaderModule( vertShader );
 		m_pipelineManager.destroyShaderModule( fragShader );
 
 		m_mainDeleteQueue.push( [ & ]() {
-			vkDestroyPipelineLayout( m_device, m_trianglePipelineLayout, nullptr );
 			m_pipelineManager.destroyPipeline( m_trianglePipelineID );
 		} );
 	}
@@ -219,6 +215,9 @@ void wv::Renderer::render( World* _world )
 		m_drawExtent.width = m_drawImage.imageExtent.width;
 		m_drawExtent.height = m_drawImage.imageExtent.height;
 		cmd->begin();
+
+		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
+		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
 
 		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
@@ -309,7 +308,7 @@ bool wv::Renderer::initVulkan()
 
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
 	features12.bufferDeviceAddress = true;
-	features12.descriptorIndexing = true;
+	features12.descriptorIndexing  = true;
 
 	vkb::PhysicalDeviceSelector selector{ vkbInstance };
 	vkb::PhysicalDevice physicalDevice = selector
@@ -436,65 +435,70 @@ bool wv::Renderer::initSyncStructures()
 
 bool wv::Renderer::initDescriptors()
 {
-	std::vector<DescriptorAllocator::PoolSizeRatio> sizes =
+	std::vector<VkDescriptorPoolSize> sizes =
 	{
-		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1 }
+		VkDescriptorPoolSize{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         STORAGE_COUNT },
+		VkDescriptorPoolSize{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SAMPLER_COUNT },
+		VkDescriptorPoolSize{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          IMAGE_COUNT }
 	};
 
-	m_globalDescriptorAllocator.initialize( m_device, 10, sizes );
+	VkDescriptorPoolCreateInfo poolCreateInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+	poolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+	poolCreateInfo.maxSets = 1;
+	poolCreateInfo.poolSizeCount = (uint32_t)sizes.size();
+	poolCreateInfo.pPoolSizes    = sizes.data();
+
+	vkCreateDescriptorPool( m_device, &poolCreateInfo, nullptr, &m_bindlessPool );
 
 
-	// create descriptor set layout
-	{
-		std::vector<VkDescriptorSetLayoutBinding> bindings;
-
-		{
-			VkDescriptorSetLayoutBinding newbind{
-				.binding = 0,
-				.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-				.descriptorCount = 1
-			};
-			bindings.push_back( newbind );
+	std::vector<VkDescriptorSetLayoutBinding> bindings = {
+		VkDescriptorSetLayoutBinding{
+			.binding = STORAGE_BINDING,
+			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			.descriptorCount = STORAGE_COUNT,
+			.stageFlags = VK_SHADER_STAGE_ALL
+		},
+		VkDescriptorSetLayoutBinding{
+			.binding = SAMPLER_BINDING,
+			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			.descriptorCount = SAMPLER_COUNT,
+			.stageFlags = VK_SHADER_STAGE_ALL
+		},
+		VkDescriptorSetLayoutBinding{
+			.binding = IMAGE_BINDING,
+			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+			.descriptorCount = IMAGE_COUNT,
+			.stageFlags = VK_SHADER_STAGE_ALL
 		}
+	};
+	
+	std::vector<VkDescriptorBindingFlags> bindingFlags = {
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT,
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT,
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT,
+	};
+	
+	VkDescriptorSetLayoutBindingFlagsCreateInfo layoutBindingFlagsInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO };
+	layoutBindingFlagsInfo.pBindingFlags = bindingFlags.data();
+	layoutBindingFlagsInfo.bindingCount  = (uint32_t)bindingFlags.size();
 
-		for ( auto& b : bindings )
-			b.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+	VkDescriptorSetLayoutCreateInfo layoutCreateInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+	layoutCreateInfo.pBindings = bindings.data();
+	layoutCreateInfo.bindingCount = (uint32_t)bindings.size();
+	layoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
-		VkDescriptorSetLayoutCreateInfo info = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		info.pNext = nullptr;
+	vkCreateDescriptorSetLayout( m_device, &layoutCreateInfo, nullptr, &m_bindlessLayout );
 
-		info.pBindings = bindings.data();
-		info.bindingCount = (uint32_t)bindings.size();
-		//info.flags = flags;
+	VkDescriptorSetAllocateInfo allocInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+	allocInfo.descriptorPool     = m_bindlessPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts        = &m_bindlessLayout;
 
-		VkDescriptorSetLayout set;
-		vkCreateDescriptorSetLayout( m_device, &info, nullptr, &set );
-
-		m_drawImageDescriptorLayout = set;
-	}
-
-	// create and update descriptor set layout
-	{
-		m_drawImageDescriptors = m_globalDescriptorAllocator.allocate( m_device, m_drawImageDescriptorLayout );
-
-		VkDescriptorImageInfo imgInfo{};
-		imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-		imgInfo.imageView = m_drawImage.imageView;
-
-		VkWriteDescriptorSet drawImageWrite{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		drawImageWrite.dstBinding = 0;
-		drawImageWrite.dstSet = m_drawImageDescriptors;
-		drawImageWrite.descriptorCount = 1;
-		drawImageWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		drawImageWrite.pImageInfo = &imgInfo;
-
-		vkUpdateDescriptorSets( m_device, 1, &drawImageWrite, 0, nullptr );
-	}
+	vkAllocateDescriptorSets( m_device, &allocInfo, &m_bindlessDescriptorSet );
 
 	m_mainDeleteQueue.push( [ & ]() {
-		m_globalDescriptorAllocator.destroy( m_device );
-
-		vkDestroyDescriptorSetLayout( m_device, m_drawImageDescriptorLayout, nullptr );
+		vkDestroyDescriptorPool( m_device, m_bindlessPool, nullptr );
+		vkDestroyDescriptorSetLayout( m_device, m_bindlessLayout, nullptr );
 	} );
 
 	return true;
@@ -547,17 +551,10 @@ void wv::Renderer::destroySwapchain()
 
 void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 {
-//	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
-//	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
-//
-//	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
+	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
+	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
 
-	Pipeline pipeline = m_pipelineManager.getPipeline( m_gradientPipelineID );
-	
-	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
-	_cmd->bindDescriptorSets( pipeline.bindPoint, m_gradientPipelineLayout, 0, 1, &m_drawImageDescriptors );
-
-	_cmd->dispatch( std::ceil( m_drawExtent.width / 16.0 ), std::ceil( m_drawExtent.height / 16.0 ), 1 );
+	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 }
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
@@ -600,6 +597,21 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd )
 		scissor.extent.height = m_drawExtent.height;
 
 		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
+
+
+		struct PushConstant
+		{
+			float x = 0.0f;
+			float y = 0.0f;
+			float z = 0.0f;
+
+			uint32_t pad0 = 0;
+		} pc;
+
+		pc.x = std::abs( std::sin( m_frameNumber / 120.f ) ) / 2.0f;
+		
+		vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( PushConstant ), &pc );
+
 
 		// launch a draw command to draw 3 vertices
 		vkCmdDraw( _cmd->m_cmd, 3, 1, 0, 0 );
