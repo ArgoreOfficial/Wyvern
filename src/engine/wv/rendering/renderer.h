@@ -96,6 +96,7 @@ struct GPUDrawPushConstants
 
 class Renderer
 {
+	friend class Application;
 	friend class PipelineManager;
 
 public:
@@ -110,7 +111,8 @@ public:
 	void destroyMesh( ResourceID _mesh );
 
 protected:
-
+	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
+	
 	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
 
 	bool initVulkan();

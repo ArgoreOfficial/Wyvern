@@ -9,6 +9,7 @@
 #include <wv/entity/world_sector.h>
 #include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
+#include <wv/rendering/renderer.h>
 #include <wv/rendering/systems/render_world_system.h>
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/rendering/viewport.h>
@@ -171,6 +172,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
+	m_renderer->waitForRenderer();
+
 	if ( m_world )
 	{
 		m_world->shutdown();

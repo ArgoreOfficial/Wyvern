@@ -1,7 +1,6 @@
 #pragma once
 
 #include <wv/math/vector3.h>
-#include <wv/rendering/renderer.h>
 #include <wv/camera/view_volume.h>
 #include <wv/debug/error.h>
 
@@ -14,6 +13,7 @@ class DisplayDriver;
 class World;
 class InputSystem;
 class EventManager;
+class Renderer;
 
 struct VertexData
 {
@@ -70,7 +70,7 @@ private:
 	wv::IFileSystem*    m_filesystem    = nullptr;
 	wv::InputSystem*    m_inputSystem   = nullptr;
 	wv::EventManager*   m_eventManager  = nullptr;
-	wv::Renderer* m_renderer      = nullptr;
+	wv::Renderer*       m_renderer      = nullptr;
 
 	wv::World* m_world = nullptr;
 };

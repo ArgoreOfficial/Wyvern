@@ -153,7 +153,7 @@ void wv::Renderer::shutdown()
 {
 	if ( m_initialized )
 	{
-		vkDeviceWaitIdle( m_device );
+		waitForRenderer();
 
 		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
 		{
