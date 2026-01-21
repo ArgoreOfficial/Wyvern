@@ -82,8 +82,11 @@ struct Vertex
 struct GPUMeshBuffers
 {
 	AllocatedBuffer indexBuffer;
-	AllocatedBuffer vertexBuffer;
-	VkDeviceAddress vertexBufferAddress;
+	AllocatedBuffer positionBuffer;
+	AllocatedBuffer vertexDataBuffer;
+
+	VkDeviceAddress positionBufferAddress;
+	VkDeviceAddress vertexDataBufferAddress;
 
 	uint32_t numIndices;
 };
@@ -91,7 +94,8 @@ struct GPUMeshBuffers
 struct GPUDrawPushConstants
 {
 	wv::Matrix4x4f worldMatrix;
-	VkDeviceAddress vertexBuffer;
+	VkDeviceAddress positionBuffer;
+	VkDeviceAddress vertexDataBuffer;
 };
 
 class Renderer
@@ -107,7 +111,7 @@ public:
 	void render( World* _world );
 	void finalize();
 
-	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions );
+	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
 	void destroyMesh( ResourceID _mesh );
 
 protected:

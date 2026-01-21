@@ -249,10 +249,11 @@ void wv::Renderer::finalize()
 
 }
 
-wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions )
+wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
 {
-	const size_t indexBufferSize = _indices.size() * sizeof( uint16_t );
+	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
 	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
+	const bool   useVertexData    = _vertexData != nullptr && _vertexDataSize > 0;
 
 	GPUMeshBuffers surface{};
 	surface.numIndices = (uint32_t)_indices.size();
@@ -262,33 +263,48 @@ wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, 
 		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
 
-	//create vertex buffer
-	surface.vertexBuffer = createBuffer(
+	//create position buffer
+	surface.positionBuffer = createBuffer(
 		vertexBufferSize,
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
+	
+	//create vertex data buffer
+	if ( useVertexData )
+	{
+		surface.vertexDataBuffer = createBuffer(
+			_vertexDataSize,
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+			VMA_MEMORY_USAGE_GPU_ONLY );
 
-	//find the adress of the vertex buffer
-	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = surface.vertexBuffer.buffer };
-	surface.vertexBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = surface.vertexDataBuffer.buffer };
+		surface.vertexDataBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+	}
+
+	{
+		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = surface.positionBuffer.buffer };
+		surface.positionBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+	}
 
 	// Upload buffers
 
-	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
+	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize + _vertexDataSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
 
 	void* data = staging.allocation->GetMappedData();
-	// copy vertex buffer
-	memcpy( data, _vertexPositions.data(), vertexBufferSize );
-	// copy index buffer
-	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize );
+	
+	memcpy( data, _vertexPositions.data(), vertexBufferSize ); // copy position buffer
+	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize ); // copy index buffer
+	
+	if( useVertexData )
+		memcpy( (char*)data + vertexBufferSize + indexBufferSize, _vertexData, _vertexDataSize ); // copy vertex data buffer
 
 	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
-		VkBufferCopy vertexCopy{ 0 };
-		vertexCopy.dstOffset = 0;
-		vertexCopy.srcOffset = 0;
-		vertexCopy.size = vertexBufferSize;
+		VkBufferCopy positionCopy{ 0 };
+		positionCopy.dstOffset = 0;
+		positionCopy.srcOffset = 0;
+		positionCopy.size = vertexBufferSize;
 
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexBuffer.buffer, 1, &vertexCopy );
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.positionBuffer.buffer, 1, &positionCopy );
 
 		VkBufferCopy indexCopy{ 0 };
 		indexCopy.dstOffset = 0;
@@ -296,6 +312,16 @@ wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, 
 		indexCopy.size = indexBufferSize;
 
 		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.indexBuffer.buffer, 1, &indexCopy );
+
+		if ( useVertexData )
+		{
+			VkBufferCopy vertexDataCopy{ 0 };
+			vertexDataCopy.dstOffset = 0;
+			vertexDataCopy.srcOffset = vertexBufferSize + indexBufferSize;
+			vertexDataCopy.size = _vertexDataSize;
+
+			vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexDataBuffer.buffer, 1, &vertexDataCopy );
+		}
 	} );
 
 	destroyBuffer( staging );
@@ -311,8 +337,11 @@ void wv::Renderer::destroyMesh( ResourceID _mesh )
 	GPUMeshBuffers surface = m_meshBuffers.at( _mesh );
 	m_meshBuffers.erase( _mesh );
 
-	destroyBuffer( surface.vertexBuffer );
+	destroyBuffer( surface.positionBuffer );
 	destroyBuffer( surface.indexBuffer );
+
+	if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+		destroyBuffer( surface.vertexDataBuffer );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -624,8 +653,9 @@ void wv::Renderer::destroySwapchain()
 
 void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 {
-	float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
-	VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+	//float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
+	//VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 1.0f } };
 
 	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 }
@@ -703,9 +733,12 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
 
 					GPUDrawPushConstants pc{};
-					pc.vertexBuffer = mesh.vertexBufferAddress;
-					pc.worldMatrix  = bucket.matrices[ i ] * viewProj;
+					pc.worldMatrix    = bucket.matrices[ i ] * viewProj;
+					pc.positionBuffer = mesh.positionBufferAddress;
 
+					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
+					
 					vkCmdBindIndexBuffer( _cmd->m_cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 					vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
 

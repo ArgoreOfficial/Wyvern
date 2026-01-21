@@ -8,3 +8,5 @@
 
 #define getPosition(_index) vec3(positionBuffer.positions[_index * 3], positionBuffer.positions[_index * 3 + 1], positionBuffer.positions[ _index * 3 + 2])
 #define getVertex(_index) vertexBuffer.vertices[_index]
+
+#define unpackFloat3(_value) vec3(_value[0], _value[1], _value[2])

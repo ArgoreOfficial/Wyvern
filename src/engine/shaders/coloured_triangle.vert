@@ -5,9 +5,9 @@
 #include "vertex.glsl"
 
 struct Vertex {
-	float posX;
-	float posY;
-	float posZ;
+	float normal[3];
+	float color[3];
+	float texCoord0[2];
 }; 
 
 DEFINE_POSITION_BUFFER();
@@ -23,16 +23,10 @@ layout(push_constant) uniform pushConstant {
 
 void main() 
 {
+	Vertex v = getVertex(gl_VertexIndex);
 	vec3 pos = getPosition(gl_VertexIndex);
 	
-	//const array of colors for the triangle
-	const vec3 colors[3] = vec3[3](
-		vec3(1.0f, 0.0f, 0.0f), //red
-		vec3(0.0f, 1.0f, 0.0f), //green
-		vec3(00.f, 0.0f, 1.0f)  //blue
-	);
-
 	//output the position of each vertex
 	gl_Position = worldMatrix * vec4(pos, 1.0f);
-	outColor = colors[gl_VertexIndex % 3];
+	outColor = unpackFloat3(v.normal);
 }

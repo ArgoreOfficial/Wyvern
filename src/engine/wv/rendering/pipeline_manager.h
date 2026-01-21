@@ -31,7 +31,6 @@ public:
 
 	void destroyPipeline( PipelineID _pipelineID );
 
-
 	Pipeline getPipeline( PipelineID _pipelineID ) const {
 		if ( m_pipelines.contains( _pipelineID ) )
 			return m_pipelines.at( _pipelineID );

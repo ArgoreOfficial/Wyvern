@@ -60,7 +60,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 				datas.push_back( data );
 			}
 
-			mesh.meshID = renderer->createMesh( meshAsset->indices, meshAsset->vertexPositions );
+			mesh.meshID = renderer->createMesh( meshAsset->indices, meshAsset->vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
 				
 		//	if ( mesh.meshID.isValid() )
 		//		renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
