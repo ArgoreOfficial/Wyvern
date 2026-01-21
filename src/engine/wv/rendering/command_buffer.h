@@ -13,23 +13,28 @@ class CommandBuffer
 public:
 	CommandBuffer( VkDevice _device, VkCommandPool _pool );
 
-	void reset() { 
-		vkResetCommandBuffer( m_cmd, 0 ); 
-		m_imageLastKnownLayout.clear();
-	}
-
-	void begin() {
-		VkCommandBufferBeginInfo cmdBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer( m_cmd, &cmdBeginInfo );
-	}
-
-	void end() {
-		vkEndCommandBuffer( m_cmd );
-	}
+	void begin() const;
+	void end() const;
+	void reset();
 
 	void submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence );
+
+	void beginRendering( float _width, float _height, VkImageView _colorView, VkImageView _depthView );
+	void endRendering();
+
+	// State
+
+	void setViewport( float _x, float _y, float _width, float _height, float _minDepth = 0.0f, float _maxDepth = 1.0f );
+	void setScissor( float _x, float _y, float _width, float _height );
+	
+	void bindIndexBuffer( VkBuffer _buffer, VkDeviceSize _offset, VkIndexType _type );
+
+	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline );
+	void bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets );
+
+	void pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, void* _data );
+	
+	// Image
 
 	void transitionImage( VkImage _image, VkImageLayout _currentLayout, VkImageLayout _newLayout );
 	void transitionImage( VkImage _image, VkImageLayout _newLayout ) {
@@ -42,17 +47,10 @@ public:
 	void copyImageToImage( VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize );
 	void clearColorImage( VkImage _image, VkImageLayout _layout, VkClearColorValue* _clearValue );
 
-	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline ) {
-		vkCmdBindPipeline( m_cmd, _bindPoint, _pipeline );
-	}
+	// Draw/Dispatch
 
-	void bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets ) {
-		vkCmdBindDescriptorSets( m_cmd, _bindPoint, _layout, _firstSet, _descriptorSetCount, _descriptorSets, 0, nullptr );
-	}
-
-	void dispatch( uint32_t _groupCountX, uint32_t _groupCountY, uint32_t _groupCountZ ) {
-		vkCmdDispatch( m_cmd, _groupCountX, _groupCountY, _groupCountZ );
-	}
+	void dispatch( uint32_t _groupCountX, uint32_t _groupCountY, uint32_t _groupCountZ );
+	void draw( uint32_t _indexCount, uint32_t _instanceCount, uint32_t _firstIndex, int32_t _vertexOffset, uint32_t _firstInstance );
 
 protected:
 

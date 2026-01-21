@@ -223,7 +223,7 @@ void wv::Renderer::render( World* _world )
 
 	// Submit
 
-	VkSemaphoreSubmitInfo waitInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
+	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_submitSemaphores[ swapchainImageIndex ] );
 	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, getCurrentFrame().fence );
 
@@ -662,52 +662,14 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
-	VkRenderingAttachmentInfo colorAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-	colorAttachment.imageView = m_drawImage.imageView;
-	colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	//colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	//if ( clear ) colorAttachment.clearValue = *clear;
-
-	VkRenderingAttachmentInfo depthAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-	depthAttachment.imageView   = m_depthImage.imageView;
-	depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-	depthAttachment.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	depthAttachment.clearValue.depthStencil.depth = 0.f;
-
-	VkRenderingInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO };
-	renderInfo.renderArea = VkRect2D{ VkOffset2D { 0, 0 }, m_drawExtent };
-	renderInfo.layerCount = 1;
-	renderInfo.colorAttachmentCount = 1;
-	renderInfo.pColorAttachments  = &colorAttachment;
-	renderInfo.pDepthAttachment   = &depthAttachment;
-	renderInfo.pStencilAttachment = nullptr;
-
-	vkCmdBeginRendering( _cmd->m_cmd, &renderInfo );
+	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, m_drawImage.imageView, m_depthImage.imageView );
 
 	Pipeline pipeline = m_pipelineManager.getPipeline( m_trianglePipelineID );
 	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 
 	{
-		VkViewport viewport = {};
-		viewport.x = 0;
-		viewport.y = 0;
-		viewport.width    = m_drawExtent.width;
-		viewport.height   = m_drawExtent.height;
-		viewport.minDepth = 0.f;
-		viewport.maxDepth = 1.f;
-
-		vkCmdSetViewport( _cmd->m_cmd, 0, 1, &viewport );
-
-		VkRect2D scissor = {};
-		scissor.offset.x      = 0;
-		scissor.offset.y      = 0;
-		scissor.extent.width  = m_drawExtent.width;
-		scissor.extent.height = m_drawExtent.height;
-
-		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
-
+		_cmd->setViewport( 0, 0, m_drawExtent.width, m_drawExtent.height, 0.0f, 1.0f );
+		_cmd->setScissor( 0, 0, m_drawExtent.width, m_drawExtent.height );
 
 		Viewport* worldViewport = _world->getViewport();
 		WV_ASSERT( worldViewport == nullptr );
@@ -731,6 +693,7 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 						continue;
 					
 					const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
+					_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
 					GPUDrawPushConstants pc{};
 					pc.worldMatrix    = bucket.matrices[ i ] * viewProj;
@@ -739,16 +702,14 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 					
-					vkCmdBindIndexBuffer( _cmd->m_cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
-					vkCmdPushConstants( _cmd->m_cmd, m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
-
-					vkCmdDrawIndexed( _cmd->m_cmd, mesh.numIndices, 1, 0, 0, 0 );
+					_cmd->pushConstant( m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
+					_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );
 				}
 			}
 		}
 	}
 	
-	vkCmdEndRendering( _cmd->m_cmd );
+	_cmd->endRendering();
 }
 
 void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )

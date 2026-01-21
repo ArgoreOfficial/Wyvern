@@ -43,6 +43,25 @@ wv::CommandBuffer::CommandBuffer( VkDevice _device, VkCommandPool _pool )
 	vkAllocateCommandBuffers( _device, &cmdAllocInfo, &m_cmd );
 }
 
+void wv::CommandBuffer::begin() const
+{
+	VkCommandBufferBeginInfo cmdBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+	cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer( m_cmd, &cmdBeginInfo );
+}
+
+void wv::CommandBuffer::end() const
+{
+	vkEndCommandBuffer( m_cmd );
+}
+
+void wv::CommandBuffer::reset()
+{
+	vkResetCommandBuffer( m_cmd, 0 );
+	m_imageLastKnownLayout.clear();
+}
+
 void wv::CommandBuffer::submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence )
 {
 
@@ -51,6 +70,83 @@ void wv::CommandBuffer::submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo
 
 	VkSubmitInfo2 submitInfo = submitInfo2( &cmdInfo, _signalInfo, _waitInfo );
 	vkQueueSubmit2( _queue, 1, &submitInfo, _fence );
+}
+
+void wv::CommandBuffer::beginRendering( float _width, float _height, VkImageView _colorView, VkImageView _depthView )
+{ 
+	VkRenderingAttachmentInfo colorAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+	colorAttachment.imageView = _colorView;
+	colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	//colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	//if ( clear ) colorAttachment.clearValue = *clear;
+
+	VkRenderingAttachmentInfo depthAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+	depthAttachment.imageView = _depthView;
+	depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	depthAttachment.clearValue.depthStencil.depth = 0.f;
+
+	VkRenderingInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO };
+	renderInfo.renderArea = VkRect2D{ VkOffset2D { 0, 0 }, VkExtent2D{ (uint32_t)_width, (uint32_t)_height } };
+	renderInfo.layerCount = 1;
+	renderInfo.colorAttachmentCount = 1;
+	renderInfo.pColorAttachments = &colorAttachment;
+	renderInfo.pDepthAttachment = &depthAttachment;
+	renderInfo.pStencilAttachment = nullptr;
+
+	vkCmdBeginRendering( m_cmd, &renderInfo );
+
+}
+
+void wv::CommandBuffer::endRendering()
+{ 
+	vkCmdEndRendering( m_cmd );
+}
+
+void wv::CommandBuffer::setViewport( float _x, float _y, float _width, float _height, float _minDepth, float _maxDepth )
+{ 
+	VkViewport viewport = {};
+	viewport.x = _x;
+	viewport.y = _y;
+	viewport.width  = _width;
+	viewport.height = _height;
+	viewport.minDepth = _minDepth;
+	viewport.maxDepth = _maxDepth;
+
+	vkCmdSetViewport( m_cmd, 0, 1, &viewport );
+}
+
+void wv::CommandBuffer::setScissor( float _x, float _y, float _width, float _height )
+{ 
+	VkRect2D scissor = {};
+	scissor.offset.x = _x;
+	scissor.offset.y = _y;
+	scissor.extent.width  = _width;
+	scissor.extent.height = _height;
+
+	vkCmdSetScissor( m_cmd, 0, 1, &scissor );
+}
+
+void wv::CommandBuffer::bindIndexBuffer( VkBuffer _buffer, VkDeviceSize _offset, VkIndexType _type )
+{ 
+	vkCmdBindIndexBuffer( m_cmd, _buffer, _offset, _type );
+}
+
+void wv::CommandBuffer::bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline )
+{
+	vkCmdBindPipeline( m_cmd, _bindPoint, _pipeline );
+}
+
+void wv::CommandBuffer::bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets )
+{
+	vkCmdBindDescriptorSets( m_cmd, _bindPoint, _layout, _firstSet, _descriptorSetCount, _descriptorSets, 0, nullptr );
+}
+
+void wv::CommandBuffer::pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, void* _data )
+{ 
+	vkCmdPushConstants( m_cmd, _pipelineLayout, _stage, _offset, _size, _data );
 }
 
 void wv::CommandBuffer::transitionImage( VkImage _image, VkImageLayout _currentLayout, VkImageLayout _newLayout )
@@ -118,4 +214,14 @@ void wv::CommandBuffer::clearColorImage( VkImage _image, VkImageLayout _layout, 
 	VkImageSubresourceRange clearRange = imageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
 
 	vkCmdClearColorImage( m_cmd, _image, _layout, _clearValue, 1, &clearRange );
+}
+
+void wv::CommandBuffer::dispatch( uint32_t _groupCountX, uint32_t _groupCountY, uint32_t _groupCountZ )
+{
+	vkCmdDispatch( m_cmd, _groupCountX, _groupCountY, _groupCountZ );
+}
+
+void wv::CommandBuffer::draw( uint32_t _indexCount, uint32_t _instanceCount, uint32_t _firstIndex, int32_t _vertexOffset, uint32_t _firstInstance )
+{
+	vkCmdDrawIndexed( m_cmd, _indexCount, _instanceCount, _firstIndex, _vertexOffset, _firstInstance );
 }
