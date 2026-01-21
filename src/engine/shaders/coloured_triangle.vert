@@ -9,19 +9,21 @@ struct Vertex {
 	float posY;
 	float posZ;
 }; 
-defineVertexBuffer(Vertex)
+
+DEFINE_POSITION_BUFFER();
+DEFINE_VERTEX_BUFFER(Vertex);
 
 layout (location = 0) out vec3 outColor;
 
 layout(push_constant) uniform pushConstant {
     mat4 worldMatrix;
+	PositionBuffer positionBuffer;
 	VertexBuffer vertexBuffer;
 };
 
 void main() 
 {
-	Vertex v = getVertex(gl_VertexIndex);
-	vec4 pos = worldMatrix * vec4(v.posX, v.posY, v.posZ, 1.0f);
+	vec3 pos = getPosition(gl_VertexIndex);
 	
 	//const array of colors for the triangle
 	const vec3 colors[3] = vec3[3](
@@ -31,6 +33,6 @@ void main()
 	);
 
 	//output the position of each vertex
-	gl_Position = pos;
+	gl_Position = worldMatrix * vec4(pos, 1.0f);
 	outColor = colors[gl_VertexIndex % 3];
 }
