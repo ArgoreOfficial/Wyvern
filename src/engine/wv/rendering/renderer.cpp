@@ -663,14 +663,15 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
 	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, m_drawImage.imageView, m_depthImage.imageView );
-
-	Pipeline pipeline = m_pipelineManager.getPipeline( m_trianglePipelineID );
-	_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
+	_cmd->setViewport( 0, 0, m_drawExtent.width, m_drawExtent.height, 0.0f, 1.0f );
+	_cmd->setScissor( 0, 0, m_drawExtent.width, m_drawExtent.height );
+	_cmd->setDepthTest( true, true, VK_COMPARE_OP_GREATER_OR_EQUAL );
+	_cmd->setStencilTest( false );
 
 	{
-		_cmd->setViewport( 0, 0, m_drawExtent.width, m_drawExtent.height, 0.0f, 1.0f );
-		_cmd->setScissor( 0, 0, m_drawExtent.width, m_drawExtent.height );
-
+		Pipeline pipeline = m_pipelineManager.getPipeline( m_trianglePipelineID );
+		_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
+	
 		Viewport* worldViewport = _world->getViewport();
 		WV_ASSERT( worldViewport == nullptr );
 		WV_ASSERT( worldViewport->getViewVolume() == nullptr );

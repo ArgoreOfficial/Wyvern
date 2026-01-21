@@ -26,7 +26,9 @@ public:
 
 	void setViewport( float _x, float _y, float _width, float _height, float _minDepth = 0.0f, float _maxDepth = 1.0f );
 	void setScissor( float _x, float _y, float _width, float _height );
-	
+	void setDepthTest( bool _test, bool _write, VkCompareOp _compareOp );
+	void setStencilTest( bool _enabled );
+
 	void bindIndexBuffer( VkBuffer _buffer, VkDeviceSize _offset, VkIndexType _type );
 
 	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline );

@@ -129,6 +129,18 @@ void wv::CommandBuffer::setScissor( float _x, float _y, float _width, float _hei
 	vkCmdSetScissor( m_cmd, 0, 1, &scissor );
 }
 
+void wv::CommandBuffer::setDepthTest( bool _test, bool _write, VkCompareOp _compareOp )
+{
+	vkCmdSetDepthTestEnable( m_cmd, (uint32_t)_test );
+	vkCmdSetDepthWriteEnable( m_cmd, (uint32_t)_write );
+	vkCmdSetDepthCompareOp( m_cmd, _compareOp );
+}
+
+void wv::CommandBuffer::setStencilTest( bool _enabled )
+{ 
+	vkCmdSetStencilTestEnable( m_cmd, (uint32_t)_enabled );
+}
+
 void wv::CommandBuffer::bindIndexBuffer( VkBuffer _buffer, VkDeviceSize _offset, VkIndexType _type )
 { 
 	vkCmdBindIndexBuffer( m_cmd, _buffer, _offset, _type );

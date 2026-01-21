@@ -112,32 +112,24 @@ wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 	renderInfo.depthAttachmentFormat   = depthAttachmentformat;
 
 	VkPipelineDepthStencilStateCreateInfo depthStencil{ .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-	
-	if ( false ) // disable depth
-	{
-		depthStencil.depthTestEnable = VK_FALSE;
-		depthStencil.depthWriteEnable = VK_FALSE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_NEVER;
-	}
-	else
-	{
-		depthStencil.depthTestEnable = VK_TRUE;
-		depthStencil.depthWriteEnable = VK_TRUE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
-	}
-
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
-	depthStencil.stencilTestEnable = VK_FALSE;
 	depthStencil.front = {};
 	depthStencil.back = {};
 	depthStencil.minDepthBounds = 0.f;
 	depthStencil.maxDepthBounds = 1.f;
 	
-	VkDynamicState state[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+	std::vector<VkDynamicState> dynamicStates = { 
+		VK_DYNAMIC_STATE_VIEWPORT, 
+		VK_DYNAMIC_STATE_SCISSOR,
+		VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
+		VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
+		VK_DYNAMIC_STATE_DEPTH_COMPARE_OP,
+		VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE
+	};
 
 	VkPipelineDynamicStateCreateInfo dynamicInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-	dynamicInfo.pDynamicStates = &state[ 0 ];
-	dynamicInfo.dynamicStateCount = 2;
+	dynamicInfo.pDynamicStates    = dynamicStates.data();
+	dynamicInfo.dynamicStateCount = dynamicStates.size();
 
 	// Create pipeline
 
