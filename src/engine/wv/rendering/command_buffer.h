@@ -13,6 +13,8 @@ class CommandBuffer
 public:
 	CommandBuffer( VkDevice _device, VkCommandPool _pool );
 
+	VkCommandBuffer getUnderlying() const { return m_cmd; }
+
 	void begin() const;
 	void end() const;
 	void reset();
