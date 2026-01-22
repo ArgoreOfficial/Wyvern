@@ -14,6 +14,7 @@ DEFINE_POSITION_BUFFER();
 DEFINE_VERTEX_BUFFER(Vertex);
 
 layout (location = 0) out vec3 outColor;
+layout (location = 1) out vec2 outTexCoord0;
 
 layout(push_constant) uniform pushConstant {
     mat4 worldMatrix;
@@ -28,5 +29,7 @@ void main()
 	
 	//output the position of each vertex
 	gl_Position = worldMatrix * vec4(pos, 1.0f);
-	outColor = unpackFloat3(v.normal);
+	
+	outColor     = unpackFloat3(v.color);
+	outTexCoord0 = unpackFloat2(v.texCoord0);
 }

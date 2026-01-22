@@ -121,6 +121,61 @@ bool wv::Renderer::initialize()
 		} );
 	}
 
+	// Image and sampler stuff
+
+	uint32_t black   = Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f }.packUnorm4x8();
+	uint32_t white   = Vector4f{ 1.0f, 1.0f, 1.0f, 1.0f }.packUnorm4x8();
+	uint32_t magenta = Vector4f{ 1.0f, 0.0f, 1.0f, 1.0f }.packUnorm4x8();
+
+	std::array<uint32_t, 16 * 16 > pixels;
+	for ( int x = 0; x < 16; x++ )
+		for ( int y = 0; y < 16; y++ )
+			pixels[ y * 16 + x ] = ( ( x % 2 ) ^ ( y % 2 ) ) ? magenta : black;
+	
+	m_debugImage = createImage( &pixels, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 16, 16, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+
+	m_blackImage = createImage( &black, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+	m_whiteImage = createImage( &white, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+
+	
+	VkSamplerCreateInfo samplerInfo{ .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+	samplerInfo.magFilter = VK_FILTER_NEAREST;
+	samplerInfo.minFilter = VK_FILTER_NEAREST;
+	vkCreateSampler( m_device, &samplerInfo, nullptr, &m_samplerNearest );
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	vkCreateSampler( m_device, &samplerInfo, nullptr, &m_samplerLinear );
+
+	m_mainDeleteQueue.push( [ & ]() {
+		vkDestroySampler( m_device, m_samplerNearest, nullptr );
+		vkDestroySampler( m_device, m_samplerLinear, nullptr );
+
+		destroyImage( m_debugImage );
+		destroyImage( m_blackImage );
+		destroyImage( m_whiteImage );
+	} );
+
+
+	{
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = m_debugImage.imageView;
+		imageInfo.sampler = m_samplerNearest;
+
+		VkWriteDescriptorSet write{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.dstBinding = SAMPLER_BINDING;
+		write.dstSet = m_bindlessDescriptorSet;
+		
+		write.descriptorCount = 1;
+		
+		write.dstArrayElement = 0; // element index
+		write.pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
+	}
+
+
 	// Triangle
 
 	// Create triangle pipline
@@ -746,23 +801,74 @@ void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
 }
 
-wv::AllocatedImage wv::Renderer::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, VkImageAspectFlags _aspectFlags )
+wv::AllocatedImage wv::Renderer::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
 {
 	AllocatedImage allocatedImage{};
-
-	VmaAllocationCreateInfo drawImageAllocInfo{};
-	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
 	allocatedImage.imageFormat = _format;
 	allocatedImage.imageExtent = _extent;
 
-	VkImageCreateInfo drawImageInfo = imageCreateInfo( allocatedImage.imageFormat, _usage, _extent );
+	VkImageCreateInfo imageInfo = imageCreateInfo( allocatedImage.imageFormat, _usage, _extent );
+	if ( _mipmapped )
+		imageInfo.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( _extent.width, _extent.height ) ) ) ) + 1;
 
-	vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &allocatedImage.image, &allocatedImage.allocation, nullptr );
+	VmaAllocationCreateInfo allocInfo{};
+	allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	allocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-	VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( allocatedImage.imageFormat, allocatedImage.image, _aspectFlags );
-	vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &allocatedImage.imageView );
+	VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT;
+	if ( _format == VK_FORMAT_D32_SFLOAT )
+		aspectFlag = VK_IMAGE_ASPECT_DEPTH_BIT;
+	
+	vmaCreateImage( m_allocator, &imageInfo, &allocInfo, &allocatedImage.image, &allocatedImage.allocation, nullptr );
+
+	VkImageViewCreateInfo viewInfo = imageViewCreateInfo( allocatedImage.imageFormat, allocatedImage.image, aspectFlag );
+	viewInfo.subresourceRange.levelCount = imageInfo.mipLevels;
+
+	vkCreateImageView( m_device, &viewInfo, nullptr, &allocatedImage.imageView );
+
+	return allocatedImage;
+}
+
+wv::AllocatedImage wv::Renderer::createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
+{
+	size_t dataSize = _extent.width * _extent.height * _extent.depth * 4;
+
+	AllocatedBuffer uploadBuffer = createBuffer( 
+		dataSize, 
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VMA_MEMORY_USAGE_CPU_TO_GPU 
+	);
+
+	memcpy( uploadBuffer.info.pMappedData, _data, dataSize );
+
+	AllocatedImage allocatedImage = createImage( 
+		_format, 
+		_extent, 
+		_usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 
+		_mipmapped 
+	);
+
+	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
+		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+
+		VkBufferImageCopy copyRegion{};
+
+		copyRegion.bufferOffset = 0;
+		copyRegion.bufferRowLength = 0;
+		copyRegion.bufferImageHeight = 0;
+
+		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copyRegion.imageSubresource.mipLevel = 0;
+		copyRegion.imageSubresource.baseArrayLayer = 0;
+		copyRegion.imageSubresource.layerCount = 1;
+		copyRegion.imageExtent = _extent;
+
+		vkCmdCopyBufferToImage( _cmd.m_cmd, uploadBuffer.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion );
+
+		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+	} );
+
+	destroyBuffer( uploadBuffer );
 
 	return allocatedImage;
 }

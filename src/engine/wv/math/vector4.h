@@ -43,7 +43,17 @@ public:
 		w{ _w } 
 	{ }
 
-	_Ty length( void )const {
+	uint32_t packUnorm4x8() const {
+		union buf32 { uint8_t buf[ 4 ]; uint32_t u32; };
+		buf32 b;
+		b.buf[ 0 ] = std::round( wv::Math::clamp<_Ty>( x, 0, 1 ) * 255.0 );
+		b.buf[ 1 ] = std::round( wv::Math::clamp<_Ty>( y, 0, 1 ) * 255.0 );
+		b.buf[ 2 ] = std::round( wv::Math::clamp<_Ty>( z, 0, 1 ) * 255.0 );
+		b.buf[ 3 ] = std::round( wv::Math::clamp<_Ty>( w, 0, 1 ) * 255.0 );
+		return b.u32;
+	}
+
+	_Ty length( void ) const {
 		return std::sqrt( x * x + y * y + z * z + w * w );
 	}
 

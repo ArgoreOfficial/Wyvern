@@ -134,7 +134,8 @@ protected:
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
 
-	AllocatedImage createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, VkImageAspectFlags _aspectFlags );
+	AllocatedImage createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
+	AllocatedImage createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
 	void destroyImage( const AllocatedImage& _image );
 
 	const bool m_useValidationLayers = true;
@@ -190,6 +191,15 @@ protected:
 	VkDescriptorSetLayout m_bindlessLayout;
 	VkDescriptorSet       m_bindlessDescriptorSet;
 	VkPipelineLayout      m_bindlessPipelineLayout;
+
+	// Debug Images
+	
+	VkSampler m_samplerLinear  = VK_NULL_HANDLE;
+	VkSampler m_samplerNearest = VK_NULL_HANDLE;
+
+	AllocatedImage m_blackImage{};
+	AllocatedImage m_whiteImage{};
+	AllocatedImage m_debugImage{};
 
 	// TESTING STUFF
 
