@@ -443,51 +443,25 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 	auto displaySize = Application::getSingleton()->getDisplayDriver()->getDisplaySize();
 	VkExtent3D drawImageExtent = { displaySize.x, displaySize.y, 1 };
 
-	VmaAllocationCreateInfo drawImageAllocInfo{};
-	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
 	// Create draw image
-	{
-		m_drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
-		m_drawImage.imageExtent = drawImageExtent;
-
-		VkImageUsageFlags drawImageUsage{};
-		drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-		drawImageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		drawImageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
-		drawImageUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		VkImageCreateInfo drawImageInfo = imageCreateInfo( m_drawImage.imageFormat, drawImageUsage, drawImageExtent );
-	
-		vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &m_drawImage.image, &m_drawImage.allocation, nullptr );
-
-		VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( m_drawImage.imageFormat, m_drawImage.image, VK_IMAGE_ASPECT_COLOR_BIT );
-		vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &m_drawImage.imageView );
-	}
+	m_drawImage = createImage( 
+		VK_FORMAT_R16G16B16A16_SFLOAT, 
+		drawImageExtent, 
+		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 
+		VK_IMAGE_ASPECT_COLOR_BIT 
+	);
 
 	// Create depth image
-	{
-		m_depthImage.imageFormat = VK_FORMAT_D32_SFLOAT;
-		m_depthImage.imageExtent = drawImageExtent;
-
-		VkImageUsageFlags depthImageUsage{};
-		depthImageUsage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-		VkImageCreateInfo depthImageInfo = imageCreateInfo( m_depthImage.imageFormat, depthImageUsage, drawImageExtent );
-		vmaCreateImage( m_allocator, &depthImageInfo, &drawImageAllocInfo, &m_depthImage.image, &m_depthImage.allocation, nullptr );
-
-		VkImageViewCreateInfo depthImageViewInfo = imageViewCreateInfo( m_depthImage.imageFormat, m_depthImage.image, VK_IMAGE_ASPECT_DEPTH_BIT );
-
-		vkCreateImageView( m_device, &depthImageViewInfo, nullptr, &m_depthImage.imageView );
-	}
+	m_depthImage = createImage( 
+		VK_FORMAT_D32_SFLOAT, 
+		drawImageExtent, 
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+		VK_IMAGE_ASPECT_DEPTH_BIT 
+	);
 
 	m_mainDeleteQueue.push( [ & ]() {
-		vkDestroyImageView( m_device, m_drawImage.imageView, nullptr );
-		vmaDestroyImage( m_allocator, m_drawImage.image, m_drawImage.allocation );
-
-		vkDestroyImageView( m_device, m_depthImage.imageView, nullptr );
-		vmaDestroyImage( m_allocator, m_depthImage.image, m_depthImage.allocation );
+		destroyImage( m_drawImage );
+		destroyImage( m_depthImage );
 	} );
 
 
@@ -770,4 +744,31 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 { 
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
+}
+
+wv::AllocatedImage wv::Renderer::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, VkImageAspectFlags _aspectFlags )
+{
+	AllocatedImage allocatedImage{};
+
+	VmaAllocationCreateInfo drawImageAllocInfo{};
+	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+	allocatedImage.imageFormat = _format;
+	allocatedImage.imageExtent = _extent;
+
+	VkImageCreateInfo drawImageInfo = imageCreateInfo( allocatedImage.imageFormat, _usage, _extent );
+
+	vmaCreateImage( m_allocator, &drawImageInfo, &drawImageAllocInfo, &allocatedImage.image, &allocatedImage.allocation, nullptr );
+
+	VkImageViewCreateInfo drawImageViewInfo = imageViewCreateInfo( allocatedImage.imageFormat, allocatedImage.image, _aspectFlags );
+	vkCreateImageView( m_device, &drawImageViewInfo, nullptr, &allocatedImage.imageView );
+
+	return allocatedImage;
+}
+
+void wv::Renderer::destroyImage( const AllocatedImage& _image )
+{
+	vkDestroyImageView( m_device, _image.imageView, nullptr );
+	vmaDestroyImage( m_allocator, _image.image, _image.allocation );
 }

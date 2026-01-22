@@ -74,11 +74,6 @@ struct AllocatedBuffer
 	VmaAllocationInfo info;
 };
 
-struct Vertex
-{
-	wv::Vector3f position;
-};
-
 struct GPUMeshBuffers
 {
 	AllocatedBuffer indexBuffer;
@@ -138,6 +133,9 @@ protected:
 
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
+
+	AllocatedImage createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, VkImageAspectFlags _aspectFlags );
+	void destroyImage( const AllocatedImage& _image );
 
 	const bool m_useValidationLayers = true;
 
