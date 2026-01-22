@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <functional>
 
 namespace wv {
 
@@ -35,5 +36,17 @@ public:
 };
 
 using ResourceID = TResourceID<uint16_t, struct ResourceID_t>;
+
+}
+
+namespace std {
+
+template <typename Ty, typename Tag>
+struct hash<wv::TResourceID<Ty, Tag>>
+{
+	size_t operator()( const wv::TResourceID<Ty, Tag>& _type ) const {
+		return _type.value;
+	}
+};
 
 }

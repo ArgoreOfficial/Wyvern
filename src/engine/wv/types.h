@@ -82,11 +82,3 @@ union GenericVersion
 ///////////////////////////////////////////////////////////////////////////////////////
 
 }
-
-template <>
-struct std::hash<wv::ResourceID>
-{
-	size_t operator()( const wv::ResourceID& _type ) const { 
-		return _type.value; 
-	}
-};
