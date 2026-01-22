@@ -38,44 +38,6 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-VkImageCreateInfo imageCreateInfo( VkFormat _format, VkImageUsageFlags _usageFlags, VkExtent3D _extent )
-{
-	VkImageCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-	info.imageType = VK_IMAGE_TYPE_2D;
-
-	info.format = _format;
-	info.extent = _extent;
-
-	info.mipLevels = 1;
-	info.arrayLayers = 1;
-
-	info.samples = VK_SAMPLE_COUNT_1_BIT;
-
-	info.tiling = VK_IMAGE_TILING_OPTIMAL;
-	info.usage = _usageFlags;
-
-	return info;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-VkImageViewCreateInfo imageViewCreateInfo( VkFormat _format, VkImage _image, VkImageAspectFlags _aspectFlags )
-{
-	VkImageViewCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	info.image = _image;
-	info.format = _format;
-	info.subresourceRange.baseMipLevel = 0;
-	info.subresourceRange.levelCount = 1;
-	info.subresourceRange.baseArrayLayer = 0;
-	info.subresourceRange.layerCount = 1;
-	info.subresourceRange.aspectMask = _aspectFlags;
-
-	return info;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Renderer::initialize()
@@ -132,12 +94,11 @@ bool wv::Renderer::initialize()
 		for ( int y = 0; y < 16; y++ )
 			pixels[ y * 16 + x ] = ( ( x % 2 ) ^ ( y % 2 ) ) ? magenta : black;
 	
-	m_debugImage = createImage( &pixels, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 16, 16, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+	m_debugImage = m_imageManager.createImage( &pixels, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 16, 16, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
 
-	m_blackImage = createImage( &black, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
-	m_whiteImage = createImage( &white, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+	m_blackImage = m_imageManager.createImage( &black, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
+	m_whiteImage = m_imageManager.createImage( &white, VK_FORMAT_R8G8B8A8_UNORM, VkExtent3D{ 1, 1, 1 }, VK_IMAGE_USAGE_SAMPLED_BIT );
 
-	
 	VkSamplerCreateInfo samplerInfo{ .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
 	samplerInfo.magFilter = VK_FILTER_NEAREST;
 	samplerInfo.minFilter = VK_FILTER_NEAREST;
@@ -150,31 +111,14 @@ bool wv::Renderer::initialize()
 		vkDestroySampler( m_device, m_samplerNearest, nullptr );
 		vkDestroySampler( m_device, m_samplerLinear, nullptr );
 
-		destroyImage( m_debugImage );
-		destroyImage( m_blackImage );
-		destroyImage( m_whiteImage );
+		m_imageManager.destroyImage( m_debugImage );
+		m_imageManager.destroyImage( m_blackImage );
+		m_imageManager.destroyImage( m_whiteImage );
 	} );
 
-
-	{
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = m_debugImage.imageView;
-		imageInfo.sampler = m_samplerNearest;
-
-		VkWriteDescriptorSet write{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		write.dstBinding = SAMPLER_BINDING;
-		write.dstSet = m_bindlessDescriptorSet;
-		
-		write.descriptorCount = 1;
-		
-		write.dstArrayElement = 0; // element index
-		write.pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
-	}
-
+	storeImage( m_debugImage, m_samplerNearest, 0 );
+	storeImage( m_blackImage, m_samplerNearest, 1 );
+	storeImage( m_whiteImage, m_samplerNearest, 2 );
 
 	// Triangle
 
@@ -253,28 +197,31 @@ void wv::Renderer::render( World* _world )
 	cmd->reset();
 
 	{
-		m_drawExtent.width  = m_drawImage.imageExtent.width;
-		m_drawExtent.height = m_drawImage.imageExtent.height;
+		AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
+		AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
+
+		m_drawExtent.width  = drawImage.imageExtent.width;
+		m_drawExtent.height = drawImage.imageExtent.height;
 		cmd->begin();
 
 		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
 		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
 
-		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
+		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
 		// draw background colour
 		drawBackground( cmd );
 
-		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-		cmd->transitionImage( m_depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
+		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+		cmd->transitionImage( depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
 		
 		drawGeometry( cmd, _world );
 
-		cmd->transitionImage( m_drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
-		cmd->copyImageToImage( m_drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
+		cmd->copyImageToImage( drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
 
 		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
@@ -495,28 +442,26 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 		destroySwapchain();
 	} );
 
-	auto displaySize = Application::getSingleton()->getDisplayDriver()->getDisplaySize();
-	VkExtent3D drawImageExtent = { displaySize.x, displaySize.y, 1 };
+	Vector2i displaySize = Application::getSingleton()->getDisplayDriver()->getDisplaySize();
+	VkExtent3D drawImageExtent = { (uint32_t)displaySize.x, (uint32_t)displaySize.y, 1 };
 
 	// Create draw image
-	m_drawImage = createImage( 
+	m_drawImage = m_imageManager.createImage(
 		VK_FORMAT_R16G16B16A16_SFLOAT, 
 		drawImageExtent, 
-		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 
-		VK_IMAGE_ASPECT_COLOR_BIT 
+		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT 
 	);
 
 	// Create depth image
-	m_depthImage = createImage( 
+	m_depthImage = m_imageManager.createImage(
 		VK_FORMAT_D32_SFLOAT, 
 		drawImageExtent, 
-		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
-		VK_IMAGE_ASPECT_DEPTH_BIT 
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
 	);
 
 	m_mainDeleteQueue.push( [ & ]() {
-		destroyImage( m_drawImage );
-		destroyImage( m_depthImage );
+		m_imageManager.destroyImage( m_drawImage );
+		m_imageManager.destroyImage( m_depthImage );
 	} );
 
 
@@ -710,12 +655,16 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 	//VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
 	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 1.0f } };
 
-	_cmd->clearColorImage( m_drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
+	AllocatedImage image = m_imageManager.getAllocatedImage( m_drawImage );
+	_cmd->clearColorImage( image.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
 }
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
-	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, m_drawImage.imageView, m_depthImage.imageView );
+	AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
+	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
+
+	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, drawImage.imageView, depthImage.imageView );
 	_cmd->setViewport( 0, 0, m_drawExtent.width, m_drawExtent.height, 0.0f, 1.0f );
 	_cmd->setScissor( 0, 0, m_drawExtent.width, m_drawExtent.height );
 	_cmd->setDepthTest( true, true, VK_COMPARE_OP_GREATER_OR_EQUAL );
@@ -801,80 +750,24 @@ void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
 }
 
-wv::AllocatedImage wv::Renderer::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
+void wv::Renderer::storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _at )
 {
-	AllocatedImage allocatedImage{};
-	allocatedImage.imageFormat = _format;
-	allocatedImage.imageExtent = _extent;
-
-	VkImageCreateInfo imageInfo = imageCreateInfo( allocatedImage.imageFormat, _usage, _extent );
-	if ( _mipmapped )
-		imageInfo.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( _extent.width, _extent.height ) ) ) ) + 1;
-
-	VmaAllocationCreateInfo allocInfo{};
-	allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-	allocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-	VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT;
-	if ( _format == VK_FORMAT_D32_SFLOAT )
-		aspectFlag = VK_IMAGE_ASPECT_DEPTH_BIT;
+	AllocatedImage image = m_imageManager.getAllocatedImage( _imageID );
 	
-	vmaCreateImage( m_allocator, &imageInfo, &allocInfo, &allocatedImage.image, &allocatedImage.allocation, nullptr );
+	VkDescriptorImageInfo imageInfo{};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = image.imageView;
+	imageInfo.sampler = _sampler;
 
-	VkImageViewCreateInfo viewInfo = imageViewCreateInfo( allocatedImage.imageFormat, allocatedImage.image, aspectFlag );
-	viewInfo.subresourceRange.levelCount = imageInfo.mipLevels;
+	VkWriteDescriptorSet write{ .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	write.dstBinding = SAMPLER_BINDING;
+	write.dstSet = m_bindlessDescriptorSet;
 
-	vkCreateImageView( m_device, &viewInfo, nullptr, &allocatedImage.imageView );
+	write.descriptorCount = 1;
 
-	return allocatedImage;
-}
+	write.dstArrayElement = _at; // element index
+	write.pImageInfo = &imageInfo;
 
-wv::AllocatedImage wv::Renderer::createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
-{
-	size_t dataSize = _extent.width * _extent.height * _extent.depth * 4;
-
-	AllocatedBuffer uploadBuffer = createBuffer( 
-		dataSize, 
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-		VMA_MEMORY_USAGE_CPU_TO_GPU 
-	);
-
-	memcpy( uploadBuffer.info.pMappedData, _data, dataSize );
-
-	AllocatedImage allocatedImage = createImage( 
-		_format, 
-		_extent, 
-		_usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 
-		_mipmapped 
-	);
-
-	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
-
-		VkBufferImageCopy copyRegion{};
-
-		copyRegion.bufferOffset = 0;
-		copyRegion.bufferRowLength = 0;
-		copyRegion.bufferImageHeight = 0;
-
-		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		copyRegion.imageSubresource.mipLevel = 0;
-		copyRegion.imageSubresource.baseArrayLayer = 0;
-		copyRegion.imageSubresource.layerCount = 1;
-		copyRegion.imageExtent = _extent;
-
-		vkCmdCopyBufferToImage( _cmd.m_cmd, uploadBuffer.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion );
-
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
-	} );
-
-	destroyBuffer( uploadBuffer );
-
-	return allocatedImage;
-}
-
-void wv::Renderer::destroyImage( const AllocatedImage& _image )
-{
-	vkDestroyImageView( m_device, _image.imageView, nullptr );
-	vmaDestroyImage( m_allocator, _image.image, _image.allocation );
+	vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
 }

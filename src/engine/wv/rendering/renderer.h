@@ -7,6 +7,7 @@
 
 #include <wv/rendering/command_buffer.h>
 #include <wv/rendering/pipeline_manager.h>
+#include <wv/rendering/image_manager.h>
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
@@ -58,15 +59,6 @@ struct DeleteQueue
 
 constexpr uint32_t FRAME_OVERLAP = 2;
 
-struct AllocatedImage
-{
-	VkImage image;
-	VkImageView imageView;
-	VmaAllocation allocation;
-	VkExtent3D imageExtent;
-	VkFormat imageFormat;
-};
-
 struct AllocatedBuffer
 {
 	VkBuffer buffer;
@@ -97,6 +89,7 @@ class Renderer
 {
 	friend class Application;
 	friend class PipelineManager;
+	friend class ImageManager;
 
 public:
 	bool initialize();
@@ -134,9 +127,7 @@ protected:
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
 
-	AllocatedImage createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
-	AllocatedImage createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
-	void destroyImage( const AllocatedImage& _image );
+	void storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _at );
 
 	const bool m_useValidationLayers = true;
 
@@ -144,6 +135,7 @@ protected:
 	bool m_resizeRequested = false;
 
 	PipelineManager m_pipelineManager = { this };
+	ImageManager m_imageManager = { this };
 
 	DeleteQueue m_mainDeleteQueue = {};
 
@@ -161,9 +153,9 @@ protected:
 	std::vector<VkSemaphore> m_submitSemaphores    = {};
 	VkExtent2D m_swapchainExtent = {};
 
-	AllocatedImage m_drawImage  = {};
-	AllocatedImage m_depthImage = {};
-	VkExtent2D     m_drawExtent = {};
+	ImageID m_drawImage  = {};
+	ImageID m_depthImage = {};
+	VkExtent2D m_drawExtent = {};
 
 	uint32_t  m_frameNumber = 0;
 	FrameData m_frames[ FRAME_OVERLAP ];
@@ -197,10 +189,10 @@ protected:
 	VkSampler m_samplerLinear  = VK_NULL_HANDLE;
 	VkSampler m_samplerNearest = VK_NULL_HANDLE;
 
-	AllocatedImage m_blackImage{};
-	AllocatedImage m_whiteImage{};
-	AllocatedImage m_debugImage{};
-
+	ImageID m_blackImage{};
+	ImageID m_whiteImage{};
+	ImageID m_debugImage{};
+	
 	// TESTING STUFF
 
 	PipelineID m_trianglePipelineID = {};

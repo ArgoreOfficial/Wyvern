@@ -103,8 +103,11 @@ wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
 
-	VkFormat colorAttachmentformat = m_renderer->m_drawImage.imageFormat;
-	VkFormat depthAttachmentformat = m_renderer->m_depthImage.imageFormat;
+	AllocatedImage colorImage = m_renderer->m_imageManager.getAllocatedImage( m_renderer->m_drawImage );
+	AllocatedImage depthImage = m_renderer->m_imageManager.getAllocatedImage( m_renderer->m_depthImage );
+
+	VkFormat colorAttachmentformat = colorImage.imageFormat;
+	VkFormat depthAttachmentformat = depthImage.imageFormat;
 
 	VkPipelineRenderingCreateInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	renderInfo.colorAttachmentCount = 1;
