@@ -71,9 +71,10 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 #endif
 
 #ifdef WV_SUPPORT_VULKAN
-	if ( renderer == "vulkan" ) // vk 1.4
+	if ( renderer == "vulkan" ) // vk 1.3
 	{
 		flags |= SDL_WINDOW_VULKAN;
+		flags |= SDL_WINDOW_RESIZABLE;
 	}
 #endif
 
@@ -92,10 +93,6 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context( "#canvas", &attrs );
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
-
-	//SDL_GL_CONTEXT_DEBUG_FLAG
-	//glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, true );
-	//glfwWindowHint( GLFW_RESIZABLE, false );
 
 	m_windowContext = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
 
@@ -172,6 +169,12 @@ uint64_t wv::DisplayDriverSDL::getHighResolutionCounter()
 uint64_t wv::DisplayDriverSDL::getHighResolutionFrequency()
 {
 	return SDL_GetPerformanceFrequency();
+}
+
+bool wv::DisplayDriverSDL::isMinimized() const
+{
+	uint32_t flags = SDL_GetWindowFlags( m_windowContext );
+	return flags & SDL_WINDOW_MINIMIZED;
 }
 
 #ifdef WV_PLATFORM_WINDOWS

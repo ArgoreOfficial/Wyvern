@@ -111,6 +111,8 @@ public:
 	void render( World* _world );
 	void finalize();
 
+	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
+
 	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
 	void destroyMesh( ResourceID _mesh );
 
@@ -127,6 +129,7 @@ protected:
 
 	void createSwapchain( uint32_t _width, uint32_t _height );
 	void destroySwapchain();
+	void resizeSwapchain( uint32_t _width, uint32_t _height );
 
 	void drawBackground( CommandBuffer* _cmd );
 	void drawGeometry( CommandBuffer* _cmd, World* _world );
@@ -139,6 +142,7 @@ protected:
 	const bool m_useValidationLayers = true;
 
 	bool m_initialized = false;
+	bool m_resizeRequested = false;
 
 	PipelineManager m_pipelineManager = { this };
 

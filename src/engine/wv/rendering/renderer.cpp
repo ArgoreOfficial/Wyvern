@@ -185,7 +185,12 @@ void wv::Renderer::render( World* _world )
 	vkResetFences( m_device, 1, &getCurrentFrame().fence );
 
 	uint32_t swapchainImageIndex;
-	vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
+	VkResult e = vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
+	if ( e == VK_ERROR_OUT_OF_DATE_KHR )
+	{
+		m_resizeRequested = true;
+		return;
+	}
 
 	// Draw
 
@@ -193,7 +198,7 @@ void wv::Renderer::render( World* _world )
 	cmd->reset();
 
 	{
-		m_drawExtent.width = m_drawImage.imageExtent.width;
+		m_drawExtent.width  = m_drawImage.imageExtent.width;
 		m_drawExtent.height = m_drawImage.imageExtent.height;
 		cmd->begin();
 
@@ -237,7 +242,9 @@ void wv::Renderer::render( World* _world )
 
 	presentInfo.pImageIndices = &swapchainImageIndex;
 
-	vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
+	VkResult presentRes = vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
+	if ( presentRes == VK_ERROR_OUT_OF_DATE_KHR )
+		m_resizeRequested = true;
 
 	m_frameNumber++;
 }
@@ -246,7 +253,6 @@ void wv::Renderer::render( World* _world )
 
 void wv::Renderer::finalize()
 {
-
 }
 
 wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
@@ -612,6 +618,10 @@ void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
 {
 	vkb::SwapchainBuilder builder{ m_physicalDevice, m_device, m_surface };
 
+	// must be at least 1
+	_width  = wv::Math::max( _width, 1U );
+	_height = wv::Math::max( _height, 1U );
+
 	m_swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
 	vkb::Swapchain vkbSwapchain = builder
@@ -649,6 +659,19 @@ void wv::Renderer::destroySwapchain()
 	m_swapchainImages.clear();
 	m_swapchainImageViews.clear();
 	m_submitSemaphores.clear();
+}
+
+void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
+{ 
+	if ( _width == 0 || _height == 0 )
+		return;
+
+	vkDeviceWaitIdle( m_device );
+
+	destroySwapchain();
+	createSwapchain( _width, _height );
+
+	m_resizeRequested = false;
 }
 
 void wv::Renderer::drawBackground( CommandBuffer* _cmd )

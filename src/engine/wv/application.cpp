@@ -226,7 +226,26 @@ bool wv::Application::tick()
 	m_deltatime = wv::Math::min( m_deltatime, 1.0 ); // hard cap just in case
 
 	update();
-	render();
+
+	bool shouldRender = true;
+	
+	bool isMinimized = m_displayDriver->isMinimized();
+	Vector2i windowSize = m_displayDriver->getWindowSize();
+
+	// don't render if the window is minimized
+	if ( isMinimized || windowSize.x == 0 || windowSize.y == 0 )
+		shouldRender = false;
+
+	if ( m_renderer->isSwapchainOutOfDate() )
+	{
+		if( !isMinimized )
+			m_renderer->resizeSwapchain( windowSize.x, windowSize.y );
+	}
+	
+	if ( shouldRender )
+	{
+		render();
+	}
 
 	m_lastTicks = ticks;
 	return true;
@@ -236,7 +255,10 @@ bool wv::Application::tick()
 
 void wv::Application::update()
 {
-	wv::Vector2i windowSize = m_displayDriver->getWindowSize(); // should this be an event?
+	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
+	if ( windowSize.x == 0 ) windowSize.x = 1;
+	if ( windowSize.y == 0 ) windowSize.y = 1;
+
 	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
 
 	m_world->updateLoading();

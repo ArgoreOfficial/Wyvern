@@ -31,6 +31,8 @@ public:
 	virtual uint64_t getHighResolutionCounter() override;
 	virtual uint64_t getHighResolutionFrequency() override;
 
+	bool isMinimized() const override;
+
 #ifdef WV_PLATFORM_WINDOWS
 	virtual HWND winGetHandle() override;
 #endif
