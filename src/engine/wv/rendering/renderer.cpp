@@ -440,10 +440,11 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 		destroySwapchain();
 	} );
 
-	VkExtent3D drawImageExtent = { _width, _height, 1 };
+	auto displaySize = Application::getSingleton()->getDisplayDriver()->getDisplaySize();
+	VkExtent3D drawImageExtent = { displaySize.x, displaySize.y, 1 };
 
 	VmaAllocationCreateInfo drawImageAllocInfo{};
-	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY; // needed?
+	drawImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	drawImageAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 	// Create draw image

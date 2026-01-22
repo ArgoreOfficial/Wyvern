@@ -169,6 +169,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 	viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
 	viewVolume->setViewDimensions( _ctx.viewport->getSize() );
 	viewVolume->update( _ctx.deltaTime );
+	viewVolume->recalculateProjMatrix( true );
 
 	_ctx.viewport->setViewVolume( viewVolume );
 }

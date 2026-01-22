@@ -226,26 +226,7 @@ bool wv::Application::tick()
 	m_deltatime = wv::Math::min( m_deltatime, 1.0 ); // hard cap just in case
 
 	update();
-
-	bool shouldRender = true;
-	
-	bool isMinimized = m_displayDriver->isMinimized();
-	Vector2i windowSize = m_displayDriver->getWindowSize();
-
-	// don't render if the window is minimized
-	if ( isMinimized || windowSize.x == 0 || windowSize.y == 0 )
-		shouldRender = false;
-
-	if ( m_renderer->isSwapchainOutOfDate() )
-	{
-		if( !isMinimized )
-			m_renderer->resizeSwapchain( windowSize.x, windowSize.y );
-	}
-	
-	if ( shouldRender )
-	{
-		render();
-	}
+	render();
 
 	m_lastTicks = ticks;
 	return true;
@@ -286,8 +267,24 @@ void wv::Application::update()
 
 void wv::Application::render()
 {
+	bool shouldRender = true;
+	bool isMinimized = m_displayDriver->isMinimized();
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
-	m_renderer->prepare( windowSize.x, windowSize.y );
-	m_renderer->render( m_world );
-	m_renderer->finalize();
+
+	// don't render if the window is minimized
+	if ( isMinimized || windowSize.x == 0 || windowSize.y == 0 )
+		shouldRender = false;
+
+	if ( m_renderer->isSwapchainOutOfDate() )
+	{
+		if ( !isMinimized )
+			m_renderer->resizeSwapchain( windowSize.x, windowSize.y );
+	}
+
+	if ( shouldRender )
+	{
+		m_renderer->prepare( windowSize.x, windowSize.y );
+		m_renderer->render( m_world );
+		m_renderer->finalize();
+	}
 }
