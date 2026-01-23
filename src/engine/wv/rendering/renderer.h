@@ -13,6 +13,8 @@
 #include <wv/rendering/pipeline_manager.h>
 #include <wv/rendering/image_manager.h>
 
+#include <wv/rendering/material.h>
+
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -85,108 +87,6 @@ struct GPUDrawPushConstants
 	VkDeviceAddress positionBuffer;
 	VkDeviceAddress vertexDataBuffer;
 };
-
-enum UniformType
-{
-	UNIFORM_TYPE_FLOAT,
-	UNIFORM_TYPE_VEC2,
-	UNIFORM_TYPE_VEC3,
-	UNIFORM_TYPE_TEXTURE,
-	UNIFORM_TYPE_BUFFER_ADDRESS,
-	UNIFORM_TYPE_MATRIX,
-};
-
-class MaterialType;
-
-struct MaterialInstance
-{
-	MaterialType* type;
-
-	std::vector<uint8_t> buffer;
-};
-
-class MaterialType
-{
-public:
-	struct UniformSpan
-	{
-		std::string name;
-		UniformType type;
-		uint32_t offset;
-	};
-
-	void addSpan( const std::string& _name, UniformType _type ) {
-		if ( m_uniformNameMap.contains( _name ) )
-		{
-			WV_LOG_ERROR( "Uniform %s already exists\n", _name.c_str() );
-			return;
-		}
-
-		uint32_t offset = 0; 
-
-		if ( m_uniforms.size() > 0 )
-		{
-			offset += m_uniforms.back().offset;
-			offset += uniformTypeSize( m_uniforms.back().type );
-		}
-
-		m_uniformNameMap[ _name ] = m_uniforms.size();
-		m_uniforms.push_back( UniformSpan{ _name, _type, offset } );
-	}
-
-	MaterialInstance createInstance() {
-		size_t size = 0;
-		for ( auto span : m_uniforms )
-			size += uniformTypeSize( span.type );
-
-		MaterialInstance instance{};
-		instance.type = this;
-		instance.buffer.resize( size );
-		return instance;
-	}
-
-	template<typename Ty>
-	void setValue( MaterialInstance& _instance, const std::string& _name, const Ty& _value ) {
-		if ( !m_uniformNameMap.contains( _name ) )
-		{
-			WV_LOG_ERROR( "Uniform '%s' does not exist\n", _name.c_str() );
-			return;
-		}
-
-		UniformSpan span = m_uniforms[ m_uniformNameMap.at( _name ) ];
-		if ( sizeof( Ty ) != uniformTypeSize( span.type ) )
-		{
-			WV_LOG_ERROR( "Uniform '%s' size error\n", _name.c_str() );
-			return;
-		}
-
-		if ( span.offset + sizeof( Ty ) > _instance.buffer.size() )
-		{
-			WV_LOG_ERROR( "Uniform '%s' out of bounds\n", _name.c_str() );
-			return;
-		}
-
-		std::memcpy( &_instance.buffer[ span.offset ], &_value, sizeof( Ty ) );
-	}
-
-private:
-	uint32_t uniformTypeSize( UniformType _type ) {
-		switch ( _type )
-		{
-		case UNIFORM_TYPE_FLOAT: return sizeof( float ); break;
-		case UNIFORM_TYPE_VEC2: return sizeof( Vector2f ); break;
-		case UNIFORM_TYPE_VEC3: return sizeof( Vector3f ); break;
-		case UNIFORM_TYPE_TEXTURE: return sizeof( uint32_t ); break;
-		}
-
-		return 0;
-	}
-
-	size_t m_bufferSize = 0;
-	std::vector<UniformSpan> m_uniforms;
-	std::unordered_map<std::string, size_t> m_uniformNameMap;
-};
-
 
 class Renderer
 {
@@ -296,11 +196,6 @@ protected:
 	ImageID m_whiteImage{};
 	ImageID m_debugImage{};
 	
-	// TESTING STUFF
-
-	MaterialType m_triangleMaterialType = {};
-	MaterialInstance m_triangleMaterialInstance = {};
-
 	PipelineID m_trianglePipelineID = {};
 	
 	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;

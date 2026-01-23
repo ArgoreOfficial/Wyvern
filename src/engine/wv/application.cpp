@@ -130,11 +130,17 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
 
+	//m_triangleMaterialType.addSpan( "worldMatrix", UNIFORM_TYPE_MATRIX );
+	//m_triangleMaterialType.addSpan( "positionBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
+	//m_triangleMaterialType.addSpan( "vertexBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
+	m_testMaterial.addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
+
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "monkey.gltf" );
-		// meshComponent->setMaterial( m_material );
+		meshComponent->setMaterial( &m_testMaterial );
+		meshComponent->setMaterialValue( 0, "albedoIndex", 0 );
 
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 		playerEntity1->createComponent<PlayerControllerComponent>();
@@ -147,7 +153,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_Suzanne.gltf" );
-		// meshComponent->setMaterial( m_material );
+		meshComponent->setMaterial( &m_testMaterial );
+		meshComponent->setMaterialValue( 0, "albedoIndex", 1 );
 
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
 		playerEntity2->createComponent<PlayerControllerComponent>();
@@ -160,7 +167,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
-		// meshComponent->setMaterial( m_material );
+		meshComponent->setMaterial( &m_testMaterial );
+		meshComponent->setMaterialValue( 0, "albedoIndex", 2 );
 
 		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	}

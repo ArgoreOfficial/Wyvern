@@ -141,13 +141,6 @@ bool wv::Renderer::initialize()
 		} );
 	}
 
-	//m_triangleMaterialType.addSpan( "worldMatrix", UNIFORM_TYPE_MATRIX );
-	//m_triangleMaterialType.addSpan( "positionBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
-	//m_triangleMaterialType.addSpan( "vertexBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
-	m_triangleMaterialType.addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
-
-	m_triangleMaterialInstance = m_triangleMaterialType.createInstance();
-
 	m_initialized = true;
 
 	return true;
@@ -713,7 +706,8 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 					
-					m_triangleMaterialType.setValue<uint32_t>( m_triangleMaterialInstance, "albedoIndex", 1 );
+					ResourceID materialInstance = bucket.renderMeshes[ i ].component->getMaterial();
+					MaterialType* material = bucket.renderMeshes[ i ].component->getMaterialType();
 
 					_cmd->pushConstant(
 						m_bindlessPipelineLayout,
@@ -725,8 +719,8 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					_cmd->pushConstant( 
 						m_bindlessPipelineLayout, 
 						VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-						m_triangleMaterialInstance.buffer.size(),
-						m_triangleMaterialInstance.buffer.data() 
+						material->getBufferSize( materialInstance ),
+						material->getBuffer( materialInstance )
 					);
 
 					_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );

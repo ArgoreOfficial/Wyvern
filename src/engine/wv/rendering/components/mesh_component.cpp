@@ -6,7 +6,18 @@
 
 wv::MeshComponent::~MeshComponent()
 {
+	setMaterial( nullptr );
+}
 
+void wv::MeshComponent::setMaterial( MaterialType* _material )
+{ 
+	if ( m_materialType != nullptr )
+		m_materialType->destroyInstance( m_materialInstance );
+	
+	m_materialType = _material;
+	
+	if( _material )
+		m_materialInstance = _material->createInstance();
 }
 
 void wv::MeshComponent::load( WorldLoadContext& _ctx )

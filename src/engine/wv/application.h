@@ -6,6 +6,8 @@
 
 #include <wv/resource_id.h>
 
+#include <wv/rendering/material.h>
+
 namespace wv {
 
 class IFileSystem;
@@ -73,6 +75,8 @@ private:
 	wv::Renderer*       m_renderer      = nullptr;
 
 	wv::World* m_world = nullptr;
+
+	MaterialType m_testMaterial{};
 };
 
 }
