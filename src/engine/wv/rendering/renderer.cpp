@@ -8,6 +8,7 @@
 #include <wv/entity/world.h>
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
+#include <wv/rendering/material.h>
 
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/rendering/systems/render_world_system.h>
@@ -119,27 +120,6 @@ bool wv::Renderer::initialize()
 	storeImage( m_debugImage, m_samplerNearest, 0 );
 	storeImage( m_blackImage, m_samplerNearest, 1 );
 	storeImage( m_whiteImage, m_samplerNearest, 2 );
-
-	// Triangle
-
-	// Create triangle pipline
-	{
-		std::vector<uint8_t> vertShaderData = fileSystem->loadEntireFile( "shaders/coloured_triangle.vert.spv" );
-		std::vector<uint8_t> fragShaderData = fileSystem->loadEntireFile( "shaders/coloured_triangle.frag.spv" );
-		VkShaderModule vertShader = m_pipelineManager.createShaderModule( (uint32_t*)vertShaderData.data(), vertShaderData.size() );
-		VkShaderModule fragShader = m_pipelineManager.createShaderModule( (uint32_t*)fragShaderData.data(), fragShaderData.size() );
-		
-		if ( vertShader == VK_NULL_HANDLE || fragShader == VK_NULL_HANDLE )
-			return false;
-
-		m_trianglePipelineID = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_bindlessPipelineLayout );
-		m_pipelineManager.destroyShaderModule( vertShader );
-		m_pipelineManager.destroyShaderModule( fragShader );
-
-		m_mainDeleteQueue.push( [ & ]() {
-			m_pipelineManager.destroyPipeline( m_trianglePipelineID );
-		} );
-	}
 
 	m_initialized = true;
 
@@ -255,6 +235,35 @@ void wv::Renderer::render( World* _world )
 
 void wv::Renderer::finalize()
 {
+}
+
+wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize )
+{
+	VkShaderModule vertShader = m_pipelineManager.createShaderModule( _vertSrc, _vertSize );
+	VkShaderModule fragShader = m_pipelineManager.createShaderModule( _fragSrc, _fragSize );
+
+	if ( vertShader == VK_NULL_HANDLE || fragShader == VK_NULL_HANDLE )
+	{
+		WV_LOG_ERROR( "Failed to create shader modules\n" );
+		return {};
+	}
+
+	ResourceID pipeline = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_bindlessPipelineLayout );
+	m_pipelineManager.destroyShaderModule( vertShader );
+	m_pipelineManager.destroyShaderModule( fragShader );
+	
+	if ( !pipeline.isValid() )
+	{
+		WV_LOG_ERROR( "Failed to create pipeline\n" );
+		return {};
+	}
+
+	return pipeline;
+}
+
+void wv::Renderer::destroyPipeline( ResourceID _pipeline )
+{
+	m_pipelineManager.destroyPipeline( _pipeline );
 }
 
 wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
@@ -672,8 +681,6 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	_cmd->setStencilTest( false );
 
 	{
-		Pipeline pipeline = m_pipelineManager.getPipeline( m_trianglePipelineID );
-		_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 	
 		Viewport* worldViewport = _world->getViewport();
 		WV_ASSERT( worldViewport == nullptr );
@@ -708,6 +715,9 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					
 					ResourceID materialInstance = bucket.renderMeshes[ i ].component->getMaterial();
 					MaterialType* material = bucket.renderMeshes[ i ].component->getMaterialType();
+
+					Pipeline pipeline = m_pipelineManager.getPipeline( material->getPipeline() );
+					_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 
 					_cmd->pushConstant(
 						m_bindlessPipelineLayout,

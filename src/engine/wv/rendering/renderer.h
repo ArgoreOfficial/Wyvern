@@ -13,7 +13,7 @@
 #include <wv/rendering/pipeline_manager.h>
 #include <wv/rendering/image_manager.h>
 
-#include <wv/rendering/material.h>
+#include <wv/resource_id.h>
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
@@ -22,7 +22,6 @@
 #include <stdint.h>
 #include <vector>
 #include <span>
-#include <wv/resource_id.h>
 
 namespace wv {
 
@@ -103,6 +102,9 @@ public:
 	void finalize();
 
 	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
+
+	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize );
+	void destroyPipeline( ResourceID _pipeline );
 
 	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
 	void destroyMesh( ResourceID _mesh );
@@ -195,8 +197,6 @@ protected:
 	ImageID m_blackImage{};
 	ImageID m_whiteImage{};
 	ImageID m_debugImage{};
-	
-	PipelineID m_trianglePipelineID = {};
 	
 	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;
 

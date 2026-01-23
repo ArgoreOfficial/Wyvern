@@ -25,7 +25,7 @@ void wv::PipelineManager::destroyShaderModule( VkShaderModule _shaderModule )
 	vkDestroyShaderModule( m_renderer->m_device, _shaderModule, nullptr );
 }
 
-wv::PipelineID wv::PipelineManager::createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint )
+wv::ResourceID wv::PipelineManager::createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint )
 {
 	VkPipelineShaderStageCreateInfo stageInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
 	stageInfo.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
@@ -44,7 +44,7 @@ wv::PipelineID wv::PipelineManager::createComputePipeline( VkShaderModule _shade
 	return m_pipelines.emplace( pipeline );
 }
 
-wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout )
+wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout )
 {
 	// Set shader stages
 
@@ -159,20 +159,19 @@ wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 
 	if ( vkCreateGraphicsPipelines( m_renderer->m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline.pipeline ) != VK_SUCCESS )
 	{
-		WV_LOG_ERROR( "Failed to create pipeline\n" );
 		return {};
 	}
 
 	return m_pipelines.emplace( pipeline );
 }
 
-void wv::PipelineManager::destroyPipeline( PipelineID _pipelineID )
+void wv::PipelineManager::destroyPipeline( ResourceID _ResourceID )
 {
-	if ( !m_pipelines.contains( _pipelineID ) ) return;
+	if ( !m_pipelines.contains( _ResourceID ) ) return;
 
-	Pipeline pipeline = m_pipelines.at( _pipelineID );
+	Pipeline pipeline = m_pipelines.at( _ResourceID );
 
 	vkDestroyPipeline( m_renderer->m_device, pipeline.pipeline, nullptr );
 
-	m_pipelines.erase( _pipelineID );
+	m_pipelines.erase( _ResourceID );
 }

@@ -6,8 +6,6 @@
 
 #include <wv/resource_id.h>
 
-#include <wv/rendering/material.h>
-
 namespace wv {
 
 class IFileSystem;
@@ -16,6 +14,7 @@ class World;
 class InputSystem;
 class EventManager;
 class Renderer;
+class MaterialType;
 
 struct VertexData
 {
@@ -76,7 +75,7 @@ private:
 
 	wv::World* m_world = nullptr;
 
-	MaterialType m_testMaterial{};
+	MaterialType* m_testMaterial = nullptr;
 };
 
 }

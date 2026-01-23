@@ -41,6 +41,8 @@ public:
 		uint32_t offset;
 	};
 
+	MaterialType( ResourceID _pipeline ) : m_pipeline{ _pipeline } { }
+
 	void addSpan( const std::string& _name, UniformType _type );
 
 	ResourceID createInstance();
@@ -50,6 +52,8 @@ public:
 	void setValue( ResourceID _materialInstance, const std::string& _name, const Ty& _value ) {
 		setValueInternal( _materialInstance, _name, &_value, sizeof( Ty ) );
 	}
+
+	ResourceID getPipeline() { return m_pipeline; }
 
 	uint8_t* getBuffer( ResourceID _materialInstance ) {
 		if ( !m_instances.contains( _materialInstance ) )
@@ -78,6 +82,8 @@ private:
 
 		return 0;
 	}
+
+	ResourceID m_pipeline;
 
 	size_t m_bufferSize = 0;
 	std::vector<UniformSpan> m_uniforms;

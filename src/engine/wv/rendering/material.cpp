@@ -20,17 +20,15 @@ void wv::MaterialType::addSpan( const std::string& _name, UniformType _type )
 
 	m_uniformNameMap[ _name ] = m_uniforms.size();
 	m_uniforms.push_back( UniformSpan{ _name, _type, offset } );
+
+	m_bufferSize += offset + uniformTypeSize( _type );
 }
 
 wv::ResourceID wv::MaterialType::createInstance()
 {
-	size_t size = 0;
-	for ( auto span : m_uniforms )
-		size += uniformTypeSize( span.type );
-
 	MaterialInstance instance{};
 	instance.type = this;
-	instance.buffer.resize( size );
+	instance.buffer.resize( m_bufferSize );
 	
 	return m_instances.emplace( instance );
 }

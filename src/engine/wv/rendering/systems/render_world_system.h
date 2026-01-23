@@ -12,11 +12,11 @@ class MeshComponent;
 
 struct RenderMesh
 {
-	ResourceID assetID;
-	ResourceID meshID;
+	ResourceID assetID{};
+	ResourceID meshID{};
 
-	Entity* entity;
-	MeshComponent* component;
+	Entity* entity = nullptr;
+	MeshComponent* component = nullptr;
 };
 
 struct SectorRenderBucket

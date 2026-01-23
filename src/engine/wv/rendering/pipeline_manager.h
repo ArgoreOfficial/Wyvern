@@ -7,8 +7,8 @@
 
 namespace wv {
 
-using PipelineID     = TResourceID<uint16_t, struct PipelineID_t>;
-using ShaderModuleID = TResourceID<uint16_t, struct ShaderModuleID_t>;
+// using PipelineID     = TResourceID<uint16_t, struct PipelineID_t>;
+// using ShaderModuleID = TResourceID<uint16_t, struct ShaderModuleID_t>;
 
 class Renderer;
 
@@ -26,12 +26,12 @@ public:
 	VkShaderModule createShaderModule( uint32_t* _data, size_t _dataSize );
 	void destroyShaderModule( VkShaderModule _shaderModule );
 
-	PipelineID createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
-	PipelineID createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout );
+	ResourceID createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
+	ResourceID createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout );
 
-	void destroyPipeline( PipelineID _pipelineID );
+	void destroyPipeline( ResourceID _pipelineID );
 
-	Pipeline getPipeline( PipelineID _pipelineID ) const {
+	Pipeline getPipeline( ResourceID _pipelineID ) const {
 		if ( m_pipelines.contains( _pipelineID ) )
 			return m_pipelines.at( _pipelineID );
 		return {};
@@ -40,7 +40,7 @@ public:
 protected:
 	Renderer* m_renderer = nullptr;
 
-	unordered_array<PipelineID, Pipeline> m_pipelines;
+	unordered_array<ResourceID, Pipeline> m_pipelines;
 };
 
 }
