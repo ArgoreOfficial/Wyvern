@@ -4,53 +4,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-VkImageCreateInfo imageCreateInfo( VkFormat _format, VkImageUsageFlags _usageFlags, VkExtent3D _extent )
-{
-	VkImageCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-	info.imageType = VK_IMAGE_TYPE_2D;
-
-	info.format = _format;
-	info.extent = _extent;
-
-	info.mipLevels = 1;
-	info.arrayLayers = 1;
-
-	info.samples = VK_SAMPLE_COUNT_1_BIT;
-
-	info.tiling = VK_IMAGE_TILING_OPTIMAL;
-	info.usage = _usageFlags;
-
-	return info;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-VkImageViewCreateInfo imageViewCreateInfo( VkFormat _format, VkImage _image, VkImageAspectFlags _aspectFlags )
-{
-	VkImageViewCreateInfo info{ .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	info.image = _image;
-	info.format = _format;
-	info.subresourceRange.baseMipLevel = 0;
-	info.subresourceRange.levelCount = 1;
-	info.subresourceRange.baseArrayLayer = 0;
-	info.subresourceRange.layerCount = 1;
-	info.subresourceRange.aspectMask = _aspectFlags;
-
-	return info;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 wv::ImageID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
 {
 	AllocatedImage allocatedImage{};
 	allocatedImage.imageFormat = _format;
 	allocatedImage.imageExtent = _extent;
 
-	VkImageCreateInfo imageInfo = imageCreateInfo( allocatedImage.imageFormat, _usage, _extent );
+	VkImageCreateInfo imageInfo{ .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.format = allocatedImage.imageFormat;
+	imageInfo.extent = _extent;
+	imageInfo.mipLevels   = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.tiling  = VK_IMAGE_TILING_OPTIMAL;
+	imageInfo.usage   = _usage;
+
 	if ( _mipmapped )
 		imageInfo.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( _extent.width, _extent.height ) ) ) ) + 1;
 
@@ -64,7 +33,17 @@ wv::ImageID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent,
 
 	vmaCreateImage( m_renderer->m_allocator, &imageInfo, &allocInfo, &allocatedImage.image, &allocatedImage.allocation, nullptr );
 
-	VkImageViewCreateInfo viewInfo = imageViewCreateInfo( allocatedImage.imageFormat, allocatedImage.image, aspectFlag );
+	VkImageViewCreateInfo viewInfo{ .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.image    = allocatedImage.image;
+	viewInfo.format   = allocatedImage.imageFormat;
+
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+	viewInfo.subresourceRange.aspectMask = aspectFlag;
+
 	viewInfo.subresourceRange.levelCount = imageInfo.mipLevels;
 
 	vkCreateImageView( m_renderer->m_device, &viewInfo, nullptr, &allocatedImage.imageView );

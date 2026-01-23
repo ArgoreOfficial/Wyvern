@@ -48,21 +48,18 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 			MeshAsset* meshAsset = meshAssetLoader->getMeshAsset( mesh.assetID );
 
 			std::vector<VertexData> datas;
-			if ( meshAsset->surfaces.size() > 0 ) // hack
+			// TODO: parse mesh tree properly
+			for ( size_t i = 0; i < meshAsset->vertexPositions.size(); i++ )
 			{
-				// TODO: parse mesh tree properly
-				for ( size_t i = 0; i < meshAsset->vertexPositions.size(); i++ )
-				{
-					VertexData data;
+				VertexData data;
 
-					if( meshAsset->vertexNormals.size() > 0 ) data.normal   = meshAsset->vertexNormals[ i ];
-					if( meshAsset->vertexColours.size() > 0 ) data.color    = meshAsset->vertexColours[ i ];
-					if( meshAsset->vertexUVs.size() > 0 )     data.texCoord = meshAsset->vertexUVs[ i ];
+				if( meshAsset->vertexNormals.size() > 0 ) data.normal   = meshAsset->vertexNormals[ i ];
+				if( meshAsset->vertexColours.size() > 0 ) data.color    = meshAsset->vertexColours[ i ];
+				if( meshAsset->vertexUVs.size() > 0 )     data.texCoord = meshAsset->vertexUVs[ i ];
 
-					datas.push_back( data );
-				}
+				datas.push_back( data );
 			}
-
+			
 			mesh.meshID = renderer->createMesh( meshAsset->indices, meshAsset->vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
 			
 		//	if ( mesh.meshID.isValid() )
