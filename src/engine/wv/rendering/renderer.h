@@ -40,11 +40,11 @@ struct MaterialData
 
 struct FrameData
 {
-	VkCommandPool commandPool;
+	VkCommandPool commandPool = VK_NULL_HANDLE;
 	CommandBuffer* mainCommandBuffer = nullptr;
 
-	VkSemaphore acquireSemaphore;
-	VkFence fence;
+	VkSemaphore acquireSemaphore = VK_NULL_HANDLE;
+	VkFence fence = VK_NULL_HANDLE;
 };
 
 struct DeleteQueue
@@ -182,10 +182,10 @@ protected:
 	const uint32_t SAMPLER_COUNT = 65536;
 	const uint32_t IMAGE_COUNT   = 65536;
 
-	VkDescriptorPool      m_bindlessPool;
-	VkDescriptorSetLayout m_bindlessLayout;
-	VkDescriptorSet       m_bindlessDescriptorSet;
-	VkPipelineLayout      m_bindlessPipelineLayout;
+	VkDescriptorPool      m_bindlessPool = VK_NULL_HANDLE;
+	VkDescriptorSetLayout m_bindlessLayout = VK_NULL_HANDLE;
+	VkDescriptorSet       m_bindlessDescriptorSet = VK_NULL_HANDLE;
+	VkPipelineLayout      m_bindlessPipelineLayout = VK_NULL_HANDLE;
 
 	// Debug Images
 	
