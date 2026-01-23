@@ -140,7 +140,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		playerEntity1->createComponent<PlayerControllerComponent>();
 		playerEntity1->createSystem<PlayerControllerSystem>();
 
-		playerEntity1->getTransform().setPosition( { -1.0f, 0.0f, 0.0 } );
+		playerEntity1->getTransform().setPosition( { -3.0f, 0.0f, 0.0 } );
 	}
 	
 	Entity* playerEntity2 = WV_NEW( Entity );
@@ -153,7 +153,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		playerEntity2->createComponent<PlayerControllerComponent>();
 		playerEntity2->createSystem<PlayerControllerSystem>();
 
-		playerEntity2->getTransform().setPosition( { 1.0f, 0.0f, 0.0 } );
+		playerEntity2->getTransform().setPosition( { 3.0f, 0.0f, 0.0 } );
 	}
 
 	WorldSector* sector = WV_NEW( WorldSector );

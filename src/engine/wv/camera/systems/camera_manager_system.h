@@ -56,7 +56,7 @@ protected:
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;
-	float m_orbitDistance = 5.0f;
+	float m_orbitDistance = 8.0f;
 
 	uint32_t m_lookAction = 0;
 
