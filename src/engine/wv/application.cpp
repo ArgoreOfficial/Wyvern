@@ -146,7 +146,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	Entity* playerEntity2 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "monkey.gltf" );
+		meshComponent->setFilePath( "meshes/SM_Suzanne.gltf" );
 		// meshComponent->setMaterial( m_material );
 
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
@@ -155,12 +155,22 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 		playerEntity2->getTransform().setPosition( { 3.0f, 0.0f, 0.0 } );
 	}
+	
+	Entity* materialEntity = WV_NEW( Entity );
+	{
+		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
+		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
+		// meshComponent->setMaterial( m_material );
+
+		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
+	}
 
 	WorldSector* sector = WV_NEW( WorldSector );
 
 	sector->addEntity( cameraEntity );
 	sector->addEntity( playerEntity1 );
 	sector->addEntity( playerEntity2 );
+	sector->addEntity( materialEntity );
 	m_world->addSector( sector );
 
 	m_lastTicks = m_displayDriver->getHighResolutionCounter();
