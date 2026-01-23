@@ -141,6 +141,13 @@ bool wv::Renderer::initialize()
 		} );
 	}
 
+	//m_triangleMaterialType.addSpan( "worldMatrix", UNIFORM_TYPE_MATRIX );
+	//m_triangleMaterialType.addSpan( "positionBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
+	//m_triangleMaterialType.addSpan( "vertexBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
+	m_triangleMaterialType.addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
+
+	m_triangleMaterialInstance = m_triangleMaterialType.createInstance();
+
 	m_initialized = true;
 
 	return true;
@@ -390,10 +397,11 @@ bool wv::Renderer::initVulkan()
 	VkPhysicalDeviceVulkan13Features features{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
 	features.dynamicRendering = true;
 	features.synchronization2 = true;
-
+	
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
-	features12.bufferDeviceAddress = true;
-	features12.descriptorIndexing  = true;
+	features12.bufferDeviceAddress    = true;
+	features12.descriptorIndexing     = true;
+	features12.runtimeDescriptorArray = true;
 
 	vkb::PhysicalDeviceSelector selector{ vkbInstance };
 	vkb::PhysicalDevice physicalDevice = selector
@@ -705,7 +713,22 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 					
-					_cmd->pushConstant( m_bindlessPipelineLayout, VK_SHADER_STAGE_ALL, 0, sizeof( GPUDrawPushConstants ), &pc );
+					m_triangleMaterialType.setValue<uint32_t>( m_triangleMaterialInstance, "albedoIndex", 1 );
+
+					_cmd->pushConstant(
+						m_bindlessPipelineLayout,
+						VK_SHADER_STAGE_ALL, 0,
+						sizeof( GPUDrawPushConstants ),
+						&pc
+					);
+
+					_cmd->pushConstant( 
+						m_bindlessPipelineLayout, 
+						VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
+						m_triangleMaterialInstance.buffer.size(),
+						m_triangleMaterialInstance.buffer.data() 
+					);
+
 					_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );
 				}
 			}

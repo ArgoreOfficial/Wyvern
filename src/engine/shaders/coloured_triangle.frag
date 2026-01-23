@@ -8,10 +8,12 @@ layout(set = 0, binding = 1) uniform samplerCube u_globalTexturesCube[];
 layout (location = 0) in vec3 inColor;
 layout (location = 1) in vec2 inTexCoord0;
 
+layout (location = 2) flat in uint inAlbedoIndex;
+
 //output write
 layout (location = 0) out vec4 outFragColor;
 
 void main() 
 {
-	outFragColor = texture(u_globalTextures2D[0], inTexCoord0);
+	outFragColor = texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
 }
