@@ -1,6 +1,7 @@
 #include "pipeline_manager.h"
 
 #include <wv/rendering/renderer.h>
+#include <wv/debug/log.h>
 
 VkShaderModule wv::PipelineManager::createShaderModule( uint32_t* _data, size_t _dataSize )
 {
@@ -158,9 +159,8 @@ wv::PipelineID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 
 	if ( vkCreateGraphicsPipelines( m_renderer->m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline.pipeline ) != VK_SUCCESS )
 	{
-		// fmt::println( "failed to create pipeline" );
-
-		return {}; // failed to create graphics pipeline
+		WV_LOG_ERROR( "Failed to create pipeline\n" );
+		return {};
 	}
 
 	return m_pipelines.emplace( pipeline );

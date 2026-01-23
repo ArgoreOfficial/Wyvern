@@ -1,6 +1,7 @@
 #include "image_manager.h"
 
 #include <wv/rendering/renderer.h>
+#include <wv/debug/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,25 @@ wv::ImageID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent,
 
 wv::ImageID wv::ImageManager::createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
 {
+	ImageID imageID = createImage(
+		_format,
+		_extent,
+		_usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+		_mipmapped
+	);
+
+	if ( !imageID.isValid() )
+	{
+		WV_LOG_ERROR( "Failed to create image\n" );
+		return imageID;
+	}
+
+	if ( _data == nullptr )
+	{
+		WV_LOG_ERROR( "Cannot upload nullptr image data\n" );
+		return imageID;
+	}
+
 	size_t dataSize = _extent.width * _extent.height * _extent.depth * 4;
 
 	AllocatedBuffer uploadBuffer = m_renderer->createBuffer(
@@ -62,16 +82,6 @@ wv::ImageID wv::ImageManager::createImage( void* _data, VkFormat _format, VkExte
 	);
 
 	memcpy( uploadBuffer.info.pMappedData, _data, dataSize );
-
-	ImageID imageID = createImage(
-		_format,
-		_extent,
-		_usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-		_mipmapped
-	);
-
-	if ( !imageID.isValid() )
-		return imageID;
 
 	AllocatedImage& allocatedImage = m_allocatedImages.at( imageID );
 
