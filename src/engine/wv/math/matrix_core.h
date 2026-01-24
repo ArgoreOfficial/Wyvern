@@ -268,12 +268,13 @@ Matrix<_Ty, 4, 4> rotateZ( const Matrix<_Ty, 4, 4>& _m, _Ty _angle )
 	return mat * _m;
 }
 
-// https://jsantell.com/3d-projection/#field-of-view
 template<typename _Ty>
 Matrix<_Ty, 4, 4> perspective( const _Ty& _aspect, const _Ty& _fov, const _Ty& _near, const _Ty& _far )
 {
 	const _Ty e = 1.0 / std::tan( _fov / 2.0 );
 	const _Ty m00 = e / _aspect;
+
+#ifdef WV_GL_PRESPECTIVE_MATRIX
 	const _Ty m22 = ( _far + _near ) / ( _near - _far );
 	const _Ty m32 = ( 2 * _far * _near ) / ( _near - _far );
 
@@ -283,6 +284,17 @@ Matrix<_Ty, 4, 4> perspective( const _Ty& _aspect, const _Ty& _fov, const _Ty& _
 		0,   0, m22, -1,
 		0,   0, m32,  0,
 	} };
+#else
+	const _Ty m22 = _near / ( _far - _near );
+	const _Ty m32 = _far * m22;
+
+	Matrix<_Ty, 4, 4> res{ {
+		m00, 0,   0,    0,
+		  0,   -e, 0,    0,
+		  0,   0,   m22, -1,
+		  0,   0,   m32,  0,
+	} };
+#endif
 
 	return res;
 }

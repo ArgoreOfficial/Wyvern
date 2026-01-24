@@ -15,7 +15,7 @@ class PlayerInputComponent;
 
 class PlayerControllerSystem : public IEntitySystem
 {
-	WV_REFLECT_TYPE( PlayerControllerSystem )
+	WV_REFLECT_TYPE( PlayerControllerSystem, IEntitySystem )
 public:
 	PlayerControllerSystem() = default;
 	~PlayerControllerSystem() { }

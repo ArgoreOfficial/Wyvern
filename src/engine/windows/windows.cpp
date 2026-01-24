@@ -31,7 +31,6 @@ wv::DisplayDriver* wv::Platform::createDisplayDriver() {
 
 void wv::Platform::cleanup() {
 	WV_FREE( g_filesystem );
-	WV_FREE( g_displaydriver );
 }
 
 #endif

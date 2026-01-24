@@ -56,51 +56,71 @@ wv::ResourceID wv::MeshAssetLoader::load( const std::filesystem::path& _path )
 		{
 			for ( auto& primitive : mesh.primitives )
 			{
+				std::vector<uint16_t> indices;
+				std::vector<Vector3f> positions;
+				std::vector<Vector3f> normals;
+				std::vector<Vector2f> uv0s;
+				std::vector<Vector3f> colours;
+
 				GeometrySurface surface;
 				surface.startIndex = meshAsset.indices.size();
-				surface.count = asset.accessors[ primitive.indicesAccessor.value() ].count;
+				
+				fastgltf::Attribute* posAttrib = primitive.findAttribute( "POSITION" );
+				fastgltf::Attribute* norAttrib = primitive.findAttribute( "NORMAL" );
+				fastgltf::Attribute* uv0Attrib = primitive.findAttribute( "TEXCOORD_0" );
+				fastgltf::Attribute* colAttrib = primitive.findAttribute( "COLOR_0" );
 
 				// load indices
 				{
 					fastgltf::Accessor& indexAccessor = asset.accessors[ primitive.indicesAccessor.value() ];
-					size_t initialVerticesSize = meshAsset.vertexPositions.size();
-						
-					fastgltf::iterateAccessor<std::uint32_t>( asset, indexAccessor, 
-						[ & ]( std::uint32_t index ) {
-							meshAsset.indices.push_back( index + initialVerticesSize );
-						} );
+					surface.indexCount = indexAccessor.count;
+					indices.resize( indexAccessor.count );
+					fastgltf::copyFromAccessor<uint16_t>( asset, indexAccessor, indices.data() );
 				}
 
 				// load vertex data
 				{
 					// vertex position
-					fastgltf::Accessor& positionAccessor = asset.accessors[ primitive.findAttribute( "POSITION" )->accessorIndex ];
-					fastgltf::iterateAccessorWithIndex<wv::Vector3f>( asset, positionAccessor, 
-						[ & ]( wv::Vector3f pos, std::size_t idx ) {
-							meshAsset.vertexPositions.push_back( pos );
-						} );
-						
+					if ( posAttrib != primitive.attributes.end() )
+					{
+						fastgltf::Accessor& positionAccessor = asset.accessors[ posAttrib->accessorIndex ];
+						surface.vertexCount = positionAccessor.count;
+						positions.resize( positionAccessor.count );
+						fastgltf::copyFromAccessor<Vector3f>( asset, positionAccessor, positions.data() );
+					}
+					
 					// vertex normal
-					fastgltf::Accessor& normalAccessor = asset.accessors[ primitive.findAttribute( "NORMAL" )->accessorIndex ];
-					fastgltf::iterateAccessorWithIndex<wv::Vector3f>( asset, normalAccessor,
-						[ & ]( wv::Vector3f _normal, std::size_t _idx ) {
-							meshAsset.vertexNormals.push_back( _normal );
-						} );
-						
+					if ( norAttrib != primitive.attributes.end() )
+					{
+						fastgltf::Accessor& normalAccessor = asset.accessors[ norAttrib->accessorIndex ];
+						normals.resize( normalAccessor.count );
+						fastgltf::copyFromAccessor<Vector3f>( asset, normalAccessor, normals.data() );
+					}
+					
 					// texture coordinate 0
-					fastgltf::Accessor& texCoord0Accessor = asset.accessors[ primitive.findAttribute( "TEXCOORD_0" )->accessorIndex ];
-					fastgltf::iterateAccessorWithIndex<wv::Vector2f>( asset, texCoord0Accessor,
-						[ & ]( wv::Vector2f _texCoord, std::size_t _idx ) {
-							meshAsset.vertexUVs.push_back( _texCoord );
-						} );
-
-					// vertex colour
-					fastgltf::Accessor& colourAccessor = asset.accessors[ primitive.findAttribute( "COLOR_0" )->accessorIndex ];
-					fastgltf::iterateAccessorWithIndex<wv::Vector3f>( asset, normalAccessor,
-						[ & ]( wv::Vector3f _colour, std::size_t _idx ) {
-							meshAsset.vertexColours.push_back( _colour );
-						} );
+					if ( uv0Attrib != primitive.attributes.end() )
+					{
+						fastgltf::Accessor& texCoord0Accessor = asset.accessors[ uv0Attrib->accessorIndex ];
+						uv0s.resize( texCoord0Accessor.count );
+						fastgltf::copyFromAccessor<Vector2f>( asset, texCoord0Accessor, uv0s.data() );
+					}
+					
+					// vertex colour 0
+					if ( colAttrib != primitive.attributes.end() )
+					{
+						fastgltf::Accessor& colourAccessor = asset.accessors[ colAttrib->accessorIndex ];
+						colours.resize( colourAccessor.count );
+						fastgltf::copyFromAccessor<Vector3f>( asset, colourAccessor, colours.data() );
+					}
 				}
+
+				meshAsset.indices        .insert( meshAsset.indices.end(),         indices.begin(),   indices.end() );
+				meshAsset.vertexPositions.insert( meshAsset.vertexPositions.end(), positions.begin(), positions.end() );
+				meshAsset.vertexNormals  .insert( meshAsset.vertexNormals.end(),   normals.begin(),   normals.end() );
+				meshAsset.vertexUVs      .insert( meshAsset.vertexUVs.end(),       uv0s.begin(),      uv0s.end() );
+				meshAsset.vertexColours  .insert( meshAsset.vertexColours.end(),   colours.begin(),   colours.end() );
+
+				meshAsset.surfaces.push_back( surface );
 			}
 		}
 

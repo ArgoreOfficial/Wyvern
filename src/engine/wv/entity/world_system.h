@@ -12,7 +12,7 @@ class IWorldSystem : IReflectedType
 {
 	friend class World;
 
-	WV_REFLECT_TYPE( IWorldSystem )
+	WV_REFLECT_TYPE( IWorldSystem, IReflectedType )
 public:
 	IWorldSystem() = default;
 	virtual ~IWorldSystem() { };

@@ -40,6 +40,7 @@ public:
 	~IFileSystem();
 
 	std::vector<uint8_t> loadEntireFile( const std::filesystem::path& _path );
+
 	std::string loadString( const std::filesystem::path& _path );
 
 	bool fileExists( const std::filesystem::path& _path );

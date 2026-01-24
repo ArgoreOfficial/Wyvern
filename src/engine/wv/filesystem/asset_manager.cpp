@@ -2,21 +2,23 @@
 
 #include <wv/debug/log.h>
 
-int wv::AssetManager::notifyAssetLoad( ResourceID _resourceID, const std::filesystem::path& _path )
+int wv::AssetManager::notifyAssetLoad( ResourceID _resourceID, const std::filesystem::path& _path, bool _increaseRefs )
 {
 	AssetRef& asset = m_managedAssets[ _path ];
-	if ( asset.refs == 0 ) // new asset
+	if ( !asset.hasLoaded ) // new asset
 	{
 		Debug::Print( "Loaded asset '%s'\n", _path.string().c_str() );
 		asset.asset = _resourceID;
+		asset.hasLoaded = true;
 	}
 
-	asset.refs++;
+	if( _increaseRefs )
+		asset.refs++;
 
 	return asset.refs;
 }
 
-int wv::AssetManager::notifyAssetUnload( const std::filesystem::path& _path )
+int wv::AssetManager::notifyAssetUnload( const std::filesystem::path& _path, bool _decreaseRefs )
 {
 	if ( !m_managedAssets.contains( _path ) )
 	{
@@ -25,7 +27,9 @@ int wv::AssetManager::notifyAssetUnload( const std::filesystem::path& _path )
 	}
 
 	AssetRef& asset = m_managedAssets.at( _path );
-	asset.refs--;
+	
+	if( _decreaseRefs )
+		asset.refs--;
 	
 	int refcount = asset.refs;
 

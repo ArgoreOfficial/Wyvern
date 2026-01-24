@@ -29,6 +29,8 @@ public:
 	virtual uint64_t getHighResolutionCounter() { return 0; }
 	virtual uint64_t getHighResolutionFrequency() { return 1; }
 	
+	virtual bool isMinimized() const { return false; }
+
 #ifdef WV_PLATFORM_WINDOWS
 	virtual HWND winGetHandle() = 0;
 #endif

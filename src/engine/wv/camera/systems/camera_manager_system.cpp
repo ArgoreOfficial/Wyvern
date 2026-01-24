@@ -9,7 +9,7 @@
 
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
-#include <wv/graphics/viewport.h>
+#include <wv/rendering/viewport.h>
 
 #include <wv/debug/log.h>
 #include <wv/memory/memory.h>
@@ -57,11 +57,7 @@ void wv::CameraManagerSystem::shutdown()
 
 void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
 {
-	CameraComponent* camera = tryCast<CameraComponent>( _component );
-	if ( camera == 0 ) 
-		camera = tryCast<OrbitCameraComponent>( _component ); // TODO: derivation chain
-
-	if ( camera )
+	if ( auto camera = tryCast<CameraComponent>( _component ) )
 	{
 		if ( !m_cameraComponents.registerComponent( _entity, _component ) )
 			return;
@@ -79,8 +75,7 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		
 		entityIt->camera = camera;
 	}
-
-	if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
+	else if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
 		if ( !m_playerInputComponents.registerComponent( _entity, _component ) )
 			return;
@@ -108,8 +103,7 @@ void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityCompo
 		if ( entityIt != m_entityDatas.end() && entityIt->camera == camera )
 			entityIt->camera = nullptr;
 	}
-
-	if ( auto playerInput = tryCast<PlayerInputComponent>( _component ) )
+	else if ( auto playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
 		if ( !m_playerInputComponents.unregisterComponent( _entity, _component ) )
 			return;
@@ -157,6 +151,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 
 		wv::Transformf& transform = entity->getTransform();
 
+		// check if camera is orbit camera
 		if ( auto orbitCamera = tryCast<OrbitCameraComponent>( camera ) )
 		{
 			transform.rotation += wv::Vector3f{
@@ -174,6 +169,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 	viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
 	viewVolume->setViewDimensions( _ctx.viewport->getSize() );
 	viewVolume->update( _ctx.deltaTime );
+	viewVolume->recalculateProjMatrix( true );
 
 	_ctx.viewport->setViewVolume( viewVolume );
 }

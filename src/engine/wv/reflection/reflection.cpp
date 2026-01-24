@@ -32,7 +32,7 @@ wv::TypeInfo* wv::ReflectionRegistry::registerType( const char* _name )
 
 	info->name = _name;
 	info->typeUUID = wv::Math::randomU64();
-
+	
 	m_typeInfos.push_back( info );
 
 	return info;

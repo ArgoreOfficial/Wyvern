@@ -8,6 +8,11 @@ function load(_prefix)
 
     add_requires( "fastgltf" )
     add_requires( "libsdl2" )
+    
+    -- vulkan
+    add_requires( "vulkansdk" )
+    add_requires( "vulkan-memory-allocator" )
+    
     add_requires( "imgui v1.91.0-docking", { 
         configs={
             opengl3 = true,

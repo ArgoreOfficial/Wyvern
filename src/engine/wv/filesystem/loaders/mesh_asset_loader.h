@@ -14,7 +14,8 @@ namespace wv {
 struct GeometrySurface
 {
 	uint32_t startIndex;
-	uint32_t count;
+	uint32_t indexCount;
+	uint32_t vertexCount;
 };
 
 struct MeshAsset

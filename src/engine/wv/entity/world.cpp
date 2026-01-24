@@ -3,7 +3,7 @@
 #include <wv/application.h>
 #include <wv/camera/view_volume.h>
 #include <wv/filesystem/asset_manager.h>
-#include <wv/graphics/viewport.h>
+#include <wv/rendering/viewport.h>
 #include <wv/input/input_system.h>
 
 wv::World::~World()

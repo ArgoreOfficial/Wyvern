@@ -13,6 +13,7 @@ public:
 	struct AssetRef
 	{
 		ResourceID asset;
+		bool hasLoaded = false;
 		int refs = 0;
 	};
 
@@ -27,14 +28,14 @@ public:
 	 * @param _path Path to the resource
 	 * @return The number of references to asset
 	 */
-	int notifyAssetLoad( ResourceID _resourceID, const std::filesystem::path& _path );
+	int notifyAssetLoad( ResourceID _resourceID, const std::filesystem::path& _path, bool _increaseRefs = true );
 
 	/**
 	 * @brief Notify manager of asset unload
 	 * @param _path Path to the resource
 	 * @return The number of references to asset
 	 */
-	int notifyAssetUnload( const std::filesystem::path& _path );
+	int notifyAssetUnload( const std::filesystem::path& _path, bool _decreaseRefs = true );
 
 private:
 

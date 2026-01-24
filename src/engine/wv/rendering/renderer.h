@@ -1,0 +1,206 @@
+#pragma once
+
+
+#include <wv/debug/log.h>
+
+#include <wv/helpers/unordered_array.hpp>
+#include <wv/math/vector2.h>
+#include <wv/math/matrix.h>
+#include <wv/math/vector3.h>
+#include <wv/math/matrix.h>
+
+#include <wv/rendering/command_buffer.h>
+#include <wv/rendering/pipeline_manager.h>
+#include <wv/rendering/image_manager.h>
+
+#include <wv/resource_id.h>
+
+#include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
+
+#include <functional>
+#include <stdint.h>
+#include <vector>
+#include <span>
+
+namespace wv {
+
+class World;
+
+struct SceneData
+{
+	wv::Matrix4x4f viewProj;
+};
+
+struct MaterialData
+{
+	wv::Matrix4x4f model;
+};
+
+struct FrameData
+{
+	VkCommandPool commandPool = VK_NULL_HANDLE;
+	CommandBuffer* mainCommandBuffer = nullptr;
+
+	VkSemaphore acquireSemaphore = VK_NULL_HANDLE;
+	VkFence fence = VK_NULL_HANDLE;
+};
+
+struct DeleteQueue
+{
+	std::vector<std::function<void()>> deleteQueue;
+
+	void push( const std::function<void()>& _func ) { deleteQueue.push_back( _func ); }
+
+	void flush() {
+		for ( auto it = deleteQueue.rbegin(); it != deleteQueue.rend(); it++ )
+			( *it )( );
+		deleteQueue.clear();
+	}
+};
+
+constexpr uint32_t FRAME_OVERLAP = 2;
+
+struct AllocatedBuffer
+{
+	VkBuffer buffer;
+	VmaAllocation allocation;
+	VmaAllocationInfo info;
+};
+
+struct GPUMeshBuffers
+{
+	AllocatedBuffer indexBuffer;
+	AllocatedBuffer positionBuffer;
+	AllocatedBuffer vertexDataBuffer;
+
+	VkDeviceAddress positionBufferAddress;
+	VkDeviceAddress vertexDataBufferAddress;
+
+	uint32_t numIndices;
+};
+
+struct GPUDrawPushConstants
+{
+	wv::Matrix4x4f worldMatrix;
+	VkDeviceAddress positionBuffer;
+	VkDeviceAddress vertexDataBuffer;
+};
+
+class Renderer
+{
+	friend class Application;
+	friend class PipelineManager;
+	friend class ImageManager;
+
+public:
+	bool initialize();
+	void shutdown();
+
+	void prepare( uint32_t _width, uint32_t _height );
+	void render( World* _world );
+	void finalize();
+
+	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
+
+	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize );
+	void destroyPipeline( ResourceID _pipeline );
+
+	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
+	void destroyMesh( ResourceID _mesh );
+
+protected:
+	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
+	
+	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
+
+	bool initVulkan();
+	bool initSwapchain( uint32_t _width, uint32_t _height );
+	bool initCommands();
+	bool initSyncStructures();
+	bool initDescriptors();
+
+	void createSwapchain( uint32_t _width, uint32_t _height );
+	void destroySwapchain();
+	void resizeSwapchain( uint32_t _width, uint32_t _height );
+
+	void drawBackground( CommandBuffer* _cmd );
+	void drawGeometry( CommandBuffer* _cmd, World* _world );
+
+	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
+
+	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
+	void destroyBuffer( const AllocatedBuffer& _buffer );
+
+	void storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _at );
+
+	const bool m_useValidationLayers = true;
+
+	bool m_initialized = false;
+	bool m_resizeRequested = false;
+
+	PipelineManager m_pipelineManager = { this };
+	ImageManager m_imageManager = { this };
+
+	DeleteQueue m_mainDeleteQueue = {};
+
+	VkInstance               m_instance       = VK_NULL_HANDLE;
+	VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
+	VkPhysicalDevice         m_physicalDevice = VK_NULL_HANDLE;
+	VkDevice                 m_device         = VK_NULL_HANDLE;
+	VkSurfaceKHR             m_surface        = VK_NULL_HANDLE;
+
+	VkSwapchainKHR m_swapchain            = VK_NULL_HANDLE;
+	VkFormat       m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
+
+	std::vector<VkImage>     m_swapchainImages     = {};
+	std::vector<VkImageView> m_swapchainImageViews = {};
+	std::vector<VkSemaphore> m_submitSemaphores    = {};
+	VkExtent2D m_swapchainExtent = {};
+
+	ImageID m_drawImage  = {};
+	ImageID m_depthImage = {};
+	VkExtent2D m_drawExtent = {};
+
+	uint32_t  m_frameNumber = 0;
+	FrameData m_frames[ FRAME_OVERLAP ];
+
+	VkQueue  m_graphicsQueue = VK_NULL_HANDLE;
+	uint32_t m_graphicsQueueFamily = 0;
+
+	VmaAllocator m_allocator = VK_NULL_HANDLE;
+
+	VkFence        m_immediateFence         = VK_NULL_HANDLE;
+	VkCommandPool  m_immediateCommandPool   = VK_NULL_HANDLE;
+	CommandBuffer* m_immediateCommandBuffer = nullptr;
+
+	// Bindless
+
+	const uint32_t STORAGE_BINDING = 0;
+	const uint32_t SAMPLER_BINDING = 1;
+	const uint32_t IMAGE_BINDING   = 2;
+	
+	const uint32_t STORAGE_COUNT = 65536;
+	const uint32_t SAMPLER_COUNT = 65536;
+	const uint32_t IMAGE_COUNT   = 65536;
+
+	VkDescriptorPool      m_bindlessPool = VK_NULL_HANDLE;
+	VkDescriptorSetLayout m_bindlessLayout = VK_NULL_HANDLE;
+	VkDescriptorSet       m_bindlessDescriptorSet = VK_NULL_HANDLE;
+	VkPipelineLayout      m_bindlessPipelineLayout = VK_NULL_HANDLE;
+
+	// Debug Images
+	
+	VkSampler m_samplerLinear  = VK_NULL_HANDLE;
+	VkSampler m_samplerNearest = VK_NULL_HANDLE;
+
+	ImageID m_blackImage{};
+	ImageID m_whiteImage{};
+	ImageID m_debugImage{};
+	
+	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;
+
+};
+
+
+}

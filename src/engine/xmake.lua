@@ -19,12 +19,19 @@ target "Wyvern"
     add_headerfiles("**.hpp", {install = false})   
     
     add_files("**.cpp")
+    add_files(
+        "**.comp", 
+        "**.vert", 
+        "**.frag"
+    )
 
     add_includedirs("./")
-    
+
+    add_rules("utils.glsl2spv", {outputdir = "data/shaders/"})
+
     if is_arch("psvita") and has_vitasdk then 
         add_rules("vitaCg")
-        add_files(ROOTDIR .. "game/shaders/**.cg")
+        add_files(ROOTDIR .. "data/shaders/**.cg")
     end
 
     target_platform(ENGINE_NAMESPACE)

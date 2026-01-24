@@ -20,7 +20,7 @@ class Entity final : wv::IReflectedType
 {
 	friend class WorldSector;
 
-	WV_REFLECT_TYPE( Entity )
+	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	
 	/*

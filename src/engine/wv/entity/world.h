@@ -17,12 +17,16 @@ class InputSystem;
 
 class AssetManager;
 class MeshAssetLoader;
+class MaterialAssetLoader;
 
 struct WorldLoadContext
 {
 	InputSystem* inputSystem = nullptr;
+	
 	AssetManager* worldAssetManager = nullptr;
-	MeshAssetLoader* meshAssetLoader = nullptr;
+
+	MeshAssetLoader*     meshAssetLoader     = nullptr;
+	MaterialAssetLoader* materialAssetLoader = nullptr;
 };
 
 struct WorldUpdateContext
@@ -36,7 +40,7 @@ struct WorldUpdateContext
 
 class World : public IReflectedType
 {
-	WV_REFLECT_TYPE( World ) 
+	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World() = default;
 	~World();

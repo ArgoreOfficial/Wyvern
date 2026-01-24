@@ -70,6 +70,14 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	}
 #endif
 
+#ifdef WV_SUPPORT_VULKAN
+	if ( renderer == "vulkan" ) // vk 1.3
+	{
+		flags |= SDL_WINDOW_VULKAN;
+		flags |= SDL_WINDOW_RESIZABLE;
+	}
+#endif
+
 #ifdef EMSCRIPTEN
 	EmscriptenWebGLContextAttributes attrs;
 	attrs.antialias = true;
@@ -86,19 +94,17 @@ bool wv::DisplayDriverSDL::initializeDisplay( uint16_t _width, uint16_t _height 
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
 
-	//SDL_GL_CONTEXT_DEBUG_FLAG
-	//glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, true );
-	//glfwWindowHint( GLFW_RESIZABLE, false );
-
 	m_windowContext = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
 
-#ifdef WV_SUPPORT_OPENGL 
-	m_openglContext = SDL_GL_CreateContext( m_windowContext );
+#ifdef WV_SUPPORT_OPENGL
+	if( renderer == "opengl" || renderer == "gles" )
+		m_openglContext = SDL_GL_CreateContext( m_windowContext );
 #endif
 
 	SDL_version version;
 	SDL_GetVersion( &version );
-	wv::Debug::Print( "Initialized Context Device\n" );
+	wv::Debug::Print( "Initialized Display Driver\n" );
+	wv::Debug::Print( "  Renderer: %s\n", renderer.c_str() );
 	wv::Debug::Print( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
 
 	if ( !m_windowContext )
@@ -163,6 +169,12 @@ uint64_t wv::DisplayDriverSDL::getHighResolutionCounter()
 uint64_t wv::DisplayDriverSDL::getHighResolutionFrequency()
 {
 	return SDL_GetPerformanceFrequency();
+}
+
+bool wv::DisplayDriverSDL::isMinimized() const
+{
+	uint32_t flags = SDL_GetWindowFlags( m_windowContext );
+	return flags & SDL_WINDOW_MINIMIZED;
 }
 
 #ifdef WV_PLATFORM_WINDOWS

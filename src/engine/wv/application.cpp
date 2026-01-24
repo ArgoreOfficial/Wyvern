@@ -9,9 +9,12 @@
 #include <wv/entity/world_sector.h>
 #include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
-#include <wv/graphics/systems/render_world_system.h>
-#include <wv/graphics/components/mesh_component.h>
-#include <wv/graphics/viewport.h>
+#include <wv/filesystem/loaders/material_asset_loader.h>
+#include <wv/rendering/renderer.h>
+#include <wv/rendering/material.h>
+#include <wv/rendering/systems/render_world_system.h>
+#include <wv/rendering/components/mesh_component.h>
+#include <wv/rendering/viewport.h>
 #include <wv/reflection/reflection.h>
 #include <wv/input/input_system.h>
 #include <wv/input/components/player_input_component.h>
@@ -50,7 +53,8 @@ wv::Application::Application()
 
 bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
-	m_graphicsDriverName = "opengl"; // TODO
+	m_graphicsDriverName = "vulkan"; // TODO
+	m_world = _world;
 
 	// IEngineSystem ?
 	// might help with cleanup and such
@@ -62,6 +66,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
+	m_filesystem   = Platform::createFileSystem( "data" );
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
@@ -73,22 +78,20 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
+		WV_LOG_ERROR( "Failed to initalize display\n" );
 		WV_FREE( m_displayDriver );
 		return false;
 	}
 
-	m_renderer = WV_NEW( OpenGLRenderer );
+	m_renderer = WV_NEW( Renderer );
 
-	if ( !m_renderer->setup() )
+	if ( !m_renderer->initialize() )
 	{
+		WV_LOG_ERROR( "Failed to initalize renderer\n" );
 		shutdown();
 		return false;
 	}
 
-	m_world = _world;
-
-	m_filesystem = Platform::createFileSystem( "data" );
-	
 	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
 
 	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
@@ -101,10 +104,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_A );
 	
 	playerActionGroup->enable();
-
-	std::string vsDebug = m_filesystem->loadString( "debug_line_vs.glsl" );
-	std::string fsDebug = m_filesystem->loadString( "debug_line_fs.glsl" );
-	m_renderer->setupDebug( vsDebug.c_str(), fsDebug.c_str() );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
@@ -119,17 +118,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Set up mesh stuff (testing)
-
-	std::string vs = m_filesystem->loadString( "debug_vs.glsl" ); // TODO: rename files
-	std::string fs = m_filesystem->loadString( "debug_fs.glsl" );
-
-	m_material = m_renderer->createMaterial();
-	m_renderer->setMaterialVertexShader( m_material, vs.c_str() );
-	m_renderer->setMaterialFragmentShader( m_material, fs.c_str() );
-	m_renderer->finalizeMaterial( m_material );
-
-	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
 	m_world->createWorldSystem<RenderWorldSystem>();
@@ -137,6 +125,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
 	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
+	WorldSector* sector = WV_NEW( WorldSector );
+	
+	// set up default material
+	MaterialAsset defaultMaterialAsset{};
+	defaultMaterialAsset.vertShaderPath = "shaders/coloured_triangle.vert.spv";
+	defaultMaterialAsset.fragShaderPath = "shaders/coloured_triangle.frag.spv";
+	sector->getMaterialAssetLoader()->add( "Default", defaultMaterialAsset );
+	
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 	cameraEntity->createComponent<OrbitCameraComponent>();
@@ -148,33 +144,38 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "monkey.gltf" );
-		meshComponent->setMaterial( m_material );
-
+		
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 		playerEntity1->createComponent<PlayerControllerComponent>();
 		playerEntity1->createSystem<PlayerControllerSystem>();
 
-		playerEntity1->getTransform().setPosition( { -1.0f, 0.0f, 0.0 } );
+		playerEntity1->getTransform().setPosition( { -3.0f, 0.0f, 0.0 } );
 	}
 	
 	Entity* playerEntity2 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "monkey.gltf" );
-		meshComponent->setMaterial( m_material );
-
+		meshComponent->setFilePath( "meshes/SM_Suzanne.gltf" );
+		
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
 		playerEntity2->createComponent<PlayerControllerComponent>();
 		playerEntity2->createSystem<PlayerControllerSystem>();
 
-		playerEntity2->getTransform().setPosition( { 1.0f, 0.0f, 0.0 } );
+		playerEntity2->getTransform().setPosition( { 3.0f, 0.0f, 0.0 } );
 	}
+	
+	Entity* materialEntity = WV_NEW( Entity );
+	{
+		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
+		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
 
-	WorldSector* sector = WV_NEW( WorldSector );
+		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
+	}
 
 	sector->addEntity( cameraEntity );
 	sector->addEntity( playerEntity1 );
 	sector->addEntity( playerEntity2 );
+	sector->addEntity( materialEntity );
 	m_world->addSector( sector );
 
 	m_lastTicks = m_displayDriver->getHighResolutionCounter();
@@ -186,19 +187,36 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
-	m_world->shutdown();
-	WV_FREE( m_world );
+	m_renderer->waitForRenderer();
 
-	m_displayDriver->shutdown();
+	if ( m_world )
+	{
+		m_world->shutdown();
+		WV_FREE( m_world );
+	}
+	
+	if ( m_displayDriver )
+	{
+		m_displayDriver->shutdown();
+		WV_FREE( m_displayDriver );
+	}
 
-	m_inputSystem->shutdown();
-	WV_FREE( m_inputSystem );
+	if ( m_inputSystem )
+	{
+		m_inputSystem->shutdown();
+		WV_FREE( m_inputSystem );
+	}
 	
-	WV_FREE( m_eventManager );
+	if ( m_eventManager )
+	{
+		WV_FREE( m_eventManager );
+	}
 	
-	m_renderer->destroyMaterial( m_material );
-	m_renderer->shutdown();
-	WV_FREE( m_renderer );
+	if ( m_renderer )
+	{
+		m_renderer->shutdown();
+		WV_FREE( m_renderer );
+	}
 	
 	ReflectionRegistry::destroySingleton();
 }
@@ -233,7 +251,10 @@ bool wv::Application::tick()
 
 void wv::Application::update()
 {
-	wv::Vector2i windowSize = m_displayDriver->getWindowSize(); // should this be an event?
+	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
+	if ( windowSize.x == 0 ) windowSize.x = 1;
+	if ( windowSize.y == 0 ) windowSize.y = 1;
+
 	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
 
 	m_world->updateLoading();
@@ -261,19 +282,24 @@ void wv::Application::update()
 
 void wv::Application::render()
 {
+	bool shouldRender = true;
+	bool isMinimized = m_displayDriver->isMinimized();
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
-	m_renderer->prepare( windowSize.x, windowSize.y );
-	m_renderer->clearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-	m_renderer->clearDepth();
-	m_renderer->renderWorld( m_world );
 
-	std::vector<Line3f> lines;
+	// don't render if the window is minimized
+	if ( isMinimized || windowSize.x == 0 || windowSize.y == 0 )
+		shouldRender = false;
 
-	//lines.push_back( Line3f{ { 0.f, 0.f, 0.f }, { 1.3f, 1.2f + std::sinf( m_runtime ), 1.7f } } );
-	//lines.push_back( Line3f{ lines.back(), { 2.0f, 1.0f, 3.0f } } );
+	if ( m_renderer->isSwapchainOutOfDate() )
+	{
+		if ( !isMinimized )
+			m_renderer->resizeSwapchain( windowSize.x, windowSize.y );
+	}
 
-	m_renderer->clearDepth(); // optional
-	m_renderer->drawDebugLines( lines );
-
-	m_renderer->finalize();
+	if ( shouldRender )
+	{
+		m_renderer->prepare( windowSize.x, windowSize.y );
+		m_renderer->render( m_world );
+		m_renderer->finalize();
+	}
 }
