@@ -9,6 +9,7 @@
 #include <wv/entity/world_sector.h>
 #include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
+#include <wv/filesystem/loaders/material_asset_loader.h>
 #include <wv/rendering/renderer.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/systems/render_world_system.h>
@@ -124,6 +125,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
 	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
+	WorldSector* sector = WV_NEW( WorldSector );
+	
+	// set up default material
+	MaterialAsset defaultMaterialAsset{};
+	defaultMaterialAsset.vertShaderPath = "shaders/coloured_triangle.vert.spv";
+	defaultMaterialAsset.fragShaderPath = "shaders/coloured_triangle.frag.spv";
+	sector->getMaterialAssetLoader()->add( "Default", defaultMaterialAsset );
+	
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 	cameraEntity->createComponent<OrbitCameraComponent>();
@@ -131,24 +140,11 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
 
-	//m_triangleMaterialType.addSpan( "worldMatrix", UNIFORM_TYPE_MATRIX );
-	//m_triangleMaterialType.addSpan( "positionBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
-	//m_triangleMaterialType.addSpan( "vertexBuffer", UNIFORM_TYPE_BUFFER_ADDRESS );
-	
-	std::vector<uint8_t> vertShaderData = m_filesystem->loadEntireFile( "shaders/coloured_triangle.vert.spv" );
-	std::vector<uint8_t> fragShaderData = m_filesystem->loadEntireFile( "shaders/coloured_triangle.frag.spv" );
-	ResourceID pipeline = m_renderer->createPipeline( (uint32_t*)vertShaderData.data(), vertShaderData.size(), (uint32_t*)fragShaderData.data(), fragShaderData.size() );
-
-	m_testMaterial = WV_NEW( MaterialType, pipeline );
-	m_testMaterial->addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
-
 	Entity* playerEntity1 = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "monkey.gltf" );
-		meshComponent->setMaterial( m_testMaterial );
-		meshComponent->setMaterialValue( 0, "albedoIndex", 0 );
-
+		
 		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 		playerEntity1->createComponent<PlayerControllerComponent>();
 		playerEntity1->createSystem<PlayerControllerSystem>();
@@ -160,9 +156,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_Suzanne.gltf" );
-		meshComponent->setMaterial( m_testMaterial );
-		meshComponent->setMaterialValue( 0, "albedoIndex", 1 );
-
+		
 		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
 		playerEntity2->createComponent<PlayerControllerComponent>();
 		playerEntity2->createSystem<PlayerControllerSystem>();
@@ -174,13 +168,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
-		meshComponent->setMaterial( m_testMaterial );
-		meshComponent->setMaterialValue( 0, "albedoIndex", 2 );
 
 		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	}
-
-	WorldSector* sector = WV_NEW( WorldSector );
 
 	sector->addEntity( cameraEntity );
 	sector->addEntity( playerEntity1 );
@@ -205,9 +195,6 @@ void wv::Application::shutdown()
 		WV_FREE( m_world );
 	}
 	
-	m_renderer->destroyPipeline( m_testMaterial->getPipeline() );
-	WV_FREE( m_testMaterial );
-
 	if ( m_displayDriver )
 	{
 		m_displayDriver->shutdown();

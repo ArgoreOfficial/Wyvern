@@ -42,6 +42,7 @@ private:
 	std::filesystem::path m_path;
 
 	ResourceID m_meshAsset;
+	ResourceID m_materialAsset;
 
 	MaterialType* m_materialType = nullptr;
 	ResourceID m_materialInstance;
