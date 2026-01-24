@@ -16,7 +16,6 @@
 
 wv::IFileSystem::IFileSystem()
 {
-	// todo: fix
 #ifdef WV_PLATFORM_3DS
 	Result rc = romfsMountSelf( "data" );
 	if( rc )

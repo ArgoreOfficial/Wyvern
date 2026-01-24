@@ -274,7 +274,6 @@ Matrix<_Ty, 4, 4> perspective( const _Ty& _aspect, const _Ty& _fov, const _Ty& _
 	const _Ty e = 1.0 / std::tan( _fov / 2.0 );
 	const _Ty m00 = e / _aspect;
 
-	// TODO
 #ifdef WV_GL_PRESPECTIVE_MATRIX
 	const _Ty m22 = ( _far + _near ) / ( _near - _far );
 	const _Ty m32 = ( 2 * _far * _near ) / ( _near - _far );
