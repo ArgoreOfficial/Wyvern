@@ -127,7 +127,7 @@ template<typename Ty>
 inline Ty* World::createWorldSystem()
 {
 	static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IEntitySystem" );
-	IWorldSystem* system = WV_NEW( Ty );
+	IWorldSystem* system = WV_NEW_NAMED( Ty, Ty::getStaticTypeName() );
 	createWorldSystem( system );
 	return static_cast<Ty*>( system );
 }

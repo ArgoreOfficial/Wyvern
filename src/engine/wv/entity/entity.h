@@ -102,7 +102,7 @@ template<typename Ty>
 inline Ty* Entity::createComponent()
 {
 	static_assert( std::is_base_of<IEntityComponent, Ty>(), "Type must derive from IEntityComponent" );
-	IEntityComponent* component = WV_NEW( Ty );
+	IEntityComponent* component = WV_NEW_NAMED( Ty, Ty::getStaticTypeName() );
 	addComponent( component );
 	return static_cast<Ty*>( component );
 }
@@ -111,7 +111,7 @@ template<typename Ty>
 inline Ty* Entity::createSystem()
 {
 	static_assert( std::is_base_of<IEntitySystem, Ty>(), "Type must derive from IEntitySystem" );
-	IEntitySystem* system = WV_NEW( Ty );
+	IEntitySystem* system = WV_NEW_NAMED( Ty, Ty::getStaticTypeName() );
 	createSystem( system );
 	return static_cast<Ty*>( system );
 }
