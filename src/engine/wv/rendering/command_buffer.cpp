@@ -156,7 +156,7 @@ void wv::CommandBuffer::bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPi
 	vkCmdBindDescriptorSets( m_cmd, _bindPoint, _layout, _firstSet, _descriptorSetCount, _descriptorSets, 0, nullptr );
 }
 
-void wv::CommandBuffer::pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, void* _data )
+void wv::CommandBuffer::pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, const void* _data )
 { 
 	vkCmdPushConstants( m_cmd, _pipelineLayout, _stage, _offset, _size, _data );
 }

@@ -11,17 +11,6 @@ wv::MeshComponent::~MeshComponent()
 	
 }
 
-void wv::MeshComponent::setMaterial( MaterialType* _material )
-{
-	if ( m_materialType != nullptr )
-		m_materialType->destroyInstance( m_materialInstance );
-	
-	m_materialType = _material;
-	
-	if( _material )
-		m_materialInstance = _material->createInstance();
-}
-
 void wv::MeshComponent::load( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityComponentState::UNLOADED );
@@ -30,13 +19,11 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 
 	if ( !m_path.empty() )
 	{
-		m_meshAsset     = _ctx.meshManager->get( m_path );
-		m_materialAsset = _ctx.materialManager->get( "Default" );
+		m_meshAsset = _ctx.meshManager->get( m_path );
 
 		// TODO: loop through mesh asset textures
 
-		if ( m_materialAsset )
-			setMaterial( m_materialAsset->materialType );
+		m_material = _ctx.materialManager->get( "Default" );
 	}
 	else
 	{
@@ -50,7 +37,5 @@ void wv::MeshComponent::unload( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityComponentState::LOADED );
 
-	setMaterial( nullptr );
-	
 	m_state = EntityComponentState::UNLOADED;
 }

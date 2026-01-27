@@ -713,10 +713,9 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 					
-					ResourceID materialInstance = bucket.renderMeshes[ i ].component->getMaterial();
-					MaterialType* material = bucket.renderMeshes[ i ].component->getMaterialType();
-
-					Pipeline pipeline = m_pipelineManager.getPipeline( material->getPipeline() );
+					const MaterialInstance& material = bucket.renderMeshes[ i ].component->getMaterialInstance();
+					
+					Pipeline pipeline = m_pipelineManager.getPipeline( material.material->getPipeline() );
 					_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 
 					_cmd->pushConstant(
@@ -729,8 +728,8 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 					_cmd->pushConstant( 
 						m_bindlessPipelineLayout, 
 						VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-						material->getBufferSize( materialInstance ),
-						material->getBuffer( materialInstance )
+						material.buffer.size(),
+						material.buffer.data()
 					);
 
 					_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );

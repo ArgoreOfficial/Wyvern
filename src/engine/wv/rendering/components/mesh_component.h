@@ -11,7 +11,7 @@
 namespace wv {
 
 class MaterialAsset;
-class MaterialType;
+class MaterialInstance;
 
 class MeshComponent : public IEntityComponent
 {
@@ -21,18 +21,14 @@ public:
 	virtual ~MeshComponent();
 
 	void setFilePath( const std::filesystem::path& _path ) { m_path = _path; }
-	void setMaterial( MaterialType* _material );
-
+	
 	MeshAsset* getMeshAsset() const { return m_meshAsset.get(); }
-	ResourceID getMaterial() const { return m_materialInstance; }
-
-	MaterialType* getMaterialType() { return m_materialType; }
+	
+	const MaterialInstance& getMaterialInstance() const { return m_material; }
 
 	template<typename Ty>
 	void setMaterialValue( size_t _materialIndex, const std::string& _name, const Ty& _value ) {
-		if ( m_materialType == nullptr )
-			return;
-		m_materialType->setValue<Ty>( m_materialInstance, _name, _value );
+		m_material->setValue<Ty>( _name, _value );
 	}
 
 protected:
@@ -44,10 +40,7 @@ private:
 	std::filesystem::path m_path;
 
 	Ref<MeshAsset> m_meshAsset;
-	Ref<MaterialAsset> m_materialAsset;
-
-	MaterialType* m_materialType = nullptr;
-	ResourceID m_materialInstance;
+	MaterialInstance m_material;
 };
 
 }

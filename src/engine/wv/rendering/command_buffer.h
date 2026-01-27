@@ -36,7 +36,7 @@ public:
 	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline );
 	void bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets );
 
-	void pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, void* _data );
+	void pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, const void* _data );
 	
 	// Image
 
