@@ -9,7 +9,6 @@
 #include <wv/entity/world_sector.h>
 #include <wv/event/event_manager.h>
 #include <wv/filesystem/file_system.h>
-#include <wv/filesystem/loaders/material_asset_loader.h>
 #include <wv/rendering/renderer.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/systems/render_world_system.h>
@@ -128,11 +127,12 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	WorldSector* sector = WV_NEW( WorldSector );
 	
 	// set up default material
-	MaterialAsset defaultMaterialAsset{};
-	defaultMaterialAsset.vertShaderPath = "shaders/coloured_triangle.vert.spv";
-	defaultMaterialAsset.fragShaderPath = "shaders/coloured_triangle.frag.spv";
-	sector->getMaterialAssetLoader()->add( "Default", defaultMaterialAsset );
-	
+	m_defaultMaterial = std::make_shared<MaterialAsset>();
+	m_defaultMaterial->vertShaderPath = "shaders/coloured_triangle.vert.spv";
+	m_defaultMaterial->fragShaderPath = "shaders/coloured_triangle.frag.spv";
+	m_defaultMaterial->initialize();
+	sector->getMaterialManager()->add( "Default", m_defaultMaterial );
+
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
 	cameraEntity->createComponent<OrbitCameraComponent>();
@@ -188,6 +188,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 void wv::Application::shutdown()
 {
 	m_renderer->waitForRenderer();
+
+	m_defaultMaterial = { };
 
 	if ( m_world )
 	{

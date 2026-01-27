@@ -2,9 +2,7 @@
 
 #include <wv/entity/world.h>
 
-#include <wv/filesystem/asset_manager.h>
-#include <wv/filesystem/loaders/material_asset_loader.h>
-
+#include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 
 #include <wv/application.h>
@@ -14,10 +12,8 @@ wv::WorldSector::WorldSector()
 	Application* application = Application::getSingleton();
 	IFileSystem* filesystem = application->getFileSystem();
 
-	m_assetManager = WV_NEW( AssetManager );
-
 	m_meshManager = WV_NEW( MeshManager );
-	m_materialAssetLoader = WV_NEW( MaterialAssetLoader, filesystem, m_assetManager, application->getRenderer() );
+	m_materialManager = WV_NEW( MaterialManager );
 }
 
 wv::WorldSector::~WorldSector()
@@ -27,12 +23,9 @@ wv::WorldSector::~WorldSector()
 
 	m_entities.clear();
 
-	// free loaders
+	// free managers
 	WV_FREE( m_meshManager );
-	WV_FREE( m_materialAssetLoader );
-
-	// free asset manager
-	WV_FREE( m_assetManager );
+	WV_FREE( m_materialManager );
 }
 
 void wv::WorldSector::load( WorldLoadContext& _ctx )
@@ -42,7 +35,7 @@ void wv::WorldSector::load( WorldLoadContext& _ctx )
 	m_state = WorldSectorState::LOADING;
 
 	_ctx.meshManager = m_meshManager;
-	_ctx.materialAssetLoader = m_materialAssetLoader;
+	_ctx.materialManager = m_materialManager;
 
 	int numFailedLoads = 0;
 	for ( auto entity : m_entitiesToLoad )
@@ -63,7 +56,7 @@ void wv::WorldSector::unload( WorldLoadContext& _ctx )
 	WV_ASSERT( m_state != WorldSectorState::LOADED );
 
 	_ctx.meshManager = m_meshManager;
-	_ctx.materialAssetLoader = m_materialAssetLoader;
+	_ctx.materialManager = m_materialManager;
 
 	for ( auto entity : m_entities )
 	{
@@ -109,7 +102,7 @@ void wv::WorldSector::updateLoading( WorldLoadContext& _ctx )
 		initialize();
 
 	_ctx.meshManager = m_meshManager;
-	_ctx.materialAssetLoader = m_materialAssetLoader;
+	_ctx.materialManager = m_materialManager;
 
 	for ( auto entity : m_entities )
 		entity->updateLoading();

@@ -2,6 +2,11 @@
 
 #include <wv/debug/log.h>
 
+#include <wv/application.h>
+#include <wv/rendering/renderer.h>
+#include <wv/filesystem/file_system.h>
+#include <wv/memory/memory.h>
+
 void wv::MaterialType::addSpan( const std::string& _name, UniformType _type )
 {
 	if ( m_uniformNameMap.contains( _name ) )
@@ -74,4 +79,46 @@ void wv::MaterialType::setValueInternal( ResourceID _materialInstance, const std
 	}
 
 	std::memcpy( &instance.buffer[ span.offset ], _data, _dataSize );
+}
+
+
+wv::MaterialAsset::~MaterialAsset()
+{
+	if ( materialTypeDefinition )
+	{
+		Renderer* renderer = Application::getSingleton()->getRenderer();
+		renderer->destroyPipeline( materialTypeDefinition->getPipeline() );
+		WV_FREE( materialTypeDefinition );
+	}
+}
+
+void wv::MaterialAsset::initialize()
+{
+	IFileSystem* fs = Application::getSingleton()->getFileSystem();
+	Renderer* renderer = Application::getSingleton()->getRenderer();
+
+	if ( !fragShaderPath.empty() )
+		fragCode = fs->loadEntireFile( fragShaderPath );
+
+	if ( !vertShaderPath.empty() )
+		vertCode = fs->loadEntireFile( vertShaderPath );
+
+	if ( !vertCode.empty() && !fragCode.empty() )
+	{
+		ResourceID pipeline = renderer->createPipeline(
+			(uint32_t*)vertCode.data(), vertCode.size(),
+			(uint32_t*)fragCode.data(), fragCode.size()
+		);
+
+	#ifndef WV_DEBUG
+		fragCode.clear();
+		vertCode.clear();
+	#endif
+
+		materialTypeDefinition = WV_NEW( MaterialType );
+		materialTypeDefinition->setPipeline( pipeline );
+		materialTypeDefinition->addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
+	}
+
+	isLoaded = true;
 }

@@ -2,6 +2,7 @@
 
 #include <wv/resource_id.h>
 #include <wv/helpers/unordered_array.hpp>
+#include <wv/read_through_cache.h>
 
 #include <wv/math/vector2.h>
 #include <wv/math/vector3.h>
@@ -10,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <filesystem>
 
 namespace wv {
 
@@ -26,9 +28,9 @@ class MaterialType;
 
 struct MaterialInstance
 {
-	MaterialType* type;
+	MaterialType* type = nullptr;
 
-	std::vector<uint8_t> buffer;
+	std::vector<uint8_t> buffer = {};
 };
 
 class MaterialType
@@ -41,7 +43,7 @@ public:
 		uint32_t offset;
 	};
 
-	MaterialType( ResourceID _pipeline ) : m_pipeline{ _pipeline } { }
+	MaterialType( ResourceID _pipeline = {} ) : m_pipeline{ _pipeline } { }
 
 	void addSpan( const std::string& _name, UniformType _type );
 
@@ -53,7 +55,8 @@ public:
 		setValueInternal( _materialInstance, _name, &_value, sizeof( Ty ) );
 	}
 
-	ResourceID getPipeline() { return m_pipeline; }
+	void setPipeline( ResourceID _pipeline ) { m_pipeline = _pipeline; }
+	ResourceID getPipeline() const { return m_pipeline; }
 
 	uint8_t* getBuffer( ResourceID _materialInstance ) {
 		if ( !m_instances.contains( _materialInstance ) )
@@ -83,13 +86,37 @@ private:
 		return 0;
 	}
 
-	ResourceID m_pipeline;
+	ResourceID m_pipeline = {};
 
 	size_t m_bufferSize = 0;
-	std::vector<UniformSpan> m_uniforms;
-	std::unordered_map<std::string, size_t> m_uniformNameMap;
+	std::vector<UniformSpan> m_uniforms = {};
+	std::unordered_map<std::string, size_t> m_uniformNameMap = {};
 
-	unordered_array<ResourceID, MaterialInstance> m_instances;
+	unordered_array<ResourceID, MaterialInstance> m_instances = {};
 };
+
+class MaterialAsset
+{
+public:
+	MaterialAsset() = default;
+	MaterialAsset( const std::filesystem::path& _path ) { }
+	~MaterialAsset();
+
+	void initialize();
+
+	std::filesystem::path path;
+
+	std::filesystem::path vertShaderPath;
+	std::filesystem::path fragShaderPath;
+
+	std::vector<uint8_t> vertCode;
+	std::vector<uint8_t> fragCode;
+
+	MaterialType* materialTypeDefinition = nullptr;
+
+	bool isLoaded = false;
+};
+
+class MaterialManager : public ReadThroughCache<MaterialAsset> { };
 
 }

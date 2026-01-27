@@ -14,19 +14,15 @@ class WorldSector;
 class ViewVolume;
 class Viewport;
 class InputSystem;
-
-class AssetManager;
 class MeshManager;
-class MaterialAssetLoader;
+class MaterialManager;
 
 struct WorldLoadContext
 {
 	InputSystem* inputSystem = nullptr;
 	
-	AssetManager* worldAssetManager = nullptr;
-
 	MeshManager*         meshManager     = nullptr;
-	MaterialAssetLoader* materialAssetLoader = nullptr;
+	MaterialManager* materialManager = nullptr;
 };
 
 struct WorldUpdateContext
@@ -119,8 +115,6 @@ protected:
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
 
 	Viewport* m_viewport = nullptr;
-
-	AssetManager* m_worldAssetManager = nullptr;
 };
 
 template<typename Ty>

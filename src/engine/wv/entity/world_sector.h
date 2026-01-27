@@ -8,9 +8,8 @@ namespace wv {
 
 typedef uint32_t WorldSectorID;
 
-class AssetManager;
 class MeshManager;
-class MaterialAssetLoader;
+class MaterialManager;
 
 class WorldSector
 {
@@ -43,8 +42,8 @@ public:
 	bool isLoaded()      const { return m_state == WorldSectorState::LOADED; }
 	bool isInitialized() const { return m_state == WorldSectorState::INITIALIZED; }
 
-	MeshManager*         getMeshManager()         const { return m_meshManager; }
-	MaterialAssetLoader* getMaterialAssetLoader() const { return m_materialAssetLoader; }
+	MeshManager*     getMeshManager()     const { return m_meshManager; }
+	MaterialManager* getMaterialManager() const { return m_materialManager; }
 
 	Entity* findEntity( EntityID _entityID ) const {
 		auto it = m_entityMap.find( _entityID );
@@ -71,10 +70,8 @@ protected:
 	std::vector<Entity*> m_entitiesToLoad;
 	std::unordered_map<EntityID, Entity*> m_entityMap;
 
-	AssetManager* m_assetManager = nullptr;
-
 	MeshManager* m_meshManager = nullptr;
-	MaterialAssetLoader* m_materialAssetLoader = nullptr;
+	MaterialManager* m_materialManager = nullptr;
 };
 
 }

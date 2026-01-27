@@ -10,6 +10,7 @@
 
 namespace wv {
 
+class MaterialAsset;
 class MaterialType;
 
 class MeshComponent : public IEntityComponent
@@ -43,7 +44,7 @@ private:
 	std::filesystem::path m_path;
 
 	Ref<MeshAsset> m_meshAsset;
-	ResourceID m_materialAsset;
+	Ref<MaterialAsset> m_materialAsset;
 
 	MaterialType* m_materialType = nullptr;
 	ResourceID m_materialInstance;

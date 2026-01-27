@@ -1,7 +1,7 @@
 #include "mesh_component.h"
 
 #include <wv/entity/world.h>
-#include <wv/filesystem/loaders/material_asset_loader.h>
+#include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 
 #include <wv/debug/log.h>
@@ -31,14 +31,12 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 	if ( !m_path.empty() )
 	{
 		m_meshAsset     = _ctx.meshManager->get( m_path );
-		m_materialAsset = _ctx.materialAssetLoader->load( "Default" );
+		m_materialAsset = _ctx.materialManager->get( "Default" );
 
 		// TODO: loop through mesh asset textures
 
-		if ( MaterialAsset* materialAsset = _ctx.materialAssetLoader->getMaterialAsset( m_materialAsset ) )
-		{
-			setMaterial( materialAsset->materialTypeDefinition );
-		}
+		if ( m_materialAsset )
+			setMaterial( m_materialAsset->materialTypeDefinition );
 	}
 	else
 	{
@@ -52,11 +50,7 @@ void wv::MeshComponent::unload( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityComponentState::LOADED );
 
-	if ( m_materialAsset.isValid() )
-	{
-		setMaterial( nullptr );
-		_ctx.materialAssetLoader->unload( m_materialAsset );
-	}
+	setMaterial( nullptr );
 	
 	m_state = EntityComponentState::UNLOADED;
 }

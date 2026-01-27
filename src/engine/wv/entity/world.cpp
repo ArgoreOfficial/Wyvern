@@ -2,7 +2,6 @@
 
 #include <wv/application.h>
 #include <wv/camera/view_volume.h>
-#include <wv/filesystem/asset_manager.h>
 #include <wv/rendering/viewport.h>
 #include <wv/input/input_system.h>
 
@@ -43,8 +42,7 @@ void wv::World::shutdown()
 
 		WorldLoadContext ctx;
 		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-		ctx.worldAssetManager = m_worldAssetManager;
-
+		
 		sector->unload( ctx );
 	}
 	
@@ -90,8 +88,7 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 	{
 		WorldLoadContext ctx;
 		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-		ctx.worldAssetManager = m_worldAssetManager;
-
+		
 		sector->unload( ctx );
 	}
 
@@ -113,8 +110,7 @@ void wv::World::updateLoading()
 {
 	WorldLoadContext ctx;
 	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ctx.worldAssetManager = m_worldAssetManager;
-
+	
 	for ( auto sector : m_sectorsToLoad )
 	{
 		sector->load( ctx );
