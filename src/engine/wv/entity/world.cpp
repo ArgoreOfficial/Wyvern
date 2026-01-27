@@ -7,11 +7,13 @@
 
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
+#include <wv/rendering/texture.h>
 
 wv::World::World()
 { 
 	m_meshManager     = WV_NEW( MeshManager );
 	m_materialManager = WV_NEW( MaterialManager );
+	m_textureManager  = WV_NEW( TextureManager );
 }
 
 wv::World::~World()
@@ -30,6 +32,11 @@ wv::World::~World()
 
 	if ( m_viewport )
 		WV_FREE( m_viewport );
+
+	// free managers
+	WV_FREE( m_meshManager );
+	WV_FREE( m_materialManager );
+	WV_FREE( m_textureManager );
 }
 
 void wv::World::shutdown()
@@ -43,17 +50,13 @@ void wv::World::shutdown()
 
 		sector->shutdown();
 	}
-	
+
+	WorldLoadContext ctx = getLoadContext();
 	for ( auto sector : m_sectors )
 	{
 		if ( !sector->isLoaded() )
 			continue;
 
-		WorldLoadContext ctx;
-		ctx.meshManager = m_meshManager;
-		ctx.materialManager = m_materialManager;
-		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-		
 		sector->unload( ctx );
 	}
 	
@@ -64,9 +67,6 @@ void wv::World::shutdown()
 		system->shutdown();
 	}
 
-	// free managers
-	WV_FREE( m_meshManager );
-	WV_FREE( m_materialManager );
 }
 
 void wv::World::addSector( WorldSector* _sector )
@@ -100,11 +100,7 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 	
 	if ( sector->isLoaded() )
 	{
-		WorldLoadContext ctx;
-		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-		ctx.meshManager = m_meshManager;
-		ctx.materialManager = m_materialManager;
-
+		WorldLoadContext ctx = getLoadContext();
 		sector->unload( ctx );
 	}
 
@@ -124,16 +120,12 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 
 void wv::World::updateLoading()
 {
-	WorldLoadContext ctx;
-	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ctx.meshManager = m_meshManager;
-	ctx.materialManager = m_materialManager;
+	WorldLoadContext ctx = getLoadContext();
 
 	for ( auto sector : m_sectorsToLoad )
 	{
 		sector->load( ctx );
 	}
-	ctx.meshManager = nullptr;
 	
 	m_sectorsToLoad.clear();
 
@@ -141,8 +133,7 @@ void wv::World::updateLoading()
 	{
 		sector->updateLoading( ctx );
 	}
-	ctx.meshManager = nullptr;
-
+	
 	updateRegisterUnregisterComponents();
 }
 
@@ -171,6 +162,16 @@ void wv::World::updateWorldSystems( double _deltaTime )
 
 	if( ViewVolume* viewVolume = m_viewport->getViewVolume() )
 		viewVolume->recalculateViewMatrix();
+}
+
+wv::WorldLoadContext wv::World::getLoadContext()
+{
+	WorldLoadContext ctx{};
+	ctx.meshManager     = m_meshManager;
+	ctx.materialManager = m_materialManager;
+	ctx.inputSystem     = wv::Application::getSingleton()->getInputSystem();
+	ctx.textureManager  = m_textureManager;
+	return ctx;
 }
 
 void wv::World::createWorldSystem( IWorldSystem* _system )

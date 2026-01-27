@@ -14,8 +14,10 @@ class WorldSector;
 class ViewVolume;
 class Viewport;
 class InputSystem;
+
 class MeshManager;
 class MaterialManager;
+class TextureManager;
 
 struct WorldLoadContext
 {
@@ -23,6 +25,7 @@ struct WorldLoadContext
 	
 	MeshManager*     meshManager     = nullptr;
 	MaterialManager* materialManager = nullptr;
+	TextureManager*  textureManager  = nullptr;
 };
 
 struct WorldUpdateContext
@@ -99,11 +102,13 @@ public:
 	
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
+	TextureManager*  getTextureManager()  const { return m_textureManager; }
 
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
 protected:
+	WorldLoadContext getLoadContext();
 
 	void createWorldSystem( IWorldSystem* _system );
 	void updateRegisterUnregisterComponents();
@@ -121,6 +126,7 @@ protected:
 
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
+	TextureManager*  m_textureManager  = nullptr;
 };
 
 template<typename Ty>
