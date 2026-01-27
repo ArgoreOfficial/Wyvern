@@ -24,11 +24,9 @@ wv::TextureData wv::TextureAsset::deserialize( const std::filesystem::path& _pat
 	TextureData textureData{};
 
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
-	std::filesystem::path fullpath = fs->getFullPath( _path );
+	auto data = fs->loadEntireFile( _path );
 
-	textureData.data = stbi_load( fullpath.string().c_str(), &textureData.width, &textureData.height, &textureData.channels, 4 );
-	
-	// TODO: stbi_load_from_memory()
+	textureData.data = stbi_load_from_memory( data.data(), data.size(), &textureData.width, &textureData.height, &textureData.channels, 4 );
 
 	return textureData;
 }
@@ -36,8 +34,9 @@ wv::TextureData wv::TextureAsset::deserialize( const std::filesystem::path& _pat
 void wv::TextureAsset::initialize( const TextureData& _texture )
 {
 	Renderer* renderer = Application::getSingleton()->getRenderer();
+	
 	m_gpuAllocation = renderer->allocateImage( _texture.data, _texture.width, _texture.height, false );
-	m_imageSlot = renderer->storeImage( m_gpuAllocation, SamplerState::WV_SAMPLER_LINEAR );
+	m_imageSlot     = renderer->storeImage( m_gpuAllocation, SamplerState::WV_SAMPLER_LINEAR );
 
 	m_data = _texture;
 
