@@ -124,15 +124,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
 	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
-	WorldSector* sector = WV_NEW( WorldSector );
-	
 	// set up default material
 	{
 		m_defaultMaterial = std::make_shared<MaterialAsset>();
 		auto def = m_defaultMaterial->deserialize( "shaders/coloured_triangle.vert.spv", "shaders/coloured_triangle.frag.spv" );
 		m_defaultMaterial->initialize( def );
 
-		sector->getMaterialManager()->add( "Default", m_defaultMaterial );
+		m_world->getMaterialManager()->add( "Default", m_defaultMaterial );
 	}
 
 	Entity* cameraEntity = WV_NEW( Entity );
@@ -174,6 +172,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
 	}
 
+	WorldSector* sector = WV_NEW( WorldSector );
 	sector->addEntity( cameraEntity );
 	sector->addEntity( playerEntity1 );
 	sector->addEntity( playerEntity2 );

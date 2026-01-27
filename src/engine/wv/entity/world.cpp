@@ -5,6 +5,15 @@
 #include <wv/rendering/viewport.h>
 #include <wv/input/input_system.h>
 
+#include <wv/rendering/material.h>
+#include <wv/rendering/mesh.h>
+
+wv::World::World()
+{ 
+	m_meshManager     = WV_NEW( MeshManager );
+	m_materialManager = WV_NEW( MaterialManager );
+}
+
 wv::World::~World()
 {
 	// Destroy world sectors
@@ -41,6 +50,8 @@ void wv::World::shutdown()
 			continue;
 
 		WorldLoadContext ctx;
+		ctx.meshManager = m_meshManager;
+		ctx.materialManager = m_materialManager;
 		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
 		
 		sector->unload( ctx );
@@ -53,6 +64,9 @@ void wv::World::shutdown()
 		system->shutdown();
 	}
 
+	// free managers
+	WV_FREE( m_meshManager );
+	WV_FREE( m_materialManager );
 }
 
 void wv::World::addSector( WorldSector* _sector )
@@ -88,7 +102,9 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 	{
 		WorldLoadContext ctx;
 		ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-		
+		ctx.meshManager = m_meshManager;
+		ctx.materialManager = m_materialManager;
+
 		sector->unload( ctx );
 	}
 
@@ -110,7 +126,9 @@ void wv::World::updateLoading()
 {
 	WorldLoadContext ctx;
 	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-	
+	ctx.meshManager = m_meshManager;
+	ctx.materialManager = m_materialManager;
+
 	for ( auto sector : m_sectorsToLoad )
 	{
 		sector->load( ctx );

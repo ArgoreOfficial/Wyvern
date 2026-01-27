@@ -21,7 +21,7 @@ struct WorldLoadContext
 {
 	InputSystem* inputSystem = nullptr;
 	
-	MeshManager*         meshManager     = nullptr;
+	MeshManager*     meshManager     = nullptr;
 	MaterialManager* materialManager = nullptr;
 };
 
@@ -38,7 +38,7 @@ class World : public IReflectedType
 {
 	WV_REFLECT_TYPE( World, IReflectedType )
 public:
-	World() = default;
+	World();
 	~World();
 
 	void shutdown();
@@ -96,6 +96,9 @@ public:
 
 	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { m_componentsToRegister  .emplace_back( _entity, _component ); }
 	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { m_componentsToUnregister.emplace_back( _entity, _component ); }
+	
+	MeshManager*     getMeshManager()     const { return m_meshManager; }
+	MaterialManager* getMaterialManager() const { return m_materialManager; }
 
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
@@ -115,6 +118,9 @@ protected:
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
 
 	Viewport* m_viewport = nullptr;
+
+	MeshManager*     m_meshManager     = nullptr;
+	MaterialManager* m_materialManager = nullptr;
 };
 
 template<typename Ty>
