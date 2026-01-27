@@ -35,7 +35,7 @@ public:
 	Ty value = InvalidID;
 };
 
-using ResourceID = TResourceID<uint16_t, struct ResourceID_t>;
+using ResourceID = TResourceID<uint32_t, struct ResourceID_t>;
 
 }
 

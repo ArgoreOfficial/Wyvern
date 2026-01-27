@@ -361,6 +361,27 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 		destroyBuffer( surface.vertexDataBuffer );
 }
 
+wv::ResourceID wv::Renderer::allocateImage( const void* _data, int _width, int _height, bool _mipmapped )
+{
+	VkExtent3D imagesize;
+	imagesize.width = _width;
+	imagesize.height = _height;
+	imagesize.depth = 1;
+	
+	return m_imageManager.createImage( _data, VK_FORMAT_R8G8B8A8_UNORM, imagesize, VK_IMAGE_USAGE_SAMPLED_BIT, _mipmapped );
+}
+
+void wv::Renderer::deallocateImage( ResourceID _image )
+{
+	if ( m_storedImageIndexMap.contains( _image ) )
+	{
+		m_storedImageIndices.erase( m_storedImageIndexMap.at( _image ) );
+		m_storedImageIndexMap.erase( _image );
+	}
+
+	m_imageManager.destroyImage( _image );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 bool wv::Renderer::initVulkan()
@@ -776,7 +797,7 @@ void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
 }
 
-void wv::Renderer::storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _at )
+void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at )
 {
 	AllocatedImage image = m_imageManager.getAllocatedImage( _imageID );
 	
@@ -796,4 +817,7 @@ void wv::Renderer::storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _a
 	write.pImageInfo = &imageInfo;
 
 	vkUpdateDescriptorSets( m_device, 1, &write, 0, nullptr );
+
+	m_storedImageIndices.insert( _at );
+	m_storedImageIndexMap.emplace( _imageID, _at );
 }

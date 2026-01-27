@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <vector>
 #include <span>
+#include <set>
 
 namespace wv {
 
@@ -87,6 +88,12 @@ struct GPUDrawPushConstants
 	VkDeviceAddress vertexDataBuffer;
 };
 
+enum class SamplerState
+{
+	WV_SAMPLER_LINEAR,
+	WV_SAMPLER_NEAREST
+};
+
 class Renderer
 {
 	friend class Application;
@@ -108,6 +115,25 @@ public:
 
 	ResourceID allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
 	void deallocateMesh( ResourceID _mesh );
+
+	ResourceID allocateImage( const void* _data, int _width, int _height, bool _mipmapped );
+	void deallocateImage( ResourceID _image );
+
+	uint32_t storeImage( ResourceID _imageID, SamplerState _filter ) {
+		VkSampler sampler = VK_NULL_HANDLE;
+		switch ( _filter )
+		{
+		case SamplerState::WV_SAMPLER_LINEAR:  sampler = m_samplerLinear;  break;
+		case SamplerState::WV_SAMPLER_NEAREST: sampler = m_samplerNearest; break;
+		}
+
+		uint32_t index = 0;
+		while ( m_storedImageIndices.contains( index ) )
+			index++;
+
+		storeImage( _imageID, sampler, index );
+		return index;
+	}
 
 protected:
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
@@ -132,8 +158,8 @@ protected:
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
 
-	void storeImage( ImageID _imageID, VkSampler _sampler, uint32_t _at );
-
+	void storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at );
+	
 	const bool m_useValidationLayers = true;
 
 	bool m_initialized = false;
@@ -158,8 +184,8 @@ protected:
 	std::vector<VkSemaphore> m_submitSemaphores    = {};
 	VkExtent2D m_swapchainExtent = {};
 
-	ImageID m_drawImage  = {};
-	ImageID m_depthImage = {};
+	ResourceID m_drawImage  = {};
+	ResourceID m_depthImage = {};
 	VkExtent2D m_drawExtent = {};
 
 	uint32_t  m_frameNumber = 0;
@@ -193,10 +219,13 @@ protected:
 	
 	VkSampler m_samplerLinear  = VK_NULL_HANDLE;
 	VkSampler m_samplerNearest = VK_NULL_HANDLE;
+	
+	std::set<uint32_t> m_storedImageIndices = { };
+	std::unordered_map<ResourceID, uint32_t> m_storedImageIndexMap;
 
-	ImageID m_blackImage{};
-	ImageID m_whiteImage{};
-	ImageID m_debugImage{};
+	ResourceID m_blackImage{};
+	ResourceID m_whiteImage{};
+	ResourceID m_debugImage{};
 	
 	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;
 

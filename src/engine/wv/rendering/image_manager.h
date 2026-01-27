@@ -10,8 +10,6 @@
 
 namespace wv {
 
-using ImageID = TResourceID<uint32_t, struct ImageID_t>;
-
 struct AllocatedImage
 {
 	VkImage image;
@@ -28,11 +26,11 @@ class ImageManager
 public:
 	ImageManager( Renderer* _renderer ) : m_renderer{ _renderer } { };
 
-	ImageID createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
-	ImageID createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
-	void destroyImage( ImageID _image );
+	ResourceID createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
+	ResourceID createImage( const void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped = false );
+	void destroyImage( ResourceID _image );
 
-	AllocatedImage getAllocatedImage( ImageID _imageID ) const {
+	AllocatedImage getAllocatedImage( ResourceID _imageID ) const {
 		if ( m_allocatedImages.contains( _imageID ) )
 			return m_allocatedImages.at( _imageID );
 		return {};
@@ -41,7 +39,7 @@ public:
 private:
 	Renderer* m_renderer = nullptr;
 
-	unordered_array<ImageID, AllocatedImage> m_allocatedImages;
+	unordered_array<ResourceID, AllocatedImage> m_allocatedImages;
 
 };
 

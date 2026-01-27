@@ -5,7 +5,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ImageID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
+wv::ResourceID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
 {
 	AllocatedImage allocatedImage{};
 	allocatedImage.imageFormat = _format;
@@ -52,25 +52,25 @@ wv::ImageID wv::ImageManager::createImage( VkFormat _format, VkExtent3D _extent,
 	return m_allocatedImages.emplace( allocatedImage );
 }
 
-wv::ImageID wv::ImageManager::createImage( void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
+wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _format, VkExtent3D _extent, VkImageUsageFlags _usage, bool _mipmapped )
 {
-	ImageID imageID = createImage(
+	ResourceID ResourceID = createImage(
 		_format,
 		_extent,
 		_usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 		_mipmapped
 	);
 
-	if ( !imageID.isValid() )
+	if ( !ResourceID.isValid() )
 	{
 		WV_LOG_ERROR( "Failed to create image\n" );
-		return imageID;
+		return ResourceID;
 	}
 
 	if ( _data == nullptr )
 	{
 		WV_LOG_ERROR( "Cannot upload nullptr image data\n" );
-		return imageID;
+		return ResourceID;
 	}
 
 	size_t dataSize = _extent.width * _extent.height * _extent.depth * 4;
@@ -83,7 +83,7 @@ wv::ImageID wv::ImageManager::createImage( void* _data, VkFormat _format, VkExte
 
 	memcpy( uploadBuffer.info.pMappedData, _data, dataSize );
 
-	AllocatedImage& allocatedImage = m_allocatedImages.at( imageID );
+	AllocatedImage& allocatedImage = m_allocatedImages.at( ResourceID );
 
 	m_renderer->immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
 		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
@@ -107,10 +107,10 @@ wv::ImageID wv::ImageManager::createImage( void* _data, VkFormat _format, VkExte
 
 	m_renderer->destroyBuffer( uploadBuffer );
 
-	return imageID;
+	return ResourceID;
 }
 
-void wv::ImageManager::destroyImage( ImageID _image )
+void wv::ImageManager::destroyImage( ResourceID _image )
 {
 	if ( !_image.isValid() )
 		return;
