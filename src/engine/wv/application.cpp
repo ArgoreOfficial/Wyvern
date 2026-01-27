@@ -121,8 +121,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->createWorldSystem<RenderWorldSystem>();
 	m_world->createWorldSystem<CameraManagerSystem>();
-	PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
-	playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
+	// PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
+	// playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
 	// set up default material
 	{
@@ -140,42 +140,17 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
 
-	Entity* playerEntity1 = WV_NEW( Entity );
-	{
-		MeshComponent* meshComponent = playerEntity1->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "monkey.gltf" );
-		
-		playerEntity1->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
-		playerEntity1->createComponent<PlayerControllerComponent>();
-		playerEntity1->createSystem<PlayerControllerSystem>();
-
-		playerEntity1->getTransform().setPosition( { -3.0f, 0.0f, 0.0 } );
-	}
-	
-	Entity* playerEntity2 = WV_NEW( Entity );
-	{
-		MeshComponent* meshComponent = playerEntity2->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_Suzanne.gltf" );
-		
-		playerEntity2->createComponent<PlayerInputComponent>()->setPlayerIndex( 1 );
-		playerEntity2->createComponent<PlayerControllerComponent>();
-		playerEntity2->createSystem<PlayerControllerSystem>();
-
-		playerEntity2->getTransform().setPosition( { 3.0f, 0.0f, 0.0 } );
-	}
-	
 	Entity* materialEntity = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
+		meshComponent->setFilePath( "meshes/SM_MoonRayWidget.glb" );
 
-		materialEntity->getTransform().setPosition( { 0.0f, 0.0f, 0.0f } );
+		materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
+		materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
 	}
 
 	WorldSector* sector = WV_NEW( WorldSector );
 	sector->addEntity( cameraEntity );
-	sector->addEntity( playerEntity1 );
-	sector->addEntity( playerEntity2 );
 	sector->addEntity( materialEntity );
 	m_world->addSector( sector );
 
