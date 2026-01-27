@@ -9,7 +9,7 @@ namespace wv {
 typedef uint32_t WorldSectorID;
 
 class AssetManager;
-class MeshAssetLoader;
+class MeshManager;
 class MaterialAssetLoader;
 
 class WorldSector
@@ -43,7 +43,7 @@ public:
 	bool isLoaded()      const { return m_state == WorldSectorState::LOADED; }
 	bool isInitialized() const { return m_state == WorldSectorState::INITIALIZED; }
 
-	MeshAssetLoader*     getMeshAssetLoader()     const { return m_meshAssetLoader; }
+	MeshManager*     getMeshAssetLoader()     const { return m_meshAssetLoader; }
 	MaterialAssetLoader* getMaterialAssetLoader() const { return m_materialAssetLoader; }
 
 	Entity* findEntity( EntityID _entityID ) const {
@@ -73,7 +73,7 @@ protected:
 
 	AssetManager* m_assetManager;
 
-	MeshAssetLoader* m_meshAssetLoader;
+	MeshManager* m_meshAssetLoader;
 	MaterialAssetLoader* m_materialAssetLoader;
 };
 

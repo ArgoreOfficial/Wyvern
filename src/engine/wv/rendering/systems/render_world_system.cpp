@@ -5,7 +5,7 @@
 
 #include <wv/application.h>
 #include <wv/rendering/renderer.h>
-#include <wv/filesystem/loaders/mesh_asset_loader.h>
+#include <wv/rendering/mesh_manager.h>
 
 void wv::RenderWorldSystem::initialize()
 {
@@ -41,31 +41,8 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 		mesh.entity = _entity;
 
 		if ( mesh.assetID.isValid() )
-		{
-			Renderer* renderer = Application::getSingleton()->getRenderer();
-
-			MeshAssetLoader* meshAssetLoader = sector->getMeshAssetLoader();
-			MeshAsset* meshAsset = meshAssetLoader->getMeshAsset( mesh.assetID );
-
-			std::vector<VertexData> datas;
-			// TODO: parse mesh tree properly
-			for ( size_t i = 0; i < meshAsset->vertexPositions.size(); i++ )
-			{
-				VertexData data;
-
-				if( meshAsset->vertexNormals.size() > 0 ) data.normal   = meshAsset->vertexNormals[ i ];
-				if( meshAsset->vertexColours.size() > 0 ) data.color    = meshAsset->vertexColours[ i ];
-				if( meshAsset->vertexUVs.size() > 0 )     data.texCoord = meshAsset->vertexUVs[ i ];
-
-				datas.push_back( data );
-			}
-			
-			mesh.meshID = renderer->createMesh( meshAsset->indices, meshAsset->vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
-			
-		//	if ( mesh.meshID.isValid() )
-		//		renderer->setRenderMeshMaterial( mesh.meshID, meshComponent->getMaterial() );
-		}
-
+			mesh.meshID = sector->getMeshAssetLoader()->getGPUAllocation( mesh.assetID );
+		
 		bucket.renderMeshes.push_back( mesh );
 		bucket.matrices.push_back( _entity->getTransform().getMatrix() );
 	}

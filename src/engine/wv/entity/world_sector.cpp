@@ -3,8 +3,8 @@
 #include <wv/entity/world.h>
 
 #include <wv/filesystem/asset_manager.h>
-#include <wv/filesystem/loaders/mesh_asset_loader.h>
 #include <wv/filesystem/loaders/material_asset_loader.h>
+#include <wv/rendering/mesh_manager.h>
 
 #include <wv/application.h>
 
@@ -15,7 +15,7 @@ wv::WorldSector::WorldSector()
 
 	m_assetManager = WV_NEW( AssetManager );
 
-	m_meshAssetLoader     = WV_NEW( MeshAssetLoader, filesystem, m_assetManager );
+	m_meshAssetLoader     = WV_NEW( MeshManager, filesystem, m_assetManager );
 	m_materialAssetLoader = WV_NEW( MaterialAssetLoader, filesystem, m_assetManager, application->getRenderer() );
 }
 

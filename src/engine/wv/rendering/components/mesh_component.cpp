@@ -1,8 +1,8 @@
 #include "mesh_component.h"
 
 #include <wv/entity/world.h>
-#include <wv/filesystem/loaders/mesh_asset_loader.h>
 #include <wv/filesystem/loaders/material_asset_loader.h>
+#include <wv/rendering/mesh_manager.h>
 #include <wv/debug/log.h>
 
 wv::MeshComponent::~MeshComponent()

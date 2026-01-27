@@ -16,7 +16,7 @@ class Viewport;
 class InputSystem;
 
 class AssetManager;
-class MeshAssetLoader;
+class MeshManager;
 class MaterialAssetLoader;
 
 struct WorldLoadContext
@@ -25,7 +25,7 @@ struct WorldLoadContext
 	
 	AssetManager* worldAssetManager = nullptr;
 
-	MeshAssetLoader*     meshAssetLoader     = nullptr;
+	MeshManager*     meshAssetLoader     = nullptr;
 	MaterialAssetLoader* materialAssetLoader = nullptr;
 };
 

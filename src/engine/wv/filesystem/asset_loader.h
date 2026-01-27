@@ -28,7 +28,7 @@ public:
 protected:
 
 	AssetManager* m_assetManager = nullptr;
-	IFileSystem*  m_filesystem   = nullptr;
+	IFileSystem* m_filesystem = nullptr;
 
 };
 
