@@ -15,8 +15,9 @@ DEFINE_VERTEX_BUFFER(Vertex);
 
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoord0;
+layout (location = 2) out vec3 outNormal;
 
-layout (location = 2) flat out uint outAlbedoIndex;
+layout (location = 3) flat out uint outAlbedoIndex;
 
 layout(push_constant) uniform pushConstant {
     mat4 worldMatrix;
@@ -36,6 +37,7 @@ void main()
 	
 	outColor     = unpackFloat3(v.color);
 	outTexCoord0 = unpackFloat2(v.texCoord0);
+	outNormal    = unpackFloat3(v.normal);
 
 	outAlbedoIndex = albedoIndex;
 }
