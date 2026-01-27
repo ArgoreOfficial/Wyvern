@@ -95,15 +95,8 @@ private:
 	unordered_array<ResourceID, MaterialInstance> m_instances = {};
 };
 
-class MaterialAsset
+struct MaterialDefinition
 {
-public:
-	MaterialAsset() = default;
-	MaterialAsset( const std::filesystem::path& _path ) { }
-	~MaterialAsset();
-
-	void initialize();
-
 	std::filesystem::path path;
 
 	std::filesystem::path vertShaderPath;
@@ -111,10 +104,23 @@ public:
 
 	std::vector<uint8_t> vertCode;
 	std::vector<uint8_t> fragCode;
+};
 
-	MaterialType* materialTypeDefinition = nullptr;
+class MaterialAsset
+{
+public:
+	MaterialAsset() = default;
+	MaterialAsset( const std::filesystem::path& _path );
+	MaterialAsset( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath );
+	~MaterialAsset();
 
-	bool isLoaded = false;
+	MaterialDefinition deserialize( const std::filesystem::path& _path );
+	MaterialDefinition deserialize( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath );
+
+	void initialize( const MaterialDefinition& _def );
+
+	MaterialDefinition definition;
+	MaterialType* materialType = nullptr;
 };
 
 class MaterialManager : public ReadThroughCache<MaterialAsset> { };

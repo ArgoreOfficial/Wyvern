@@ -81,44 +81,65 @@ void wv::MaterialType::setValueInternal( ResourceID _materialInstance, const std
 	std::memcpy( &instance.buffer[ span.offset ], _data, _dataSize );
 }
 
+wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
+{ 
+	MaterialDefinition def = deserialize( _path );
+	initialize( def );
+}
+
+wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath )
+{
+	MaterialDefinition def = deserialize( _vsPath, _fsPath );
+	initialize( def );
+}
 
 wv::MaterialAsset::~MaterialAsset()
 {
-	if ( materialTypeDefinition )
+	if ( materialType )
 	{
 		Renderer* renderer = Application::getSingleton()->getRenderer();
-		renderer->destroyPipeline( materialTypeDefinition->getPipeline() );
-		WV_FREE( materialTypeDefinition );
+		renderer->destroyPipeline( materialType->getPipeline() );
+		WV_FREE( materialType );
 	}
 }
 
-void wv::MaterialAsset::initialize()
+wv::MaterialDefinition wv::MaterialAsset::deserialize( const std::filesystem::path& _path )
+{
+	WV_LOG_ERROR( __FUNCTION__ " not implemented\n" );
+	return {};
+}
+
+wv::MaterialDefinition wv::MaterialAsset::deserialize( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath )
 {
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
+	MaterialDefinition def{};
+
+	def.fragShaderPath = _fsPath;
+	def.vertShaderPath = _fsPath;
+
+	def.fragCode = fs->loadEntireFile( _fsPath );
+	def.vertCode = fs->loadEntireFile( _vsPath );
+
+	return def;
+}
+
+void wv::MaterialAsset::initialize( const MaterialDefinition& _def )
+{
 	Renderer* renderer = Application::getSingleton()->getRenderer();
 
-	if ( !fragShaderPath.empty() )
-		fragCode = fs->loadEntireFile( fragShaderPath );
-
-	if ( !vertShaderPath.empty() )
-		vertCode = fs->loadEntireFile( vertShaderPath );
-
-	if ( !vertCode.empty() && !fragCode.empty() )
+	if ( !_def.vertCode.empty() && !_def.fragCode.empty() )
 	{
 		ResourceID pipeline = renderer->createPipeline(
-			(uint32_t*)vertCode.data(), vertCode.size(),
-			(uint32_t*)fragCode.data(), fragCode.size()
+			(uint32_t*)_def.vertCode.data(), _def.vertCode.size(),
+			(uint32_t*)_def.fragCode.data(), _def.fragCode.size()
 		);
 
-	#ifndef WV_DEBUG
-		fragCode.clear();
-		vertCode.clear();
-	#endif
-
-		materialTypeDefinition = WV_NEW( MaterialType );
-		materialTypeDefinition->setPipeline( pipeline );
-		materialTypeDefinition->addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
+		materialType = WV_NEW( MaterialType );
+		materialType->setPipeline( pipeline );
+		materialType->addSpan( "albedoIndex", UNIFORM_TYPE_TEXTURE );
 	}
 
-	isLoaded = true;
+#ifdef WV_DEBUG
+	definition = _def;
+#endif
 }

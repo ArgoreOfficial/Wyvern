@@ -127,11 +127,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	WorldSector* sector = WV_NEW( WorldSector );
 	
 	// set up default material
-	m_defaultMaterial = std::make_shared<MaterialAsset>();
-	m_defaultMaterial->vertShaderPath = "shaders/coloured_triangle.vert.spv";
-	m_defaultMaterial->fragShaderPath = "shaders/coloured_triangle.frag.spv";
-	m_defaultMaterial->initialize();
-	sector->getMaterialManager()->add( "Default", m_defaultMaterial );
+	{
+		m_defaultMaterial = std::make_shared<MaterialAsset>();
+		auto def = m_defaultMaterial->deserialize( "shaders/coloured_triangle.vert.spv", "shaders/coloured_triangle.frag.spv" );
+		m_defaultMaterial->initialize( def );
+
+		sector->getMaterialManager()->add( "Default", m_defaultMaterial );
+	}
 
 	Entity* cameraEntity = WV_NEW( Entity );
 	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );

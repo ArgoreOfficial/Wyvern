@@ -36,7 +36,7 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 		// TODO: loop through mesh asset textures
 
 		if ( m_materialAsset )
-			setMaterial( m_materialAsset->materialTypeDefinition );
+			setMaterial( m_materialAsset->materialType );
 	}
 	else
 	{
