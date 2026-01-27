@@ -77,6 +77,8 @@ wv::GeometrySurface wv::MeshAsset::deserializeGltf( const std::filesystem::path&
 	{
 		for ( auto& primitive : mesh.primitives )
 		{
+			uint16_t baseIndex = surface.vertexCount();
+
 			std::vector<uint16_t> indices;
 			std::vector<Vector3f> positions;
 			std::vector<Vector3f> normals;
@@ -130,11 +132,13 @@ wv::GeometrySurface wv::MeshAsset::deserializeGltf( const std::filesystem::path&
 				}
 			}
 
-			surface.indices.insert( surface.indices.end(), indices.begin(), indices.end() );
 			surface.vertexPositions.insert( surface.vertexPositions.end(), positions.begin(), positions.end() );
 			surface.vertexNormals.insert( surface.vertexNormals.end(), normals.begin(), normals.end() );
 			surface.vertexUVs.insert( surface.vertexUVs.end(), uv0s.begin(), uv0s.end() );
 			surface.vertexColours.insert( surface.vertexColours.end(), colours.begin(), colours.end() );
+
+			for ( uint16_t index : indices )
+				surface.indices.push_back( index + baseIndex );
 		}
 	}
 
