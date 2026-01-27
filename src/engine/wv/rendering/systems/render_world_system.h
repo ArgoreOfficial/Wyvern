@@ -12,7 +12,6 @@ class MeshComponent;
 
 struct RenderMesh
 {
-	ResourceID assetID{};
 	ResourceID meshID{};
 
 	Entity* entity = nullptr;

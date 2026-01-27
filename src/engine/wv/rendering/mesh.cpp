@@ -25,6 +25,12 @@ wv::MeshAsset::MeshAsset( const std::filesystem::path& _path )
 	m_path = _path;
 }
 
+wv::MeshAsset::~MeshAsset()
+{
+	Renderer* renderer = Application::getSingleton()->getRenderer();
+	renderer->deallocateMesh( m_gpuAllocation );
+}
+
 wv::GeometrySurface wv::MeshAsset::deserialize( const std::filesystem::path& _path )
 {
 	auto extension = _path.extension();
@@ -154,7 +160,7 @@ void wv::MeshAsset::initialize( const GeometrySurface& _geometry )
 		datas.push_back( data );
 	}
 
-	m_gpuAllocation = renderer->createMesh( _geometry.indices, _geometry.vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
+	m_gpuAllocation = renderer->allocateMesh( _geometry.indices, _geometry.vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
 
 #ifdef WV_DEBUG
 	m_surface = _geometry;

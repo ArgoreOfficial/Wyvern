@@ -4,6 +4,7 @@
 #include <wv/types.h>
 
 #include <wv/rendering/material.h>
+#include <wv/rendering/mesh.h>
 
 #include <filesystem>
 
@@ -21,7 +22,7 @@ public:
 	void setFilePath( const std::filesystem::path& _path ) { m_path = _path; }
 	void setMaterial( MaterialType* _material );
 
-	ResourceID getMeshAsset() const { return m_meshAsset; }
+	MeshAsset* getMeshAsset() const { return m_meshAsset.get(); }
 	ResourceID getMaterial() const { return m_materialInstance; }
 
 	MaterialType* getMaterialType() { return m_materialType; }
@@ -41,7 +42,7 @@ protected:
 private:
 	std::filesystem::path m_path;
 
-	ResourceID m_meshAsset;
+	Ref<MeshAsset> m_meshAsset;
 	ResourceID m_materialAsset;
 
 	MaterialType* m_materialType = nullptr;

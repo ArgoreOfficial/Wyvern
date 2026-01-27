@@ -106,8 +106,8 @@ public:
 	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize );
 	void destroyPipeline( ResourceID _pipeline );
 
-	ResourceID createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
-	void destroyMesh( ResourceID _mesh );
+	ResourceID allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
+	void deallocateMesh( ResourceID _mesh );
 
 protected:
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }

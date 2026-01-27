@@ -266,7 +266,7 @@ void wv::Renderer::destroyPipeline( ResourceID _pipeline )
 	m_pipelineManager.destroyPipeline( _pipeline );
 }
 
-wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
+wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
 {
 	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
 	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
@@ -346,7 +346,7 @@ wv::ResourceID wv::Renderer::createMesh( const std::vector<uint16_t>& _indices, 
 	return m_meshBuffers.emplace( surface );
 }
 
-void wv::Renderer::destroyMesh( ResourceID _mesh )
+void wv::Renderer::deallocateMesh( ResourceID _mesh )
 { 
 	if ( !m_meshBuffers.contains( _mesh ) )
 		return;

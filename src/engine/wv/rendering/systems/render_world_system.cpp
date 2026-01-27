@@ -33,16 +33,11 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 		
 		_entity->getTransform().update( nullptr );
 
-		meshComponent->getMeshAsset();
-
-		RenderMesh mesh;
-		mesh.assetID = meshComponent->getMeshAsset();
+		RenderMesh mesh{};
+		mesh.meshID    = meshComponent->getMeshAsset()->getGPUAllocation();
 		mesh.component = meshComponent;
-		mesh.entity = _entity;
+		mesh.entity    = _entity;
 
-		if ( mesh.assetID.isValid() )
-			mesh.meshID = sector->getMeshAssetLoader()->getGPUAllocation( mesh.assetID );
-		
 		bucket.renderMeshes.push_back( mesh );
 		bucket.matrices.push_back( _entity->getTransform().getMatrix() );
 	}
@@ -57,8 +52,6 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 	// Remove mesh resource from bucket
 	
-	Renderer* renderer = Application::getSingleton()->getRenderer();
-	
 	WorldSectorID sectorID = _entity->getParentSector()->getID();
 	auto& bucket = m_renderBucketMap.at( sectorID );
 	for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
@@ -66,8 +59,6 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 		if ( bucket.renderMeshes[ i ].component != meshComponent ) 
 			continue;
 		
-		renderer->destroyMesh( bucket.renderMeshes[ i ].meshID );
-
 		bucket.renderMeshes.erase( bucket.renderMeshes.begin() + i );
 		bucket.matrices.erase( bucket.matrices.begin() + i );
 		break;

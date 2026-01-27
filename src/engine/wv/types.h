@@ -1,11 +1,13 @@
 #pragma once
 
+#include <wv/helpers/strong_type.hpp>
+#include <wv/resource_id.h>
+
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
+#include <memory>
 
-#include <wv/helpers/strong_type.hpp>
-#include <wv/resource_id.h>
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // psvita compatability
@@ -26,6 +28,12 @@ typedef unsigned int GLHandle; // same as GLuint
 
 // WV_DEFINE_ID( ResourceID );
 WV_DEFINE_ID( ObjectID );
+
+template<typename Ty>
+using Ref = std::shared_ptr<Ty>;
+
+template<typename Ty>
+using WeakRef = std::weak_ptr<Ty>;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

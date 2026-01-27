@@ -51,9 +51,6 @@ void wv::MeshComponent::unload( WorldLoadContext& _ctx )
 {
 	WV_ASSERT( m_state != EntityComponentState::LOADED );
 
-	if ( m_meshAsset.isValid() )
-		_ctx.meshAssetLoader->unload( m_meshAsset );
-
 	if ( m_materialAsset.isValid() )
 	{
 		setMaterial( nullptr );

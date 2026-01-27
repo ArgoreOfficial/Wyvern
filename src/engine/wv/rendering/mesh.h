@@ -29,6 +29,7 @@ class MeshAsset
 public:
 	MeshAsset() = default;
 	MeshAsset( const std::filesystem::path& _path );
+	~MeshAsset();
 
 	GeometrySurface deserialize( const std::filesystem::path& _path );
 	GeometrySurface deserializeGltf( const std::filesystem::path& _path );
@@ -40,7 +41,7 @@ public:
 private:
 	std::filesystem::path m_path;
 
-	GeometrySurface m_surface;
+	GeometrySurface m_surface{};
 	ResourceID m_gpuAllocation{};
 };
 

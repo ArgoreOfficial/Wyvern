@@ -2,17 +2,12 @@
 
 #include <wv/filesystem/asset_loader.h>
 
-#include <wv/math/vector2.h>
-#include <wv/math/vector3.h>
-
-#include <wv/helpers/unordered_array.hpp>
 #include <wv/rendering/mesh.h>
+#include <wv/types.h>
 
-#include <vector>
+#include <unordered_map>
 
 namespace wv {
-
-class MeshAsset;
 
 // generic read through cache?
 
@@ -20,26 +15,23 @@ class MeshManager
 {
 public:
 	MeshManager( IFileSystem* _filesystem, AssetManager* _assetManager ) :
-		m_filesystem{ _filesystem },
-		m_assetManager{ _assetManager }
+		m_filesystem{ _filesystem }
 	{ }
 
-	ResourceID add( const MeshAsset& _meshAsset ) {
-		return m_meshAssets.emplace( _meshAsset );
+	Ref<MeshAsset> load( const std::filesystem::path& _path ) {
+		auto it = m_managed.find( _path );
+		if ( it != m_managed.end() )
+			return it->second.lock();
+
+		Ref<MeshAsset> ref = std::make_shared<MeshAsset>( _path );
+		m_managed.emplace( _path, ref );
+		return ref;
 	}
-
-	ResourceID load  ( const std::filesystem::path& _path );
-	void       unload( ResourceID _resource );
-
-	MeshAsset* getMeshAsset( ResourceID _assetID ) const;
-	ResourceID getGPUAllocation( ResourceID _assetID ) const;
-
+	
 private:
-
-	AssetManager* m_assetManager = nullptr;
 	IFileSystem* m_filesystem = nullptr;
 
-	unordered_array<ResourceID, MeshAsset> m_meshAssets;
+	std::unordered_map<std::filesystem::path, WeakRef<MeshAsset>> m_managed;
 
 };
 
