@@ -25,7 +25,7 @@ struct WorldLoadContext
 	
 	AssetManager* worldAssetManager = nullptr;
 
-	MeshManager*     meshAssetLoader     = nullptr;
+	MeshManager*         meshManager     = nullptr;
 	MaterialAssetLoader* materialAssetLoader = nullptr;
 };
 

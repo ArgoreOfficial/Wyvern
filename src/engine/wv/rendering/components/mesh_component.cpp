@@ -2,7 +2,8 @@
 
 #include <wv/entity/world.h>
 #include <wv/filesystem/loaders/material_asset_loader.h>
-#include <wv/rendering/mesh_manager.h>
+#include <wv/rendering/mesh.h>
+
 #include <wv/debug/log.h>
 
 wv::MeshComponent::~MeshComponent()
@@ -29,7 +30,7 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 
 	if ( !m_path.empty() )
 	{
-		m_meshAsset     = _ctx.meshAssetLoader->load( m_path );
+		m_meshAsset     = _ctx.meshManager->get( m_path );
 		m_materialAsset = _ctx.materialAssetLoader->load( "Default" );
 
 		// TODO: loop through mesh asset textures

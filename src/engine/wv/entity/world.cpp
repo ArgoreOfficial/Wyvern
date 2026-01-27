@@ -119,7 +119,7 @@ void wv::World::updateLoading()
 	{
 		sector->load( ctx );
 	}
-	ctx.meshAssetLoader = nullptr;
+	ctx.meshManager = nullptr;
 	
 	m_sectorsToLoad.clear();
 
@@ -127,7 +127,7 @@ void wv::World::updateLoading()
 	{
 		sector->updateLoading( ctx );
 	}
-	ctx.meshAssetLoader = nullptr;
+	ctx.meshManager = nullptr;
 
 	updateRegisterUnregisterComponents();
 }

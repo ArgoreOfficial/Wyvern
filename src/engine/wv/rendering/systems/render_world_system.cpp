@@ -3,10 +3,6 @@
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/entity/entity.h>
 
-#include <wv/application.h>
-#include <wv/rendering/renderer.h>
-#include <wv/rendering/mesh_manager.h>
-
 void wv::RenderWorldSystem::initialize()
 {
 	

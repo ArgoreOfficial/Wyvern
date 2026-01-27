@@ -43,7 +43,7 @@ public:
 	bool isLoaded()      const { return m_state == WorldSectorState::LOADED; }
 	bool isInitialized() const { return m_state == WorldSectorState::INITIALIZED; }
 
-	MeshManager*     getMeshAssetLoader()     const { return m_meshAssetLoader; }
+	MeshManager*         getMeshManager()         const { return m_meshManager; }
 	MaterialAssetLoader* getMaterialAssetLoader() const { return m_materialAssetLoader; }
 
 	Entity* findEntity( EntityID _entityID ) const {
@@ -71,10 +71,10 @@ protected:
 	std::vector<Entity*> m_entitiesToLoad;
 	std::unordered_map<EntityID, Entity*> m_entityMap;
 
-	AssetManager* m_assetManager;
+	AssetManager* m_assetManager = nullptr;
 
-	MeshManager* m_meshAssetLoader;
-	MaterialAssetLoader* m_materialAssetLoader;
+	MeshManager* m_meshManager = nullptr;
+	MaterialAssetLoader* m_materialAssetLoader = nullptr;
 };
 
 }
