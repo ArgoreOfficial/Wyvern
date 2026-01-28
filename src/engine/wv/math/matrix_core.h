@@ -54,6 +54,11 @@ public:
 		std::memcpy( m, _list, sizeof( m ) );
 	}
 
+	Matrix( const _Ty* _val )
+	{
+		std::memcpy( m, _val, sizeof( m ) );
+	}
+
 	Matrix( const Vector4<_Ty>& _vec ):
 		m{ 0 }
 	{

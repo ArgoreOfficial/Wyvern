@@ -5,7 +5,11 @@
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/renderer.h>
 
+#include <wv/math/matrix.h>
+#include <wv/math/quaternion.h>
+
 #include <string>
+#include <variant>
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
@@ -77,7 +81,7 @@ wv::GeometrySurface wv::MeshAsset::deserializeGltf( const std::filesystem::path&
 	{
 		for ( auto& primitive : mesh.primitives )
 		{
-			uint16_t baseIndex = surface.vertexCount();
+			uint16_t indexOffset = surface.vertexCount();
 
 			std::vector<uint16_t> indices;
 			std::vector<Vector3f> positions;
@@ -132,15 +136,35 @@ wv::GeometrySurface wv::MeshAsset::deserializeGltf( const std::filesystem::path&
 				}
 			}
 
+			GeometrySurface::Primitive prim{};
+			prim.offset = surface.vertexCount();
+			prim.count  = positions.size();
+			surface.primitives.push_back( prim );
+
 			surface.vertexPositions.insert( surface.vertexPositions.end(), positions.begin(), positions.end() );
 			surface.vertexNormals.insert( surface.vertexNormals.end(), normals.begin(), normals.end() );
 			surface.vertexUVs.insert( surface.vertexUVs.end(), uv0s.begin(), uv0s.end() );
 			surface.vertexColours.insert( surface.vertexColours.end(), colours.begin(), colours.end() );
 
 			for ( uint16_t index : indices )
-				surface.indices.push_back( index + baseIndex );
+				surface.indices.push_back( index + indexOffset );
 		}
 	}
+
+	fastgltf::iterateSceneNodes( asset, 0, fastgltf::math::fmat4x4(),
+		[ & ]( fastgltf::Node& _node, fastgltf::math::fmat4x4 _matrix ) {
+		if ( _node.meshIndex.has_value() )
+		{
+			wv::Matrix4x4f matrix( _matrix.data() );
+			auto prim = surface.primitives[ *_node.meshIndex ];
+			
+			for ( size_t i = 0; i < prim.count; i++ )
+			{
+				auto& vec = surface.vertexPositions[ i + prim.offset ];
+				vec = vec * matrix;
+			}
+		}
+	} );
 
 	return surface;
 }

@@ -3,6 +3,7 @@
 #include <wv/resource_id.h>
 #include <wv/math/vector2.h>
 #include <wv/math/vector3.h>
+#include <wv/math/matrix.h>
 
 #include <wv/read_through_cache.h>
 
@@ -13,9 +14,17 @@ namespace wv {
 
 struct GeometrySurface
 {
+	struct Primitive
+	{
+		uint32_t offset;
+		uint32_t count;
+	};
+
 	size_t indexCount()  const { return indices.size(); }
 	size_t vertexCount() const { return vertexPositions.size(); }
 
+	std::vector<Primitive> primitives;
+	
 	std::vector<uint16_t> indices;
 
 	std::vector<Vector3f> vertexPositions;
