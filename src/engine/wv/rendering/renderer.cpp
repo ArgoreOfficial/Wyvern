@@ -692,7 +692,19 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
-	AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
+	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
+	if ( !worldRenderSystem )
+		return;
+
+	Viewport* worldViewport = _world->getViewport();
+	if ( !worldViewport )
+		return;
+
+	ViewVolume* viewVolume = worldViewport->getViewVolume();
+	if ( !viewVolume )
+		return;
+
+	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
 	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, drawImage.imageView, depthImage.imageView );
@@ -701,61 +713,48 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	_cmd->setDepthTest( true, true, VK_COMPARE_OP_GREATER_OR_EQUAL );
 	_cmd->setStencilTest( false );
 
+	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
+			
+	auto buckets = worldRenderSystem->getRenderBuckets();
+
+	for ( auto bucket : buckets )
 	{
-	
-		Viewport* worldViewport = _world->getViewport();
-		WV_ASSERT( worldViewport == nullptr );
-		WV_ASSERT( worldViewport->getViewVolume() == nullptr );
-
-		ViewVolume* viewVolume = worldViewport->getViewVolume();
-
-		Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
-
-		// draw meshes
+		for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
 		{
-			RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
-			auto buckets = worldRenderSystem->getRenderBuckets();
-
-			for ( auto bucket : buckets )
-			{
-				for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
-				{
-					ResourceID meshHandle = bucket.renderMeshes[ i ].meshID;
-					if ( !meshHandle.isValid() )
-						continue;
+			ResourceID meshHandle = bucket.renderMeshes[ i ].meshID;
+			if ( !meshHandle.isValid() )
+				continue;
 					
-					const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
-					_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+			const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
+			_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
-					GPUDrawPushConstants pc{};
-					pc.worldMatrix    = bucket.matrices[ i ] * viewProj;
-					pc.positionBuffer = mesh.positionBufferAddress;
+			GPUDrawPushConstants pc{};
+			pc.worldMatrix    = bucket.matrices[ i ] * viewProj;
+			pc.positionBuffer = mesh.positionBufferAddress;
 
-					if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
-						pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
+			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 					
-					const MaterialInstance& material = bucket.renderMeshes[ i ].component->getMaterialInstance();
+			const MaterialInstance& material = bucket.renderMeshes[ i ].component->getMaterialInstance();
 					
-					Pipeline pipeline = m_pipelineManager.getPipeline( material.material->getPipeline() );
-					_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
+			Pipeline pipeline = m_pipelineManager.getPipeline( material.material->getPipeline() );
+			_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 
-					_cmd->pushConstant(
-						m_bindlessPipelineLayout,
-						VK_SHADER_STAGE_ALL, 0,
-						sizeof( GPUDrawPushConstants ),
-						&pc
-					);
+			_cmd->pushConstant(
+				m_bindlessPipelineLayout,
+				VK_SHADER_STAGE_ALL, 0,
+				sizeof( GPUDrawPushConstants ),
+				&pc
+			);
 
-					_cmd->pushConstant( 
-						m_bindlessPipelineLayout, 
-						VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-						material.buffer.size(),
-						material.buffer.data()
-					);
+			_cmd->pushConstant( 
+				m_bindlessPipelineLayout, 
+				VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
+				material.buffer.size(),
+				material.buffer.data()
+			);
 
-					_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );
-				}
-			}
+			_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );
 		}
 	}
 	
