@@ -1,29 +1,22 @@
 #include "application.h"
 
 
-#include <wv/camera/components/orbit_camera_component.h>
-#include <wv/camera/systems/camera_manager_system.h>
 #include <wv/display_driver.h>
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
-#include <wv/entity/world_sector.h>
+
 #include <wv/event/event_manager.h>
-#include <wv/filesystem/file_system.h>
+
 #include <wv/rendering/renderer.h>
 #include <wv/rendering/material.h>
-#include <wv/rendering/systems/render_world_system.h>
-#include <wv/rendering/components/mesh_component.h>
+
 #include <wv/rendering/viewport.h>
 #include <wv/reflection/reflection.h>
 #include <wv/input/input_system.h>
-#include <wv/input/components/player_input_component.h>
-#include <wv/input/systems/player_input_system.h>
+
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
-
-#include <wv/gametest/player_component.h>
-#include <wv/gametest/player_controller.h>
 
 // TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
 #include <windows/xinput_controller_driver.h>
@@ -91,19 +84,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		return false;
 	}
 
-	ActionGroup* playerActionGroup = m_inputSystem->createActionGroup( "Player" );
-
-	playerActionGroup->bindTriggerAction( "Jump", "Controller", CONTROLLER_BUTTON_A );
-	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", SCANCODE_SPACE );
-	
-	playerActionGroup->bindAxisAction( "Move", "Controller", AXIS_DIRECTION_ALL, CONTROLLER_JOYSTICK_LEFT );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_NORTH, SCANCODE_W );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_SOUTH, SCANCODE_S );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_EAST, SCANCODE_D );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", AXIS_DIRECTION_WEST, SCANCODE_A );
-	
-	playerActionGroup->enable();
-
 	///////////////////////////////////////////////////////////////////////////
 	// Set up camera
 
@@ -119,11 +99,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
-	m_world->createWorldSystem<RenderWorldSystem>();
-	m_world->createWorldSystem<CameraManagerSystem>();
-	// PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
-	// playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
-
 	// set up default material
 	{
 		m_defaultMaterial = std::make_shared<MaterialAsset>();
@@ -133,26 +108,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		m_world->getMaterialManager()->add( "Default", m_defaultMaterial );
 	}
 
-	Entity* cameraEntity = WV_NEW( Entity );
-	cameraEntity->createComponent<PlayerInputComponent>()->setPlayerIndex( 0 );
-	cameraEntity->createComponent<OrbitCameraComponent>();
-	
-	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
-	cameraEntity->getTransform().setRotation( { -30.0f, 45.0f, 0.0f } );
-
-	Entity* materialEntity = WV_NEW( Entity );
-	{
-		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
-
-		//materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
-		materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
-	}
-
-	WorldSector* sector = WV_NEW( WorldSector );
-	sector->addEntity( cameraEntity );
-	sector->addEntity( materialEntity );
-	m_world->addSector( sector );
+	m_world->onSetupInput( m_inputSystem );
+	m_world->onSceneCreate();
 
 	m_lastTicks = m_displayDriver->getHighResolutionCounter();
 

@@ -39,10 +39,11 @@ struct WorldUpdateContext
 
 class World : public IReflectedType
 {
+	friend class Application;
 	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World();
-	~World();
+	virtual ~World();
 
 	void shutdown();
 
@@ -108,6 +109,10 @@ public:
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
 protected:
+	virtual void onSceneCreate() { }
+	virtual void onSetupInput( InputSystem* _inputSystem ) { }
+
+private:
 	WorldLoadContext getLoadContext();
 
 	void createWorldSystem( IWorldSystem* _system );
