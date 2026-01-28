@@ -29,7 +29,7 @@ namespace wv
 				"> ", // info
 			#endif
 				"DEBUG",
-				" WARN",
+				"WARN!",
 				"ERROR",
 				"FATAL",
 				"TRACE"
