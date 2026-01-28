@@ -61,7 +61,7 @@ void wv::MaterialAsset::initialize( const MaterialDefinition& _def )
 	}
 
 #ifdef WV_DEBUG
-	definition = _def;
+	m_definition = _def;
 #endif
 }
 

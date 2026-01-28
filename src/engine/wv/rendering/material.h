@@ -50,7 +50,7 @@ public:
 protected:
 	ResourceID m_pipeline = {};
 
-	MaterialDefinition definition = {};
+	MaterialDefinition m_definition = {};
 	RuntimeStructure m_rs = {};
 };
 

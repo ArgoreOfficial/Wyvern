@@ -3,6 +3,7 @@
 #include <wv/entity/world.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
+#include <wv/rendering/texture.h>
 
 #include <wv/debug/log.h>
 
@@ -24,6 +25,9 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 		// TODO: loop through mesh asset textures
 
 		m_material = _ctx.materialManager->get( "Default" );
+		m_texture  = _ctx.textureManager->get( "tengil.png" );
+
+		//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
 	}
 	else
 	{

@@ -138,14 +138,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	cameraEntity->createComponent<OrbitCameraComponent>();
 	
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
-	cameraEntity->getTransform().setRotation( { -30.0f, 0.0f, 0.0f } );
+	cameraEntity->getTransform().setRotation( { -30.0f, 45.0f, 0.0f } );
 
 	Entity* materialEntity = WV_NEW( Entity );
 	{
 		MeshComponent* meshComponent = materialEntity->createComponent<MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_MoonRayWidget.glb" );
+		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
 
-		materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
+		//materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
 		materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
 	}
 

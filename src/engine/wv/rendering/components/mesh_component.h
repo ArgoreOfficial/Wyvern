@@ -10,8 +10,7 @@
 
 namespace wv {
 
-class MaterialAsset;
-class MaterialInstance;
+class TextureAsset;
 
 class MeshComponent : public IEntityComponent
 {
@@ -41,6 +40,8 @@ private:
 
 	Ref<MeshAsset> m_meshAsset;
 	MaterialInstance m_material;
+
+	Ref<TextureAsset> m_texture;
 };
 
 }
