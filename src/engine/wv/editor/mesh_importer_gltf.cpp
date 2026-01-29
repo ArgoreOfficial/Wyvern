@@ -138,6 +138,11 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 		
 		m_materials.push_back( instance );
 	}
+	
+	// there must always be at least one material
+	if ( m_materials.size() == 0 )
+		m_materials.push_back( _materialManager->get( "Default" ) );
+
 }
 
 void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
@@ -213,6 +218,11 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 
 			if ( primitive.materialIndex.has_value() )
 				prim.material = *primitive.materialIndex;
+			else
+			{
+				WV_LOG_WARNING( "%s does not have a material. Using default\n", mesh.name.c_str() );
+				prim.material = 0;
+			}
 
 			surface.primitives.push_back( prim );
 

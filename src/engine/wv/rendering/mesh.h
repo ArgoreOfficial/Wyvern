@@ -22,7 +22,7 @@ struct GeometrySurface
 		uint32_t indexCount = 0;
 		uint32_t vertexCount = 0;
 		
-		int material = -1;
+		int material = 0;
 	};
 
 	size_t indexCount()  const { return indices.size(); }

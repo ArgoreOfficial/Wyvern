@@ -40,16 +40,13 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 			RenderMesh mesh{};
 			mesh.mesh = meshAsset->getGPUAllocation();
 
-			if ( primitive.material >= 0 && primitive.material < materials.size() )
-			{
-				const MaterialInstance& material = materials[ primitive.material ];
-				mesh.pipeline = material.material->getPipeline();
-				mesh.materialData = {
-					material.buffer.data(),
-					material.buffer.size()
-				};
-			}
-
+			const MaterialInstance& material = materials[ primitive.material ];
+			mesh.pipeline = material.material->getPipeline();
+			mesh.materialData = {
+				material.buffer.data(),
+				material.buffer.size()
+			};
+			
 			mesh.indexCount = primitive.indexCount;
 			mesh.firstIndex = primitive.firstIndex;
 			mesh.component  = meshComponent;
