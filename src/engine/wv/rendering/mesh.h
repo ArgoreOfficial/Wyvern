@@ -16,8 +16,9 @@ struct GeometrySurface
 {
 	struct Primitive
 	{
-		uint32_t offset;
-		uint32_t count;
+		uint32_t offset = 0;
+		uint32_t count = 0;
+		int material = -1;
 	};
 
 	size_t indexCount()  const { return indices.size(); }
@@ -41,8 +42,7 @@ public:
 	~MeshAsset();
 
 	GeometrySurface deserialize( const std::filesystem::path& _path );
-	GeometrySurface deserializeGltf( const std::filesystem::path& _path );
-
+	
 	void initialize( const GeometrySurface& _geometry );
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }

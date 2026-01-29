@@ -39,6 +39,7 @@ private:
 	std::filesystem::path m_path;
 
 	Ref<MeshAsset> m_meshAsset;
+	std::vector<MaterialInstance> m_materials;
 	MaterialInstance m_material;
 
 	Ref<TextureAsset> m_texture;

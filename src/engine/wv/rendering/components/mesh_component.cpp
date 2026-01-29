@@ -5,6 +5,8 @@
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
 
+#include <wv/editor/mesh_importer_gltf.h>
+
 #include <wv/debug/log.h>
 
 wv::MeshComponent::~MeshComponent()
@@ -20,14 +22,32 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 
 	if ( !m_path.empty() )
 	{
-		m_meshAsset = _ctx.meshManager->get( m_path );
+		auto extension = m_path.extension();
+		if ( extension == ".gltf" || extension == ".glb" )
+		{
+			MeshImporterGLTF importer{};
+			importer.load( m_path, _ctx.meshManager, _ctx.materialManager, _ctx.textureManager );
 
-		// TODO: loop through mesh asset textures
+			m_meshAsset = importer.getMesh();
+			m_materials = importer.getMaterials();
 
-		m_material = _ctx.materialManager->get( "Default" );
-		m_texture  = _ctx.textureManager->get( "tengil.png" );
+			if ( m_materials.size() > 0 )
+				m_material = m_materials[ 0 ];
+			else
+				m_material = _ctx.materialManager->get( "Default" );
+		}
+		else
+		{
+			m_meshAsset = _ctx.meshManager->get( m_path );
 
-		//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
+			// TODO: loop through mesh asset textures
+
+			m_material = _ctx.materialManager->get( "Default" );
+			m_texture  = _ctx.textureManager->get( "tengil.png" );
+
+			//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
+		}
+
 	}
 	else
 	{

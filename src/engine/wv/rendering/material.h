@@ -20,6 +20,8 @@
 
 namespace wv {
 
+class TextureAsset;
+
 struct MaterialDefinition
 {
 	std::filesystem::path path;
@@ -71,6 +73,7 @@ struct MaterialInstance
 
 	Ref<MaterialAsset> material;
 	std::vector<uint8_t> buffer = {};
+	std::vector<Ref<TextureAsset>> textures = {};
 };
 
 class MaterialManager : public ReadThroughCache<MaterialAsset> { };
