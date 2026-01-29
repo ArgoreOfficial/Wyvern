@@ -2,6 +2,7 @@
 
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/entity/entity.h>
+#include <wv/entity/world.h>
 
 void wv::RenderWorldSystem::initialize()
 {
@@ -39,7 +40,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 			RenderMesh mesh{};
 			mesh.mesh = meshAsset->getGPUAllocation();
 
-			if ( primitive.material > 0 && primitive.material < materials.size() )
+			if ( primitive.material >= 0 && primitive.material < materials.size() )
 			{
 				const MaterialInstance& material = materials[ primitive.material ];
 				mesh.pipeline = material.material->getPipeline();
