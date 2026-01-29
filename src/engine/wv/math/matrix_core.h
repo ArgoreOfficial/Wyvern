@@ -59,6 +59,14 @@ public:
 		std::memcpy( m, _val, sizeof( m ) );
 	}
 
+	Matrix( const Vector3<_Ty>& _vec ):
+		m{ 0 }
+	{
+		static_assert( _Row == 1 && _Col == 3, "Only Matrix<1, 3> can be constructed from Vector3" );
+
+		setRow( 0, { _vec.x, _vec.y, _vec.z } );
+	}
+
 	Matrix( const Vector4<_Ty>& _vec ):
 		m{ 0 }
 	{
@@ -197,6 +205,34 @@ static inline Matrix<_Ty, 4, 4> inverse( const Matrix<_Ty, 4, 4>& _m )
 	im.set( 3, 1, det *  ( _m.get( 0, 0 ) * A1223 - _m.get( 0, 1 ) * A0223 + _m.get( 0, 2 ) * A0123 ) );
 	im.set( 3, 2, det * -( _m.get( 0, 0 ) * A1213 - _m.get( 0, 1 ) * A0213 + _m.get( 0, 2 ) * A0113 ) );
 	im.set( 3, 3, det *  ( _m.get( 0, 0 ) * A1212 - _m.get( 0, 1 ) * A0212 + _m.get( 0, 2 ) * A0112 ) );
+
+	return im;
+}
+
+template<typename _Ty>
+static inline Matrix<_Ty, 3, 3> inverse( const Matrix<_Ty, 3, 3>& _m )
+{
+	// computes the inverse of a matrix m
+	_Ty det = _m.get( 0, 0 ) * ( _m.get( 1, 1 ) * _m.get( 2, 2 ) - _m.get( 2, 1 ) * _m.get( 1, 2 ) ) -
+		      _m.get( 0, 1 ) * ( _m.get( 1, 0 ) * _m.get( 2, 2 ) - _m.get( 1, 2 ) * _m.get( 2, 0 ) ) +
+		      _m.get( 0, 2 ) * ( _m.get( 1, 0 ) * _m.get( 2, 1 ) - _m.get( 1, 1 ) * _m.get( 2, 0 ) );
+
+	if ( det == 0.0 ) // determinant is zero, inverse matrix does not exist
+		return Matrix<_Ty, 3, 3>{};
+
+	_Ty invdet = 1 / det;
+
+	Matrix<_Ty, 3, 3> im{}; 
+
+	im.set( 0, 0, _m.get( 1, 1 ) * _m.get( 2, 2 ) - _m.get( 2, 1 ) * _m.get( 1, 2 ) * invdet );
+	im.set( 0, 1, _m.get( 0, 2 ) * _m.get( 2, 1 ) - _m.get( 0, 1 ) * _m.get( 2, 2 ) * invdet );
+	im.set( 0, 2, _m.get( 0, 1 ) * _m.get( 1, 2 ) - _m.get( 0, 2 ) * _m.get( 1, 1 ) * invdet );
+	im.set( 1, 0, _m.get( 1, 2 ) * _m.get( 2, 0 ) - _m.get( 1, 0 ) * _m.get( 2, 2 ) * invdet );
+	im.set( 1, 1, _m.get( 0, 0 ) * _m.get( 2, 2 ) - _m.get( 0, 2 ) * _m.get( 2, 0 ) * invdet );
+	im.set( 1, 2, _m.get( 1, 0 ) * _m.get( 0, 2 ) - _m.get( 0, 0 ) * _m.get( 1, 2 ) * invdet );
+	im.set( 2, 0, _m.get( 1, 0 ) * _m.get( 2, 1 ) - _m.get( 2, 0 ) * _m.get( 1, 1 ) * invdet );
+	im.set( 2, 1, _m.get( 2, 0 ) * _m.get( 0, 1 ) - _m.get( 0, 0 ) * _m.get( 2, 1 ) * invdet );
+	im.set( 2, 2, _m.get( 0, 0 ) * _m.get( 1, 1 ) - _m.get( 1, 0 ) * _m.get( 0, 1 ) * invdet );
 
 	return im;
 }
@@ -362,6 +398,35 @@ Vector4<_Ty> operator*( const Vector4<_Ty>& _vec, const Matrix<_Ty, 4, 4>& _mat 
 		res.get( 0, 1 ),
 		res.get( 0, 2 ),
 		res.get( 0, 3 )
+	};
+}
+
+template<typename _Ty>
+Vector3<_Ty> operator*( const Matrix<_Ty, 3, 3>& _mat, const Vector3<_Ty>& _vec )
+{
+	Matrix<_Ty, 3, 1> tmpMat{};
+	tmpMat.set( 0, 0, _vec.x );
+	tmpMat.set( 1, 0, _vec.y );
+	tmpMat.set( 2, 0, _vec.z );
+	
+	const Matrix<_Ty, 3, 1> res = _mat * tmpMat;
+
+	return {
+		res.get( 0, 0 ),
+		res.get( 1, 0 ),
+		res.get( 2, 0 )
+	};
+}
+
+template<typename _Ty>
+Vector3<_Ty> operator*( const Vector3<_Ty>& _vec, const Matrix<_Ty, 3, 3>& _mat )
+{
+	const Matrix<_Ty, 1, 3> res = Matrix<_Ty, 1, 3>{ _vec } * _mat;
+
+	return {
+		res.get( 0, 0 ),
+		res.get( 0, 1 ),
+		res.get( 0, 2 )
 	};
 }
 
