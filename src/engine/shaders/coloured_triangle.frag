@@ -16,7 +16,7 @@ layout (location = 0) out vec4 outFragColor;
 
 void main() 
 {
-	float light = dot(normalize(inNormal), normalize(vec3(1,1,1)));
+	float light = dot(normalize(inNormal), normalize(vec3(1,2,0)));
 	light = max(light, 0.0);
 	light = light * 0.8 + 0.2;
 

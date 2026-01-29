@@ -68,7 +68,7 @@ bool wv::Renderer::initialize()
 	{
 		VkPushConstantRange pushConstantRange{ };
 		pushConstantRange.offset = 0;
-		pushConstantRange.size = 128;
+		pushConstantRange.size = m_deviceLimits.maxPushConstantsSize;
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
@@ -435,6 +435,8 @@ bool wv::Renderer::initVulkan()
 		.select()
 		.value();
 
+	m_deviceLimits = physicalDevice.properties.limits;
+
 	vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 	vkb::Device vkbDevice = deviceBuilder.build().value();
 
@@ -732,13 +734,13 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 			_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
 			GPUDrawPushConstants pc{};
-			pc.worldMatrix    = bucket.matrices[ i ] * viewProj;
+			pc.viewProj = viewProj;
+			pc.model    = bucket.matrices[ i ];
 			pc.positionBuffer = mesh.positionBufferAddress;
 
 			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 			
-
 			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
 			_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 

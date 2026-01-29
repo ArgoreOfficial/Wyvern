@@ -33,11 +33,6 @@ struct SceneData
 	wv::Matrix4x4f viewProj;
 };
 
-struct MaterialData
-{
-	wv::Matrix4x4f model;
-};
-
 struct FrameData
 {
 	VkCommandPool commandPool = VK_NULL_HANDLE;
@@ -83,7 +78,8 @@ struct GPUMeshBuffers
 
 struct GPUDrawPushConstants
 {
-	wv::Matrix4x4f worldMatrix;
+	wv::Matrix4x4f viewProj;
+	wv::Matrix4x4f model;
 	VkDeviceAddress positionBuffer;
 	VkDeviceAddress vertexDataBuffer;
 };
@@ -175,6 +171,8 @@ protected:
 	VkPhysicalDevice         m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice                 m_device         = VK_NULL_HANDLE;
 	VkSurfaceKHR             m_surface        = VK_NULL_HANDLE;
+
+	VkPhysicalDeviceLimits   m_deviceLimits = {};
 
 	VkSwapchainKHR m_swapchain            = VK_NULL_HANDLE;
 	VkFormat       m_swapchainImageFormat = VK_FORMAT_UNDEFINED;

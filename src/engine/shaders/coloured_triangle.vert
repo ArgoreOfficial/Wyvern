@@ -20,7 +20,8 @@ layout (location = 2) out vec3 outNormal;
 layout (location = 3) flat out uint outAlbedoIndex;
 
 layout(push_constant) uniform pushConstant {
-    mat4 worldMatrix;
+    mat4 viewProjMatrix;
+    mat4 modelMatrix;
 	PositionBuffer positionBuffer;
 	VertexBuffer vertexBuffer;
 
@@ -33,11 +34,13 @@ void main()
 	vec3 pos = getPosition(gl_VertexIndex);
 	
 	//output the position of each vertex
-	gl_Position = worldMatrix * vec4(pos, 1.0f);
+	gl_Position = viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
 	
+	mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
+
 	outColor     = unpackFloat3(v.color);
 	outTexCoord0 = unpackFloat2(v.texCoord0);
-	outNormal    = unpackFloat3(v.normal);
+	outNormal    = normalMatrix * unpackFloat3(v.normal);
 
 	outAlbedoIndex = albedoIndex;
 }
