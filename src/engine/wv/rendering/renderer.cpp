@@ -721,10 +721,13 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	{
 		for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
 		{
-			ResourceID meshHandle = bucket.renderMeshes[ i ].meshID;
+			RenderMesh& renderMesh = bucket.renderMeshes[ i ];
+			ResourceID meshHandle = bucket.renderMeshes[ i ].mesh;
 			if ( !meshHandle.isValid() )
-				continue;
-					
+				continue; // no allocated mesh
+			if ( !renderMesh.pipeline.isValid() )
+				continue; // no material
+			
 			const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
 			_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
@@ -734,10 +737,9 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 
 			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
-					
-			const MaterialInstance& material = bucket.renderMeshes[ i ].component->getMaterialInstance();
-					
-			Pipeline pipeline = m_pipelineManager.getPipeline( material.material->getPipeline() );
+			
+
+			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
 			_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
 
 			_cmd->pushConstant(
@@ -747,14 +749,17 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				&pc
 			);
 
-			_cmd->pushConstant( 
-				m_bindlessPipelineLayout, 
-				VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-				material.buffer.size(),
-				material.buffer.data()
-			);
+			if ( renderMesh.materialData.size() > 0 )
+			{
+				_cmd->pushConstant( 
+					m_bindlessPipelineLayout, 
+					VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
+					renderMesh.materialData.size(),
+					renderMesh.materialData.data()
+				);
+			}
 
-			_cmd->draw( mesh.numIndices, 1, 0, 0, 0 );
+			_cmd->draw( renderMesh.indexCount, 1, renderMesh.firstIndex, 0, 0 );
 		}
 	}
 	

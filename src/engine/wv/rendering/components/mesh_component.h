@@ -23,11 +23,11 @@ public:
 	
 	MeshAsset* getMeshAsset() const { return m_meshAsset.get(); }
 	
-	const MaterialInstance& getMaterialInstance() const { return m_material; }
+	const std::vector<MaterialInstance>& getMaterials() const { return m_materials; }
 
 	template<typename Ty>
 	void setMaterialValue( size_t _materialIndex, const std::string& _name, const Ty& _value ) {
-		m_material->setValue<Ty>( _name, _value );
+		m_materials.at( _materialIndex )->setValue<Ty>(_name, _value);
 	}
 
 protected:
@@ -40,8 +40,7 @@ private:
 
 	Ref<MeshAsset> m_meshAsset;
 	std::vector<MaterialInstance> m_materials;
-	MaterialInstance m_material;
-
+	
 	Ref<TextureAsset> m_texture;
 };
 

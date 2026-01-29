@@ -29,13 +29,34 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 		
 		_entity->getTransform().update( nullptr );
 
-		RenderMesh mesh{};
-		mesh.meshID    = meshComponent->getMeshAsset()->getGPUAllocation();
-		mesh.component = meshComponent;
-		mesh.entity    = _entity;
+		MeshAsset* meshAsset = meshComponent->getMeshAsset();
+		const auto& primitives = meshAsset->getPrimitives();
+		const auto& materials  = meshComponent->getMaterials();
 
-		bucket.renderMeshes.push_back( mesh );
-		bucket.matrices.push_back( _entity->getTransform().getMatrix() );
+		for ( size_t i = 0; i < primitives.size(); i++ )
+		{
+			auto& primitive = primitives[ i ];
+			RenderMesh mesh{};
+			mesh.mesh = meshAsset->getGPUAllocation();
+
+			if ( primitive.material > 0 && primitive.material < materials.size() )
+			{
+				const MaterialInstance& material = materials[ primitive.material ];
+				mesh.pipeline = material.material->getPipeline();
+				mesh.materialData = {
+					material.buffer.data(),
+					material.buffer.size()
+				};
+			}
+
+			mesh.indexCount = primitive.indexCount;
+			mesh.firstIndex = primitive.firstIndex;
+			mesh.component  = meshComponent;
+			mesh.entity     = _entity;
+			
+			bucket.renderMeshes.push_back( mesh );
+			bucket.matrices.push_back( _entity->getTransform().getMatrix() );
+		}
 	}
 }
 

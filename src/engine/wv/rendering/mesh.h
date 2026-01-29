@@ -16,8 +16,12 @@ struct GeometrySurface
 {
 	struct Primitive
 	{
-		uint32_t offset = 0;
-		uint32_t count = 0;
+		uint32_t firstIndex = 0;
+		uint32_t vertexOffset = 0;
+
+		uint32_t indexCount = 0;
+		uint32_t vertexCount = 0;
+		
 		int material = -1;
 	};
 
@@ -46,9 +50,14 @@ public:
 	void initialize( const GeometrySurface& _geometry );
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
-
+	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
+	uint32_t getNumMaterials() const { return m_numMaterials; }
 private:
 	std::filesystem::path m_path;
+
+	std::vector<GeometrySurface::Primitive> m_primitives;
+
+	int m_numMaterials = 0;
 
 	GeometrySurface m_surface{};
 	ResourceID m_gpuAllocation{};

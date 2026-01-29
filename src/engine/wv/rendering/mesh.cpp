@@ -55,7 +55,12 @@ void wv::MeshAsset::initialize( const GeometrySurface& _geometry )
 	}
 
 	m_gpuAllocation = renderer->allocateMesh( _geometry.indices, _geometry.vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
+	m_primitives = _geometry.primitives;
 
+	for ( auto& prim : m_primitives )
+		if ( prim.material >= 0 )
+			m_numMaterials = wv::Math::max( m_numMaterials, prim.material );
+	
 #ifdef WV_DEBUG
 	m_surface = _geometry;
 #endif

@@ -30,24 +30,20 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 
 			m_meshAsset = importer.getMesh();
 			m_materials = importer.getMaterials();
-
-			if ( m_materials.size() > 0 )
-				m_material = m_materials[ 0 ];
-			else
-				m_material = _ctx.materialManager->get( "Default" );
 		}
 		else
 		{
 			m_meshAsset = _ctx.meshManager->get( m_path );
-
-			// TODO: loop through mesh asset textures
-
-			m_material = _ctx.materialManager->get( "Default" );
-			m_texture  = _ctx.textureManager->get( "tengil.png" );
-
-			//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
+			// load materials
 		}
 
+
+		// fallback
+		while ( m_materials.size() < m_meshAsset->getNumMaterials() )
+			m_materials.push_back( _ctx.materialManager->get( "Default" ) );
+
+		//m_texture  = _ctx.textureManager->get( "tengil.png" );
+		//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
 	}
 	else
 	{

@@ -6,13 +6,19 @@
 #include <wv/entity/world_sector.h>
 #include <wv/types.h>
 
+#include <span>
+
 namespace wv {
 
 class MeshComponent;
 
 struct RenderMesh
 {
-	ResourceID meshID{};
+	ResourceID mesh = {};
+	ResourceID pipeline = {};
+	uint32_t firstIndex = 0;
+	uint32_t indexCount = 0;
+	std::span<const uint8_t> materialData = {};
 
 	Entity* entity = nullptr;
 	MeshComponent* component = nullptr;

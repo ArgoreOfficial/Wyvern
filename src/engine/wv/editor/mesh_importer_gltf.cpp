@@ -206,8 +206,10 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 			}
 
 			GeometrySurface::Primitive prim{};
-			prim.offset = surface.vertexCount();
-			prim.count = positions.size();
+			prim.firstIndex   = surface.indices.size();
+			prim.vertexOffset = surface.vertexCount();
+			prim.vertexCount  = positions.size();
+			prim.indexCount   = indices.size();
 
 			if ( primitive.materialIndex.has_value() )
 				prim.material = *primitive.materialIndex;
@@ -231,9 +233,9 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 			wv::Matrix4x4f matrix( _matrix.data() );
 			auto prim = surface.primitives[ *_node.meshIndex ];
 
-			for ( size_t i = 0; i < prim.count; i++ )
+			for ( size_t i = 0; i < prim.vertexCount; i++ )
 			{
-				auto& vec = surface.vertexPositions[ i + prim.offset ];
+				auto& vec = surface.vertexPositions[ i + prim.vertexOffset ];
 				vec = vec * matrix;
 			}
 		}
