@@ -231,12 +231,23 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 		if ( _node.meshIndex.has_value() )
 		{
 			wv::Matrix4x4f matrix( _matrix.data() );
+			wv::Matrix3x3f normalMatrix = {};// transpose(inverse(mat3(modelMatrix)))
+			normalMatrix.setRow( 0, { matrix.get( 0, 0 ), matrix.get( 0, 1 ), matrix.get( 0, 2 ) } );
+			normalMatrix.setRow( 1, { matrix.get( 1, 0 ), matrix.get( 1, 1 ), matrix.get( 1, 2 ) } );
+			normalMatrix.setRow( 2, { matrix.get( 2, 0 ), matrix.get( 2, 1 ), matrix.get( 2, 2 ) } );
+
+			normalMatrix = wv::Math::transpose( wv::Math::inverse( normalMatrix ) );
+
 			auto prim = surface.primitives[ *_node.meshIndex ];
 
 			for ( size_t i = 0; i < prim.vertexCount; i++ )
 			{
 				auto& vec = surface.vertexPositions[ i + prim.vertexOffset ];
 				vec = vec * matrix;
+
+				auto& norm = surface.vertexNormals[ i + prim.vertexOffset ];
+				norm = norm * normalMatrix;
+				norm.normalize();
 			}
 		}
 	} );
