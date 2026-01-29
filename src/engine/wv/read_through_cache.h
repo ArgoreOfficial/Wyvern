@@ -14,6 +14,10 @@ class ReadThroughCache
 public:
 	ReadThroughCache() { }
 
+	bool contains( const std::filesystem::path& _path ) const {
+		return m_managed.contains( _path );
+	}
+
 	Ref<Ty> get( const std::filesystem::path& _path ) {
 		std::scoped_lock lock( m_mtx );
 
