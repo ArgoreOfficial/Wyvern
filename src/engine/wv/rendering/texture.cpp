@@ -7,10 +7,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <auxiliary/stb_image.h>
 
+wv::TextureAsset::TextureAsset( const uint8_t* _data, size_t _size )
+{
+	initialize( deserialize( _data, _size ) );
+}
+
 wv::TextureAsset::TextureAsset( const std::filesystem::path& _path )
 {
-	TextureData data = deserialize( _path );
-	initialize( data );
+	initialize( deserialize( _path ) );
 }
 
 wv::TextureAsset::~TextureAsset()
@@ -19,16 +23,22 @@ wv::TextureAsset::~TextureAsset()
 	renderer->deallocateImage( m_gpuAllocation );
 }
 
-wv::TextureData wv::TextureAsset::deserialize( const std::filesystem::path& _path )
+wv::TextureData wv::TextureAsset::deserialize( const uint8_t* _data, size_t _size )
 {
 	TextureData textureData{};
 
-	IFileSystem* fs = Application::getSingleton()->getFileSystem();
-	auto data = fs->loadEntireFile( _path );
-
-	textureData.data = stbi_load_from_memory( data.data(), data.size(), &textureData.width, &textureData.height, &textureData.channels, 4 );
+	textureData.data = stbi_load_from_memory( _data, _size, &textureData.width, &textureData.height, &textureData.channels, 4 );
 
 	return textureData;
+}
+
+wv::TextureData wv::TextureAsset::deserialize( const std::filesystem::path& _path )
+{
+	IFileSystem* fs = Application::getSingleton()->getFileSystem();
+
+	std::vector<uint8_t> data = fs->loadEntireFile( _path );
+
+	return deserialize( data.data(), data.size() );
 }
 
 void wv::TextureAsset::initialize( const TextureData& _texture )

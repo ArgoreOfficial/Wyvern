@@ -21,9 +21,11 @@ class TextureAsset
 {
 public:
 	TextureAsset() = default;
+	TextureAsset( const uint8_t* _data, size_t _size );
 	TextureAsset( const std::filesystem::path& _path );
 	~TextureAsset();
 
+	TextureData deserialize( const uint8_t* _data, size_t _size );
 	TextureData deserialize( const std::filesystem::path& _path );
 	
 	void initialize( const TextureData& _texture );
