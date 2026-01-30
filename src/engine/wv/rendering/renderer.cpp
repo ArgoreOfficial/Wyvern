@@ -8,8 +8,7 @@
 #include <wv/entity/world.h>
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
-#include <wv/rendering/vk/swapchain.h>
-#include <wv/rendering/material.h>
+#include <wv/rendering/swapchain.h>
 
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/rendering/systems/render_world_system.h>
