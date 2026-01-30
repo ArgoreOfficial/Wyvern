@@ -272,35 +272,34 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
 	const bool   useVertexData    = _vertexData != nullptr && _vertexDataSize > 0;
 
-	GPUMeshBuffers surface{};
-	surface.numIndices = (uint32_t)_indices.size();
-
-	surface.indexBuffer = createBuffer(
+	MeshAllocation meshAllocation{};
+	
+	meshAllocation.indexBuffer = createBuffer(
 		indexBufferSize,
 		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
 
-	//create position buffer
-	surface.positionBuffer = createBuffer(
+	// create position buffer
+	meshAllocation.positionBuffer = createBuffer(
 		vertexBufferSize,
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
 	
-	//create vertex data buffer
+	// create vertex data buffer
 	if ( useVertexData )
 	{
-		surface.vertexDataBuffer = createBuffer(
+		meshAllocation.vertexDataBuffer = createBuffer(
 			_vertexDataSize,
 			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 			VMA_MEMORY_USAGE_GPU_ONLY );
 
-		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = surface.vertexDataBuffer.buffer };
-		surface.vertexDataBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = meshAllocation.vertexDataBuffer.buffer };
+		meshAllocation.vertexDataBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
 	}
 
 	{
-		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = surface.positionBuffer.buffer };
-		surface.positionBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
+		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = meshAllocation.positionBuffer.buffer };
+		meshAllocation.positionBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
 	}
 
 	// Upload buffers
@@ -321,14 +320,14 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 		positionCopy.srcOffset = 0;
 		positionCopy.size = vertexBufferSize;
 
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.positionBuffer.buffer, 1, &positionCopy );
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.positionBuffer.buffer, 1, &positionCopy );
 
 		VkBufferCopy indexCopy{ 0 };
 		indexCopy.dstOffset = 0;
 		indexCopy.srcOffset = vertexBufferSize;
 		indexCopy.size = indexBufferSize;
 
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.indexBuffer.buffer, 1, &indexCopy );
+		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.indexBuffer.buffer, 1, &indexCopy );
 
 		if ( useVertexData )
 		{
@@ -337,22 +336,22 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 			vertexDataCopy.srcOffset = vertexBufferSize + indexBufferSize;
 			vertexDataCopy.size = _vertexDataSize;
 
-			vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, surface.vertexDataBuffer.buffer, 1, &vertexDataCopy );
+			vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
 		}
 	} );
 
 	destroyBuffer( staging );
 
-	return m_meshBuffers.emplace( surface );
+	return m_meshAllocations.emplace( meshAllocation );
 }
 
 void wv::Renderer::deallocateMesh( ResourceID _mesh )
 { 
-	if ( !m_meshBuffers.contains( _mesh ) )
+	if ( !m_meshAllocations.contains( _mesh ) )
 		return;
 
-	GPUMeshBuffers surface = m_meshBuffers.at( _mesh );
-	m_meshBuffers.erase( _mesh );
+	MeshAllocation surface = m_meshAllocations.at( _mesh );
+	m_meshAllocations.erase( _mesh );
 
 	destroyBuffer( surface.positionBuffer );
 	destroyBuffer( surface.indexBuffer );
@@ -730,7 +729,7 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 			if ( !renderMesh.pipeline.isValid() )
 				continue; // no material
 			
-			const GPUMeshBuffers& mesh = m_meshBuffers.at( meshHandle );
+			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
 			_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
 			GPUDrawPushConstants pc{};

@@ -64,7 +64,7 @@ struct AllocatedBuffer
 	VmaAllocationInfo info;
 };
 
-struct GPUMeshBuffers
+struct MeshAllocation
 {
 	AllocatedBuffer indexBuffer;
 	AllocatedBuffer positionBuffer;
@@ -72,8 +72,6 @@ struct GPUMeshBuffers
 
 	VkDeviceAddress positionBufferAddress;
 	VkDeviceAddress vertexDataBufferAddress;
-
-	uint32_t numIndices;
 };
 
 struct GPUDrawPushConstants
@@ -162,7 +160,7 @@ protected:
 	bool m_resizeRequested = false;
 
 	PipelineManager m_pipelineManager = { this };
-	ImageManager m_imageManager = { this };
+	ImageManager    m_imageManager    = { this };
 
 	DeleteQueue m_mainDeleteQueue = {};
 
@@ -189,9 +187,9 @@ protected:
 	uint32_t  m_frameNumber = 0;
 	FrameData m_frames[ FRAME_OVERLAP ];
 
-	VkQueue  m_graphicsQueue = VK_NULL_HANDLE;
+	VkQueue  m_graphicsQueue       = VK_NULL_HANDLE;
 	uint32_t m_graphicsQueueFamily = 0;
-
+	
 	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
 	VkFence        m_immediateFence         = VK_NULL_HANDLE;
@@ -225,7 +223,7 @@ protected:
 	ResourceID m_whiteImage{};
 	ResourceID m_debugImage{};
 	
-	unordered_array<ResourceID, GPUMeshBuffers> m_meshBuffers;
+	unordered_array<ResourceID, MeshAllocation> m_meshAllocations;
 
 };
 
