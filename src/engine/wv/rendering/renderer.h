@@ -27,6 +27,7 @@
 namespace wv {
 
 class World;
+class Swapchain;
 
 struct SceneData
 {
@@ -140,10 +141,8 @@ protected:
 	bool initSyncStructures();
 	bool initDescriptors();
 
-	void createSwapchain( uint32_t _width, uint32_t _height );
-	void destroySwapchain();
 	void resizeSwapchain( uint32_t _width, uint32_t _height );
-
+	
 	void drawBackground( CommandBuffer* _cmd );
 	void drawGeometry( CommandBuffer* _cmd, World* _world );
 
@@ -172,13 +171,7 @@ protected:
 
 	VkPhysicalDeviceLimits   m_deviceLimits = {};
 
-	VkSwapchainKHR m_swapchain            = VK_NULL_HANDLE;
-	VkFormat       m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
-
-	std::vector<VkImage>     m_swapchainImages     = {};
-	std::vector<VkImageView> m_swapchainImageViews = {};
-	std::vector<VkSemaphore> m_submitSemaphores    = {};
-	VkExtent2D m_swapchainExtent = {};
+	Swapchain* m_swapchain;
 
 	ResourceID m_drawImage  = {};
 	ResourceID m_depthImage = {};

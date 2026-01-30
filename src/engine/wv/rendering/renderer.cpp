@@ -8,6 +8,7 @@
 #include <wv/entity/world.h>
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
+#include <wv/rendering/vk/swapchain.h>
 #include <wv/rendering/material.h>
 
 #include <wv/rendering/components/mesh_component.h>
@@ -164,7 +165,8 @@ void wv::Renderer::render( World* _world )
 	vkResetFences( m_device, 1, &getCurrentFrame().fence );
 
 	uint32_t swapchainImageIndex;
-	VkResult e = vkAcquireNextImageKHR( m_device, m_swapchain, 1000000000, getCurrentFrame().acquireSemaphore, nullptr, &swapchainImageIndex );
+	VkResult e = m_swapchain->acquireNextImage( getCurrentFrame().acquireSemaphore, &swapchainImageIndex );
+
 	if ( e == VK_ERROR_OUT_OF_DATE_KHR )
 	{
 		m_resizeRequested = true;
@@ -197,13 +199,15 @@ void wv::Renderer::render( World* _world )
 		
 		drawGeometry( cmd, _world );
 
+		VkImage swapchainImage = m_swapchain->getSwapchainImage( swapchainImageIndex );
+
 		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
-		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
-		cmd->copyImageToImage( drawImage.image, m_swapchainImages[ swapchainImageIndex ], m_drawExtent, m_swapchainExtent );
+		cmd->copyImageToImage( drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent() );
 
-		cmd->transitionImage( m_swapchainImages[ swapchainImageIndex ], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
 		cmd->end();
 	}
@@ -211,21 +215,12 @@ void wv::Renderer::render( World* _world )
 	// Submit
 
 	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
-	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_submitSemaphores[ swapchainImageIndex ] );
+	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_swapchain->getSubmitSemaphore( swapchainImageIndex ) );
 	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, getCurrentFrame().fence );
 
 	// Present
 
-	VkPresentInfoKHR presentInfo{ .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-	presentInfo.pSwapchains = &m_swapchain;
-	presentInfo.swapchainCount = 1;
-	presentInfo.pWaitSemaphores = &m_submitSemaphores[ swapchainImageIndex ];
-	presentInfo.waitSemaphoreCount = 1;
-
-	presentInfo.pImageIndices = &swapchainImageIndex;
-
-	VkResult presentRes = vkQueuePresentKHR( m_graphicsQueue, &presentInfo );
-	if ( presentRes == VK_ERROR_OUT_OF_DATE_KHR )
+	if ( m_swapchain->present( swapchainImageIndex, m_graphicsQueue ) == VK_ERROR_OUT_OF_DATE_KHR )
 		m_resizeRequested = true;
 
 	m_frameNumber++;
@@ -468,10 +463,12 @@ bool wv::Renderer::initVulkan()
 
 bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 {
-	createSwapchain( _width, _height );
+	m_swapchain = WV_NEW( Swapchain, m_device, m_physicalDevice, m_surface );
+	m_swapchain->createSwapchain( _width, _height );
 
 	m_mainDeleteQueue.push( [ & ]() {
-		destroySwapchain();
+		m_swapchain->destroySwapchain();
+		WV_FREE( m_swapchain );
 	} );
 
 	Vector2i displaySize = Application::getSingleton()->getDisplayDriver()->getDisplaySize();
@@ -621,62 +618,15 @@ bool wv::Renderer::initDescriptors()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Renderer::createSwapchain( uint32_t _width, uint32_t _height )
-{
-	vkb::SwapchainBuilder builder{ m_physicalDevice, m_device, m_surface };
-
-	// must be at least 1
-	_width  = wv::Math::max( _width, 1U );
-	_height = wv::Math::max( _height, 1U );
-
-	m_swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
-
-	vkb::Swapchain vkbSwapchain = builder
-		.set_desired_format( VkSurfaceFormatKHR{ .format = m_swapchainImageFormat, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR } )
-		.set_desired_present_mode( VK_PRESENT_MODE_FIFO_KHR )
-		.set_desired_extent( _width, _height )
-		.add_image_usage_flags( VK_IMAGE_USAGE_TRANSFER_DST_BIT )
-		.build()
-		.value();
-
-	m_swapchainExtent = vkbSwapchain.extent;
-	m_swapchain = vkbSwapchain.swapchain;
-	m_swapchainImages = vkbSwapchain.get_images().value();
-	m_swapchainImageViews = vkbSwapchain.get_image_views().value();
-
-	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-	m_submitSemaphores.resize( m_swapchainImages.size() );
-	for ( size_t i = 0; i < m_swapchainImages.size(); i++ )
-		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Renderer::destroySwapchain()
-{
-	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
-
-	for ( auto imageView : m_swapchainImageViews )
-		vkDestroyImageView( m_device, imageView, nullptr );
-
-	for ( auto semaphore : m_submitSemaphores )
-		vkDestroySemaphore( m_device, semaphore, nullptr );
-
-	m_swapchainImages.clear();
-	m_swapchainImageViews.clear();
-	m_submitSemaphores.clear();
-}
-
 void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
-{ 
+{
 	if ( _width == 0 || _height == 0 )
 		return;
 
 	vkDeviceWaitIdle( m_device );
 
-	destroySwapchain();
-	createSwapchain( _width, _height );
+	m_swapchain->destroySwapchain();
+	m_swapchain->createSwapchain( _width, _height );
 
 	m_resizeRequested = false;
 }
