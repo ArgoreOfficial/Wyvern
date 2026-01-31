@@ -1,7 +1,7 @@
 #include "windows_mouse_driver.h"
 
 #include <wv/application.h>
-#include <wv/display_driver.h>
+#include <sdl/sdl_display_driver.h>
 
 #include <windows/windows.h>
 
@@ -71,8 +71,8 @@ void wv::WindowsMouseDriver::shutdown( InputSystem* _inputSystem )
 
 void wv::WindowsMouseDriver::pollActions( InputSystem* _inputSystem )
 {
-	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
-	HWND hwnd = displayDriver->winGetHandle();
+	SDLDisplayDriver* displayDriver = (SDLDisplayDriver*)wv::Application::getSingleton()->getDisplayDriver();
+	HWND hwnd = displayDriver->getWindowHandle();
 
 	bool lrFlipped = GetSystemMetrics( SM_SWAPBUTTON );
 	

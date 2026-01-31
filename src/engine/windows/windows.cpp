@@ -2,7 +2,7 @@
 #include <wv/platform/platform.h>
 
 #include <windows/windows_file_system.h>
-#include <windows/windows_display_driver.h>
+#include <sdl/sdl_display_driver.h>
 
 #include <wv/memory/memory.h>
 #include <wv/debug/log.h>
@@ -10,7 +10,7 @@
 #include "windows.h"
 
 static wv::WindowsFileSystem* g_filesystem = nullptr;
-static wv::WindowsDisplayDriver*  g_displaydriver = nullptr;
+static wv::SDLDisplayDriver*  g_displaydriver = nullptr;
 
 bool wv::Platform::initialize()
 {
@@ -25,7 +25,7 @@ wv::IFileSystem* wv::Platform::createFileSystem( const std::string& _mountedName
 }
 
 wv::DisplayDriver* wv::Platform::createDisplayDriver() {
-	g_displaydriver = WV_NEW( WindowsDisplayDriver );
+	g_displaydriver = WV_NEW( SDLDisplayDriver );
 	return g_displaydriver;
 }
 
