@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include <wv/debug/timer.h>
 
 #include <wv/display_driver.h>
 #include <wv/entity/entity.h>
@@ -161,7 +162,7 @@ bool wv::Application::tick()
 	if ( !m_alive )
 		return false;
 
-	auto timerStart = std::chrono::steady_clock::now();
+	wv::Timer timer{};
 	
 	m_inputSystem->processInputEvents( m_eventManager );
 	m_eventManager->processEvents();
@@ -170,13 +171,9 @@ bool wv::Application::tick()
 	render();
 
 	// Update runtime and deltatime
-	auto timerEnd = std::chrono::steady_clock::now();
-	std::chrono::duration<double> elapsed = timerEnd - timerStart;
-
-	clock_t ticks = clock();
-	m_runtime += elapsed.count();
+	m_deltatime = timer.elapsed();
+	m_runtime += m_deltatime;
 	
-	m_deltatime = elapsed.count();
 	m_deltatime = wv::Math::clamp( m_deltatime, 0.00001, 1.0 ); // hard cap just in case
 
 	return true;
