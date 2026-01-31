@@ -7,7 +7,9 @@
 #include <wv/input/drivers/input_driver.h>
 #include <wv/input/drivers/controller_driver.h>
 
+#ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>
+#endif
 
 wv::InputSystem::InputSystem()
 {
@@ -43,49 +45,11 @@ void wv::InputSystem::shutdown()
 		driver->shutdown( this );
 }
 
-static SDL_GameController* findController() {
-	for ( int i = 0; i < SDL_NumJoysticks(); i++ )
-		if ( SDL_IsGameController( i ) )
-			return SDL_GameControllerOpen( i );
-	
-	return nullptr;
-}
-
-static wv::Scancode sdlToWvScancode( SDL_Scancode _scancode )
-{
-	// identical
-	return static_cast<wv::Scancode>( _scancode );
-}
-
-static wv::ControllerInputs sdlToWvControllerButton( SDL_GameControllerButton _button )
-{
-	switch ( _button )
-	{
-	case SDL_CONTROLLER_BUTTON_INVALID:       return wv::CONTROLLER_BUTTON_NONE;           break;
-	case SDL_CONTROLLER_BUTTON_A:             return wv::CONTROLLER_BUTTON_A;              break;
-	case SDL_CONTROLLER_BUTTON_B:             return wv::CONTROLLER_BUTTON_B;              break;
-	case SDL_CONTROLLER_BUTTON_X:             return wv::CONTROLLER_BUTTON_X;              break;
-	case SDL_CONTROLLER_BUTTON_Y:             return wv::CONTROLLER_BUTTON_Y;              break;
-	case SDL_CONTROLLER_BUTTON_BACK:          return wv::CONTROLLER_BUTTON_SELECT;         break;
-	case SDL_CONTROLLER_BUTTON_GUIDE:         return wv::CONTROLLER_BUTTON_HOME;           break;
-	case SDL_CONTROLLER_BUTTON_START:         return wv::CONTROLLER_BUTTON_START;          break;
-	case SDL_CONTROLLER_BUTTON_LEFTSTICK:     return wv::CONTROLLER_BUTTON_JOYSTICK_LEFT;  break;
-	case SDL_CONTROLLER_BUTTON_RIGHTSTICK:    return wv::CONTROLLER_BUTTON_JOYSTICK_RIGHT; break;
-	case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:  return wv::CONTROLLER_BUTTON_SHOULDER_LEFT;  break;
-	case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return wv::CONTROLLER_BUTTON_SHOULDER_RIGHT; break;
-	case SDL_CONTROLLER_BUTTON_DPAD_UP:       return wv::CONTROLLER_BUTTON_DPAD_UP;        break;
-	case SDL_CONTROLLER_BUTTON_DPAD_DOWN:     return wv::CONTROLLER_BUTTON_DPAD_DOWN;      break;
-	case SDL_CONTROLLER_BUTTON_DPAD_LEFT:     return wv::CONTROLLER_BUTTON_DPAD_LEFT;      break;
-	case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:    return wv::CONTROLLER_BUTTON_DPAD_RIGHT;     break;
-	}
-
-	return wv::CONTROLLER_BUTTON_NONE;
-}
-
 void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 {
 	Application* app = Application::getSingleton();
 
+#ifdef WV_SUPPORT_SDL2
 	SDL_Event ev;
 	while ( SDL_PollEvent( &ev ) )
 	{
@@ -95,6 +59,9 @@ void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
 		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
 		}
 	}
+#else
+	static_assert( false, "No event loop" );
+#endif
 
 	// SDL does this internally, important if a SDL is removed
 	//if ( m_hMouseHook != 0 )

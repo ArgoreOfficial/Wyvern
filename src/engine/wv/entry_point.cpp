@@ -41,7 +41,7 @@ int wv::entryPoint( World* _world, int _argc, char* _argv[] )
 
 	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
 
-	wv::Application app;
+	wv::Application app{};
 
 	if ( app.initialize( _world, 900, 600 ) )
 	{
