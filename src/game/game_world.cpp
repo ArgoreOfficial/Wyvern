@@ -41,11 +41,10 @@ void GameWorld::onSceneCreate()
 	wv::Entity* materialEntity = WV_NEW( wv::Entity );
 	{
 		wv::MeshComponent* meshComponent = materialEntity->createComponent<wv::MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_MaterialSphere.glb" );
-		//meshComponent->setFilePath( "deccer-cubes-main/SM_Deccer_Cubes_Textured_Complex.gltf" );
-
+		meshComponent->setFilePath( "meshes/SM_MoonRayWidget.glb" );
+		
 		// materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
-		// materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
+		materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
 	}
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
