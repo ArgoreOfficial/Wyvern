@@ -14,6 +14,8 @@ bool initialize();
 IFileSystem* createFileSystem( const std::string& _mountedName );
 DisplayDriver* createDisplayDriver();
 
+void pollEvents();
+
 void cleanup();
 
 }

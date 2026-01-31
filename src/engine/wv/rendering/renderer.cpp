@@ -13,10 +13,8 @@
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/rendering/systems/render_world_system.h>
 
-#ifdef WV_SUPPORT_SDL2
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-#include <sdl/display_driver_sdl.h>
+#ifdef WV_PLATFORM_WINDOWS
+#include <windows/windows_display_driver.h>
 #endif
 
 #define VMA_IMPLEMENTATION
@@ -403,10 +401,15 @@ bool wv::Renderer::initVulkan()
 
 	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
 
-#ifdef WV_SUPPORT_SDL2
+#if defined( WV_PLATFORM_WINDOWS )
 	{
-		DisplayDriverSDL* sdlDisplayDriver = static_cast<DisplayDriverSDL*>( displayDriver );
-		SDL_Vulkan_CreateSurface( sdlDisplayDriver->getSDLWindowContext(), m_instance, &m_surface );
+		WindowsDisplayDriver* winDisplayDriver = static_cast<WindowsDisplayDriver*>( displayDriver );
+
+		VkWin32SurfaceCreateInfoKHR surfaceInfo{ .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR };
+		surfaceInfo.hwnd = winDisplayDriver->winGetHandle();
+		surfaceInfo.hinstance = winDisplayDriver->getInstanceHandle();
+
+		vkCreateWin32SurfaceKHR( m_instance, &surfaceInfo, nullptr, &m_surface );
 	}
 #endif
 

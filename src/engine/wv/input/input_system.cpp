@@ -7,13 +7,11 @@
 #include <wv/input/drivers/input_driver.h>
 #include <wv/input/drivers/controller_driver.h>
 
-#ifdef WV_SUPPORT_SDL2
-#include <SDL2/SDL.h>
-#endif
+#include <wv/platform/platform.h>
 
 wv::InputSystem::InputSystem()
 {
-	
+
 }
 
 wv::InputSystem::~InputSystem()
@@ -25,7 +23,7 @@ wv::InputSystem::~InputSystem()
 		WV_FREE( actionGroup );
 
 	m_inputDrivers.clear();
-	
+
 	m_actionGroups.clear();
 	m_actionGroupNameMap.clear();
 	m_actionEventQueue.clear();
@@ -45,46 +43,15 @@ void wv::InputSystem::shutdown()
 		driver->shutdown( this );
 }
 
-void wv::InputSystem::updateInputDrivers( EventManager* _eventManager )
-{
-	Application* app = Application::getSingleton();
-
-#ifdef WV_SUPPORT_SDL2
-	SDL_Event ev;
-	while ( SDL_PollEvent( &ev ) )
-	{
-		switch ( ev.type )
-		{
-		case SDL_QUIT: app->quit(); break;
-		//case SDL_EventType::SDL_WINDOWEVENT: windowCallback( m_windowContext, &ev.window ); break;
-		}
-	}
-#else
-	static_assert( false, "No event loop" );
-#endif
-
-	// SDL does this internally, important if a SDL is removed
-	//if ( m_hMouseHook != 0 )
-	//{
-	//	MSG msg{};
-	//	while ( PeekMessage( &msg, hwnd, 0, 0, PM_REMOVE) )
-	//	{
-	//		TranslateMessage( &msg );
-	//		DispatchMessage( &msg );
-	//	}
-	//}
-}
 
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
 	m_actionEventQueue.clear();
-	
-	// should be part of platform
-	updateInputDrivers( _eventManager );
+	wv::Platform::pollEvents();
 
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->pollActions( this );
-		
+
 #ifndef WV_PACKAGE
 	m_debugMouseMotion = { 0.0f, 0.0f };
 #endif
@@ -103,15 +70,15 @@ void wv::InputSystem::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _r
 
 	if ( controllerDriver == nullptr )
 		return;
-	
+
 	controllerDriver->setMotorSpeed( _vdID, _left, _right, 0 );
 }
 
 void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 {
-	if ( _playerIndex < -1 ) 
+	if ( _playerIndex < -1 )
 		_playerIndex = -1;
-	
+
 	bool requiresNew = true;
 	int prevPlayerIndex = -1;
 
@@ -119,7 +86,7 @@ void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 	{
 		if ( device.virtualDeviceID != _vdID )
 			continue;
-		
+
 		prevPlayerIndex = device.playerIndex;
 		device.playerIndex = _playerIndex;
 		requiresNew = false;
@@ -127,7 +94,7 @@ void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 	}
 
 	// create new virtual device
-	if( requiresNew )
+	if ( requiresNew )
 		m_virtualDevices.emplace_back( _vdID, _playerIndex );
 
 	for ( auto& action : m_actionEventQueue )
@@ -139,12 +106,12 @@ void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 			continue;
 
 		action.playerIndex = _playerIndex;
-		
+
 		switch ( action.type )
 		{
 		case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_VALUE:   action.action.value  ->setValue( _playerIndex, action.action.value  ->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_AXIS:    action.action.axis   ->setValue( _playerIndex, action.action.axis   ->getValue( prevPlayerIndex ) ); break;
+		case ACTION_TYPE_VALUE:   action.action.value->setValue( _playerIndex, action.action.value->getValue( prevPlayerIndex ) ); break;
+		case ACTION_TYPE_AXIS:    action.action.axis->setValue( _playerIndex, action.action.axis->getValue( prevPlayerIndex ) ); break;
 		}
 	}
 }

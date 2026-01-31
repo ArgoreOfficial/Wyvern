@@ -7,6 +7,8 @@
 #include <wv/resource_id.h>
 #include <wv/types.h>
 
+#include <chrono>
+
 namespace wv {
 
 class IFileSystem;
@@ -59,7 +61,6 @@ private:
 
 	bool m_alive = true;
 
-	uint64_t m_lastTicks = 0;
 	double m_runtime = 0.0;
 	double m_deltatime = 1.0 / 60.0;
 

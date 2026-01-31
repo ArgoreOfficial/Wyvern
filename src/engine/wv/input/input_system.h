@@ -54,7 +54,6 @@ public:
 		m_inputDrivers.push_back( WV_NEW( Ty ) );
 	}
 
-	void updateInputDrivers( EventManager* _eventManager );
 	void processInputEvents( EventManager* _eventManager );
 
 	void setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right );

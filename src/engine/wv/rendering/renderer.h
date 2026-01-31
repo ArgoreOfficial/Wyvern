@@ -171,7 +171,7 @@ protected:
 
 	VkPhysicalDeviceLimits   m_deviceLimits = {};
 
-	Swapchain* m_swapchain;
+	Swapchain* m_swapchain = nullptr;
 
 	ResourceID m_drawImage  = {};
 	ResourceID m_depthImage = {};

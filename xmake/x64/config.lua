@@ -1,9 +1,8 @@
-function _add_supports( _target, _prefix )
+local function _add_supports( _target, _prefix )
     _target:add( "files", "./libs/**.c" )
     _target:add( "headerfiles", "./libs/**.h", {install = false} )
     _target:add( "includedirs", "./libs/glad/include/" )
     
-    import( "support.libsdl2" )( _target, _prefix ) 
     import( "support.fastgltf" )( _target, _prefix ) 
     import( "support.vulkan" )( _target, _prefix ) 
     import( "support.imgui" )( _target, _prefix ) 

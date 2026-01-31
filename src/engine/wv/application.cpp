@@ -111,8 +111,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->onSetupInput( m_inputSystem );
 	m_world->onSceneCreate();
 
-	m_lastTicks = m_displayDriver->getHighResolutionCounter();
-
 	return true;
 }
 
@@ -163,22 +161,24 @@ bool wv::Application::tick()
 	if ( !m_alive )
 		return false;
 
-	m_displayDriver->swapBuffers();
+	auto timerStart = std::chrono::steady_clock::now();
 	
 	m_inputSystem->processInputEvents( m_eventManager );
 	m_eventManager->processEvents();
 
-	// update runtime and deltatime
-
-	uint64_t ticks = m_displayDriver->getHighResolutionCounter();
-	m_runtime = m_displayDriver->getTicks() / 1000.0;
-	m_deltatime = (double)( ( ticks - m_lastTicks ) / (double)m_displayDriver->getHighResolutionFrequency() );
-	m_deltatime = wv::Math::min( m_deltatime, 1.0 ); // hard cap just in case
-
 	update();
 	render();
 
-	m_lastTicks = ticks;
+	// Update runtime and deltatime
+	auto timerEnd = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed = timerEnd - timerStart;
+
+	clock_t ticks = clock();
+	m_runtime += elapsed.count();
+	
+	m_deltatime = elapsed.count();
+	m_deltatime = wv::Math::clamp( m_deltatime, 0.00001, 1.0 ); // hard cap just in case
+
 	return true;
 }
 

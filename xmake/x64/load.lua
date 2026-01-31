@@ -5,9 +5,9 @@ function load(_prefix)
     add_defines( _prefix .. "_C17", _prefix .. "_CPP20" )
     add_defines( _prefix .. "_PLATFORM_WINDOWS" )
     add_defines( _prefix .. "_SUPPORT_OPENGL" )
+    add_defines( "NOMINMAX" )
 
     add_requires( "fastgltf" )
-    add_requires( "libsdl2" )
     
     -- vulkan
     add_requires( "vulkansdk" )
@@ -15,9 +15,8 @@ function load(_prefix)
     
     add_requires( "imgui v1.91.0-docking", { 
         configs={
-            opengl3 = true,
-            sdl2    = true
-        }})    
+            opengl3 = true
+        }}) 
 end
 
 PLATFORMS[ "x64" ] = { 
