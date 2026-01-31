@@ -30,12 +30,12 @@ void wv::PlayerControllerSystem::registerComponent( IEntityComponent* _component
 {
 	if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
-		WV_ASSERT( m_playerInput != nullptr );
+		WV_ASSERT( m_playerInput == nullptr );
 		m_playerInput = playerInput;
 	}
 	else if ( PlayerControllerComponent* player = tryCast<PlayerControllerComponent>( _component ) )
 	{
-		WV_ASSERT( m_player != nullptr );
+		WV_ASSERT( m_player == nullptr );
 		m_player = player;
 	}
 }

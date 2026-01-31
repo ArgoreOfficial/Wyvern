@@ -77,7 +77,7 @@ template<typename Ty>
 inline void EventManager::triggerEvent( const Ty& _event )
 {
 	static_assert( std::is_base_of<IEvent, Ty>(), "Event type must derive from IEvent" );
-	WV_ASSERT_MSG( m_isRunningEvent == true, "Pushing an event inside a callback is not allowed (yet)" );
+	WV_ASSERT_MSG( m_isRunningEvent != true, "Pushing an event inside a callback is not allowed (yet)" );
 	
 	m_isRunningEvent = true;
 	triggerEventInternal( Ty::getStaticTypeUUID(), static_cast<const IEvent&>( _event ) );

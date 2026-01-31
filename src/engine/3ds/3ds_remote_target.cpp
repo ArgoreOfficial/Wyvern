@@ -40,7 +40,7 @@ void socShutdown() {
 	socExit();
 }
 
-void wv::Remote::remoteMain()
+void wv::Remote::initializeRemoteTarget()
 {
 	atexit( gfxExit );
 
@@ -58,7 +58,7 @@ void wv::Remote::remoteMain()
 
 }
 
-void wv::Remote::remoteMainExit()
+void wv::Remote::shutdownRemoteTarget()
 {
 	close( sock );
 }

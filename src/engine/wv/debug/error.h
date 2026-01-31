@@ -28,11 +28,11 @@ void init();
 #define WV_THROW(...) wv::Throw( __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__ )
 
 #ifdef _HAS_EXCEPTIONS
-#define WV_ASSERT_MSG(_condition, _msg) if (_condition) throw std::runtime_error(_msg)
+#define WV_ASSERT_MSG(_condition, _msg) if (!(_condition)) throw std::runtime_error(_msg)
 #define WV_ASSERT(_condition) WV_ASSERT_MSG(_condition, #_condition)
 #else
 // add fake assertion?
-#define WV_ASSERT_MSG(_condition, _msg) if (_condition) { return {} }
+#define WV_ASSERT_MSG(_condition, _msg) if (!(_condition)) { return {} }
 #define WV_ASSERT(_condition) WV_ASSERT_MSG(_condition, #_condition)
 #endif
 

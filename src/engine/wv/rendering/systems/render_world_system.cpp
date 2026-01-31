@@ -16,7 +16,7 @@ void wv::RenderWorldSystem::shutdown()
 
 void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
 {
-	WV_ASSERT( _component == nullptr );
+	WV_ASSERT( _component != nullptr );
 	
 	MeshComponent* meshComponent = tryCast<MeshComponent>( _component );
 	if ( meshComponent == nullptr ) return;

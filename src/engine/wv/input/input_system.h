@@ -92,8 +92,8 @@ public:
 	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
 	
 	inline bool debugIsMouseDown( int _index ) {
-		WV_ASSERT( _index < 0 );
-		WV_ASSERT( _index >= 5 );
+		WV_ASSERT( _index >= 0 );
+		WV_ASSERT( _index < 5 );
 		return m_debugMouseButtonStates[ _index ];
 	}
 #endif

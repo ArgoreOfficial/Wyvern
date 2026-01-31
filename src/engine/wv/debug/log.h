@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/console/console.h>
+#include <wv/debug/error.h>
 
 #include <stdio.h>
 #include <mutex>
@@ -75,9 +76,8 @@ namespace wv
 		template<typename... Args>
 		inline void Print( const char* _str, Args... _args )
 		{
-			if( !wv::Console::isInitialized() )
-				wv::Console::initialize();
-
+			WV_ASSERT( wv::Console::isInitialized() );
+			
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().lock();
 		#endif
@@ -105,8 +105,7 @@ namespace wv
 		template<typename... Args>
 		inline void Print( PrintLevel _printLevel, const char* _str, Args... _args )
 		{
-			if( !wv::Console::isInitialized() )
-				wv::Console::initialize();
+			WV_ASSERT( wv::Console::isInitialized() );
 
 		#ifdef WV_PLATFORM_WINDOWS
 			Internal::getMutex().lock();

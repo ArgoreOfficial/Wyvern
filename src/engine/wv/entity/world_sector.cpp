@@ -20,7 +20,7 @@ wv::WorldSector::~WorldSector()
 
 void wv::WorldSector::load( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != WorldSectorState::UNLOADED );
+	WV_ASSERT( m_state == WorldSectorState::UNLOADED );
 
 	m_state = WorldSectorState::LOADING;
 
@@ -40,7 +40,7 @@ void wv::WorldSector::load( WorldLoadContext& _ctx )
 
 void wv::WorldSector::unload( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != WorldSectorState::LOADED );
+	WV_ASSERT( m_state == WorldSectorState::LOADED );
 
 	for ( auto entity : m_entities )
 	{
@@ -53,7 +53,7 @@ void wv::WorldSector::unload( WorldLoadContext& _ctx )
 
 void wv::WorldSector::initialize()
 {
-	WV_ASSERT( m_state != WorldSectorState::LOADED );
+	WV_ASSERT( m_state == WorldSectorState::LOADED );
 
 	for ( auto entity : m_entities )
 	{
@@ -69,7 +69,7 @@ void wv::WorldSector::initialize()
 
 void wv::WorldSector::shutdown()
 {
-	WV_ASSERT( m_state != WorldSectorState::INITIALIZED );
+	WV_ASSERT( m_state == WorldSectorState::INITIALIZED );
 
 	for ( auto entity : m_entities )
 	{

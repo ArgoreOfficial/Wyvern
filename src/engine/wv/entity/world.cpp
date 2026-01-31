@@ -77,7 +77,7 @@ void wv::World::addSector( WorldSector* _sector )
 		return;
 	}
 
-	WV_ASSERT_MSG( _sector->m_parentWorld != nullptr, "Sector already has a parent world" );
+	WV_ASSERT_MSG( _sector->m_parentWorld == nullptr, "Sector already has a parent world" );
 	
 	_sector->m_parentWorld = this;
 

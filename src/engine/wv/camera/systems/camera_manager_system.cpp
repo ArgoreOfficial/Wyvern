@@ -67,7 +67,7 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		{
 			m_entityDatas.emplace_back( _entity );
 			entityIt = findEntity( _entity );
-			WV_ASSERT( entityIt == m_entityDatas.end() );
+			WV_ASSERT( entityIt != m_entityDatas.end() );
 		}
 
 		camera->getViewVolume()->recalculateProjMatrix( false );
@@ -85,7 +85,7 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		{
 			m_entityDatas.emplace_back( _entity );
 			entityIt = findEntity( _entity );
-			WV_ASSERT( entityIt == m_entityDatas.end() );
+			WV_ASSERT( entityIt != m_entityDatas.end() );
 		}
 
 		entityIt->playerInput = playerInput;

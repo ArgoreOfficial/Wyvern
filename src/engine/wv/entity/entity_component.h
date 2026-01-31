@@ -33,25 +33,25 @@ public:
 
 protected:
 	virtual void load( WorldLoadContext& _ctx ) {
-		WV_ASSERT( m_state != EntityComponentState::UNLOADED );
+		WV_ASSERT( m_state == EntityComponentState::UNLOADED );
 
 		m_state = EntityComponentState::LOADED;
 	}
 
 	virtual void unload( WorldLoadContext& _ctx ) {
-		WV_ASSERT( m_state != EntityComponentState::LOADED );
+		WV_ASSERT( m_state == EntityComponentState::LOADED );
 
 		m_state = EntityComponentState::UNLOADED;
 	}
 
 	virtual void initialize() {
-		WV_ASSERT( m_state != EntityComponentState::LOADED );
+		WV_ASSERT( m_state == EntityComponentState::LOADED );
 
 		m_state = EntityComponentState::INITIALIZED;
 	}
 
 	virtual void shutdown() {
-		WV_ASSERT( m_state != EntityComponentState::INITIALIZED );
+		WV_ASSERT( m_state == EntityComponentState::INITIALIZED );
 
 		m_state = EntityComponentState::LOADED;
 	}

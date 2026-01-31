@@ -14,7 +14,7 @@ wv::Entity::~Entity()
 
 void wv::Entity::load( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != EntityState::UNLOADED );
+	WV_ASSERT( m_state == EntityState::UNLOADED );
 	
 	for ( auto component : m_components )
 		component->load( _ctx );
@@ -24,7 +24,7 @@ void wv::Entity::load( WorldLoadContext& _ctx )
 
 void wv::Entity::unload( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != EntityState::LOADED );
+	WV_ASSERT( m_state == EntityState::LOADED );
 		
 	for ( auto component : m_components )
 		component->unload( _ctx );
@@ -34,7 +34,7 @@ void wv::Entity::unload( WorldLoadContext& _ctx )
 
 void wv::Entity::initialize( World* _world )
 {
-	WV_ASSERT( m_state != EntityState::LOADED );
+	WV_ASSERT( m_state == EntityState::LOADED );
 
 	for ( auto system : m_systems )
 	{
@@ -49,7 +49,7 @@ void wv::Entity::initialize( World* _world )
 
 void wv::Entity::shutdown() 
 {
-	WV_ASSERT( m_state != EntityState::INITIALIZED );
+	WV_ASSERT( m_state == EntityState::INITIALIZED );
 
 	for ( auto component : m_components )
 	{

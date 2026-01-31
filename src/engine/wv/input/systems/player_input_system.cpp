@@ -55,8 +55,8 @@ void wv::PlayerInputSystem::clearPlayers()
 	for ( auto device : devices )
 		disconnectDevice( device );
 	
-	WV_ASSERT( m_activeDevices.size() > 0 );
-	WV_ASSERT( m_activePlayers.size() > 0 );
+	WV_ASSERT( m_activeDevices.size() == 0 );
+	WV_ASSERT( m_activePlayers.size() == 0 );
 }
 
 void wv::PlayerInputSystem::initialize()

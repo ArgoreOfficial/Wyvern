@@ -16,7 +16,7 @@ wv::MeshComponent::~MeshComponent()
 
 void wv::MeshComponent::load( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != EntityComponentState::UNLOADED );
+	WV_ASSERT( m_state == EntityComponentState::UNLOADED );
 
 	m_state = EntityComponentState::LOADING;
 
@@ -55,7 +55,7 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 
 void wv::MeshComponent::unload( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state != EntityComponentState::LOADED );
+	WV_ASSERT( m_state == EntityComponentState::LOADED );
 
 	m_state = EntityComponentState::UNLOADED;
 }
