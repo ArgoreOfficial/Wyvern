@@ -33,6 +33,8 @@ public:
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	uint32_t   getImageSlot()     const { return m_imageSlot; }
 
+	const TextureData& getData() const { return m_data; }
+
 private:
 	std::filesystem::path m_path;
 

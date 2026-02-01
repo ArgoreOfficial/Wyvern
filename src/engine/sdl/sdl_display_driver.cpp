@@ -1,6 +1,6 @@
 #ifdef WV_SUPPORT_SDL2
 
-#include "display_driver_sdl.h"
+#include "sdl_display_driver.h"
 
 #include <wv/application.h>
 #include <wv/debug/log.h>
@@ -43,7 +43,7 @@ bool wv::SDLDisplayDriver::initializeDisplay( uint16_t _width, uint16_t _height 
 	Application* app = Application::getSingleton();
 	const std::string renderer = app->getGraphicsDriverName();
 
-	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER ) < 0 )
+	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
 		WV_LOG_ERROR( "Failed to initialize Device Context\n" );
 		return false;

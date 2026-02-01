@@ -21,4 +21,5 @@ void main()
 	light = light * 0.8 + 0.2;
 
 	outFragColor = light * texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
+	outFragColor.a = 1.0;
 }

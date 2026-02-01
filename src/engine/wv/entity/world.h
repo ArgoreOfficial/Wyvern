@@ -112,7 +112,6 @@ protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 
-private:
 	WorldLoadContext getLoadContext();
 
 	void createWorldSystem( IWorldSystem* _system );
