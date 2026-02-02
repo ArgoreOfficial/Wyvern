@@ -5,15 +5,9 @@
 
 #include <wv/math/vector2.h>
 
-namespace wv {
+#include <wv/debug/error.h>
 
-struct MouseState
-{
-	wv::Vector2i position;
-	wv::Vector2i motion;
-	bool buttonStates[ 5 ] = {};
-	int scrollDelta = 0;
-};
+namespace wv {
 
 class IMouseDriver : public IInputDriver
 {
@@ -23,6 +17,18 @@ public:
 	virtual ~IMouseDriver() { }
 
 	virtual const std::string getDriverType() const override { return "Mouse"; }
+
+	MouseState getMouseState()     const { return m_state; }
+	MouseState getPrevMouseState() const { return m_prevState; }
+
+	Vector2i getPosition()    const { return m_state.position; }
+	Vector2i getMotion()      const { return m_state.motion; }
+	int      getScrollDelta() const { return m_state.scrollDelta; }
+
+	bool getButtonState( uint32_t _index ) const {
+		WV_ASSERT( _index >= 0 && _index <= 4 );
+		return m_state.buttonStates[ _index ];
+	}
 
 protected:
 	virtual void initialize( InputSystem* _inputSystem ) override;

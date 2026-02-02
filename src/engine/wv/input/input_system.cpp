@@ -4,8 +4,9 @@
 #include <wv/event/event_manager.h>
 #include <wv/memory/memory.h>
 
-#include <wv/input/drivers/input_driver.h>
 #include <wv/input/drivers/controller_driver.h>
+#include <wv/input/drivers/input_driver.h>
+#include <wv/input/drivers/mouse_driver.h>
 
 #include <wv/platform/platform.h>
 
@@ -52,10 +53,11 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->pollActions( this );
 
-#ifndef WV_PACKAGE
-	m_debugMouseMotion = { 0.0f, 0.0f };
-#endif
-
+	if ( IMouseDriver* mouseDriver = getInputDriver<IMouseDriver>() )
+	{
+		m_mouseState     = mouseDriver->getMouseState();
+		m_prevMouseState = mouseDriver->getPrevMouseState();
+	}
 }
 
 void wv::InputSystem::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right )

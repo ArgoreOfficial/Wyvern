@@ -3,9 +3,9 @@
 #include <wv/debug/log.h>
 #include <wv/debug/error.h>
 
-#include <wv/math/vector2.h>
 #include <wv/input/action_group.h>
 #include <wv/input/input_enums.h>
+#include <wv/math/vector2.h>
 
 #include <vector>
 #include <set>
@@ -16,6 +16,14 @@ namespace wv {
 
 class IInputDriver;
 class EventManager;
+
+struct MouseState
+{
+	Vector2i position = {};
+	Vector2i motion = {};
+	bool buttonStates[ 5 ] = {};
+	int scrollDelta = 0;
+};
 
 struct VirtualDevice
 {
@@ -98,25 +106,29 @@ public:
 	
 	const std::vector<ActionGroup*>& getActionGroups() const { return m_actionGroups; }
 
-#ifndef WV_PACKAGE
-	inline wv::Vector2f debugGetMouseMotion()   const { return m_debugMouseMotion; }
-	inline wv::Vector2f debugGetMousePosition() const { return m_debugMousePosition; }
+	inline Vector2i getMouseMotion()   const { return m_mouseState.motion; }
+	inline Vector2i getMousePosition() const { return m_mouseState.position; }
 	
-	inline bool debugIsMouseDown( int _index ) {
-		WV_ASSERT( _index >= 0 );
-		WV_ASSERT( _index < 5 );
-		return m_debugMouseButtonStates[ _index ];
+	inline bool getMouseButtonState( int _index ) const {
+		WV_ASSERT( _index >= 0 && _index < 5 );
+		return m_mouseState.buttonStates[ _index ];
 	}
-#endif
+	
+	inline bool getMouseButtonDown( int _index ) const {
+		WV_ASSERT( _index >= 0 && _index < 5 );
+		return !m_prevMouseState.buttonStates[ _index ] && m_mouseState.buttonStates[ _index ];
+	}
+
+	inline bool getMouseButtonUp( int _index ) const {
+		WV_ASSERT( _index >= 0 && _index < 5 );
+		return m_prevMouseState.buttonStates[ _index ] && !m_mouseState.buttonStates[ _index ];
+	}
 
 protected:
 	
-#ifndef WV_PACKAGE
-	wv::Vector2f m_debugMouseMotion{ 0.0f, 0.0f };
-	wv::Vector2f m_debugMousePosition{ 0.0f, 0.0f };
-	bool m_debugMouseButtonStates[ 5 ] = { false, false, false, false, false };
-#endif
-	
+	MouseState m_mouseState{};
+	MouseState m_prevMouseState{};
+
 	std::vector<IInputDriver*> m_inputDrivers;
 	
 	std::vector<ActionGroup*> m_actionGroups;
