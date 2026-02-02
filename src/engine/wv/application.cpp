@@ -100,13 +100,26 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
-	// set up default material
-	{
-		m_defaultMaterial = std::make_shared<MaterialAsset>();
-		auto def = m_defaultMaterial->deserialize( "shaders/coloured_triangle.vert.spv", "shaders/coloured_triangle.frag.spv" );
-		m_defaultMaterial->initialize( def );
+	MaterialManager* materialManager = m_world->getMaterialManager();
 
-		m_world->getMaterialManager()->add( "Default", m_defaultMaterial );
+	// Default lit material
+	{
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
+		auto def = material->deserialize( "shaders/default_lit.vert.spv", "shaders/default_lit.frag.spv" );
+		material->initialize( def );
+
+		materialManager->add( "Default Lit", material );
+		materialManager->makePersistent( material );
+	}
+
+	// Default unlit material
+	{
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
+		auto def = material->deserialize( "shaders/default_unlit.vert.spv", "shaders/default_unlit.frag.spv" );
+		material->initialize( def );
+
+		materialManager->add( "Default Unlit", material );
+		materialManager->makePersistent( material );
 	}
 
 	m_world->onSetupInput( m_inputSystem );
@@ -120,8 +133,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 void wv::Application::shutdown()
 {
 	m_renderer->waitForRenderer();
-
-	m_defaultMaterial = { };
 
 	if ( m_world )
 	{

@@ -77,8 +77,6 @@ private:
 	wv::Renderer*       m_renderer      = nullptr;
 
 	wv::World* m_world = nullptr;
-
-	wv::Ref<MaterialAsset> m_defaultMaterial;
 };
 
 }
