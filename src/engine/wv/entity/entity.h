@@ -36,7 +36,9 @@ public:
 		INITIALIZED
 	};
 
-	Entity() = default;
+	Entity()               : m_ID{ wv::Math::randomU32() } { }
+	Entity( EntityID _id ) : m_ID{ _id } { }
+
 	~Entity();
 
 	void load( WorldLoadContext& _ctx );
@@ -88,7 +90,7 @@ private:
 	void registerComponentWithSystems  ( IEntityComponent* _component );
 	void unregisterComponentWithSystems( IEntityComponent* _component );
 
-	EntityID    m_ID    = wv::Math::randomU32();
+	EntityID    m_ID    = 0;
 	EntityState m_state = EntityState::UNLOADED;
 
 	Transformf m_transform;

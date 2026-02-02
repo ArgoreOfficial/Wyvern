@@ -26,7 +26,9 @@ public:
 		INITIALIZED
 	};
 
-	IEntityComponent() = default;
+	IEntityComponent()                  : m_ID{ wv::Math::randomU32() } { }
+	IEntityComponent( ComponentID _id ) : m_ID{ _id } { }
+	
 	virtual ~IEntityComponent() { };
 
 	inline ComponentID getID() const { return m_ID; }
@@ -57,7 +59,7 @@ protected:
 	}
 
 protected:
-	const ComponentID m_ID = wv::Math::randomU32();
+	ComponentID m_ID = 0;
 	EntityComponentState m_state = EntityComponentState::UNLOADED;
 };
 
