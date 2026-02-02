@@ -18,6 +18,10 @@ wv::World::World()
 
 wv::World::~World()
 {
+	m_meshManager->clearPersistent();
+	m_materialManager->clearPersistent();
+	m_textureManager->clearPersistent();
+
 	// Destroy world sectors
 	for ( WorldSector* sector : m_sectors )
 		WV_FREE( sector );

@@ -41,10 +41,29 @@ public:
 		
 		m_managed.emplace( _path, _ref );
 	}
+
+	/**
+	 * @brief Makes asset persistent. 
+	 * @brief Warning! This means the asset will not unload until 
+	 * @brief application is closed OR clearPersistent() is called
+	 * @param _ref Type reference
+	 */
+	void makePersistent( const Ref<Ty>& _ref ) {
+		m_persistent.push_back( _ref );
+	}
+
+	/**
+	 * @brief Clears and unloads all persistent assets. 
+	 * @brief Warning! This will also unload all default assets
+	 */
+	void clearPersistent() {
+		m_persistent.clear();
+	}
 	
 protected:
 	std::mutex m_mtx;
 	std::unordered_map<std::filesystem::path, WeakRef<Ty>> m_managed;
+	std::vector<Ref<Ty>> m_persistent;
 };
 
 }
