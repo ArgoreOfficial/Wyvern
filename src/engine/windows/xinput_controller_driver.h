@@ -8,6 +8,7 @@ namespace wv {
 
 class XInputControllerDriver : public IControllerDriver
 {
+	WV_REFLECT_TYPE( XInputControllerDriver, IInputDriver )
 public:
 	XInputControllerDriver() = default;
 

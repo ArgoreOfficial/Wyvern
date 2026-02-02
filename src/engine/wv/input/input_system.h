@@ -54,6 +54,18 @@ public:
 		m_inputDrivers.push_back( WV_NEW( Ty ) );
 	}
 
+	// will return the *first* valid driver of type Ty
+	template<typename Ty>
+	Ty* getInputDriver() {
+		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
+
+		for ( auto it = m_inputDrivers.begin(); it != m_inputDrivers.end(); it++ )
+			if ( Ty* driver = tryCast<Ty>( *it ) )
+				return driver;
+		
+		return nullptr;
+	}
+
 	void processInputEvents( EventManager* _eventManager );
 
 	void setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right );

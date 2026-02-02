@@ -17,6 +17,7 @@ struct MouseState
 
 class IMouseDriver : public IInputDriver
 {
+	WV_REFLECT_TYPE( IMouseDriver, IInputDriver )
 public:
 	IMouseDriver() = default;
 	virtual ~IMouseDriver() { }

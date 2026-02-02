@@ -6,6 +6,7 @@ namespace wv {
 
 class WindowsKeyboardDriver : public IKeyboardDriver
 {
+	WV_REFLECT_TYPE( WindowsKeyboardDriver, IKeyboardDriver )
 public:
 	WindowsKeyboardDriver() = default;
 
