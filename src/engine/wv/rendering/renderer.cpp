@@ -177,12 +177,19 @@ void wv::Renderer::render( World* _world )
 	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
 	cmd->reset();
 
+	if ( Viewport* worldViewport = _world->getViewport() )
+	{
+		if ( ViewVolume* viewVolume = worldViewport->getViewVolume() )
+		{
+			m_drawExtent.width  = viewVolume->getViewDimensions().x;
+			m_drawExtent.height = viewVolume->getViewDimensions().y;
+		}
+	}
+	
 	{
 		AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
 		AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
-		m_drawExtent.width  = drawImage.imageExtent.width;
-		m_drawExtent.height = drawImage.imageExtent.height;
 		cmd->begin();
 
 		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
@@ -204,7 +211,7 @@ void wv::Renderer::render( World* _world )
 		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
-		cmd->copyImageToImage( drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent() );
+		cmd->copyImageToImage( drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent());
 
 		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
