@@ -90,8 +90,9 @@ private:
 template<typename Ty>
 Ty* tryCast( IReflectedType* _type )
 {
-	static_assert( std::is_base_of<IReflectedType, Ty>() );
-
+	static_assert( std::is_base_of<IReflectedType, Ty>(), "Type must be a valid IReflectedType" );
+	static_assert( std::is_same_v<decltype( &Ty::getStaticTypeUUID ), wv::TypeUUID( * )( )>, "Type must define WV_REFLECT_TYPE" );
+	
 	if ( _type == nullptr )
 		return nullptr;
 
