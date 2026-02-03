@@ -160,6 +160,8 @@ void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 
 void wv::Renderer::render( World* _world )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	vkWaitForFences( m_device, 1, &getCurrentFrame().fence, true, 1000000000 );
 	vkResetFences( m_device, 1, &getCurrentFrame().fence );
 
@@ -240,6 +242,8 @@ void wv::Renderer::finalize()
 
 wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	VkShaderModule vertShader = m_pipelineManager.createShaderModule( _vertSrc, _vertSize );
 	VkShaderModule fragShader = m_pipelineManager.createShaderModule( _fragSrc, _fragSize );
 
@@ -264,11 +268,15 @@ wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertS
 
 void wv::Renderer::destroyPipeline( ResourceID _pipeline )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	m_pipelineManager.destroyPipeline( _pipeline );
 }
 
 wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
 	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
 	const bool   useVertexData    = _vertexData != nullptr && _vertexDataSize > 0;
@@ -347,7 +355,9 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 }
 
 void wv::Renderer::deallocateMesh( ResourceID _mesh )
-{ 
+{
+	std::scoped_lock lock{ m_mtx };
+
 	if ( !m_meshAllocations.contains( _mesh ) )
 		return;
 
@@ -363,6 +373,8 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 
 wv::ResourceID wv::Renderer::allocateImage( const void* _data, int _width, int _height, bool _mipmapped )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	VkExtent3D imagesize;
 	imagesize.width = _width;
 	imagesize.height = _height;
@@ -373,6 +385,8 @@ wv::ResourceID wv::Renderer::allocateImage( const void* _data, int _width, int _
 
 void wv::Renderer::deallocateImage( ResourceID _image )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	if ( m_storedImageIndexMap.contains( _image ) )
 	{
 		m_storedImageIndices.erase( m_storedImageIndexMap.at( _image ) );
@@ -384,12 +398,33 @@ void wv::Renderer::deallocateImage( ResourceID _image )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+VkBool32 debugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
+	VkDebugUtilsMessageTypeFlagsEXT messageTypes, 
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
+	void* pUserData ) 
+{
+	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_INFO;
+
+	switch ( messageSeverity )
+	{
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::WV_PRINT_DEBUG; break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::WV_PRINT_INFO; break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: level = wv::Debug::WV_PRINT_WARN; break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::WV_PRINT_ERROR; break;
+	}
+
+	wv::Debug::Print( level, "%s\n", pCallbackData->pMessage );
+
+	return true;
+}
+
 bool wv::Renderer::initVulkan()
 {
 	vkb::InstanceBuilder builder;
 	auto ret = builder.set_app_name( "Wyvern" )
 		.request_validation_layers( m_useValidationLayers )
-		.use_default_debug_messenger()
+		.set_debug_callback( debugCallback )
 		.require_api_version( 1, 3, 0 )
 		.build();
 
@@ -626,6 +661,8 @@ bool wv::Renderer::initDescriptors()
 
 void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	if ( _width == 0 || _height == 0 )
 		return;
 
@@ -725,6 +762,8 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 
 void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	vkResetFences( m_device, 1, &m_immediateFence );
 	m_immediateCommandBuffer->reset();
 	m_immediateCommandBuffer->begin();
@@ -739,6 +778,8 @@ void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )
 
 wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 	bufferInfo.size = _size;
 	bufferInfo.usage = _usage;
@@ -754,12 +795,16 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 }
 
 void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
-{ 
+{
+	std::scoped_lock lock{ m_mtx };
+
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
 }
 
 void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at )
 {
+	std::scoped_lock lock{ m_mtx };
+
 	AllocatedImage image = m_imageManager.getAllocatedImage( _imageID );
 	
 	VkDescriptorImageInfo imageInfo{};

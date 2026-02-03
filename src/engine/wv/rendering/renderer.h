@@ -157,6 +157,8 @@ protected:
 
 	bool m_initialized = false;
 	bool m_resizeRequested = false;
+	
+	std::recursive_mutex m_mtx = {};
 
 	PipelineManager m_pipelineManager = { this };
 	ImageManager    m_imageManager    = { this };
