@@ -16,12 +16,58 @@ class TaskSystem;
 
 static inline constexpr size_t NUM_TASKS = 2048;
 
+template<typename Ty>
+class Pool
+{
+public:
+	Ty* allocate() {
+		Ty* ptr = nullptr;
+
+		std::scoped_lock lock{ m_mtx };
+
+		if ( m_pool.empty() )
+			ptr = WV_NEW( Ty );
+		else
+		{
+			ptr = m_pool.front();
+			m_pool.pop();
+		}
+
+		return ptr;
+	}
+
+	void free( Ty* _ptr ) {
+		std::scoped_lock lock{ m_mtx };
+		m_pool.push( _ptr );
+	}
+
+	void clear() {
+		std::scoped_lock lock{ m_mtx };
+
+		while ( !m_pool.empty() )
+		{
+			Ty* ptr = m_pool.front();
+			m_pool.pop();
+			WV_FREE( ptr );
+		}
+	}
+
+private:
+	std::mutex m_mtx;
+	std::queue<Ty*> m_pool{};
+};
+
+struct Fence
+{
+	std::atomic_uint32_t counter;
+};
+
 struct Task
 {
-	typedef std::function<void()> Function;
+	typedef std::function<void( TaskSystem* _system, Fence* _fence )> Function;
 
 	Function func;
-	std::atomic_bool used = false;
+	Fence* fence = nullptr;
 };
 
 class ThreadWorker
@@ -36,7 +82,9 @@ public:
 		m_thread = std::move( _thread );
 	}
 	
-	void push( const Task::Function& _task );
+	void push( Fence* _fence, const Task::Function& _task );
+	void push( const Task::Function& _task ) { push( nullptr, _task ); }
+
 	Task* pop();
 	Task* steal();
 
@@ -80,12 +128,23 @@ public:
 
 	void getAndExecute( ThreadWorker* _worker );
 
+	Fence* allocateFence() { return m_fencePool.allocate(); }
+	void freeFence( Fence* _fence ) { m_fencePool.free( _fence ); }
+	
+	void waitForFence( Fence* _fence );
+
+	void waitAndFreeFence( Fence* _fence ) {
+		waitForFence( _fence );
+		freeFence( _fence );
+	}
+
 private:
 	std::atomic_uint32_t m_activeTasks = 0;
 
 	std::atomic_bool m_running = false;
 	std::vector<ThreadWorker*> m_workers = {};
 	std::unordered_map<std::thread::id, ThreadWorker*> m_threadWorkerMap = {};
+	Pool<Fence> m_fencePool;
 };
 
 }

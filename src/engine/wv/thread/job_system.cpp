@@ -18,15 +18,12 @@ wv::ThreadWorker::~ThreadWorker()
 	{
 		if ( m_tasks[ i ] != nullptr )
 		{
-			if ( m_tasks[ i ]->used.load() )
-				WV_LOG_WARNING( "Unfinished job %i\n", (int)i );
-
 			WV_FREE( m_tasks[ i ] );
 		}
 	}
 }
 
-void wv::ThreadWorker::push( const Task::Function& _task )
+void wv::ThreadWorker::push( Fence* _fence, const Task::Function& _task )
 {
 	std::scoped_lock lock{ m_mtx };
 
@@ -36,8 +33,11 @@ void wv::ThreadWorker::push( const Task::Function& _task )
 		m_tasks[ index ] = WV_NEW( Task );
 
 	m_tasks[ index ]->func = _task;
-	m_tasks[ index ]->used.store( true );
+	m_tasks[ index ]->fence = _fence;
 	m_tail++;
+
+	if ( _fence )
+		_fence->counter++;
 
 	m_system->incrActiveTasks();
 }
@@ -50,12 +50,8 @@ wv::Task* wv::ThreadWorker::pop()
 		return nullptr;
 
 	m_tail--;
-	Task* task = m_tasks[ m_tail % NUM_TASKS ];
-	task->used.store( false );
-
 	m_system->decrActiveTasks();
-
-	return task;
+	return m_tasks[ m_tail % NUM_TASKS ];
 }
 
 wv::Task* wv::ThreadWorker::steal()
@@ -66,7 +62,6 @@ wv::Task* wv::ThreadWorker::steal()
 		return nullptr;
 
 	Task* task = m_tasks[ m_head % NUM_TASKS ];
-	task->used.store( false );
 	m_head++;
 
 	m_system->decrActiveTasks();
@@ -103,6 +98,7 @@ void wv::TaskSystem::shutdownThreads()
 		WV_FREE( worker );
 
 	m_workers.clear();
+	m_fencePool.clear();
 }
 
 void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
@@ -111,15 +107,32 @@ void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
 		return;
 
 	if ( wv::Task* task = _worker->pop() )
-		task->func();
+	{
+		task->func( this, task->fence );
+		if ( task->fence )
+			task->fence->counter--;
+	}
 	else if ( wv::ThreadWorker* otherWorker = getRandomThreadWorker() )
 	{
 		if ( wv::Task* task = getRandomThreadWorker()->steal() )
-			task->func();
+		{
+			task->func( this, task->fence );
+			if ( task->fence )
+				task->fence->counter--;
+		}
 	}
 
 	if ( numActiveTasks() > 0 )
 		wv::Thread::yield();
 	else
 		wv::Thread::sleepForSeconds( 0.0001 );
+}
+
+void wv::TaskSystem::waitForFence( Fence* _fence )
+{ 
+	if ( _fence == nullptr )
+		return;
+
+	while ( _fence->counter.load() > 0 )
+		getAndExecute( getThreadWorker() );
 }

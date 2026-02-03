@@ -67,12 +67,23 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_taskSystem->createThreads( 20 );
 
 	ThreadWorker* worker = m_taskSystem->getThreadWorker();
-	worker->push( []() {
-		wv::Thread::sleepForSeconds( 15 );
-		wv::Debug::Print( "Waiting...\n" );
-		wv::Thread::sleepForSeconds( 1 );
-		wv::Debug::Print( "Done!\n" );
+	Fence* fence = m_taskSystem->allocateFence();
+
+	worker->push( fence, []( TaskSystem* _system, Fence* _fence ) {
+		ThreadWorker* worker = _system->getThreadWorker();
+		
+		for ( size_t i = 0; i < 100; i++ )
+		{
+			worker->push( _fence, []( TaskSystem* _system, Fence* _fence ) {
+				Debug::Print( "." );
+			} );
+		}
+
 	} );
+
+	m_taskSystem->waitAndFreeFence( fence );
+	
+	Debug::Print( "Wait complete\n" );
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
