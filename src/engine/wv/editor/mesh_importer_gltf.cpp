@@ -89,9 +89,11 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
         image.data);
 	}
 
+	const char* shaderName = "Default Lit";
+
 	for ( fastgltf::Material& mat : asset.materials )
 	{
-		Ref<MaterialAsset> newMat = _materialManager->get( "Default Unlit" );
+		Ref<MaterialAsset> newMat = _materialManager->get( shaderName );
 		MaterialInstance instance{ newMat };
 
 		/*
@@ -141,7 +143,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	
 	// there must always be at least one material
 	if ( m_materials.size() == 0 )
-		m_materials.push_back( _materialManager->get( "Default Unlit" ) );
+		m_materials.push_back( _materialManager->get( shaderName ) );
 
 }
 
