@@ -3,10 +3,9 @@
 #include <wv/console/console.h>
 #include <wv/debug/error.h>
 #include <wv/memory/memory.h>
-#include <wv/target/iremote_target.h>
-
 #include <wv/platform/platform.h>
-#include <wv/platform/thread.h>
+#include <wv/target/iremote_target.h>
+#include <wv/thread/thread.h>
 
 #include "game_world.h"
 

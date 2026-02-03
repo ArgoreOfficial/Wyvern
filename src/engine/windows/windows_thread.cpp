@@ -1,6 +1,6 @@
 #ifdef WV_PLATFORM_WINDOWS
 
-#include "windows_thread.h"
+#include <wv/thread/thread.h>
 
 #include <chrono>
 
