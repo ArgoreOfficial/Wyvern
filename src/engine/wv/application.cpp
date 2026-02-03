@@ -18,6 +18,8 @@
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
+#include <wv/thread/thread.h>
+#include <wv/thread/job_system.h>
 
 // TODO: MOVE TO WINDOWS DRIVER PLACE SOMEWHERE
 #include <windows/xinput_controller_driver.h>
@@ -60,11 +62,21 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
 	m_filesystem   = Platform::createFileSystem( "data" );
+	
+	m_taskSystem = WV_NEW( TaskSystem );
+	m_taskSystem->createThreads( 20 );
+
+	ThreadWorker* worker = m_taskSystem->getThreadWorker();
+	worker->push( []() {
+		wv::Thread::sleepForSeconds( 15 );
+		wv::Debug::Print( "Waiting...\n" );
+		wv::Thread::sleepForSeconds( 1 );
+		wv::Debug::Print( "Done!\n" );
+	} );
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
 	m_inputSystem->createInputDriver<WindowsMouseDriver>();
-
 	m_inputSystem->initialize();
 
 	m_displayDriver = Platform::createDisplayDriver();
@@ -140,6 +152,13 @@ void wv::Application::shutdown()
 		WV_FREE( m_world );
 	}
 	
+	if ( m_taskSystem )
+	{
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Waiting for threads\n" );
+		m_taskSystem->shutdownThreads();
+		WV_FREE( m_taskSystem );
+	}
+
 	if ( m_displayDriver )
 	{
 		m_displayDriver->shutdown();
