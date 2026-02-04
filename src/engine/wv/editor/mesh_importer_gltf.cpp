@@ -243,6 +243,10 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 			meshPrimitivesMap[ meshIndex ].push_back( surface.primitives.size() );
 			surface.primitives.push_back( prim );
 
+			while ( normals.size() < positions.size() ) normals.push_back( { 0.0f, 1.0f, 0.0f } );
+			while ( uv0s.size()    < positions.size() ) uv0s   .push_back( { 0.0f, 0.0f } );
+			while ( colours.size() < positions.size() ) colours.push_back( { 0.0f, 0.0f, 0.0f } );
+
 			surface.vertexPositions.insert( surface.vertexPositions.end(), positions.begin(), positions.end() );
 			surface.vertexNormals.insert( surface.vertexNormals.end(), normals.begin(), normals.end() );
 			surface.vertexUVs.insert( surface.vertexUVs.end(), uv0s.begin(), uv0s.end() );
