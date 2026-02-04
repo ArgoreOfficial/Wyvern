@@ -22,6 +22,7 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
+#include <tracy/Tracy.hpp>
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +166,8 @@ void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
 
 void wv::Renderer::render( World* _world )
 {
+	ZoneScoped;
+
 	std::scoped_lock lock{ m_mtx };
 
 	vkWaitForFences( m_device, 1, &getCurrentFrame().fence, true, 1000000000 );
@@ -681,6 +684,8 @@ void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
 
 void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 {
+	ZoneScoped;
+
 	//float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
 	//VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
 	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 1.0f } };
@@ -691,6 +696,8 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 { 
+	ZoneScoped;
+
 	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
 	if ( !worldRenderSystem )
 		return;

@@ -144,6 +144,8 @@ public:
 	}
 
 private:
+	void executeTask( Task* _task );
+
 	std::mutex m_launchMutex{};
 	std::atomic_uint32_t m_activeTasks = 0;
 

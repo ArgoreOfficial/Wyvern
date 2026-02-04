@@ -26,6 +26,8 @@
 #include <windows/windows_keyboard_driver.h>
 #include <windows/windows_mouse_driver.h>
 
+#include <tracy/Tracy.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -64,7 +66,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_filesystem   = Platform::createFileSystem( "data" );
 	
 	m_taskSystem = WV_NEW( TaskSystem );
-	m_taskSystem->createThreads( 20 );
+	m_taskSystem->createThreads( 10 );
 
 	Debug::Print( "Wait complete\n" );
 
@@ -199,6 +201,8 @@ bool wv::Application::tick()
 	m_runtime += m_deltatime;
 	
 	m_deltatime = wv::Math::clamp( m_deltatime, 0.00001, 1.0 ); // hard cap just in case
+
+	FrameMark;
 
 	return true;
 }

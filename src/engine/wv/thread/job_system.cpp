@@ -3,6 +3,8 @@
 #include <wv/memory/memory.h>
 #include <wv/thread/thread.h>
 
+#include <tracy/Tracy.hpp>
+
 void threadFunc( wv::TaskSystem* _jobSystem, wv::ThreadWorker* _worker )
 {
 	_jobSystem->waitForLock();
@@ -112,19 +114,11 @@ void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
 		return;
 
 	if ( wv::Task* task = _worker->pop() )
-	{
-		task->func( this, task->fence );
-		if ( task->fence )
-			task->fence->counter--;
-	}
+		executeTask( task );
 	else if ( wv::ThreadWorker* otherWorker = getRandomThreadWorker() )
 	{
 		if ( wv::Task* task = otherWorker->steal() )
-		{
-			task->func( this, task->fence );
-			if ( task->fence )
-				task->fence->counter--;
-		}
+			executeTask( task );
 	}
 
 	if ( numActiveTasks() > 0 )
@@ -140,4 +134,13 @@ void wv::TaskSystem::waitForFence( Fence* _fence )
 
 	while ( _fence->counter.load() > 0 )
 		getAndExecute( getThreadWorker() );
+}
+
+void wv::TaskSystem::executeTask( Task* _task )
+{
+	ZoneScoped;
+
+	_task->func( this, _task->fence );
+	if ( _task->fence )
+		_task->fence->counter--;
 }
