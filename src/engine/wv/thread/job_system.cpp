@@ -5,6 +5,8 @@
 
 void threadFunc( wv::TaskSystem* _jobSystem, wv::ThreadWorker* _worker )
 {
+	_jobSystem->waitForLock();
+
 	while ( _jobSystem->isRunning() )
 		_jobSystem->getAndExecute( _worker );
 }
@@ -71,6 +73,7 @@ wv::Task* wv::ThreadWorker::steal()
 
 void wv::TaskSystem::createThreads( size_t _count )
 { 
+	m_launchMutex.lock();
 	m_running.store( true );
 
 	// main thread worker, only used for pushing
@@ -88,6 +91,8 @@ void wv::TaskSystem::createThreads( size_t _count )
 		m_threadWorkerMap.emplace( worker->m_thread.get_id(), worker );
 		m_workers.push_back( worker );
 	}
+
+	m_launchMutex.unlock();
 }
 
 void wv::TaskSystem::shutdownThreads()
@@ -114,7 +119,7 @@ void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
 	}
 	else if ( wv::ThreadWorker* otherWorker = getRandomThreadWorker() )
 	{
-		if ( wv::Task* task = getRandomThreadWorker()->steal() )
+		if ( wv::Task* task = otherWorker->steal() )
 		{
 			task->func( this, task->fence );
 			if ( task->fence )

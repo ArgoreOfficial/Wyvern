@@ -3,6 +3,7 @@
 #include <wv/entity/world.h>
 
 #include <wv/application.h>
+#include <wv/thread/job_system.h>
 
 wv::WorldSector::WorldSector()
 {
@@ -24,13 +25,20 @@ void wv::WorldSector::load( WorldLoadContext& _ctx )
 
 	m_state = WorldSectorState::LOADING;
 
-	int numFailedLoads = 0;
+	TaskSystem* taskSystem = Application::getSingleton()->getJobSystem();
+	Fence* loadFence = taskSystem->allocateFence();
+
 	for ( auto entity : m_entitiesToLoad )
 	{
-		entity->load( _ctx );
-		if ( !entity->isLoaded() )
-			numFailedLoads++;
+		ThreadWorker* worker = taskSystem->getThreadWorker();
+		
+		//worker->push( loadFence, [ entity, &_ctx]( TaskSystem* _system, Fence* _fence )
+		//{
+			entity->load( _ctx );
+		//} );
 	}
+
+	taskSystem->waitAndFreeFence( loadFence );
 
 	m_entitiesToLoad.clear();
 

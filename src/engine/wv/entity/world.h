@@ -98,8 +98,15 @@ public:
 	void updateSectors( double _deltaTime );
 	void updateWorldSystems( double _deltaTime );
 
-	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { m_componentsToRegister  .emplace_back( _entity, _component ); }
-	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { m_componentsToUnregister.emplace_back( _entity, _component ); }
+	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { 
+		std::scoped_lock lock{ m_componentRegisterMtx };
+		m_componentsToRegister.emplace_back( _entity, _component ); 
+	}
+
+	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { 
+		std::scoped_lock lock{ m_componentRegisterMtx };
+		m_componentsToUnregister.emplace_back( _entity, _component ); 
+	}
 	
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
@@ -123,6 +130,7 @@ protected:
 	std::vector<WorldSector*> m_sectorsToLoad;
 	std::unordered_map<WorldSectorID, WorldSector*> m_sectorMap;
 	
+	std::mutex m_componentRegisterMtx;
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToRegister;
 	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
 

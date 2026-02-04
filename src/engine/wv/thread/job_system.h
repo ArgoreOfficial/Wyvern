@@ -138,7 +138,13 @@ public:
 		freeFence( _fence );
 	}
 
+	void waitForLock() {
+		m_launchMutex.lock();
+		m_launchMutex.unlock();
+	}
+
 private:
+	std::mutex m_launchMutex{};
 	std::atomic_uint32_t m_activeTasks = 0;
 
 	std::atomic_bool m_running = false;

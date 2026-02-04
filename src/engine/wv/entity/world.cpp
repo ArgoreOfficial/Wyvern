@@ -9,6 +9,8 @@
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
 
+#include <wv/thread/job_system.h>
+
 wv::World::World()
 { 
 	m_meshManager     = WV_NEW( MeshManager );
@@ -126,18 +128,21 @@ void wv::World::updateLoading()
 {
 	WorldLoadContext ctx = getLoadContext();
 
+	TaskSystem* taskSystem = Application::getSingleton()->getJobSystem();
+	ThreadWorker* worker = taskSystem->getThreadWorker();
+
 	for ( auto sector : m_sectorsToLoad )
 	{
-		sector->load( ctx );
+		worker->push( [ sector, this ]( TaskSystem* _system, Fence* _fence ) {
+			auto ctx = getLoadContext();
+			sector->load( ctx );
+
+			sector->updateLoading( ctx );
+		} );
 	}
 	
 	m_sectorsToLoad.clear();
 
-	for ( auto sector : m_sectors )
-	{
-		sector->updateLoading( ctx );
-	}
-	
 	updateRegisterUnregisterComponents();
 }
 
@@ -200,6 +205,8 @@ void wv::World::createWorldSystem( IWorldSystem* _system )
 
 void wv::World::updateRegisterUnregisterComponents()
 {
+	std::scoped_lock lock{ m_componentRegisterMtx };
+
 	for ( auto system : m_systems )
 	{
 		for ( auto component : m_componentsToUnregister )
