@@ -115,6 +115,8 @@ public:
 	void deallocateImage( ResourceID _image );
 
 	uint32_t storeImage( ResourceID _imageID, SamplerState _filter ) {
+		std::scoped_lock lock{ m_mtx };
+
 		VkSampler sampler = VK_NULL_HANDLE;
 		switch ( _filter )
 		{

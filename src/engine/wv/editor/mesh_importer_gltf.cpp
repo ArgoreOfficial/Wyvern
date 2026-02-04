@@ -233,8 +233,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 			surface.vertexUVs.insert( surface.vertexUVs.end(), uv0s.begin(), uv0s.end() );
 			surface.vertexColours.insert( surface.vertexColours.end(), colours.begin(), colours.end() );
 
-			for ( uint16_t index : indices )
-				surface.indices.push_back( index + indexOffset );
+			surface.indices.insert( surface.indices.end(), indices.begin(), indices.end() );
 		}
 	}
 

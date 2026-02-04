@@ -753,7 +753,7 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				);
 			}
 
-			_cmd->draw( renderMesh.indexCount, 1, renderMesh.firstIndex, 0, 0 );
+			_cmd->draw( renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 		}
 	}
 	
