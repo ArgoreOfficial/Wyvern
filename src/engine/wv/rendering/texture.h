@@ -25,6 +25,10 @@ public:
 	TextureAsset( const std::filesystem::path& _path );
 	~TextureAsset();
 
+	void load( const std::filesystem::path& _path ) {
+		initialize( deserialize( _path ) );
+	}
+
 	TextureData deserialize( const uint8_t* _data, size_t _size );
 	TextureData deserialize( const std::filesystem::path& _path );
 	

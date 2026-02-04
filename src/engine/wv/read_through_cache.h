@@ -19,14 +19,20 @@ public:
 	}
 
 	Ref<Ty> get( const std::filesystem::path& _path ) {
-		std::scoped_lock lock( m_mtx );
 
+		m_mtx.lock();
 		auto it = m_managed.find( _path );
+		m_mtx.unlock();
+		
 		if ( it != m_managed.end() && !it->second.expired() )
 			return it->second.lock();
 		
-		Ref<Ty> ref = std::make_shared<Ty>( _path );
+		m_mtx.lock();
+		Ref<Ty> ref = std::make_shared<Ty>();
 		m_managed.emplace( _path, ref );
+		m_mtx.unlock();
+
+		ref->load( _path );
 
 		return ref;
 	}
