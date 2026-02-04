@@ -54,6 +54,6 @@ void wv::TextureAsset::initialize( const TextureData& _texture )
 	m_data = _texture;
 
 	// deallocate cpu copy
-	//stbi_image_free( m_data.data );
-	//m_data.data = nullptr;
+	stbi_image_free( m_data.data );
+	m_data.data = nullptr;
 }
