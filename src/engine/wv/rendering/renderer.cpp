@@ -145,9 +145,10 @@ void wv::Renderer::shutdown()
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
 			WV_FREE( m_frames[ i ].mainCommandBuffer );
 
-			vkDestroyFence( m_device, m_frames[ i ].fence, nullptr );
 			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
 		}
+
+		m_ringFences.shutdown();
 
 		m_mainDeleteQueue.flush();
 
@@ -170,8 +171,7 @@ void wv::Renderer::render( World* _world )
 
 	std::scoped_lock lock{ m_mtx };
 
-	vkWaitForFences( m_device, 1, &getCurrentFrame().fence, true, 1000000000 );
-	vkResetFences( m_device, 1, &getCurrentFrame().fence );
+	m_ringFences.setCycle( m_frameNumber );
 
 	uint32_t swapchainImageIndex;
 	VkResult e = m_swapchain->acquireNextImage( getCurrentFrame().acquireSemaphore, &swapchainImageIndex );
@@ -232,7 +232,7 @@ void wv::Renderer::render( World* _world )
 
 	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_swapchain->getSubmitSemaphore( swapchainImageIndex ) );
-	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, getCurrentFrame().fence );
+	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, m_ringFences.getFence() );
 
 	// Present
 
@@ -576,18 +576,14 @@ bool wv::Renderer::initCommands()
 
 bool wv::Renderer::initSyncStructures()
 {
+	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
+		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
+
+	m_ringFences.initalize( m_device, FRAME_OVERLAP );
+
 	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-
-	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
-	{
-		vkCreateFence( m_device, &fenceCreateInfo, nullptr, &m_frames[ i ].fence );
-
-		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
-	}
-
 	vkCreateFence( m_device, &fenceCreateInfo, nullptr, &m_immediateFence );
 	m_mainDeleteQueue.push( [ = ]() { vkDestroyFence( m_device, m_immediateFence, nullptr ); } );
 

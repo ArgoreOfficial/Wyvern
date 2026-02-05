@@ -3,6 +3,8 @@
 #include <queue>
 #include <vector>
 
+#include <wv/memory/memory.h>
+
 namespace wv {
 
 template<typename Ty>
