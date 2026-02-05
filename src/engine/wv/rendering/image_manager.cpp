@@ -86,7 +86,7 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 	AllocatedImage& allocatedImage = m_allocatedImages.at( ResourceID );
 
 	m_renderer->immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		VkBufferImageCopy copyRegion{};
 
@@ -102,7 +102,7 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 
 		vkCmdCopyBufferToImage( _cmd.getUnderlying(), uploadBuffer.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 	} );
 
 	m_renderer->destroyBuffer( uploadBuffer );

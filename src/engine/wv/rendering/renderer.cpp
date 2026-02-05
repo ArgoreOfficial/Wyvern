@@ -185,7 +185,7 @@ void wv::Renderer::render( World* _world )
 	// Draw
 
 	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
-	cmd->reset();
+	vkResetCommandBuffer( cmd->m_cmd, 0 );
 
 	if ( Viewport* worldViewport = _world->getViewport() )
 	{
@@ -200,32 +200,33 @@ void wv::Renderer::render( World* _world )
 		AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
 		AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
-		cmd->begin();
-
-		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
-		cmd->bindDescriptorSets( VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet );
+		VkCommandBufferBeginInfo cmdBeginInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
+		vkBeginCommandBuffer( cmd->m_cmd, &cmdBeginInfo );
+		
+		vkCmdBindDescriptorSets( cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
+		vkCmdBindDescriptorSets( cmd->m_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
 
 		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
 		// draw background colour
 		drawBackground( cmd );
 
-		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
 		cmd->transitionImage( depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
 		
 		drawGeometry( cmd, _world );
 
 		VkImage swapchainImage = m_swapchain->getSwapchainImage( swapchainImageIndex );
 
-		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
 		cmd->copyImageToImage( drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent());
 
-		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
-		cmd->end();
+		vkEndCommandBuffer( cmd->m_cmd );
 	}
 
 	// Submit
@@ -684,7 +685,8 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 1.0f } };
 
 	AllocatedImage image = m_imageManager.getAllocatedImage( m_drawImage );
-	_cmd->clearColorImage( image.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue );
+	VkImageSubresourceRange clearRange = makeVkImageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
+	vkCmdClearColorImage( _cmd->m_cmd, image.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
 }
 
 void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
@@ -707,10 +709,21 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
 	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, drawImage.imageView, depthImage.imageView );
-	_cmd->setViewport( 0, 0, m_drawExtent.width, m_drawExtent.height, 0.0f, 1.0f );
-	_cmd->setScissor( 0, 0, m_drawExtent.width, m_drawExtent.height );
-	_cmd->setDepthTest( true, true, VK_COMPARE_OP_GREATER_OR_EQUAL );
-	_cmd->setStencilTest( false );
+	
+	// set default render state
+	{
+		VkViewport viewport = makeVkViewport( 0, 0, m_drawExtent.width, m_drawExtent.height );
+		vkCmdSetViewport( _cmd->m_cmd, 0, 1, &viewport );
+
+		VkRect2D scissor = makeVkRect2D( 0, 0, m_drawExtent.width, m_drawExtent.height );
+		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
+	
+		vkCmdSetDepthTestEnable ( _cmd->m_cmd, VK_TRUE );
+		vkCmdSetDepthWriteEnable( _cmd->m_cmd, VK_TRUE );
+		vkCmdSetDepthCompareOp  ( _cmd->m_cmd, VK_COMPARE_OP_GREATER_OR_EQUAL );
+	
+		vkCmdSetStencilTestEnable( _cmd->m_cmd, VK_FALSE );
+	}
 
 	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
 			
@@ -728,20 +741,21 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				continue; // no material
 			
 			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
-			_cmd->bindIndexBuffer( mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+			vkCmdBindIndexBuffer( _cmd->m_cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
 			GPUDrawPushConstants pc{};
 			pc.viewProj = viewProj;
 			pc.model    = bucket.matrices[ i ];
 			pc.positionBuffer = mesh.positionBufferAddress;
-
+			
 			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 			
 			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
-			_cmd->bindPipeline( pipeline.bindPoint, pipeline.pipeline );
-
-			_cmd->pushConstant(
+			vkCmdBindPipeline( _cmd->m_cmd, pipeline.bindPoint, pipeline.pipeline );
+			
+			vkCmdPushConstants(
+				_cmd->m_cmd,
 				m_bindlessPipelineLayout,
 				VK_SHADER_STAGE_ALL, 0,
 				sizeof( GPUDrawPushConstants ),
@@ -750,19 +764,20 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 
 			if ( renderMesh.materialData.size() > 0 )
 			{
-				_cmd->pushConstant( 
-					m_bindlessPipelineLayout, 
+				vkCmdPushConstants( 
+					_cmd->m_cmd, 
+					m_bindlessPipelineLayout,
 					VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
 					renderMesh.materialData.size(),
 					renderMesh.materialData.data()
 				);
 			}
 
-			_cmd->draw( renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
+			vkCmdDrawIndexed( _cmd->m_cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 		}
 	}
 	
-	_cmd->endRendering();
+	vkCmdEndRendering( _cmd->m_cmd );
 }
 
 void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )
@@ -770,12 +785,14 @@ void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )
 	std::scoped_lock lock{ m_mtx };
 
 	vkResetFences( m_device, 1, &m_immediateFence );
-	m_immediateCommandBuffer->reset();
-	m_immediateCommandBuffer->begin();
+	vkResetCommandBuffer( m_immediateCommandBuffer->m_cmd, 0 );
+
+	VkCommandBufferBeginInfo cmdBeginInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
+	vkBeginCommandBuffer( m_immediateCommandBuffer->m_cmd, &cmdBeginInfo );
 
 	_func( *m_immediateCommandBuffer );
 
-	m_immediateCommandBuffer->end();
+	vkEndCommandBuffer( m_immediateCommandBuffer->m_cmd );
 	m_immediateCommandBuffer->submit( m_graphicsQueue, nullptr, nullptr, m_immediateFence );
 
 	vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );

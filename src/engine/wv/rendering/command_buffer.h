@@ -7,6 +7,68 @@
 
 namespace wv {
 
+static VkViewport makeVkViewport( float _x, float _y, float _width, float _height, float _minDepth = 0.0f, float _maxDepth = 1.0f ) {
+	VkViewport viewport{};
+	viewport.x = _x;
+	viewport.y = _y;
+	viewport.width = _width;
+	viewport.height = _height;
+	viewport.minDepth = _minDepth;
+	viewport.maxDepth = _maxDepth;
+	return viewport;
+}
+
+static VkRect2D makeVkRect2D( float _x, float _y, float _width, float _height ) {
+	VkRect2D scissor{};
+	scissor.offset.x = _x;
+	scissor.offset.y = _y;
+	scissor.extent.width = _width;
+	scissor.extent.height = _height;
+	return scissor;
+}
+
+static VkSubmitInfo2 makeVkSubmitInfo2(
+	uint32_t _numCmd,    VkCommandBufferSubmitInfo* _cmds, 
+	uint32_t _numSignal, VkSemaphoreSubmitInfo* _signals, 
+	uint32_t _numWait,   VkSemaphoreSubmitInfo* _waits )
+{
+	VkSubmitInfo2 info = { .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
+	info.waitSemaphoreInfoCount = _numWait;
+	info.pWaitSemaphoreInfos = _waits;
+
+	info.signalSemaphoreInfoCount = _numSignal;
+	info.pSignalSemaphoreInfos = _signals;
+
+	info.commandBufferInfoCount = _numCmd;
+	info.pCommandBufferInfos = _cmds;
+
+	return info;
+}
+
+static VkImageSubresourceRange makeVkImageSubresourceRange( VkImageAspectFlags _aspectMask )
+{
+	VkImageSubresourceRange subImage{};
+	subImage.aspectMask = _aspectMask;
+	subImage.baseMipLevel = 0;
+	subImage.levelCount = VK_REMAINING_MIP_LEVELS;
+	subImage.baseArrayLayer = 0;
+	subImage.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+	return subImage;
+}
+
+static VkImageSubresourceLayers makeVkImageSubresourceLayers( VkImageAspectFlags _aspectMask, uint32_t _mipLevel, uint32_t _baseArrayLayer, uint32_t _layerCount )
+{
+	VkImageSubresourceLayers layers{};
+	layers.aspectMask     = _aspectMask;
+	layers.mipLevel       = _mipLevel;
+	layers.baseArrayLayer = _baseArrayLayer;
+	layers.layerCount     = _layerCount;
+	return layers;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 class CommandBuffer
 {
 	friend class Renderer;
@@ -16,50 +78,17 @@ public:
 
 	VkCommandBuffer getUnderlying() const { return m_cmd; }
 
-	void begin() const;
-	void end() const;
-	void reset();
-
 	void submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence );
 
 	void beginRendering( float _width, float _height, VkImageView _colorView, VkImageView _depthView );
-	void endRendering();
-
-	// State
-
-	void setViewport( float _x, float _y, float _width, float _height, float _minDepth = 0.0f, float _maxDepth = 1.0f );
-	void setScissor( float _x, float _y, float _width, float _height );
-	void setDepthTest( bool _test, bool _write, VkCompareOp _compareOp );
-	void setStencilTest( bool _enabled );
-
-	void bindIndexBuffer( VkBuffer _buffer, VkDeviceSize _offset, VkIndexType _type );
-
-	void bindPipeline( VkPipelineBindPoint _bindPoint, VkPipeline _pipeline );
-	void bindDescriptorSets( VkPipelineBindPoint _bindPoint, VkPipelineLayout _layout, uint32_t _firstSet, uint32_t _descriptorSetCount, VkDescriptorSet* _descriptorSets );
-
-	void pushConstant( VkPipelineLayout _pipelineLayout, VkShaderStageFlags _stage, uint32_t _offset, uint32_t _size, const void* _data );
 	
 	// Image
 
-	void transitionImage( VkImage _image, VkImageLayout _currentLayout, VkImageLayout _newLayout );
-	void transitionImage( VkImage _image, VkImageLayout _newLayout ) {
-		if ( m_imageLastKnownLayout.contains( _image ) )
-			transitionImage( _image, m_imageLastKnownLayout.at( _image ), _newLayout);
-		else
-			transitionImage( _image, VK_IMAGE_LAYOUT_UNDEFINED, _newLayout );
-	}
-
-	void copyImageToImage( VkImage _source, VkImage _destination, VkExtent2D _srcSize, VkExtent2D _dstSize );
-	void clearColorImage( VkImage _image, VkImageLayout _layout, VkClearColorValue* _clearValue );
-
-	// Draw/Dispatch
-
-	void dispatch( uint32_t _groupCountX, uint32_t _groupCountY, uint32_t _groupCountZ );
-	void draw( uint32_t _indexCount, uint32_t _instanceCount, uint32_t _firstIndex, int32_t _vertexOffset, uint32_t _firstInstance );
-
+	void transitionImage( VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout );
+	
+	void copyImageToImage( VkImage _src, VkImage _dst, VkExtent2D _srcSize, VkExtent2D _dstSize );
+	
 protected:
-
-	std::unordered_map<VkImage, VkImageLayout> m_imageLastKnownLayout;
 
 	VkCommandBuffer m_cmd{};
 	
