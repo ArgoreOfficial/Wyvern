@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 
 #include <unordered_map>
+#include <vector>
 
 namespace wv {
 
@@ -62,6 +63,85 @@ protected:
 
 	VkCommandBuffer m_cmd{};
 	
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+class FenceRing
+{
+public:
+	void initialize( VkDevice _device, uint32_t _cycleSize = 2 )
+	{
+		m_device = _device;
+		m_cycleSize = _cycleSize;
+		m_fences.resize( _cycleSize );
+
+		VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		for ( uint32_t i = 0; i < _cycleSize; i++ )
+			vkCreateFence( _device, &fenceCreateInfo, nullptr, &m_fences[ i ] );
+	}
+
+	void shutdown() {
+		for ( uint32_t i = 0; i < m_cycleSize; i++ )
+			vkDestroyFence( m_device, m_fences[ i ], nullptr );
+	}
+
+	// waits and resets fence
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
+
+		vkWaitForFences( m_device, 1, &m_fences[ m_cycleIndex ], true, 1000000000 );
+		vkResetFences( m_device, 1, &m_fences[ m_cycleIndex ] );
+	}
+
+	VkFence getFence() const { return m_fences[ m_cycleIndex ]; }
+
+private:
+	VkDevice m_device{ VK_NULL_HANDLE };
+
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	std::vector<VkFence> m_fences{};
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+class SemaphoreRing
+{
+public:
+	void initialize( VkDevice _device, uint32_t _cycleSize = 2 )
+	{
+		m_device = _device;
+		m_cycleSize = _cycleSize;
+		m_semaphores.resize( _cycleSize );
+
+		VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		for ( uint32_t i = 0; i < _cycleSize; i++ )
+			vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_semaphores[ i ] );
+	}
+
+	void shutdown() {
+		for ( uint32_t i = 0; i < m_cycleSize; i++ )
+			vkDestroySemaphore( m_device, m_semaphores[ i ], nullptr );
+	}
+
+	// waits and resets fence
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
+	}
+
+	VkSemaphore getSemaphore() const { return m_semaphores[ m_cycleIndex ]; }
+
+private:
+	VkDevice m_device{ VK_NULL_HANDLE };
+
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	std::vector<VkSemaphore> m_semaphores{};
 };
 
 }

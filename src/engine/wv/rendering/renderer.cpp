@@ -144,11 +144,10 @@ void wv::Renderer::shutdown()
 		{
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
 			WV_FREE( m_frames[ i ].mainCommandBuffer );
-
-			vkDestroySemaphore( m_device, m_frames[ i ].acquireSemaphore, nullptr );
 		}
 
 		m_ringFences.shutdown();
+		m_semaphoreRing.shutdown();
 
 		m_mainDeleteQueue.flush();
 
@@ -172,9 +171,10 @@ void wv::Renderer::render( World* _world )
 	std::scoped_lock lock{ m_mtx };
 
 	m_ringFences.setCycle( m_frameNumber );
+	m_semaphoreRing.setCycle( m_frameNumber );
 
 	uint32_t swapchainImageIndex;
-	VkResult e = m_swapchain->acquireNextImage( getCurrentFrame().acquireSemaphore, &swapchainImageIndex );
+	VkResult e = m_swapchain->acquireNextImage( m_semaphoreRing.getSemaphore(), &swapchainImageIndex);
 
 	if ( e == VK_ERROR_OUT_OF_DATE_KHR )
 	{
@@ -230,7 +230,7 @@ void wv::Renderer::render( World* _world )
 
 	// Submit
 
-	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, getCurrentFrame().acquireSemaphore );
+	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, m_semaphoreRing.getSemaphore() );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_swapchain->getSubmitSemaphore( swapchainImageIndex ) );
 	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, m_ringFences.getFence() );
 
@@ -576,11 +576,8 @@ bool wv::Renderer::initCommands()
 
 bool wv::Renderer::initSyncStructures()
 {
-	VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
-		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_frames[ i ].acquireSemaphore );
-
-	m_ringFences.initalize( m_device, FRAME_OVERLAP );
+	m_semaphoreRing.initialize( m_device, FRAME_OVERLAP );
+	m_ringFences.initialize( m_device, FRAME_OVERLAP );
 
 	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
