@@ -149,6 +149,13 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 				m_cameraMove.x += 0.4f * (float)motion.x;
 				m_cameraMove.y += 0.4f * (float)motion.y;
 			}
+			else
+			{
+				const float friction = 5.f;
+				const float frictionDecay = 1 / ( 1 + ( _ctx.deltaTime * friction ) );
+
+				m_cameraMove *= frictionDecay;
+			}
 
 			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * _ctx.deltaTime;
 
