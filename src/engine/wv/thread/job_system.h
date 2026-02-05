@@ -2,6 +2,7 @@
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
+#include <wv/pool.h>
 
 #include <thread>
 #include <vector>
@@ -15,47 +16,6 @@ namespace wv {
 class TaskSystem;
 
 static inline constexpr size_t NUM_TASKS = 2048;
-
-template<typename Ty>
-class Pool
-{
-public:
-	Ty* allocate() {
-		Ty* ptr = nullptr;
-
-		std::scoped_lock lock{ m_mtx };
-
-		if ( m_pool.empty() )
-			ptr = WV_NEW( Ty );
-		else
-		{
-			ptr = m_pool.front();
-			m_pool.pop();
-		}
-
-		return ptr;
-	}
-
-	void free( Ty* _ptr ) {
-		std::scoped_lock lock{ m_mtx };
-		m_pool.push( _ptr );
-	}
-
-	void clear() {
-		std::scoped_lock lock{ m_mtx };
-
-		while ( !m_pool.empty() )
-		{
-			Ty* ptr = m_pool.front();
-			m_pool.pop();
-			WV_FREE( ptr );
-		}
-	}
-
-private:
-	std::mutex m_mtx;
-	std::queue<Ty*> m_pool{};
-};
 
 struct Fence
 {
