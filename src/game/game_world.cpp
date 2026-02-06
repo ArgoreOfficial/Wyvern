@@ -54,7 +54,6 @@ void GameWorld::onSceneCreate()
 	sector->addEntity( cameraEntity );
 
 	sector->addEntity( createMeshEntity( "meshes/SM_MoonRayWidget.glb", { 0.0f, -1.6f, 0.0f } ) );
-	
 	//sector->addEntity( createMeshEntity( "meshes/main_sponza/NewSponza_Main_glTF_003.gltf", { 0.0f, -2.0f, 0.0f } ) );
 	
 	addSector( sector );

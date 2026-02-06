@@ -40,7 +40,7 @@ int main( int _argc, char* _argv[] )
 	wv::Application app{};
 	GameWorld* world = WV_NEW( GameWorld );
 
-	if ( app.initialize( world, 500, 500 ) )
+	if ( app.initialize( world, 1280, 720 ) )
 	{
 		wv::Debug::Print( "Starting Run Loop\n" );
 
