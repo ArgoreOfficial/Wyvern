@@ -92,29 +92,29 @@ struct VirtualAllocSpan
 	VkDeviceSize offset;
 	void* mapping;
 	VkBuffer buffer;
+
+	size_t virtualBlockIndex = 0;
 };
 
 class StagingBufferRing
 {
 public:
-	void initialize( const AllocatedBuffer& _buffer, uint32_t _cycleSize ) {
+	void initialize( VmaAllocator _allocator, VkDeviceSize _initialSize, uint32_t _cycleSize ) {
 		m_cycleSize = _cycleSize;
-		m_stagingAllocations.resize( _cycleSize );
-		m_stagingBuffer = _buffer;
-
-		VmaVirtualBlockCreateInfo blockInfo{};
-		blockInfo.size = _buffer.info.size;
-
-		VkResult res = vmaCreateVirtualBlock( &blockInfo, &m_stagingVirtualBlock );
-
-		WV_ASSERT( res == VK_SUCCESS );
+		m_stagingSpanRing.resize( _cycleSize );
+		m_allocator = _allocator;
+		allocateStaging( _initialSize );
 	}
 
 	void shutdown() {
 		for ( size_t i = 0; i < m_cycleSize; i++ )
 			clearAllocations( i );
 		
-		vmaDestroyVirtualBlock( m_stagingVirtualBlock );
+		for ( StagingBufferAllocation& buffer : m_stagingBuffers )
+		{
+			vmaDestroyBuffer( m_allocator, buffer.buffer, buffer.allocation );
+			vmaDestroyVirtualBlock( buffer.virtualBlock );
+		}
 	}
 
 	void setCycle( uint32_t _cycle ) {
@@ -124,29 +124,65 @@ public:
 
 	void clearAllocations( uint32_t _cycle ) {
 		for ( VirtualAllocSpan span : getAllocVec( _cycle ) )
-			vmaVirtualFree( m_stagingVirtualBlock, span.alloc );
+			vmaVirtualFree( m_stagingBuffers[ span.virtualBlockIndex ].virtualBlock, span.alloc);
 
 		getAllocVec( _cycle ).clear();
 	}
 
-	const AllocatedBuffer& getBuffer() const { return m_stagingBuffer; }
-
 	VirtualAllocSpan allocate( VkDeviceSize _size );
 
 private:
+	struct StagingBufferAllocation
+	{
+		VkBuffer buffer;
+		VmaAllocation allocation;
+		VmaAllocationInfo info;
+
+		VmaVirtualBlock virtualBlock; // unused
+	};
+
 	typedef std::vector<VirtualAllocSpan> virtual_alloc_vec;
 
-	virtual_alloc_vec& getAllocVec( uint32_t _cycle ) {
-		return m_stagingAllocations[ _cycle % m_cycleSize ];
+	StagingBufferAllocation allocateStaging( VkDeviceSize _size ) {
+		// allocate buffer
+
+		VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		bufferInfo.size = _size;
+		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo allocInfo{};
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+		allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+		StagingBufferAllocation buffer{};
+		vmaCreateBuffer( m_allocator, &bufferInfo, &allocInfo, &buffer.buffer, &buffer.allocation, &buffer.info );
+
+		// allocate block
+
+		VmaVirtualBlockCreateInfo blockInfo{};
+		blockInfo.size = _size;
+
+		VkResult res = vmaCreateVirtualBlock( &blockInfo, &buffer.virtualBlock );
+
+		WV_ASSERT( res == VK_SUCCESS );
+
+		m_stagingBuffers.push_back( buffer );
+		return buffer;
 	}
+
+	VkResult tryAllocateSpan( VkDeviceSize _size, size_t _blockIndex, VirtualAllocSpan& _outSpan );
+
+	virtual_alloc_vec& getAllocVec( uint32_t _cycle ) {
+		return m_stagingSpanRing[ _cycle % m_cycleSize ];
+	}
+
+	VmaAllocator m_allocator;
 
 	uint32_t m_cycleSize{ 0 };
 	uint32_t m_cycleIndex{ 0 };
 
-	VmaVirtualBlock m_stagingVirtualBlock = VK_NULL_HANDLE;
-	std::vector<virtual_alloc_vec> m_stagingAllocations;
-	AllocatedBuffer m_stagingBuffer = {};
-
+	std::vector<virtual_alloc_vec> m_stagingSpanRing;
+	std::vector<StagingBufferAllocation> m_stagingBuffers;
 };
 
 class Renderer

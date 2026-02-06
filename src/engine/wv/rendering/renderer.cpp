@@ -141,8 +141,7 @@ void wv::Renderer::shutdown()
 		waitForRenderer();
 
 		m_stagingRing.shutdown();
-		destroyBuffer( m_stagingRing.getBuffer() );
-
+		
 		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
 		{
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
@@ -570,12 +569,7 @@ bool wv::Renderer::initCommands()
 		vkDestroyCommandPool( m_device, m_immediateCommandPool, nullptr );
 	} );
 
-	AllocatedBuffer stagingBuffer = createBuffer( 
-		1048576, // 1MB
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-		VMA_MEMORY_USAGE_CPU_ONLY 
-	);
-	m_stagingRing.initialize( stagingBuffer, FRAME_OVERLAP );
+	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
 	
 	return true;
 }
@@ -859,20 +853,42 @@ void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t
 
 wv::VirtualAllocSpan wv::StagingBufferRing::allocate( VkDeviceSize _size )
 {
-	virtual_alloc_vec& vec = m_stagingAllocations[ m_cycleIndex ];
-
-	VmaVirtualAllocationCreateInfo allocInfo{};
-	allocInfo.size = _size;
+	virtual_alloc_vec& vec = m_stagingSpanRing[ m_cycleIndex ];
 
 	VirtualAllocSpan span{};
-	VkResult res = vmaVirtualAllocate( m_stagingVirtualBlock, &allocInfo, &span.alloc, &span.offset );
-	if ( res != VK_SUCCESS )
-		return {};
+	VkResult res;
+	
+	for ( size_t i = 0; i < m_stagingBuffers.size(); i++ )
+	{
+		res = tryAllocateSpan( _size, i, span );
 
-	span.mapping = (char*)m_stagingBuffer.allocation->GetMappedData() + span.offset;
-	span.buffer = m_stagingBuffer.buffer;
+		if( res == VK_SUCCESS )
+			break;
+	}
+
+	if ( res != VK_SUCCESS )
+	{
+		allocateStaging( _size );
+		WV_ASSERT( tryAllocateSpan( _size, m_stagingBuffers.size() - 1, span ) == VK_SUCCESS );
+	}
 
 	getAllocVec( m_cycleIndex ).push_back( span );
 
 	return span;
+}
+
+VkResult wv::StagingBufferRing::tryAllocateSpan( VkDeviceSize _size, size_t _blockIndex, VirtualAllocSpan& _outSpan )
+{
+	VmaVirtualAllocationCreateInfo allocInfo{};
+	allocInfo.size = _size;
+
+	StagingBufferAllocation& buffer = m_stagingBuffers[ _blockIndex ];
+	VkResult res = vmaVirtualAllocate( buffer.virtualBlock, &allocInfo, &_outSpan.alloc, &_outSpan.offset );
+	if ( res != VK_SUCCESS )
+		return res;
+
+	_outSpan.mapping = (char*)buffer.allocation->GetMappedData() + _outSpan.offset;
+	_outSpan.buffer = buffer.buffer;
+	_outSpan.virtualBlockIndex = _blockIndex;
+	return res;
 }
