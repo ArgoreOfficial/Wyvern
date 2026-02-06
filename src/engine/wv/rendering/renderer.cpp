@@ -141,12 +141,7 @@ void wv::Renderer::shutdown()
 		waitForRenderer();
 
 		m_stagingRing.shutdown();
-		
-		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
-		{
-			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
-			WV_FREE( m_frames[ i ].mainCommandBuffer );
-		}
+		m_commandPoolRing.shutdown();
 
 		m_ringFences.shutdown();
 		m_semaphoreRing.shutdown();
@@ -175,6 +170,7 @@ void wv::Renderer::render( World* _world )
 	m_ringFences.setCycle( m_frameNumber );
 	m_semaphoreRing.setCycle( m_frameNumber );
 	m_stagingRing.setCycle( m_frameNumber );
+	m_commandPoolRing.setCycle( m_frameNumber );
 
 	uint32_t swapchainImageIndex;
 	VkResult e = m_swapchain->acquireNextImage( m_semaphoreRing.getSemaphore(), &swapchainImageIndex);
@@ -187,8 +183,8 @@ void wv::Renderer::render( World* _world )
 
 	// Draw
 
-	CommandBuffer* cmd = getCurrentFrame().mainCommandBuffer;
-	vkResetCommandBuffer( cmd->m_cmd, 0 );
+	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
+	// vkResetCommandBuffer( cmd, 0 );
 
 	if ( Viewport* worldViewport = _world->getViewport() )
 	{
@@ -203,40 +199,37 @@ void wv::Renderer::render( World* _world )
 		AllocatedImage drawImage  = m_imageManager.getAllocatedImage( m_drawImage );
 		AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
-		VkCommandBufferBeginInfo cmdBeginInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
-		vkBeginCommandBuffer( cmd->m_cmd, &cmdBeginInfo );
-		
-		vkCmdBindDescriptorSets( cmd->m_cmd, VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
-		vkCmdBindDescriptorSets( cmd->m_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
+		vkCmdBindDescriptorSets( cmd, VK_PIPELINE_BIND_POINT_COMPUTE,  m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
+		vkCmdBindDescriptorSets( cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bindlessPipelineLayout, 0, 1, &m_bindlessDescriptorSet, 0, nullptr );
 
-		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
+		transitionImage( cmd, drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL );
 
 		// draw background colour
 		drawBackground( cmd );
 
-		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-		cmd->transitionImage( depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
+		transitionImage( cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+		transitionImage( cmd, depthImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL );
 		
 		drawGeometry( cmd, _world );
 
 		VkImage swapchainImage = m_swapchain->getSwapchainImage( swapchainImageIndex );
 
-		cmd->transitionImage( drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
-		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+		transitionImage( cmd, drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
+		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		// copy draw to swapchain
-		cmd->copyImageToImage( drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent());
+		copyImageToImage( cmd, drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent());
 
-		cmd->transitionImage( swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
-		vkEndCommandBuffer( cmd->m_cmd );
+		vkEndCommandBuffer( cmd );
 	}
 
 	// Submit
 
 	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, m_semaphoreRing.getSemaphore() );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_swapchain->getSubmitSemaphore( swapchainImageIndex ) );
-	cmd->submit( m_graphicsQueue, &waitInfo, &signalInfo, m_ringFences.getFence() );
+	submit( cmd, m_graphicsQueue, &waitInfo, &signalInfo, m_ringFences.getFence() );
 
 	// Present
 
@@ -333,20 +326,20 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 	if( useVertexData )
 		memcpy( (char*)staging.mapping + vertexBufferSize + indexBufferSize, _vertexData, _vertexDataSize ); // copy vertex data buffer
 
-	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
+	immediateCmdSubmit( [ & ]( VkCommandBuffer _cmd ) {
 		VkBufferCopy positionCopy{ 0 };
 		positionCopy.dstOffset = 0;
 		positionCopy.srcOffset = 0;
 		positionCopy.size = vertexBufferSize;
 
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.positionBuffer.buffer, 1, &positionCopy );
+		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.positionBuffer.buffer, 1, &positionCopy );
 
 		VkBufferCopy indexCopy{ 0 };
 		indexCopy.dstOffset = 0;
 		indexCopy.srcOffset = vertexBufferSize;
 		indexCopy.size = indexBufferSize;
 
-		vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.indexBuffer.buffer, 1, &indexCopy );
+		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.indexBuffer.buffer, 1, &indexCopy );
 
 		if ( useVertexData )
 		{
@@ -355,7 +348,7 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 			vertexDataCopy.srcOffset = vertexBufferSize + indexBufferSize;
 			vertexDataCopy.size = _vertexDataSize;
 
-			vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
+			vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
 		}
 	} );
 
@@ -550,27 +543,9 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 
 bool wv::Renderer::initCommands()
 {
-	VkCommandPoolCreateInfo commandPoolInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	commandPoolInfo.queueFamilyIndex = m_graphicsQueueFamily;
-
-	for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
-	{
-		vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_frames[ i ].commandPool );
-
-		m_frames[ i ].mainCommandBuffer = WV_NEW( CommandBuffer, m_device, m_frames[ i ].commandPool );
-	}
-
-	vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_immediateCommandPool );
-	m_immediateCommandBuffer = WV_NEW( CommandBuffer, m_device, m_immediateCommandPool );
-	m_mainDeleteQueue.push( [ = ]() {
-		WV_FREE( m_immediateCommandBuffer );
-
-		vkDestroyCommandPool( m_device, m_immediateCommandPool, nullptr );
-	} );
-
 	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
-	
+	m_commandPoolRing.initialize( m_device, m_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, FRAME_OVERLAP );
+
 	return true;
 }
 
@@ -677,7 +652,7 @@ void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
 	m_resizeRequested = false;
 }
 
-void wv::Renderer::drawBackground( CommandBuffer* _cmd )
+void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
 {
 	ZoneScoped;
 
@@ -687,10 +662,10 @@ void wv::Renderer::drawBackground( CommandBuffer* _cmd )
 
 	AllocatedImage image = m_imageManager.getAllocatedImage( m_drawImage );
 	VkImageSubresourceRange clearRange = makeVkImageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );
-	vkCmdClearColorImage( _cmd->m_cmd, image.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
+	vkCmdClearColorImage( _cmd, image.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange );
 }
 
-void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
+void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 { 
 	ZoneScoped;
 
@@ -709,21 +684,21 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
-	_cmd->beginRendering( m_drawExtent.width, m_drawExtent.height, drawImage.imageView, depthImage.imageView );
+	beginRendering( _cmd, m_drawExtent.width, m_drawExtent.height, drawImage.imageView, depthImage.imageView );
 	
 	// set default render state
 	{
 		VkViewport viewport = makeVkViewport( 0, 0, m_drawExtent.width, m_drawExtent.height );
-		vkCmdSetViewport( _cmd->m_cmd, 0, 1, &viewport );
+		vkCmdSetViewport( _cmd, 0, 1, &viewport );
 
 		VkRect2D scissor = makeVkRect2D( 0, 0, m_drawExtent.width, m_drawExtent.height );
-		vkCmdSetScissor( _cmd->m_cmd, 0, 1, &scissor );
+		vkCmdSetScissor( _cmd, 0, 1, &scissor );
 	
-		vkCmdSetDepthTestEnable ( _cmd->m_cmd, VK_TRUE );
-		vkCmdSetDepthWriteEnable( _cmd->m_cmd, VK_TRUE );
-		vkCmdSetDepthCompareOp  ( _cmd->m_cmd, VK_COMPARE_OP_GREATER_OR_EQUAL );
+		vkCmdSetDepthTestEnable ( _cmd, VK_TRUE );
+		vkCmdSetDepthWriteEnable( _cmd, VK_TRUE );
+		vkCmdSetDepthCompareOp  ( _cmd, VK_COMPARE_OP_GREATER_OR_EQUAL );
 	
-		vkCmdSetStencilTestEnable( _cmd->m_cmd, VK_FALSE );
+		vkCmdSetStencilTestEnable( _cmd, VK_FALSE );
 	}
 
 	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
@@ -742,7 +717,7 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				continue; // no material
 			
 			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
-			vkCmdBindIndexBuffer( _cmd->m_cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+			vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
 			GPUDrawPushConstants pc{};
 			pc.viewProj = viewProj;
@@ -753,10 +728,10 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 			
 			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
-			vkCmdBindPipeline( _cmd->m_cmd, pipeline.bindPoint, pipeline.pipeline );
+			vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 			
 			vkCmdPushConstants(
-				_cmd->m_cmd,
+				_cmd,
 				m_bindlessPipelineLayout,
 				VK_SHADER_STAGE_ALL, 0,
 				sizeof( GPUDrawPushConstants ),
@@ -766,7 +741,7 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 			if ( renderMesh.materialData.size() > 0 )
 			{
 				vkCmdPushConstants( 
-					_cmd->m_cmd, 
+					_cmd, 
 					m_bindlessPipelineLayout,
 					VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
 					renderMesh.materialData.size(),
@@ -774,33 +749,35 @@ void wv::Renderer::drawGeometry( CommandBuffer* _cmd, World* _world )
 				);
 			}
 
-			vkCmdDrawIndexed( _cmd->m_cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
+			vkCmdDrawIndexed( _cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 		}
 	}
 	
-	vkCmdEndRendering( _cmd->m_cmd );
+	vkCmdEndRendering( _cmd );
 }
 
-void wv::Renderer::immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func )
+void wv::Renderer::immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd )>&& _func )
 {
+	ZoneScoped;
+
 	std::scoped_lock lock{ m_mtx };
 
-	vkResetFences( m_device, 1, &m_immediateFence );
-	vkResetCommandBuffer( m_immediateCommandBuffer->m_cmd, 0 );
+	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
+	//vkResetFences( m_device, 1, &m_immediateFence );
 
-	VkCommandBufferBeginInfo cmdBeginInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
-	vkBeginCommandBuffer( m_immediateCommandBuffer->m_cmd, &cmdBeginInfo );
+	_func( cmd );
 
-	_func( *m_immediateCommandBuffer );
+	vkEndCommandBuffer( cmd );
+	//submit( cmd, m_graphicsQueue, nullptr, nullptr, m_immediateFence );
+	submit( cmd, m_graphicsQueue, nullptr, nullptr, nullptr );
 
-	vkEndCommandBuffer( m_immediateCommandBuffer->m_cmd );
-	m_immediateCommandBuffer->submit( m_graphicsQueue, nullptr, nullptr, m_immediateFence );
-
-	vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );
+	//vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );
 }
 
 wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage )
 {
+	ZoneScoped;
+
 	std::scoped_lock lock{ m_mtx };
 
 	VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -819,6 +796,8 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 
 void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 {
+	ZoneScoped;
+
 	std::scoped_lock lock{ m_mtx };
 
 	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
@@ -826,6 +805,8 @@ void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 
 void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at )
 {
+	ZoneScoped;
+
 	std::scoped_lock lock{ m_mtx };
 
 	AllocatedImage image = m_imageManager.getAllocatedImage( _imageID );
@@ -856,7 +837,7 @@ wv::VirtualAllocSpan wv::StagingBufferRing::allocate( VkDeviceSize _size )
 	virtual_alloc_vec& vec = m_stagingSpanRing[ m_cycleIndex ];
 
 	VirtualAllocSpan span{};
-	VkResult res;
+	VkResult res = VK_ERROR_UNKNOWN;
 	
 	for ( size_t i = 0; i < m_stagingBuffers.size(); i++ )
 	{

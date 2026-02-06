@@ -1,27 +1,15 @@
 #include "command_buffer.h"
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::CommandBuffer::CommandBuffer( VkDevice _device, VkCommandPool _pool )
-{ 
-	VkCommandBufferAllocateInfo cmdAllocInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-	cmdAllocInfo.commandPool = _pool;
-	cmdAllocInfo.commandBufferCount = 1;
-	cmdAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
-	vkAllocateCommandBuffers( _device, &cmdAllocInfo, &m_cmd );
-}
-
-void wv::CommandBuffer::submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence )
+void wv::submit( VkCommandBuffer _cmd, VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence )
 {
 	VkCommandBufferSubmitInfo cmdInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO };
-	cmdInfo.commandBuffer = m_cmd;
+	cmdInfo.commandBuffer = _cmd;
 
 	VkSubmitInfo2 submitInfo = makeVkSubmitInfo2( 1, &cmdInfo, _signalInfo ? 1 : 0, _signalInfo, _waitInfo ? 1 : 0, _waitInfo );
 	vkQueueSubmit2( _queue, 1, &submitInfo, _fence );
 }
 
-void wv::CommandBuffer::beginRendering( float _width, float _height, VkImageView _colorView, VkImageView _depthView )
+void wv::beginRendering( VkCommandBuffer _cmd, float _width, float _height, VkImageView _colorView, VkImageView _depthView )
 { 
 	VkRenderingAttachmentInfo colorAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 	colorAttachment.imageView = _colorView;
@@ -45,11 +33,11 @@ void wv::CommandBuffer::beginRendering( float _width, float _height, VkImageView
 	renderInfo.pDepthAttachment = &depthAttachment;
 	renderInfo.pStencilAttachment = nullptr;
 
-	vkCmdBeginRendering( m_cmd, &renderInfo );
+	vkCmdBeginRendering( _cmd, &renderInfo );
 
 }
 
-void wv::CommandBuffer::transitionImage( VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout )
+void wv::transitionImage( VkCommandBuffer _cmd, VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout )
 {
 	VkImageMemoryBarrier2 imageBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
 	imageBarrier.oldLayout = _oldLayout;
@@ -65,10 +53,10 @@ void wv::CommandBuffer::transitionImage( VkImage _image, VkImageLayout _oldLayou
 	VkDependencyInfo depInfo{ .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 	depInfo.imageMemoryBarrierCount = 1;
 	depInfo.pImageMemoryBarriers = &imageBarrier;
-	vkCmdPipelineBarrier2( m_cmd, &depInfo );
+	vkCmdPipelineBarrier2( _cmd, &depInfo );
 }
 
-void wv::CommandBuffer::copyImageToImage( VkImage _src, VkImage _dst, VkExtent2D _srcSize, VkExtent2D _dstSize )
+void wv::copyImageToImage( VkCommandBuffer _cmd, VkImage _src, VkImage _dst, VkExtent2D _srcSize, VkExtent2D _dstSize )
 {
 	VkImageBlit2 blitRegion{ .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2 };
 	blitRegion.srcOffsets[ 1 ] = { (int)_srcSize.width, (int)_srcSize.height, 1 };
@@ -87,5 +75,5 @@ void wv::CommandBuffer::copyImageToImage( VkImage _src, VkImage _dst, VkExtent2D
 	blitInfo.regionCount = 1;
 	blitInfo.pRegions = &blitRegion;
 
-	vkCmdBlitImage2( m_cmd, &blitInfo );
+	vkCmdBlitImage2( _cmd, &blitInfo );
 }

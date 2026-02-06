@@ -69,29 +69,95 @@ static VkImageSubresourceLayers makeVkImageSubresourceLayers( VkImageAspectFlags
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class CommandBuffer
+void submit( VkCommandBuffer _cmd, VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence );
+void beginRendering( VkCommandBuffer _cmd, float _width, float _height, VkImageView _colorView, VkImageView _depthView );
+void transitionImage( VkCommandBuffer _cmd, VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout );
+void copyImageToImage( VkCommandBuffer _cmd, VkImage _src, VkImage _dst, VkExtent2D _srcSize, VkExtent2D _dstSize );
+
+///////////////////////////////////////////////////////////////////////////////////////
+	
+class CommandPoolRing
 {
-	friend class Renderer;
-
 public:
-	CommandBuffer( VkDevice _device, VkCommandPool _pool );
+	void initialize( VkDevice _device, uint32_t _queueFamily, VkCommandPoolCreateFlags _flags, uint32_t _cycleSize = 2 )
+	{
+		m_device = _device;
+		m_cycleSize = _cycleSize;
 
-	VkCommandBuffer getUnderlying() const { return m_cmd; }
+		VkCommandPoolCreateInfo commandPoolInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+		commandPoolInfo.flags = _flags;
+		commandPoolInfo.queueFamilyIndex = _queueFamily;
 
-	void submit( VkQueue _queue, VkSemaphoreSubmitInfo* _waitInfo, VkSemaphoreSubmitInfo* _signalInfo, VkFence _fence );
+		m_pools.resize( m_cycleSize );
+		m_cmdVecs.resize( m_cycleSize );
+		for ( uint32_t i = 0; i < m_cycleSize; i++ )
+			vkCreateCommandPool( m_device, &commandPoolInfo, nullptr, &m_pools[ i ] );
+		
+	}
 
-	void beginRendering( float _width, float _height, VkImageView _colorView, VkImageView _depthView );
-	
-	// Image
+	void shutdown() 
+	{
+		for ( uint32_t i = 0; i < m_cycleSize; i++ )
+		{
+			vkDestroyCommandPool( m_device, m_pools[ i ], nullptr );
+			m_cmdVecs[ i ].clear();
+		}
+	}
 
-	void transitionImage( VkImage _image, VkImageLayout _oldLayout, VkImageLayout _newLayout );
-	
-	void copyImageToImage( VkImage _src, VkImage _dst, VkExtent2D _srcSize, VkExtent2D _dstSize );
-	
-protected:
+	// waits and resets fence
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
 
-	VkCommandBuffer m_cmd{};
-	
+		clearPool( m_cycleIndex );
+	}
+
+	VkCommandBuffer createBuffer( VkCommandBufferLevel _level, bool _begin, VkCommandBufferUsageFlags _usageFlags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) 
+	{
+		VkCommandBufferAllocateInfo cmdAllocInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+		cmdAllocInfo.commandPool = getPool();
+		cmdAllocInfo.commandBufferCount = 1;
+		cmdAllocInfo.level = _level; 
+
+		VkCommandBuffer cmd{ VK_NULL_HANDLE };
+		vkAllocateCommandBuffers( m_device, &cmdAllocInfo, &cmd );
+		getCmdVec().push_back( cmd );
+		
+		if ( _begin )
+		{
+			VkCommandBufferBeginInfo cmdBeginInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+			cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			
+			vkBeginCommandBuffer( cmd, &cmdBeginInfo );
+		}
+
+		return cmd;
+	}
+
+private:
+	VkCommandPool                 getPool()   { return m_pools[ m_cycleIndex ]; }
+	std::vector<VkCommandBuffer>& getCmdVec() { return m_cmdVecs[ m_cycleIndex ]; }
+
+	void clearPool( uint32_t _cycle ) {
+		if ( m_cmdVecs[ _cycle ].empty() )
+			return;
+
+		vkFreeCommandBuffers( 
+			m_device, 
+			m_pools[ _cycle ], 
+			m_cmdVecs[ _cycle ].size(),
+			m_cmdVecs[ _cycle ].data()
+		);
+
+		m_cmdVecs[ _cycle ].clear();
+	}
+
+	VkDevice m_device{ VK_NULL_HANDLE };
+
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	std::vector<VkCommandPool> m_pools{};
+	std::vector<std::vector<VkCommandBuffer>> m_cmdVecs{};
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

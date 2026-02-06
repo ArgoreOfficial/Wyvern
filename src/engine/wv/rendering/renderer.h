@@ -34,12 +34,6 @@ struct SceneData
 	wv::Matrix4x4f viewProj;
 };
 
-struct FrameData
-{
-	VkCommandPool commandPool = VK_NULL_HANDLE;
-	CommandBuffer* mainCommandBuffer = nullptr;
-};
-
 struct DeleteQueue
 {
 	std::vector<std::function<void()>> deleteQueue;
@@ -176,7 +170,7 @@ private:
 		return m_stagingSpanRing[ _cycle % m_cycleSize ];
 	}
 
-	VmaAllocator m_allocator;
+	VmaAllocator m_allocator{ VK_NULL_HANDLE };
 
 	uint32_t m_cycleSize{ 0 };
 	uint32_t m_cycleIndex{ 0 };
@@ -231,8 +225,6 @@ public:
 protected:
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
 	
-	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
-
 	bool initVulkan();
 	bool initSwapchain( uint32_t _width, uint32_t _height );
 	bool initCommands();
@@ -241,10 +233,10 @@ protected:
 
 	void resizeSwapchain( uint32_t _width, uint32_t _height );
 	
-	void drawBackground( CommandBuffer* _cmd );
-	void drawGeometry( CommandBuffer* _cmd, World* _world );
+	void drawBackground( VkCommandBuffer _cmd );
+	void drawGeometry( VkCommandBuffer _cmd, World* _world );
 
-	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
+	void immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd )>&& _func );
 
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
@@ -277,19 +269,18 @@ protected:
 	ResourceID m_depthImage = {};
 	VkExtent2D m_drawExtent = {};
 
-	uint32_t  m_frameNumber = 0;
-	FrameData m_frames[ FRAME_OVERLAP ];
-	FenceRing m_ringFences{};
-	SemaphoreRing m_semaphoreRing{};
+	uint32_t m_frameNumber = 0;
+	
+	FenceRing       m_ringFences{};
+	SemaphoreRing   m_semaphoreRing{};
+	CommandPoolRing m_commandPoolRing{};
 
 	VkQueue  m_graphicsQueue       = VK_NULL_HANDLE;
 	uint32_t m_graphicsQueueFamily = 0;
 	
 	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-	VkFence        m_immediateFence         = VK_NULL_HANDLE;
-	VkCommandPool  m_immediateCommandPool   = VK_NULL_HANDLE;
-	CommandBuffer* m_immediateCommandBuffer = nullptr;
+	VkFence m_immediateFence = VK_NULL_HANDLE;
 	StagingBufferRing m_stagingRing = {};
 	// Bindless
 

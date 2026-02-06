@@ -81,8 +81,8 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 
 	AllocatedImage& allocatedImage = m_allocatedImages.at( ResourceID );
 
-	m_renderer->immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+	m_renderer->immediateCmdSubmit( [ & ]( VkCommandBuffer _cmd ) {
+		transitionImage( _cmd, allocatedImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
 		VkBufferImageCopy copyRegion{};
 
@@ -96,9 +96,9 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 		copyRegion.imageSubresource.layerCount = 1;
 		copyRegion.imageExtent = _extent;
 
-		vkCmdCopyBufferToImage( _cmd.getUnderlying(), staging.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion );
+		vkCmdCopyBufferToImage( _cmd, staging.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion );
 
-		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+		transitionImage( _cmd, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 	} );
 
 	return ResourceID;
