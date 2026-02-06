@@ -227,7 +227,6 @@ protected:
 	
 	bool initVulkan();
 	bool initSwapchain( uint32_t _width, uint32_t _height );
-	bool initCommands();
 	bool initSyncStructures();
 	bool initDescriptors();
 
@@ -271,7 +270,7 @@ protected:
 
 	uint32_t m_frameNumber = 0;
 	
-	FenceRing       m_ringFences{};
+	FenceRing       m_fenceRing{};
 	SemaphoreRing   m_semaphoreRing{};
 	CommandPoolRing m_commandPoolRing{};
 

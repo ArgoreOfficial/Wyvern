@@ -53,8 +53,8 @@ bool wv::Renderer::initialize()
 	if ( !initSwapchain( windowSize.x, windowSize.y ) )
 		return false;
 
-	if ( !initCommands() )
-		return false;
+	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
+	m_commandPoolRing.initialize( m_device, m_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, FRAME_OVERLAP );
 
 	if ( !initSyncStructures() )
 		return false;
@@ -143,7 +143,7 @@ void wv::Renderer::shutdown()
 		m_stagingRing.shutdown();
 		m_commandPoolRing.shutdown();
 
-		m_ringFences.shutdown();
+		m_fenceRing.shutdown();
 		m_semaphoreRing.shutdown();
 		
 		m_mainDeleteQueue.flush();
@@ -167,7 +167,7 @@ void wv::Renderer::render( World* _world )
 
 	std::scoped_lock lock{ m_mtx };
 
-	m_ringFences.setCycle( m_frameNumber );
+	m_fenceRing.setCycle( m_frameNumber );
 	m_semaphoreRing.setCycle( m_frameNumber );
 	m_stagingRing.setCycle( m_frameNumber );
 	m_commandPoolRing.setCycle( m_frameNumber );
@@ -229,7 +229,7 @@ void wv::Renderer::render( World* _world )
 
 	VkSemaphoreSubmitInfo waitInfo   = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, m_semaphoreRing.getSemaphore() );
 	VkSemaphoreSubmitInfo signalInfo = semaphoreSubmitInfo( VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, m_swapchain->getSubmitSemaphore( swapchainImageIndex ) );
-	submit( cmd, m_graphicsQueue, &waitInfo, &signalInfo, m_ringFences.getFence() );
+	submit( cmd, m_graphicsQueue, &waitInfo, &signalInfo, m_fenceRing.getFence() );
 
 	// Present
 
@@ -541,20 +541,10 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool wv::Renderer::initCommands()
-{
-	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
-	m_commandPoolRing.initialize( m_device, m_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, FRAME_OVERLAP );
-
-	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 bool wv::Renderer::initSyncStructures()
 {
 	m_semaphoreRing.initialize( m_device, FRAME_OVERLAP );
-	m_ringFences.initialize( m_device, FRAME_OVERLAP );
+	m_fenceRing.initialize( m_device, FRAME_OVERLAP );
 
 	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
