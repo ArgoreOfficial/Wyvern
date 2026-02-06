@@ -86,6 +86,69 @@ enum class SamplerState
 	WV_SAMPLER_NEAREST
 };
 
+struct VirtualAllocSpan
+{
+	VmaVirtualAllocation alloc;
+	VkDeviceSize offset;
+	void* mapping;
+	VkBuffer buffer;
+};
+
+class StagingBufferRing
+{
+public:
+	void initialize( const AllocatedBuffer& _buffer, uint32_t _cycleSize ) {
+		m_cycleSize = _cycleSize;
+		m_stagingAllocations.resize( _cycleSize );
+		m_stagingBuffer = _buffer;
+
+		VmaVirtualBlockCreateInfo blockInfo{};
+		blockInfo.size = _buffer.info.size;
+
+		VkResult res = vmaCreateVirtualBlock( &blockInfo, &m_stagingVirtualBlock );
+
+		WV_ASSERT( res == VK_SUCCESS );
+	}
+
+	void shutdown() {
+		for ( size_t i = 0; i < m_cycleSize; i++ )
+			clearAllocations( i );
+		
+		vmaDestroyVirtualBlock( m_stagingVirtualBlock );
+	}
+
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
+		clearAllocations( m_cycleIndex );
+	}
+
+	void clearAllocations( uint32_t _cycle ) {
+		for ( VirtualAllocSpan span : getAllocVec( _cycle ) )
+			vmaVirtualFree( m_stagingVirtualBlock, span.alloc );
+
+		getAllocVec( _cycle ).clear();
+	}
+
+	const AllocatedBuffer& getBuffer() const { return m_stagingBuffer; }
+
+	VirtualAllocSpan allocate( VkDeviceSize _size );
+
+private:
+	typedef std::vector<VirtualAllocSpan> virtual_alloc_vec;
+
+	virtual_alloc_vec& getAllocVec( uint32_t _cycle ) {
+		return m_stagingAllocations[ _cycle % m_cycleSize ];
+	}
+
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	VmaVirtualBlock m_stagingVirtualBlock = VK_NULL_HANDLE;
+	std::vector<virtual_alloc_vec> m_stagingAllocations;
+	AllocatedBuffer m_stagingBuffer = {};
+
+};
+
 class Renderer
 {
 	friend class Application;
@@ -191,7 +254,7 @@ protected:
 	VkFence        m_immediateFence         = VK_NULL_HANDLE;
 	VkCommandPool  m_immediateCommandPool   = VK_NULL_HANDLE;
 	CommandBuffer* m_immediateCommandBuffer = nullptr;
-
+	StagingBufferRing m_stagingRing = {};
 	// Bindless
 
 	const uint32_t STORAGE_BINDING = 0;

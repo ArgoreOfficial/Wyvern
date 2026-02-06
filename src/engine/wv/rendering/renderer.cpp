@@ -140,6 +140,9 @@ void wv::Renderer::shutdown()
 	{
 		waitForRenderer();
 
+		m_stagingRing.shutdown();
+		destroyBuffer( m_stagingRing.getBuffer() );
+
 		for ( uint32_t i = 0; i < FRAME_OVERLAP; i++ )
 		{
 			vkDestroyCommandPool( m_device, m_frames[ i ].commandPool, nullptr );
@@ -148,7 +151,7 @@ void wv::Renderer::shutdown()
 
 		m_ringFences.shutdown();
 		m_semaphoreRing.shutdown();
-
+		
 		m_mainDeleteQueue.flush();
 
 	}
@@ -172,6 +175,7 @@ void wv::Renderer::render( World* _world )
 
 	m_ringFences.setCycle( m_frameNumber );
 	m_semaphoreRing.setCycle( m_frameNumber );
+	m_stagingRing.setCycle( m_frameNumber );
 
 	uint32_t swapchainImageIndex;
 	VkResult e = m_swapchain->acquireNextImage( m_semaphoreRing.getSemaphore(), &swapchainImageIndex);
@@ -322,15 +326,13 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 
 	// Upload buffers
 
-	AllocatedBuffer staging = createBuffer( vertexBufferSize + indexBufferSize + _vertexDataSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY );
-
-	void* data = staging.allocation->GetMappedData();
+	VirtualAllocSpan staging = m_stagingRing.allocate( vertexBufferSize + indexBufferSize + _vertexDataSize );
 	
-	memcpy( data, _vertexPositions.data(), vertexBufferSize ); // copy position buffer
-	memcpy( (char*)data + vertexBufferSize, _indices.data(), indexBufferSize ); // copy index buffer
+	memcpy( staging.mapping, _vertexPositions.data(), vertexBufferSize ); // copy position buffer
+	memcpy( (char*)staging.mapping + vertexBufferSize, _indices.data(), indexBufferSize ); // copy index buffer
 	
 	if( useVertexData )
-		memcpy( (char*)data + vertexBufferSize + indexBufferSize, _vertexData, _vertexDataSize ); // copy vertex data buffer
+		memcpy( (char*)staging.mapping + vertexBufferSize + indexBufferSize, _vertexData, _vertexDataSize ); // copy vertex data buffer
 
 	immediateCmdSubmit( [ & ]( CommandBuffer& _cmd ) {
 		VkBufferCopy positionCopy{ 0 };
@@ -357,8 +359,6 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 			vkCmdCopyBuffer( _cmd.m_cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
 		}
 	} );
-
-	destroyBuffer( staging );
 
 	return m_meshAllocations.emplace( meshAllocation );
 }
@@ -570,6 +570,13 @@ bool wv::Renderer::initCommands()
 		vkDestroyCommandPool( m_device, m_immediateCommandPool, nullptr );
 	} );
 
+	AllocatedBuffer stagingBuffer = createBuffer( 
+		1048576, // 1MB
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VMA_MEMORY_USAGE_CPU_ONLY 
+	);
+	m_stagingRing.initialize( stagingBuffer, FRAME_OVERLAP );
+	
 	return true;
 }
 
@@ -848,4 +855,24 @@ void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t
 
 	m_storedImageIndices.insert( _at );
 	m_storedImageIndexMap.emplace( _imageID, _at );
+}
+
+wv::VirtualAllocSpan wv::StagingBufferRing::allocate( VkDeviceSize _size )
+{
+	virtual_alloc_vec& vec = m_stagingAllocations[ m_cycleIndex ];
+
+	VmaVirtualAllocationCreateInfo allocInfo{};
+	allocInfo.size = _size;
+
+	VirtualAllocSpan span{};
+	VkResult res = vmaVirtualAllocate( m_stagingVirtualBlock, &allocInfo, &span.alloc, &span.offset );
+	if ( res != VK_SUCCESS )
+		return {};
+
+	span.mapping = (char*)m_stagingBuffer.allocation->GetMappedData() + span.offset;
+	span.buffer = m_stagingBuffer.buffer;
+
+	getAllocVec( m_cycleIndex ).push_back( span );
+
+	return span;
 }
