@@ -75,13 +75,9 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 
 	size_t dataSize = _extent.width * _extent.height * _extent.depth * 4;
 
-	AllocatedBuffer uploadBuffer = m_renderer->createBuffer(
-		dataSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VMA_MEMORY_USAGE_CPU_TO_GPU
-	);
+	VirtualAllocSpan staging = m_renderer->m_stagingRing.allocate( dataSize );
 
-	memcpy( uploadBuffer.info.pMappedData, _data, dataSize );
+	memcpy( staging.mapping, _data, dataSize );
 
 	AllocatedImage& allocatedImage = m_allocatedImages.at( ResourceID );
 
@@ -100,12 +96,10 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 		copyRegion.imageSubresource.layerCount = 1;
 		copyRegion.imageExtent = _extent;
 
-		vkCmdCopyBufferToImage( _cmd.getUnderlying(), uploadBuffer.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+		vkCmdCopyBufferToImage( _cmd.getUnderlying(), staging.buffer, allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion );
 
 		_cmd.transitionImage( allocatedImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 	} );
-
-	m_renderer->destroyBuffer( uploadBuffer );
 
 	return ResourceID;
 }
