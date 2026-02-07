@@ -272,13 +272,16 @@ protected:
 	SemaphoreRing   m_semaphoreRing{};
 	CommandPoolRing m_commandPoolRing{};
 
+	// for transient fences
+	FencePool m_fencePool{};
+
 	VkQueue  m_graphicsQueue       = VK_NULL_HANDLE;
 	uint32_t m_graphicsQueueFamily = 0;
 	
 	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-	VkFence m_immediateFence = VK_NULL_HANDLE;
 	StagingBufferRing m_stagingRing = {};
+
 	// Bindless
 
 	const uint32_t STORAGE_BINDING = 0;

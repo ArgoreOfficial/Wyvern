@@ -143,6 +143,7 @@ void wv::Renderer::shutdown()
 		m_stagingRing.shutdown();
 		m_commandPoolRing.shutdown();
 
+		m_fencePool.shutdown();
 		m_fenceRing.shutdown();
 		m_semaphoreRing.shutdown();
 		
@@ -163,6 +164,8 @@ void wv::Renderer::render( World* _world )
 	m_semaphoreRing.setCycle( m_frameNumber );
 	m_stagingRing.setCycle( m_frameNumber );
 	m_commandPoolRing.setCycle( m_frameNumber );
+
+	m_fencePool.resetAvailable();
 
 	uint32_t swapchainImageIndex;
 	VkResult e = m_swapchain->acquireNextImage( m_semaphoreRing.getSemaphore(), &swapchainImageIndex);
@@ -533,11 +536,7 @@ bool wv::Renderer::initSyncStructures()
 {
 	m_semaphoreRing.initialize( m_device, FRAME_OVERLAP );
 	m_fenceRing.initialize( m_device, FRAME_OVERLAP );
-
-	VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-	vkCreateFence( m_device, &fenceCreateInfo, nullptr, &m_immediateFence );
-	m_mainDeleteQueue.push( [ = ]() { vkDestroyFence( m_device, m_immediateFence, nullptr ); } );
+	m_fencePool.initialize( m_device );
 
 	return true;
 }
@@ -740,16 +739,15 @@ void wv::Renderer::immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd 
 
 	std::scoped_lock lock{ m_mtx };
 
+	VkFence fence = m_fencePool.getFence();
+	
 	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
-	//vkResetFences( m_device, 1, &m_immediateFence );
-
 	_func( cmd );
-
 	vkEndCommandBuffer( cmd );
-	//submit( cmd, m_graphicsQueue, nullptr, nullptr, m_immediateFence );
-	submit( cmd, m_graphicsQueue, nullptr, nullptr, nullptr );
 
-	//vkWaitForFences( m_device, 1, &m_immediateFence, true, 9999999999 );
+	submit( cmd, m_graphicsQueue, nullptr, nullptr, fence );
+	
+	vkWaitForFences( m_device, 1, &fence, true, 9999999999 );
 }
 
 wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage )

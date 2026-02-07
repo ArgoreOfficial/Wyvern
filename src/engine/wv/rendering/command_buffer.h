@@ -1,9 +1,13 @@
 #pragma once
 
+#include <wv/debug/error.h>
+
 #include <vulkan/vulkan.h>
 
 #include <unordered_map>
 #include <vector>
+#include <queue>
+#include <mutex>
 
 namespace wv {
 
@@ -200,6 +204,68 @@ private:
 	uint32_t m_cycleIndex{ 0 };
 
 	std::vector<VkFence> m_fences{};
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+class FencePool
+{
+public:
+	void initialize( VkDevice _device ) {
+		m_device = _device;
+	}
+
+	void shutdown() {
+		vkWaitForFences( m_device, m_fences.size(), m_fences.data(), true, 1000000000 );
+		
+		for ( VkFence fence : m_fences )
+			vkDestroyFence( m_device, fence, nullptr );
+	}
+
+	VkFence getFence() {
+		std::scoped_lock lock{ m_mtx };
+
+		VkFence fence{ VK_NULL_HANDLE };
+
+		if ( m_availableFences.size() > 0 )
+		{
+			fence = m_availableFences.front();
+			m_availableFences.pop();
+		}
+		else
+		{
+			VkFenceCreateInfo fenceCreateInfo{ VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+			fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+			VkResult res = vkCreateFence( m_device, &fenceCreateInfo, nullptr, &fence );
+			WV_ASSERT( res == VK_SUCCESS );
+			m_fences.push_back( fence );
+		}
+
+		vkResetFences( m_device, 1, &fence );
+
+		return fence;
+	}
+
+	void resetAvailable() {
+		std::scoped_lock lock{ m_mtx };
+
+		while ( !m_availableFences.empty() )
+			m_availableFences.pop();
+
+		for ( VkFence fence : m_fences )
+		{
+			if ( vkGetFenceStatus( m_device, fence ) == VK_SUCCESS )
+				m_availableFences.push( fence );
+		}
+	}
+private:
+	VkDevice m_device{ VK_NULL_HANDLE };
+	
+	std::mutex m_mtx;
+
+	std::vector<VkFence> m_fences{};
+	std::queue<VkFence> m_availableFences{};
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
