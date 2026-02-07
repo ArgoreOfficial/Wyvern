@@ -257,9 +257,6 @@ void wv::Application::render()
 	}
 
 	if ( shouldRender )
-	{
-		m_renderer->prepare( windowSize.x, windowSize.y );
 		m_renderer->render( m_world );
-		m_renderer->finalize();
-	}
+	
 }

@@ -153,14 +153,6 @@ void wv::Renderer::shutdown()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Renderer::prepare( uint32_t _width, uint32_t _height )
-{
-
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 void wv::Renderer::render( World* _world )
 {
 	ZoneScoped;
@@ -240,10 +232,6 @@ void wv::Renderer::render( World* _world )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-void wv::Renderer::finalize()
-{
-}
 
 wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize )
 {

@@ -189,9 +189,7 @@ public:
 	bool initialize();
 	void shutdown();
 
-	void prepare( uint32_t _width, uint32_t _height );
 	void render( World* _world );
-	void finalize();
 
 	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
 
