@@ -18,13 +18,6 @@ wv::ThreadWorker::~ThreadWorker()
 	if( m_thread.joinable() )
 		m_thread.join();
 
-	for ( size_t i = 0; i < NUM_TASKS; i++ )
-	{
-		if ( m_tasks[ i ] != nullptr )
-		{
-			WV_FREE( m_tasks[ i ] );
-		}
-	}
 }
 
 void wv::ThreadWorker::push( Fence* _fence, const Task::Function& _task )
@@ -106,6 +99,7 @@ void wv::TaskSystem::shutdownThreads()
 
 	m_workers.clear();
 	m_fencePool.clear();
+	m_taskPool.clear();
 }
 
 void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
