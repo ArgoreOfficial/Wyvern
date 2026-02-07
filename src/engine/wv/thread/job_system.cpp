@@ -31,17 +31,17 @@ void wv::ThreadWorker::push( Fence* _fence, const Task::Function& _task )
 {
 	std::scoped_lock lock{ m_mtx };
 
-	const size_t index = m_tail % NUM_TASKS;
-
-	if ( m_tasks[ index ] == nullptr )
-		m_tasks[ index ] = WV_NEW( Task );
-
-	m_tasks[ index ]->func = _task;
-	m_tasks[ index ]->fence = _fence;
-	m_tail++;
-
 	if ( _fence )
 		_fence->counter++;
+
+	const size_t index = m_tail % NUM_TASKS;
+
+	Task* task = m_system->allocateTask();
+	task->func  = _task;
+	task->fence = _fence;
+
+	m_tasks[ index ] = task;
+	m_tail++;
 
 	m_system->incrActiveTasks();
 }
@@ -158,4 +158,6 @@ void wv::TaskSystem::executeTask( Task* _task )
 	_task->func( this, _task->fence );
 	if ( _task->fence )
 		_task->fence->counter--;
+
+	freeTask( _task );
 }

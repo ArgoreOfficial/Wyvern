@@ -2,6 +2,7 @@
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
+#include <wv/debug/error.h>
 #include <wv/pool.h>
 
 #include <thread>
@@ -66,7 +67,7 @@ public:
 	void createThreads( size_t _count );
 	void shutdownThreads();
 
-	bool isRunning()  const { return m_running.load(); }
+	bool isRunning() const { return m_running.load(); }
 	
 	uint32_t numActiveTasks() { return m_activeTasks.load(); }
 
@@ -95,6 +96,9 @@ public:
 	Fence* allocateFence() { return m_fencePool.allocate(); }
 	void freeFence( Fence* _fence ) { m_fencePool.free( _fence ); }
 	
+	Task* allocateTask() { return m_taskPool.allocate(); }
+	void freeTask( Task* _task ) { m_taskPool.free( _task ); }
+	
 	void waitForFence( Fence* _fence );
 
 	void waitAndFreeFence( Fence* _fence ) {
@@ -117,6 +121,7 @@ private:
 	std::vector<ThreadWorker*> m_workers = {};
 	std::unordered_map<std::thread::id, ThreadWorker*> m_threadWorkerMap = {};
 	Pool<Fence> m_fencePool;
+	Pool<Task>  m_taskPool;
 };
 
 }
