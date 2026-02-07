@@ -77,6 +77,10 @@ public:
 		return m_workers[ wv::Math::randomU32() % m_workers.size() ];
 	}
 
+	ThreadWorker* getMainThreadWorker() {
+		return m_workers[ 0 ];
+	}
+
 	ThreadWorker* getThreadWorker() {
 		std::thread::id id = std::this_thread::get_id();
 

@@ -113,18 +113,33 @@ void wv::TaskSystem::getAndExecute( ThreadWorker* _worker )
 	if ( _worker == nullptr )
 		return;
 
-	if ( wv::Task* task = _worker->pop() )
+	wv::Task* task = _worker->pop();
+
+	if ( task )
 		executeTask( task );
-	else if ( wv::ThreadWorker* otherWorker = getRandomThreadWorker() )
+	else 
 	{
-		if ( wv::Task* task = otherWorker->steal() )
+		// try to steal from main thread
+		
+		wv::ThreadWorker* otherWorker = getMainThreadWorker();
+		if( otherWorker != _worker )
+			task = otherWorker->steal();
+
+		if ( !task )
+		{
+			otherWorker = getRandomThreadWorker();
+			if ( otherWorker )
+				task = otherWorker->steal();
+		}
+
+		if( task )
 			executeTask( task );
 	}
-
+	
 	if ( numActiveTasks() > 0 )
 		wv::Thread::yield();
 	else
-		wv::Thread::sleepForSeconds( 0.0001 );
+		wv::Thread::sleepFor( 1000 );
 }
 
 void wv::TaskSystem::waitForFence( Fence* _fence )
