@@ -20,6 +20,11 @@ void main()
 	light = max(light, 0.0);
 	light = light * 0.8 + 0.2;
 
-	outFragColor = light * texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
-	outFragColor.a = 1.0;
+	vec4 color = texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
+	float alpha = color.a;
+	if( alpha < 0.5 )
+		discard;
+
+	outFragColor = vec4( color.rgb *= light, alpha );
+	outFragColor.a = alpha;
 }
