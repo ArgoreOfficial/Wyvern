@@ -86,8 +86,8 @@ wv::ResourceID wv::ImageManager::createImage( const void* _data, VkFormat _forma
 
 		VkBufferImageCopy copyRegion{};
 
-		copyRegion.bufferOffset = 0;
-		copyRegion.bufferRowLength = 0;
+		copyRegion.bufferOffset      = staging.offset;
+		copyRegion.bufferRowLength   = 0;
 		copyRegion.bufferImageHeight = 0;
 
 		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

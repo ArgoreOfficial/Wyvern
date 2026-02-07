@@ -320,14 +320,14 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 	immediateCmdSubmit( [ & ]( VkCommandBuffer _cmd ) {
 		VkBufferCopy positionCopy{ 0 };
 		positionCopy.dstOffset = 0;
-		positionCopy.srcOffset = 0;
+		positionCopy.srcOffset = staging.offset;
 		positionCopy.size = vertexBufferSize;
 
 		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.positionBuffer.buffer, 1, &positionCopy );
 
 		VkBufferCopy indexCopy{ 0 };
 		indexCopy.dstOffset = 0;
-		indexCopy.srcOffset = vertexBufferSize;
+		indexCopy.srcOffset = staging.offset + vertexBufferSize;
 		indexCopy.size = indexBufferSize;
 
 		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.indexBuffer.buffer, 1, &indexCopy );
@@ -336,7 +336,7 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 		{
 			VkBufferCopy vertexDataCopy{ 0 };
 			vertexDataCopy.dstOffset = 0;
-			vertexDataCopy.srcOffset = vertexBufferSize + indexBufferSize;
+			vertexDataCopy.srcOffset = staging.offset + vertexBufferSize + indexBufferSize;
 			vertexDataCopy.size = _vertexDataSize;
 
 			vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
