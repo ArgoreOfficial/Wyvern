@@ -3,7 +3,7 @@
 #include <wv/entity/world.h>
 
 #include <wv/application.h>
-#include <wv/thread/job_system.h>
+#include <wv/thread/task_system.h>
 
 wv::WorldSector::WorldSector()
 {

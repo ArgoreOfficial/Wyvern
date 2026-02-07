@@ -7,7 +7,7 @@
 
 #include <wv/filesystem/file_system.h>
 
-#include <wv/thread/job_system.h>
+#include <wv/thread/task_system.h>
 #include <wv/debug/timer.h>
 
 #include <fastgltf/core.hpp>
