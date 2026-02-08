@@ -124,8 +124,6 @@ void wv::World::updateWorldSystems( double _deltaTime )
 	for ( auto system : m_systems )
 		system->update( ctx );
 
-	if( ViewVolume* viewVolume = m_viewport->getViewVolume() )
-		viewVolume->recalculateViewMatrix();
 }
 
 wv::WorldLoadContext wv::World::getLoadContext()

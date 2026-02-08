@@ -74,6 +74,7 @@ void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityCompone
 		m_cameraComponentsChanged = true;
 		
 		entityIt->camera = camera;
+		entityIt->entity->getTransform().addChild( &camera->getViewVolume()->getTransform() );
 	}
 	else if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
 	{
@@ -167,18 +168,22 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			}
 		}
 
-		wv::Transformf& transform = entity->getTransform();
+		wv::Transformf& entityTransform = entity->getTransform();
+
+		wv::ViewVolume* viewVolume    = camera->getViewVolume();
+		wv::Transformf& viewTransform = viewVolume->getTransform();
 
 		// check if camera is orbit camera
 		if ( auto orbitCamera = tryCast<OrbitCameraComponent>( camera ) )
 		{
-			transform.rotation += wv::Vector3f{
+			viewTransform.rotation += wv::Vector3f{
 					-m_cameraMove.y,
 					-m_cameraMove.x,
 					0.0f
 			};
 
-			transform.setPosition( transform.rotation.eulerToDirection() * m_orbitDistance );
+			viewTransform.setPosition( viewTransform.rotation.eulerToDirection() * m_orbitDistance );
+			viewTransform.update( &entityTransform );
 		}
 	}
 
@@ -186,9 +191,10 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 	{
 		if ( ViewVolume* viewVolume = m_activeCamera->getViewVolume() )
 		{
-			viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
 			viewVolume->setViewDimensions( _ctx.viewport->getSize() );
-			viewVolume->update( _ctx.deltaTime );
+
+			Entity* cameraEntity = m_cameraComponents.getEntity( m_activeCamera->getID() );
+			viewVolume->recalculateViewMatrix( &cameraEntity->getTransform(), false );
 			viewVolume->recalculateProjMatrix( true );
 
 			_ctx.viewport->setViewVolume( viewVolume );

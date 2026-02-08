@@ -29,10 +29,8 @@ namespace wv
 
 		ViewVolume( CameraType _type, size_t _width, size_t _height, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
-		virtual void update( double /*_delta_time*/ ) {  }
-
-		inline void recalculateViewMatrix( bool _cacheViewProj = true ) {
-			m_transform.update( nullptr );
+		inline void recalculateViewMatrix( Transformf* _parent, bool _cacheViewProj = true ) {
+			m_transform.update( _parent );
 			m_viewMatrix = m_transform.getMatrix().inverse();
 
 			if ( _cacheViewProj )
