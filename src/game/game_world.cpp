@@ -1,5 +1,9 @@
 #include "game_world.h"
 
+#include <wv/application.h>
+#include <wv/thread/task_system.h>
+#include <wv/thread/thread.h>
+
 #include <wv/camera/components/orbit_camera_component.h>
 #include <wv/camera/systems/camera_manager_system.h>
 #include <wv/entity/world_sector.h>
@@ -7,6 +11,8 @@
 #include <wv/rendering/systems/render_world_system.h>
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/input/input_system.h>
+
+#include <wv/entity/entity_system.h>
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -36,6 +42,20 @@ wv::Entity* createMeshEntity( const std::filesystem::path _path, const wv::Vecto
 	return entity;
 }
 
+class PlayerTrainSystem : public wv::IEntitySystem
+{
+	WV_REFLECT_TYPE( PlayerTrainSystem, wv::IEntitySystem )
+public:
+	PlayerTrainSystem() = default;
+	~PlayerTrainSystem() { }
+
+protected:
+	virtual void update( wv::WorldUpdateContext& _ctx ) override { 
+		m_entity->getTransform().position.z += _ctx.deltaTime;
+		m_entity->getTransform().update( nullptr );
+	}
+};
+
 void GameWorld::onSceneCreate()
 {
 	createWorldSystem<wv::RenderWorldSystem>();
@@ -43,19 +63,32 @@ void GameWorld::onSceneCreate()
 	// PlayerInputSystem* playerInputSystem = m_world->createWorldSystem<PlayerInputSystem>();
 	// playerInputSystem->setSelectionMode( PlayerInputSystem::SelectionMode::ANY_TRIGGER_ACTION );
 
-	wv::Entity* cameraEntity = WV_NEW( wv::Entity );
-	cameraEntity->createComponent<wv::PlayerInputComponent>()->setPlayerIndex( 0 );
-	cameraEntity->createComponent<wv::OrbitCameraComponent>();
-
-	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
-	cameraEntity->getTransform().setRotation( { -15.0f, 45.0f, 0.0f } );
-
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
-	sector->addEntity( cameraEntity );
 
-	sector->addEntity( createMeshEntity( "meshes/SM_MoonRayWidget.glb", { 0.0f, -1.6f, 0.0f } ) );
+	//sector->addEntity( createMeshEntity( "meshes/SM_MoonRayWidget.glb", { -6.0f, -1.6f, 0.0f } ) );
 	//sector->addEntity( createMeshEntity( "meshes/main_sponza/NewSponza_Main_glTF_003.gltf", { 0.0f, -2.0f, 0.0f } ) );
 	
+	//sector->addEntity( createMeshEntity( "meshes/engine_basic.glb", { 0.0f, -1.0f, 0.0f } ) );
+	
+	{
+		wv::Entity* player = WV_NEW( wv::Entity );
+
+		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
+		meshComponent->setFilePath( "meshes/engine_basic.glb" );
+
+		player->createSystem<PlayerTrainSystem>();
+		
+		player->createComponent<wv::PlayerInputComponent>()->setPlayerIndex( 0 );
+		player->createComponent<wv::OrbitCameraComponent>();
+
+		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
+
+		sector->addEntity( player );
+	}
+
+	for ( size_t i = 0; i < 100; i++ )
+		sector->addEntity( createMeshEntity( "meshes/SM_Track.glb", { 0.0f, -1.0f, (float)i - 50.0f } ) );
+
 	addSector( sector );
 
 }
