@@ -98,14 +98,14 @@ public:
 	void updateSectors( double _deltaTime );
 	void updateWorldSystems( double _deltaTime );
 
-	void queueComponentForRegistration  ( Entity* _entity, IEntityComponent* _component ) { 
-		std::scoped_lock lock{ m_componentRegisterMtx };
-		m_componentsToRegister.emplace_back( _entity, _component ); 
+	void registerComponent( Entity* _entity, IEntityComponent* _component ) { 
+		for ( auto system : m_systems )
+			system->registerComponent( _entity, _component);
 	}
 
-	void queueComponentForUnregistration( Entity* _entity, IEntityComponent* _component ) { 
-		std::scoped_lock lock{ m_componentRegisterMtx };
-		m_componentsToUnregister.emplace_back( _entity, _component ); 
+	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) {
+		for ( auto system : m_systems )
+			system->unregisterComponent( _entity, _component );
 	}
 	
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
@@ -115,25 +115,20 @@ public:
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
+	WorldLoadContext getLoadContext();
+
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 
-	WorldLoadContext getLoadContext();
-
 	void createWorldSystem( IWorldSystem* _system );
-	void updateRegisterUnregisterComponents();
-
+	
 	std::vector<IWorldSystem*> m_systems;
 
 	std::vector<WorldSector*> m_sectors;
 	std::vector<WorldSector*> m_sectorsToLoad;
 	std::unordered_map<WorldSectorID, WorldSector*> m_sectorMap;
 	
-	std::mutex m_componentRegisterMtx;
-	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToRegister;
-	std::vector<std::pair<Entity*, IEntityComponent*>> m_componentsToUnregister;
-
 	Viewport* m_viewport = nullptr;
 
 	MeshManager*     m_meshManager     = nullptr;

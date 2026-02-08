@@ -12,71 +12,60 @@ wv::Entity::~Entity()
 		WV_FREE( system );
 }
 
-void wv::Entity::load( WorldLoadContext& _ctx )
+void wv::Entity::initialize()
 {
-	WV_ASSERT( m_state == EntityState::UNLOADED );
-	
-	for ( auto component : m_components )
-		component->load( _ctx );
-	
-	m_state = EntityState::LOADED;
+
 }
 
-void wv::Entity::unload( WorldLoadContext& _ctx )
+void wv::Entity::unload() 
 {
-	WV_ASSERT( m_state == EntityState::LOADED );
-		
-	for ( auto component : m_components )
-		component->unload( _ctx );
-	
-	m_state = EntityState::UNLOADED;
-}
-
-void wv::Entity::initialize( World* _world )
-{
-	WV_ASSERT( m_state == EntityState::LOADED );
-
-	for ( auto system : m_systems )
-	{
-		system->m_entity = this;
-		system->initialize();
-	}
-
-	updateLoading();
-
-	m_state = EntityState::INITIALIZED;
-}
-
-void wv::Entity::shutdown() 
-{
-	WV_ASSERT( m_state == EntityState::INITIALIZED );
+	WorldLoadContext ctx = m_parentSector->getParentWorld()->getLoadContext();
 
 	for ( auto component : m_components )
 	{
-		unregisterComponentWithSystems( component );
-		m_parentSector->getParentWorld()->queueComponentForUnregistration( this, component );
+		component->shutdown();
+		component->unload( ctx );
+
+		unregisterComponent( component );
+		m_parentSector->getParentWorld()->unregisterComponent( this, component );
+
+		WV_FREE( component );
 	}
 
 	for ( auto system : m_systems )
 	{
 		system->shutdown();
-		system->m_entity = nullptr;
+
+		WV_FREE( system );
 	}
 
-	m_state = EntityState::LOADED;
+	m_components.clear();
+	m_systems.clear();
 }
 
-void wv::Entity::updateLoading()
+bool wv::Entity::isLoading() const
 {
-	if ( m_componentsToRegister.size() > 0 )
-	{
-		for ( auto component : m_componentsToRegister )
-		{
-			registerComponentWithSystems( component );
-			m_parentSector->getParentWorld()->queueComponentForRegistration( this, component );
-		}
+	for ( auto comp : m_components )
+		if ( comp->isLoading() )
+			return true;
 
-		m_componentsToRegister.clear();
+	return false;
+}
+
+void wv::Entity::updateLoading( WorldLoadContext& _ctx )
+{
+	for ( auto comp : m_components )
+	{
+		if( comp->isUnloaded() || comp->isLoading() )
+			comp->load( _ctx );
+
+		if ( comp->isLoaded() )
+		{
+			comp->initialize();
+
+			registerComponent( comp );
+			m_parentSector->getParentWorld()->registerComponent( this, comp );
+		}
 	}
 }
 
@@ -91,18 +80,13 @@ void wv::Entity::createSystem( IEntitySystem* _system )
 	if ( _system == nullptr )
 		return;
 
-	m_systems.push_back( _system );
-	
-	if ( isInitialized() )
-	{
-		_system->initialize();
+	_system->m_entity = this;
+	_system->initialize();
 
-		for ( auto component : m_components )
-			_system->registerComponent( component );
-	}
+	m_systems.push_back( _system );
 }
 
-void wv::Entity::registerComponentWithSystems( IEntityComponent* _component )
+void wv::Entity::registerComponent( IEntityComponent* _component )
 {
 	if ( _component == nullptr ) 
 		return;
@@ -111,7 +95,7 @@ void wv::Entity::registerComponentWithSystems( IEntityComponent* _component )
 		system->registerComponent( _component );
 }
 
-void wv::Entity::unregisterComponentWithSystems( IEntityComponent* _component )
+void wv::Entity::unregisterComponent( IEntityComponent* _component )
 {
 	if ( _component == nullptr ) 
 		return;

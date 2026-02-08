@@ -55,7 +55,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	std::vector<Ref<TextureAsset>> textures;
 	textures.resize( asset.images.size() );
 
-	TaskSystem* taskSystem = Application::getSingleton()->getJobSystem();
+	TaskSystem* taskSystem = Application::getSingleton()->getTaskSystem();
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
 
@@ -260,7 +260,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 		}
 	}
 
-	TaskSystem* taskSystem = Application::getSingleton()->getJobSystem();
+	TaskSystem* taskSystem = Application::getSingleton()->getTaskSystem();
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
 

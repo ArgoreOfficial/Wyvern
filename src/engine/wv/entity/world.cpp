@@ -24,18 +24,6 @@ wv::World::~World()
 	m_materialManager->clearPersistent();
 	m_textureManager->clearPersistent();
 
-	// Destroy world sectors
-	for ( WorldSector* sector : m_sectors )
-		WV_FREE( sector );
-	
-	m_sectors.clear();
-
-	// Destroy world systems
-	for ( IWorldSystem* system : m_systems )
-		WV_FREE( system );
-
-	m_systems.clear();
-
 	if ( m_viewport )
 		WV_FREE( m_viewport );
 
@@ -49,30 +37,19 @@ void wv::World::shutdown()
 {
 	// Unload and shutdown
 
-	for ( auto sector : m_sectors )
-	{
-		if ( !sector->isInitialized() )
-			continue;
-
-		sector->shutdown();
-	}
-
 	WorldLoadContext ctx = getLoadContext();
-	for ( auto sector : m_sectors )
-	{
-		if ( !sector->isLoaded() )
-			continue;
 
+	for ( WorldSector* sector : m_sectors )
 		sector->unload( ctx );
-	}
 	
-	updateRegisterUnregisterComponents();
-
 	for ( auto system : m_systems )
-	{
 		system->shutdown();
-	}
-
+	
+	for ( IWorldSystem* system : m_systems ) WV_FREE( system );
+	for ( WorldSector*  sector : m_sectors ) WV_FREE( sector );
+	
+	m_sectors.clear();
+	m_systems.clear();
 }
 
 void wv::World::addSector( WorldSector* _sector )
@@ -88,7 +65,6 @@ void wv::World::addSector( WorldSector* _sector )
 	_sector->m_parentWorld = this;
 
 	m_sectors.push_back( _sector );
-	m_sectorsToLoad.push_back( _sector );
 	m_sectorMap.emplace( _sector->getID(), _sector );
 }
 
@@ -101,14 +77,7 @@ void wv::World::destroySector( WorldSectorID _sectorID )
 		return;
 	}
 
-	if( sector->isInitialized() ) 
-		sector->shutdown();
-	
-	if ( sector->isLoaded() )
-	{
-		WorldLoadContext ctx = getLoadContext();
-		sector->unload( ctx );
-	}
+	WV_LOG_ERROR( "Sector unload and shutdown\n" );
 
 	sector->m_parentWorld = nullptr;
 
@@ -128,22 +97,8 @@ void wv::World::updateLoading()
 {
 	WorldLoadContext ctx = getLoadContext();
 
-	TaskSystem* taskSystem = Application::getSingleton()->getJobSystem();
-	ThreadWorker* worker = taskSystem->getThreadWorker();
-
-	for ( auto sector : m_sectorsToLoad )
-	{
-		worker->push( [ sector, this ]( TaskSystem* _system, Fence* _fence ) {
-			auto ctx = getLoadContext();
-			sector->load( ctx );
-
-			sector->updateLoading( ctx );
-		} );
-	}
-	
-	m_sectorsToLoad.clear();
-
-	updateRegisterUnregisterComponents();
+	for ( auto sector : m_sectors )
+		sector->updateLoading( ctx );
 }
 
 void wv::World::updateSectors( double _deltaTime )
@@ -201,21 +156,4 @@ void wv::World::createWorldSystem( IWorldSystem* _system )
 				_system->registerComponent( entity, component );
 		}
 	}
-}
-
-void wv::World::updateRegisterUnregisterComponents()
-{
-	std::scoped_lock lock{ m_componentRegisterMtx };
-
-	for ( auto system : m_systems )
-	{
-		for ( auto component : m_componentsToUnregister )
-			system->unregisterComponent( component.first, component.second );
-
-		for ( auto component : m_componentsToRegister )
-			system->registerComponent( component.first, component.second );
-	}
-
-	m_componentsToUnregister.clear();
-	m_componentsToRegister.clear();
 }
