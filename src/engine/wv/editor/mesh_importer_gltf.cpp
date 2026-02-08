@@ -59,46 +59,59 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
 
-	worker->push( loadFence, [ this, _meshManager, _path, &asset ]( auto, auto ) {
-		if ( _meshManager->contains( _path ) )
-		{
-			m_meshAsset = _meshManager->get( _path );
-		}
-		else
-		{
-			parseMesh( asset );
-		}
-	} );
+	if ( _meshManager->contains( _path ) )
+	{
+		m_meshAsset = _meshManager->get( _path );
+	}
+	else
+	{
+		m_meshAsset = std::make_shared<MeshAsset>();
+		_meshManager->add( _path, m_meshAsset );
 
+		worker->push( loadFence, [ this, _meshManager, _path, &asset ]( auto, auto ) {
+			parseMesh( asset );
+		} );
+	}
 	for ( size_t i = 0; i < asset.images.size(); i++ )
 	{
 		fastgltf::Image& image = asset.images[ i ];
-	
-		worker->push( loadFence, [ _textureManager, _path, i, &image, &textures, &asset ]( auto, auto ) {
-			std::visit( fastgltf::visitor{
-				[]( auto& arg ) { },
-				[ & ]( fastgltf::sources::URI& _filePath ) {
-					if ( _filePath.fileByteOffset == 0 && _filePath.uri.isLocalPath() )
-						textures[ i ] = _textureManager->get( _path.parent_path() / _filePath.uri.fspath() );
+		
+		if ( _textureManager->contains( image.name ) )
+			textures[ i ] = _textureManager->get( image.name );
+		else
+		{
+			worker->push( loadFence, [ _textureManager, _path, i, &image, &textures, &asset ]( auto, auto ) {
+				std::visit( fastgltf::visitor{
+					[]( auto& arg ) { },
+					[ & ]( fastgltf::sources::URI& _filePath ) {
+						if ( _filePath.fileByteOffset == 0 && _filePath.uri.isLocalPath() )
+							textures[ i ] = _textureManager->get( _path.parent_path() / _filePath.uri.fspath() );
 					
-				},
-				[ & ]( fastgltf::sources::Vector& _vector ) {
-					textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)_vector.bytes.data(), _vector.bytes.size() );
-				},
-				[ & ]( fastgltf::sources::BufferView& view ) {
-					auto& bufferView = asset.bufferViews[ view.bufferViewIndex ];
-					auto& buffer = asset.buffers[ bufferView.bufferIndex ];
+					},
+					[ & ]( fastgltf::sources::Vector& _vector ) {
+						textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)_vector.bytes.data(), _vector.bytes.size() );
+					
+						// add texture to manager
+						_textureManager->add( image.name, textures[ i ] );
+					},
+					[ & ]( fastgltf::sources::BufferView& view ) {
+						auto& bufferView = asset.bufferViews[ view.bufferViewIndex ];
+						auto& buffer = asset.buffers[ bufferView.bufferIndex ];
+					
+						std::visit( fastgltf::visitor{
+							[]( auto& arg ) { },
+							[ & ]( fastgltf::sources::Array& _array ) {
+								textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)( _array.bytes.data() + bufferView.byteOffset ), bufferView.byteLength );
+							} },
+							buffer.data );
 
-					std::visit( fastgltf::visitor{
-						[]( auto& arg ) { },
-						[ & ]( fastgltf::sources::Array& _array ) {
-							textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)( _array.bytes.data() + bufferView.byteOffset ), bufferView.byteLength );
-						} },
-						buffer.data );
-				},
-				},
-				image.data );
-		} );
+						// add texture to manager
+						_textureManager->add( image.name, textures[ i ] );
+					},
+					},
+					image.data );
+			} );
+		}
 	}
 
 	taskSystem->waitAndFreeFence( loadFence );
@@ -297,6 +310,5 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 
 	taskSystem->waitAndFreeFence( loadFence );
 
-	m_meshAsset = std::make_shared<MeshAsset>();
 	m_meshAsset->initialize( surface );
 }
