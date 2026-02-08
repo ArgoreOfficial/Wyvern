@@ -141,6 +141,24 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 					m_cameraMove = event.action.axis->getValue( playerIndex ) * 90.0f * _ctx.deltaTime;
 			}
 
+			if ( _ctx.inputSystem->getMouseButtonState( 1 ) )
+			{
+				m_cameraMove = {};
+
+				Vector2i motion = _ctx.inputSystem->getMouseMotion();
+				m_cameraMove.x += 0.4f * (float)motion.x;
+				m_cameraMove.y += 0.4f * (float)motion.y;
+			}
+			else
+			{
+				const float friction = 5.f;
+				const float frictionDecay = 1 / ( 1 + ( _ctx.deltaTime * friction ) );
+
+				m_cameraMove *= frictionDecay;
+			}
+
+			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * _ctx.deltaTime;
+
 			if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
 			{
 				wv::Vector2f move = playerActions->getAxisValue( playerIndex, "CameraZoom" );
@@ -164,12 +182,17 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		}
 	}
 
-	ViewVolume* viewVolume = m_activeCamera->getViewVolume();
+	if ( m_activeCamera )
+	{
+		if ( ViewVolume* viewVolume = m_activeCamera->getViewVolume() )
+		{
+			viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
+			viewVolume->setViewDimensions( _ctx.viewport->getSize() );
+			viewVolume->update( _ctx.deltaTime );
+			viewVolume->recalculateProjMatrix( true );
 
-	viewVolume->getTransform() = m_cameraComponents.getEntity( m_activeCamera->getID() )->getTransform();
-	viewVolume->setViewDimensions( _ctx.viewport->getSize() );
-	viewVolume->update( _ctx.deltaTime );
-	viewVolume->recalculateProjMatrix( true );
+			_ctx.viewport->setViewVolume( viewVolume );
+		}
+	}
 
-	_ctx.viewport->setViewVolume( viewVolume );
 }

@@ -3,10 +3,9 @@
 #include <wv/console/console.h>
 #include <wv/debug/error.h>
 #include <wv/memory/memory.h>
-#include <wv/target/iremote_target.h>
-
 #include <wv/platform/platform.h>
-#include <wv/platform/thread.h>
+#include <wv/target/iremote_target.h>
+#include <wv/thread/thread.h>
 
 #include "game_world.h"
 
@@ -41,7 +40,7 @@ int main( int _argc, char* _argv[] )
 	wv::Application app{};
 	GameWorld* world = WV_NEW( GameWorld );
 
-	if ( app.initialize( world, 500, 500 ) )
+	if ( app.initialize( world, 1280, 720 ) )
 	{
 		wv::Debug::Print( "Starting Run Loop\n" );
 

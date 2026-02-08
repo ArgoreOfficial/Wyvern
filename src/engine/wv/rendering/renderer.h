@@ -9,6 +9,8 @@
 #include <wv/math/vector3.h>
 #include <wv/math/matrix.h>
 
+#include <wv/pool.h>
+
 #include <wv/rendering/command_buffer.h>
 #include <wv/rendering/pipeline_manager.h>
 #include <wv/rendering/image_manager.h>
@@ -32,15 +34,6 @@ class Swapchain;
 struct SceneData
 {
 	wv::Matrix4x4f viewProj;
-};
-
-struct FrameData
-{
-	VkCommandPool commandPool = VK_NULL_HANDLE;
-	CommandBuffer* mainCommandBuffer = nullptr;
-
-	VkSemaphore acquireSemaphore = VK_NULL_HANDLE;
-	VkFence fence = VK_NULL_HANDLE;
 };
 
 struct DeleteQueue
@@ -89,6 +82,105 @@ enum class SamplerState
 	WV_SAMPLER_NEAREST
 };
 
+struct VirtualAllocSpan
+{
+	VmaVirtualAllocation alloc;
+	VkDeviceSize offset;
+	void* mapping;
+	VkBuffer buffer;
+
+	size_t virtualBlockIndex = 0;
+};
+
+class StagingBufferRing
+{
+public:
+	void initialize( VmaAllocator _allocator, VkDeviceSize _initialSize, uint32_t _cycleSize ) {
+		m_cycleSize = _cycleSize;
+		m_stagingSpanRing.resize( _cycleSize );
+		m_allocator = _allocator;
+		allocateStaging( _initialSize );
+	}
+
+	void shutdown() {
+		for ( size_t i = 0; i < m_cycleSize; i++ )
+			clearAllocations( i );
+		
+		for ( StagingBufferAllocation& buffer : m_stagingBuffers )
+		{
+			vmaDestroyBuffer( m_allocator, buffer.buffer, buffer.allocation );
+			vmaDestroyVirtualBlock( buffer.virtualBlock );
+		}
+	}
+
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
+		clearAllocations( m_cycleIndex );
+	}
+
+	void clearAllocations( uint32_t _cycle ) {
+		for ( VirtualAllocSpan span : getAllocVec( _cycle ) )
+			vmaVirtualFree( m_stagingBuffers[ span.virtualBlockIndex ].virtualBlock, span.alloc);
+
+		getAllocVec( _cycle ).clear();
+	}
+
+	VirtualAllocSpan allocate( VkDeviceSize _size );
+
+private:
+	struct StagingBufferAllocation
+	{
+		VkBuffer buffer;
+		VmaAllocation allocation;
+		VmaAllocationInfo info;
+
+		VmaVirtualBlock virtualBlock; // unused
+	};
+
+	typedef std::vector<VirtualAllocSpan> virtual_alloc_vec;
+
+	StagingBufferAllocation allocateStaging( VkDeviceSize _size ) {
+		// allocate buffer
+
+		VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		bufferInfo.size = _size;
+		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo allocInfo{};
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+		allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+		StagingBufferAllocation buffer{};
+		vmaCreateBuffer( m_allocator, &bufferInfo, &allocInfo, &buffer.buffer, &buffer.allocation, &buffer.info );
+
+		// allocate block
+
+		VmaVirtualBlockCreateInfo blockInfo{};
+		blockInfo.size = _size;
+
+		VkResult res = vmaCreateVirtualBlock( &blockInfo, &buffer.virtualBlock );
+
+		WV_ASSERT( res == VK_SUCCESS );
+
+		m_stagingBuffers.push_back( buffer );
+		return buffer;
+	}
+
+	VkResult tryAllocateSpan( VkDeviceSize _size, size_t _blockIndex, VirtualAllocSpan& _outSpan );
+
+	virtual_alloc_vec& getAllocVec( uint32_t _cycle ) {
+		return m_stagingSpanRing[ _cycle % m_cycleSize ];
+	}
+
+	VmaAllocator m_allocator{ VK_NULL_HANDLE };
+
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	std::vector<virtual_alloc_vec> m_stagingSpanRing;
+	std::vector<StagingBufferAllocation> m_stagingBuffers;
+};
+
 class Renderer
 {
 	friend class Application;
@@ -99,9 +191,7 @@ public:
 	bool initialize();
 	void shutdown();
 
-	void prepare( uint32_t _width, uint32_t _height );
 	void render( World* _world );
-	void finalize();
 
 	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
 
@@ -115,6 +205,8 @@ public:
 	void deallocateImage( ResourceID _image );
 
 	uint32_t storeImage( ResourceID _imageID, SamplerState _filter ) {
+		std::scoped_lock lock{ m_mtx };
+
 		VkSampler sampler = VK_NULL_HANDLE;
 		switch ( _filter )
 		{
@@ -133,20 +225,17 @@ public:
 protected:
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
 	
-	FrameData& getCurrentFrame() { return m_frames[ m_frameNumber % FRAME_OVERLAP ]; };
-
 	bool initVulkan();
 	bool initSwapchain( uint32_t _width, uint32_t _height );
-	bool initCommands();
 	bool initSyncStructures();
 	bool initDescriptors();
 
 	void resizeSwapchain( uint32_t _width, uint32_t _height );
 	
-	void drawBackground( CommandBuffer* _cmd );
-	void drawGeometry( CommandBuffer* _cmd, World* _world );
+	void drawBackground( VkCommandBuffer _cmd );
+	void drawGeometry( VkCommandBuffer _cmd, World* _world );
 
-	void immediateCmdSubmit( std::function<void( CommandBuffer& _cmd )>&& _func );
+	void immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd )>&& _func );
 
 	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
@@ -157,6 +246,8 @@ protected:
 
 	bool m_initialized = false;
 	bool m_resizeRequested = false;
+	
+	std::recursive_mutex m_mtx = {};
 
 	PipelineManager m_pipelineManager = { this };
 	ImageManager    m_imageManager    = { this };
@@ -177,17 +268,22 @@ protected:
 	ResourceID m_depthImage = {};
 	VkExtent2D m_drawExtent = {};
 
-	uint32_t  m_frameNumber = 0;
-	FrameData m_frames[ FRAME_OVERLAP ];
+	uint32_t m_frameNumber = 0;
+	
+	FenceRing       m_fenceRing{};
+	SemaphoreRing   m_semaphoreRing{};
+	CommandPoolRing m_commandPoolRing{};
+
+	GenericRingPool<DeleteQueue> m_deleteQueueRing{};
+	// for transient fences
+	FencePool m_fencePool{};
 
 	VkQueue  m_graphicsQueue       = VK_NULL_HANDLE;
 	uint32_t m_graphicsQueueFamily = 0;
 	
 	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
-	VkFence        m_immediateFence         = VK_NULL_HANDLE;
-	VkCommandPool  m_immediateCommandPool   = VK_NULL_HANDLE;
-	CommandBuffer* m_immediateCommandBuffer = nullptr;
+	StagingBufferRing m_stagingRing = {};
 
 	// Bindless
 

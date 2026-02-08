@@ -15,6 +15,9 @@ layout (location = 0) out vec4 outFragColor;
 
 void main() 
 {
-	outFragColor = texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
-	outFragColor.a = 1.0;
+	vec4 color = texture(u_globalTextures2D[inAlbedoIndex], inTexCoord0);
+	if( color.a < 0.5 )
+		discard;
+
+	outFragColor = color;
 }

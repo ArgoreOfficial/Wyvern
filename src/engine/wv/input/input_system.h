@@ -108,7 +108,8 @@ public:
 
 	inline Vector2i getMouseMotion()   const { return m_mouseState.motion; }
 	inline Vector2i getMousePosition() const { return m_mouseState.position; }
-	
+	inline int      getMouseScroll()   const { return m_mouseState.scrollDelta; }
+
 	inline bool getMouseButtonState( int _index ) const {
 		WV_ASSERT( _index >= 0 && _index < 5 );
 		return m_mouseState.buttonStates[ _index ];

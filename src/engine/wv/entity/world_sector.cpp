@@ -3,6 +3,7 @@
 #include <wv/entity/world.h>
 
 #include <wv/application.h>
+#include <wv/thread/task_system.h>
 
 wv::WorldSector::WorldSector()
 {
@@ -15,87 +16,51 @@ wv::WorldSector::~WorldSector()
 		WV_FREE( entity );
 
 	m_entities.clear();
-
-}
-
-void wv::WorldSector::load( WorldLoadContext& _ctx )
-{
-	WV_ASSERT( m_state == WorldSectorState::UNLOADED );
-
-	m_state = WorldSectorState::LOADING;
-
-	int numFailedLoads = 0;
-	for ( auto entity : m_entitiesToLoad )
-	{
-		entity->load( _ctx );
-		if ( !entity->isLoaded() )
-			numFailedLoads++;
-	}
-
-	m_entitiesToLoad.clear();
-
-	// if ( numFailedLoads == 0 )
-	m_state = WorldSectorState::LOADED;
 }
 
 void wv::WorldSector::unload( WorldLoadContext& _ctx )
 {
-	WV_ASSERT( m_state == WorldSectorState::LOADED );
-
-	for ( auto entity : m_entities )
+	for ( Entity* entity : m_entities )
 	{
-		if( entity->isLoaded() )
-			entity->unload( _ctx );
+		entity->unload();
+		WV_FREE( entity );
 	}
-
-	m_state = WorldSectorState::UNLOADED;
-}
-
-void wv::WorldSector::initialize()
-{
-	WV_ASSERT( m_state == WorldSectorState::LOADED );
-
-	for ( auto entity : m_entities )
-	{
-		if ( entity->isLoaded() )
-			entity->initialize( m_parentWorld );
-	}
-
-	for ( auto entity : m_entities )
-		entity->updateLoading();
-
-	m_state = WorldSectorState::INITIALIZED;
-}
-
-void wv::WorldSector::shutdown()
-{
-	WV_ASSERT( m_state == WorldSectorState::INITIALIZED );
-
-	for ( auto entity : m_entities )
-	{
-		if ( entity->isInitialized() )
-			entity->shutdown();
-	}
-
-	m_state = WorldSectorState::LOADED;
+	
+	m_entities.clear();
+	m_entityMap.clear();
 }
 
 void wv::WorldSector::updateLoading( WorldLoadContext& _ctx )
 {
-	if ( isLoaded() ) // remove?
-		initialize();
+	// Add any queued entities from previous frame
+	while ( !m_entityAddQueue.empty() )
+	{
+		Entity* entity = m_entityAddQueue.front(); 
+		m_entityAddQueue.pop();
+
+		m_entities.push_back( entity );
+		m_entityMap.emplace( entity->getID(), entity );
+	}
+
+	// Destroy any queued entities from previous frame
+	while ( !m_entityDestroyQueue.empty() )
+	{
+		Entity* entity = m_entityDestroyQueue.front(); 
+		m_entityDestroyQueue.pop();
+
+		entity->unload();
+		WV_FREE( entity );
+	}
 
 	for ( auto entity : m_entities )
-		entity->updateLoading();
+		entity->updateLoading( _ctx );
+	
 }
 
 void wv::WorldSector::update( WorldUpdateContext& _ctx )
 {
 	for ( auto entity : m_entities )
-	{
-		if ( entity->isInitialized() )
-			entity->updateSystems( _ctx );
-	}
+		entity->updateSystems( _ctx );
 }
 
 void wv::WorldSector::addEntity( Entity* _entity )
@@ -108,9 +73,7 @@ void wv::WorldSector::addEntity( Entity* _entity )
 
 	_entity->m_parentSector = this;
 
-	m_entities.push_back( _entity );
-	m_entitiesToLoad.push_back( _entity );
-	m_entityMap.emplace( _entity->getID(), _entity );
+	m_entityAddQueue.push( _entity );
 }
 
 void wv::WorldSector::destroyEntity( EntityID _entityID )
@@ -122,16 +85,13 @@ void wv::WorldSector::destroyEntity( EntityID _entityID )
 		return;
 	}
 
-	entity->m_parentSector = nullptr;
-
-	m_entityMap.erase( _entityID );
-	
-	for ( size_t i = 0; i < m_entities.size(); i++ )
+	for ( auto it = m_entities.begin(); it != m_entities.end(); it++ )
 	{
-		if ( m_entities[ i ] != entity )
-			continue;
-
-		m_entities.erase( m_entities.begin() + i );
+		if ( *it != entity ) continue;
+		m_entities.erase( it );
 		break;
 	}
+
+	m_entityMap.erase( _entityID );
+	m_entityDestroyQueue.push( entity );
 }

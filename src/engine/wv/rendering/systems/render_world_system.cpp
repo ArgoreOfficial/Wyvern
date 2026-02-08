@@ -47,10 +47,11 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 				material.buffer.size()
 			};
 			
-			mesh.indexCount = primitive.indexCount;
-			mesh.firstIndex = primitive.firstIndex;
-			mesh.component  = meshComponent;
-			mesh.entity     = _entity;
+			mesh.indexCount   = primitive.indexCount;
+			mesh.firstIndex   = primitive.firstIndex;
+			mesh.vertexOffset = primitive.vertexOffset;
+			mesh.component    = meshComponent;
+			mesh.entity       = _entity;
 			
 			bucket.renderMeshes.push_back( mesh );
 			bucket.matrices.push_back( _entity->getTransform().getMatrix() );
@@ -76,7 +77,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 		
 		bucket.renderMeshes.erase( bucket.renderMeshes.begin() + i );
 		bucket.matrices.erase( bucket.matrices.begin() + i );
-		break;
+		i--;
 	}
 }
 

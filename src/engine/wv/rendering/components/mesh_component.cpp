@@ -37,11 +37,6 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 			// load materials
 		}
 
-
-		// fallback
-		while ( m_materials.size() < m_meshAsset->getNumMaterials() )
-			m_materials.push_back( _ctx.materialManager->get( "Default" ) );
-
 		//m_texture  = _ctx.textureManager->get( "tengil.png" );
 		//m_material.setValue( "albedoIndex", m_texture->getImageSlot() );
 	}

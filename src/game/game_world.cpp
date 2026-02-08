@@ -24,6 +24,18 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->enable();
 }
 
+wv::Entity* createMeshEntity( const std::filesystem::path _path, const wv::Vector3f& _position ) {
+	wv::Entity* entity = WV_NEW( wv::Entity );
+	
+	wv::MeshComponent* meshComponent = entity->createComponent<wv::MeshComponent>();
+	meshComponent->setFilePath( _path );
+
+	// materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
+	entity->getTransform().setPosition( _position );
+	
+	return entity;
+}
+
 void GameWorld::onSceneCreate()
 {
 	createWorldSystem<wv::RenderWorldSystem>();
@@ -38,18 +50,12 @@ void GameWorld::onSceneCreate()
 	cameraEntity->getTransform().setPosition( { 0, 10.0f, 10.0f } );
 	cameraEntity->getTransform().setRotation( { -15.0f, 45.0f, 0.0f } );
 
-	wv::Entity* materialEntity = WV_NEW( wv::Entity );
-	{
-		wv::MeshComponent* meshComponent = materialEntity->createComponent<wv::MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_MoonRayWidget.glb" );
-		
-		// materialEntity->getTransform().setScale( { 0.5f, 0.5f, 0.5f } );
-		materialEntity->getTransform().setPosition( { 0.0f, -1.6f, 0.0f } );
-	}
-
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 	sector->addEntity( cameraEntity );
-	sector->addEntity( materialEntity );
+
+	sector->addEntity( createMeshEntity( "meshes/SM_MoonRayWidget.glb", { 0.0f, -1.6f, 0.0f } ) );
+	//sector->addEntity( createMeshEntity( "meshes/main_sponza/NewSponza_Main_glTF_003.gltf", { 0.0f, -2.0f, 0.0f } ) );
+	
 	addSector( sector );
 
 }

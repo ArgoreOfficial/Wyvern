@@ -45,6 +45,11 @@ public:
 	MaterialDefinition deserialize( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath );
 
 	void initialize( const MaterialDefinition& _def );
+
+	void load( const std::filesystem::path& _path ) {
+		initialize( deserialize( _path ) );
+	}
+
 	ResourceID getPipeline() const { return m_pipeline; }
 
 	const RuntimeStructure& getRS() const { return m_rs; }

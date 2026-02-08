@@ -33,6 +33,11 @@ public:
 
 	inline ComponentID getID() const { return m_ID; }
 
+	bool isUnloaded()    const { return m_state == EntityComponentState::UNLOADED; }
+	bool isLoading()     const { return m_state == EntityComponentState::LOADING; }
+	bool isLoaded()      const { return m_state == EntityComponentState::LOADED; }
+	bool isInitialized() const { return m_state == EntityComponentState::INITIALIZED; }
+
 protected:
 	virtual void load( WorldLoadContext& _ctx ) {
 		WV_ASSERT( m_state == EntityComponentState::UNLOADED );

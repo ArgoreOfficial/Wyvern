@@ -7,6 +7,9 @@
 
 #include <wv/filesystem/file_system.h>
 
+#include <wv/thread/task_system.h>
+#include <wv/debug/timer.h>
+
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
 #include <fastgltf/tools.hpp>
@@ -19,6 +22,8 @@ struct fastgltf::ElementTraits<wv::Vector2f> : fastgltf::ElementTraitsBase<wv::V
 
 void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager* _meshManager, MaterialManager* _materialManager, TextureManager* _textureManager )
 {
+	wv::Timer loadTimer{};
+	
 	// Load file
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
 
@@ -47,51 +52,75 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 
 	fastgltf::Asset& asset = load.get();
 
+	std::vector<Ref<TextureAsset>> textures;
+	textures.resize( asset.images.size() );
+
+	TaskSystem* taskSystem = Application::getSingleton()->getTaskSystem();
+	ThreadWorker* worker = taskSystem->getThreadWorker();
+	Fence* loadFence = taskSystem->allocateFence();
+
 	if ( _meshManager->contains( _path ) )
 	{
 		m_meshAsset = _meshManager->get( _path );
 	}
 	else
 	{
-		parseMesh( asset );
+		m_meshAsset = std::make_shared<MeshAsset>();
+		_meshManager->add( _path, m_meshAsset );
+
+		worker->push( loadFence, [ this, _meshManager, _path, &asset ]( auto, auto ) {
+			parseMesh( asset );
+		} );
 	}
-
-	std::vector<Ref<TextureAsset>> textures;
-
-	for ( fastgltf::Image& image : asset.images )
+	for ( size_t i = 0; i < asset.images.size(); i++ )
 	{
-
-		std::visit( fastgltf::visitor {
-            [](auto& arg) {},
-            [&](fastgltf::sources::URI& _filePath) {
-				if ( _filePath.fileByteOffset == 0 && _filePath.uri.isLocalPath() )
-					textures.push_back( _textureManager->get( _filePath.uri.fspath() ) );
-				else
-					textures.push_back( {} );
-            },
-            [&](fastgltf::sources::Vector& _vector) {
-				Ref<TextureAsset> texture = std::make_shared<TextureAsset>( (uint8_t*)_vector.bytes.data(), _vector.bytes.size() );
-				textures.push_back( texture );
-            },
-            [&](fastgltf::sources::BufferView& view) {
-				auto& bufferView = asset.bufferViews[ view.bufferViewIndex ];
-				auto& buffer     = asset.buffers[ bufferView.bufferIndex ];
-				
+		fastgltf::Image& image = asset.images[ i ];
+		
+		if ( _textureManager->contains( image.name ) )
+			textures[ i ] = _textureManager->get( image.name );
+		else
+		{
+			worker->push( loadFence, [ _textureManager, _path, i, &image, &textures, &asset ]( auto, auto ) {
 				std::visit( fastgltf::visitor{
 					[]( auto& arg ) { },
-					[ & ]( fastgltf::sources::Array& _array ) {
-						Ref<TextureAsset> texture = std::make_shared<TextureAsset>( (uint8_t*)( _array.bytes.data() + bufferView.byteOffset ), bufferView.byteLength );
-						textures.push_back( texture );
-					} },
-					buffer.data );
-            },
-        },
-        image.data);
+					[ & ]( fastgltf::sources::URI& _filePath ) {
+						if ( _filePath.fileByteOffset == 0 && _filePath.uri.isLocalPath() )
+							textures[ i ] = _textureManager->get( _path.parent_path() / _filePath.uri.fspath() );
+					
+					},
+					[ & ]( fastgltf::sources::Vector& _vector ) {
+						textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)_vector.bytes.data(), _vector.bytes.size() );
+					
+						// add texture to manager
+						_textureManager->add( image.name, textures[ i ] );
+					},
+					[ & ]( fastgltf::sources::BufferView& view ) {
+						auto& bufferView = asset.bufferViews[ view.bufferViewIndex ];
+						auto& buffer = asset.buffers[ bufferView.bufferIndex ];
+					
+						std::visit( fastgltf::visitor{
+							[]( auto& arg ) { },
+							[ & ]( fastgltf::sources::Array& _array ) {
+								textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)( _array.bytes.data() + bufferView.byteOffset ), bufferView.byteLength );
+							} },
+							buffer.data );
+
+						// add texture to manager
+						_textureManager->add( image.name, textures[ i ] );
+					},
+					},
+					image.data );
+			} );
+		}
 	}
+
+	taskSystem->waitAndFreeFence( loadFence );
+
+	const char* shaderName = "Default Lit";
 
 	for ( fastgltf::Material& mat : asset.materials )
 	{
-		Ref<MaterialAsset> newMat = _materialManager->get( "Default Unlit" );
+		Ref<MaterialAsset> newMat = _materialManager->get( shaderName );
 		MaterialInstance instance{ newMat };
 
 		/*
@@ -141,8 +170,9 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	
 	// there must always be at least one material
 	if ( m_materials.size() == 0 )
-		m_materials.push_back( _materialManager->get( "Default Unlit" ) );
+		m_materials.push_back( _materialManager->get( shaderName ) );
 
+	Debug::Print("GLTF Parse took %f seconds\n", loadTimer.elapsed() );
 }
 
 void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
@@ -150,9 +180,12 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 	// Parse gltf
 
 	GeometrySurface surface{};
+	std::unordered_map<size_t, std::vector<size_t>> meshPrimitivesMap;
 
-	for ( fastgltf::Mesh& mesh : _asset.meshes )
+	for ( size_t meshIndex = 0; meshIndex < _asset.meshes.size(); meshIndex++ )
 	{
+		fastgltf::Mesh& mesh = _asset.meshes[ meshIndex ];
+	
 		for ( auto& primitive : mesh.primitives )
 		{
 			uint16_t indexOffset = surface.vertexCount();
@@ -202,12 +235,12 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 				}
 
 				// vertex colour 0
-				if ( colAttrib != primitive.attributes.end() )
-				{
-					fastgltf::Accessor& colourAccessor = _asset.accessors[ colAttrib->accessorIndex ];
-					colours.resize( colourAccessor.count );
-					fastgltf::copyFromAccessor<Vector3f>( _asset, colourAccessor, colours.data() );
-				}
+				//if ( colAttrib != primitive.attributes.end() )
+				//{
+				//	fastgltf::Accessor& colourAccessor = _asset.accessors[ colAttrib->accessorIndex ];
+				//	colours.resize( colourAccessor.count );
+				//	fastgltf::copyFromAccessor<Vector3f>( _asset, colourAccessor, colours.data() );
+				//}
 			}
 
 			GeometrySurface::Primitive prim{};
@@ -215,7 +248,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 			prim.vertexOffset = surface.vertexCount();
 			prim.vertexCount  = positions.size();
 			prim.indexCount   = indices.size();
-
+			
 			if ( primitive.materialIndex.has_value() )
 				prim.material = *primitive.materialIndex;
 			else
@@ -224,44 +257,58 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 				prim.material = 0;
 			}
 
+			meshPrimitivesMap[ meshIndex ].push_back( surface.primitives.size() );
 			surface.primitives.push_back( prim );
+
+			while ( normals.size() < positions.size() ) normals.push_back( { 0.0f, 1.0f, 0.0f } );
+			while ( uv0s.size()    < positions.size() ) uv0s   .push_back( { 0.0f, 0.0f } );
+			while ( colours.size() < positions.size() ) colours.push_back( { 0.0f, 0.0f, 0.0f } );
 
 			surface.vertexPositions.insert( surface.vertexPositions.end(), positions.begin(), positions.end() );
 			surface.vertexNormals.insert( surface.vertexNormals.end(), normals.begin(), normals.end() );
 			surface.vertexUVs.insert( surface.vertexUVs.end(), uv0s.begin(), uv0s.end() );
 			surface.vertexColours.insert( surface.vertexColours.end(), colours.begin(), colours.end() );
 
-			for ( uint16_t index : indices )
-				surface.indices.push_back( index + indexOffset );
+			surface.indices.insert( surface.indices.end(), indices.begin(), indices.end() );
 		}
 	}
 
+	TaskSystem* taskSystem = Application::getSingleton()->getTaskSystem();
+	ThreadWorker* worker = taskSystem->getThreadWorker();
+	Fence* loadFence = taskSystem->allocateFence();
+
 	fastgltf::iterateSceneNodes( _asset, 0, fastgltf::math::fmat4x4(),
 		[ & ]( fastgltf::Node& _node, fastgltf::math::fmat4x4 _matrix ) {
-		if ( _node.meshIndex.has_value() )
+		if ( !_node.meshIndex.has_value() )
+			return;
+
+		for ( size_t primitiveIndex : meshPrimitivesMap[ *_node.meshIndex ] )
 		{
-			wv::Matrix4x4f matrix( _matrix.data() );
-			wv::Matrix3x3f normalMatrix = {};// transpose(inverse(mat3(modelMatrix)))
-			normalMatrix.setRow( 0, { matrix.get( 0, 0 ), matrix.get( 0, 1 ), matrix.get( 0, 2 ) } );
-			normalMatrix.setRow( 1, { matrix.get( 1, 0 ), matrix.get( 1, 1 ), matrix.get( 1, 2 ) } );
-			normalMatrix.setRow( 2, { matrix.get( 2, 0 ), matrix.get( 2, 1 ), matrix.get( 2, 2 ) } );
+			worker->push( loadFence, [ _matrix, primitiveIndex, &surface ]( auto, auto ) {
+				wv::Matrix4x4f matrix( _matrix.data() );
+				wv::Matrix3x3f normalMatrix = {};// transpose(inverse(mat3(modelMatrix)))
+				normalMatrix.setRow( 0, { matrix.get( 0, 0 ), matrix.get( 0, 1 ), matrix.get( 0, 2 ) } );
+				normalMatrix.setRow( 1, { matrix.get( 1, 0 ), matrix.get( 1, 1 ), matrix.get( 1, 2 ) } );
+				normalMatrix.setRow( 2, { matrix.get( 2, 0 ), matrix.get( 2, 1 ), matrix.get( 2, 2 ) } );
 
-			normalMatrix = wv::Math::transpose( wv::Math::inverse( normalMatrix ) );
+				normalMatrix = wv::Math::transpose( wv::Math::inverse( normalMatrix ) );
 
-			auto prim = surface.primitives[ *_node.meshIndex ];
+				auto prim = surface.primitives[ primitiveIndex ];
 
-			for ( size_t i = 0; i < prim.vertexCount; i++ )
-			{
-				auto& vec = surface.vertexPositions[ i + prim.vertexOffset ];
-				vec = vec * matrix;
+				for ( size_t i = 0; i < prim.vertexCount; i++ )
+				{
+					auto& vec = surface.vertexPositions[ i + prim.vertexOffset ];
+					vec = vec * matrix;
 
-				auto& norm = surface.vertexNormals[ i + prim.vertexOffset ];
-				norm = norm * normalMatrix;
-				norm.normalize();
-			}
-		}
+					auto& norm = surface.vertexNormals[ i + prim.vertexOffset ];
+					norm = norm * normalMatrix;
+					norm.normalize();
+				}
+			} );
+		}		
 	} );
 
-	m_meshAsset = std::make_shared<MeshAsset>();
+	taskSystem->waitAndFreeFence( loadFence );
+
 	m_meshAsset->initialize( surface );
 }

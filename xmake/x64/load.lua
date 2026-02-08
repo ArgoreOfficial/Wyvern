@@ -8,6 +8,7 @@ function load(_prefix)
 
     add_requires( "fastgltf" )
     add_requires( "libsdl2" )
+    add_requires( "tracy" )
     
     -- vulkan
     add_requires( "vulkansdk" )

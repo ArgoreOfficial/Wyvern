@@ -26,7 +26,8 @@ protected:
 
 	virtual void update( WorldUpdateContext& _ctx ) = 0;
 
-	Entity* m_entity = nullptr;
+	bool    m_initialized = false;
+	Entity* m_entity      = nullptr;
 };
 
 }

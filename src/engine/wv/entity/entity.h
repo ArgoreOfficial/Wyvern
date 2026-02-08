@@ -22,39 +22,20 @@ class Entity final : wv::IReflectedType
 
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
-	
-	/*
-	Unloaded     -> created but no data present
-	Loaded       -> data has been loaded in, but entity does not "exist" yet
-	Initiailized -> all components, systems, and entity data has been intiailized and the entity exists in world now
-	*/
-
-	enum class EntityState : uint8_t
-	{
-		UNLOADED = 0,
-		LOADED,
-		INITIALIZED
-	};
-
 	Entity()               : m_ID{ wv::Math::randomU32() } { }
 	Entity( EntityID _id ) : m_ID{ _id } { }
 
 	~Entity();
 
-	void load( WorldLoadContext& _ctx );
-	void unload( WorldLoadContext& _ctx );
-
-	void initialize( World* _world );
-	void shutdown();
+	void initialize();
+	void unload();
 
 	EntityID getID() const { return m_ID; }
 	WorldSector* getParentSector() const { return m_parentSector; }
 
 	Transformf& getTransform() { return m_transform; }
 
-	bool isUnloaded()    const { return m_state == EntityState::UNLOADED; }
-	bool isLoaded()      const { return m_state == EntityState::LOADED; }
-	bool isInitialized() const { return m_state == EntityState::INITIALIZED; }
+	bool isLoading() const;
 
 	const std::vector<IEntityComponent*>& getComponents() const { return m_components; }
 	void addComponent( IEntityComponent* _component ) {
@@ -62,7 +43,6 @@ public:
 			return;
 
 		m_components.push_back( _component );
-		m_componentsToRegister.push_back( _component );
 	}
 
 	template<typename Ty>
@@ -77,7 +57,7 @@ public:
 	template<typename Ty>
 	void destroySystem();
 
-	void updateLoading();
+	void updateLoading( WorldLoadContext& _ctx );
 	void updateSystems( WorldUpdateContext& _ctx );
 
 private:
@@ -87,17 +67,15 @@ private:
 
 	void createSystem( IEntitySystem* _system );
 
-	void registerComponentWithSystems  ( IEntityComponent* _component );
-	void unregisterComponentWithSystems( IEntityComponent* _component );
+	void registerComponent  ( IEntityComponent* _component );
+	void unregisterComponent( IEntityComponent* _component );
 
-	EntityID    m_ID    = 0;
-	EntityState m_state = EntityState::UNLOADED;
-
+	EntityID m_ID = 0;
+	
 	Transformf m_transform;
 
 	std::vector<IEntitySystem*>    m_systems;
 	std::vector<IEntityComponent*> m_components;
-	std::vector<IEntityComponent*> m_componentsToRegister;
 };
 
 template<typename Ty>

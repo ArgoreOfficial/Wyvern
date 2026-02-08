@@ -46,8 +46,11 @@ public:
 	~MeshAsset();
 
 	GeometrySurface deserialize( const std::filesystem::path& _path );
-	
 	void initialize( const GeometrySurface& _geometry );
+
+	void load( const std::filesystem::path& _path ) {
+		initialize( deserialize( _path ) );
+	}
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
