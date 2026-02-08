@@ -77,7 +77,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 		
 		bucket.renderMeshes.erase( bucket.renderMeshes.begin() + i );
 		bucket.matrices.erase( bucket.matrices.begin() + i );
-		break;
+		i--;
 	}
 }
 
