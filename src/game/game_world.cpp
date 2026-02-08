@@ -86,6 +86,19 @@ void GameWorld::onSceneCreate()
 		sector->addEntity( player );
 	}
 
+	{
+		wv::Entity* cart = WV_NEW( wv::Entity );
+
+		wv::MeshComponent* meshComponent = cart->createComponent<wv::MeshComponent>();
+		meshComponent->setFilePath( "meshes/cart_basic.glb" );
+
+		cart->createSystem<PlayerTrainSystem>();
+
+		cart->getTransform().setPosition( { 0.0f, -1.0f, -7.6f } );
+
+		sector->addEntity( cart );
+	}
+
 	for ( size_t i = 0; i < 100; i++ )
 		sector->addEntity( createMeshEntity( "meshes/SM_Track.glb", { 0.0f, -1.0f, (float)i - 50.0f } ) );
 
