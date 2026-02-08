@@ -64,4 +64,33 @@ private:
 	std::queue<Ty*>  m_available = {};
 };
 
+template<typename Ty>
+class GenericRingPool
+{
+public:
+	void initialize( uint32_t _cycleSize )
+	{
+		m_cycleSize = _cycleSize;
+		m_objects.resize( _cycleSize );
+	}
+
+	void shutdown() {
+		m_objects.clear();
+	}
+
+	void setCycle( uint32_t _cycle ) {
+		m_cycleIndex = _cycle % m_cycleSize;
+	}
+
+	Ty  get() const { return m_objects[ m_cycleIndex ]; }
+	Ty& get()       { return m_objects[ m_cycleIndex ]; }
+	
+	std::vector<Ty>& getObjects() { return m_objects; }
+private:
+	uint32_t m_cycleSize{ 0 };
+	uint32_t m_cycleIndex{ 0 };
+
+	std::vector<Ty> m_objects{};
+};
+
 }
