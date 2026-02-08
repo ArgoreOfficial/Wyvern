@@ -22,8 +22,6 @@ struct fastgltf::ElementTraits<wv::Vector2f> : fastgltf::ElementTraitsBase<wv::V
 
 void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager* _meshManager, MaterialManager* _materialManager, TextureManager* _textureManager )
 {
-	wv::Timer loadTimer{};
-	
 	// Load file
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
 
@@ -171,8 +169,6 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	// there must always be at least one material
 	if ( m_materials.size() == 0 )
 		m_materials.push_back( _materialManager->get( shaderName ) );
-
-	Debug::Print("GLTF Parse took %f seconds\n", loadTimer.elapsed() );
 }
 
 void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )

@@ -21,8 +21,8 @@ protected:
 	virtual void initialize() { }
 	virtual void shutdown() { }
 
-	virtual void registerComponent  ( IEntityComponent* _component ) = 0;
-	virtual void unregisterComponent( IEntityComponent* _component ) = 0;
+	virtual void registerComponent  ( IEntityComponent* _component ) { };
+	virtual void unregisterComponent( IEntityComponent* _component ) { };
 
 	virtual void update( WorldUpdateContext& _ctx ) = 0;
 

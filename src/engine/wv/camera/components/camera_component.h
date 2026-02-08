@@ -16,10 +16,9 @@ public:
 	virtual ~CameraComponent() { }
 
 	ViewVolume* getViewVolume() { return m_viewVolume; }
-
+	
 protected:
-
-	ViewVolume* m_viewVolume;
+	ViewVolume* m_viewVolume{ nullptr };
 
 };
 
