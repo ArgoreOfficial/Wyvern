@@ -55,6 +55,7 @@ bool wv::Renderer::initialize()
 
 	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
 	m_commandPoolRing.initialize( m_device, m_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, FRAME_OVERLAP );
+	m_deleteQueueRing.initialize( FRAME_OVERLAP );
 
 	if ( !initSyncStructures() )
 		return false;
@@ -147,8 +148,13 @@ void wv::Renderer::shutdown()
 		m_fenceRing.shutdown();
 		m_semaphoreRing.shutdown();
 		
-		m_mainDeleteQueue.flush();
+		for ( auto q : m_deleteQueueRing.getObjects() )
+			q.flush();
 
+		m_deleteQueueRing.shutdown();
+
+		m_mainDeleteQueue.flush();
+		
 	}
 }
 
@@ -164,6 +170,9 @@ void wv::Renderer::render( World* _world )
 	m_semaphoreRing.setCycle( m_frameNumber );
 	m_stagingRing.setCycle( m_frameNumber );
 	m_commandPoolRing.setCycle( m_frameNumber );
+
+	m_deleteQueueRing.setCycle( m_frameNumber );
+	m_deleteQueueRing.get().flush();
 
 	m_fencePool.resetAvailable();
 
@@ -356,11 +365,15 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 	MeshAllocation surface = m_meshAllocations.at( _mesh );
 	m_meshAllocations.erase( _mesh );
 
-	destroyBuffer( surface.positionBuffer );
-	destroyBuffer( surface.indexBuffer );
+	// Push mesh allocation to frame deletion queue
 
-	if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
-		destroyBuffer( surface.vertexDataBuffer );
+	m_deleteQueueRing.get().push( [ this, surface ]() {
+		destroyBuffer( surface.positionBuffer );
+		destroyBuffer( surface.indexBuffer );
+
+		if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+			destroyBuffer( surface.vertexDataBuffer );
+	} );
 }
 
 wv::ResourceID wv::Renderer::allocateImage( const void* _data, int _width, int _height, bool _mipmapped )
@@ -385,7 +398,10 @@ void wv::Renderer::deallocateImage( ResourceID _image )
 		m_storedImageIndexMap.erase( _image );
 	}
 
-	m_imageManager.destroyImage( _image );
+	m_deleteQueueRing.get().push( [ this, _image ]() {
+		m_imageManager.destroyImage( _image );
+	} );
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

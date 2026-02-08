@@ -9,6 +9,8 @@
 #include <wv/math/vector3.h>
 #include <wv/math/matrix.h>
 
+#include <wv/pool.h>
+
 #include <wv/rendering/command_buffer.h>
 #include <wv/rendering/pipeline_manager.h>
 #include <wv/rendering/image_manager.h>
@@ -272,6 +274,7 @@ protected:
 	SemaphoreRing   m_semaphoreRing{};
 	CommandPoolRing m_commandPoolRing{};
 
+	GenericRingPool<DeleteQueue> m_deleteQueueRing{};
 	// for transient fences
 	FencePool m_fencePool{};
 
