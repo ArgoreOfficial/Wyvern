@@ -63,9 +63,6 @@ bool wv::Renderer::initialize()
 	if ( !initDescriptors() )
 		return false;
 
-	IFileSystem* fileSystem = wv::Application::getSingleton()->getFileSystem();
-
-
 	// Create bindless pipeline layout
 	{
 		VkPushConstantRange pushConstantRange{ };
@@ -710,19 +707,23 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 				continue; // no material
 			
 			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
+
+			WV_ASSERT( mesh.indexBuffer.buffer != VK_NULL_HANDLE );
 			vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+
+			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
+
+			WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
+			vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 			GPUDrawPushConstants pc{};
 			pc.viewProj = viewProj;
-			pc.model    = bucket.matrices[ i ];
+			pc.model = bucket.matrices[ i ];
 			pc.positionBuffer = mesh.positionBufferAddress;
-			
+
 			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
-			
-			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
-			vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
-			
+
 			vkCmdPushConstants(
 				_cmd,
 				m_bindlessPipelineLayout,
