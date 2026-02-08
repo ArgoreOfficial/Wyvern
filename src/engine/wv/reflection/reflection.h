@@ -117,10 +117,10 @@ Ty* tryCast( IReflectedType* _type )
 
 #define WV_REFLECT_TYPE( _typename, _base ) \
 public: \
-typedef InheritenceRegister<_base> Inheritence_t; \
+typedef wv::InheritenceRegister<_base> Inheritence_t; \
 static inline const wv::TypeInfo* s_typeInfo = wv::ReflectionRegistry::getSingleton()->registerType( #_typename ); \
 static constexpr const char* getStaticTypeName() { return #_typename; } \
 static wv::TypeUUID getStaticTypeUUID() { return s_typeInfo->typeUUID; } \
 virtual std::string getTypeName() const override { return _typename::getStaticTypeName(); } \
 virtual wv::TypeUUID getTypeUUID() const override { return _typename::getStaticTypeUUID(); } \
-virtual std::vector<TypeUUID> getInheritedUUIDs() const override { return Inheritence_t::getRecursiveTypeUUIDs(); } 
+virtual std::vector<wv::TypeUUID> getInheritedUUIDs() const override { return Inheritence_t::getRecursiveTypeUUIDs(); } 
