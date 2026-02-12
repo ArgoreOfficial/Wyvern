@@ -127,10 +127,10 @@ template<typename _Ty> _Ty max( const _Ty& _a, const _Ty& _b )
 }
 
 template<typename _Ty>
-_Ty lerp( const _Ty& _a, const _Ty& _b, const _Ty& _t )
-{
-	return _a + _t * ( _b - _a );
-}
+_Ty lerp( const _Ty& _a, const _Ty& _b, float _t ) { return _a + ( _b - _a ) * _t; }
+
+template<typename _Ty>
+_Ty lerp( const _Ty& _a, const _Ty& _b, double _t ) { return _a + ( _b - _a ) * _t; }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
