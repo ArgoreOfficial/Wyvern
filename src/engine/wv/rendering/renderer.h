@@ -25,6 +25,7 @@
 #include <vector>
 #include <span>
 #include <set>
+#include <utility>
 
 namespace wv {
 
@@ -56,6 +57,8 @@ struct AllocatedBuffer
 	VkBuffer buffer;
 	VmaAllocation allocation;
 	VmaAllocationInfo info;
+
+	VkDeviceSize actualSize = 0;
 };
 
 struct MeshAllocation
@@ -86,6 +89,8 @@ struct VirtualAllocSpan
 {
 	VmaVirtualAllocation alloc;
 	VkDeviceSize offset;
+	VkDeviceSize size;
+
 	void* mapping;
 	VkBuffer buffer;
 
@@ -172,6 +177,7 @@ private:
 		return m_stagingSpanRing[ _cycle % m_cycleSize ];
 	}
 
+	std::mutex m_mtx;
 	VmaAllocator m_allocator{ VK_NULL_HANDLE };
 
 	uint32_t m_cycleSize{ 0 };
@@ -198,8 +204,9 @@ public:
 	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize );
 	void destroyPipeline( ResourceID _pipeline );
 
-	ResourceID allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData = nullptr, size_t _vertexDataSize = 0 );
+	ResourceID allocateMesh( uint32_t _numIndices, uint32_t _numPositions, uint32_t _vertexDataSize = 0 );
 	void deallocateMesh( ResourceID _mesh );
+	void uploadMesh( ResourceID _mesh, const uint16_t* _indices, const Vector3f* _positions, const void* _vertexData = nullptr );
 
 	ResourceID allocateImage( const void* _data, int _width, int _height, bool _mipmapped );
 	void deallocateImage( ResourceID _image );
@@ -284,6 +291,9 @@ protected:
 	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
 	StagingBufferRing m_stagingRing = {};
+
+	typedef std::function<void()> loadCallback_t;
+	std::vector<std::pair<VkFence, loadCallback_t>> m_loadCallbacks{};
 
 	// Bindless
 

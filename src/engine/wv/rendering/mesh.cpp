@@ -54,7 +54,9 @@ void wv::MeshAsset::initialize( const GeometrySurface& _geometry )
 		datas.push_back( data );
 	}
 
-	m_gpuAllocation = renderer->allocateMesh( _geometry.indices, _geometry.vertexPositions, datas.data(), sizeof( VertexData ) * datas.size() );
+	m_gpuAllocation = renderer->allocateMesh( _geometry.indices.size(), _geometry.vertexPositions.size(), sizeof( VertexData ) * datas.size() );
+	renderer->uploadMesh( m_gpuAllocation, _geometry.indices.data(), _geometry.vertexPositions.data(), datas.data() );
+	
 	m_primitives = _geometry.primitives;
 
 	for ( auto& prim : m_primitives )

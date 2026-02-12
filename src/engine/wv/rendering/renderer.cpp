@@ -38,6 +38,27 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 	return submitInfo;
 }
 
+VkBool32 debugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData )
+{
+	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_INFO;
+
+	switch ( messageSeverity )
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::WV_PRINT_DEBUG; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::WV_PRINT_INFO; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: level = wv::Debug::WV_PRINT_WARN; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::WV_PRINT_ERROR; break;
+	}
+
+	wv::Debug::Print( level, "%s\n", pCallbackData->pMessage );
+
+	return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -275,29 +296,25 @@ void wv::Renderer::destroyPipeline( ResourceID _pipeline )
 	m_pipelineManager.destroyPipeline( _pipeline );
 }
 
-wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices, const std::vector<Vector3f>& _vertexPositions, void* _vertexData, size_t _vertexDataSize )
+wv::ResourceID wv::Renderer::allocateMesh( uint32_t _numIndices, uint32_t _numPositions, uint32_t _vertexDataSize )
 {
 	std::scoped_lock lock{ m_mtx };
 
-	const size_t indexBufferSize  = _indices.size() * sizeof( uint16_t );
-	const size_t vertexBufferSize = _vertexPositions.size() * sizeof( Vector3f );
-	const bool   useVertexData    = _vertexData != nullptr && _vertexDataSize > 0;
-
 	MeshAllocation meshAllocation{};
-	
+
 	meshAllocation.indexBuffer = createBuffer(
-		indexBufferSize,
+		_numIndices * sizeof( uint16_t ),
 		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
 
 	// create position buffer
 	meshAllocation.positionBuffer = createBuffer(
-		vertexBufferSize,
+		_numPositions * sizeof( Vector3f ),
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY );
 	
 	// create vertex data buffer
-	if ( useVertexData )
+	if ( _vertexDataSize > 0 )
 	{
 		meshAllocation.vertexDataBuffer = createBuffer(
 			_vertexDataSize,
@@ -312,42 +329,6 @@ wv::ResourceID wv::Renderer::allocateMesh( const std::vector<uint16_t>& _indices
 		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = meshAllocation.positionBuffer.buffer };
 		meshAllocation.positionBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
 	}
-
-	// Upload buffers
-
-	VirtualAllocSpan staging = m_stagingRing.allocate( vertexBufferSize + indexBufferSize + _vertexDataSize );
-	
-	memcpy( staging.mapping, _vertexPositions.data(), vertexBufferSize ); // copy position buffer
-	memcpy( (char*)staging.mapping + vertexBufferSize, _indices.data(), indexBufferSize ); // copy index buffer
-	
-	if( useVertexData )
-		memcpy( (char*)staging.mapping + vertexBufferSize + indexBufferSize, _vertexData, _vertexDataSize ); // copy vertex data buffer
-
-	immediateCmdSubmit( [ & ]( VkCommandBuffer _cmd ) {
-		VkBufferCopy positionCopy{ 0 };
-		positionCopy.dstOffset = 0;
-		positionCopy.srcOffset = staging.offset;
-		positionCopy.size = vertexBufferSize;
-
-		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.positionBuffer.buffer, 1, &positionCopy );
-
-		VkBufferCopy indexCopy{ 0 };
-		indexCopy.dstOffset = 0;
-		indexCopy.srcOffset = staging.offset + vertexBufferSize;
-		indexCopy.size = indexBufferSize;
-
-		vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.indexBuffer.buffer, 1, &indexCopy );
-
-		if ( useVertexData )
-		{
-			VkBufferCopy vertexDataCopy{ 0 };
-			vertexDataCopy.dstOffset = 0;
-			vertexDataCopy.srcOffset = staging.offset + vertexBufferSize + indexBufferSize;
-			vertexDataCopy.size = _vertexDataSize;
-
-			vkCmdCopyBuffer( _cmd, staging.buffer, meshAllocation.vertexDataBuffer.buffer, 1, &vertexDataCopy );
-		}
-	} );
 
 	return m_meshAllocations.emplace( meshAllocation );
 }
@@ -371,6 +352,66 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 		if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 			destroyBuffer( surface.vertexDataBuffer );
 	} );
+}
+
+void wv::Renderer::uploadMesh( ResourceID _mesh, const uint16_t* _indices, const Vector3f* _positions, const void* _vertexData )
+{
+	std::scoped_lock lock{ m_mtx };
+
+	if ( !m_meshAllocations.contains( _mesh ) )
+	{
+		WV_LOG_ERROR( "Mesh does not exist\n" );
+		return;
+	}
+
+	MeshAllocation meshAllocation = m_meshAllocations.at( _mesh );
+
+	const VkBuffer indexBuffer      = meshAllocation.indexBuffer.buffer;
+	const VkBuffer positionBuffer   = meshAllocation.positionBuffer.buffer;
+	const VkBuffer vertexDataBuffer = meshAllocation.vertexDataBuffer.buffer;
+	
+	const VkDeviceSize indexBufferSize    = meshAllocation.indexBuffer.actualSize;
+	const VkDeviceSize positionBufferSize = meshAllocation.positionBuffer.actualSize;
+	const VkDeviceSize vertexDataSize     = meshAllocation.vertexDataBuffer.actualSize;
+	
+	// Upload buffers
+
+	VkDeviceSize bufferSize = positionBufferSize + indexBufferSize + vertexDataSize;
+	VirtualAllocSpan staging = m_stagingRing.allocate( bufferSize );
+	WV_ASSERT( staging.size == bufferSize );
+
+	memcpy( staging.mapping, _positions, positionBufferSize ); // copy position buffer
+	memcpy( (char*)staging.mapping + positionBufferSize, _indices, indexBufferSize ); // copy index buffer
+
+	if ( _vertexData != nullptr )
+		memcpy( (char*)staging.mapping + positionBufferSize + indexBufferSize, _vertexData, vertexDataSize ); // copy vertex data buffer
+
+	immediateCmdSubmit( [=]( VkCommandBuffer _cmd ) {
+		VkBufferCopy positionCopy{ 0 };
+		positionCopy.dstOffset = 0;
+		positionCopy.srcOffset = staging.offset;
+		positionCopy.size = positionBufferSize;
+
+		vkCmdCopyBuffer( _cmd, staging.buffer, positionBuffer, 1, &positionCopy );
+
+		VkBufferCopy indexCopy{ 0 };
+		indexCopy.dstOffset = 0;
+		indexCopy.srcOffset = staging.offset + positionBufferSize;
+		indexCopy.size = indexBufferSize;
+
+		vkCmdCopyBuffer( _cmd, staging.buffer, indexBuffer, 1, &indexCopy );
+
+		if ( _vertexData != nullptr )
+		{
+			VkBufferCopy vertexDataCopy{ 0 };
+			vertexDataCopy.dstOffset = 0;
+			vertexDataCopy.srcOffset = staging.offset + positionBufferSize + indexBufferSize;
+			vertexDataCopy.size = vertexDataSize;
+
+			vkCmdCopyBuffer( _cmd, staging.buffer, vertexDataBuffer, 1, &vertexDataCopy );
+		}
+	} );
+
 }
 
 wv::ResourceID wv::Renderer::allocateImage( const void* _data, int _width, int _height, bool _mipmapped )
@@ -402,27 +443,6 @@ void wv::Renderer::deallocateImage( ResourceID _image )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-VkBool32 debugCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
-	VkDebugUtilsMessageTypeFlagsEXT messageTypes, 
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
-	void* pUserData ) 
-{
-	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_INFO;
-
-	switch ( messageSeverity )
-	{
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::WV_PRINT_DEBUG; break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::WV_PRINT_INFO; break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: level = wv::Debug::WV_PRINT_WARN; break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::WV_PRINT_ERROR; break;
-	}
-
-	wv::Debug::Print( level, "%s\n", pCallbackData->pMessage );
-
-	return true;
-}
 
 bool wv::Renderer::initVulkan()
 {
@@ -782,7 +802,9 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 	allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
 	AllocatedBuffer buffer{};
-	vmaCreateBuffer( m_allocator, &bufferInfo, &allocInfo, &buffer.buffer, &buffer.allocation, &buffer.info );
+	WV_ASSERT( vmaCreateBuffer( m_allocator, &bufferInfo, &allocInfo, &buffer.buffer, &buffer.allocation, &buffer.info ) == VK_SUCCESS );
+
+	buffer.actualSize = _size;
 
 	return buffer;
 }
@@ -827,7 +849,7 @@ void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t
 
 wv::VirtualAllocSpan wv::StagingBufferRing::allocate( VkDeviceSize _size )
 {
-	virtual_alloc_vec& vec = m_stagingSpanRing[ m_cycleIndex ];
+	std::scoped_lock lock{ m_mtx };
 
 	VirtualAllocSpan span{};
 	VkResult res = VK_ERROR_UNKNOWN;
@@ -864,5 +886,6 @@ VkResult wv::StagingBufferRing::tryAllocateSpan( VkDeviceSize _size, size_t _blo
 	_outSpan.mapping = (char*)buffer.allocation->GetMappedData() + _outSpan.offset;
 	_outSpan.buffer = buffer.buffer;
 	_outSpan.virtualBlockIndex = _blockIndex;
+	_outSpan.size = _size;
 	return res;
 }
