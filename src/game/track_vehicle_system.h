@@ -13,8 +13,9 @@ class TrackVehicleComponent : public wv::IEntityComponent
 	WV_REFLECT_TYPE( TrackVehicleComponent, wv::IEntityComponent )
 public:
 
-protected:
+	size_t m_trackIndex = 0;
 	double m_trackPosition = 0.0;
+protected:
 };
 
 class TrackEngineComponent : public TrackVehicleComponent
@@ -48,10 +49,10 @@ protected:
 	void update( wv::WorldUpdateContext& _ctx ) override;
 
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition );
+	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
 	wv::EntityComponentContainer<TrackEngineComponent> m_engineComponents;
 
 	std::vector<TrackVehicleComponent*> m_vehicleComponents;
-
 	std::vector<TrackLength> m_trackLengths{};
 };

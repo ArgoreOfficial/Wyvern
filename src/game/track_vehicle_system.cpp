@@ -46,27 +46,36 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 	if ( m_trackLengths.empty() )
 		return;
 
-	TrackLength* track = &m_trackLengths[ 0 ];
+	wv::Vector3f teststart = m_trackLengths[ 0 ].getPositionAt( 0 );
+	wv::Vector3f testend = m_trackLengths[ 0 ].getPositionAt( m_trackLengths[ 0 ].length() );
 
 	for ( TrackEngineComponent* engine : m_engineComponents.getComponents() )
 	{
-		engine->m_trackPosition = engine->m_trackPosition + _ctx.deltaTime * 50.0 * engine->m_throttle;
+		size_t trackIndex = engine->m_trackIndex;
+		double velocity = _ctx.deltaTime * 10.0 * engine->m_throttle;
+
+		engine->m_trackPosition += velocity;
 		
-		if ( !track->isPositionInsideTrack( engine->m_trackPosition ) )
+		if ( !getTrack( trackIndex ).isPositionInsideTrack( engine->m_trackPosition ) )
 		{
+			TrackLength& track = getTrack( trackIndex );
+
 			if ( engine->m_trackPosition < 0.0 )
 			{
-				TrackLength& prevTrack = m_trackLengths[ track->prevSegmentIndex ];
-				engine->m_trackPosition = prevTrack.length() - engine->m_trackPosition;
+				TrackLength& prevTrack = m_trackLengths[ track.prevSegmentIndex ];
+
+				engine->m_trackPosition = prevTrack.length() + engine->m_trackPosition;
+				engine->m_trackIndex = track.prevSegmentIndex;
 			}
 			else
 			{
-				engine->m_trackPosition = engine->m_trackPosition - track->length();
+				engine->m_trackPosition = engine->m_trackPosition - track.length();
+				engine->m_trackIndex    = track.nextSegmentIndex;
 			}
 		}
 
-		wv::Vector3f frontWheelPos = getTrackWorldPosition( 0, engine->m_trackPosition + 1.0 );
-		wv::Vector3f backWheelPos  = getTrackWorldPosition( 0, engine->m_trackPosition - 1.0 );
+		wv::Vector3f frontWheelPos = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition + 1.0 );
+		wv::Vector3f backWheelPos  = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition - 1.0 );
 
 		wv::Entity* ent = m_engineComponents.getEntity( engine->getID() );
 
@@ -74,6 +83,8 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 		ent->getTransform().rotation = ( frontWheelPos - backWheelPos ).normalized().directionToEuler();
 		ent->getTransform().update( nullptr );
 
+		// if it has changed, update
+		engine->m_trackIndex = trackIndex;
 	}
 }
 
@@ -91,7 +102,7 @@ wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _index, double _t
 
 			// position on the prev track is the underflow into the previous track length
 
-			return prevTrack.getPositionAt( prevTrack.length() - _trackPosition );
+			return prevTrack.getPositionAt( prevTrack.length() + _trackPosition );
 		}
 		else
 		{

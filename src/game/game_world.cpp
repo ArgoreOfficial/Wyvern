@@ -127,16 +127,25 @@ void GameWorld::onSceneCreate()
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
 	TrackLength trackLength;
-	trackLength.addLineTrack( 50.0f );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addLineTrack( 50.0f );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addLineTrack( 5.0f );
+	trackLength.addArcTrack( 10.0, 90.0 );
+	trackLength.addArcTrack( 10.0, 90.0 );
+	trackLength.addLineTrack( 5.0f );
+	trackLength.addArcTrack( 10.0, 90.0 );
+	trackLength.addArcTrack( 10.0, 90.0 );
 	
 	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
 	trackVehicleSys->addTrackLength( trackLength );
+	{
+		wv::Entity* notplayer = WV_NEW( wv::Entity );
+		sector->addEntity( notplayer );
 
+		wv::MeshComponent* meshComponent = notplayer->createComponent<wv::MeshComponent>();
+		meshComponent->setFilePath( "meshes/cart_basic.glb" );
+
+		notplayer->createComponent<TrackEngineComponent>()->m_trackPosition = -8.0f;
+	}
+		
 	{
 		wv::Entity* player = WV_NEW( wv::Entity );
 		sector->addEntity( player );
