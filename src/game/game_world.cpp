@@ -50,9 +50,11 @@ class PlayerTrainSystem : public wv::IEntitySystem
 	WV_REFLECT_TYPE( PlayerTrainSystem, wv::IEntitySystem )
 public:
 	PlayerTrainSystem() = default;
-	~PlayerTrainSystem() { }
+	~PlayerTrainSystem() { 
+		m_track.clear();
+	}
 
-	void setTrack( const Track& _track ) { m_track = _track; }
+	void setTrack( const TrackLength& _track ) { m_track = _track; }
 	void addCart( wv::Entity* _cart ) { m_carts.push_back( _cart ); }
 
 protected:
@@ -89,11 +91,9 @@ protected:
 	}
 
 	double m_trackPos = 0.0;
-	Track m_track{};
+	TrackLength m_track{};
 	std::vector<wv::Entity*> m_carts;
 };
-
-
 
 class CameraFollowSystem : public wv::IEntitySystem
 {
@@ -115,6 +115,7 @@ protected:
 
 	wv::Entity* m_followEntity = nullptr;
 };
+
 void GameWorld::onSceneCreate()
 {
 	createWorldSystem<wv::RenderWorldSystem>();
@@ -124,12 +125,13 @@ void GameWorld::onSceneCreate()
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
-	Track track{};
+	TrackLength track{};
 	
 	track.addLineTrack( { 0.0f, 0.0f, 50.0f } );
-	track.addArcTrack( 25.0,  20.0 );
-	track.addArcTrack( 25.0, -20.0 );
+	track.addArcTrack( 60.0,  20.0 );
+	track.addArcTrack( 60.0, -20.0 );
 	track.addLineTrack( 50.0f );
+	track.addArcTrack( 140.0, 45.0 );
 
 	{
 		wv::Entity* player = WV_NEW( wv::Entity );
