@@ -50,7 +50,7 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 
 	for ( TrackEngineComponent* engine : m_engineComponents.getComponents() )
 	{
-		engine->m_trackPosition = engine->m_trackPosition + _ctx.deltaTime * 10.0;
+		engine->m_trackPosition = engine->m_trackPosition + _ctx.deltaTime * 50.0 * engine->m_throttle;
 		
 		if ( !track->isPositionInsideTrack( engine->m_trackPosition ) )
 		{

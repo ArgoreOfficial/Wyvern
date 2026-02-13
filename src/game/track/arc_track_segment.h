@@ -57,7 +57,21 @@ public:
 	}
 
 	virtual wv::Vector3f getEndRightAngle() const override {
-		return ( m_arcEnd - m_arcCentre ).normalized();
+		wv::Vector3f centreToStart = ( m_arcStart - m_arcCentre ).normalized();
+
+		double baseAngle = wv::Math::angleBetween(
+			wv::Vector2f{ -1.0f, 0.0f },
+			wv::Vector2f{ centreToStart.x, centreToStart.z },
+			true
+		);
+
+		wv::Vector3f rightAngle{
+			-std::cosf( baseAngle + wv::Math::radians( m_arcAngle ) ),
+			0.0f,
+			std::sinf( baseAngle + wv::Math::radians( m_arcAngle ) )
+		};
+
+		return rightAngle.normalized();
 	}
 
 	// 0 <= _t <= 1

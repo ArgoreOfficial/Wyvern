@@ -29,7 +29,7 @@ public:
 	}
 
 	virtual wv::Vector3f getEndRightAngle() const override {
-		return ( m_lineStart - m_lineEnd ).normalized().cross( { 0.0f, 1.0f, 0.0f } );
+		return ( m_lineEnd - m_lineStart ).normalized().cross( { 0.0f, 1.0f, 0.0f } );
 	}
 
 	// 0 <= _t <= 1

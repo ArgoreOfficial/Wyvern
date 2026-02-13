@@ -127,19 +127,12 @@ void GameWorld::onSceneCreate()
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
 	TrackLength trackLength;
-	//trackLength.addLineTrack( 10.0f );
-	trackLength.addArcTrack( 50.0, 360.0 );
-	//trackLength.addArcTrack( 50.0, 90.0 );
-	//trackLength.addArcTrack( 50.0, 90.0 );
-	//trackLength.addArcTrack( 50.0, 90.0 );
-
-	//trackLength.addArcTrack( 50.0, 90.0 );
-	//trackLength.addArcTrack( 50.0, 90.0 );
-	//trackLength.addArcTrack( 50.0, 90.0 );
-	
-	//trackLength.addLineTrack( 20.0f );
-	//trackLength.addArcTrack( 30.0, 90.0 );
-	//trackLength.addLineTrack( 30.0f );
+	trackLength.addLineTrack( 50.0f );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addLineTrack( 50.0f );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addArcTrack( 50.0, 90.0 );
 	
 	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
 	trackVehicleSys->addTrackLength( trackLength );
@@ -180,11 +173,11 @@ void GameWorld::onSceneCreate()
 
 	}
 
-	double trackpos = 0.5;
+	double trackpos = 0.0;
 	while ( trackLength.isPositionInsideTrack( trackpos ) )
 	{
-		wv::Vector3 pos     = trackLength.getPositionAt( trackpos );
-		wv::Vector3 posBack = trackLength.getPositionAt( trackpos - 0.5 );
+		wv::Vector3 posBack = trackLength.getPositionAt( trackpos );
+		wv::Vector3 pos     = trackLength.getPositionAt( trackpos + 0.5 );
 
 		wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
 		trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();

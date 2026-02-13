@@ -40,7 +40,7 @@ void TrackLength::addLineTrack( float _length )
 		segment = WV_NEW( 
 			LineTrackSegment,
 			m_track.back()->getEndPosition(),
-			m_track.back()->getEndPosition() + dir * _length
+			m_track.back()->getEndPosition() - dir * _length
 		);
 	}
 	else
