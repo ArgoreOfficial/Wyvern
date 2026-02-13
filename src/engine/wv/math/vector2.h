@@ -12,13 +12,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
+template<typename Ty>
 class Vector2
 {
 
 public:
 
-	_Ty x, y;
+	Ty x, y;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,28 +27,34 @@ public:
 		y( 0 ) 
 	{ }
 	
-	Vector2( const _Ty& _t ) : 
+	Vector2( const Ty& _t ) : 
 		x( _t ), 
 		y( _t ) 
 	{ }
 	
-	Vector2( const _Ty& _x, const _Ty& _y ) : 
+	Vector2( const Ty& _x, const Ty& _y ) : 
 		x( _x ), 
 		y( _y ) 
 	{ }
 
 	template<typename Ty2>
 	Vector2( const Vector2<Ty2>& _other ) :
-		x( static_cast<_Ty>( _other.x ) ),
-		y( static_cast<_Ty>( _other.y ) )
+		x( static_cast<Ty>( _other.x ) ),
+		y( static_cast<Ty>( _other.y ) )
 	{ }
 
-	_Ty length( void ) const {
+	Ty length( void ) const {
 		return std::sqrt( x * x + y * y );
 	}
 
+	Ty dot( const Vector2<Ty>& _other ) const {
+		return 
+			x * _other.x + 
+			y * _other.y;
+	}
+
 	void normalize( int _magnitude = 1.0f ) {
-		_Ty magnitude = length();
+		Ty magnitude = length();
 		x /= magnitude;
 		y /= magnitude;
 		
@@ -56,24 +62,24 @@ public:
 			*this *= _magnitude;
 	}
 
-	Vector2<_Ty> normalized() {
-		Vector2 vec = *this;
+	Vector2<Ty> normalized() const {
+		Vector2 vec{ x, y };
 		vec.normalize();
 		return vec;
 	}
 
-	Vector2<_Ty>& operator = ( const Vector2<_Ty>& _other );
-	Vector2<_Ty>& operator +=( const Vector2<_Ty>& _other );
-	Vector2<_Ty>& operator -=( const Vector2<_Ty>& _other );
-	Vector2<_Ty>  operator + ( const Vector2<_Ty>& _other ) const;
-	Vector2<_Ty>  operator - ( const Vector2<_Ty>& _other ) const;
-	Vector2<_Ty>  operator * ( const float& _scalar ) const;
-	Vector2<_Ty>& operator *=( const float& _scalar );
-	Vector2<_Ty>  operator / ( const float& _scalar ) const;
-	Vector2<_Ty>& operator /=( const float& _scalar );
+	Vector2<Ty>& operator = ( const Vector2<Ty>& _other );
+	Vector2<Ty>& operator +=( const Vector2<Ty>& _other );
+	Vector2<Ty>& operator -=( const Vector2<Ty>& _other );
+	Vector2<Ty>  operator + ( const Vector2<Ty>& _other ) const;
+	Vector2<Ty>  operator - ( const Vector2<Ty>& _other ) const;
+	Vector2<Ty>  operator * ( const float& _scalar ) const;
+	Vector2<Ty>& operator *=( const float& _scalar );
+	Vector2<Ty>  operator / ( const float& _scalar ) const;
+	Vector2<Ty>& operator /=( const float& _scalar );
 
 #ifdef WV_CPP20
-	auto operator<=>( const Vector2<_Ty>& ) const = default;
+	auto operator<=>( const Vector2<Ty>& ) const = default;
 #endif
 
 	
@@ -87,68 +93,101 @@ typedef Vector2<int> Vector2i;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
-inline Vector2<_Ty>& Vector2<_Ty>::operator=( const Vector2<_Ty>& _other )
+template<typename Ty>
+inline Vector2<Ty>& Vector2<Ty>::operator=( const Vector2<Ty>& _other )
 {
 	x = _other.x;
 	y = _other.y;
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector2<_Ty>& Vector2<_Ty>::operator+=( const Vector2<_Ty>& _other )
+template<typename Ty>
+inline Vector2<Ty>& Vector2<Ty>::operator+=( const Vector2<Ty>& _other )
 {
 	x += _other.x;
 	y += _other.y;
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector2<_Ty>& Vector2<_Ty>::operator-=( const Vector2<_Ty>& _other )
+template<typename Ty>
+inline Vector2<Ty>& Vector2<Ty>::operator-=( const Vector2<Ty>& _other )
 {
 	x -= _other.x;
 	y -= _other.y;
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector2<_Ty> Vector2<_Ty>::operator+( const Vector2<_Ty>& _other ) const
+template<typename Ty>
+inline Vector2<Ty> Vector2<Ty>::operator+( const Vector2<Ty>& _other ) const
 {
-	return Vector2<_Ty>( x + _other.x, y + _other.y );
+	return Vector2<Ty>( x + _other.x, y + _other.y );
 }
 
-template<typename _Ty>
-inline Vector2<_Ty> Vector2<_Ty>::operator-( const Vector2<_Ty>& _other ) const
+template<typename Ty>
+inline Vector2<Ty> Vector2<Ty>::operator-( const Vector2<Ty>& _other ) const
 {
-	return Vector2<_Ty>( x - _other.x, y - _other.y );
+	return Vector2<Ty>( x - _other.x, y - _other.y );
 }
 
-template<typename _Ty>
-inline Vector2<_Ty> wv::Vector2<_Ty>::operator*( const float& _scalar ) const
+template<typename Ty>
+inline Vector2<Ty> wv::Vector2<Ty>::operator*( const float& _scalar ) const
 {
-	return Vector2<_Ty>( x * _scalar, y * _scalar );
+	return Vector2<Ty>( x * _scalar, y * _scalar );
 }
 
-template<typename _Ty>
-inline Vector2<_Ty>& Vector2<_Ty>::operator*=( const float& _scalar )
+template<typename Ty>
+inline Vector2<Ty>& Vector2<Ty>::operator*=( const float& _scalar )
 {
 	x *= _scalar;
 	y *= _scalar;
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector2<_Ty> wv::Vector2<_Ty>::operator/( const float& _scalar ) const
+template<typename Ty>
+inline Vector2<Ty> wv::Vector2<Ty>::operator/( const float& _scalar ) const
 {
-	return Vector2<_Ty>( x / _scalar, y / _scalar );
+	return Vector2<Ty>( x / _scalar, y / _scalar );
 }
 
-template<typename _Ty>
-inline Vector2<_Ty>& Vector2<_Ty>::operator/=( const float& _scalar )
+template<typename Ty>
+inline Vector2<Ty>& Vector2<Ty>::operator/=( const float& _scalar )
 {
 	x /= _scalar;
 	y /= _scalar;
 	return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+namespace Math {
+
+template<typename Ty>
+Ty angleBetween( const Vector2<Ty>& _a, const Vector2<Ty>& _b, bool _positive = false )
+{
+	Ty det = ( _a.x * _b.y ) - ( _a.y * _b.x );
+	Ty angle = -std::atan2( det, _a.dot( _b ) );
+	
+	if ( _positive && angle < 0 )
+		angle += 2 * wv::Const::Double::PI;
+	
+	return angle;
+}
+
+template<typename Ty>
+Vector2<Ty> slerp( const Vector2<Ty>& _a, const Vector2<Ty>& _b, double _t, bool _positive = false )
+{
+	Vector2<Ty> a = _a.normalized();
+	Vector2<Ty> b = _b.normalized();
+
+	// angle between normalized vector a and b
+	double phi = angleBetween( a, b, _positive );
+
+	const Ty tA = (Ty)std::sin( ( 1 - _t ) * phi ) / std::sin( phi );
+	const Ty tB = (Ty)std::sin( _t * phi ) / std::sin( phi );
+
+	return ( _a * tA ) + ( _b * tB );
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

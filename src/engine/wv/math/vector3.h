@@ -46,8 +46,8 @@ public:
 
 	_Ty dot( const Vector3<_Ty>& _other ) const {
 		return x * _other.x
-			+ y * _other.y
-			+ z * _other.z;
+			 + y * _other.y
+			 + z * _other.z;
 	}
 
 	Vector3<_Ty> cross( const Vector3<_Ty>& _other ) const {
