@@ -41,7 +41,8 @@ template<typename _Ty> _Ty abs( const _Ty& _value );
 template<typename _Ty> _Ty min( const _Ty& _a, const _Ty& _b );
 template<typename _Ty> _Ty max( const _Ty& _a, const _Ty& _b );
 
-template<typename _Ty> _Ty lerp( const _Ty& _a, const _Ty& _b, const _Ty& _t );
+template<typename _Ty> _Ty lerp( const _Ty& _a, const _Ty& _b, float _t );
+template<typename _Ty> _Ty lerp( const _Ty& _a, const _Ty& _b, double _t );
 
 inline float  radians( const float& _degrees ) { 
 	return _degrees * ( Const::Float::PI / 180.0f ); 
