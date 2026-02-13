@@ -11,13 +11,13 @@ namespace Const /// TODO: move
 {
 namespace Float
 {
-constexpr float PI = 3.141592f;
+constexpr float PI = 3.14159265358979f;
 constexpr float EPSILON = 0.00000001f;
 }
 
 namespace Double
 {
-constexpr float PI = 3.141592;
+constexpr float PI = 3.14159265358979;
 constexpr float EPSILON = 0.000001;
 }
 }
