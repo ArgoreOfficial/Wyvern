@@ -15,6 +15,8 @@
 #include <wv/entity/entity_system.h>
 #include <wv/math/math.h>
 
+#include "track.h"
+
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
@@ -42,79 +44,6 @@ wv::Entity* createMeshEntity( const std::filesystem::path _path, const wv::Vecto
 	
 	return entity;
 }
-
-struct TrackSegment
-{
-	wv::Vector3f start;
-	wv::Vector3f end;
-
-	float length() const {
-		return ( end - start ).length();
-	}
-};
-
-struct Track
-{
-	void addTrack( const wv::Vector3f& _position ) 
-	{
-		if ( m_track.empty() )
-			m_track.push_back( { {}, _position } );
-		else
-			m_track.push_back( { m_track.back().end, _position } );
-	}
-
-	wv::Vector3f getPositionAt( double _trackPosition )
-	{
-		size_t trackIndex = findTrackIndex( _trackPosition );
-		if ( trackIndex == -1 )
-		{
-			_trackPosition = 0;
-			trackIndex = 0;
-		}
-
-		double prevLength = 0.0;
-		for ( size_t i = 0; i < trackIndex; i++ )
-			prevLength += m_track[ i ].length();
-
-		double relativePos = _trackPosition - prevLength;
-
-		TrackSegment segment = m_track[ trackIndex ];
-
-		return wv::Math::lerp(
-			segment.start,
-			segment.end,
-			relativePos / segment.length()
-		);
-	}
-
-	int findTrackIndex( double _position ) {
-		double currentLength = 0.0;
-
-		for ( size_t i = 0; i < m_track.size(); i++ )
-		{
-			double nextLength = currentLength + m_track[ i ].length();
-
-			if ( _position <= nextLength )
-				return i;
-
-			currentLength = nextLength;
-		}
-
-		return -1;
-	}
-
-	bool isPositionInsideTrack( double _position ) {
-		if ( _position < 0 )
-			return false;
-		
-		if ( findTrackIndex( _position ) == -1 )
-			return false;
-
-		return true;
-	}
-
-	std::vector<TrackSegment> m_track = {};
-};
 
 class PlayerTrainSystem : public wv::IEntitySystem
 {
@@ -202,16 +131,26 @@ void GameWorld::onSceneCreate()
 
 	Track track{};
 	
+	/*
 	for ( size_t i = 0; i < 600; i++ )
 	{
 		float fi = (float)i;
-		track.addTrack( { 
+		track.addLineTrack( { 
 			std::sin( fi / 4.0f ) * 3.0f, 
 			std::sin( fi / 5.0f ) * 2.0f,
 			fi * 3.0f
 			} );
 	}
+	*/
 	
+
+	
+
+	track.addLineTrack( { 0.0f, 0.0f, 50.0f } );
+	track.addArcTrack( 25.0,  20.0 );
+	track.addArcTrack( 25.0, -20.0 );
+	track.addLineTrack( 50.0f );
+
 	{
 		wv::Entity* player = WV_NEW( wv::Entity );
 		sector->addEntity( player );
@@ -251,7 +190,7 @@ void GameWorld::onSceneCreate()
 	double trackLength = 0.5;
 	while ( track.isPositionInsideTrack( trackLength ) )
 	{
-		wv::Vector3 pos  = track.getPositionAt( trackLength );
+		wv::Vector3 pos     = track.getPositionAt( trackLength );
 		wv::Vector3 posBack = track.getPositionAt( trackLength - 0.5 );
 
 		wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
