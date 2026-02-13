@@ -25,6 +25,10 @@ class TrackEngineComponent : public TrackVehicleComponent
 	WV_REFLECT_TYPE( TrackEngineComponent, TrackVehicleComponent )
 public:
 
+	void setThrottle( double _throttle ) {
+		m_throttle = wv::Math::clamp( _throttle, -1.0, 1.0 );
+	}
+
 protected:
 	double m_throttle = 1.0;
 };

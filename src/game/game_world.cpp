@@ -31,6 +31,9 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
 
+	playerActionGroup->bindAxisAction( "Throttle", "Keyboard", wv::AXIS_DIRECTION_NORTH, wv::SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Throttle", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
+
 	playerActionGroup->enable();
 }
 
@@ -51,49 +54,54 @@ class PlayerTrainSystem : public wv::IEntitySystem
 	WV_REFLECT_TYPE( PlayerTrainSystem, wv::IEntitySystem )
 public:
 	PlayerTrainSystem() = default;
-	~PlayerTrainSystem() { 
-		m_track.clear();
-	}
-
-	void setTrack( const TrackLength& _track ) { m_track = _track; }
-	void addCart( wv::Entity* _cart ) { m_carts.push_back( _cart ); }
+	~PlayerTrainSystem() {}
 
 protected:
-	virtual void update( wv::WorldUpdateContext& _ctx ) override { 
-		
-		double newTrackPos = m_trackPos + _ctx.deltaTime * 10.0;
-		if ( m_track.isPositionInsideTrack( newTrackPos + 2.0 ) )
-			m_trackPos = newTrackPos;
 
-		wv::Vector3f frontWheelPos = m_track.getPositionAt( m_trackPos + 1.0 );
-		wv::Vector3f backWheelPos  = m_track.getPositionAt( m_trackPos - 1.0 );
-		
-		m_entity->getTransform().position = ( frontWheelPos + backWheelPos ) / 2.0;
-		m_entity->getTransform().rotation = ( frontWheelPos - backWheelPos ).normalized().directionToEuler();
-		m_entity->getTransform().update( nullptr );
-
-		updateCarts( _ctx );
+	virtual void initialize() 
+	{ 
 
 	}
 
-	void updateCarts( wv::WorldUpdateContext& _ctx ) 
-	{
-		for ( size_t i = 0; i < m_carts.size(); i++ )
-		{
-			double fpos = m_trackPos - ( 7.8 * i ) - 5.0;
-			
-			wv::Vector3f frontWheelPos = m_track.getPositionAt( wv::Math::max( 0.0, fpos ) );
-			wv::Vector3f backWheelPos  = m_track.getPositionAt( wv::Math::max( 0.0, fpos - 5.0 ) );
+	virtual void shutdown() { }
 
-			m_carts[ i ]->getTransform().position = ( frontWheelPos + backWheelPos ) / 2;
-			m_carts[ i ]->getTransform().rotation = ( frontWheelPos - backWheelPos ).normalized().directionToEuler();
-			m_carts[ i ]->getTransform().update( nullptr );
+	virtual void registerComponent( wv::IEntityComponent* _component ) 
+	{ 
+		if ( TrackEngineComponent* comp = wv::tryCast<TrackEngineComponent>( _component ) )
+		{
+			WV_ASSERT( m_engineComponent == nullptr );
+			m_engineComponent = comp;
+		}
+	};
+
+	virtual void unregisterComponent( wv::IEntityComponent* _component ) 
+	{
+		if ( TrackEngineComponent* comp = wv::tryCast<TrackEngineComponent>( _component ) )
+		{
+			if( comp == m_engineComponent )
+				m_engineComponent = nullptr;
+		}
+	};
+
+	virtual void update( wv::WorldUpdateContext& _ctx ) override 
+	{ 
+		if ( !m_engineComponent )
+			return;
+
+		wv::ActionID throttle = _ctx.inputSystem->getActionGroup( "Player" )->getAxisActionID( "Throttle" );
+
+		for ( auto& ev : _ctx.actionEventQueue )
+		{
+			if ( ev.actionID == throttle )
+			{
+				float v = ev.action.axis->getValue().y;
+				wv::Debug::Print( "Throttle: %f\n", v );
+				m_engineComponent->setThrottle( v );
+			}
 		}
 	}
 
-	double m_trackPos = 0.0;
-	TrackLength m_track{};
-	std::vector<wv::Entity*> m_carts;
+	TrackEngineComponent* m_engineComponent{ nullptr };
 };
 
 class CameraFollowSystem : public wv::IEntitySystem
@@ -127,12 +135,12 @@ void GameWorld::onSceneCreate()
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
 	TrackLength trackLength;
-	trackLength.addLineTrack( 5.0f );
-	trackLength.addArcTrack( 10.0, 90.0 );
-	trackLength.addArcTrack( 10.0, 90.0 );
-	trackLength.addLineTrack( 5.0f );
-	trackLength.addArcTrack( 10.0, 90.0 );
-	trackLength.addArcTrack( 10.0, 90.0 );
+	trackLength.addLineTrack( 50.0f );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addLineTrack( 50.0f );
+	trackLength.addArcTrack( 50.0, 90.0 );
+	trackLength.addArcTrack( 50.0, 90.0 );
 	
 	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
 	trackVehicleSys->addTrackLength( trackLength );
@@ -156,6 +164,8 @@ void GameWorld::onSceneCreate()
 		player->createComponent<TrackEngineComponent>();
 		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
 		
+		player->createSystem<PlayerTrainSystem>();
+
 		/*
 		for ( size_t i = 0; i < 10; i++ )
 		{

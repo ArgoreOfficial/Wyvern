@@ -27,7 +27,7 @@ struct IAction
 		return true;
 	}
 
-	Ty getValue( int _playerIndex ) const {
+	Ty getValue( int _playerIndex = -1 ) const {
 		if ( _playerIndex < -1 || !values.contains( _playerIndex + 1 ) ) return {};
 		return values.at( _playerIndex + 1 );
 	}
