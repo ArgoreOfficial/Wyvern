@@ -21,6 +21,11 @@ public:
 	int findTrackIndex( double _position );
 	bool isPositionInsideTrack( double _position );
 
+	double length() const { return m_totalLength; }
+
+	size_t prevSegmentIndex = 0;
+	size_t nextSegmentIndex = 0;
+
 private:
 	double m_totalLength = 0.0;
 	std::vector<ITrackSegment*> m_track = {};

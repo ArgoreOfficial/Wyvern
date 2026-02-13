@@ -4,6 +4,7 @@
 #include "track/arc_track_segment.h"
 
 #include <wv/memory/memory.h>
+#include <wv/math/vector2.h>
 
 void TrackLength::clear()
 {
@@ -15,37 +16,53 @@ void TrackLength::clear()
 
 void TrackLength::addLineTrack( const wv::Vector3f& _position )
 {
+	LineTrackSegment* segment = nullptr;
+
 	if ( !m_track.empty() )
-		m_track.push_back( WV_NEW( LineTrackSegment, m_track.back()->getEndPosition(), _position ) );
+		segment = WV_NEW( LineTrackSegment, m_track.back()->getEndPosition(), _position );
 	else
-		m_track.push_back( WV_NEW( LineTrackSegment, wv::Vector3f{}, _position ) );
+		segment = WV_NEW( LineTrackSegment, wv::Vector3f{}, _position );
+
+	if ( segment )
+	{
+		m_track.push_back( segment );
+		m_totalLength += segment->length();
+	}
 }
 
 void TrackLength::addLineTrack( float _length )
 {
+	ITrackSegment* segment{ nullptr };
+
 	if ( !m_track.empty() )
 	{
 		wv::Vector3f dir = m_track.back()->getEndRightAngle().cross( { 0.0f, 1.0f, 0.0f } );
-		ITrackSegment* segment = WV_NEW( 
+		segment = WV_NEW( 
 			LineTrackSegment,
 			m_track.back()->getEndPosition(),
-			m_track.back()->getEndPosition() - dir * _length
+			m_track.back()->getEndPosition() + dir * _length
 		);
-		m_track.push_back( segment );
 	}
 	else
 	{
-		ITrackSegment* segment = WV_NEW( 
+		segment = WV_NEW( 
 			LineTrackSegment, 
 			wv::Vector3f{}, 
 			wv::Vector3f{ 0.0f, 0.0f, _length } 
 		);
+	}
+
+	if ( segment )
+	{
 		m_track.push_back( segment );
+		m_totalLength += segment->length();
 	}
 }
 
 void TrackLength::addArcTrack( double _radius, double _arc )
 {
+	ITrackSegment* segment{ nullptr };
+
 	if ( !m_track.empty() )
 	{
 		ITrackSegment* prev = m_track.back();
@@ -57,27 +74,15 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 			_arc *= -1.0;
 		}
 
-
 		wv::Vector3f centre = prev->getEndPosition() - ( cross * _radius );
 
-		wv::Vector3f vecA = { 1.0f, 0.0f, 0.0f };
-		wv::Vector3f vecB = ( prev->getEndPosition() - centre ).normalized();
-		double baseAngle = wv::Math::angleBetween( vecA, vecB );
-
-		wv::Vector3f endPos{
-			(float)std::cos( baseAngle + wv::Math::radians( _arc ) ),
-			0.0f,
-			(float)std::sin( baseAngle + wv::Math::radians( _arc ) )
-		};
-
-		ITrackSegment* segment = WV_NEW( 
+		segment = WV_NEW(
 			ArcTrackSegment,
 			prev->getEndPosition(),
-			centre + endPos * _radius,
-			centre
+			centre,
+			_arc
 		);
 
-		m_track.push_back( segment );
 	}
 	else
 	{
@@ -85,22 +90,26 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 		wv::Vector3f cross = { 1.0f, 0.0f, 0.0 };
 		wv::Vector3f centre = cross * _radius;
 
-		wv::Vector3f endPos{
-			std::cosf( wv::Math::radians( _arc ) ),
-			0.0f,
-			std::sinf( wv::Math::radians( _arc ) )
-		};
+		if ( _arc < 0.0 )
+		{
+			cross *= -1.0;
+			_arc *= -1.0;
+		}
 
-		ITrackSegment* segment = WV_NEW( 
+		segment = WV_NEW( 
 			ArcTrackSegment,
 			wv::Vector3f{},
-			endPos * _radius,
-			centre
+			centre,
+			_arc
 		);
 
-		m_track.push_back( segment );
 	}
 
+	if ( segment )
+	{
+		m_track.push_back( segment );
+		m_totalLength += segment->length();
+	}
 }
 
 wv::Vector3f TrackLength::getPositionAt( double _trackPosition )
@@ -143,6 +152,9 @@ int TrackLength::findTrackIndex( double _position )
 bool TrackLength::isPositionInsideTrack( double _position )
 {
 	if ( _position < 0 )
+		return false;
+
+	if ( _position > m_totalLength )
 		return false;
 
 	if ( findTrackIndex( _position ) == -1 )

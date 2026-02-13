@@ -16,6 +16,7 @@
 #include <wv/math/math.h>
 
 #include "track.h"
+#include "track_vehicle_system.h"
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -125,13 +126,23 @@ void GameWorld::onSceneCreate()
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
-	TrackLength track{};
+	TrackLength trackLength;
+	//trackLength.addLineTrack( 10.0f );
+	trackLength.addArcTrack( 50.0, 360.0 );
+	//trackLength.addArcTrack( 50.0, 90.0 );
+	//trackLength.addArcTrack( 50.0, 90.0 );
+	//trackLength.addArcTrack( 50.0, 90.0 );
+
+	//trackLength.addArcTrack( 50.0, 90.0 );
+	//trackLength.addArcTrack( 50.0, 90.0 );
+	//trackLength.addArcTrack( 50.0, 90.0 );
 	
-	track.addLineTrack( { 0.0f, 0.0f, 50.0f } );
-	track.addArcTrack( 60.0,  20.0 );
-	track.addArcTrack( 60.0, -20.0 );
-	track.addLineTrack( 50.0f );
-	track.addArcTrack( 140.0, 45.0 );
+	//trackLength.addLineTrack( 20.0f );
+	//trackLength.addArcTrack( 30.0, 90.0 );
+	//trackLength.addLineTrack( 30.0f );
+	
+	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
+	trackVehicleSys->addTrackLength( trackLength );
 
 	{
 		wv::Entity* player = WV_NEW( wv::Entity );
@@ -140,11 +151,10 @@ void GameWorld::onSceneCreate()
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
 		meshComponent->setFilePath( "meshes/engine_basic.glb" );
 
-		auto trainsystem = player->createSystem<PlayerTrainSystem>();
-		trainsystem->setTrack( track );
-
+		player->createComponent<TrackEngineComponent>();
 		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
-
+		
+		/*
 		for ( size_t i = 0; i < 10; i++ )
 		{
 			wv::Entity* cart = nullptr;
@@ -156,6 +166,7 @@ void GameWorld::onSceneCreate()
 			trainsystem->addCart( cart );
 			sector->addEntity( cart );
 		}
+		*/
 
 		{
 			wv::Entity* camera = WV_NEW( wv::Entity );
@@ -169,20 +180,20 @@ void GameWorld::onSceneCreate()
 
 	}
 
-	double trackLength = 0.5;
-	while ( track.isPositionInsideTrack( trackLength ) )
+	double trackpos = 0.5;
+	while ( trackLength.isPositionInsideTrack( trackpos ) )
 	{
-		wv::Vector3 pos     = track.getPositionAt( trackLength );
-		wv::Vector3 posBack = track.getPositionAt( trackLength - 0.5 );
+		wv::Vector3 pos     = trackLength.getPositionAt( trackpos );
+		wv::Vector3 posBack = trackLength.getPositionAt( trackpos - 0.5 );
 
 		wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
 		trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();
 
 		sector->addEntity( trackEntity );
 
-		trackLength += 1.0;
+		trackpos += 1.0;
 	}
-
+	
 	addSector( sector );
 
 }
