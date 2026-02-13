@@ -58,13 +58,6 @@ public:
 
 protected:
 
-	virtual void initialize() 
-	{ 
-
-	}
-
-	virtual void shutdown() { }
-
 	virtual void registerComponent( wv::IEntityComponent* _component ) 
 	{ 
 		if ( TrackEngineComponent* comp = wv::tryCast<TrackEngineComponent>( _component ) )
@@ -95,7 +88,6 @@ protected:
 			if ( ev.actionID == throttle )
 			{
 				float v = ev.action.axis->getValue().y;
-				wv::Debug::Print( "Throttle: %f\n", v );
 				m_engineComponent->setThrottle( v );
 			}
 		}
@@ -134,26 +126,43 @@ void GameWorld::onSceneCreate()
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
-	TrackLength trackLength;
-	trackLength.addLineTrack( 50.0f );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addLineTrack( 50.0f );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	trackLength.addArcTrack( 50.0, 90.0 );
-	
 	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
-	trackVehicleSys->addTrackLength( trackLength );
-	{
-		wv::Entity* notplayer = WV_NEW( wv::Entity );
-		sector->addEntity( notplayer );
 
-		wv::MeshComponent* meshComponent = notplayer->createComponent<wv::MeshComponent>();
-		meshComponent->setFilePath( "meshes/cart_basic.glb" );
-
-		notplayer->createComponent<TrackEngineComponent>()->m_trackPosition = -8.0f;
+	{ // track length 0
+		TrackLength trackLength;
+		trackLength.addLineTrack( 20.0f );
+		//trackLength.addArcTrack( 50.0, 90.0 );
+		trackLength.nextJunctionIndex = 0;
+		trackVehicleSys->addTrackLength( trackLength );
 	}
-		
+	
+	{ // track length 1
+		TrackLength trackLength;
+		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, { 0.0f, 0.0f, 40.0f } );
+		//trackLength.addArcTrack( 50.0, 90.0 );
+		trackLength.prevJunctionIndex = 0;
+		trackVehicleSys->addTrackLength( trackLength );
+	}
+	
+	{ // track length 2
+		TrackLength trackLength;
+		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, {0.0f, 0.0f, 21.0f} );
+		trackLength.addArcTrack( 50.0, 90.0 ); // hack, TODO
+
+		trackLength.prevJunctionIndex = 0;
+		trackVehicleSys->addTrackLength( trackLength );
+	}
+
+	{ // track junction 0
+		TrackJunction trackJunction{};
+		trackJunction.inIndex = 0;
+		trackJunction.outIndices.push_back( 1 );
+		trackJunction.outIndices.push_back( 2 );
+		trackJunction.currentTrackIndex = 1;
+
+		trackVehicleSys->addTrackJunction( trackJunction );
+	}
+
 	{
 		wv::Entity* player = WV_NEW( wv::Entity );
 		sector->addEntity( player );
@@ -192,20 +201,23 @@ void GameWorld::onSceneCreate()
 
 	}
 
-	double trackpos = 0.0;
-	while ( trackLength.isPositionInsideTrack( trackpos ) )
+	for ( auto trackLength : trackVehicleSys->getTrackLengths() )
 	{
-		wv::Vector3 posBack = trackLength.getPositionAt( trackpos );
-		wv::Vector3 pos     = trackLength.getPositionAt( trackpos + 0.5 );
+		double trackpos = 0.0;
+		while ( trackLength.isPositionInsideTrack( trackpos ) )
+		{
+			wv::Vector3 posBack = trackLength.getPositionAt( trackpos );
+			wv::Vector3 pos     = trackLength.getPositionAt( trackpos + 0.5 );
 
-		wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
-		trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();
+			wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
+			trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();
 
-		sector->addEntity( trackEntity );
+			sector->addEntity( trackEntity );
 
-		trackpos += 1.0;
+			trackpos += 1.0;
+		}
 	}
-	
+
 	addSector( sector );
 
 }

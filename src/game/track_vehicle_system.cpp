@@ -51,28 +51,16 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 
 	for ( TrackEngineComponent* engine : m_engineComponents.getComponents() )
 	{
-		size_t trackIndex = engine->m_trackIndex;
 		double velocity = _ctx.deltaTime * 10.0 * engine->m_throttle;
 
 		engine->m_trackPosition += velocity;
+
+		std::pair<int, double> trackLocation = moveAlongTrack( engine->m_trackIndex, engine->m_trackPosition );
+		if ( trackLocation.first < 0 ) 
+			continue; // error
 		
-		if ( !getTrack( trackIndex ).isPositionInsideTrack( engine->m_trackPosition ) )
-		{
-			TrackLength& track = getTrack( trackIndex );
-
-			if ( engine->m_trackPosition < 0.0 )
-			{
-				TrackLength& prevTrack = m_trackLengths[ track.prevSegmentIndex ];
-
-				engine->m_trackPosition = prevTrack.length() + engine->m_trackPosition;
-				engine->m_trackIndex = track.prevSegmentIndex;
-			}
-			else
-			{
-				engine->m_trackPosition = engine->m_trackPosition - track.length();
-				engine->m_trackIndex    = track.nextSegmentIndex;
-			}
-		}
+		engine->m_trackIndex    = trackLocation.first;
+		engine->m_trackPosition = trackLocation.second;
 
 		wv::Vector3f frontWheelPos = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition + 1.0 );
 		wv::Vector3f backWheelPos  = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition - 1.0 );
@@ -80,39 +68,76 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 		wv::Entity* ent = m_engineComponents.getEntity( engine->getID() );
 
 		ent->getTransform().position = ( frontWheelPos + backWheelPos ) / 2.0;
+		//ent->getTransform().position = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition );
+
 		ent->getTransform().rotation = ( frontWheelPos - backWheelPos ).normalized().directionToEuler();
 		ent->getTransform().update( nullptr );
-
-		// if it has changed, update
-		engine->m_trackIndex = trackIndex;
 	}
 }
 
-wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _index, double _trackPosition )
+wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _track, double _position )
 {
-	TrackLength& track = m_trackLengths[ _index ];
-	
-	if ( track.isPositionInsideTrack( _trackPosition ) )
-		return track.getPositionAt( _trackPosition );
-	else
+	std::pair<int, double> trackLocation = moveAlongTrack( _track, _position );
+
+	if ( trackLocation.first == -1 )
+		return {};
+
+	TrackLength& track = m_trackLengths[ trackLocation.first ];
+	return track.getPositionAt( trackLocation.second );
+}
+
+std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPosition )
+{
+	if ( _track < 0 )
+		return { _track, _movedPosition };
+
+	if ( getTrack( _track ).isPositionInsideTrack( _movedPosition ) )
 	{
-		if ( _trackPosition < 0.0 )
-		{
-			TrackLength& prevTrack = m_trackLengths[ track.prevSegmentIndex ];
+		// still inside of track, no need to check for junctions
 
-			// position on the prev track is the underflow into the previous track length
-
-			return prevTrack.getPositionAt( prevTrack.length() + _trackPosition );
-		}
-		else
-		{
-			TrackLength& nextTrack = m_trackLengths[ track.nextSegmentIndex ];
-
-			// position on the next track is the overflow from the current track
-			
-			return nextTrack.getPositionAt( _trackPosition - track.length() );
-		}
+		return { _track, _movedPosition };
 	}
 
-	return wv::Vector3f{};
+	// not inside track, check for junctions
+	
+	TrackLength& track = getTrack( _track );
+
+	if ( _movedPosition < 0.0 )
+	{
+		if ( track.prevJunctionIndex >= 0 && track.prevJunctionIndex < m_trackJunctions.size() )
+		{
+			TrackJunction& junction = m_trackJunctions[ track.prevJunctionIndex ];
+			int newTrackIndex = junction.getConnectedTrack( _track );
+			
+			// junction leads to new track
+			if ( newTrackIndex != -1 )
+			{
+				TrackLength& newTrack = m_trackLengths[ newTrackIndex ];
+
+				return { newTrackIndex, newTrack.length() + _movedPosition };
+			}
+		}
+		
+		// no junction, or junction did not lead anywhere
+		return { _track, 0.0 };
+	}
+	else
+	{
+		if ( track.nextJunctionIndex >= 0 && track.nextJunctionIndex < m_trackJunctions.size() )
+		{
+			TrackJunction& junction = m_trackJunctions[ track.nextJunctionIndex ];
+			int newTrackIndex = junction.getConnectedTrack( _track );
+
+			// junction leads to new track
+			if ( newTrackIndex != -1 )
+			{
+				TrackLength& newTrack = m_trackLengths[ newTrackIndex ];
+
+				return { newTrackIndex, _movedPosition - track.length() };
+			}
+		}
+		
+		// no junction, or junction did not lead anywhere
+		return { _track, track.length() };
+	}
 }

@@ -6,6 +6,8 @@
 
 #include "track.h"
 
+#include <utility>
+
 class TrackVehicleComponent : public wv::IEntityComponent
 {
 	friend class TrackVehicleSystem;
@@ -30,7 +32,7 @@ public:
 	}
 
 protected:
-	double m_throttle = 1.0;
+	double m_throttle = 0.0;
 };
 
 class TrackVehicleSystem : public wv::IWorldSystem
@@ -42,6 +44,12 @@ public:
 	void addTrackLength( const TrackLength& _trackLength ) {
 		m_trackLengths.push_back( _trackLength );
 	}
+
+	void addTrackJunction( const TrackJunction& _trackJunction ) {
+		m_trackJunctions.push_back( _trackJunction );
+	}
+
+	const std::vector<TrackLength>& getTrackLengths() const { return m_trackLengths; }
 
 protected:
 	virtual void initialize() override;
@@ -55,8 +63,12 @@ protected:
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition );
 	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
+	std::pair<int, double> moveAlongTrack( size_t _track, double _movedPosition );
+
 	wv::EntityComponentContainer<TrackEngineComponent> m_engineComponents;
 
 	std::vector<TrackVehicleComponent*> m_vehicleComponents;
-	std::vector<TrackLength> m_trackLengths{};
+
+	std::vector<TrackLength>   m_trackLengths{};
+	std::vector<TrackJunction> m_trackJunctions{};
 };

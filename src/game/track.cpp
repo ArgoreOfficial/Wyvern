@@ -14,20 +14,17 @@ void TrackLength::clear()
 	m_track.clear();
 }
 
-void TrackLength::addLineTrack( const wv::Vector3f& _position )
+void TrackLength::addLineTrack( const wv::Vector3f& _start, const wv::Vector3f& _end )
 {
-	LineTrackSegment* segment = nullptr;
+	LineTrackSegment* segment = WV_NEW( LineTrackSegment, _start, _end );
 
 	if ( !m_track.empty() )
-		segment = WV_NEW( LineTrackSegment, m_track.back()->getEndPosition(), _position );
-	else
-		segment = WV_NEW( LineTrackSegment, wv::Vector3f{}, _position );
-
-	if ( segment )
 	{
-		m_track.push_back( segment );
-		m_totalLength += segment->length();
+		WV_WARNING( "Created line segment with start and end position in track with existing segments\n" );
 	}
+
+	m_track.push_back( segment );
+	m_totalLength += segment->length();
 }
 
 void TrackLength::addLineTrack( float _length )
@@ -115,10 +112,19 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 wv::Vector3f TrackLength::getPositionAt( double _trackPosition )
 {
 	size_t trackIndex = findTrackIndex( _trackPosition );
+	
 	if ( trackIndex == -1 )
 	{
-		_trackPosition = 0;
-		trackIndex = 0;
+		if ( _trackPosition < 0.0 )
+		{
+			_trackPosition = 0;
+			trackIndex = 0;
+		}
+		else
+		{
+			_trackPosition = m_totalLength;
+			trackIndex = m_track.size() - 1;
+		}
 	}
 
 	double prevLength = 0.0;
@@ -134,6 +140,9 @@ wv::Vector3f TrackLength::getPositionAt( double _trackPosition )
 
 int TrackLength::findTrackIndex( double _position )
 {
+	if ( _position < 0.0 )
+		return -1;
+
 	double currentLength = 0.0;
 
 	for ( size_t i = 0; i < m_track.size(); i++ )
