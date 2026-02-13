@@ -45,7 +45,7 @@ public:
 		// length of arc
 		double len = ( angle / wv::Math::radians( 360.0 ) ) * circm;
 
-		return len;
+		return std::abs( len );
 	}
 
 	virtual wv::Vector3f getStartPosition() const override {
@@ -70,6 +70,9 @@ public:
 			0.0f,
 			std::sinf( baseAngle + wv::Math::radians( m_arcAngle ) )
 		};
+
+		if ( m_arcAngle < 0.0 )
+			rightAngle *= -1;
 
 		return rightAngle.normalized();
 	}

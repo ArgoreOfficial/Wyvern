@@ -66,11 +66,8 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 		wv::Vector3f cross = prev->getEndRightAngle();
 
 		if ( _arc < 0.0 )
-		{
-			cross *= -1.0;
-			_arc *= -1.0;
-		}
-
+			cross *= -1;
+		
 		wv::Vector3f centre = prev->getEndPosition() - ( cross * _radius );
 
 		segment = WV_NEW(
