@@ -136,20 +136,35 @@ void GameWorld::onSceneCreate()
 		trackVehicleSys->addTrackLength( trackLength );
 	}
 	
+	TrackLength trackLength1;
 	{ // track length 1
-		TrackLength trackLength;
-		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, { 0.0f, 0.0f, 40.0f } );
-		//trackLength.addArcTrack( 50.0, 90.0 );
-		trackLength.prevJunctionIndex = 0;
-		trackVehicleSys->addTrackLength( trackLength );
+		trackLength1.addLineTrack( { 0.0f, 0.0f, 20.0f }, {0.0f, 0.0f, 21.0f} );
+		trackLength1.addArcTrack( 10.0,  45.0 );
+		trackLength1.addArcTrack( 10.0, -45.0 );
+		trackLength1.addLineTrack( 20.0 );
+		trackLength1.addArcTrack( 10.0, -45.0 );
+		trackLength1.addArcTrack( 10.0,  45.0 );
+
+		trackLength1.prevJunctionIndex = 0;
+		trackLength1.nextJunctionIndex = 1;
+		trackVehicleSys->addTrackLength( trackLength1 );
 	}
-	
+
 	{ // track length 2
 		TrackLength trackLength;
-		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, {0.0f, 0.0f, 21.0f} );
-		trackLength.addArcTrack( 50.0, 90.0 ); // hack, TODO
-
+		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, trackLength1.getEndPosition() ); // connect to length 1
 		trackLength.prevJunctionIndex = 0;
+		trackLength.nextJunctionIndex = 1;
+		trackVehicleSys->addTrackLength( trackLength );
+	}
+
+	{ // track length 3
+		TrackLength trackLength;
+		trackLength.addLineTrack( 
+			trackLength1.getEndPosition(), // connect to length 1 & 2
+			trackLength1.getEndPosition() + wv::Vector3f{ 0.0f, 0.0f, 20.0f } 
+		); 
+		trackLength.prevJunctionIndex = 1;
 		trackVehicleSys->addTrackLength( trackLength );
 	}
 
@@ -159,6 +174,16 @@ void GameWorld::onSceneCreate()
 		trackJunction.outIndices.push_back( 1 );
 		trackJunction.outIndices.push_back( 2 );
 		trackJunction.currentTrackIndex = 1;
+
+		trackVehicleSys->addTrackJunction( trackJunction );
+	}
+
+	{ // track junction 0
+		TrackJunction trackJunction{};
+		trackJunction.inIndex = 3;
+		trackJunction.outIndices.push_back( 1 );
+		trackJunction.outIndices.push_back( 2 );
+		trackJunction.currentTrackIndex = 0;
 
 		trackVehicleSys->addTrackJunction( trackJunction );
 	}
