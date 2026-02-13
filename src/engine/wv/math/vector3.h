@@ -58,7 +58,7 @@ public:
 		);
 	}
 
-	void normalize( _Ty _magnitude = 1.0f ) {
+	void normalize( _Ty _magnitude = 1.0 ) {
 		_Ty magnitude = length();
 		x /= magnitude;
 		y /= magnitude;
@@ -68,9 +68,9 @@ public:
 			*this *= _magnitude;
 	}
 
-	Vector3<_Ty> normalized() {
-		Vector3 vec = *this;
-		vec.normalize();
+	Vector3<_Ty> normalized( _Ty _magnitude = 1.0 ) const {
+		Vector3 vec{ x, y, z };
+		vec.normalize( _magnitude );
 		return vec;
 	}
 
@@ -205,5 +205,30 @@ inline Vector3<_Ty>& wv::Vector3<_Ty>::operator/=( const _Ty& _scalar )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+namespace Math {
+
+template<typename Ty>
+Ty angleBetween( const Vector3<Ty>& _a, const Vector3<Ty>& _b )
+{
+	return std::atan2( _a.cross( _b ).length(), _a.dot( _b ) );
+}
+
+template<typename Ty>
+Vector3<Ty> slerp( const Vector3<Ty>& _a, const Vector3<Ty>& _b, double _t )
+{
+	Vector3<Ty> a = _a.normalized();
+	Vector3<Ty> b = _b.normalized();
+
+	// angle between normalized vector a and b
+	double phi = angleBetween( a, b );
+
+	const Ty tA = (Ty)std::sin( ( 1 - _t ) * phi ) / std::sin( phi );
+	const Ty tB = (Ty)std::sin(         _t * phi ) / std::sin( phi );
+
+	return ( _a * tA ) + ( _b * tB );
+}
+
+}
 
 }
