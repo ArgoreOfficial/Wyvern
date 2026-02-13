@@ -57,10 +57,10 @@ public:
 
 protected:
 	virtual void update( wv::WorldUpdateContext& _ctx ) override { 
-		m_trackPos += _ctx.deltaTime * 10.0;
-
-		if ( !m_track.isPositionInsideTrack( m_trackPos ) )
-			m_trackPos = 0.0;
+		
+		double newTrackPos = m_trackPos + _ctx.deltaTime * 10.0;
+		if ( m_track.isPositionInsideTrack( newTrackPos + 2.0 ) )
+			m_trackPos = newTrackPos;
 
 		wv::Vector3f frontWheelPos = m_track.getPositionAt( m_trackPos + 1.0 );
 		wv::Vector3f backWheelPos  = m_track.getPositionAt( m_trackPos - 1.0 );

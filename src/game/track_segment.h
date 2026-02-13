@@ -89,16 +89,16 @@ private:
 	{
 		LINE,
 		ARC
-	} m_segmentType;
+	} m_segmentType = LINE;
 
 	// Line track segment
 
-	wv::Vector3f m_lineStart;
-	wv::Vector3f m_lineEnd;
+	wv::Vector3f m_lineStart{};
+	wv::Vector3f m_lineEnd{};
 
 	// Arc track segment
-	wv::Vector3f m_arcCentre;
-	wv::Vector3f m_arcStart;
-	wv::Vector3f m_arcEnd;
+	wv::Vector3f m_arcCentre{};
+	wv::Vector3f m_arcStart{};
+	wv::Vector3f m_arcEnd{};
 
 };
