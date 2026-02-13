@@ -124,28 +124,8 @@ void GameWorld::onSceneCreate()
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
-	//sector->addEntity( createMeshEntity( "meshes/SM_MoonRayWidget.glb", { -6.0f, -1.6f, 0.0f } ) );
-	//sector->addEntity( createMeshEntity( "meshes/main_sponza/NewSponza_Main_glTF_003.gltf", { 0.0f, -2.0f, 0.0f } ) );
-	
-	//sector->addEntity( createMeshEntity( "meshes/engine_basic.glb", { 0.0f, -1.0f, 0.0f } ) );
-
 	Track track{};
 	
-	/*
-	for ( size_t i = 0; i < 600; i++ )
-	{
-		float fi = (float)i;
-		track.addLineTrack( { 
-			std::sin( fi / 4.0f ) * 3.0f, 
-			std::sin( fi / 5.0f ) * 2.0f,
-			fi * 3.0f
-			} );
-	}
-	*/
-	
-
-	
-
 	track.addLineTrack( { 0.0f, 0.0f, 50.0f } );
 	track.addArcTrack( 25.0,  20.0 );
 	track.addArcTrack( 25.0, -20.0 );
