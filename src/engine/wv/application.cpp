@@ -3,6 +3,9 @@
 #include <wv/debug/timer.h>
 
 #include <wv/display_driver.h>
+
+#include <wv/editor/editor_interface_system.h>
+
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
 
@@ -110,7 +113,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Set up world
+	// Set up default assets
 
 	MaterialManager* materialManager = m_world->getMaterialManager();
 
@@ -134,7 +137,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		materialManager->makePersistent( material );
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	// Set up world
+
 	m_world->onSetupInput( m_inputSystem );
+
+	m_world->createWorldSystem<EditorInterfaceSystem>();
+
 	m_world->onSceneCreate();
 
 	return true;
