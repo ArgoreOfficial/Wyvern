@@ -25,7 +25,7 @@ void wv::RenderWorldSystem::registerComponent( Entity* _entity, IEntityComponent
 	
 	if ( WorldSector* sector = _entity->getParentSector() )
 	{
-		WorldSectorID sectorID = sector->getID();
+		UUID sectorID = sector->getID();
 		SectorRenderBucket& bucket = m_renderBucketMap[ sectorID ];
 		
 		_entity->getTransform().update( nullptr );
@@ -68,7 +68,7 @@ void wv::RenderWorldSystem::unregisterComponent( Entity* _entity, IEntityCompone
 
 	// Remove mesh resource from bucket
 	
-	WorldSectorID sectorID = _entity->getParentSector()->getID();
+	UUID sectorID = _entity->getParentSector()->getID();
 	auto& bucket = m_renderBucketMap.at( sectorID );
 	for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
 	{

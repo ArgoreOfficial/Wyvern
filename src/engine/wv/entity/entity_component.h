@@ -3,10 +3,9 @@
 #include <wv/reflection/reflection.h>
 #include <wv/math/math.h>
 
+#include <wv/types.h>
 
 namespace wv {
-
-typedef uint32_t ComponentID;
 
 struct WorldLoadContext;
 
@@ -27,11 +26,11 @@ public:
 	};
 
 	IEntityComponent()                  : m_ID{ wv::Math::randomU32() } { }
-	IEntityComponent( ComponentID _id ) : m_ID{ _id } { }
+	IEntityComponent( UUID _id ) : m_ID{ _id } { }
 	
 	virtual ~IEntityComponent() { };
 
-	inline ComponentID getID() const { return m_ID; }
+	inline UUID getID() const { return m_ID; }
 
 	bool isUnloaded()    const { return m_state == EntityComponentState::UNLOADED; }
 	bool isLoading()     const { return m_state == EntityComponentState::LOADING; }
@@ -64,7 +63,7 @@ protected:
 	}
 
 protected:
-	ComponentID m_ID = 0;
+	UUID m_ID = 0;
 	EntityComponentState m_state = EntityComponentState::UNLOADED;
 };
 

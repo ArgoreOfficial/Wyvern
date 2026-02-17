@@ -210,9 +210,11 @@ void wv::CameraManagerSystem::onDebugRender()
 {
 	if ( ImGui::Begin( "CameraManager", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
 	{
-		ImGui::Text( "Orbit Distance: %f", m_orbitDistance );
-		ImGui::Text( "Active Camera:  0x%" PRIx32, m_activeCamera->getID() );
+		wv::UUID u{ 14093481034 };
 
+		ImGui::Text( "Orbit Distance: %f", m_orbitDistance );
+		ImGui::Text( "Active Camera:  %s", m_activeCamera->getID().toString().c_str() );
+		
 		ImGui::End();
 	}
 }

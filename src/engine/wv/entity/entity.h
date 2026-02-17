@@ -14,8 +14,6 @@ class World;
 struct WorldLoadContext;
 struct WorldUpdateContext;
 
-typedef uint32_t EntityID;
-
 class Entity final : wv::IReflectedType
 {
 	friend class WorldSector;
@@ -23,14 +21,14 @@ class Entity final : wv::IReflectedType
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	Entity()               : m_ID{ wv::Math::randomU32() } { }
-	Entity( EntityID _id ) : m_ID{ _id } { }
+	Entity( UUID _id ) : m_ID{ _id } { }
 
 	~Entity();
 
 	void initialize();
 	void unload();
 
-	EntityID getID() const { return m_ID; }
+	UUID getID() const { return m_ID; }
 	WorldSector* getParentSector() const { return m_parentSector; }
 
 	Transformf& getTransform() { return m_transform; }
@@ -70,7 +68,7 @@ private:
 	void registerComponent  ( IEntityComponent* _component );
 	void unregisterComponent( IEntityComponent* _component );
 
-	EntityID m_ID = 0;
+	UUID m_ID = 0;
 	
 	Transformf m_transform;
 

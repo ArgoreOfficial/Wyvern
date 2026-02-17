@@ -68,7 +68,7 @@ void wv::World::addSector( WorldSector* _sector )
 	m_sectorMap.emplace( _sector->getID(), _sector );
 }
 
-void wv::World::destroySector( WorldSectorID _sectorID )
+void wv::World::destroySector( UUID _sectorID )
 {
 	WorldSector* sector = findSector( _sectorID );
 	if ( sector== nullptr )

@@ -47,15 +47,15 @@ public:
 
 	void shutdown();
 
-	WorldSector* findSector( WorldSectorID _entityID ) const {
-		auto it = m_sectorMap.find( _entityID );
+	WorldSector* findSector( UUID _UUID ) const {
+		auto it = m_sectorMap.find( _UUID );
 		if ( it == m_sectorMap.end() )
 			return nullptr;
 		return it->second;
 	}
 
 	void addSector( WorldSector* _sector );
-	void destroySector( WorldSectorID _sectorID );
+	void destroySector( UUID _sectorID );
 
 	template<typename Ty>
 	Ty* createWorldSystem();
@@ -129,7 +129,7 @@ protected:
 
 	std::vector<WorldSector*> m_sectors;
 	std::vector<WorldSector*> m_sectorsToLoad;
-	std::unordered_map<WorldSectorID, WorldSector*> m_sectorMap;
+	std::unordered_map<UUID, WorldSector*> m_sectorMap;
 	
 	Viewport* m_viewport = nullptr;
 

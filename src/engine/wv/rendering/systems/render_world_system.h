@@ -58,7 +58,7 @@ protected:
 	void update( WorldUpdateContext& _ctx ) override;
 
 	EntityComponentContainer<MeshComponent> m_meshComponents;
-	std::unordered_map<WorldSectorID, SectorRenderBucket> m_renderBucketMap;
+	std::unordered_map<UUID, SectorRenderBucket> m_renderBucketMap;
 };
 
 }

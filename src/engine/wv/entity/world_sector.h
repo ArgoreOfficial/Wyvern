@@ -2,12 +2,12 @@
 
 #include <wv/entity/entity.h>
 
+#include <wv/types.h>
+
 #include <unordered_map>
 #include <queue>
 
 namespace wv {
-
-typedef uint32_t WorldSectorID;
 
 class MeshManager;
 class MaterialManager;
@@ -20,7 +20,7 @@ public:
 	WorldSector();
 	~WorldSector();
 
-	WorldSectorID getID() const { return m_ID; }
+	UUID getID() const { return m_ID; }
 
 	void unload( WorldLoadContext& _ctx );
 
@@ -35,8 +35,8 @@ public:
 		return false;
 	}
 
-	Entity* findEntity( EntityID _entityID ) const {
-		auto it = m_entityMap.find( _entityID );
+	Entity* findEntity( UUID _UUID ) const {
+		auto it = m_entityMap.find( _UUID );
 		if ( it == m_entityMap.end() )
 			return nullptr;
 		return it->second;
@@ -46,17 +46,17 @@ public:
 	const std::vector<Entity*>& getEntities() const { return m_entities; }
 
 	void addEntity( Entity* _entity );
-	void destroyEntity( EntityID _entityID );
+	void destroyEntity( UUID _UUID );
 
 	World* getParentWorld() const { return m_parentWorld; }
 
 protected:
 	World* m_parentWorld = nullptr;
 
-	WorldSectorID m_ID = wv::Math::randomU32();
+	UUID m_ID = wv::Math::randomU32();
 	
 	std::vector<Entity*> m_entities{};
-	std::unordered_map<EntityID, Entity*> m_entityMap{};
+	std::unordered_map<UUID, Entity*> m_entityMap{};
 
 	std::queue<Entity*> m_entityAddQueue{};
 	std::queue<Entity*> m_entityDestroyQueue{};

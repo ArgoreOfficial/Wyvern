@@ -76,12 +76,12 @@ void wv::WorldSector::addEntity( Entity* _entity )
 	m_entityAddQueue.push( _entity );
 }
 
-void wv::WorldSector::destroyEntity( EntityID _entityID )
+void wv::WorldSector::destroyEntity( UUID _UUID )
 {
-	Entity* entity = findEntity( _entityID );
+	Entity* entity = findEntity( _UUID );
 	if ( entity == nullptr )
 	{
-		WV_LOG_ERROR( "World sector %zu does not contain entity %zu", m_ID, _entityID );
+		WV_LOG_ERROR( "World sector %zu does not contain entity %zu", m_ID, _UUID );
 		return;
 	}
 
@@ -92,6 +92,6 @@ void wv::WorldSector::destroyEntity( EntityID _entityID )
 		break;
 	}
 
-	m_entityMap.erase( _entityID );
+	m_entityMap.erase( _UUID );
 	m_entityDestroyQueue.push( entity );
 }
