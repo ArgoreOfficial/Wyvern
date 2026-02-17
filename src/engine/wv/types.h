@@ -57,4 +57,12 @@ struct hash<wv::UUID>
 	size_t operator()( const wv::UUID& _type ) const { return hash<uint64_t>()( _type ); }
 };
 
+template <>
+struct formatter<wv::UUID> : std::formatter<std::string>
+{
+	auto format( wv::UUID _uuid, format_context& _ctx ) const {
+		return std::formatter<std::string>::format( _uuid.toString(), _ctx );
+	}
+};
+
 }
