@@ -49,7 +49,8 @@ public:
 	inline InputSystem*   getInputSystem()        const { return m_inputSystem; }
 	inline EventManager*  getEventManager()       const { return m_eventManager; }
 	inline Renderer*      getRenderer()           const { return m_renderer; }
-	inline TaskSystem*    getTaskSystem()          const { return m_taskSystem; }
+	inline TaskSystem*    getTaskSystem()         const { return m_taskSystem; }
+	inline World*         getWorld()              const { return m_world; }
 
 	void quit() { m_alive = false; }
 private:

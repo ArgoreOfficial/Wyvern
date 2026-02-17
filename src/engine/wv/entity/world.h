@@ -94,6 +94,8 @@ public:
 		}
 	}
 
+	std::vector<IWorldSystem*> getWorldSystems() const { return m_systems; }
+
 	void updateLoading();
 	void updateSectors( double _deltaTime );
 	void updateWorldSystems( double _deltaTime );
