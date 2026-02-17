@@ -9,10 +9,30 @@ namespace wv {
 
 typedef uint64_t TypeUUID;
 
+struct IMemberTypeInfo
+{
+	const char* name;
+	const char* displayName;
+	size_t offset;
+	virtual std::string format( void* _class ) = 0;
+};
+
+template<typename Ty>
+struct MemberTypeInfo : IMemberTypeInfo
+{
+	virtual std::string format( void* _class ) override {
+		WV_ASSERT( _class != nullptr );
+
+		Ty* v = reinterpret_cast<Ty*>( (char*)_class + offset );
+		return std::format( "{}", *v );
+	}
+};
+
 struct TypeInfo
 {
 	const char* name;
 	TypeUUID typeUUID;
+	std::vector<IMemberTypeInfo*> members;
 };
 
 template<typename Ty>
@@ -57,6 +77,9 @@ public:
 	virtual std::vector<TypeUUID> getInheritedUUIDs() const = 0;
 
 	static wv::TypeUUID getStaticTypeUUID() { return 0; }
+	
+private:
+	
 };
 
 class ReflectionRegistry
@@ -79,8 +102,39 @@ public:
 
 	TypeInfo* registerType( const char* _name );
 
+	template<typename Ty>
+	int registerMember( size_t _offset, const char* _name, const char* _displayName ) {
+		WV_ASSERT( m_lastTypeInfo != nullptr );
+
+		MemberTypeInfo<Ty>* type = new MemberTypeInfo<Ty>();
+		type->name        = _name;
+
+		if ( 0 == strcmp( _displayName, "" ) )
+			type->displayName = _name;
+		else
+			type->displayName = _displayName;
+
+		type->offset      = _offset;
+
+		m_lastTypeInfo->members.push_back( type );
+
+		return m_lastTypeInfo->members.size() - 1;
+	}
+
+	TypeInfo* getTypeInfo( TypeUUID _typeUUID ) {
+		for ( TypeInfo* typeInfo : m_typeInfos )
+		{
+			if ( typeInfo->typeUUID == _typeUUID )
+				return typeInfo;
+		}
+
+		return nullptr;
+	}
+
 private:
 	static inline ReflectionRegistry* s_instance = nullptr;
+
+	TypeInfo* m_lastTypeInfo = nullptr;
 
 	std::vector<TypeInfo*> m_typeInfos;
 };
@@ -115,12 +169,28 @@ Ty* tryCast( IReflectedType* _type )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+// helper
+namespace wv {
+static wv::ReflectionRegistry* reflreg() { return wv::ReflectionRegistry::getSingleton(); }
+}
+
 #define WV_REFLECT_TYPE( _typename, _base ) \
 public: \
+typedef _typename ClassType; \
 typedef wv::InheritenceRegister<_base> Inheritence_t; \
-static inline const wv::TypeInfo* s_typeInfo = wv::ReflectionRegistry::getSingleton()->registerType( #_typename ); \
+static inline const wv::TypeInfo* s_typeInfo = wv::reflreg()->registerType( #_typename ); \
 static constexpr const char* getStaticTypeName() { return #_typename; } \
 static wv::TypeUUID getStaticTypeUUID() { return s_typeInfo->typeUUID; } \
 virtual std::string getTypeName() const override { return _typename::getStaticTypeName(); } \
 virtual wv::TypeUUID getTypeUUID() const override { return _typename::getStaticTypeUUID(); } \
 virtual std::vector<wv::TypeUUID> getInheritedUUIDs() const override { return Inheritence_t::getRecursiveTypeUUIDs(); } 
+
+#define WV_REFLECT_MEMBER( _member, ... ) \
+static inline const int _member##_reflect = wv::reflreg()->registerMember<decltype( _member )>( offset_of<ClassType, decltype( _member ), &ClassType::##_member>(), #_member, "" __VA_ARGS__ );
+
+template <typename T, typename R, R T::* M>
+constexpr std::size_t offset_of()
+{
+	return reinterpret_cast<std::size_t>( &( ( (T*)0 )->*M ) );
+}
+

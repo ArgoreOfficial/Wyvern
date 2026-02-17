@@ -15,6 +15,17 @@ void wv::ReflectionRegistry::destroySingleton()
 	if ( !s_instance )
 		return;
 
+	for ( TypeInfo* ptr : s_instance->m_typeInfos )
+	{
+		for ( IMemberTypeInfo* member : ptr->members )
+			delete member;
+	
+		ptr->members.clear();
+		delete ptr;
+	}
+
+	s_instance->m_typeInfos.clear();
+
 	delete s_instance;
 	s_instance = nullptr;
 }
@@ -34,6 +45,7 @@ wv::TypeInfo* wv::ReflectionRegistry::registerType( const char* _name )
 	info->typeUUID = wv::Math::randomU64();
 	
 	m_typeInfos.push_back( info );
+	m_lastTypeInfo = info;
 
 	return info;
 }
