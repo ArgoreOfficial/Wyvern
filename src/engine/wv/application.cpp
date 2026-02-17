@@ -147,6 +147,23 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		materialManager->makePersistent( material );
 	}
 
+	// Default debug material
+	{
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
+		auto def = material->deserialize( "shaders/default_debug.vert.spv", "shaders/default_debug.frag.spv" );
+		
+		def.uniforms = { 
+			{ "color", sizeof( wv::Vector4f ) } 
+		};
+		
+		def.topology = TopologyClass::WV_LINE;
+
+		material->initialize( def );
+
+		materialManager->add( "Debug", material );
+		materialManager->makePersistent( material );
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
