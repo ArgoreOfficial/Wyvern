@@ -201,7 +201,7 @@ public:
 
 	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
 
-	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize );
+	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize, TopologyClass _topology = TopologyClass::WV_TRIANGLE );
 	void destroyPipeline( ResourceID _pipeline );
 
 	ResourceID allocateMesh( uint32_t _numIndices, uint32_t _numPositions, uint32_t _vertexDataSize = 0 );

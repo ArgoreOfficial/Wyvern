@@ -44,7 +44,7 @@ wv::ResourceID wv::PipelineManager::createComputePipeline( VkShaderModule _shade
 	return m_pipelines.emplace( pipeline );
 }
 
-wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout )
+wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout, TopologyClass _topology )
 {
 	// Set shader stages
 
@@ -73,7 +73,14 @@ wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{ .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{ .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	
+	switch ( _topology )
+	{
+	case TopologyClass::WV_POINT:    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;    break;
+	case TopologyClass::WV_LINE:     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;     break;
+	case TopologyClass::WV_TRIANGLE: inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; break;
+	}
+
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	VkPipelineViewportStateCreateInfo viewportState{ .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
@@ -128,7 +135,8 @@ wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 		VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
 		VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
 		VK_DYNAMIC_STATE_DEPTH_COMPARE_OP,
-		VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE
+		VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE,
+		VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
 	};
 
 	VkPipelineDynamicStateCreateInfo dynamicInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };

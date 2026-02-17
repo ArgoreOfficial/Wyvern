@@ -22,6 +22,12 @@ namespace wv {
 
 class TextureAsset;
 
+struct MaterialUniform
+{
+	std::string name;
+	size_t size;
+};
+
 struct MaterialDefinition
 {
 	std::filesystem::path path;
@@ -31,6 +37,9 @@ struct MaterialDefinition
 
 	std::vector<uint8_t> vertCode;
 	std::vector<uint8_t> fragCode;
+
+	std::vector<MaterialUniform> uniforms;
+	TopologyClass topology = TopologyClass::WV_TRIANGLE;
 };
 
 class MaterialAsset

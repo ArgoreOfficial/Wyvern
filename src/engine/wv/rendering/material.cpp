@@ -53,11 +53,16 @@ void wv::MaterialAsset::initialize( const MaterialDefinition& _def )
 	{
 		m_pipeline = renderer->createPipeline(
 			(uint32_t*)_def.vertCode.data(), _def.vertCode.size(),
-			(uint32_t*)_def.fragCode.data(), _def.fragCode.size()
+			(uint32_t*)_def.fragCode.data(), _def.fragCode.size(),
+			_def.topology
 		);
 		
 		m_rs = {};
-		m_rs.pushSpan( "albedoIndex", sizeof( uint32_t ) );
+
+		for ( const MaterialUniform& uniform : _def.uniforms )
+			m_rs.pushSpan( uniform.name, uniform.size );
+		
+		//m_rs.pushSpan( "albedoIndex", sizeof( uint32_t ) );
 	}
 
 #ifdef WV_DEBUG

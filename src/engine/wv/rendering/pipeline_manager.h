@@ -3,12 +3,11 @@
 #include <wv/resource_id.h>
 #include <wv/helpers/unordered_array.hpp>
 
+#include <wv/types.h>
+
 #include <vulkan/vulkan.h>
 
 namespace wv {
-
-// using PipelineID     = TResourceID<uint16_t, struct PipelineID_t>;
-// using ShaderModuleID = TResourceID<uint16_t, struct ShaderModuleID_t>;
 
 class Renderer;
 
@@ -27,7 +26,7 @@ public:
 	void destroyShaderModule( VkShaderModule _shaderModule );
 
 	ResourceID createComputePipeline( VkShaderModule _shaderModule, VkPipelineLayout _layout, const char* _entryPoint );
-	ResourceID createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout );
+	ResourceID createGraphicsPipeline( VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkPipelineLayout _layout, TopologyClass _topology );
 
 	void destroyPipeline( ResourceID _pipelineID );
 

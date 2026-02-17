@@ -359,7 +359,7 @@ void wv::Renderer::render( World* _world )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize )
+wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize, TopologyClass _topology )
 {
 	std::scoped_lock lock{ m_mtx };
 
@@ -372,7 +372,7 @@ wv::ResourceID wv::Renderer::createPipeline( uint32_t* _vertSrc, uint32_t _vertS
 		return {};
 	}
 
-	ResourceID pipeline = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_bindlessPipelineLayout );
+	ResourceID pipeline = m_pipelineManager.createGraphicsPipeline( vertShader, fragShader, m_bindlessPipelineLayout, _topology );
 	m_pipelineManager.destroyShaderModule( vertShader );
 	m_pipelineManager.destroyShaderModule( fragShader );
 	
@@ -818,6 +818,8 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		vkCmdSetDepthCompareOp  ( _cmd, VK_COMPARE_OP_GREATER_OR_EQUAL );
 	
 		vkCmdSetStencilTestEnable( _cmd, VK_FALSE );
+
+		vkCmdSetPrimitiveTopology( _cmd, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
 	}
 
 	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();

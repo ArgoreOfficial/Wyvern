@@ -121,6 +121,11 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
 		auto def = material->deserialize( "shaders/default_lit.vert.spv", "shaders/default_lit.frag.spv" );
+
+		def.uniforms = {
+			{ "albedoIndex", sizeof( uint32_t ) }
+		};
+		
 		material->initialize( def );
 
 		materialManager->add( "Default Lit", material );
@@ -131,6 +136,11 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	{
 		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
 		auto def = material->deserialize( "shaders/default_unlit.vert.spv", "shaders/default_unlit.frag.spv" );
+
+		def.uniforms = {
+			{ "albedoIndex", sizeof( uint32_t ) }
+		};
+		
 		material->initialize( def );
 
 		materialManager->add( "Default Unlit", material );
