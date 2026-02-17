@@ -59,6 +59,7 @@ struct AllocatedBuffer
 	VmaAllocationInfo info;
 
 	VkDeviceSize actualSize = 0;
+	VkDeviceAddress deviceAddress = 0;
 };
 
 struct MeshAllocation
@@ -229,6 +230,11 @@ public:
 		return index;
 	}
 
+	void addDebugLine( const wv::Vector3f& _start, const wv::Vector3f& _end ) {
+		m_debugLinePositions.push_back( _start );
+		m_debugLinePositions.push_back( _end );
+	}
+
 protected:
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
 	
@@ -244,6 +250,7 @@ protected:
 
 	void drawBackground( VkCommandBuffer _cmd );
 	void drawGeometry( VkCommandBuffer _cmd, World* _world );
+	void drawDebug( VkCommandBuffer _cmd, World* _world );
 
 	void immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd )>&& _func );
 
@@ -327,6 +334,10 @@ protected:
 	
 	unordered_array<ResourceID, MeshAllocation> m_meshAllocations;
 
+	// Debug drawing
+
+	GenericRingPool<AllocatedBuffer> m_debugLineBuffers{};
+	std::vector<wv::Vector3f> m_debugLinePositions{ };
 };
 
 

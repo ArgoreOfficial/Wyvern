@@ -41,8 +41,7 @@ protected:
 	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
 
 	virtual void update( WorldUpdateContext& _ctx ) override;
-	virtual void onDebugRender() override;
-
+	
 	std::vector<EntityData>::iterator findEntity( Entity* _entity ) {
 		for ( auto it = m_entityDatas.begin(); it != m_entityDatas.end(); it++ )
 			if ( it->entity == _entity ) return it;

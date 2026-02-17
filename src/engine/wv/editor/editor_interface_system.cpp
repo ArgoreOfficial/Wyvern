@@ -5,6 +5,7 @@
 #include <wv/entity/world.h>
 
 #include <wv/reflection/reflection.h>
+#include <wv/rendering/renderer.h>
 
 #include <imgui.h>
 
@@ -133,6 +134,14 @@ void wv::EditorInterfaceSystem::onDebugRender()
 				Entity* ent = m_selection.selectedEntity;
 				ImGui::SeparatorText( "Entity" );
 				reflt = (wv::IReflectedType*)ent;
+
+				wv::Vector3f arrowPos{ ent->getTransform().position };
+				float time = app->getApplicationTime() * 5.0f;
+				arrowPos += { 0.0f, 0.5f * std::sinf( time ) + 0.5f, 0.0f };
+
+				app->getRenderer()->addDebugLine( arrowPos, arrowPos + Vector3f{ 0.0f, 3.0f, 0.0 } );
+				app->getRenderer()->addDebugLine( arrowPos, arrowPos + Vector3f{ 0.5f, 0.5f, 0.0 } );
+				app->getRenderer()->addDebugLine( arrowPos, arrowPos + Vector3f{ -0.5f, 0.5f, 0.0 } );
 			}
 			else if ( m_selection.selectedComponent )
 			{
