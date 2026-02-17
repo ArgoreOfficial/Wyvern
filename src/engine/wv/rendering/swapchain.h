@@ -26,6 +26,7 @@ public:
 	VkImageView getSwapchainImageView( uint32_t _index ) const { return m_swapchainImageViews.at( _index ); }
 	VkSemaphore getSubmitSemaphore( uint32_t _index )    const { return m_submitSemaphores.at( _index ); }
 	VkExtent2D  getExtent()                              const { return m_swapchainExtent; }
+	VkFormat    getFormat()                              const { return m_swapchainImageFormat; }
 
 private:
 	VkDevice         m_device = VK_NULL_HANDLE;

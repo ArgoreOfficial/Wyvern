@@ -14,6 +14,11 @@
 #include <emscripten/html5.h>
 #endif
 
+#ifdef WV_SUPPORT_IMGUI
+#include <imgui.h>
+#include <imgui_impl_sdl2.h>
+#endif
+
 void wv::Platform::pollEvents()
 {
 	Application* app = Application::getSingleton();
@@ -24,6 +29,10 @@ void wv::Platform::pollEvents()
 		{
 		case SDL_QUIT: app->quit(); break;
 		}
+
+	#ifdef WV_SUPPORT_IMGUI
+		ImGui_ImplSDL2_ProcessEvent( &ev );
+	#endif
 	}
 }
 

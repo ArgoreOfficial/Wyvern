@@ -18,19 +18,24 @@ void wv::beginRendering( VkCommandBuffer _cmd, float _width, float _height, VkIm
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	//if ( clear ) colorAttachment.clearValue = *clear;
 
-	VkRenderingAttachmentInfo depthAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-	depthAttachment.imageView = _depthView;
-	depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	depthAttachment.clearValue.depthStencil.depth = 0.f;
-
 	VkRenderingInfo renderInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO };
 	renderInfo.renderArea = VkRect2D{ VkOffset2D { 0, 0 }, VkExtent2D{ (uint32_t)_width, (uint32_t)_height } };
 	renderInfo.layerCount = 1;
 	renderInfo.colorAttachmentCount = 1;
 	renderInfo.pColorAttachments = &colorAttachment;
-	renderInfo.pDepthAttachment = &depthAttachment;
+	
+	VkRenderingAttachmentInfo depthAttachment{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+	if ( _depthView != VK_NULL_HANDLE )
+	{
+		depthAttachment.imageView = _depthView;
+		depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		depthAttachment.clearValue.depthStencil.depth = 0.f;
+
+		renderInfo.pDepthAttachment = &depthAttachment;
+	}
+
 	renderInfo.pStencilAttachment = nullptr;
 
 	vkCmdBeginRendering( _cmd, &renderInfo );

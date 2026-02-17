@@ -17,6 +17,7 @@ function load(_prefix)
     add_requires( "imgui v1.91.0-docking", { 
         configs={
             opengl3 = true,
+            vulkan  = true,
             sdl2    = true
         }})    
 end

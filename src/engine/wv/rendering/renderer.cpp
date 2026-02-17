@@ -6,12 +6,13 @@
 #include <wv/debug/log.h>
 #include <wv/display_driver.h>
 #include <wv/entity/world.h>
-#include <wv/filesystem/file_system.h>
 #include <wv/rendering/viewport.h>
 #include <wv/rendering/swapchain.h>
 
 #include <wv/rendering/components/mesh_component.h>
 #include <wv/rendering/systems/render_world_system.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef WV_SUPPORT_SDL2
 #include <SDL2/SDL.h>
@@ -24,6 +25,18 @@
 
 #include <tracy/Tracy.hpp>
 #include <stdio.h>
+#include <vector>
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Imgui
+
+#include "imgui.h"
+
+#ifdef WV_SUPPORT_SDL2
+#include "imgui_impl_sdl2.h"
+#endif
+
+#include "imgui_impl_vulkan.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,12 +87,17 @@ bool wv::Renderer::initialize()
 	if ( !initSwapchain( windowSize.x, windowSize.y ) )
 		return false;
 
+	// Command structures
+
 	m_stagingRing.initialize( m_allocator, 52428800, FRAME_OVERLAP );
 	m_commandPoolRing.initialize( m_device, m_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, FRAME_OVERLAP );
 	m_deleteQueueRing.initialize( FRAME_OVERLAP );
 
-	if ( !initSyncStructures() )
-		return false;
+	// Sync structures 
+
+	m_semaphoreRing.initialize( m_device, FRAME_OVERLAP );
+	m_fenceRing.initialize( m_device, FRAME_OVERLAP );
+	m_fencePool.initialize( m_device );
 
 	if ( !initDescriptors() )
 		return false;
@@ -148,6 +166,72 @@ bool wv::Renderer::initialize()
 
 	m_initialized = true;
 
+	// Setup imgui
+
+#ifdef WV_SUPPORT_IMGUI
+	{
+		std::vector<VkDescriptorPoolSize> poolSizes = { 
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } 
+		};
+
+		VkDescriptorPoolCreateInfo poolInfo{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+		poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		poolInfo.maxSets = 1000;
+		poolInfo.poolSizeCount = (uint32_t)poolSizes.size();
+		poolInfo.pPoolSizes = poolSizes.data();
+
+		VkDescriptorPool imguiPool;
+		WV_ASSERT( vkCreateDescriptorPool( m_device, &poolInfo, nullptr, &imguiPool ) == VK_SUCCESS );
+
+		ImGui::CreateContext();
+
+	#ifdef WV_SUPPORT_SDL2
+		SDLDisplayDriver* sdlDisplayDriver = (SDLDisplayDriver*)displayDriver;
+		ImGui_ImplSDL2_InitForVulkan( sdlDisplayDriver->getSDLWindowContext() );
+	#else
+		error( "No ImGui backend" );
+	#endif
+
+		ImGui_ImplVulkan_InitInfo initInfo{};
+		initInfo.Instance       = m_instance;
+		initInfo.PhysicalDevice = m_physicalDevice;
+		initInfo.Device         = m_device;
+		initInfo.Queue          = m_graphicsQueue;
+		initInfo.DescriptorPool = imguiPool;
+		initInfo.MinImageCount = 3;
+		initInfo.ImageCount    = 3;
+		initInfo.UseDynamicRendering = true;
+
+		VkFormat swapchainFormat = m_swapchain->getFormat();
+		initInfo.PipelineRenderingCreateInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
+		initInfo.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+		initInfo.PipelineRenderingCreateInfo.pColorAttachmentFormats = &swapchainFormat;
+
+		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+		ImGui_ImplVulkan_Init( &initInfo );
+
+		ImGui_ImplVulkan_CreateFontsTexture();
+
+		// add the destroy the imgui created structures
+		m_mainDeleteQueue.push( [ = ]()
+								{
+									ImGui_ImplVulkan_Shutdown();
+									vkDestroyDescriptorPool( m_device, imguiPool, nullptr );
+								} );
+	}
+#endif
+
 	return true;
 }
 
@@ -205,6 +289,21 @@ void wv::Renderer::render( World* _world )
 
 	// Draw
 
+
+	{
+		// imgui new frame
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		//some imgui UI to test
+		ImGui::ShowDemoWindow();
+
+		//make imgui calculate internal draw structures
+		ImGui::Render();
+	}
+
+
 	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
 	// vkResetCommandBuffer( cmd, 0 );
 
@@ -235,6 +334,7 @@ void wv::Renderer::render( World* _world )
 		drawGeometry( cmd, _world );
 
 		VkImage swapchainImage = m_swapchain->getSwapchainImage( swapchainImageIndex );
+		VkImageView swapchainImageView = m_swapchain->getSwapchainImageView( swapchainImageIndex );
 
 		transitionImage( cmd, drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL );
 		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
@@ -242,7 +342,18 @@ void wv::Renderer::render( World* _world )
 		// copy draw to swapchain
 		copyImageToImage( cmd, drawImage.image, swapchainImage, m_drawExtent, m_swapchain->getExtent());
 
-		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+
+		{
+			VkExtent2D swapchainExtent = m_swapchain->getExtent();
+			beginRendering( cmd, swapchainExtent.width, swapchainExtent.height, swapchainImageView, VK_NULL_HANDLE );
+
+			ImGui_ImplVulkan_RenderDrawData( ImGui::GetDrawData(), cmd );
+
+			vkCmdEndRendering( cmd );
+		}
+
+		transitionImage( cmd, swapchainImage, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
 
 		vkEndCommandBuffer( cmd );
 	}
@@ -567,10 +678,7 @@ bool wv::Renderer::initSwapchain( uint32_t _width, uint32_t _height )
 
 bool wv::Renderer::initSyncStructures()
 {
-	m_semaphoreRing.initialize( m_device, FRAME_OVERLAP );
-	m_fenceRing.initialize( m_device, FRAME_OVERLAP );
-	m_fencePool.initialize( m_device );
-
+	
 	return true;
 }
 
