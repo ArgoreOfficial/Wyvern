@@ -38,7 +38,7 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 }
 
 wv::Entity* createMeshEntity( const std::filesystem::path _path, const wv::Vector3f& _position ) {
-	wv::Entity* entity = WV_NEW( wv::Entity );
+	wv::Entity* entity = WV_NEW( wv::Entity, "Mesh" );
 	
 	wv::MeshComponent* meshComponent = entity->createComponent<wv::MeshComponent>();
 	meshComponent->setFilePath( _path );
@@ -189,7 +189,7 @@ void GameWorld::onSceneCreate()
 	}
 
 	{
-		wv::Entity* player = WV_NEW( wv::Entity );
+		wv::Entity* player = WV_NEW( wv::Entity, "Player" );
 		sector->addEntity( player );
 
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
@@ -200,22 +200,8 @@ void GameWorld::onSceneCreate()
 		
 		player->createSystem<PlayerTrainSystem>();
 
-		/*
-		for ( size_t i = 0; i < 10; i++ )
 		{
-			wv::Entity* cart = nullptr;
-			if ( wv::Math::randomU32() % 2 == 0 )
-				cart = createMeshEntity( "meshes/cart_big.glb", {} );
-			else
-				cart = createMeshEntity( "meshes/cart_basic.glb", {} );
-
-			trainsystem->addCart( cart );
-			sector->addEntity( cart );
-		}
-		*/
-
-		{
-			wv::Entity* camera = WV_NEW( wv::Entity );
+			wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
 
 			camera->createComponent<wv::PlayerInputComponent>()->setPlayerIndex( 0 );
 			camera->createComponent<wv::OrbitCameraComponent>();

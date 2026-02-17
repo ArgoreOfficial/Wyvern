@@ -20,8 +20,15 @@ class Entity final : wv::IReflectedType
 
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
-	Entity()               : m_ID{ wv::Math::randomU32() } { }
-	Entity( UUID _id ) : m_ID{ _id } { }
+	Entity( const std::string& _debugName = "" ) : 
+		m_ID{ wv::Math::randomU32() },
+		m_debugName{ _debugName }
+	{ }
+
+	Entity( UUID _id, const std::string& _debugName = "" ) : 
+		m_ID{ _id },
+		m_debugName{ _debugName }
+	{ }
 
 	~Entity();
 
@@ -29,6 +36,7 @@ public:
 	void unload();
 
 	UUID getID() const { return m_ID; }
+	std::string getName() { return m_debugName; }
 	WorldSector* getParentSector() const { return m_parentSector; }
 
 	Transformf& getTransform() { return m_transform; }
@@ -69,6 +77,7 @@ private:
 	void unregisterComponent( IEntityComponent* _component );
 
 	UUID m_ID = 0;
+	std::string m_debugName = "";
 	
 	Transformf m_transform;
 
