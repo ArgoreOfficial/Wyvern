@@ -5,6 +5,7 @@
 #include <wv/application.h>
 #include <wv/debug/log.h>
 #include <wv/platform/platform.h>
+#include <wv/input/input_system.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
@@ -19,20 +20,87 @@
 #include <imgui_impl_sdl2.h>
 #endif
 
-void wv::Platform::pollEvents()
+void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 {
 	Application* app = Application::getSingleton();
 	SDL_Event ev;
+
 	while ( SDL_PollEvent( &ev ) )
 	{
-		switch ( ev.type )
-		{
-		case SDL_QUIT: app->quit(); break;
-		}
+		bool handled = false;
 
 	#ifdef WV_SUPPORT_IMGUI
 		ImGui_ImplSDL2_ProcessEvent( &ev );
 	#endif
+
+		switch ( ev.type )
+		{
+		case SDL_QUIT: app->quit(); break;
+
+		case SDL_MOUSEMOTION:
+		{
+		#ifdef WV_SUPPORT_IMGUI
+			handled = ImGui::GetIO().WantCaptureMouse;
+		#endif
+
+			if( !handled )
+			{
+				_inputEventQueue.pushEvent(
+					{
+						.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+						.mouse = {
+							.move = {
+								.position = { ev.motion.x,    ev.motion.y },
+								.delta    = { ev.motion.xrel, ev.motion.yrel }
+							}
+						}
+					} );
+			}
+		} break;
+
+		case SDL_MOUSEWHEEL:
+		{
+		#ifdef WV_SUPPORT_IMGUI
+			handled = ImGui::GetIO().WantCaptureMouse;
+		#endif
+
+			if ( !handled )
+			{
+				_inputEventQueue.pushEvent(
+					{
+						.type = LowLevelInputQueue::WV_MOUSE_SCROLL,
+						.mouse = {
+							.scroll = { 
+								.delta = ev.wheel.y
+							}
+						}
+					} );
+			}
+		} break;
+
+		case SDL_MOUSEBUTTONDOWN: 
+			[[fallthrough]];
+		case SDL_MOUSEBUTTONUP:
+		{
+		#ifdef WV_SUPPORT_IMGUI
+			handled = ImGui::GetIO().WantCaptureMouse;
+		#endif
+
+			if ( !handled )
+			{
+				_inputEventQueue.pushEvent(
+					{
+						.type = LowLevelInputQueue::WV_MOUSE_BUTTON,
+						.mouse = {
+							.button = {
+								.index = ev.button.button,
+								.state = ev.button.state == SDL_PRESSED
+							}
+						}
+					} );
+			}
+		} break;
+		}
 	}
 }
 

@@ -47,6 +47,57 @@ struct ActionEvent
 	} action{};
 };
 
+class LowLevelInputQueue
+{
+public:
+	enum EventType
+	{
+		WV_MOUSE_MOVE,
+		WV_MOUSE_BUTTON,
+		WV_MOUSE_SCROLL
+	};
+
+	struct Event
+	{
+		EventType type;
+
+		union
+		{
+			struct MouseMoveEvent
+			{
+				wv::Vector2i position;
+				wv::Vector2i delta;
+			} move;
+
+			struct MouseButtonEvent
+			{
+				int index;
+				bool state;
+			} button;
+
+			struct MouseScrollEvent
+			{
+				int delta;
+			} scroll;
+		} mouse;
+	};
+
+	void pushEvent( const Event& _event ) {
+		m_events.push_back( _event );
+	}
+
+	const std::vector<LowLevelInputQueue::Event>& getQueue() {
+		return m_events;
+	}
+
+	void clearQueue() {
+		m_events.clear();
+	}
+
+private:
+	std::vector<LowLevelInputQueue::Event> m_events;
+};
+
 class InputSystem
 {
 public:
@@ -125,10 +176,14 @@ public:
 		return m_prevMouseState.buttonStates[ _index ] && !m_mouseState.buttonStates[ _index ];
 	}
 
+	LowLevelInputQueue& getLowLevelQueue() { return m_lowLevelInputQueue; }
+
 protected:
 	
 	MouseState m_mouseState{};
 	MouseState m_prevMouseState{};
+
+	LowLevelInputQueue m_lowLevelInputQueue{};
 
 	std::vector<IInputDriver*> m_inputDrivers;
 	

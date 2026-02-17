@@ -158,7 +158,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 				m_cameraMove *= frictionDecay;
 			}
 
-			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * _ctx.deltaTime;
+			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * 120 * _ctx.deltaTime;
 
 			if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
 			{
