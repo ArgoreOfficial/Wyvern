@@ -98,6 +98,8 @@ public:
 	void updateSectors( double _deltaTime );
 	void updateWorldSystems( double _deltaTime );
 
+	void onDebugRender();
+
 	void registerComponent( Entity* _entity, IEntityComponent* _component ) { 
 		for ( auto system : m_systems )
 			system->registerComponent( _entity, _component);

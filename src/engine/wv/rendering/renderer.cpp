@@ -289,21 +289,6 @@ void wv::Renderer::render( World* _world )
 
 	// Draw
 
-
-	{
-		// imgui new frame
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
-
-		//some imgui UI to test
-		ImGui::ShowDemoWindow();
-
-		//make imgui calculate internal draw structures
-		ImGui::Render();
-	}
-
-
 	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
 	// vkResetCommandBuffer( cmd, 0 );
 
@@ -768,6 +753,22 @@ void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
 	m_swapchain->createSwapchain( _width, _height );
 
 	m_resizeRequested = false;
+}
+
+void wv::Renderer::beginDebugRender()
+{
+#ifdef WV_SUPPORT_IMGUI
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+#endif
+}
+
+void wv::Renderer::endDebugRender()
+{
+#ifdef WV_SUPPORT_IMGUI
+	ImGui::Render();
+#endif
 }
 
 void wv::Renderer::drawBackground( VkCommandBuffer _cmd )

@@ -28,6 +28,10 @@
 
 #include <tracy/Tracy.hpp>
 
+#ifdef WV_SUPPORT_IMGUI
+#include <imgui.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
@@ -255,6 +259,20 @@ void wv::Application::render()
 		if ( !isMinimized )
 			m_renderer->resizeSwapchain( windowSize.x, windowSize.y );
 	}
+
+#ifdef WV_DEBUG
+	
+#ifdef WV_SUPPORT_IMGUI
+	
+#endif
+
+	if ( shouldRender )
+	{
+		m_renderer->beginDebugRender();
+		m_world->onDebugRender();
+		m_renderer->endDebugRender();
+	}
+#endif
 
 	if ( shouldRender )
 		m_renderer->render( m_world );

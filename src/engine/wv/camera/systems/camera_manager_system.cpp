@@ -16,6 +16,9 @@
 #include <wv/input/input_system.h>
 #include <wv/event/event_manager.h>
 
+#include <inttypes.h>
+#include <imgui.h>
+
 wv::CameraManagerSystem::CameraManagerSystem()
 {
 
@@ -201,4 +204,15 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		}
 	}
 
+}
+
+void wv::CameraManagerSystem::onDebugRender()
+{
+	if ( ImGui::Begin( "CameraManager", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
+	{
+		ImGui::Text( "Orbit Distance: %f", m_orbitDistance );
+		ImGui::Text( "Active Camera:  0x%" PRIx32, m_activeCamera->getID() );
+
+		ImGui::End();
+	}
 }

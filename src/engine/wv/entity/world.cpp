@@ -126,6 +126,12 @@ void wv::World::updateWorldSystems( double _deltaTime )
 
 }
 
+void wv::World::onDebugRender()
+{
+	for ( auto system : m_systems )
+		system->onDebugRender();
+}
+
 wv::WorldLoadContext wv::World::getLoadContext()
 {
 	WorldLoadContext ctx{};

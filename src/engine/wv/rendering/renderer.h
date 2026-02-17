@@ -239,6 +239,9 @@ protected:
 
 	void resizeSwapchain( uint32_t _width, uint32_t _height );
 	
+	void beginDebugRender();
+	void endDebugRender();
+
 	void drawBackground( VkCommandBuffer _cmd );
 	void drawGeometry( VkCommandBuffer _cmd, World* _world );
 

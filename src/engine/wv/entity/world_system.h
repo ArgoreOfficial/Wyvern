@@ -26,6 +26,7 @@ protected:
 
 	virtual void update( WorldUpdateContext& _ctx ) = 0;
 
+	virtual void onDebugRender() { };
 };
 
 }
