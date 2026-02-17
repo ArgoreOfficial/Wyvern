@@ -4,6 +4,9 @@
 #include <wv/resource_id.h>
 #include <wv/string.h>
 
+// TODO: move
+#include <wv/math/vector2.h>
+
 #include <string>
 #include <filesystem>
 
@@ -71,6 +74,14 @@ struct formatter<std::filesystem::path> : std::formatter<std::string>
 {
 	auto format( std::filesystem::path _v, format_context& _ctx ) const {
 		return std::formatter<std::string>::format( _v.string(), _ctx);
+	}
+};
+
+template <typename Ty>
+struct formatter<wv::Vector2<Ty>> : std::formatter<std::string>
+{
+	auto format( wv::Vector2<Ty> _v, format_context& _ctx ) const {
+		return std::formatter<std::string>::format( std::format("[{}, {}]", _v.x, _v.y ), _ctx);
 	}
 };
 

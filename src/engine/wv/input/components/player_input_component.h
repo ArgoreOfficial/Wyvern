@@ -19,6 +19,9 @@ public:
 protected:
 
 	int m_playerIndex = -1;
+
+private:
+	WV_REFLECT_MEMBER( m_playerIndex )
 };
 
 }

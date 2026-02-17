@@ -57,15 +57,15 @@ protected:
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;
-	float m_orbitDistance = 16.0f;
 
 	uint32_t m_lookAction = 0;
 
-	uint32_t m_jumpEventListenerID = 0;
-	uint32_t m_jumpReleaseEventListenerID = 0;
-
+	float m_orbitDistance = 16.0f; 
 	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };
 
+private:
+	WV_REFLECT_MEMBER( m_orbitDistance, "Orbit Distance" )
+	WV_REFLECT_MEMBER( m_cameraMove, "Camera Move" )
 };
 
 }

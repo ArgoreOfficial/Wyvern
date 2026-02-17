@@ -78,11 +78,15 @@ private:
 
 	UUID m_ID = 0;
 	std::string m_debugName = "";
-	
+
 	Transformf m_transform;
 
 	std::vector<IEntitySystem*>    m_systems;
 	std::vector<IEntityComponent*> m_components;
+
+private:
+	WV_REFLECT_MEMBER( m_ID, "UUID" )
+	WV_REFLECT_MEMBER( m_debugName, "DebugName")
 };
 
 template<typename Ty>

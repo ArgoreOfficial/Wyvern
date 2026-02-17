@@ -12,6 +12,7 @@ struct SceneViewSelection
 {
 	wv::Entity* selectedEntity = nullptr;
 	wv::IEntityComponent* selectedComponent = nullptr;
+	wv::IWorldSystem* selectedWorldSystem = nullptr;
 };
 
 class EditorInterfaceSystem : public IWorldSystem

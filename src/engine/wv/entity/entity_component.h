@@ -25,7 +25,7 @@ public:
 		INITIALIZED
 	};
 
-	IEntityComponent()                  : m_ID{ wv::Math::randomU32() } { }
+	IEntityComponent()           : m_ID{ wv::Math::randomU32() } { }
 	IEntityComponent( UUID _id ) : m_ID{ _id } { }
 	
 	virtual ~IEntityComponent() { };
@@ -65,6 +65,9 @@ protected:
 protected:
 	UUID m_ID = 0;
 	EntityComponentState m_state = EntityComponentState::UNLOADED;
+
+private:
+	WV_REFLECT_MEMBER( m_ID, "UUID" )
 };
 
 }

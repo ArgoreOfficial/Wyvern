@@ -4,6 +4,8 @@
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
 
+#include <wv/reflection/reflection.h>
+
 #include <imgui.h>
 
 void componentTreeNode( wv::IEntityComponent* _comp, wv::SceneViewSelection* _selection )
@@ -20,7 +22,8 @@ void componentTreeNode( wv::IEntityComponent* _comp, wv::SceneViewSelection* _se
 	{
 		if ( ImGui::IsItemClicked() )
 		{
-			_selection->selectedEntity = nullptr;
+			*_selection = {};
+
 			_selection->selectedComponent = _comp;
 		}
 
@@ -47,8 +50,8 @@ void entityTreeNode( wv::Entity* _entity, wv::SceneViewSelection* _selection )
 	
 	if ( ImGui::IsItemClicked() )
 	{
+		*_selection = {};
 		_selection->selectedEntity = _entity;
-		_selection->selectedComponent = nullptr;
 	}
 
 	if ( isOpen )
@@ -61,14 +64,25 @@ void entityTreeNode( wv::Entity* _entity, wv::SceneViewSelection* _selection )
 	}
 }
 
-void worldSystemTreeNode( wv::IWorldSystem* _sys )
+void worldSystemTreeNode( wv::IWorldSystem* _sys, wv::SceneViewSelection* _selection )
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 	flags |= ImGuiTreeNodeFlags_Leaf;
 
+	if ( _sys == _selection->selectedWorldSystem )
+		flags |= ImGuiTreeNodeFlags_Selected;
+
 	std::string label = std::format( "{}", _sys->getTypeName() );
 
-	if ( ImGui::TreeNodeEx( label.c_str(), flags ) )
+	bool isOpen = ImGui::TreeNodeEx( label.c_str(), flags );
+
+	if ( ImGui::IsItemClicked() )
+	{
+		*_selection = {};
+		_selection->selectedWorldSystem = _sys;
+	}
+
+	if( isOpen )
 	{
 		ImGui::TreePop();
 	}
@@ -93,7 +107,7 @@ void wv::EditorInterfaceSystem::onDebugRender()
 		if ( ImGui::BeginChild( "###WorldSystemTree", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
 		{
 			for ( IWorldSystem* worldSystem : worldSystems )
-				worldSystemTreeNode( worldSystem );
+				worldSystemTreeNode( worldSystem, &m_selection );
 			
 			ImGui::EndChild();
 		}
@@ -110,24 +124,67 @@ void wv::EditorInterfaceSystem::onDebugRender()
 			ImGui::EndChild();
 		}
 
-		ImGui::SeparatorText( "Properties" );
-
 		if ( ImGui::BeginChild( "###SelectedProperties", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
 		{
+			wv::IReflectedType* reflt = nullptr;
+
 			if ( m_selection.selectedEntity )
 			{
 				Entity* ent = m_selection.selectedEntity;
-				ImGui::Text( "Entity" );
-				ImGui::Text( "Name: %s", ent->getName().c_str());
-				ImGui::Text( "UUID: %s", ent->getID().toString().c_str());
+				ImGui::SeparatorText( "Entity" );
+				reflt = (wv::IReflectedType*)ent;
 			}
 			else if ( m_selection.selectedComponent )
 			{
 				IEntityComponent* comp = m_selection.selectedComponent;
-				ImGui::Text( "Component" );
-				ImGui::Text( "Type: %s", comp->getTypeName().c_str() );
-				ImGui::Text( "UUID: %s", comp->getID().toString().c_str());
+				ImGui::SeparatorText( comp->getTypeName().c_str() );
+				reflt = (wv::IReflectedType*)comp;
+			}
+			else if ( m_selection.selectedWorldSystem )
+			{
+				IWorldSystem* sys = m_selection.selectedWorldSystem;
+				ImGui::SeparatorText( sys->getTypeName().c_str() );
+				reflt = (wv::IReflectedType*)sys;
+			}
 
+			// Display reflected data
+
+			if ( reflt )
+			{
+				auto inherited = reflt->getInheritedUUIDs();
+
+				// Iterate backwards, so that inherited members appear before 
+
+				for ( auto it = inherited.rbegin(); it != inherited.rend(); it++ )
+				{
+					wv::TypeInfo* typeInfo = wv::reflreg()->getTypeInfo( *it );
+					if ( !typeInfo )
+						continue;
+
+					for ( auto* member : typeInfo->members )
+					{
+						std::string memberValue = std::format( "{}: {}", member->displayName, member->format( reflt ) );
+						ImGui::Text( "%s", memberValue.c_str() );
+					}
+				}
+
+				// Iterate final members
+
+				{
+					wv::TypeUUID typeUUID  = reflt->getTypeUUID();
+					wv::TypeInfo* typeInfo = wv::reflreg()->getTypeInfo( typeUUID );
+
+					for ( auto* member : typeInfo->members )
+					{
+						std::string memberValue = std::format( "{}: {}", member->displayName, member->format( reflt ) );
+						ImGui::Text( "%s", memberValue.c_str() );
+					}
+				}
+			}
+			else
+			{
+				// if nothing is selected, just do a basic separator
+				ImGui::SeparatorText("");
 			}
 
 			ImGui::EndChild();

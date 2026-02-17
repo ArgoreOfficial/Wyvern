@@ -42,6 +42,10 @@ private:
 	std::vector<MaterialInstance> m_materials;
 	
 	Ref<TextureAsset> m_texture;
+
+private:
+	WV_REFLECT_MEMBER( m_path )
+	//WV_REFLECT_MEMBER( m_meshAsset )
 };
 
 }
