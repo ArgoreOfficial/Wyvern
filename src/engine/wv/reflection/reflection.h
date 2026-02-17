@@ -103,22 +103,23 @@ public:
 	TypeInfo* registerType( const char* _name );
 
 	template<typename Ty>
-	int registerMember( size_t _offset, const char* _name, const char* _displayName ) {
-		WV_ASSERT( m_lastTypeInfo != nullptr );
-
+	int registerMember( TypeUUID _class, size_t _offset, const char* _name, const char* _displayName ) {
 		MemberTypeInfo<Ty>* type = new MemberTypeInfo<Ty>();
-		type->name        = _name;
+		type->name   = _name;
+		type->offset = _offset;
 
 		if ( 0 == strcmp( _displayName, "" ) )
 			type->displayName = _name;
 		else
 			type->displayName = _displayName;
 
-		type->offset      = _offset;
-
-		m_lastTypeInfo->members.push_back( type );
-
-		return m_lastTypeInfo->members.size() - 1;
+		if ( TypeInfo* typeInfo = getTypeInfo( _class ) )
+		{
+			typeInfo->members.push_back( type );
+			return typeInfo->members.size() - 1;
+		}
+		
+		return 0;
 	}
 
 	TypeInfo* getTypeInfo( TypeUUID _typeUUID ) {
@@ -186,7 +187,12 @@ virtual wv::TypeUUID getTypeUUID() const override { return _typename::getStaticT
 virtual std::vector<wv::TypeUUID> getInheritedUUIDs() const override { return Inheritence_t::getRecursiveTypeUUIDs(); } 
 
 #define WV_REFLECT_MEMBER( _member, ... ) \
-static inline const int _member##_reflect = wv::reflreg()->registerMember<decltype( _member )>( offset_of<ClassType, decltype( _member ), &ClassType::##_member>(), #_member, "" __VA_ARGS__ );
+static inline const int _member##_reflect = \
+	wv::reflreg()->registerMember<decltype(_member )>( \
+		getStaticTypeUUID(),\
+		offset_of<ClassType, decltype( _member ), &ClassType::##_member>(), \
+		#_member, \
+		"" __VA_ARGS__ );
 
 template <typename T, typename R, R T::* M>
 constexpr std::size_t offset_of()
