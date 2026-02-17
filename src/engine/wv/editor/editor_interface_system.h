@@ -8,6 +8,12 @@
 
 namespace wv {
 
+struct SceneViewSelection
+{
+	wv::Entity* selectedEntity = nullptr;
+	wv::IEntityComponent* selectedComponent = nullptr;
+};
+
 class EditorInterfaceSystem : public IWorldSystem
 {
 	WV_REFLECT_TYPE( EditorInterfaceSystem, IWorldSystem )
@@ -31,8 +37,7 @@ protected:
 
 	EntityComponentContainer<IEntityComponent> m_components;
 
-	//std::set<UUID> m_selectedEntities;
-	UUID m_selectedUUID{ 0 };
+	SceneViewSelection m_selection{};
 };
 
 }
