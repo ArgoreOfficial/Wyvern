@@ -45,7 +45,7 @@ private:
 
 private:
 	WV_REFLECT_MEMBER( m_path )
-	//WV_REFLECT_MEMBER( m_meshAsset )
+	WV_REFLECT_MEMBER( m_meshAsset )
 };
 
 }

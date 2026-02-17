@@ -4,11 +4,7 @@
 #include <wv/resource_id.h>
 #include <wv/string.h>
 
-// TODO: move
-#include <wv/math/vector2.h>
-
 #include <string>
-#include <filesystem>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +29,7 @@ public:
 	UUID( uint64_t _value ) : m_value{ _value } { };
 
 	std::string toString() const {
-		return std::format( "0x{:x}", m_value );
+		return std::format( "{:x}", m_value );
 	}
 
 	bool     operator==( const wv::UUID& _other ) const { return m_value == _other.m_value; }
@@ -50,39 +46,5 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
-}
-
-namespace std {
-
-template <>
-struct hash<wv::UUID>
-{
-	size_t operator()( const wv::UUID& _type ) const { return hash<uint64_t>()( _type ); }
-};
-
-template <>
-struct formatter<wv::UUID> : std::formatter<std::string>
-{
-	auto format( wv::UUID _uuid, format_context& _ctx ) const {
-		return std::formatter<std::string>::format( _uuid.toString(), _ctx );
-	}
-};
-
-template <>
-struct formatter<std::filesystem::path> : std::formatter<std::string>
-{
-	auto format( std::filesystem::path _v, format_context& _ctx ) const {
-		return std::formatter<std::string>::format( _v.string(), _ctx);
-	}
-};
-
-template <typename Ty>
-struct formatter<wv::Vector2<Ty>> : std::formatter<std::string>
-{
-	auto format( wv::Vector2<Ty> _v, format_context& _ctx ) const {
-		return std::formatter<std::string>::format( std::format("[{}, {}]", _v.x, _v.y ), _ctx);
-	}
-};
 
 }

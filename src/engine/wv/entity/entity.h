@@ -86,7 +86,8 @@ private:
 
 private:
 	WV_REFLECT_MEMBER( m_ID, "UUID" )
-	WV_REFLECT_MEMBER( m_debugName, "DebugName")
+	WV_REFLECT_MEMBER( m_debugName, "DebugName" )
+	WV_REFLECT_MEMBER( m_transform, "Transform" )
 };
 
 template<typename Ty>

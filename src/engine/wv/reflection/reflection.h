@@ -3,6 +3,8 @@
 #include <wv/string.h>
 #include <wv/debug/error.h>
 
+#include <wv/format.h>
+
 #include <vector>
 
 namespace wv {
@@ -200,3 +202,25 @@ constexpr std::size_t offset_of()
 	return reinterpret_cast<std::size_t>( &( ( (T*)0 )->*M ) );
 }
 
+
+namespace std {
+
+template <typename Ty>
+struct formatter<wv::Ref<Ty>> : std::formatter<std::string>
+{
+	auto format( wv::Ref<Ty> _v, format_context& _ctx ) const {
+		std::string str{};
+
+		if constexpr ( std::is_base_of<wv::IReflectedType, Ty>::value )
+		{
+			wv::IReflectedType* ptr = (wv::IReflectedType*)_v.get();
+			str = std::format( "'{}'({})", ptr->getTypeName(), (void*)ptr );
+		}
+		else
+			str = std::format( "'???'({})", (void*)_v.get() );
+
+		return std::formatter<std::string>::format( str, _ctx );
+	}
+};
+
+}

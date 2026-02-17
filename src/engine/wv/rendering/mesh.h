@@ -6,6 +6,7 @@
 #include <wv/math/matrix.h>
 
 #include <wv/read_through_cache.h>
+#include <wv/reflection/reflection.h>
 
 #include <filesystem>
 #include <vector>
@@ -38,8 +39,10 @@ struct GeometrySurface
 	std::vector<Vector3f> vertexColours;
 };
 
-class MeshAsset
+class MeshAsset : public IReflectedType
 {
+	WV_REFLECT_TYPE( MeshAsset, IReflectedType )
+
 public:
 	MeshAsset() = default;
 	MeshAsset( const std::filesystem::path& _path );
