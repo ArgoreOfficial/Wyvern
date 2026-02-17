@@ -5,6 +5,7 @@
 #include <wv/string.h>
 
 #include <string>
+#include <filesystem>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +63,14 @@ struct formatter<wv::UUID> : std::formatter<std::string>
 {
 	auto format( wv::UUID _uuid, format_context& _ctx ) const {
 		return std::formatter<std::string>::format( _uuid.toString(), _ctx );
+	}
+};
+
+template <>
+struct formatter<std::filesystem::path> : std::formatter<std::string>
+{
+	auto format( std::filesystem::path _v, format_context& _ctx ) const {
+		return std::formatter<std::string>::format( _v.string(), _ctx);
 	}
 };
 
