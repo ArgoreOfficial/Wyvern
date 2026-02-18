@@ -767,10 +767,7 @@ void wv::Renderer::resizeSwapchain( uint32_t _width, uint32_t _height )
 	if ( _width == 0 || _height == 0 )
 		return;
 
-	vkDeviceWaitIdle( m_device );
-
-	m_swapchain->destroySwapchain();
-	m_swapchain->createSwapchain( _width, _height );
+	m_swapchain->recreateSwapchain( _width, _height );
 
 	m_resizeRequested = false;
 }

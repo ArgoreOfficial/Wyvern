@@ -22,9 +22,11 @@ public:
 		m_surface{ _surface }
 	{ }
 
-	void createSwapchain( uint32_t _width, uint32_t _height );
+	void createSwapchain( uint32_t _width, uint32_t _height, VkSwapchainKHR _oldSwapchain = VK_NULL_HANDLE );
 	void destroySwapchain();
 	
+	void recreateSwapchain( uint32_t _width, uint32_t _height );
+
 	VkResult acquireNextImage( VkSemaphore _acquireSemaphore, uint32_t* _outIndex ) const;
 	
 	VkResult present( uint32_t _imageIndex, VkQueue _queue ) const;

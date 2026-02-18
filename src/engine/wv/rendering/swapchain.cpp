@@ -5,7 +5,7 @@
 
 #include <wv/math/math.h>
 
-void wv::Swapchain::createSwapchain( uint32_t _width, uint32_t _height )
+void wv::Swapchain::createSwapchain( uint32_t _width, uint32_t _height, VkSwapchainKHR _oldSwapchain )
 {
 	m_supportDetails = querySwapchainSupport();
 
@@ -45,6 +45,8 @@ void wv::Swapchain::createSwapchain( uint32_t _width, uint32_t _height )
 	createInfo.presentMode = presentMode;
 	createInfo.clipped = VK_TRUE;
 
+	createInfo.oldSwapchain = _oldSwapchain;
+
 	// Create swapchain object
 	VkResult res = vkCreateSwapchainKHR( m_device, &createInfo, nullptr, &m_swapchain );
 	WV_ASSERT( res == VK_SUCCESS );
@@ -76,6 +78,18 @@ void wv::Swapchain::destroySwapchain()
 	m_swapchainImages.clear();
 	m_swapchainImageViews.clear();
 	m_submitSemaphores.clear();
+}
+
+void wv::Swapchain::recreateSwapchain( uint32_t _width, uint32_t _height )
+{
+	vkDeviceWaitIdle( m_device );
+	
+	if ( m_swapchain == VK_NULL_HANDLE )
+	{
+		WV_LOG_WARNING("recreateSwapchain called but m_swapchain is VK_NULL_HANDLE. Did you mean createSwapchain?\n" );
+	}
+
+	createSwapchain( _width, _height, m_swapchain );
 }
 
 VkResult wv::Swapchain::acquireNextImage( VkSemaphore _acquireSemaphore, uint32_t* _outIndex ) const
