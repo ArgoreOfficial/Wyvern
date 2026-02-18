@@ -51,15 +51,16 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 	return submitInfo;
 }
 
-VkBool32 debugCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData )
+VkBool32 wv::Renderer::debugCallback( 
+	VkDebugUtilsMessageSeverityFlagBitsEXT _messageSeverity, 
+	VkDebugUtilsMessageTypeFlagsEXT _messageTypes, 
+	const VkDebugUtilsMessengerCallbackDataEXT* _pCallbackData, 
+	void* _pUserData )
 {
+
 	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_INFO;
 
-	switch ( messageSeverity )
+	switch ( _messageSeverity )
 	{
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::WV_PRINT_DEBUG; break;
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::WV_PRINT_INFO; break;
@@ -67,8 +68,14 @@ VkBool32 debugCallback(
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::WV_PRINT_ERROR; break;
 	}
 
-	wv::Debug::Print( level, "%s\n", pCallbackData->pMessage );
+	wv::Renderer* renderer = wv::Application::getSingleton()->getRenderer();
 
+	for ( auto errorInfo : renderer->m_errorInfos )
+		if ( errorInfo.first == _pCallbackData->messageIdNumber )
+			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "%s\n", errorInfo.second.c_str() );
+	
+	wv::Debug::Print( level, "%s\n", _pCallbackData->pMessage );
+	
 	return true;
 }
 
@@ -371,8 +378,12 @@ void wv::Renderer::render( World* _world )
 
 	// Present
 
+	pushErrorInfo( -1259592959, "The following error may have been caused by OBS capture. You can safely ignore it." );
+
 	if ( m_swapchain->present( swapchainImageIndex, m_graphicsQueue ) == VK_ERROR_OUT_OF_DATE_KHR )
 		m_resizeRequested = true;
+
+	popErrorInfo();
 
 	m_frameNumber++;
 }

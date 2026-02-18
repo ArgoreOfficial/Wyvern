@@ -236,6 +236,13 @@ public:
 	}
 
 protected:
+
+	static VkBool32 debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT _messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT _messageTypes,
+		const VkDebugUtilsMessengerCallbackDataEXT* _pCallbackData,
+		void* _pUserData );
+
 	void waitForRenderer() const { vkDeviceWaitIdle( m_device ); }
 	
 	bool initVulkan();
@@ -338,6 +345,12 @@ protected:
 
 	GenericRingPool<AllocatedBuffer> m_debugLineBuffers{};
 	std::vector<wv::Vector3f> m_debugLinePositions{ };
+
+	// Debug error 
+
+	std::vector<std::pair<int32_t, std::string>> m_errorInfos;
+	void pushErrorInfo( int32_t _messageID, const std::string& _message ) { m_errorInfos.emplace_back( _messageID, _message ); }
+	void popErrorInfo() { m_errorInfos.pop_back(); }
 };
 
 
