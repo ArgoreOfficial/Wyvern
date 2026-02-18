@@ -23,6 +23,7 @@ public:
 	{ }
 
 	void createSwapchain( uint32_t _width, uint32_t _height, VkSwapchainKHR _oldSwapchain = VK_NULL_HANDLE );
+	void cleanupSwapchain();
 	void destroySwapchain();
 	
 	void recreateSwapchain( uint32_t _width, uint32_t _height );

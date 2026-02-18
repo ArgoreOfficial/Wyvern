@@ -63,12 +63,14 @@ void wv::Swapchain::createSwapchain( uint32_t _width, uint32_t _height, VkSwapch
 	for ( size_t i = 0; i < m_swapchainImages.size(); i++ )
 		vkCreateSemaphore( m_device, &semaphoreCreateInfo, nullptr, &m_submitSemaphores[ i ] );
 
+	if ( _oldSwapchain != VK_NULL_HANDLE )
+	{
+		vkDestroySwapchainKHR( m_device, _oldSwapchain, nullptr );
+	}
 }
 
-void wv::Swapchain::destroySwapchain()
-{ 
-	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
-
+void wv::Swapchain::cleanupSwapchain()
+{
 	for ( auto imageView : m_swapchainImageViews )
 		vkDestroyImageView( m_device, imageView, nullptr );
 
@@ -80,6 +82,13 @@ void wv::Swapchain::destroySwapchain()
 	m_submitSemaphores.clear();
 }
 
+void wv::Swapchain::destroySwapchain()
+{ 
+	cleanupSwapchain();
+
+	vkDestroySwapchainKHR( m_device, m_swapchain, nullptr );
+}
+
 void wv::Swapchain::recreateSwapchain( uint32_t _width, uint32_t _height )
 {
 	vkDeviceWaitIdle( m_device );
@@ -88,6 +97,8 @@ void wv::Swapchain::recreateSwapchain( uint32_t _width, uint32_t _height )
 	{
 		WV_LOG_WARNING("recreateSwapchain called but m_swapchain is VK_NULL_HANDLE. Did you mean createSwapchain?\n" );
 	}
+	
+	cleanupSwapchain();
 
 	createSwapchain( _width, _height, m_swapchain );
 }
