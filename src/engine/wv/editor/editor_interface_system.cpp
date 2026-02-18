@@ -8,6 +8,7 @@
 #include <wv/rendering/renderer.h>
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 void componentTreeNode( wv::IEntityComponent* _comp, wv::SceneViewSelection* _selection )
 {
@@ -89,8 +90,91 @@ void worldSystemTreeNode( wv::IWorldSystem* _sys, wv::SceneViewSelection* _selec
 	}
 }
 
+void wv::EditorInterfaceSystem::update( WorldUpdateContext& _ctx )
+{
+	m_timeSinceFPSUpdate += _ctx.deltaTime;
+	m_framesSinceFPSUpdate++;
+
+	if ( m_timeSinceFPSUpdate > 0.5 )
+	{
+		double averageDt = m_timeSinceFPSUpdate / m_framesSinceFPSUpdate;
+
+		if( averageDt != 0 )
+			m_averageFPS = 1.0 / averageDt;
+
+		m_timeSinceFPSUpdate -= 0.5;
+		m_framesSinceFPSUpdate = 0;
+	}
+}
+
 void wv::EditorInterfaceSystem::onDebugRender()
 {
+#ifdef WV_SUPPORT_IMGUI
+	renderPrimaryMenuBar();
+	renderSecondaryMenuBar();
+	renderStatusBar();
+
+	if ( m_showRenderWorldWindow )
+		renderWorldWindow();
+
+#endif
+}
+
+void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
+{
+	if ( ImGui::BeginMainMenuBar() )
+	{
+		if ( ImGui::BeginMenu( "Tools" ) )
+		{
+			if ( ImGui::MenuItem( "World" ) )
+				m_showRenderWorldWindow = !m_showRenderWorldWindow;
+			ImGui::EndMenu();
+		}
+	}
+	ImGui::EndMainMenuBar();
+}
+
+void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
+{
+	ImGuiViewportP* viewport = (ImGuiViewportP*)ImGui::GetMainViewport();
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+	float height = ImGui::GetFrameHeight();
+
+	if ( ImGui::BeginViewportSideBar( "##SecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags ) )
+	{
+		if ( ImGui::BeginMenuBar() )
+		{
+			//drawBuildWindow();
+			//m_runComboButton.draw();
+			ImGui::EndMenuBar();
+		}
+	}
+	ImGui::End();
+}
+
+void wv::EditorInterfaceSystem::renderStatusBar()
+{
+	ImGuiViewportP* viewport = (ImGuiViewportP*)ImGui::GetMainViewport();
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+	float height = ImGui::GetFrameHeight();
+
+	double deltaTime = wv::Application::getSingleton()->getDeltaTime();
+
+	if ( ImGui::BeginViewportSideBar( "##MainStatusBar", viewport, ImGuiDir_Down, height, window_flags ) )
+	{
+		if ( ImGui::BeginMenuBar() )
+		{
+			ImGui::Text( "FPS: %f", m_averageFPS );
+			ImGui::EndMenuBar();
+		}
+	}
+	ImGui::End();
+}
+
+void wv::EditorInterfaceSystem::renderWorldWindow()
+{
+#ifdef WV_SUPPORT_IMGUI
 	auto entities = m_components.getEntities();
 	Entity* selectedEntity = nullptr;
 	IEntityComponent* selectedComponent = nullptr;
@@ -104,14 +188,13 @@ void wv::EditorInterfaceSystem::onDebugRender()
 		auto worldSystems = world->getWorldSystems();
 
 		ImVec2 wsize = ImGui::GetWindowSize();
-		
+
 		if ( ImGui::BeginChild( "###WorldSystemTree", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
 		{
 			for ( IWorldSystem* worldSystem : worldSystems )
 				worldSystemTreeNode( worldSystem, &m_selection );
-			
-			ImGui::EndChild();
 		}
+		ImGui::EndChild();
 
 		ImGui::SeparatorText( "Entities" );
 
@@ -122,8 +205,8 @@ void wv::EditorInterfaceSystem::onDebugRender()
 				Entity* ent = entities[ i ];
 				entityTreeNode( ent, &m_selection );
 			}
-			ImGui::EndChild();
 		}
+		ImGui::EndChild();
 
 		if ( ImGui::BeginChild( "###SelectedProperties", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
 		{
@@ -180,7 +263,7 @@ void wv::EditorInterfaceSystem::onDebugRender()
 				// Iterate final members
 
 				{
-					wv::TypeUUID typeUUID  = reflt->getTypeUUID();
+					wv::TypeUUID typeUUID = reflt->getTypeUUID();
 					wv::TypeInfo* typeInfo = wv::reflreg()->getTypeInfo( typeUUID );
 
 					for ( auto* member : typeInfo->members )
@@ -193,13 +276,12 @@ void wv::EditorInterfaceSystem::onDebugRender()
 			else
 			{
 				// if nothing is selected, just do a basic separator
-				ImGui::SeparatorText("");
+				ImGui::SeparatorText( "" );
 			}
-
-			ImGui::EndChild();
 		}
+		ImGui::EndChild();
 
-		ImGui::End();
 	}
-
+	ImGui::End();
+#endif
 }

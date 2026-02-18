@@ -33,12 +33,23 @@ protected:
 		m_components.unregisterComponent( _entity, _component );
 	}
 
-	virtual void update( WorldUpdateContext& _ctx ) override { }
+	virtual void update( WorldUpdateContext& _ctx ) override;
 	virtual void onDebugRender() override;
 
-	EntityComponentContainer<IEntityComponent> m_components;
+	void renderPrimaryMenuBar();
+	void renderSecondaryMenuBar();
+	void renderStatusBar();
 
+	void renderWorldWindow();
+
+	EntityComponentContainer<IEntityComponent> m_components;
 	SceneViewSelection m_selection{};
+
+	double m_timeSinceFPSUpdate = 0.0;
+	size_t m_framesSinceFPSUpdate = 0;
+	double m_averageFPS = 0.0;
+
+	bool m_showRenderWorldWindow = false;
 };
 
 }
