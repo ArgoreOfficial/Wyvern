@@ -7,7 +7,7 @@
 #include <wv/reflection/reflection.h>
 #include <wv/rendering/renderer.h>
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 void componentTreeNode( wv::IEntityComponent* _comp, wv::SceneViewSelection* _selection )
 {

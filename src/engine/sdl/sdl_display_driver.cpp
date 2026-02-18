@@ -1,4 +1,4 @@
-#ifdef WV_SUPPORT_SDL2
+#ifdef WV_SUPPORT_SDL
 
 #include "sdl_display_driver.h"
 
@@ -7,8 +7,7 @@
 #include <wv/platform/platform.h>
 #include <wv/input/input_system.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
+#include <SDL3/SDL.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -16,8 +15,8 @@
 #endif
 
 #ifdef WV_SUPPORT_IMGUI
-#include <imgui.h>
-#include <imgui_impl_sdl2.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_sdl3.h>
 #endif
 
 void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
@@ -30,14 +29,14 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 		bool handled = false;
 
 	#ifdef WV_SUPPORT_IMGUI
-		ImGui_ImplSDL2_ProcessEvent( &ev );
+		ImGui_ImplSDL3_ProcessEvent( &ev );
 	#endif
 
 		switch ( ev.type )
 		{
-		case SDL_QUIT: app->quit(); break;
+		case SDL_EVENT_QUIT: app->quit(); break;
 
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 		{
 		#ifdef WV_SUPPORT_IMGUI
 			handled = ImGui::GetIO().WantCaptureMouse;
@@ -50,15 +49,15 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 						.type = LowLevelInputQueue::WV_MOUSE_MOVE,
 						.mouse = {
 							.move = {
-								.position = { ev.motion.x,    ev.motion.y },
-								.delta    = { ev.motion.xrel, ev.motion.yrel }
+								.position = { (int)ev.motion.x,    (int)ev.motion.y },
+								.delta    = { (int)ev.motion.xrel, (int)ev.motion.yrel }
 							}
 						}
 					} );
 			}
 		} break;
 
-		case SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_WHEEL:
 		{
 		#ifdef WV_SUPPORT_IMGUI
 			handled = ImGui::GetIO().WantCaptureMouse;
@@ -70,17 +69,17 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 					{
 						.type = LowLevelInputQueue::WV_MOUSE_SCROLL,
 						.mouse = {
-							.scroll = { 
-								.delta = ev.wheel.y
+							.scroll = {
+								.delta = ev.wheel.integer_y
 							}
 						}
 					} );
 			}
 		} break;
 
-		case SDL_MOUSEBUTTONDOWN: 
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			[[fallthrough]];
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 		{
 		#ifdef WV_SUPPORT_IMGUI
 			handled = ImGui::GetIO().WantCaptureMouse;
@@ -94,7 +93,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 						.mouse = {
 							.button = {
 								.index = ev.button.button,
-								.state = ev.button.state == SDL_PRESSED
+								.state = ev.button.down
 							}
 						}
 					} );
@@ -185,18 +184,22 @@ bool wv::SDLDisplayDriver::initializeDisplay( uint16_t _width, uint16_t _height 
 	emscripten_webgl_make_context_current( webgl_context );
 #endif
 
-	m_windowContext = SDL_CreateWindow( "Wyvern", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _width, _height, flags );
+	m_windowContext = SDL_CreateWindow( "Wyvern", _width, _height, flags );
 
 #ifdef WV_SUPPORT_OPENGL
 	if( renderer == "opengl" || renderer == "gles" )
 		m_openglContext = SDL_GL_CreateContext( m_windowContext );
 #endif
 
-	SDL_version version;
-	SDL_GetVersion( &version );
+	const int version = SDL_GetVersion();
 	wv::Debug::Print( "Initialized Display Driver\n" );
 	wv::Debug::Print( "  Renderer: %s\n", renderer.c_str() );
-	wv::Debug::Print( "  SDL %i.%i.%i\n", version.major, version.minor, version.patch );
+	wv::Debug::Print( 
+		"  SDL %i.%i.%i\n", 
+		SDL_VERSIONNUM_MAJOR( version ),
+		SDL_VERSIONNUM_MINOR( version ),
+		SDL_VERSIONNUM_MICRO( version )
+	);
 
 	if ( !m_windowContext )
 	{
@@ -231,10 +234,20 @@ wv::Vector2i wv::SDLDisplayDriver::getWindowSize( void ) const
 wv::Vector2i wv::SDLDisplayDriver::getDisplaySize( int _displayIndex ) const
 {
 	SDL_Rect rect;
-	if ( SDL_GetDisplayBounds( _displayIndex, &rect ) == 0 )
-		return { rect.w, rect.h };
 
-	return wv::Vector2i{ 0, 0 };
+	int numDisplays;
+	SDL_DisplayID* displays = SDL_GetDisplays( &numDisplays );
+
+	WV_ASSERT( numDisplays > _displayIndex );
+	
+	if ( SDL_GetDisplayBounds( displays[ _displayIndex ], &rect ) )
+		return { rect.w, rect.h };
+	else
+	{
+		WV_LOG_ERROR( "[SDL3] %s\n", SDL_GetError() );
+	}
+
+	return wv::Vector2i{ 1920, 1080 };
 }
 
 void wv::SDLDisplayDriver::swapBuffers()
@@ -252,11 +265,12 @@ bool wv::SDLDisplayDriver::isMinimized() const
 #ifdef WV_PLATFORM_WINDOWS
 HWND wv::SDLDisplayDriver::getWindowHandle()
 {
-	SDL_SysWMinfo wmInfo;
-	SDL_VERSION( &wmInfo.version );
-	SDL_GetWindowWMInfo( m_windowContext, &wmInfo );
+	const SDL_PropertiesID propID = SDL_GetWindowProperties( m_windowContext );
+	HWND hwnd = (HWND)SDL_GetPointerProperty( propID, SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL );
+	
+	WV_ASSERT( hwnd != NULL );
 
-	return wmInfo.info.win.window;
+	return hwnd;
 }
 #endif
 

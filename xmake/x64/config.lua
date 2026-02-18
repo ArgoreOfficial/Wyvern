@@ -3,16 +3,17 @@ function _add_supports( _target, _prefix )
     _target:add( "headerfiles", "./libs/**.h", {install = false} )
     _target:add( "includedirs", "./libs/glad/include/" )
     
-    import( "support.libsdl2" )( _target, _prefix ) 
+    import( "support.libsdl3" )( _target, _prefix ) 
     import( "support.fastgltf" )( _target, _prefix ) 
     import( "support.vulkan" )( _target, _prefix ) 
-    import( "support.imgui" )( _target, _prefix ) 
+    -- import( "support.imgui" )( _target, _prefix ) 
     import( "support.tracy" )( _target, _prefix ) 
 
     _target:add( "defines", { 
         "WV_SUPPORT_OPENGL", 
         "WV_SUPPORT_OPENGLES",
-        "WV_ENABLE_SIMD"
+        "WV_ENABLE_SIMD",
+        "WV_SUPPORT_IMGUI"
     } )
 end
 

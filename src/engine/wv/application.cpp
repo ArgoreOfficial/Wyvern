@@ -32,7 +32,7 @@
 #include <tracy/Tracy.hpp>
 
 #ifdef WV_SUPPORT_IMGUI
-#include <imgui.h>
+#include <imgui/imgui.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////

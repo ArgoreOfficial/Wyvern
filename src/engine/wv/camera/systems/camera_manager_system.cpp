@@ -17,7 +17,7 @@
 #include <wv/event/event_manager.h>
 
 #include <inttypes.h>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 wv::CameraManagerSystem::CameraManagerSystem()
 {

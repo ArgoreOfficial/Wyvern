@@ -1,4 +1,4 @@
-#ifdef WV_SUPPORT_SDL2
+#ifdef WV_SUPPORT_SDL
 
 #pragma once
 
@@ -13,7 +13,7 @@
 #endif
 
 struct SDL_Window;
-typedef void* SDL_GLContext;
+typedef struct SDL_GLContextState* SDL_GLContext;
 
 namespace wv {
 

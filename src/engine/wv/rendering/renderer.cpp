@@ -14,9 +14,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef WV_SUPPORT_SDL2
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
+#ifdef WV_SUPPORT_SDL
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include <sdl/sdl_display_driver.h>
 #endif
 
@@ -30,13 +30,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 // Imgui
 
-#include "imgui.h"
+#include "imgui/imgui.h"
 
-#ifdef WV_SUPPORT_SDL2
-#include "imgui_impl_sdl2.h"
+#ifdef WV_SUPPORT_SDL
+#include "imgui/backends/imgui_impl_sdl3.h"
 #endif
 
-#include "imgui_impl_vulkan.h"
+#include "imgui/backends/imgui_impl_vulkan.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -199,9 +199,9 @@ bool wv::Renderer::initialize()
 
 		ImGui::CreateContext();
 
-	#ifdef WV_SUPPORT_SDL2
+	#ifdef WV_SUPPORT_SDL
 		SDLDisplayDriver* sdlDisplayDriver = (SDLDisplayDriver*)displayDriver;
-		ImGui_ImplSDL2_InitForVulkan( sdlDisplayDriver->getSDLWindowContext() );
+		ImGui_ImplSDL3_InitForVulkan( sdlDisplayDriver->getSDLWindowContext() );
 	#else
 		error( "No ImGui backend" );
 	#endif
@@ -218,16 +218,16 @@ bool wv::Renderer::initialize()
 		initInfo.MinAllocationSize = 1024 * 1024;
 
 		VkFormat swapchainFormat = m_swapchain->getFormat();
-		initInfo.PipelineRenderingCreateInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
-		initInfo.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-		initInfo.PipelineRenderingCreateInfo.pColorAttachmentFormats = &swapchainFormat;
+		initInfo.PipelineInfoMain.PipelineRenderingCreateInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
+		initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+		initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &swapchainFormat;
 
-		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
 		ImGui_ImplVulkan_Init( &initInfo );
 
-		ImGui_ImplVulkan_CreateFontsTexture();
-
+		// ImGui_ImplVulkan_CreateFontsTexture();
+		
 		// add the destroy the imgui created structures
 		m_mainDeleteQueue.push( [ = ]()
 								{
@@ -586,10 +586,10 @@ bool wv::Renderer::initVulkan()
 
 	DisplayDriver* displayDriver = wv::Application::getSingleton()->getDisplayDriver();
 
-#ifdef WV_SUPPORT_SDL2
+#ifdef WV_SUPPORT_SDL
 	{
 		SDLDisplayDriver* sdlDisplayDriver = static_cast<SDLDisplayDriver*>( displayDriver );
-		SDL_Vulkan_CreateSurface( sdlDisplayDriver->getSDLWindowContext(), m_instance, &m_surface );
+		SDL_Vulkan_CreateSurface( sdlDisplayDriver->getSDLWindowContext(), m_instance, nullptr, &m_surface );
 	}
 #endif
 
@@ -779,7 +779,7 @@ void wv::Renderer::beginDebugRender()
 {
 #ifdef WV_SUPPORT_IMGUI
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 #endif
 }

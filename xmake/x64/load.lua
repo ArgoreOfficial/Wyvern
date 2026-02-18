@@ -7,19 +7,18 @@ function load(_prefix)
     add_defines( _prefix .. "_SUPPORT_OPENGL" )
 
     add_requires( "fastgltf" )
-    add_requires( "libsdl2" )
+    add_requires( "libsdl3" )
     add_requires( "tracy" )
     
     -- vulkan
     add_requires( "vulkansdk" )
     add_requires( "vulkan-memory-allocator" )
     
-    add_requires( "imgui v1.91.0-docking", { 
-        configs={
-            opengl3 = true,
-            vulkan  = true,
-            sdl2    = true
-        }})    
+    -- add_requires( "imgui v1.91.0-docking", { 
+    --     configs={
+    --         opengl3 = true,
+    --         vulkan  = true
+    --     }})    
 end
 
 PLATFORMS[ "x64" ] = { 
