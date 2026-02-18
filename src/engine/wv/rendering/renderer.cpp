@@ -248,7 +248,7 @@ void wv::Renderer::shutdown()
 	{
 		waitForRenderer();
 
-		for ( auto b : m_debugLineBuffers.getObjects() )
+		for ( auto& b : m_debugLineBuffers.getObjects() )
 			destroyBuffer( b );
 
 		m_debugLineBuffers.shutdown();
@@ -797,7 +797,7 @@ void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
 
 	//float flash = std::abs( std::sin( m_frameNumber / 120.f ) );
 	//VkClearColorValue clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
-	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 1.0f } };
+	VkClearColorValue clearValue = { { 0.1f, 0.1f, 0.1f, 0.0f } };
 
 	AllocatedImage image = m_imageManager.getAllocatedImage( m_drawImage );
 	VkImageSubresourceRange clearRange = makeVkImageSubresourceRange( VK_IMAGE_ASPECT_COLOR_BIT );

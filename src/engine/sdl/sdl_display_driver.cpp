@@ -125,8 +125,11 @@ bool wv::SDLDisplayDriver::initializeDisplay( uint16_t _width, uint16_t _height 
 		return false;
 	}
 
-	uint32_t flags = 0;
+	SDL_WindowFlags flags = 0;
 
+#ifndef WV_DEBUG
+	flags |= SDL_WINDOW_MAXIMIZED;
+#endif
 #ifdef WV_SUPPORT_OPENGL
 	if ( renderer == "opengl" ) // opengl 1.0 - 4.6
 	{
