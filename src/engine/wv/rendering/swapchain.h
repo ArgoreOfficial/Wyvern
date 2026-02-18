@@ -6,6 +6,13 @@
 
 namespace wv {
 
+struct SwapchainSupportDetails
+{
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
+
 class Swapchain
 {
 public:
@@ -26,15 +33,27 @@ public:
 	VkImageView getSwapchainImageView( uint32_t _index ) const { return m_swapchainImageViews.at( _index ); }
 	VkSemaphore getSubmitSemaphore( uint32_t _index )    const { return m_submitSemaphores.at( _index ); }
 	VkExtent2D  getExtent()                              const { return m_swapchainExtent; }
-	VkFormat    getFormat()                              const { return m_swapchainImageFormat; }
+	VkFormat    getFormat()                              const { return m_format.format; }
 
 private:
+	SwapchainSupportDetails querySwapchainSupport() const;
+
+	VkSurfaceFormatKHR chooseSurfaceFormat( VkFormat _desiredFormat, VkColorSpaceKHR _desiredColorSpace ) const;
+	VkPresentModeKHR   chooseSwapPresentMode( VkPresentModeKHR _desiredPresentMode ) const;
+	VkExtent2D         chooseSwapExtent( uint32_t _desiredWidth, uint32_t _desiredHeight ) const;
+
+	// gets images directly from swapchain
+	std::vector<VkImage> getSwapchainImages() const;
+	std::vector<VkImageView> createSwapchainImageViews( const std::vector<VkImage>& _images ) const;
+
+	SwapchainSupportDetails m_supportDetails;
 	VkDevice         m_device = VK_NULL_HANDLE;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkSurfaceKHR     m_surface = VK_NULL_HANDLE;
 
 	VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
-	VkFormat       m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
+	
+	VkSurfaceFormatKHR m_format{};
 
 	std::vector<VkImage>     m_swapchainImages = {};
 	std::vector<VkImageView> m_swapchainImageViews = {};
