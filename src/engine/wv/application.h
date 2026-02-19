@@ -18,6 +18,7 @@ class InputSystem;
 class EventManager;
 class Renderer;
 class TaskSystem;
+class AudioSystem;
 
 class MaterialAsset;
 
@@ -50,6 +51,7 @@ public:
 	inline EventManager*  getEventManager()       const { return m_eventManager; }
 	inline Renderer*      getRenderer()           const { return m_renderer; }
 	inline TaskSystem*    getTaskSystem()         const { return m_taskSystem; }
+	inline AudioSystem*   getAudioSystem()        const { return m_audioSystem; }
 	inline World*         getWorld()              const { return m_world; }
 
 	void quit() { m_alive = false; }
@@ -79,8 +81,13 @@ private:
 	wv::EventManager*   m_eventManager  = nullptr;
 	wv::Renderer*       m_renderer      = nullptr;
 	wv::TaskSystem*     m_taskSystem    = nullptr;
+	wv::AudioSystem*    m_audioSystem   = nullptr;
 
 	wv::World* m_world = nullptr;
 };
+
+static Application* getApp() {
+	return wv::Application::getSingleton();
+}
 
 }

@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include <wv/audio/audio_system.h>
+
 #include <wv/debug/timer.h>
 
 #include <wv/display_driver.h>
@@ -90,6 +92,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		WV_FREE( m_displayDriver );
 		return false;
 	}
+	
+	m_audioSystem = Platform::createAudioSystem();
+	m_audioSystem->initialize();
 
 	m_renderer = WV_NEW( Renderer );
 
@@ -195,6 +200,12 @@ void wv::Application::shutdown()
 		WV_FREE( m_taskSystem );
 	}
 
+	if ( m_audioSystem )
+	{
+		m_audioSystem->shutdown();
+		WV_FREE( m_audioSystem );
+	}
+
 	if ( m_displayDriver )
 	{
 		m_displayDriver->shutdown();
@@ -232,6 +243,8 @@ bool wv::Application::tick()
 	
 	m_inputSystem->processInputEvents( m_eventManager );
 	m_eventManager->processEvents();
+
+	m_audioSystem->updateRecordingDevices();
 
 	update();
 	render();
