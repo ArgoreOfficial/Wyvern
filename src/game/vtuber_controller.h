@@ -18,4 +18,7 @@ protected:
 
 	virtual void update( wv::WorldUpdateContext& _ctx ) override;
 
+	float m_time = 0.0f;
+	float m_talkingTime = 0.0f;
+	float m_interpolation = 0.0f;
 };
