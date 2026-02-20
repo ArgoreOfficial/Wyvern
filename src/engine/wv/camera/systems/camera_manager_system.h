@@ -7,7 +7,6 @@
 #include <wv/math/vector2.h>
 
 #include <vector>
-#include <unordered_map>
 
 namespace wv {
 
@@ -56,8 +55,6 @@ protected:
 	bool m_cameraComponentsChanged = false;
 
 	CameraComponent* m_activeCamera = nullptr;
-
-	uint32_t m_lookAction = 0;
 
 	float m_orbitDistance = 16.0f; 
 	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };

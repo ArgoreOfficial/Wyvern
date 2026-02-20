@@ -12,12 +12,8 @@
 #include <wv/rendering/viewport.h>
 
 #include <wv/debug/log.h>
-#include <wv/memory/memory.h>
 #include <wv/input/input_system.h>
 #include <wv/event/event_manager.h>
-
-#include <inttypes.h>
-#include <imgui/imgui.h>
 
 wv::CameraManagerSystem::CameraManagerSystem()
 {
@@ -45,12 +41,7 @@ void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 
 void wv::CameraManagerSystem::initialize()
 {
-	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
-	
-	if ( ActionGroup* playerActions = inputSystem->getActionGroup( "Player" ) )
-	{
-		m_lookAction = playerActions->getAxisActionID( "Look" );
-	}
+
 }
 
 void wv::CameraManagerSystem::shutdown()
@@ -136,15 +127,6 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		{
 			int playerIndex = playerInput->getPlayerIndex();
 
-			for ( const ActionEvent& event : _ctx.actionEventQueue )
-			{
-				if ( event.playerIndex != playerIndex )
-					continue;
-
-				if ( event.actionID == m_lookAction )
-					m_cameraMove = event.action.axis->getValue( playerIndex ) * 90.0f * _ctx.deltaTime;
-			}
-
 			if ( _ctx.inputSystem->getMouseButtonState( 1 ) )
 			{
 				m_cameraMove = {};
@@ -162,13 +144,6 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			}
 
 			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * 120 * _ctx.deltaTime;
-
-			if ( ActionGroup* playerActions = _ctx.inputSystem->getActionGroup( "Player" ) )
-			{
-				wv::Vector2f move = playerActions->getAxisValue( playerIndex, "CameraZoom" );
-				m_orbitDistance -= move.y * _ctx.deltaTime * 10.0;
-				m_orbitDistance = wv::Math::max( m_orbitDistance, 2.25f );
-			}
 		}
 
 		wv::Transformf& entityTransform = entity->getTransform();
