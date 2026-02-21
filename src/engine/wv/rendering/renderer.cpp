@@ -916,11 +916,10 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	if ( requiredDebugBufferSize <= 0 )
 		return;
 
-	
 	AllocatedBuffer& debugBuffer = m_debugLineBuffers.get();
 
-	if ( requiredDebugBufferSize > 65536 )
-		return; // too much data, should throw error
+	//if ( requiredDebugBufferSize > 65536 )
+	//	return; // too much data, should throw error
 
 	// buffer resize
 
@@ -930,11 +929,14 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		debugBuffer = createBuffer(
 			requiredDebugBufferSize,
 			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-			VMA_MEMORY_USAGE_GPU_ONLY );
+			VMA_MEMORY_USAGE_CPU_TO_GPU );
 	}
 
 	// update buffer
+	
+	memcpy( debugBuffer.allocation->GetMappedData(), m_debugLinePositions.data(), requiredDebugBufferSize );
 
+	/*
 	vkCmdUpdateBuffer( _cmd, debugBuffer.buffer, 0, requiredDebugBufferSize, m_debugLinePositions.data() );
 	
 	VkMemoryBarrier2 memoryBarrier{ .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
@@ -948,6 +950,7 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	depInfo.pMemoryBarriers = &memoryBarrier;
 
 	vkCmdPipelineBarrier2( _cmd, &depInfo );
+	*/
 
 	// bind and draw
 
