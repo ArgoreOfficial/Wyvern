@@ -156,6 +156,11 @@ wv::Vector3f TrackLength::getClosestToPoint( const wv::Vector3f& _point ) const
     return point;
 }
 
+double TrackLength::getClosestTrackPosition( const wv::Vector3f& _point ) const
+{
+	return 0.0;
+}
+
 int TrackLength::findTrackIndex( double _position )
 {
 	if ( _position < 0.0 )

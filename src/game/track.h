@@ -53,6 +53,7 @@ public:
 	wv::Vector3f getEndPosition()   { return getPositionAt( m_totalLength ); }
 
 	wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const;
+	double getClosestTrackPosition( const wv::Vector3f& _point ) const;
 
 	int findTrackIndex( double _position );
 	bool isPositionInsideTrack( double _position );

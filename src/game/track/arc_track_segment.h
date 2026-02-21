@@ -96,40 +96,46 @@ public:
 	}
 	
 	virtual wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const override {
+		return getPosition( getClosestTrackPosition( _point ) );
+	}
+
+	virtual double getClosestTrackPosition( const wv::Vector3f& _point ) const override {
 		wv::Vector3f dirToPoint = _point - m_arcCentre;
 		dirToPoint.y = 0.0f;
 		dirToPoint.normalize();
 
 		wv::Vector3f circPos = m_arcCentre + dirToPoint * m_arcRadius;
-		
+
 		wv::Vector2f dirToPoint2D = { dirToPoint.x, dirToPoint.z };
-		
+
 		const float radians = wv::Math::angleBetween(
 			wv::Vector2f{ -1.0f, 0.0f },
 			wv::Vector2f{ dirToPoint.x, dirToPoint.z },
 			true
 		);
-		
+
 		float arcAngleRadians = wv::Math::radians( m_arcAngle );
 
 		if ( m_arcAngle < 0.0 )
 		{
 			if ( radians > m_baseAngle )
-				return getStartPosition();
+				return 0.0;
 
 			if ( radians < m_baseAngle + arcAngleRadians )
-				return getEndPosition();
+				return 1.0;
+
+			return ( radians - m_baseAngle ) / arcAngleRadians;
 		}
 		else
 		{
 			if ( radians < m_baseAngle )
-				return getStartPosition();
+				return 0.0;
 
 			if ( radians > m_baseAngle + arcAngleRadians )
-				return getEndPosition();
-		}
+				return 1.0;
 
-		return circPos;
+			return ( radians + m_baseAngle ) / arcAngleRadians;
+		}
 	}
 
 private:

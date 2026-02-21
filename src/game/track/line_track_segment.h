@@ -39,7 +39,21 @@ public:
 	}
 
 	virtual wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const override {
-		return wv::Math::lineClosestPointClamped( m_lineStart, m_lineEnd, _point );
+		return getPosition( getClosestTrackPosition( _point ) );
+	}
+	
+	virtual double getClosestTrackPosition( const wv::Vector3f& _point ) const override {
+		// copied from wv::Math::lineClosestPointClamped
+
+		wv::Vector3f d = m_lineEnd - m_lineStart;
+		const double lineLength = d.length();
+
+		d.normalize();
+
+		const const wv::Vector3f v = _point - m_lineStart;
+		const double dotProd = v.dot( d );
+
+		return wv::Math::max( dotProd, 0.0 ) / lineLength;
 	}
 
 private:
