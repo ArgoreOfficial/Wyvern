@@ -48,21 +48,22 @@ void wv::InputSystem::shutdown()
 void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 {
 	m_actionEventQueue.clear();
-
 	m_lowLevelInputQueue.clearQueue();
 
+	// Platform events, must ALWAYS be polled
 	wv::Platform::pollEvents( m_lowLevelInputQueue );
 
-	for ( IInputDriver* driver : m_inputDrivers )
-		driver->pollActions( this );
+	if ( m_shouldSendActionEvents )
+	{
+		for ( IInputDriver* driver : m_inputDrivers )
+			driver->pollActions( this );
+	}
 
 	if ( IMouseDriver* mouseDriver = getInputDriver<IMouseDriver>() )
 	{
 		m_mouseState     = mouseDriver->getMouseState();
 		m_prevMouseState = mouseDriver->getPrevMouseState();
 	}
-
-	
 }
 
 void wv::InputSystem::setMotorSpeed( uint32_t _vdID, uint16_t _left, uint16_t _right )

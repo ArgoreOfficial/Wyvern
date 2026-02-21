@@ -155,6 +155,12 @@ public:
 	ActionGroup* createActionGroup( const std::string& _name );
 	void destroyActionGroup( const std::string& _name );
 	
+	/**
+	 * @brief Enable or Disable actions globally
+	 */
+	void setActionsEnabled( bool _enabled ) { m_shouldSendActionEvents = _enabled; }
+	bool getActionsEnabled()          const { return m_shouldSendActionEvents; }
+
 	const std::vector<ActionGroup*>& getActionGroups() const { return m_actionGroups; }
 
 	inline Vector2i getMouseMotion()   const { return m_mouseState.motion; }
@@ -194,6 +200,7 @@ protected:
 
 	std::vector<ActionEvent> m_actionEventQueue;
 
+	bool m_shouldSendActionEvents = true;
 };
 
 }

@@ -241,7 +241,20 @@ bool wv::Application::tick()
 
 	wv::Timer timer{};
 	
-	m_inputSystem->processInputEvents( m_eventManager );
+	// Input & Actions
+	{
+		const bool isActionsEnabled = m_inputSystem->getActionsEnabled();
+		const bool isFocused = m_displayDriver->isFocused();
+
+		if ( isActionsEnabled )
+			m_inputSystem->setActionsEnabled( isFocused );
+	
+		m_inputSystem->processInputEvents( m_eventManager );
+	
+		if( isActionsEnabled )
+			m_inputSystem->setActionsEnabled( true );
+	}
+
 	m_eventManager->processEvents();
 
 	m_audioSystem->updateRecordingDevices();
