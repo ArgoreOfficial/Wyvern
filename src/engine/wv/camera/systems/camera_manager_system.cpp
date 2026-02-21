@@ -127,7 +127,7 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 		{
 			int playerIndex = playerInput->getPlayerIndex();
 
-			if ( _ctx.inputSystem->getMouseButtonState( 1 ) )
+			if ( _ctx.inputSystem->getMouseButtonState( 2 ) )
 			{
 				m_cameraMove = {};
 
