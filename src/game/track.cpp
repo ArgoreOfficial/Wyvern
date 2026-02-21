@@ -106,7 +106,7 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 	}
 }
 
-wv::Vector3f TrackLength::getPositionAt( double _trackPosition )
+wv::Vector3f TrackLength::getPositionAt( double _trackPosition ) const
 {
 	size_t trackIndex = findTrackIndex( _trackPosition );
 	
@@ -158,10 +158,39 @@ wv::Vector3f TrackLength::getClosestToPoint( const wv::Vector3f& _point ) const
 
 double TrackLength::getClosestTrackPosition( const wv::Vector3f& _point ) const
 {
-	return 0.0;
+	double trackPosition = 0.0;
+	float sqrDist = FLT_MAX;
+	wv::Vector3f point = _point;
+	size_t index = 0;
+
+	for ( size_t i = 0; i < m_track.size(); i++ )
+	{
+		const ITrackSegment* track = m_track[ i ];
+		const double newTrackPosition = track->getClosestTrackPosition( _point );
+
+		const wv::Vector3f newPoint = track->getPosition( newTrackPosition );
+		const wv::Vector3f rel = newPoint - _point;
+		const float newSqrDist = rel.length();
+
+		if ( newSqrDist < sqrDist )
+		{
+			sqrDist = newSqrDist;
+			point = newPoint;
+			index = i;
+			trackPosition = newTrackPosition;
+		}
+	}
+
+	double trueTrackPosition = 0.0;
+	for ( size_t i = 0; i < index; i++ )
+		trueTrackPosition += m_track[ i ]->length();
+	
+	trueTrackPosition += m_track[ index ]->length() * trackPosition;
+
+	return trueTrackPosition;
 }
 
-int TrackLength::findTrackIndex( double _position )
+int TrackLength::findTrackIndex( double _position ) const
 {
 	if ( _position < 0.0 )
 		return -1;
@@ -181,7 +210,7 @@ int TrackLength::findTrackIndex( double _position )
 	return -1;
 }
 
-bool TrackLength::isPositionInsideTrack( double _position )
+bool TrackLength::isPositionInsideTrack( double _position ) const
 {
 	if ( _position < 0 )
 		return false;

@@ -96,19 +96,21 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 
 		if ( wv::Math::linePlaneIntersection( p1, raydir, {}, wv::Vector3f::up(), &rayhit ) )
 		{
-			auto trackLoc = getClosestToPoint( rayhit );
+			TrackPosition trackLoc = getClosestToPoint( rayhit );
 			
-			if ( ( trackLoc.second - rayhit ).length() < 1.6f )
+			if ( _ctx.inputSystem->getMouseButtonDown( 1 ) )
+				wv::Debug::Print( "Track %i at %f, %s\n", trackLoc.index, trackLoc.distanceFromStart, std::format( "{}", trackLoc.worldPosition ).c_str() );
+
+			if ( ( trackLoc.worldPosition - rayhit ).length() < 1.6f )
 			{
 				auto renderer = wv::getApp()->getRenderer();
 				renderer->addDebugLine(
-					trackLoc.second, 
-					trackLoc.second + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
+					trackLoc.worldPosition, 
+					trackLoc.worldPosition + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
 
 				renderer->addDebugLine(
 					rayhit,
-					trackLoc.second );
-				
+					trackLoc.worldPosition );
 			}
 
 		}
@@ -126,29 +128,34 @@ wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _track, double _p
 	return track.getPositionAt( trackLocation.second );
 }
 
-std::pair<int, wv::Vector3f> TrackVehicleSystem::getClosestToPoint( const wv::Vector3f& _point ) const
+TrackPosition TrackVehicleSystem::getClosestToPoint( const wv::Vector3f& _point ) const
 {
-	int idx = -1;
-	wv::Vector3f point = _point;
+	TrackPosition trackPosition{};
+	trackPosition.worldPosition = _point;
+
 	float sqrDist = FLT_MAX;
 
 	for ( size_t i = 0; i < m_trackLengths.size(); i++ )
 	{
 		const TrackLength& trackLength = m_trackLengths[ i ];
 	
-		const wv::Vector3f newPoint = trackLength.getClosestToPoint( _point );
+		const double newTrackPos = trackLength.getClosestTrackPosition( _point );
+		const wv::Vector3f newPoint = trackLength.getPositionAt( newTrackPos );
+
 		const wv::Vector3f rel = newPoint - _point;
 		const float newSqrDist = rel.length();
 
 		if ( newSqrDist < sqrDist )
 		{
 			sqrDist = newSqrDist;
-			idx = i;
-			point = newPoint;
+
+			trackPosition.index = i;
+			trackPosition.worldPosition = newPoint;
+			trackPosition.distanceFromStart = newTrackPos;
 		}
 	}
 
-	return { idx, point };
+	return trackPosition;
 }
 
 std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPosition )

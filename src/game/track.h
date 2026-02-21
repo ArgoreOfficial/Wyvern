@@ -48,15 +48,15 @@ public:
 	void addLineTrack( float _length );
 	void addArcTrack( double _radius, double _arc );
 
-	wv::Vector3f getPositionAt( double _trackPosition );
-	wv::Vector3f getStartPosition() { return getPositionAt( 0.0 ); }
-	wv::Vector3f getEndPosition()   { return getPositionAt( m_totalLength ); }
+	wv::Vector3f getPositionAt( double _trackPosition ) const;
+	wv::Vector3f getStartPosition() const { return getPositionAt( 0.0 ); }
+	wv::Vector3f getEndPosition()   const { return getPositionAt( m_totalLength ); }
 
 	wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const;
 	double getClosestTrackPosition( const wv::Vector3f& _point ) const;
 
-	int findTrackIndex( double _position );
-	bool isPositionInsideTrack( double _position );
+	int findTrackIndex( double _position ) const;
+	bool isPositionInsideTrack( double _position ) const;
 
 	double length() const { return m_totalLength; }
 
