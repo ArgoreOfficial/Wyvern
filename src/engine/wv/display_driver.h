@@ -19,6 +19,7 @@ public:
 	virtual Vector2i getDisplaySize( int _displayIndex = 0 ) const { return { 0, 0 }; }
 
 	virtual bool isMinimized() const { return false; }
+	virtual bool isFocused()   const { return true; }
 
 protected:
 

@@ -30,7 +30,8 @@ public:
 
 	void swapBuffers();
 
-	bool isMinimized() const override;
+	virtual bool isMinimized() const override;
+	virtual bool isFocused()   const override;
 
 #ifdef WV_PLATFORM_WINDOWS
 	HWND getWindowHandle();

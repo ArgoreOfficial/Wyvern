@@ -260,8 +260,14 @@ void wv::SDLDisplayDriver::swapBuffers()
 
 bool wv::SDLDisplayDriver::isMinimized() const
 {
-	uint32_t flags = SDL_GetWindowFlags( m_windowContext );
+	const SDL_WindowFlags flags = SDL_GetWindowFlags( m_windowContext );
 	return flags & SDL_WINDOW_MINIMIZED;
+}
+
+bool wv::SDLDisplayDriver::isFocused() const
+{
+	const SDL_WindowFlags flags = SDL_GetWindowFlags( m_windowContext );
+	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
 
