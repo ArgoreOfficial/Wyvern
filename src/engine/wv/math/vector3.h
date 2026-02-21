@@ -12,13 +12,13 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
+template<typename Ty>
 class Vector3
 {
 
 public:
 
-	_Ty x, y, z;
+	Ty x, y, z;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,38 +28,38 @@ public:
 		z( 0 ) 
 	{ }
 	
-	Vector3( const _Ty& _t ) : 
+	Vector3( const Ty& _t ) : 
 		x( _t ), 
 		y( _t ),
 		z( _t ) 
 	{ }
 
-	Vector3( const _Ty& _x, const _Ty& _y, const _Ty& _z ) : 
+	Vector3( const Ty& _x, const Ty& _y, const Ty& _z ) : 
 		x( _x ), 
 		y( _y ), 
 		z( _z ) 
 	{ }
 
-	_Ty length( void ) const {
+	Ty length( void ) const {
 		return std::sqrt( x * x + y * y + z * z );
 	}
 
-	_Ty dot( const Vector3<_Ty>& _other ) const {
+	Ty dot( const Vector3<Ty>& _other ) const {
 		return x * _other.x
 			 + y * _other.y
 			 + z * _other.z;
 	}
 
-	Vector3<_Ty> cross( const Vector3<_Ty>& _other ) const {
-		return Vector3<_Ty>(
+	Vector3<Ty> cross( const Vector3<Ty>& _other ) const {
+		return Vector3<Ty>(
 			y * _other.z - z * _other.y,
 			z * _other.x - x * _other.z,
 			x * _other.y - y * _other.x
 		);
 	}
 
-	void normalize( _Ty _magnitude = 1.0 ) {
-		_Ty magnitude = length();
+	void normalize( Ty _magnitude = 1.0 ) {
+		Ty magnitude = length();
 		x /= magnitude;
 		y /= magnitude;
 		z /= magnitude;
@@ -68,50 +68,54 @@ public:
 			*this *= _magnitude;
 	}
 
-	Vector3<_Ty> normalized( _Ty _magnitude = 1.0 ) const {
+	Vector3<Ty> normalized( Ty _magnitude = 1.0 ) const {
 		Vector3 vec{ x, y, z };
 		vec.normalize( _magnitude );
 		return vec;
 	}
 
-	static inline Vector3<_Ty> eulerToDirection( Vector3<_Ty> _vec ) {
-		_Ty pitch = wv::Math::radians( _vec.x );
-		_Ty yaw = wv::Math::radians( _vec.y );
+	static inline Vector3<Ty> up() {
+		return { 0.0f, 1.0f, 0.0 };
+	}
 
-		return Vector3<_Ty>(
+	static inline Vector3<Ty> eulerToDirection( Vector3<Ty> _vec ) {
+		Ty pitch = wv::Math::radians( _vec.x );
+		Ty yaw = wv::Math::radians( _vec.y );
+
+		return Vector3<Ty>(
 			 std::cos( pitch ) * std::sin( yaw ),
 			-std::sin( pitch ),
 			 std::cos( pitch ) * std::cos( yaw )
 		);
 	}
 
-	static inline Vector3<_Ty> directionToEuler( Vector3<_Ty> _vec ) {
-		return Vector3<_Ty>(
+	static inline Vector3<Ty> directionToEuler( Vector3<Ty> _vec ) {
+		return Vector3<Ty>(
 			wv::Math::degrees( std::asin( -_vec.y ) ),         // pitch
 			wv::Math::degrees( std::atan2( _vec.x, _vec.z ) ), // yaw
 			0
 		);
 	}
 
-	inline Vector3<_Ty> eulerToDirection() { return Vector3<_Ty>::eulerToDirection( *this ); }
-	inline Vector3<_Ty> directionToEuler() { return Vector3<_Ty>::directionToEuler( *this ); }
+	inline Vector3<Ty> eulerToDirection() { return Vector3<Ty>::eulerToDirection( *this ); }
+	inline Vector3<Ty> directionToEuler() { return Vector3<Ty>::directionToEuler( *this ); }
 
-	Vector3<_Ty>& operator = ( const Vector3<_Ty>& _other );
-	Vector3<_Ty>& operator +=( const Vector3<_Ty>& _other );
-	Vector3<_Ty>& operator -=( const Vector3<_Ty>& _other );
-	Vector3<_Ty>  operator + ( const Vector3<_Ty>& _other ) const;
-	Vector3<_Ty>  operator - ( const Vector3<_Ty>& _other ) const;
-	bool        operator ==( const Vector3<_Ty>& _other ) const;
-	bool        operator !=( const Vector3<_Ty>& _other ) const { return !( *this == _other ); }
+	Vector3<Ty>& operator = ( const Vector3<Ty>& _other );
+	Vector3<Ty>& operator +=( const Vector3<Ty>& _other );
+	Vector3<Ty>& operator -=( const Vector3<Ty>& _other );
+	Vector3<Ty>  operator + ( const Vector3<Ty>& _other ) const;
+	Vector3<Ty>  operator - ( const Vector3<Ty>& _other ) const;
+	bool        operator ==( const Vector3<Ty>& _other ) const;
+	bool        operator !=( const Vector3<Ty>& _other ) const { return !( *this == _other ); }
 
-	Vector3<_Ty>  operator - ( void ) const;
-	Vector3<_Ty>  operator * ( const _Ty& _scalar ) const;
-	Vector3<_Ty>& operator *=( const _Ty& _scalar );
-	Vector3<_Ty>  operator / ( const _Ty& _scalar ) const;
-	Vector3<_Ty>& operator /=( const _Ty& _scalar );
+	Vector3<Ty>  operator - ( void ) const;
+	Vector3<Ty>  operator * ( const Ty& _scalar ) const;
+	Vector3<Ty>& operator *=( const Ty& _scalar );
+	Vector3<Ty>  operator / ( const Ty& _scalar ) const;
+	Vector3<Ty>& operator /=( const Ty& _scalar );
 
 #ifdef WV_CPP20
-	auto operator<=>( const Vector3<_Ty>& ) const = default;
+	auto operator<=>( const Vector3<Ty>& ) const = default;
 #endif
 };
 
@@ -122,16 +126,16 @@ typedef Vector3<double> Vector3d;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
-inline Vector3<_Ty>& Vector3<_Ty>::operator=( const Vector3<_Ty>& _other ) {
+template<typename Ty>
+inline Vector3<Ty>& Vector3<Ty>::operator=( const Vector3<Ty>& _other ) {
 	x = _other.x;
 	y = _other.y;
 	z = _other.z;
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector3<_Ty>& Vector3<_Ty>::operator+=( const Vector3<_Ty>& _other )
+template<typename Ty>
+inline Vector3<Ty>& Vector3<Ty>::operator+=( const Vector3<Ty>& _other )
 {
 	x += _other.x;
 	y += _other.y;
@@ -139,8 +143,8 @@ inline Vector3<_Ty>& Vector3<_Ty>::operator+=( const Vector3<_Ty>& _other )
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector3<_Ty>& Vector3<_Ty>::operator-=( const Vector3<_Ty>& _other )
+template<typename Ty>
+inline Vector3<Ty>& Vector3<Ty>::operator-=( const Vector3<Ty>& _other )
 {
 	x -= _other.x;
 	y -= _other.y;
@@ -148,40 +152,40 @@ inline Vector3<_Ty>& Vector3<_Ty>::operator-=( const Vector3<_Ty>& _other )
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector3<_Ty> Vector3<_Ty>::operator+( const Vector3<_Ty>& _other ) const
+template<typename Ty>
+inline Vector3<Ty> Vector3<Ty>::operator+( const Vector3<Ty>& _other ) const
 {
-	return Vector3<_Ty>( x + _other.x, y + _other.y, z + _other.z );
+	return Vector3<Ty>( x + _other.x, y + _other.y, z + _other.z );
 }
 
-template<typename _Ty>
-inline Vector3<_Ty> Vector3<_Ty>::operator-( const Vector3<_Ty>& _other ) const
+template<typename Ty>
+inline Vector3<Ty> Vector3<Ty>::operator-( const Vector3<Ty>& _other ) const
 {
-	return Vector3<_Ty>( x - _other.x, y - _other.y, z - _other.z );
+	return Vector3<Ty>( x - _other.x, y - _other.y, z - _other.z );
 }
 
-template<typename _Ty>
-inline bool Vector3<_Ty>::operator==( const Vector3<_Ty>& _other ) const
+template<typename Ty>
+inline bool Vector3<Ty>::operator==( const Vector3<Ty>& _other ) const
 {
 	return x == _other.x
 		&& y == _other.y
 		&& z == _other.z;
 }
 
-template<typename _Ty>
-inline Vector3<_Ty> Vector3<_Ty>::operator-( void ) const
+template<typename Ty>
+inline Vector3<Ty> Vector3<Ty>::operator-( void ) const
 {
-	return Vector3<_Ty>( -x, -y, -z );
+	return Vector3<Ty>( -x, -y, -z );
 }
 
-template<typename _Ty>
-inline Vector3<_Ty> wv::Vector3<_Ty>::operator*( const _Ty& _scalar ) const
+template<typename Ty>
+inline Vector3<Ty> wv::Vector3<Ty>::operator*( const Ty& _scalar ) const
 {
-	return Vector3<_Ty>( x * _scalar, y * _scalar, z * _scalar );
+	return Vector3<Ty>( x * _scalar, y * _scalar, z * _scalar );
 }
 
-template<typename _Ty>
-inline Vector3<_Ty>& wv::Vector3<_Ty>::operator*=( const _Ty& _scalar )
+template<typename Ty>
+inline Vector3<Ty>& wv::Vector3<Ty>::operator*=( const Ty& _scalar )
 {
 	x *= _scalar;
 	y *= _scalar;
@@ -189,14 +193,14 @@ inline Vector3<_Ty>& wv::Vector3<_Ty>::operator*=( const _Ty& _scalar )
 	return *this;
 }
 
-template<typename _Ty>
-inline Vector3<_Ty> wv::Vector3<_Ty>::operator/( const _Ty& _scalar ) const
+template<typename Ty>
+inline Vector3<Ty> wv::Vector3<Ty>::operator/( const Ty& _scalar ) const
 {
-	return Vector3<_Ty>( x / _scalar, y / _scalar, z / _scalar );
+	return Vector3<Ty>( x / _scalar, y / _scalar, z / _scalar );
 }
 
-template<typename _Ty>
-inline Vector3<_Ty>& wv::Vector3<_Ty>::operator/=( const _Ty& _scalar )
+template<typename Ty>
+inline Vector3<Ty>& wv::Vector3<Ty>::operator/=( const Ty& _scalar )
 {
 	x /= _scalar;
 	y /= _scalar;

@@ -1,8 +1,15 @@
 #include "track_vehicle_system.h"
 
+#include <wv/application.h>
+#include <wv/rendering/renderer.h>
+
 #include <wv/entity/entity.h>
 #include <wv/entity/entity_component.h>
 #include <wv/entity/world.h>
+#include <wv/rendering/viewport.h>
+#include <wv/camera/view_volume.h>
+
+#include <wv/math/geometry.h>
 
 void TrackVehicleSystem::initialize()
 {
@@ -72,6 +79,21 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 
 		ent->getTransform().rotation = ( frontWheelPos - backWheelPos ).normalized().directionToEuler();
 		ent->getTransform().update( nullptr );
+	}
+
+	// Line test
+	{
+		wv::Vector2i mousePos = _ctx.inputSystem->getMousePosition();
+		wv::Vector3f p1 = _ctx.viewport->getViewVolume()->screenToWorld( mousePos.x, mousePos.y, 0.0f );
+		wv::Vector3f p2 = _ctx.viewport->getViewVolume()->screenToWorld( mousePos.x, mousePos.y, 0.1f );
+
+		wv::Vector3f raydir = ( p2 - p1 ).normalized();
+		wv::Vector3f rayhit{};
+
+		if ( wv::Math::linePlaneIntersection( p1, raydir, {}, wv::Vector3f::up(), &rayhit ) )
+		{
+			wv::getApp()->getRenderer()->addDebugLine( rayhit, rayhit + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
+		}
 	}
 }
 

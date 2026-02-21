@@ -21,7 +21,7 @@ wv::Vector3f wv::ViewVolume::screenToWorld( int _pixelX, int _pixelY, float _dep
 	clipX = clipX * 2.0f - 1.0f;
 	clipY = clipY * 2.0f - 1.0f;
 
-	return screenToWorld( clipX, -clipY, _depth );
+	return screenToWorld( clipX, clipY, _depth );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
