@@ -212,22 +212,22 @@ void GameWorld::onSceneCreate()
 
 	}
 
-	for ( auto trackLength : trackVehicleSys->getTrackLengths() )
-	{
-		double trackpos = 0.0;
-		while ( trackLength.isPositionInsideTrack( trackpos ) )
-		{
-			wv::Vector3 posBack = trackLength.getPositionAt( trackpos );
-			wv::Vector3 pos     = trackLength.getPositionAt( trackpos + 0.5 );
+	//for ( auto trackLength : trackVehicleSys->getTrackLengths() )
+	//{
+	//	double trackpos = 0.0;
+	//	while ( trackLength.isPositionInsideTrack( trackpos ) )
+	//	{
+	//		wv::Vector3 posBack = trackLength.getPositionAt( trackpos );
+	//		wv::Vector3 pos     = trackLength.getPositionAt( trackpos + 0.5 );
 
-			wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
-			trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();
+	//		wv::Entity* trackEntity = createMeshEntity( "meshes/SM_Track.glb", pos );
+	//		trackEntity->getTransform().rotation = ( pos - posBack ).directionToEuler();
 
-			sector->addEntity( trackEntity );
+	//		sector->addEntity( trackEntity );
 
-			trackpos += 1.0;
-		}
-	}
+	//		trackpos += 1.0;
+	//	}
+	//}
 
 	addSector( sector );
 

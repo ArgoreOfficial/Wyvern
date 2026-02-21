@@ -104,6 +104,7 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 			if ( ( trackLoc.worldPosition - rayhit ).length() < 1.6f )
 			{
 				auto renderer = wv::getApp()->getRenderer();
+
 				renderer->addDebugLine(
 					trackLoc.worldPosition, 
 					trackLoc.worldPosition + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
@@ -114,6 +115,32 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 			}
 
 		}
+	}
+}
+
+void TrackVehicleSystem::onDebugRender()
+{
+	auto renderer = wv::getApp()->getRenderer();
+
+	for ( TrackLength& trackLength : m_trackLengths )
+	{
+		float len = trackLength.length();
+		double pos = 0.0;
+
+		for ( size_t i = 0; i < (size_t)len + 1; i++ )
+		{
+			wv::Vector3f lineStart = trackLength.getPositionAt( pos );
+			pos += 1.0;
+			wv::Vector3f lineEnd = trackLength.getPositionAt( pos );
+
+			renderer->addDebugLine( lineStart, lineEnd );
+
+			if( trackLength.nextJunctionIndex != -1 )
+				renderer->addDebugSphere( trackLength.getEndPosition(), 0.5f );
+			else if( trackLength.prevJunctionIndex != -1 )
+				renderer->addDebugSphere( trackLength.getStartPosition(), 0.5f );
+		}
+
 	}
 }
 

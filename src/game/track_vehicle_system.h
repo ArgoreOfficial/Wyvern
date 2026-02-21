@@ -65,7 +65,9 @@ protected:
 	virtual void registerComponent( wv::Entity* _entity, wv::IEntityComponent* _component ) override;
 	virtual void unregisterComponent( wv::Entity* _entity, wv::IEntityComponent* _component ) override;
 
-	void update( wv::WorldUpdateContext& _ctx ) override;
+	virtual void update( wv::WorldUpdateContext& _ctx ) override;
+
+	virtual void onDebugRender() override;
 
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition );
 	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
