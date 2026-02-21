@@ -18,4 +18,5 @@ public:
 	// 0 <= _t <= 1
 	virtual wv::Vector3f getPosition( double _t ) const = 0;
 
+	virtual wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const = 0;
 };

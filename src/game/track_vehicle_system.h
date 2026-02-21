@@ -63,6 +63,8 @@ protected:
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition );
 	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
+	std::pair<int, wv::Vector3f> getClosestToPoint( const wv::Vector3f& _point ) const;
+
 	std::pair<int, double> moveAlongTrack( size_t _track, double _movedPosition );
 
 	wv::EntityComponentContainer<TrackEngineComponent> m_engineComponents;

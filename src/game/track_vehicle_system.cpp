@@ -66,6 +66,10 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 		if ( trackLocation.first < 0 ) 
 			continue; // error
 		
+		bool playJointSound = trackLocation.first != engine->m_trackIndex;
+		// if ( playJointSound )
+		// 	wv::Debug::Print( "Clunk\n" );
+
 		engine->m_trackIndex    = trackLocation.first;
 		engine->m_trackPosition = trackLocation.second;
 
@@ -92,7 +96,21 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 
 		if ( wv::Math::linePlaneIntersection( p1, raydir, {}, wv::Vector3f::up(), &rayhit ) )
 		{
-			wv::getApp()->getRenderer()->addDebugLine( rayhit, rayhit + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
+			auto trackLoc = getClosestToPoint( rayhit );
+			
+			if ( ( trackLoc.second - rayhit ).length() < 1.6f )
+			{
+				auto renderer = wv::getApp()->getRenderer();
+				renderer->addDebugLine(
+					trackLoc.second, 
+					trackLoc.second + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
+
+				renderer->addDebugLine(
+					rayhit,
+					trackLoc.second );
+				
+			}
+
 		}
 	}
 }
@@ -106,6 +124,31 @@ wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _track, double _p
 
 	TrackLength& track = m_trackLengths[ trackLocation.first ];
 	return track.getPositionAt( trackLocation.second );
+}
+
+std::pair<int, wv::Vector3f> TrackVehicleSystem::getClosestToPoint( const wv::Vector3f& _point ) const
+{
+	int idx = -1;
+	wv::Vector3f point = _point;
+	float sqrDist = FLT_MAX;
+
+	for ( size_t i = 0; i < m_trackLengths.size(); i++ )
+	{
+		const TrackLength& trackLength = m_trackLengths[ i ];
+	
+		const wv::Vector3f newPoint = trackLength.getClosestToPoint( _point );
+		const wv::Vector3f rel = newPoint - _point;
+		const float newSqrDist = rel.length();
+
+		if ( newSqrDist < sqrDist )
+		{
+			sqrDist = newSqrDist;
+			idx = i;
+			point = newPoint;
+		}
+	}
+
+	return { idx, point };
 }
 
 std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPosition )

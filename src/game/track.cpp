@@ -135,6 +135,27 @@ wv::Vector3f TrackLength::getPositionAt( double _trackPosition )
 	return segment->getPosition( relativePos / segment->length() );
 }
 
+wv::Vector3f TrackLength::getClosestToPoint( const wv::Vector3f& _point ) const
+{
+	float sqrDist = FLT_MAX;
+	wv::Vector3f point = _point;
+
+	for ( const ITrackSegment* track : m_track )
+	{
+		const wv::Vector3f newPoint = track->getClosestToPoint( _point );
+		const wv::Vector3f rel = newPoint - _point;
+		const float newSqrDist = rel.length();
+
+		if ( newSqrDist < sqrDist )
+		{
+			sqrDist = newSqrDist;
+			point = newPoint;
+		}
+	}
+
+    return point;
+}
+
 int TrackLength::findTrackIndex( double _position )
 {
 	if ( _position < 0.0 )

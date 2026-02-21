@@ -14,23 +14,23 @@ public:
 		m_arcCentre{ _centre },
 		m_arcAngle{ _arc }
 	{
-		double radius = ( _start - _centre ).length();
+		m_arcRadius = ( _start - _centre ).length();
 		
 		wv::Vector3f centreToStart = ( _start - _centre ).normalized();
 
-		double baseAngle = wv::Math::angleBetween(
+		m_baseAngle = wv::Math::angleBetween(
 			wv::Vector2f{ -1.0f, 0.0f },
 			wv::Vector2f{ centreToStart.x, centreToStart.z },
 			true
 		);
 
 		wv::Vector3f endPos{
-			-std::cosf( baseAngle + wv::Math::radians( _arc ) ),
+			-std::cosf( m_baseAngle + wv::Math::radians( _arc ) ),
 			0.0f,
-			std::sinf( baseAngle + wv::Math::radians( _arc ) )
+			std::sinf( m_baseAngle + wv::Math::radians( _arc ) )
 		};
 
-		m_arcEnd = _centre + endPos * radius;
+		m_arcEnd = _centre + endPos * m_arcRadius;
 	}
 
 	virtual ~ArcTrackSegment() { }
@@ -80,46 +80,63 @@ public:
 	// 0 <= _t <= 1
 	virtual wv::Vector3f getPosition( double _t ) const override 
 	{
-		/*
-		// relative to centre
-		wv::Vector3f ps = m_arcStart - m_arcCentre;
-		wv::Vector3f pe = m_arcEnd - m_arcCentre;
-
-		// flatten
-		wv::Vector2f start = { ps.x, ps.z };
-		wv::Vector2f end   = { pe.x, pe.z };
-
-		wv::Vector2f slerped = wv::Math::slerp( start, end, _t, true );
-
-		wv::Vector3f pos = { slerped.x, 0.0f, slerped.y };
-
-		return m_arcCentre + pos;
-		*/
-
 		_t = wv::Math::clamp( _t, 0.0, 1.0 );
 
 		double arcDistance = m_arcAngle * _t;
-		double radius = ( m_arcStart - m_arcCentre ).length();
+
 		wv::Vector3f centreToStart = ( m_arcStart - m_arcCentre ).normalized();
 
-		double baseAngle = wv::Math::angleBetween(
-			wv::Vector2f{ -1.0f, 0.0f },
-			wv::Vector2f{ centreToStart.x, centreToStart.z },
-			true
-		);
-
 		wv::Vector3f position{
-			-std::cosf( baseAngle + wv::Math::radians( arcDistance ) ),
+			-std::cosf( m_baseAngle + wv::Math::radians( arcDistance ) ),
 			0.0f,
-			std::sinf( baseAngle + wv::Math::radians( arcDistance ) )
+			std::sinf( m_baseAngle + wv::Math::radians( arcDistance ) )
 		};
 
-		return m_arcCentre + position * radius;
+		return m_arcCentre + position * m_arcRadius;
+	}
+	
+	virtual wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const override {
+		wv::Vector3f dirToPoint = _point - m_arcCentre;
+		dirToPoint.y = 0.0f;
+		dirToPoint.normalize();
+
+		wv::Vector3f circPos = m_arcCentre + dirToPoint * m_arcRadius;
+		
+		wv::Vector2f dirToPoint2D = { dirToPoint.x, dirToPoint.z };
+		
+		const float radians = wv::Math::angleBetween(
+			wv::Vector2f{ -1.0f, 0.0f },
+			wv::Vector2f{ dirToPoint.x, dirToPoint.z },
+			true
+		);
+		
+		float arcAngleRadians = wv::Math::radians( m_arcAngle );
+
+		if ( m_arcAngle < 0.0 )
+		{
+			if ( radians > m_baseAngle )
+				return getStartPosition();
+
+			if ( radians < m_baseAngle + arcAngleRadians )
+				return getEndPosition();
+		}
+		else
+		{
+			if ( radians < m_baseAngle )
+				return getStartPosition();
+
+			if ( radians > m_baseAngle + arcAngleRadians )
+				return getEndPosition();
+		}
+
+		return circPos;
 	}
 
 private:
-
-	double m_arcAngle = 0.0;
+	
+	double m_arcAngle  = 0.0; // in degrees
+	double m_baseAngle = 0.0; // in radians
+	double m_arcRadius = 0.0;
 
 	wv::Vector3f m_arcCentre{};
 	wv::Vector3f m_arcStart{};

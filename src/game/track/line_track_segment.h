@@ -2,7 +2,8 @@
 
 #include <track_segment.h>
 
-#include <wv/math/vector3.h>
+#include <wv/math/geometry.h>
+
 #include <wv/debug/error.h>
 
 class LineTrackSegment : public ITrackSegment
@@ -35,6 +36,10 @@ public:
 	// 0 <= _t <= 1
 	virtual wv::Vector3f getPosition( double _t ) const override {
 		return wv::Math::lerp( m_lineStart, m_lineEnd, _t );
+	}
+
+	virtual wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const override {
+		return wv::Math::lineClosestPointClamped( m_lineStart, m_lineEnd, _point );
 	}
 
 private:
