@@ -51,7 +51,89 @@ VkSemaphoreSubmitInfo semaphoreSubmitInfo( VkPipelineStageFlags2 _stageMask, VkS
 	return submitInfo;
 }
 
-VkBool32 wv::Renderer::debugCallback( 
+void wv::Renderer::addDebugSphere( const wv::Vector3f& _centre, float _size )
+{
+	const wv::Vector3f vecs[] = {
+		{ },
+		_centre + wv::Vector3f{  0.288675, -0.288675, -0.288675 } * _size,
+		_centre + wv::Vector3f{  0.000000, -0.353553, -0.353553 } * _size,
+		_centre + wv::Vector3f{  0.353553,  0.000000, -0.353553 } * _size,
+		_centre + wv::Vector3f{  0.000000,  0.000000, -0.500000 } * _size,
+		_centre + wv::Vector3f{ -0.288675, -0.288675, -0.288675 } * _size,
+		_centre + wv::Vector3f{ -0.353553, -0.353553,  0.000000 } * _size,
+		_centre + wv::Vector3f{ -0.353553,  0.000000, -0.353553 } * _size,
+		_centre + wv::Vector3f{ -0.500000,  0.000000,  0.000000 } * _size,
+		_centre + wv::Vector3f{ -0.288675, -0.288675,  0.288675 } * _size,
+		_centre + wv::Vector3f{  0.000000, -0.353553,  0.353553 } * _size,
+		_centre + wv::Vector3f{ -0.353553,  0.000000,  0.353553 } * _size,
+		_centre + wv::Vector3f{  0.000000,  0.000000,  0.500000 } * _size,
+		_centre + wv::Vector3f{  0.288675, -0.288675,  0.288675 } * _size,
+		_centre + wv::Vector3f{  0.353553, -0.353553,  0.000000 } * _size,
+		_centre + wv::Vector3f{  0.353553,  0.000000,  0.353553 } * _size,
+		_centre + wv::Vector3f{  0.500000,  0.000000,  0.000000 } * _size,
+		_centre + wv::Vector3f{  0.000000, -0.500000,  0.000000 } * _size,
+		_centre + wv::Vector3f{  0.288675,  0.288675, -0.288675 } * _size,
+		_centre + wv::Vector3f{  0.000000,  0.353553, -0.353553 } * _size,
+		_centre + wv::Vector3f{ -0.288675,  0.288675, -0.288675 } * _size,
+		_centre + wv::Vector3f{  0.353553,  0.353553,  0.000000 } * _size,
+		_centre + wv::Vector3f{  0.000000,  0.500000,  0.000000 } * _size,
+		_centre + wv::Vector3f{ -0.353553,  0.353553,  0.000000 } * _size,
+		_centre + wv::Vector3f{  0.288675,  0.288675,  0.288675 } * _size,
+		_centre + wv::Vector3f{  0.000000,  0.353553,  0.353553 } * _size,
+		_centre + wv::Vector3f{ -0.288675,  0.288675,  0.288675 } * _size
+	};
+
+	addDebugLine( vecs[  1 ], vecs[  3 ] );
+	addDebugLine( vecs[  1 ], vecs[  2 ] );
+	addDebugLine( vecs[  2 ], vecs[  4 ] );
+	addDebugLine( vecs[  3 ], vecs[  4 ] );
+	addDebugLine( vecs[  2 ], vecs[  5 ] );
+	addDebugLine( vecs[  5 ], vecs[  7 ] );
+	addDebugLine( vecs[  4 ], vecs[  7 ] );
+	addDebugLine( vecs[  3 ], vecs[ 18 ] );
+	addDebugLine( vecs[  4 ], vecs[ 19 ] );
+	addDebugLine( vecs[ 18 ], vecs[ 19 ] );
+	addDebugLine( vecs[  7 ], vecs[ 20 ] );
+	addDebugLine( vecs[ 19 ], vecs[ 20 ] );
+	addDebugLine( vecs[  5 ], vecs[  6 ] );
+	addDebugLine( vecs[  6 ], vecs[  8 ] );
+	addDebugLine( vecs[  7 ], vecs[  8 ] );
+	addDebugLine( vecs[  6 ], vecs[  9 ] );
+	addDebugLine( vecs[  9 ], vecs[ 11 ] );
+	addDebugLine( vecs[  8 ], vecs[ 11 ] );
+	addDebugLine( vecs[  8 ], vecs[ 23 ] );
+	addDebugLine( vecs[ 20 ], vecs[ 23 ] );
+	addDebugLine( vecs[ 11 ], vecs[ 26 ] );
+	addDebugLine( vecs[ 23 ], vecs[ 26 ] );
+	addDebugLine( vecs[  9 ], vecs[ 10 ] );
+	addDebugLine( vecs[ 10 ], vecs[ 12 ] );
+	addDebugLine( vecs[ 11 ], vecs[ 12 ] );
+	addDebugLine( vecs[ 10 ], vecs[ 13 ] );
+	addDebugLine( vecs[ 13 ], vecs[ 15 ] );
+	addDebugLine( vecs[ 12 ], vecs[ 15 ] );
+	addDebugLine( vecs[ 12 ], vecs[ 25 ] );
+	addDebugLine( vecs[ 25 ], vecs[ 26 ] );
+	addDebugLine( vecs[ 15 ], vecs[ 24 ] );
+	addDebugLine( vecs[ 24 ], vecs[ 25 ] );
+	addDebugLine( vecs[ 13 ], vecs[ 14 ] );
+	addDebugLine( vecs[ 14 ], vecs[ 16 ] );
+	addDebugLine( vecs[ 15 ], vecs[ 16 ] );
+	addDebugLine( vecs[  1 ], vecs[ 14 ] );
+	addDebugLine( vecs[  3 ], vecs[ 16 ] );
+	addDebugLine( vecs[ 16 ], vecs[ 21 ] );
+	addDebugLine( vecs[ 21 ], vecs[ 24 ] );
+	addDebugLine( vecs[ 18 ], vecs[ 21 ] );
+	addDebugLine( vecs[ 10 ], vecs[ 17 ] );
+	addDebugLine( vecs[ 14 ], vecs[ 17 ] );
+	addDebugLine( vecs[  6 ], vecs[ 17 ] );
+	addDebugLine( vecs[  2 ], vecs[ 17 ] );
+	addDebugLine( vecs[ 19 ], vecs[ 22 ] );
+	addDebugLine( vecs[ 21 ], vecs[ 22 ] );
+	addDebugLine( vecs[ 22 ], vecs[ 23 ] );
+	addDebugLine( vecs[ 22 ], vecs[ 25 ] );
+}
+
+VkBool32 wv::Renderer::debugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT _messageSeverity, 
 	VkDebugUtilsMessageTypeFlagsEXT _messageTypes, 
 	const VkDebugUtilsMessengerCallbackDataEXT* _pCallbackData, 
