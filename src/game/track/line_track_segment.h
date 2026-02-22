@@ -5,6 +5,7 @@
 #include <wv/math/geometry.h>
 
 #include <wv/debug/error.h>
+#include <wv/memory/memory.h>
 
 class LineTrackSegment : public ITrackSegment
 {
@@ -54,6 +55,28 @@ public:
 		const double dotProd = v.dot( d );
 
 		return wv::Math::max( dotProd, 0.0 ) / lineLength;
+	}
+
+	/**
+	 * @brief Split the segment in half
+	 * @param _t position on segment, 0 to 1
+	 * @return The upper segment
+	 */
+	virtual ITrackSegment* splitSegment( double _t ) override {
+		if ( _t <= 0.0 ) return nullptr;
+		if ( _t >= 1.0 ) return nullptr;
+			
+		const double len = length();
+		wv::Vector3f dir = ( m_lineEnd - m_lineStart ).normalized();
+	
+		wv::Vector3f lowerEnd = m_lineStart + ( dir * _t * len );
+		wv::Vector3f upperStart = lowerEnd;
+
+		LineTrackSegment* upperSegment = WV_NEW( LineTrackSegment, upperStart, m_lineEnd );
+		
+		m_lineEnd = lowerEnd;
+
+		return upperSegment;
 	}
 
 private:

@@ -35,6 +35,19 @@ struct TrackJunction
 		
 		return false;
 	}
+
+	void replaceTrackIndex( size_t _old, size_t _new ) {
+		if ( inIndex == _old )
+			inIndex = _new;
+		else
+		{
+			for ( size_t i = 0; i < outIndices.size(); i++ )
+			{
+				if ( outIndices[ i ] == _old )
+					outIndices[ i ] = _new;
+			}
+		}
+	}
 };
 
 class TrackLength
@@ -54,12 +67,34 @@ public:
 
 	wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const;
 	double getClosestTrackPosition( const wv::Vector3f& _point ) const;
+	
+	double getSegmentTValue( size_t _segmentIndex, double _trackPosition ) const {
+		WV_ASSERT( _segmentIndex < m_track.size() );
+
+		double prevLength = 0.0;
+		for ( size_t i = 0; i < _segmentIndex; i++ )
+			prevLength += m_track[ i ]->length();
+
+		const double relativePos = _trackPosition - prevLength;
+		return relativePos / m_track[ _segmentIndex ]->length();
+	}
 
 	int findTrackIndex( double _position ) const;
 	bool isPositionInsideTrack( double _position ) const;
 
-	double length() const { return m_totalLength; }
+	/**
+	 * @brief Cut the track length in half
+	 * @return The upper half of the track length
+	 */
+	TrackLength splitTrackAt( double _position );
 
+	double length() const { return m_totalLength; }
+	double recalculateLength() {
+		m_totalLength = 0.0;
+		for ( ITrackSegment* segment : m_track )
+			m_totalLength += segment->length();
+		return m_totalLength;
+	}
 	int nextJunctionIndex = -1;
 	int prevJunctionIndex = -1;
 

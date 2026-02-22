@@ -138,6 +138,15 @@ public:
 		}
 	}
 
+	virtual ITrackSegment* splitSegment( double _t ) override {
+		if ( _t <= 0.0 ) return nullptr;
+		if ( _t >= 1.0 ) return nullptr;
+
+		WV_LOG_WARNING( "Add ArcTrackSegment::splitSegment\n" );
+
+		return nullptr;
+	}
+
 private:
 	
 	double m_arcAngle  = 0.0; // in degrees

@@ -98,22 +98,37 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 		{
 			TrackPosition trackLoc = getClosestToPoint( rayhit );
 			
-			if ( _ctx.inputSystem->getMouseButtonDown( 1 ) )
-				wv::Debug::Print( "Track %i at %f, %s\n", trackLoc.index, trackLoc.distanceFromStart, std::format( "{}", trackLoc.worldPosition ).c_str() );
+			wv::Renderer* renderer = wv::getApp()->getRenderer();
+			bool withinClickableDistance = ( trackLoc.worldPosition - rayhit ).length() < 1.6f;
 
-			if ( ( trackLoc.worldPosition - rayhit ).length() < 1.6f )
+			if ( withinClickableDistance )
 			{
-				auto renderer = wv::getApp()->getRenderer();
-
 				renderer->addDebugLine(
-					trackLoc.worldPosition, 
+					trackLoc.worldPosition,
 					trackLoc.worldPosition + wv::Vector3f{ 0.0f, 2.0f, 0.0f } );
 
 				renderer->addDebugLine(
 					rayhit,
 					trackLoc.worldPosition );
+
+				
+				if ( _ctx.inputSystem->getMouseButtonDown( 1 ) )
+					beginTrackBuild( trackLoc );
 			}
 
+			if ( m_isBuildingTrack )
+			{
+				renderer->addDebugLine( m_buildingTrackPosition.worldPosition, rayhit );
+				TrackPosition connectingTrack{};
+
+				if ( withinClickableDistance )
+					connectingTrack = trackLoc;
+				else
+					connectingTrack.worldPosition = rayhit;
+
+				if ( _ctx.inputSystem->getMouseButtonUp( 1 ) )
+					endTrackBuild( connectingTrack );
+			}
 		}
 	}
 }
@@ -126,6 +141,9 @@ void TrackVehicleSystem::onDebugRender()
 	{
 		float len = trackLength.length();
 		double pos = 0.0;
+
+		if ( len == 0.0f )
+			continue;
 
 		for ( size_t i = 0; i < (size_t)len + 1; i++ )
 		{
@@ -239,4 +257,89 @@ std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double
 		// no junction, or junction did not lead anywhere
 		return { _track, track.length() };
 	}
+}
+
+void TrackVehicleSystem::beginTrackBuild( TrackPosition _trackPosition )
+{
+	m_isBuildingTrack = true;
+	m_buildingTrackPosition = _trackPosition;
+}
+
+void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
+{
+	m_isBuildingTrack = false;
+
+	wv::Debug::Print( 
+		"Track %i at %f, %s\n", 
+		m_buildingTrackPosition.index, 
+		m_buildingTrackPosition.distanceFromStart, 
+		std::format( "{}", m_buildingTrackPosition.worldPosition ).c_str() 
+	);
+
+	int newJunctionIndex = (int)m_trackJunctions.size();
+	
+	if ( !splitTrackLength( m_buildingTrackPosition.index, m_buildingTrackPosition.distanceFromStart ) )
+		return; // TODO
+
+	TrackJunction& junction = m_trackJunctions.back();
+	junction.outIndices.push_back( m_trackLengths.size() );
+	junction.currentTrackIndex++;
+
+	// Create new connecting track
+
+	TrackLength& trackLength = m_trackLengths[ m_buildingTrackPosition.index ];
+	
+	TrackLength newTrack{};
+	newTrack.addLineTrack( trackLength.getEndPosition(), _connectTrackPosition.worldPosition );
+
+	if ( _connectTrackPosition.index != -1 )
+	{
+		TrackJunction connectingJunction{};
+		connectingJunction.inIndex = m_trackLengths.size(); // index of new track
+		connectingJunction.outIndices.push_back( _connectTrackPosition.index );
+		newTrack.nextJunctionIndex = m_trackJunctions.size();
+
+		m_trackJunctions.push_back( connectingJunction );
+	}
+
+	newTrack.prevJunctionIndex = newJunctionIndex;
+	
+	m_trackLengths.push_back( newTrack );
+
+}
+
+bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosition )
+{
+	int newJunctionIndex = (int)m_trackJunctions.size();
+
+	// new junction between the split lengths
+	TrackJunction junction{};
+	junction.inIndex = m_buildingTrackPosition.index;
+
+	// Split and add upper track segment
+	
+	TrackLength& trackLength = m_trackLengths[ m_buildingTrackPosition.index ];
+	TrackLength upperTrack = trackLength.splitTrackAt( m_buildingTrackPosition.distanceFromStart );
+
+	if ( upperTrack.length() <= 0.0 )
+		return false; // no spltting occured, we're at the edge of the track length
+
+	// make sure any connecting junction on the upper half gets the new index
+	if ( trackLength.nextJunctionIndex != -1 )
+	{
+		upperTrack.nextJunctionIndex = trackLength.nextJunctionIndex;
+
+		TrackJunction& oldJunction = m_trackJunctions[ trackLength.nextJunctionIndex ];
+		oldJunction.replaceTrackIndex( m_buildingTrackPosition.index, m_trackLengths.size() );
+	}
+
+	trackLength.nextJunctionIndex = newJunctionIndex;
+	upperTrack.prevJunctionIndex = newJunctionIndex;
+
+	junction.outIndices.push_back( m_trackLengths.size() ); // index of the new track
+	m_trackLengths.push_back( upperTrack );
+
+	m_trackJunctions.push_back( junction );
+
+	return true;
 }

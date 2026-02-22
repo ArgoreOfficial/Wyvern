@@ -108,7 +108,9 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 
 wv::Vector3f TrackLength::getPositionAt( double _trackPosition ) const
 {
-	size_t trackIndex = findTrackIndex( _trackPosition );
+	WV_ASSERT( m_totalLength > 0.0 );
+
+	int trackIndex = findTrackIndex( _trackPosition );
 	
 	if ( trackIndex == -1 )
 	{
@@ -222,5 +224,37 @@ bool TrackLength::isPositionInsideTrack( double _position ) const
 		return false;
 
 	return true;
+}
+
+TrackLength TrackLength::splitTrackAt( double _position )
+{
+	int segmentToSplit = findTrackIndex( _position );
+	if ( segmentToSplit == -1 )
+		return {};
+
+	std::vector<ITrackSegment*> lowerTrack = {};
+
+	double segmentT = getSegmentTValue( segmentToSplit, _position );
+
+	ITrackSegment* upperSegment = m_track[ segmentToSplit ]->splitSegment( segmentT );
+	if ( upperSegment == nullptr )
+		return {};
+
+	for ( size_t i = 0; i <= (size_t)segmentToSplit; i++ )
+		lowerTrack.push_back( m_track[ i ] );
+	
+	TrackLength upperLength{};
+
+	upperLength.m_track.push_back( upperSegment );
+	for ( size_t i = segmentToSplit + 1; i < m_track.size(); i++ )
+		upperLength.m_track.push_back( m_track[ i ] );
+	
+	upperLength.recalculateLength();
+
+	m_track = lowerTrack;
+	
+	recalculateLength();
+
+	return upperLength;
 }
 

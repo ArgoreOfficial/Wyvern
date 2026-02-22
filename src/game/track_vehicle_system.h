@@ -73,8 +73,12 @@ protected:
 	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
 	TrackPosition getClosestToPoint( const wv::Vector3f& _point ) const;
-
 	std::pair<int, double> moveAlongTrack( size_t _track, double _movedPosition );
+
+	void beginTrackBuild( TrackPosition _trackPosition );
+	void endTrackBuild( TrackPosition _connectTrackPosition );
+
+	bool splitTrackLength( size_t _trackIndex, double _trackPosition );
 
 	wv::EntityComponentContainer<TrackEngineComponent> m_engineComponents;
 
@@ -82,4 +86,8 @@ protected:
 
 	std::vector<TrackLength>   m_trackLengths{};
 	std::vector<TrackJunction> m_trackJunctions{};
+
+	bool m_isBuildingTrack = false;
+	TrackPosition m_buildingTrackPosition;
+
 };
