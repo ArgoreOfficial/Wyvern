@@ -6,6 +6,7 @@
 #include <wv/memory/memory.h>
 
 #include "track.h"
+#include "track/arc_track_segment.h"
 
 #include <utility>
 
@@ -125,4 +126,5 @@ protected:
 	bool m_isBuildingTrack = false;
 	TrackPosition m_buildingTrackPosition;
 
+	TrackLength m_currentlyBuildingLength{};
 };

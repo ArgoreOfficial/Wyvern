@@ -133,10 +133,71 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 				else
 					connectingTrack.worldPosition = rayhit;
 
+				TrackLength* trackLength = getTrack( m_buildingTrackPosition.index );
+				
+				wv::Vector3f startPos = trackLength->getPositionAt( m_buildingTrackPosition.distanceFromStart );
+				wv::Vector3f endVector = ( rayhit - startPos ).normalized();
+				wv::Vector3f thing = endVector.cross( wv::Vector3f::up() );
+				wv::Vector3f thingCentre = ( rayhit + startPos ) / 2;
+
+				wv::Vector3f debugOffset{ 0.0f, 2.0f, 0.0 };
+				
+				renderer->addDebugLine( 
+					debugOffset + startPos, 
+					debugOffset + rayhit );
+
+				renderer->addDebugLine( 
+					debugOffset + thingCentre, 
+					debugOffset + thingCentre + thing );
+
+				wv::Vector3f intersectionPoint{};
+				if ( wv::Math::linePlaneIntersection( thingCentre, thing, startPos, trackLength->getDirectionAt( m_buildingTrackPosition.distanceFromStart ), &intersectionPoint) )
+				{
+					m_currentlyBuildingLength.clear();
+
+					wv::Vector3f dirA = startPos - intersectionPoint;
+					wv::Vector3f dirB = rayhit   - intersectionPoint;
+
+					wv::Vector2f a{ dirA.x, dirA.z };
+					a.normalize();
+					
+					wv::Vector2f b{ dirB.x, dirB.z };
+					b.normalize();
+
+					float angle = wv::Math::angleBetween( b, a, true );
+
+					m_currentlyBuildingLength.addArcTrack( startPos, intersectionPoint, -wv::Math::degrees( angle ) );
+
+					renderer->addDebugLine( startPos, intersectionPoint );
+					renderer->addDebugSphere( intersectionPoint, 1.0f );
+				}
+
 				if ( _ctx.inputSystem->getMouseButtonUp( 1 ) )
 					endTrackBuild( connectingTrack );
 			}
 		}
+	}
+}
+
+static void debugDrawTrackLength( wv::Renderer* _renderer, TrackLength* _trackLength ) {
+	double len = _trackLength->length();
+	double pos = 0.0;
+
+	if ( len == 0.0f )
+		return;
+
+	for ( size_t i = 0; i < (size_t)len + 1; i++ )
+	{
+		wv::Vector3f lineStart = _trackLength->getPositionAt( pos );
+		pos += 1.0;
+		wv::Vector3f lineEnd = _trackLength->getPositionAt( pos );
+
+		_renderer->addDebugLine( lineStart, lineEnd );
+
+		if ( _trackLength->nextJunctionIndex != -1 )
+			_renderer->addDebugSphere( _trackLength->getEndPosition(), 0.5f );
+		else if ( _trackLength->prevJunctionIndex != -1 )
+			_renderer->addDebugSphere( _trackLength->getStartPosition(), 0.5f );
 	}
 }
 
@@ -145,27 +206,9 @@ void TrackVehicleSystem::onDebugRender()
 	auto renderer = wv::getApp()->getRenderer();
 
 	for ( TrackLength* trackLength : m_trackLengths )
-	{
-		double len = trackLength->length();
-		double pos = 0.0;
-
-		if ( len == 0.0f )
-			continue;
-
-		for ( size_t i = 0; i < (size_t)len + 1; i++ )
-		{
-			wv::Vector3f lineStart = trackLength->getPositionAt( pos );
-			pos += 1.0;
-			wv::Vector3f lineEnd = trackLength->getPositionAt( pos );
-
-			renderer->addDebugLine( lineStart, lineEnd );
-
-			if( trackLength->nextJunctionIndex != -1 )
-				renderer->addDebugSphere( trackLength->getEndPosition(), 0.5f );
-			else if( trackLength->prevJunctionIndex != -1 )
-				renderer->addDebugSphere( trackLength->getStartPosition(), 0.5f );
-		}
-	}
+		debugDrawTrackLength( renderer, trackLength );
+	
+	debugDrawTrackLength( renderer, &m_currentlyBuildingLength );
 
 	if ( ImGui::Begin( "Track Switches" ) )
 	{
@@ -394,20 +437,50 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 
 		TrackLength* trackLength = getTrack( m_buildingTrackPosition.index );
 
-		newTrack->addLineTrack( trackLength->getEndPosition(), _connectTrackPosition.worldPosition );
-
 		newTrack->prevJunctionIndex = newJunctionIndex;
+
+
+		// newTrack->addLineTrack( trackLength->getEndPosition(), _connectTrackPosition.worldPosition );
+		newTrack->prevJunctionIndex = newJunctionIndex;
+
+		{
+
+			wv::Vector3f buildStartPos = trackLength->getEndPosition();
+			wv::Vector3f buildEndPos = _connectTrackPosition.worldPosition;
+
+			wv::Vector3f endVector = ( buildEndPos - buildStartPos ).normalized();
+			wv::Vector3f arcNormal = endVector.cross( wv::Vector3f::up() );
+			wv::Vector3f arcNormalCentre = ( buildStartPos + buildEndPos ) / 2;
+
+			wv::Vector3f intersectionPoint{};
+			if ( wv::Math::linePlaneIntersection( arcNormalCentre, arcNormal, buildStartPos, trackLength->getEndDirection(), &intersectionPoint ) )
+			{
+				wv::Vector3f dirA = buildStartPos - intersectionPoint;
+				wv::Vector3f dirB = buildEndPos - intersectionPoint;
+
+				wv::Vector2f a{ dirA.x, dirA.z };
+				a.normalize();
+
+				wv::Vector2f b{ dirB.x, dirB.z };
+				b.normalize();
+
+				float angle = wv::Math::angleBetween( b, a, true );
+
+				newTrack->addArcTrack( buildStartPos, intersectionPoint, -wv::Math::degrees( angle ) );
+			}
+
+		}
 
 		// Create and connect junction 
 		if ( _connectTrackPosition.index != -1 )
 		{
 			size_t connectingJunctionIndex;
 
-			wv::Vector3f newTrackDir = newTrack->getPositionAt( 0.1 ) - newTrack->getPositionAt( 0.0 );
+			wv::Vector3f newTrackDir = newTrack->getEndDirection();
 			newTrackDir.normalize();
-
+			
 			TrackLength* connectingTrack = getTrack( _connectTrackPosition.index );
-			wv::Vector3f connectingTrackDir = connectingTrack->getPositionAt( _connectTrackPosition.distanceFromStart + 0.1 ) - connectingTrack->getPositionAt( _connectTrackPosition.distanceFromStart );
+			wv::Vector3f connectingTrackDir = connectingTrack->getDirectionAt( _connectTrackPosition.distanceFromStart );
 			connectingTrackDir.normalize();
 
 			float dot = newTrackDir.dot( connectingTrackDir );

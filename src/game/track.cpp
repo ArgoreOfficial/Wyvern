@@ -56,10 +56,24 @@ void TrackLength::addLineTrack( float _length )
 	}
 }
 
+void TrackLength::addArcTrack( const wv::Vector3f& _start, const wv::Vector3f& _centre, double _arc )
+{
+	ITrackSegment* segment = WV_NEW(
+		ArcTrackSegment,
+		_start,
+		_centre,
+		_arc
+	);
+
+	if ( segment )
+	{
+		m_track.push_back( segment );
+		m_totalLength += segment->length();
+	}
+}
+
 void TrackLength::addArcTrack( double _radius, double _arc )
 {
-	ITrackSegment* segment{ nullptr };
-
 	if ( !m_track.empty() )
 	{
 		ITrackSegment* prev = m_track.back();
@@ -70,12 +84,7 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 		
 		wv::Vector3f centre = prev->getEndPosition() - ( cross * _radius );
 
-		segment = WV_NEW(
-			ArcTrackSegment,
-			prev->getEndPosition(),
-			centre,
-			_arc
-		);
+		addArcTrack( prev->getEndPosition(), centre, _arc );
 
 	}
 	else
@@ -90,19 +99,7 @@ void TrackLength::addArcTrack( double _radius, double _arc )
 			_arc *= -1.0;
 		}
 
-		segment = WV_NEW( 
-			ArcTrackSegment,
-			wv::Vector3f{},
-			centre,
-			_arc
-		);
-
-	}
-
-	if ( segment )
-	{
-		m_track.push_back( segment );
-		m_totalLength += segment->length();
+		addArcTrack( wv::Vector3f{}, centre, _arc );
 	}
 }
 

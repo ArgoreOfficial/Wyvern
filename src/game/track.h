@@ -59,18 +59,27 @@ public:
 
 	void addLineTrack( const wv::Vector3f& _start, const wv::Vector3f& _end );
 	void addLineTrack( float _length );
+	void addArcTrack( const wv::Vector3f& _start, const wv::Vector3f& _centre, double _arc );
 	void addArcTrack( double _radius, double _arc );
 
 	wv::Vector3f getPositionAt( double _trackPosition ) const;
 	wv::Vector3f getStartPosition() const { return getPositionAt( 0.0 ); }
 	wv::Vector3f getEndPosition()   const { return getPositionAt( m_totalLength ); }
 
+	wv::Vector3f getDirectionAt( double _trackPosition ) const {
+		return ( getPositionAt( _trackPosition + 0.1 ) - getPositionAt( _trackPosition ) ).normalized();
+	}
+
 	wv::Vector3f getStartDirection() const {
-		return ( getPositionAt( 0.1 ) - getPositionAt( 0.0 ) ).normalized();
+		return getDirectionAt( 0.0 );
 	}
 
 	wv::Vector3f getEndDirection() const {
-		return ( getPositionAt( m_totalLength ) - getPositionAt( m_totalLength - 0.1 ) ).normalized();
+		return getDirectionAt( m_totalLength - 0.1 );
+	}
+
+	wv::Vector3f getEndRightAngle() const {
+		return m_track.back()->getEndRightAngle();
 	}
 
 	wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const;
