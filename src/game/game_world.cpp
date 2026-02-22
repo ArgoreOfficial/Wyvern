@@ -133,7 +133,7 @@ void GameWorld::onSceneCreate()
 		trackLength.addLineTrack( 20.0f );
 		//trackLength.addArcTrack( 50.0, 90.0 );
 		trackLength.nextJunctionIndex = 0;
-		trackVehicleSys->addTrackLength( trackLength );
+		trackVehicleSys->createTrackLength( trackLength );
 	}
 	
 	TrackLength trackLength1;
@@ -147,7 +147,7 @@ void GameWorld::onSceneCreate()
 
 		trackLength1.prevJunctionIndex = 0;
 		trackLength1.nextJunctionIndex = 1;
-		trackVehicleSys->addTrackLength( trackLength1 );
+		trackVehicleSys->createTrackLength( trackLength1 );
 	}
 
 	{ // track length 2
@@ -155,7 +155,7 @@ void GameWorld::onSceneCreate()
 		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, trackLength1.getEndPosition() ); // connect to length 1
 		trackLength.prevJunctionIndex = 0;
 		trackLength.nextJunctionIndex = 1;
-		trackVehicleSys->addTrackLength( trackLength );
+		trackVehicleSys->createTrackLength( trackLength );
 	}
 
 	{ // track length 3
@@ -165,7 +165,7 @@ void GameWorld::onSceneCreate()
 			trackLength1.getEndPosition() + wv::Vector3f{ 0.0f, 0.0f, 20.0f } 
 		); 
 		trackLength.prevJunctionIndex = 1;
-		trackVehicleSys->addTrackLength( trackLength );
+		trackVehicleSys->createTrackLength( trackLength );
 	}
 
 	{ // track junction 0

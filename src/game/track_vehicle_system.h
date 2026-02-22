@@ -63,20 +63,35 @@ class TrackVehicleSystem : public wv::IWorldSystem
 public:
 	TrackVehicleSystem() = default;
 
-	void addTrackLength( const TrackLength& _trackLength ) {
-		m_trackLengths.push_back( _trackLength );
+	TrackLength* createTrackLength( size_t* _outIndex = nullptr ) {
+		if ( _outIndex ) 
+			*_outIndex = m_trackLengths.size();
+
+		TrackLength* trackLength = WV_NEW( TrackLength );
+		m_trackLengths.push_back( trackLength );
+		return trackLength;
+	}
+
+	TrackLength* createTrackLength( const TrackLength& _copy, size_t* _outIndex = nullptr ) {
+		if ( _outIndex )
+			*_outIndex = m_trackLengths.size();
+
+		TrackLength* trackLength = WV_NEW( TrackLength );
+		*trackLength = _copy;
+		m_trackLengths.push_back( trackLength );
+		return trackLength;
 	}
 
 	TrackJunction* createTrackJunction( size_t* _outIndex = nullptr ) {
-		TrackJunction* junction = WV_NEW( TrackJunction );
-		
-		if ( _outIndex ) *_outIndex = m_trackJunctions.size();
+		if ( _outIndex ) 
+			*_outIndex = m_trackJunctions.size();
 
+		TrackJunction* junction = WV_NEW( TrackJunction );
 		m_trackJunctions.push_back( junction );
 		return junction;
 	}
 
-	const std::vector<TrackLength>& getTrackLengths() const { return m_trackLengths; }
+	const std::vector<TrackLength*>& getTrackLengths() const { return m_trackLengths; }
 
 protected:
 	virtual void initialize() override;
@@ -90,7 +105,7 @@ protected:
 	virtual void onDebugRender() override;
 
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition, bool _invertedDirection = false );
-	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
+	TrackLength* getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
 	TrackPosition getClosestToPoint( const wv::Vector3f& _point ) const;
 	TrackPosition moveAlongTrack( size_t _track, double _movedPosition, bool _invertedDirection );
@@ -104,7 +119,7 @@ protected:
 
 	std::vector<TrackVehicleComponent*> m_vehicleComponents;
 
-	std::vector<TrackLength>    m_trackLengths{};
+	std::vector<TrackLength*>   m_trackLengths{};
 	std::vector<TrackJunction*> m_trackJunctions{};
 
 	bool m_isBuildingTrack = false;
