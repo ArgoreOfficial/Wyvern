@@ -134,41 +134,55 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 					connectingTrack.worldPosition = rayhit;
 
 				TrackLength* trackLength = getTrack( m_buildingTrackPosition.index );
-				
-				wv::Vector3f startPos = trackLength->getPositionAt( m_buildingTrackPosition.distanceFromStart );
-				wv::Vector3f endVector = ( rayhit - startPos ).normalized();
-				wv::Vector3f thing = endVector.cross( wv::Vector3f::up() );
-				wv::Vector3f thingCentre = ( rayhit + startPos ) / 2;
+
+				wv::Vector3f buildStartPos = trackLength->getPositionAt( m_buildingTrackPosition.distanceFromStart );
+				wv::Vector3f buildEndPos = rayhit;
+
+				wv::Vector3f endVector = ( buildEndPos - buildStartPos ).normalized();
+				wv::Vector3f arcNormal = endVector.cross( wv::Vector3f::up() );
+				wv::Vector3f arcNormalCentre = ( buildStartPos + buildEndPos ) / 2;
 
 				wv::Vector3f debugOffset{ 0.0f, 2.0f, 0.0 };
 				
 				renderer->addDebugLine( 
-					debugOffset + startPos, 
-					debugOffset + rayhit );
+					debugOffset + buildStartPos,
+					debugOffset + buildEndPos );
 
 				renderer->addDebugLine( 
-					debugOffset + thingCentre, 
-					debugOffset + thingCentre + thing );
+					debugOffset + arcNormalCentre,
+					debugOffset + arcNormalCentre + arcNormal );
 
 				wv::Vector3f intersectionPoint{};
-				if ( wv::Math::linePlaneIntersection( thingCentre, thing, startPos, trackLength->getDirectionAt( m_buildingTrackPosition.distanceFromStart ), &intersectionPoint) )
+				
+				if ( trackLength->getEndRightAngle().dot( endVector ) < 0.0 )
+					arcNormal *= -1.0f;
+				
+				if ( trackLength->getDirectionAt( m_buildingTrackPosition.distanceFromStart ).dot( endVector ) < 0.0 )
+					arcNormal *= -1.0;
+				
+				if ( wv::Math::linePlaneIntersection(
+					arcNormalCentre, arcNormal,
+					buildStartPos,
+					trackLength->getDirectionAt( m_buildingTrackPosition.distanceFromStart ),
+					&intersectionPoint )
+					)
 				{
 					m_currentlyBuildingLength.clear();
 
-					wv::Vector3f dirA = startPos - intersectionPoint;
-					wv::Vector3f dirB = rayhit   - intersectionPoint;
+					wv::Vector3f dirA = buildStartPos - intersectionPoint;
+					wv::Vector3f dirB = buildEndPos - intersectionPoint;
 
 					wv::Vector2f a{ dirA.x, dirA.z };
 					a.normalize();
-					
+
 					wv::Vector2f b{ dirB.x, dirB.z };
 					b.normalize();
 
-					float angle = wv::Math::angleBetween( b, a, true );
+					float angle = wv::Math::angleBetween( b, a, false );
 
-					m_currentlyBuildingLength.addArcTrack( startPos, intersectionPoint, -wv::Math::degrees( angle ) );
+					m_currentlyBuildingLength.addArcTrack( buildStartPos, intersectionPoint, -wv::Math::degrees( angle ) );
 
-					renderer->addDebugLine( startPos, intersectionPoint );
+					renderer->addDebugLine( buildStartPos, intersectionPoint );
 					renderer->addDebugSphere( intersectionPoint, 1.0f );
 				}
 
@@ -453,6 +467,12 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 			wv::Vector3f arcNormal = endVector.cross( wv::Vector3f::up() );
 			wv::Vector3f arcNormalCentre = ( buildStartPos + buildEndPos ) / 2;
 
+			if ( trackLength->getEndRightAngle().dot( endVector ) < 0.0 )
+				arcNormal *= -1.0f;
+
+			if ( trackLength->getDirectionAt( m_buildingTrackPosition.distanceFromStart ).dot( endVector ) < 0.0 )
+				arcNormal *= -1.0;
+
 			wv::Vector3f intersectionPoint{};
 			if ( wv::Math::linePlaneIntersection( arcNormalCentre, arcNormal, buildStartPos, trackLength->getEndDirection(), &intersectionPoint ) )
 			{
@@ -465,7 +485,7 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 				wv::Vector2f b{ dirB.x, dirB.z };
 				b.normalize();
 
-				float angle = wv::Math::angleBetween( b, a, true );
+				float angle = wv::Math::angleBetween( b, a, false );
 
 				newTrack->addArcTrack( buildStartPos, intersectionPoint, -wv::Math::degrees( angle ) );
 			}
