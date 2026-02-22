@@ -5,6 +5,7 @@
 #include <wv/math/vector2.h>
 #include <wv/math/vector3.h>
 #include <wv/debug/error.h>
+#include <wv/memory/memory.h>
 
 class ArcTrackSegment : public ITrackSegment
 {
@@ -142,9 +143,18 @@ public:
 		if ( _t <= 0.0 ) return nullptr;
 		if ( _t >= 1.0 ) return nullptr;
 
-		WV_LOG_WARNING( "Add ArcTrackSegment::splitSegment\n" );
+		// WV_LOG_WARNING( "Add ArcTrackSegment::splitSegment\n" );
 
-		return nullptr;
+		double lowerAngle = ( m_arcAngle * _t );
+		double upperArc = m_arcAngle - lowerAngle;
+		wv::Vector3f upperStart = getPosition( _t );
+		
+		ArcTrackSegment* upperSegment = WV_NEW( ArcTrackSegment, upperStart, m_arcCentre, upperArc );
+		
+		m_arcEnd   = upperStart;
+		m_arcAngle = lowerAngle;
+
+		return upperSegment;
 	}
 
 private:
