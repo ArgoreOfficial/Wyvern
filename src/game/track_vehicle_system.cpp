@@ -74,9 +74,6 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 		if ( trackLocation.index < 0 ) 
 			continue; // error
 		
-		if ( trackLocation.index != engine->m_trackIndex )
-			wv::Debug::Print( "New Track\n" );
-
 		engine->m_trackIndex        = trackLocation.index;
 		engine->m_trackPosition     = trackLocation.distanceFromStart;
 		engine->m_invertedDirection = trackLocation.invertedDirectionOfTravel;
@@ -372,12 +369,12 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 {
 	m_isBuildingTrack = false;
 
-	wv::Debug::Print( 
-		"Track %i at %f, %s\n", 
-		m_buildingTrackPosition.index, 
-		m_buildingTrackPosition.distanceFromStart, 
-		std::format( "{}", m_buildingTrackPosition.worldPosition ).c_str() 
-	);
+	double buildLength = ( _connectTrackPosition.worldPosition - m_buildingTrackPosition.worldPosition ).length();
+	if ( buildLength < 1.0 )
+	{
+		wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "Track too short\n" );
+		return;
+	}
 
 	size_t newJunctionIndex{};
 	

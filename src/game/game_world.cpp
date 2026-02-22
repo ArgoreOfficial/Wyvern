@@ -165,6 +165,8 @@ void GameWorld::onSceneCreate()
 			trackLength1.getEndPosition() + wv::Vector3f{ 0.0f, 0.0f, 20.0f } 
 		); 
 		trackLength.prevJunctionIndex = 1;
+		trackLength.addArcTrack( 20.0, 90.0 );
+		trackLength.addArcTrack( 20.0, -180.0 );
 		trackVehicleSys->createTrackLength( trackLength );
 	}
 
