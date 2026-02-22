@@ -324,7 +324,7 @@ TrackPosition TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPo
 				bool isVJoint = track->prevJunctionIndex == newTrack->prevJunctionIndex;
 
 				if( !isVJoint ) // --> J -->
-					return TrackPosition( newTrackIndex, newTrack->length() + _movedPosition, false );
+					return TrackPosition( newTrackIndex, newTrack->length() + _movedPosition, _invertedDirection );
 				else // <-- J -->
 					return TrackPosition( newTrackIndex, -_movedPosition, !_invertedDirection );
 			}
@@ -348,9 +348,12 @@ TrackPosition TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPo
 				bool isVJoint = track->nextJunctionIndex == newTrack->nextJunctionIndex;
 
 				if ( !isVJoint ) // --> J -->
-					return TrackPosition( newTrackIndex, _movedPosition - track->length(), false );
+					return TrackPosition( newTrackIndex, _movedPosition - track->length(), _invertedDirection );
 				else // --> J <--
-					return TrackPosition( newTrackIndex, newTrack->length() - _movedPosition, true );
+					return TrackPosition( 
+						newTrackIndex, 
+						newTrack->length() - ( _movedPosition - track->length() ),
+						!_invertedDirection );
 			}
 		}
 		
