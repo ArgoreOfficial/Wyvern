@@ -20,7 +20,7 @@ struct fastgltf::ElementTraits<wv::Vector3f> : fastgltf::ElementTraitsBase<wv::V
 template <>
 struct fastgltf::ElementTraits<wv::Vector2f> : fastgltf::ElementTraitsBase<wv::Vector2f, AccessorType::Vec2, float> { };
 
-void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager* _meshManager, MaterialManager* _materialManager, TextureManager* _textureManager )
+void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportOptions _options )
 {
 	// Load file
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
@@ -57,40 +57,40 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
 
-	if ( _meshManager->contains( _path ) )
+	if ( m_meshManager->contains( _path ) )
 	{
-		m_meshAsset = _meshManager->get( _path );
+		m_meshAsset = m_meshManager->get( _path );
 	}
 	else
 	{
 		m_meshAsset = std::make_shared<MeshAsset>();
-		_meshManager->add( _path, m_meshAsset );
+		m_meshManager->add( _path, m_meshAsset );
 
-		worker->push( loadFence, [ this, _meshManager, _path, &asset ]( auto, auto ) {
-			parseMesh( asset );
+		worker->push( loadFence, [ this, _path, _options, &asset ]( auto, auto ) {
+			parseMesh( asset, _options );
 		} );
 	}
 	for ( size_t i = 0; i < asset.images.size(); i++ )
 	{
 		fastgltf::Image& image = asset.images[ i ];
 		
-		if ( _textureManager->contains( image.name ) )
-			textures[ i ] = _textureManager->get( image.name );
+		if ( m_textureManager->contains( image.name ) )
+			textures[ i ] = m_textureManager->get( image.name );
 		else
 		{
-			worker->push( loadFence, [ _textureManager, _path, i, &image, &textures, &asset ]( auto, auto ) {
+			worker->push( loadFence, [ this, _path, i, &image, &textures, &asset ]( auto, auto ) {
 				std::visit( fastgltf::visitor{
 					[]( auto& arg ) { },
 					[ & ]( fastgltf::sources::URI& _filePath ) {
 						if ( _filePath.fileByteOffset == 0 && _filePath.uri.isLocalPath() )
-							textures[ i ] = _textureManager->get( _path.parent_path() / _filePath.uri.fspath() );
+							textures[ i ] = m_textureManager->get( _path.parent_path() / _filePath.uri.fspath() );
 					
 					},
 					[ & ]( fastgltf::sources::Vector& _vector ) {
 						textures[ i ] = std::make_shared<TextureAsset>( (uint8_t*)_vector.bytes.data(), _vector.bytes.size() );
 					
 						// add texture to manager
-						_textureManager->add( image.name, textures[ i ] );
+						m_textureManager->add( image.name, textures[ i ] );
 					},
 					[ & ]( fastgltf::sources::BufferView& view ) {
 						auto& bufferView = asset.bufferViews[ view.bufferViewIndex ];
@@ -104,7 +104,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 							buffer.data );
 
 						// add texture to manager
-						_textureManager->add( image.name, textures[ i ] );
+						m_textureManager->add( image.name, textures[ i ] );
 					},
 					},
 					image.data );
@@ -118,7 +118,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 
 	for ( fastgltf::Material& mat : asset.materials )
 	{
-		Ref<MaterialAsset> newMat = _materialManager->get( shaderName );
+		Ref<MaterialAsset> newMat = m_materialManager->get( shaderName );
 		MaterialInstance instance{ newMat };
 
 		/*
@@ -168,10 +168,10 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshManager
 	
 	// there must always be at least one material
 	if ( m_materials.size() == 0 )
-		m_materials.push_back( _materialManager->get( shaderName ) );
+		m_materials.push_back( m_materialManager->get( shaderName ) );
 }
 
-void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
+void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions _options )
 {
 	// Parse gltf
 
@@ -272,7 +272,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 	TaskSystem* taskSystem = Application::getSingleton()->getTaskSystem();
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
-
+	
 	fastgltf::iterateSceneNodes( _asset, 0, fastgltf::math::fmat4x4(),
 		[ & ]( fastgltf::Node& _node, fastgltf::math::fmat4x4 _matrix ) {
 		if ( !_node.meshIndex.has_value() )
@@ -280,7 +280,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 
 		for ( size_t primitiveIndex : meshPrimitivesMap[ *_node.meshIndex ] )
 		{
-			worker->push( loadFence, [ _matrix, primitiveIndex, &surface ]( auto, auto ) {
+			worker->push( loadFence, [ _options, _matrix, primitiveIndex, &surface ]( auto, auto ) {
 				wv::Matrix4x4f matrix( _matrix.data() );
 				wv::Matrix3x3f normalMatrix = {};// transpose(inverse(mat3(modelMatrix)))
 				normalMatrix.setRow( 0, { matrix.get( 0, 0 ), matrix.get( 0, 1 ), matrix.get( 0, 2 ) } );
@@ -295,7 +295,8 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset )
 				{
 					auto& vec = surface.vertexPositions[ i + prim.vertexOffset ];
 					vec = vec * matrix;
-
+					vec = vec * _options.transform;
+					
 					auto& norm = surface.vertexNormals[ i + prim.vertexOffset ];
 					norm = norm * normalMatrix;
 					norm.normalize();

@@ -25,8 +25,16 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 		auto extension = m_path.extension();
 		if ( extension == ".gltf" || extension == ".glb" )
 		{
-			MeshImporterGLTF importer{};
-			importer.load( m_path, _ctx.meshManager, _ctx.materialManager, _ctx.textureManager );
+			MeshImporterGLTF importer = MeshImporterGLTF( _ctx.meshManager, _ctx.materialManager, _ctx.textureManager );
+			MeshImportOptions options;
+			// TODO:
+		//	if ( m_path == "meshes/Little train.gltf" )
+		//	{
+		//		options.transform = wv::Math::rotateY( options.transform, wv::Math::radians( -90.0f ) );
+		//		options.transform = wv::Math::scale( options.transform, { 0.3f, 0.3f, 0.3f } );
+		//	}
+
+			importer.load( m_path, options );
 
 			m_meshAsset = importer.getMesh();
 			m_materials = importer.getMaterials();
