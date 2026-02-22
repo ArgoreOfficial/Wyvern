@@ -414,6 +414,7 @@ void TrackVehicleSystem::beginTrackBuild( TrackPosition _trackPosition )
 void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 {
 	m_isBuildingTrack = false;
+	m_currentlyBuildingLength.clear();
 
 	double buildLength = ( _connectTrackPosition.worldPosition - m_buildingTrackPosition.worldPosition ).length();
 	if ( buildLength < 1.0 )

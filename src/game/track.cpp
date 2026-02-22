@@ -12,6 +12,7 @@ void TrackLength::clear()
 		WV_FREE( segment );
 
 	m_track.clear();
+	m_totalLength = 0.0;
 }
 
 void TrackLength::addLineTrack( const wv::Vector3f& _start, const wv::Vector3f& _end )

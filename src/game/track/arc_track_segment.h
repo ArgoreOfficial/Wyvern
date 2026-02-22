@@ -38,10 +38,10 @@ public:
 
 	virtual float length() const override {
 		// in radians
-		double angle = wv::Math::radians( m_arcAngle );
+		double angle = std::abs( wv::Math::radians( m_arcAngle ) );
 
 		// arc circumference
-		double circm = ( m_arcStart - m_arcCentre ).length() * 2 * wv::Const::Double::PI;
+		double circm = m_arcRadius * 2 * wv::Const::Double::PI;
 
 		// length of arc
 		double len = ( angle / wv::Math::radians( 360.0 ) ) * circm;
