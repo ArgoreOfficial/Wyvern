@@ -65,6 +65,14 @@ public:
 	wv::Vector3f getStartPosition() const { return getPositionAt( 0.0 ); }
 	wv::Vector3f getEndPosition()   const { return getPositionAt( m_totalLength ); }
 
+	wv::Vector3f getStartDirection() const {
+		return ( getPositionAt( 0.1 ) - getPositionAt( 0.0 ) ).normalized();
+	}
+
+	wv::Vector3f getEndDirection() const {
+		return ( getPositionAt( m_totalLength ) - getPositionAt( m_totalLength - 0.1 ) ).normalized();
+	}
+
 	wv::Vector3f getClosestToPoint( const wv::Vector3f& _point ) const;
 	double getClosestTrackPosition( const wv::Vector3f& _point ) const;
 	

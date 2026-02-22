@@ -11,6 +11,8 @@
 
 #include <wv/math/geometry.h>
 
+#include <imgui/imgui.h>
+
 void TrackVehicleSystem::initialize()
 {
 	
@@ -166,7 +168,90 @@ void TrackVehicleSystem::onDebugRender()
 			else if( trackLength->prevJunctionIndex != -1 )
 				renderer->addDebugSphere( trackLength->getStartPosition(), 0.5f );
 		}
+	}
 
+	if ( ImGui::Begin( "Track Switches" ) )
+	{
+		for ( size_t i = 0; i < m_trackJunctions.size(); i++ )
+		{
+			auto junction = m_trackJunctions[ i ];
+			ImGui::Text( "%i (Current: %i)", (int)i, junction->currentTrackIndex );
+			ImGui::SameLine();
+			std::string buttonID = std::format("Switch Track##{}", i);
+			if ( ImGui::Button( buttonID.c_str() ) )
+			{
+				junction->currentTrackIndex++;
+				if ( junction->currentTrackIndex >= junction->outIndices.size() )
+					junction->currentTrackIndex = 0;
+			}
+		}
+	}
+	ImGui::End();
+
+	for ( size_t junctionIndex = 0; junctionIndex < m_trackJunctions.size(); junctionIndex++ )
+	{
+		TrackJunction* junction = m_trackJunctions[ junctionIndex ];
+		TrackLength* inTrack = getTrack( junction->inIndex );
+		
+		wv::Vector3f offset = wv::Vector3f::up();
+		wv::Vector3f pos{};
+		wv::Vector3f dir{};
+
+		{
+			if ( inTrack->nextJunctionIndex == junctionIndex )
+			{
+				pos = inTrack->getEndPosition();
+				dir = inTrack->getEndDirection();
+			}
+			else
+			{
+				pos = inTrack->getStartPosition();
+				dir = inTrack->getStartDirection();
+			}
+
+			renderer->addDebugLine( pos + offset, pos + dir + offset );
+		}
+
+		if ( junction->outIndices.size() == 0 )
+			continue;
+
+		{
+			size_t outIndex = junction->currentTrackIndex;
+
+			TrackLength* outTrack = getTrack( junction->outIndices[ outIndex ] );
+			offset.y += 0.2;
+
+			//wv::Vector3f pos = outTrack->getEndPosition();
+			
+			if ( outTrack->prevJunctionIndex == junctionIndex )
+			{
+				double tlen = outTrack->length();
+				double travel = 0.0;
+				while ( travel < wv::Math::min( 6.0, tlen ) )
+				{
+					wv::Vector3f p1 = outTrack->getPositionAt( travel );
+					travel += 1.0;
+					wv::Vector3f p2 = outTrack->getPositionAt( travel );
+
+					renderer->addDebugLine( p1 + offset, p2 + offset );
+				}
+			}
+			else
+			{
+				double tlen = outTrack->length();
+				double travel = 0.0;
+				while( travel < wv::Math::min( 6.0, tlen ) )
+				{
+					wv::Vector3f p1 = outTrack->getPositionAt( tlen - travel );
+					travel += 1.0;
+					wv::Vector3f p2 = outTrack->getPositionAt( tlen - travel );
+
+					renderer->addDebugLine( p1 + offset, p2 + offset );
+				}
+			}
+		}
+
+		
 	}
 }
 
