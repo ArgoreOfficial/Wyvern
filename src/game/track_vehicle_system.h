@@ -84,7 +84,7 @@ protected:
 	void beginTrackBuild( TrackPosition _trackPosition );
 	void endTrackBuild( TrackPosition _connectTrackPosition );
 
-	bool splitTrackLength( size_t _trackIndex, double _trackPosition );
+	bool splitTrackLength( size_t _trackIndex, double _trackPosition, bool _flipJunction, size_t* _outJunctionIndex );
 
 	wv::EntityComponentContainer<TrackEngineComponent> m_engineComponents;
 

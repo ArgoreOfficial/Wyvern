@@ -278,38 +278,44 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 		std::format( "{}", m_buildingTrackPosition.worldPosition ).c_str() 
 	);
 
-	int newJunctionIndex = (int)m_trackJunctions.size();
+	size_t newJunctionIndex{};
 	
-	if ( !splitTrackLength( m_buildingTrackPosition.index, m_buildingTrackPosition.distanceFromStart ) )
-		return; // TODO
-
-	TrackJunction* junction = m_trackJunctions.back();
-	junction->outIndices.push_back( m_trackLengths.size() );
-	junction->currentTrackIndex++;
-
-	// Create new connecting track
-
-	TrackLength& trackLength = m_trackLengths[ m_buildingTrackPosition.index ];
-	
-	TrackLength newTrack{};
-	newTrack.addLineTrack( trackLength.getEndPosition(), _connectTrackPosition.worldPosition );
-
-	if ( _connectTrackPosition.index != -1 )
+	if ( splitTrackLength( m_buildingTrackPosition.index, m_buildingTrackPosition.distanceFromStart, true, &newJunctionIndex ) )
 	{
-		size_t connectingJunctionIndex{};
-		TrackJunction* connectingJunction = createTrackJunction( &connectingJunctionIndex );
-		connectingJunction->inIndex = m_trackLengths.size(); // index of new track
-		connectingJunction->outIndices.push_back( _connectTrackPosition.index );
+		TrackJunction* junction = m_trackJunctions[ newJunctionIndex ];
+		junction->outIndices.push_back( m_trackLengths.size() );
+		junction->currentTrackIndex++;
 
-		newTrack.nextJunctionIndex = connectingJunctionIndex;
+		// Create new connecting track
+
+		TrackLength& trackLength = m_trackLengths[ m_buildingTrackPosition.index ];
+
+		TrackLength newTrack{};
+		newTrack.addLineTrack( trackLength.getEndPosition(), _connectTrackPosition.worldPosition );
+
+		// Create and connect junction 
+//		if ( _connectTrackPosition.index != -1 )
+//		{
+//			size_t connectingJunctionIndex{};
+//			TrackJunction* connectingJunction = createTrackJunction( &connectingJunctionIndex );
+//			connectingJunction->inIndex = m_trackLengths.size(); // index of new track
+//			connectingJunction->outIndices.push_back( _connectTrackPosition.index );
+//
+//			newTrack.nextJunctionIndex = connectingJunctionIndex;
+//		}
+
+		newTrack.prevJunctionIndex = newJunctionIndex;
+
+		m_trackLengths.push_back( newTrack );
+	}
+	else
+	{
+
 	}
 
-	newTrack.prevJunctionIndex = newJunctionIndex;
-	
-	m_trackLengths.push_back( newTrack );
 }
 
-bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosition )
+bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosition, bool _flipJunction, size_t* _outJunctionIndex )
 {
 	// Split and add upper track segment
 	
@@ -322,7 +328,8 @@ bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosi
 	// New junction between the split lengths
 	size_t junctionIndex{};
 	TrackJunction* junction = createTrackJunction( &junctionIndex );
-	junction->inIndex = m_buildingTrackPosition.index;
+	if ( _outJunctionIndex )
+		*_outJunctionIndex = junctionIndex;
 
 	// make sure any connecting junction on the upper half gets the new index
 	if ( lowerTrack.nextJunctionIndex != -1 )
@@ -333,10 +340,23 @@ bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosi
 		oldJunction->replaceTrackIndex( m_buildingTrackPosition.index, m_trackLengths.size() );
 	}
 
-	lowerTrack.nextJunctionIndex = junctionIndex;
-	upperTrack.prevJunctionIndex  = junctionIndex;
+	if ( !_flipJunction )
+	{
+		junction->inIndex = m_buildingTrackPosition.index;
+		junction->outIndices.push_back( m_trackLengths.size() );
 
-	junction->outIndices.push_back( m_trackLengths.size() ); // index of the new track
+		lowerTrack.nextJunctionIndex = junctionIndex;
+		upperTrack.prevJunctionIndex = junctionIndex;
+	}
+	else
+	{
+		junction->inIndex = m_trackLengths.size();
+		junction->outIndices.push_back( m_buildingTrackPosition.index );
+
+		lowerTrack.nextJunctionIndex = junctionIndex;
+		upperTrack.prevJunctionIndex = junctionIndex;
+	}
+
 	m_trackLengths.push_back( upperTrack );
 
 	return true;
