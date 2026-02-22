@@ -18,6 +18,8 @@ public:
 
 	size_t m_trackIndex = 0;
 	double m_trackPosition = 0.0;
+	bool m_invertedDirection = false;
+
 protected:
 };
 
@@ -38,9 +40,21 @@ protected:
 
 struct TrackPosition
 {
+	TrackPosition() = default;
+	
+	TrackPosition( int _index, double _distance, bool _invertedTravel = false, wv::Vector3f _worldPos = {} ) :
+		index{ _index },
+		distanceFromStart{ _distance },
+		invertedDirectionOfTravel{ _invertedTravel },
+		worldPosition{ _worldPos }
+	{}
+
 	int index = -1;
 	double distanceFromStart = 0.0;
+	bool invertedDirectionOfTravel = false;
+
 	wv::Vector3f worldPosition{};
+
 };
 
 class TrackVehicleSystem : public wv::IWorldSystem
@@ -75,11 +89,11 @@ protected:
 
 	virtual void onDebugRender() override;
 
-	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition );
+	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition, bool _invertedDirection = false );
 	TrackLength& getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
 	TrackPosition getClosestToPoint( const wv::Vector3f& _point ) const;
-	std::pair<int, double> moveAlongTrack( size_t _track, double _movedPosition );
+	TrackPosition moveAlongTrack( size_t _track, double _movedPosition, bool _invertedDirection );
 
 	void beginTrackBuild( TrackPosition _trackPosition );
 	void endTrackBuild( TrackPosition _connectTrackPosition );

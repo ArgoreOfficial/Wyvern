@@ -62,21 +62,25 @@ void TrackVehicleSystem::update( wv::WorldUpdateContext& _ctx )
 	{
 		double velocity = _ctx.deltaTime * 10.0 * engine->m_throttle;
 
-		engine->m_trackPosition += velocity;
+		double forward = engine->m_invertedDirection ? -1.0 : 1.0;
 
-		std::pair<int, double> trackLocation = moveAlongTrack( engine->m_trackIndex, engine->m_trackPosition );
-		if ( trackLocation.first < 0 ) 
+		engine->m_trackPosition += velocity * forward;
+
+		TrackPosition trackLocation = moveAlongTrack( engine->m_trackIndex, engine->m_trackPosition, engine->m_invertedDirection );
+		if ( trackLocation.index < 0 ) 
 			continue; // error
 		
-		bool playJointSound = trackLocation.first != engine->m_trackIndex;
-		// if ( playJointSound )
-		// 	wv::Debug::Print( "Clunk\n" );
+		if ( trackLocation.index != engine->m_trackIndex )
+			wv::Debug::Print( "New Track\n" );
 
-		engine->m_trackIndex    = trackLocation.first;
-		engine->m_trackPosition = trackLocation.second;
+		engine->m_trackIndex        = trackLocation.index;
+		engine->m_trackPosition     = trackLocation.distanceFromStart;
+		engine->m_invertedDirection = trackLocation.invertedDirectionOfTravel;
 
-		wv::Vector3f frontWheelPos = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition + 1.0 );
-		wv::Vector3f backWheelPos  = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition - 1.0 );
+		forward = engine->m_invertedDirection ? -1.0 : 1.0;
+
+		wv::Vector3f frontWheelPos = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition + forward, engine->m_invertedDirection );
+		wv::Vector3f backWheelPos  = getTrackWorldPosition( engine->m_trackIndex, engine->m_trackPosition - forward, engine->m_invertedDirection );
 
 		wv::Entity* ent = m_engineComponents.getEntity( engine->getID() );
 
@@ -164,15 +168,15 @@ void TrackVehicleSystem::onDebugRender()
 	}
 }
 
-wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _track, double _position )
+wv::Vector3f TrackVehicleSystem::getTrackWorldPosition( size_t _track, double _position, bool _invertedDirection )
 {
-	std::pair<int, double> trackLocation = moveAlongTrack( _track, _position );
+	TrackPosition trackLocation = moveAlongTrack( _track, _position, _invertedDirection );
 
-	if ( trackLocation.first == -1 )
+	if ( trackLocation.index == -1 )
 		return {};
 
-	TrackLength& track = m_trackLengths[ trackLocation.first ];
-	return track.getPositionAt( trackLocation.second );
+	TrackLength& track = m_trackLengths[ trackLocation.index ];
+	return track.getPositionAt( trackLocation.distanceFromStart );
 }
 
 TrackPosition TrackVehicleSystem::getClosestToPoint( const wv::Vector3f& _point ) const
@@ -205,23 +209,23 @@ TrackPosition TrackVehicleSystem::getClosestToPoint( const wv::Vector3f& _point 
 	return trackPosition;
 }
 
-std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPosition )
+TrackPosition TrackVehicleSystem::moveAlongTrack( size_t _track, double _movedPosition, bool _invertedDirection )
 {
 	if ( _track < 0 )
-		return { _track, _movedPosition };
+		return TrackPosition( (int)_track, _movedPosition, _invertedDirection );
 
 	if ( getTrack( _track ).isPositionInsideTrack( _movedPosition ) )
 	{
 		// still inside of track, no need to check for junctions
 
-		return { _track, _movedPosition };
+		return TrackPosition( _track, _movedPosition, _invertedDirection );
 	}
 
 	// not inside track, check for junctions
 	
 	TrackLength& track = getTrack( _track );
 
-	if ( _movedPosition < 0.0 )
+	if ( _movedPosition < 0.0 ) // moving backwards
 	{
 		if ( track.prevJunctionIndex >= 0 && track.prevJunctionIndex < m_trackJunctions.size() )
 		{
@@ -233,14 +237,19 @@ std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double
 			{
 				TrackLength& newTrack = m_trackLengths[ newTrackIndex ];
 
-				return { newTrackIndex, newTrack.length() + _movedPosition };
+				bool isVJoint = track.prevJunctionIndex == newTrack.prevJunctionIndex;
+
+				if( !isVJoint ) // --> J -->
+					return TrackPosition( newTrackIndex, newTrack.length() + _movedPosition, false );
+				else // <-- J -->
+					return TrackPosition( newTrackIndex, -_movedPosition, !_invertedDirection );
 			}
 		}
 		
 		// no junction, or junction did not lead anywhere
-		return { _track, 0.0 };
+		return TrackPosition( _track, 0.0, _invertedDirection );
 	}
-	else
+	else // moving forward
 	{
 		if ( track.nextJunctionIndex >= 0 && track.nextJunctionIndex < m_trackJunctions.size() )
 		{
@@ -252,12 +261,17 @@ std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double
 			{
 				TrackLength& newTrack = m_trackLengths[ newTrackIndex ];
 
-				return { newTrackIndex, _movedPosition - track.length() };
+				bool isVJoint = track.nextJunctionIndex == newTrack.nextJunctionIndex;
+
+				if ( !isVJoint ) // --> J -->
+					return TrackPosition( newTrackIndex, _movedPosition - track.length(), false );
+				else // --> J <--
+					return TrackPosition( newTrackIndex, newTrack.length() - _movedPosition, true );
 			}
 		}
 		
 		// no junction, or junction did not lead anywhere
-		return { _track, track.length() };
+		return TrackPosition( _track, track.length(), _invertedDirection );
 	}
 }
 
