@@ -463,5 +463,17 @@ bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosi
 		upperTrack->prevJunctionIndex = junctionIndex;
 	}
 
+	for ( TrackEngineComponent* engine : m_engineComponents.getComponents() )
+	{
+		if ( engine->m_trackIndex != _trackIndex )
+			continue;
+
+		if ( engine->m_trackPosition > _trackPosition )
+		{
+			engine->m_trackIndex = upperTrackIndex;
+			engine->m_trackPosition -= lowerTrack->length();
+		}
+	}
+
 	return true;
 }
