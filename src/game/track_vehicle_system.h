@@ -3,6 +3,7 @@
 #include <wv/entity/entity_component.h>
 #include <wv/entity/world_system.h>
 #include <wv/entity/entity_component_container.h>
+#include <wv/memory/memory.h>
 
 #include "track.h"
 
@@ -52,8 +53,13 @@ public:
 		m_trackLengths.push_back( _trackLength );
 	}
 
-	void addTrackJunction( const TrackJunction& _trackJunction ) {
-		m_trackJunctions.push_back( _trackJunction );
+	TrackJunction* createTrackJunction( size_t* _outIndex = nullptr ) {
+		TrackJunction* junction = WV_NEW( TrackJunction );
+		
+		if ( _outIndex ) *_outIndex = m_trackJunctions.size();
+
+		m_trackJunctions.push_back( junction );
+		return junction;
 	}
 
 	const std::vector<TrackLength>& getTrackLengths() const { return m_trackLengths; }
@@ -84,8 +90,8 @@ protected:
 
 	std::vector<TrackVehicleComponent*> m_vehicleComponents;
 
-	std::vector<TrackLength>   m_trackLengths{};
-	std::vector<TrackJunction> m_trackJunctions{};
+	std::vector<TrackLength>    m_trackLengths{};
+	std::vector<TrackJunction*> m_trackJunctions{};
 
 	bool m_isBuildingTrack = false;
 	TrackPosition m_buildingTrackPosition;

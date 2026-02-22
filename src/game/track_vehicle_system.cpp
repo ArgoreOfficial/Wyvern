@@ -13,7 +13,9 @@
 
 void TrackVehicleSystem::initialize()
 {
-	
+	for ( TrackJunction* junction : m_trackJunctions )
+		WV_FREE( junction );
+	m_trackJunctions.clear();
 }
 
 void TrackVehicleSystem::shutdown()
@@ -223,8 +225,8 @@ std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double
 	{
 		if ( track.prevJunctionIndex >= 0 && track.prevJunctionIndex < m_trackJunctions.size() )
 		{
-			TrackJunction& junction = m_trackJunctions[ track.prevJunctionIndex ];
-			int newTrackIndex = junction.getConnectedTrack( _track );
+			TrackJunction* junction = m_trackJunctions[ track.prevJunctionIndex ];
+			int newTrackIndex = junction->getConnectedTrack( _track );
 			
 			// junction leads to new track
 			if ( newTrackIndex != -1 )
@@ -242,8 +244,8 @@ std::pair<int, double> TrackVehicleSystem::moveAlongTrack( size_t _track, double
 	{
 		if ( track.nextJunctionIndex >= 0 && track.nextJunctionIndex < m_trackJunctions.size() )
 		{
-			TrackJunction& junction = m_trackJunctions[ track.nextJunctionIndex ];
-			int newTrackIndex = junction.getConnectedTrack( _track );
+			TrackJunction* junction = m_trackJunctions[ track.nextJunctionIndex ];
+			int newTrackIndex = junction->getConnectedTrack( _track );
 
 			// junction leads to new track
 			if ( newTrackIndex != -1 )
@@ -281,9 +283,9 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 	if ( !splitTrackLength( m_buildingTrackPosition.index, m_buildingTrackPosition.distanceFromStart ) )
 		return; // TODO
 
-	TrackJunction& junction = m_trackJunctions.back();
-	junction.outIndices.push_back( m_trackLengths.size() );
-	junction.currentTrackIndex++;
+	TrackJunction* junction = m_trackJunctions.back();
+	junction->outIndices.push_back( m_trackLengths.size() );
+	junction->currentTrackIndex++;
 
 	// Create new connecting track
 
@@ -294,52 +296,48 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 
 	if ( _connectTrackPosition.index != -1 )
 	{
-		TrackJunction connectingJunction{};
-		connectingJunction.inIndex = m_trackLengths.size(); // index of new track
-		connectingJunction.outIndices.push_back( _connectTrackPosition.index );
-		newTrack.nextJunctionIndex = m_trackJunctions.size();
+		size_t connectingJunctionIndex{};
+		TrackJunction* connectingJunction = createTrackJunction( &connectingJunctionIndex );
+		connectingJunction->inIndex = m_trackLengths.size(); // index of new track
+		connectingJunction->outIndices.push_back( _connectTrackPosition.index );
 
-		m_trackJunctions.push_back( connectingJunction );
+		newTrack.nextJunctionIndex = connectingJunctionIndex;
 	}
 
 	newTrack.prevJunctionIndex = newJunctionIndex;
 	
 	m_trackLengths.push_back( newTrack );
-
 }
 
 bool TrackVehicleSystem::splitTrackLength( size_t _trackIndex, double _trackPosition )
 {
-	int newJunctionIndex = (int)m_trackJunctions.size();
-
-	// new junction between the split lengths
-	TrackJunction junction{};
-	junction.inIndex = m_buildingTrackPosition.index;
-
 	// Split and add upper track segment
 	
-	TrackLength& trackLength = m_trackLengths[ m_buildingTrackPosition.index ];
-	TrackLength upperTrack = trackLength.splitTrackAt( m_buildingTrackPosition.distanceFromStart );
+	TrackLength& lowerTrack = m_trackLengths[ m_buildingTrackPosition.index ];
+	TrackLength upperTrack = lowerTrack.splitTrackAt( m_buildingTrackPosition.distanceFromStart );
 
 	if ( upperTrack.length() <= 0.0 )
 		return false; // no spltting occured, we're at the edge of the track length
 
-	// make sure any connecting junction on the upper half gets the new index
-	if ( trackLength.nextJunctionIndex != -1 )
-	{
-		upperTrack.nextJunctionIndex = trackLength.nextJunctionIndex;
+	// New junction between the split lengths
+	size_t junctionIndex{};
+	TrackJunction* junction = createTrackJunction( &junctionIndex );
+	junction->inIndex = m_buildingTrackPosition.index;
 
-		TrackJunction& oldJunction = m_trackJunctions[ trackLength.nextJunctionIndex ];
-		oldJunction.replaceTrackIndex( m_buildingTrackPosition.index, m_trackLengths.size() );
+	// make sure any connecting junction on the upper half gets the new index
+	if ( lowerTrack.nextJunctionIndex != -1 )
+	{
+		upperTrack.nextJunctionIndex = lowerTrack.nextJunctionIndex;
+
+		TrackJunction* oldJunction = m_trackJunctions[ lowerTrack.nextJunctionIndex ];
+		oldJunction->replaceTrackIndex( m_buildingTrackPosition.index, m_trackLengths.size() );
 	}
 
-	trackLength.nextJunctionIndex = newJunctionIndex;
-	upperTrack.prevJunctionIndex = newJunctionIndex;
+	lowerTrack.nextJunctionIndex = junctionIndex;
+	upperTrack.prevJunctionIndex  = junctionIndex;
 
-	junction.outIndices.push_back( m_trackLengths.size() ); // index of the new track
+	junction->outIndices.push_back( m_trackLengths.size() ); // index of the new track
 	m_trackLengths.push_back( upperTrack );
-
-	m_trackJunctions.push_back( junction );
 
 	return true;
 }

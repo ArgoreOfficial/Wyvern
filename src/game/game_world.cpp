@@ -169,23 +169,19 @@ void GameWorld::onSceneCreate()
 	}
 
 	{ // track junction 0
-		TrackJunction trackJunction{};
-		trackJunction.inIndex = 0;
-		trackJunction.outIndices.push_back( 1 );
-		trackJunction.outIndices.push_back( 2 );
-		trackJunction.currentTrackIndex = 1;
-
-		trackVehicleSys->addTrackJunction( trackJunction );
+		TrackJunction* trackJunction = trackVehicleSys->createTrackJunction();
+		trackJunction->inIndex = 0;
+		trackJunction->outIndices.push_back( 1 );
+		trackJunction->outIndices.push_back( 2 );
+		trackJunction->currentTrackIndex = 1;
 	}
 
-	{ // track junction 0
-		TrackJunction trackJunction{};
-		trackJunction.inIndex = 3;
-		trackJunction.outIndices.push_back( 1 );
-		trackJunction.outIndices.push_back( 2 );
-		trackJunction.currentTrackIndex = 0;
-
-		trackVehicleSys->addTrackJunction( trackJunction );
+	{ // track junction 1
+		TrackJunction* trackJunction = trackVehicleSys->createTrackJunction();
+		trackJunction->inIndex = 3;
+		trackJunction->outIndices.push_back( 1 );
+		trackJunction->outIndices.push_back( 2 );
+		trackJunction->currentTrackIndex = 0;
 	}
 
 	{
