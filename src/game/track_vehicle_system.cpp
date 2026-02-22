@@ -402,7 +402,17 @@ void TrackVehicleSystem::endTrackBuild( TrackPosition _connectTrackPosition )
 		if ( _connectTrackPosition.index != -1 )
 		{
 			size_t connectingJunctionIndex;
-			if ( splitTrackLength( _connectTrackPosition.index, _connectTrackPosition.distanceFromStart, true, &connectingJunctionIndex ) )
+
+			wv::Vector3f newTrackDir = newTrack->getPositionAt( 0.1 ) - newTrack->getPositionAt( 0.0 );
+			newTrackDir.normalize();
+
+			TrackLength* connectingTrack = getTrack( _connectTrackPosition.index );
+			wv::Vector3f connectingTrackDir = connectingTrack->getPositionAt( _connectTrackPosition.distanceFromStart + 0.1 ) - connectingTrack->getPositionAt( _connectTrackPosition.distanceFromStart );
+			connectingTrackDir.normalize();
+
+			float dot = newTrackDir.dot( connectingTrackDir );
+			
+			if ( splitTrackLength( _connectTrackPosition.index, _connectTrackPosition.distanceFromStart, dot >= 0.0, &connectingJunctionIndex ) )
 			{
 				TrackJunction* connectingJunction = m_trackJunctions[ connectingJunctionIndex ];
 				connectingJunction->currentTrackIndex++;
