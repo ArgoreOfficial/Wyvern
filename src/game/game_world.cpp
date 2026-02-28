@@ -191,8 +191,9 @@ void GameWorld::onSceneCreate()
 		sector->addEntity( player );
 
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
-		//meshComponent->setFilePath( "meshes/Little train.gltf" );
-		meshComponent->setFilePath( "meshes/engine_basic.glb" );
+
+		meshComponent->setFilePath( "meshes/SM_Tofumotive.glb" );
+		//meshComponent->setFilePath( "meshes/engine_basic.glb" );
 
 		player->createComponent<TrackEngineComponent>();
 		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
