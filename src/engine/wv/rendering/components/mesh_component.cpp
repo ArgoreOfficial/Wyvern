@@ -5,8 +5,6 @@
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
 
-#include <wv/editor/mesh_importer_gltf.h>
-
 #include <wv/debug/log.h>
 
 wv::MeshComponent::~MeshComponent()
@@ -26,15 +24,8 @@ void wv::MeshComponent::load( WorldLoadContext& _ctx )
 		if ( extension == ".gltf" || extension == ".glb" )
 		{
 			MeshImporterGLTF importer = MeshImporterGLTF( _ctx.meshManager, _ctx.materialManager, _ctx.textureManager );
-			MeshImportOptions options;
-			// TODO:
-		//	if ( m_path == "meshes/Little train.gltf" )
-		//	{
-		//		options.transform = wv::Math::rotateY( options.transform, wv::Math::radians( -90.0f ) );
-		//		options.transform = wv::Math::scale( options.transform, { 0.3f, 0.3f, 0.3f } );
-		//	}
-
-			importer.load( m_path, options );
+			
+			importer.load( m_path, importOptions );
 
 			m_meshAsset = importer.getMesh();
 			m_materials = importer.getMaterials();

@@ -1,10 +1,13 @@
 #pragma once
 
+#include <wv/editor/mesh_importer_gltf.h>
+
 #include <wv/entity/entity_component.h>
-#include <wv/types.h>
 
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
+
+#include <wv/types.h>
 
 #include <filesystem>
 
@@ -29,6 +32,8 @@ public:
 	void setMaterialValue( size_t _materialIndex, const std::string& _name, const Ty& _value ) {
 		m_materials.at( _materialIndex )->setValue<Ty>(_name, _value);
 	}
+
+	MeshImportOptions importOptions{};
 
 protected:
 
