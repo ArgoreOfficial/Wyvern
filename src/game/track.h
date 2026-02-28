@@ -67,7 +67,7 @@ public:
 	wv::Vector3f getEndPosition()   const { return getPositionAt( m_totalLength ); }
 
 	wv::Vector3f getDirectionAt( double _trackPosition ) const {
-		return ( getPositionAt( _trackPosition + 0.1 ) - getPositionAt( _trackPosition ) ).normalized();
+		return ( getPositionAt( _trackPosition + 0.05 ) - getPositionAt( _trackPosition - 0.05 ) ).normalized();
 	}
 
 	wv::Vector3f getStartDirection() const {
