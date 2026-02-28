@@ -117,26 +117,7 @@ public:
 
 		float arcAngleRadians = wv::Math::radians( m_arcAngle );
 
-		if ( m_arcAngle < 0.0 )
-		{
-			if ( radians > m_baseAngle )
-				return 0.0;
-
-			if ( radians < m_baseAngle + arcAngleRadians )
-				return 1.0;
-
-			return ( radians - m_baseAngle ) / arcAngleRadians;
-		}
-		else
-		{
-			if ( radians < m_baseAngle )
-				return 0.0;
-
-			if ( radians > m_baseAngle + arcAngleRadians )
-				return 1.0;
-
-			return ( radians + m_baseAngle ) / arcAngleRadians;
-		}
+		return ( radians - m_baseAngle ) / arcAngleRadians;
 	}
 
 	virtual ITrackSegment* splitSegment( double _t ) override {
