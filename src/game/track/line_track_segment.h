@@ -14,6 +14,7 @@ public:
 		m_lineStart{ _start },
 		m_lineEnd{ _end }
 	{
+		m_segmentType = TrackSegmentType::LINE;
 	}
 
 	virtual ~LineTrackSegment() { }

@@ -15,6 +15,8 @@ public:
 		m_arcCentre{ _centre },
 		m_arcAngle{ _arc }
 	{
+		m_segmentType = TrackSegmentType::ARC;
+
 		m_arcRadius = ( _start - _centre ).length();
 		
 		wv::Vector3f centreToStart = ( _start - _centre ).normalized();

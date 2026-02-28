@@ -3,6 +3,13 @@
 #include <wv/math/vector3.h>
 #include <wv/debug/error.h>
 
+enum class TrackSegmentType
+{
+	LINE,
+	ARC,
+	OTHER
+};
+
 class ITrackSegment
 {
 public:
@@ -22,4 +29,9 @@ public:
 	virtual double getClosestTrackPosition( const wv::Vector3f& _point ) const = 0;
 
 	virtual ITrackSegment* splitSegment( double _t ) = 0;
+
+	TrackSegmentType getSegmentType() const { return m_segmentType; }
+
+protected:
+	TrackSegmentType m_segmentType = TrackSegmentType::OTHER;
 };
