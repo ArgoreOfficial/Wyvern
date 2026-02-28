@@ -128,7 +128,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		auto def = material->deserialize( "shaders/default_lit.vert.spv", "shaders/default_lit.frag.spv" );
 
 		def.uniforms = {
-			{ "albedoIndex", sizeof( uint32_t ) }
+			{ "albedoIndex", sizeof( uint32_t ) },
+			{ "albedoColor", sizeof( Vector4f ) }
 		};
 		
 		material->initialize( def );
@@ -143,7 +144,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		auto def = material->deserialize( "shaders/default_unlit.vert.spv", "shaders/default_unlit.frag.spv" );
 
 		def.uniforms = {
-			{ "albedoIndex", sizeof( uint32_t ) }
+			{ "albedoIndex", sizeof( uint32_t ) },
+			{ "albedoColor", sizeof( Vector4f ) }
 		};
 		
 		material->initialize( def );

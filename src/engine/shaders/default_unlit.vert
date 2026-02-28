@@ -25,6 +25,7 @@ layout(push_constant) uniform pushConstant {
 	VertexBuffer vertexBuffer;
 
 	uint albedoIndex;
+	vec4 albedoColor;
 };
 
 void main() 
@@ -35,7 +36,7 @@ void main()
 	//output the position of each vertex
 	gl_Position = viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
 	
-	outColor     = unpackFloat3(v.color);
+	outColor     = unpackFloat3(v.color) * albedoColor.rgb;
 	outTexCoord0 = unpackFloat2(v.texCoord0);
 	
 	outAlbedoIndex = albedoIndex;

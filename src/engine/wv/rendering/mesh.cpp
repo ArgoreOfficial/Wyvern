@@ -48,7 +48,10 @@ void wv::MeshAsset::initialize( const GeometrySurface& _geometry )
 		VertexData data;
 
 		if ( _geometry.vertexNormals.size() > 0 ) data.normal = _geometry.vertexNormals[ i ];
+
 		if ( _geometry.vertexColours.size() > 0 ) data.color = _geometry.vertexColours[ i ];
+		else data.color = wv::Vector3f( 1.0f, 1.0f, 1.0f ); // default white
+
 		if ( _geometry.vertexUVs.size() > 0 )     data.texCoord = _geometry.vertexUVs[ i ];
 
 		datas.push_back( data );

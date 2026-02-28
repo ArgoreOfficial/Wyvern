@@ -26,6 +26,7 @@ layout(push_constant) uniform pushConstant {
 	VertexBuffer vertexBuffer;
 
 	uint albedoIndex;
+	vec4 albedoColor;
 };
 
 void main() 
@@ -38,7 +39,7 @@ void main()
 	
 	mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
 
-	outColor     = unpackFloat3(v.color);
+	outColor     = unpackFloat3(v.color) * albedoColor.rgb;
 	outTexCoord0 = unpackFloat2(v.texCoord0);
 	outNormal    = normalMatrix * unpackFloat3(v.normal);
 

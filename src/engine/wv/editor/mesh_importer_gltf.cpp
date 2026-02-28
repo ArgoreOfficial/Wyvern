@@ -160,8 +160,24 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 			instance.textures.push_back( textures[ img ] );
 			instance.setValue( "albedoIndex", textures[ img ]->getImageSlot() );
-
 		}
+		else
+		{
+			// if there is not albedo texture, default to white (index 2), it will be multiplied later in the shader
+			// TODO: abstract default texture index
+
+			instance.setValue( "albedoIndex", 2 );
+		}
+
+		instance.setValue( 
+			"albedoColor", 
+			wv::Vector4f( 
+				mat.pbrData.baseColorFactor.x(),
+				mat.pbrData.baseColorFactor.y(),
+				mat.pbrData.baseColorFactor.z(),
+				mat.pbrData.baseColorFactor.w()
+			)
+		);
 		
 		m_materials.push_back( instance );
 	}
@@ -258,7 +274,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions
 
 			while ( normals.size() < positions.size() ) normals.push_back( { 0.0f, 1.0f, 0.0f } );
 			while ( uv0s.size()    < positions.size() ) uv0s   .push_back( { 0.0f, 0.0f } );
-			while ( colours.size() < positions.size() ) colours.push_back( { 0.0f, 0.0f, 0.0f } );
+			while ( colours.size() < positions.size() ) colours.push_back( { 1.0f, 1.0f, 1.0f } );
 
 			surface.vertexPositions.insert( surface.vertexPositions.end(), positions.begin(), positions.end() );
 			surface.vertexNormals.insert( surface.vertexNormals.end(), normals.begin(), normals.end() );

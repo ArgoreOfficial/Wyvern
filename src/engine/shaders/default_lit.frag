@@ -25,6 +25,6 @@ void main()
 	if( alpha < 0.5 )
 		discard;
 
-	outFragColor = vec4( color.rgb *= light, alpha );
+	outFragColor = vec4(color.rgb *= light, alpha ) * vec4(inColor, 1.0);
 	outFragColor.a = alpha;
 }

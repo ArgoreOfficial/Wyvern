@@ -19,5 +19,5 @@ void main()
 	if( color.a < 0.5 )
 		discard;
 
-	outFragColor = color;
+	outFragColor = color * vec4(inColor, 1.0);
 }
