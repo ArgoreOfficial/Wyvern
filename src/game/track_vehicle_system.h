@@ -105,6 +105,8 @@ protected:
 
 	virtual void onDebugRender() override;
 
+	void cullInvalidIndices();
+
 	wv::Vector3f getTrackWorldPosition( size_t _index, double _trackPosition, bool _invertedDirection = false );
 	TrackLength* getTrack( size_t _index ) { return m_trackLengths[ _index ]; }
 
@@ -123,6 +125,7 @@ protected:
 	std::vector<TrackLength*>   m_trackLengths{};
 	std::vector<TrackJunction*> m_trackJunctions{};
 
+	bool m_requiresInvalidCheck = true;
 	bool m_isBuildingTrack = false;
 	TrackPosition m_buildingTrackPosition;
 
