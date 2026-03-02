@@ -58,7 +58,6 @@ void entityTreeNode( wv::Entity* _entity, wv::SceneViewSelection* _selection )
 
 	if ( isOpen )
 	{
-
 		for ( auto comp : components )
 			componentTreeNode( comp, _selection );
 		
@@ -216,6 +215,9 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 			{
 				Entity* ent = m_selection.selectedEntity;
 				ImGui::SeparatorText( "Entity" );
+
+				ImGui::Checkbox( "Show Debug", &ent->shouldShowDebug );
+
 				reflt = (wv::IReflectedType*)ent;
 
 				wv::Vector3f arrowPos{ ent->getTransform().position };
