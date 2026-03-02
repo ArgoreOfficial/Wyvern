@@ -75,6 +75,12 @@ void wv::Entity::updateSystems( WorldUpdateContext& _ctx )
 		system->update( _ctx );
 }
 
+void wv::Entity::onDebugRender()
+{
+	for ( auto system : m_systems )
+		system->onDebugRender();
+}
+
 void wv::Entity::createSystem( IEntitySystem* _system )
 {
 	if ( _system == nullptr )

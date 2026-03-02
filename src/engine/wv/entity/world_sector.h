@@ -26,6 +26,7 @@ public:
 
 	void updateLoading( WorldLoadContext& _ctx );
 	void update( WorldUpdateContext& _ctx );
+	void onDebugRender();
 
 	bool isLoading() const {
 		for ( auto ent : m_entities )

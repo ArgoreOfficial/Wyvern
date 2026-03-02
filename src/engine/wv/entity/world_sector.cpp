@@ -63,6 +63,12 @@ void wv::WorldSector::update( WorldUpdateContext& _ctx )
 		entity->updateSystems( _ctx );
 }
 
+void wv::WorldSector::onDebugRender()
+{
+	for ( auto entity : m_entities )
+		entity->onDebugRender();
+}
+
 void wv::WorldSector::addEntity( Entity* _entity )
 {
 	if ( findEntity( _entity->getID() ) != nullptr )

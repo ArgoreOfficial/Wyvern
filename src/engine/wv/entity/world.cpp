@@ -128,6 +128,9 @@ void wv::World::updateWorldSystems( double _deltaTime )
 
 void wv::World::onDebugRender()
 {
+	for ( auto sector : m_sectors )
+		sector->onDebugRender();
+
 	for ( auto system : m_systems )
 		system->onDebugRender();
 }

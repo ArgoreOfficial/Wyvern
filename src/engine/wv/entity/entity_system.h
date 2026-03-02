@@ -25,6 +25,7 @@ protected:
 	virtual void unregisterComponent( IEntityComponent* _component ) { };
 
 	virtual void update( WorldUpdateContext& _ctx ) = 0;
+	virtual void onDebugRender() { };
 
 	bool    m_initialized = false;
 	Entity* m_entity      = nullptr;
