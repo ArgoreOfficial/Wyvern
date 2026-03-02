@@ -6,6 +6,9 @@
 #include <wv/memory/memory.h>
 #include <wv/math/vector2.h>
 
+#include <wv/application.h>
+#include <wv/rendering/renderer.h>
+
 void TrackLength::clear()
 {
 	for ( ITrackSegment* segment : m_track )
@@ -171,6 +174,9 @@ double TrackLength::getClosestTrackPosition( const wv::Vector3f& _point ) const
 		const wv::Vector3f newPoint = track->getPosition( newTrackPosition );
 		const wv::Vector3f rel = newPoint - _point;
 		const float newSqrDist = rel.length();
+
+		if( track->getSegmentType() == TrackSegmentType::ARC )
+			wv::getApp()->getRenderer()->addDebugLine( _point, newPoint );
 
 		if ( newSqrDist < sqrDist )
 		{

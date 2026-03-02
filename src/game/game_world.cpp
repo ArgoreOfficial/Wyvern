@@ -16,6 +16,7 @@
 #include <wv/math/math.h>
 
 #include "track.h"
+#include "track_component.h"
 #include "track_vehicle_system.h"
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
@@ -128,62 +129,70 @@ void GameWorld::onSceneCreate()
 
 	TrackVehicleSystem* trackVehicleSys = createWorldSystem<TrackVehicleSystem>();
 
-	{ // track length 0
-		TrackLength trackLength;
-		trackLength.addLineTrack( 20.0f );
-		//trackLength.addArcTrack( 50.0, 90.0 );
-		trackLength.nextJunctionIndex = 0;
-		trackVehicleSys->createTrackLength( trackLength );
-	}
-	
-	TrackLength trackLength1;
-	{ // track length 1
-		trackLength1.addLineTrack( { 0.0f, 0.0f, 20.0f }, {0.0f, 0.0f, 21.0f} );
-		trackLength1.addArcTrack( 10.0,  45.0 );
-		trackLength1.addArcTrack( 10.0, -45.0 );
-		trackLength1.addLineTrack( 20.0 );
-		trackLength1.addArcTrack( 10.0, -45.0 );
-		trackLength1.addArcTrack( 10.0,  45.0 );
+	{
+		wv::Entity* track = WV_NEW( wv::Entity, "track" );
+		sector->addEntity( track );
 
-		trackLength1.prevJunctionIndex = 0;
-		trackLength1.nextJunctionIndex = 1;
-		trackVehicleSys->createTrackLength( trackLength1 );
-	}
+		TrackComponent* trackComponent = track->createComponent<TrackComponent>();
 
-	{ // track length 2
-		TrackLength trackLength;
-		trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, trackLength1.getEndPosition() ); // connect to length 1
-		trackLength.prevJunctionIndex = 0;
-		trackLength.nextJunctionIndex = 1;
-		trackVehicleSys->createTrackLength( trackLength );
-	}
+		{ // track length 0
+			TrackLength trackLength{};
+			trackLength.addLineTrack( 20.0f );
+			trackLength.nextJunctionIndex = 0;
 
-	{ // track length 3
-		TrackLength trackLength;
-		trackLength.addLineTrack( 
-			trackLength1.getEndPosition(), // connect to length 1 & 2
-			trackLength1.getEndPosition() + wv::Vector3f{ 0.0f, 0.0f, 20.0f } 
-		); 
-		trackLength.prevJunctionIndex = 1;
-		trackLength.addArcTrack( 20.0, 90.0 );
-		trackLength.addArcTrack( 20.0, -180.0 );
-		trackVehicleSys->createTrackLength( trackLength );
-	}
+			trackComponent->createTrackLength( trackLength );
+		}
 
-	{ // track junction 0
-		TrackJunction* trackJunction = trackVehicleSys->createTrackJunction();
-		trackJunction->inIndex = 0;
-		trackJunction->outIndices.push_back( 1 );
-		trackJunction->outIndices.push_back( 2 );
-		trackJunction->currentTrackIndex = 1;
-	}
+		TrackLength trackLength1;
+		{ // track length 1
+			trackLength1.addLineTrack( { 0.0f, 0.0f, 20.0f }, {0.0f, 0.0f, 21.0f} );
+			trackLength1.addArcTrack( 10.0,  45.0 );
+			trackLength1.addArcTrack( 10.0, -45.0 );
+			trackLength1.addLineTrack( 20.0 );
+			trackLength1.addArcTrack( 10.0, -45.0 );
+			trackLength1.addArcTrack( 10.0,  45.0 );
 
-	{ // track junction 1
-		TrackJunction* trackJunction = trackVehicleSys->createTrackJunction();
-		trackJunction->inIndex = 3;
-		trackJunction->outIndices.push_back( 1 );
-		trackJunction->outIndices.push_back( 2 );
-		trackJunction->currentTrackIndex = 0;
+			trackLength1.prevJunctionIndex = 0;
+			trackLength1.nextJunctionIndex = 1;
+			trackComponent->createTrackLength( trackLength1 );
+		}
+
+		{ // track length 2
+			TrackLength trackLength;
+			trackLength.addLineTrack( { 0.0f, 0.0f, 20.0f }, trackLength1.getEndPosition() ); // connect to length 1
+			trackLength.prevJunctionIndex = 0;
+			trackLength.nextJunctionIndex = 1;
+			trackComponent->createTrackLength( trackLength );
+		}
+
+		{ // track length 3
+			TrackLength trackLength;
+			trackLength.addLineTrack( 
+				trackLength1.getEndPosition(), // connect to length 1 & 2
+				trackLength1.getEndPosition() + wv::Vector3f{ 0.0f, 0.0f, 20.0f } 
+			); 
+			trackLength.prevJunctionIndex = 1;
+			trackLength.addArcTrack( 20.0, 90.0 );
+			trackLength.addArcTrack( 20.0, -180.0 );
+			trackComponent->createTrackLength( trackLength );
+		}
+
+		{ // track junction 0
+			TrackJunction* trackJunction = trackComponent->createTrackJunction();
+			trackJunction->inIndex = 0;
+			trackJunction->outIndices.push_back( 1 );
+			trackJunction->outIndices.push_back( 2 );
+			trackJunction->currentTrackIndex = 1;
+		}
+
+		{ // track junction 1
+			TrackJunction* trackJunction = trackComponent->createTrackJunction();
+			trackJunction->inIndex = 3;
+			trackJunction->outIndices.push_back( 1 );
+			trackJunction->outIndices.push_back( 2 );
+			trackJunction->currentTrackIndex = 0;
+		}
+
 	}
 
 	{
@@ -192,7 +201,7 @@ void GameWorld::onSceneCreate()
 
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
 
-		meshComponent->setFilePath( "meshes/SM_Tofumotive.glb" );
+		meshComponent->setFilePath( "meshes/SM_Frog.glb" );
 		//meshComponent->setFilePath( "meshes/engine_basic.glb" );
 
 		player->createComponent<TrackEngineComponent>();
