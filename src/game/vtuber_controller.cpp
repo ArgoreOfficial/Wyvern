@@ -71,14 +71,9 @@ void VtuberControllerSystem::update( wv::WorldUpdateContext& _ctx )
 	// talking
 	{
 		float bobbing = std::sin( m_talkingTime * 20.0f );
-		float squishV = 0.5f * std::cos( m_talkingTime * 30.0f ) + 0.5f;
-		float squishH = 0.5f * std::sin( m_talkingTime * 30.0f ) + 0.5f;
-
-		squishV = 1.0f + squishV * 0.2f;
-		squishH = 1.0f + squishH * 0.2f;
-
-		squishV = 1.0f - m_yVelocity;
-		squishH = 1.0f + m_yVelocity;
+		float squish = m_yVelocity * m_interpolation;
+		float squishV = 1.0f - squish;
+		float squishH = 1.0f + squish;
 
 		talkPosition = {
 			0.0f,
