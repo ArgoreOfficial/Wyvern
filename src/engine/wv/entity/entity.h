@@ -66,6 +66,8 @@ public:
 	void updateLoading( WorldLoadContext& _ctx );
 	void updateSystems( WorldUpdateContext& _ctx );
 
+	void onDebugRender();
+
 private:
 	// The sector that this entity originates from. 
 	// This may be different from the one it's currently in
