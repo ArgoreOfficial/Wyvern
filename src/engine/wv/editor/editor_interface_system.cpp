@@ -216,7 +216,9 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 				Entity* ent = m_selection.selectedEntity;
 				ImGui::SeparatorText( "Entity" );
 
-				ImGui::Checkbox( "Show Debug", &ent->shouldShowDebug );
+				bool debugDisplayEnabled = ent->getDebugDisplayEnabled();
+				ImGui::Checkbox( "Show Debug", &debugDisplayEnabled );
+				ent->setDebugDisplayEnabled( debugDisplayEnabled );
 
 				reflt = (wv::IReflectedType*)ent;
 

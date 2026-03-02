@@ -68,7 +68,8 @@ public:
 
 	void onDebugRender();
 
-	bool shouldShowDebug = false;
+	bool getDebugDisplayEnabled() const { return m_debugDisplayEnabled; }
+	void setDebugDisplayEnabled( bool _enabled ) { m_debugDisplayEnabled = _enabled; }
 
 private:
 	// The sector that this entity originates from. 
@@ -82,6 +83,8 @@ private:
 
 	UUID m_ID = 0;
 	std::string m_debugName = "";
+
+	bool m_debugDisplayEnabled = false;
 
 	Transformf m_transform;
 
