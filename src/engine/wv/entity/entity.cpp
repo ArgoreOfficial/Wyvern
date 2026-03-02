@@ -77,7 +77,7 @@ void wv::Entity::updateSystems( WorldUpdateContext& _ctx )
 
 void wv::Entity::onDebugRender()
 {
-	if ( !shouldShowDebug )
+	if ( !m_debugDisplayEnabled )
 		return;
 
 	for ( auto system : m_systems )
