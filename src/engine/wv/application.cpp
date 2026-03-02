@@ -325,15 +325,16 @@ void wv::Application::render()
 	}
 
 #ifdef WV_DEBUG
-	
-#ifdef WV_SUPPORT_IMGUI
-	
-#endif
-
 	if ( shouldRender )
 	{
+		
 		m_renderer->beginDebugRender();
-		m_world->onDebugRender();
+
+		// Don't render debug if the window isn't focused
+		// This should be togglable
+		if( m_displayDriver->isFocused() )
+			m_world->onDebugRender();
+
 		m_renderer->endDebugRender();
 	}
 #endif

@@ -68,6 +68,8 @@ public:
 
 	void onDebugRender();
 
+	bool shouldShowDebug = false;
+
 private:
 	// The sector that this entity originates from. 
 	// This may be different from the one it's currently in
