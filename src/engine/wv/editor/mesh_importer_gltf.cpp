@@ -158,8 +158,15 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 			size_t img = asset.textures[ mat.pbrData.baseColorTexture.value().textureIndex ].imageIndex.value();
 			// size_t sampler = asset.textures[ mat.pbrData.baseColorTexture.value().textureIndex ].samplerIndex.value();
 
-			instance.textures.push_back( textures[ img ] );
-			instance.setValue( "albedoIndex", textures[ img ]->getImageSlot() );
+			if ( textures[ img ] )
+			{
+				instance.textures.push_back( textures[ img ] );
+				instance.setValue( "albedoIndex", textures[ img ]->getImageSlot() );
+			}
+			else
+			{
+				instance.setValue( "albedoIndex", 0 );
+			}
 		}
 		else
 		{
