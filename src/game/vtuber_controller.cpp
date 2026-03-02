@@ -4,6 +4,8 @@
 #include <wv/audio/audio_system.h>
 #include <wv/entity/world.h>
 
+#include <imgui/imgui.h>
+
 void VtuberControllerSystem::initialize()
 {
 	wv::getApp()->getAudioSystem()->enableMicrophone();
@@ -19,8 +21,9 @@ void VtuberControllerSystem::update( wv::WorldUpdateContext& _ctx )
 	wv::AudioSystem* audioSystem = wv::getApp()->getAudioSystem();
 
 	const float threshold = 0.5f;
-	const float interpolationTime = 0.2f;
-	const float interpolationSpeed = 1.0f / interpolationTime;
+
+	const float interpolationInSpeed = 1.0f / m_interpolateInTime;
+	const float interpolationOutSpeed = 1.0f / m_interpolateOutTime;
 
 	float micpeak = audioSystem->getMicrophonePeak();
 
@@ -33,12 +36,12 @@ void VtuberControllerSystem::update( wv::WorldUpdateContext& _ctx )
 	if ( micpeak > 0.0f )
 	{
 		if ( m_interpolation < 1.0f )
-			m_interpolation += _ctx.deltaTime * interpolationSpeed;
+			m_interpolation += _ctx.deltaTime * interpolationInSpeed;
 	}
 	else
 	{
 		if ( m_interpolation > 0.0f )
-			m_interpolation -= _ctx.deltaTime * interpolationSpeed;
+			m_interpolation -= _ctx.deltaTime * interpolationOutSpeed;
 	}
 
 	if ( m_interpolation > 0.0f )
@@ -74,6 +77,9 @@ void VtuberControllerSystem::update( wv::WorldUpdateContext& _ctx )
 		squishV = 1.0f + squishV * 0.2f;
 		squishH = 1.0f + squishH * 0.2f;
 
+		squishV = 1.0f - m_yVelocity;
+		squishH = 1.0f + m_yVelocity;
+
 		talkPosition = {
 			0.0f,
 			bobbing * 0.6f,
@@ -87,8 +93,23 @@ void VtuberControllerSystem::update( wv::WorldUpdateContext& _ctx )
 		};
 	}
 
-	m_entity->getTransform().position = wv::Math::lerp( idlePosition, talkPosition, m_interpolation );
-	m_entity->getTransform().scale    = wv::Math::lerp( idleScale,    talkScale,    m_interpolation );
+	wv::Vector3f newPos = wv::Math::lerp( idlePosition, talkPosition, m_interpolation );
+	m_yVelocity = ( newPos - m_entity->getTransform().position ).y;
+
+	m_entity->getTransform().position = newPos;
+	m_entity->getTransform().scale    = talkScale;
 
 	m_entity->getTransform().update( nullptr, true );
+}
+
+void VtuberControllerSystem::onDebugRender()
+{
+	if ( ImGui::Begin( "Vtuber Controller System", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
+	{
+		ImGui::DragFloat( "Interpolate In Time", &m_interpolateInTime, 0.025f, 0.0001f, 100.0f );
+		ImGui::DragFloat( "Interpolate Out Time", &m_interpolateOutTime, 0.025f, 0.0001f, 100.0f );
+
+		ImGui::Text( "Interpolation: %f", m_interpolation );
+	}
+	ImGui::End();
 }

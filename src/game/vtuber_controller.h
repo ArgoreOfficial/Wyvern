@@ -5,6 +5,7 @@
 class VtuberControllerSystem : public wv::IEntitySystem
 {
 	WV_REFLECT_TYPE( VtuberControllerSystem, wv::IEntitySystem )
+
 public:
 	VtuberControllerSystem() = default;
 	~VtuberControllerSystem() { }
@@ -18,7 +19,14 @@ protected:
 
 	virtual void update( wv::WorldUpdateContext& _ctx ) override;
 
+	virtual void onDebugRender() override;
+
 	float m_time = 0.0f;
 	float m_talkingTime = 0.0f;
 	float m_interpolation = 0.0f;
+
+	float m_yVelocity = 0.0f;
+
+	float m_interpolateInTime = 0.075f;
+	float m_interpolateOutTime = 0.2f;
 };
