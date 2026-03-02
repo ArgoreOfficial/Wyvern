@@ -16,7 +16,11 @@ layout (location = 0) out vec4 outFragColor;
 
 void main() 
 {
-	float light = dot(normalize(inNormal), normalize(vec3(1,3,2)));
+	vec3 normal = normalize(inNormal);
+	if( !gl_FrontFacing )
+		normal *= -1.0; // if back face culling is off, we need to flip the normal
+
+	float light = dot(normal, normalize(vec3(1,3,2)));
 	light = max(light, 0.0);
 	light = light * 0.8 + 0.2;
 
