@@ -655,6 +655,8 @@ void wv::Renderer::deallocateImage( ResourceID _image )
 
 bool wv::Renderer::initVulkan()
 {
+	volkInitialize();
+
 	vkb::InstanceBuilder builder;
 	auto ret = builder.set_app_name( "Wyvern" )
 		.request_validation_layers( m_useValidationLayers )
@@ -670,6 +672,9 @@ bool wv::Renderer::initVulkan()
 
 	vkb::Instance vkbInstance = ret.value();
 	m_instance = vkbInstance.instance;
+
+	volkLoadInstance( m_instance );
+
 	m_debugMessenger = vkbInstance.debug_messenger;
 
 	m_mainDeleteQueue.push( [ & ]() {

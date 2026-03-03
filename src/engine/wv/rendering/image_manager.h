@@ -3,7 +3,7 @@
 #include <wv/resource_id.h>
 #include <wv/helpers/unordered_array.hpp>
 
-#include <vulkan/vulkan.h>
+#include <wv/rendering/vulkan.h>
 #include <vk_mem_alloc.h>
 
 #include <unordered_map>
