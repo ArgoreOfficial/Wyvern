@@ -119,7 +119,6 @@ void VtuberControllerSystem::onDebugRender()
 {
 	if ( ImGui::Begin( "Vtuber Controller System", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
 	{
-
 		ImGui::SeparatorText( "Microphone" );
 		ImGui::ProgressBar( m_currentMicValue );
 		ImGui::DragFloat( "Amplifier##m_micAmplifier", &m_micAmplifier );
@@ -139,6 +138,21 @@ void VtuberControllerSystem::onDebugRender()
 
 		ImGui::SeparatorText( "Squishing" );
 		ImGui::DragFloat( "Squish Multiplier", &m_squishMultiplier );
+
+		ImGui::SeparatorText( "Backdrop" );
+		wv::Transformf& bgTransform = m_backdropEntity->getTransform();
+
+		if ( ImGui::Button( "Hide" ) )
+		{
+			bgTransform.position = { 0.0f, -500.0f, 0.0f };
+			bgTransform.rotation = {};
+		}
+		
+		if ( ImGui::Button( "Default" ) )
+		{
+			bgTransform.position = { -97.5f,  -32.0f, -57.5f };
+			bgTransform.rotation = { 0.0f, -105.0f,   0.0f };
+		}
 	}
 	ImGui::End();
 }

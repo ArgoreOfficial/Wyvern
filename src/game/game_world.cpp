@@ -52,12 +52,12 @@ void GameWorld::onSceneCreate()
 
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
+	wv::Entity* backdrop = WV_NEW( wv::Entity, "Backdrop" );
 	{
-		wv::Entity* backdrop = WV_NEW( wv::Entity, "Backdrop" );
 		sector->addEntity( backdrop );
 
-		//wv::MeshComponent* meshComponent = backdrop->createComponent<wv::MeshComponent>();
-		//meshComponent->setFilePath( "meshes/SM_Tatiana.glb" );
+		wv::MeshComponent* meshComponent = backdrop->createComponent<wv::MeshComponent>();
+		meshComponent->setFilePath( "meshes/SM_Tatiana.glb" );
 
 		backdrop->getTransform().position = { -97.5f,  -32.0f, -57.5f };
 		backdrop->getTransform().rotation = {   0.0f, -105.0f,   0.0f };
@@ -74,7 +74,7 @@ void GameWorld::onSceneCreate()
 		meshComponent->setFilePath( "meshes/SM_Frog.glb" );
 		meshComponent->importOptions = importOptions;
 
-		player->createSystem<VtuberControllerSystem>();
+		player->createSystem<VtuberControllerSystem>()->setBackdropEntity( backdrop );
 	}
 
 	{

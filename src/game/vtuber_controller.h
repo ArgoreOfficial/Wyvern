@@ -10,6 +10,8 @@ public:
 	VtuberControllerSystem() = default;
 	~VtuberControllerSystem() { }
 
+	void setBackdropEntity( wv::Entity* _entity ) { m_backdropEntity = _entity; }
+
 protected:
 	virtual void initialize() override;
 	virtual void shutdown() override;
@@ -20,6 +22,8 @@ protected:
 	virtual void update( wv::WorldUpdateContext& _ctx ) override;
 
 	virtual void onDebugRender() override;
+
+	wv::Entity* m_backdropEntity = nullptr;
 
 	float m_time = 0.0f;
 	float m_talkingTime = 0.0f;
