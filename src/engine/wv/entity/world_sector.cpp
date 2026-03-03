@@ -60,7 +60,11 @@ void wv::WorldSector::updateLoading( WorldLoadContext& _ctx )
 void wv::WorldSector::update( WorldUpdateContext& _ctx )
 {
 	for ( auto entity : m_entities )
+	{
 		entity->updateSystems( _ctx );
+		entity->m_transform.update( nullptr );
+	}
+
 }
 
 void wv::WorldSector::onDebugRender()
