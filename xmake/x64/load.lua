@@ -11,7 +11,8 @@ function load(_prefix)
     add_requires( "tracy" )
     
     -- vulkan
-    add_requires( "vulkansdk" )
+    add_requires( "vulkan-headers" )
+    add_requires( "volk" )
     add_requires( "vulkan-memory-allocator" )
     
     -- add_requires( "imgui v1.91.0-docking", { 

@@ -17,7 +17,7 @@
 
 #include <wv/resource_id.h>
 
-#include <vulkan/vulkan.h>
+#include <wv/rendering/vulkan.h>
 #include <vk_mem_alloc.h>
 
 #include <functional>

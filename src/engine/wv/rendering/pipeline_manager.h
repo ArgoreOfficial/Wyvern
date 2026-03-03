@@ -5,7 +5,7 @@
 
 #include <wv/types.h>
 
-#include <vulkan/vulkan.h>
+#include <wv/rendering/vulkan.h>
 
 namespace wv {
 

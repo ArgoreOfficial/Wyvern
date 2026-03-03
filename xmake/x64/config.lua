@@ -9,6 +9,9 @@ function _add_supports( _target, _prefix )
     -- import( "support.imgui" )( _target, _prefix ) 
     import( "support.tracy" )( _target, _prefix ) 
 
+    _target:add( "defines", "IMGUI_IMPL_VULKAN_USE_VOLK" )
+    _target:add( "defines", "IMGUI_IMPL_VULKAN_USE_LOADER" )
+
     _target:add( "defines", { 
         "WV_SUPPORT_OPENGL", 
         "WV_SUPPORT_OPENGLES",
