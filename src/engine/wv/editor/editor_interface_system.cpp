@@ -188,7 +188,7 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 
 		ImVec2 wsize = ImGui::GetWindowSize();
 
-		if ( ImGui::BeginChild( "###WorldSystemTree", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
+		if ( ImGui::BeginChild( "###WorldSystemTree", ImVec2( -FLT_MIN, wsize.y / 3 ) ) )
 		{
 			for ( IWorldSystem* worldSystem : worldSystems )
 				worldSystemTreeNode( worldSystem, &m_selection );
@@ -197,7 +197,7 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 
 		ImGui::SeparatorText( "Entities" );
 
-		if ( ImGui::BeginChild( "###SceneViewTree", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
+		if ( ImGui::BeginChild( "###SceneViewTree", ImVec2( -FLT_MIN, wsize.y / 3 ) ) )
 		{
 			for ( size_t i = 0; i < entities.size(); i++ )
 			{
@@ -207,7 +207,7 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 		}
 		ImGui::EndChild();
 
-		if ( ImGui::BeginChild( "###SelectedProperties", ImVec2( -FLT_MIN, wsize.y / 4 ) ) )
+		if ( ImGui::BeginChild( "###SelectedProperties", ImVec2( -FLT_MIN, wsize.y / 3 ) ) )
 		{
 			wv::IReflectedType* reflt = nullptr;
 
@@ -219,6 +219,21 @@ void wv::EditorInterfaceSystem::renderWorldWindow()
 				bool debugDisplayEnabled = ent->getDebugDisplayEnabled();
 				ImGui::Checkbox( "Show Debug", &debugDisplayEnabled );
 				ent->setDebugDisplayEnabled( debugDisplayEnabled );
+
+				{
+					ImGui::DragFloat3(
+						"Position",
+						(float*)&( ent->getTransform().position )
+					);
+					ImGui::DragFloat3(
+						"Rotation",
+						(float*)&( ent->getTransform().rotation )
+					);
+					ImGui::DragFloat3(
+						"Scale",
+						(float*)&( ent->getTransform().scale )
+					);
+				}
 
 				reflt = (wv::IReflectedType*)ent;
 

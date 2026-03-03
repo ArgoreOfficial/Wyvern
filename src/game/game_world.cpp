@@ -56,12 +56,11 @@ void GameWorld::onSceneCreate()
 		wv::Entity* backdrop = WV_NEW( wv::Entity, "Backdrop" );
 		sector->addEntity( backdrop );
 
-		wv::MeshImportOptions importOptions{};
-		importOptions.transform = wv::Math::translate( importOptions.transform, { 0.0f, -45.0f, 0.0f } );
-		
-		wv::MeshComponent* meshComponent = backdrop->createComponent<wv::MeshComponent>();
-		meshComponent->setFilePath( "meshes/SM_Tatiana.glb" );
-		meshComponent->importOptions = importOptions;
+		//wv::MeshComponent* meshComponent = backdrop->createComponent<wv::MeshComponent>();
+		//meshComponent->setFilePath( "meshes/SM_Tatiana.glb" );
+
+		backdrop->getTransform().position = { -97.5f,  -32.0f, -57.5f };
+		backdrop->getTransform().rotation = {   0.0f, -105.0f,   0.0f };
 	}
 
 	{
@@ -76,17 +75,15 @@ void GameWorld::onSceneCreate()
 		meshComponent->importOptions = importOptions;
 
 		player->createSystem<VtuberControllerSystem>();
+	}
 
-		{
-			wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
+	{
+		wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
+		camera->getTransform().position.y = 0.3f;
 
-			camera->createComponent<wv::PlayerInputComponent>()->setPlayerIndex( 0 );
-			camera->createComponent<wv::OrbitCameraComponent>();
-
-			//camera->createSystem<CameraFollowSystem>()->setFollow( player );
-			sector->addEntity( camera );
-		}
-
+		camera->createComponent<wv::PlayerInputComponent>()->setPlayerIndex( 0 );
+		camera->createComponent<wv::OrbitCameraComponent>();
+		sector->addEntity( camera );
 	}
 
 	addSector( sector );
