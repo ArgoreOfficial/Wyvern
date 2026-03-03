@@ -53,12 +53,23 @@ void GameWorld::onSceneCreate()
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
 	{
+		wv::Entity* backdrop = WV_NEW( wv::Entity, "Backdrop" );
+		sector->addEntity( backdrop );
+
+		wv::MeshImportOptions importOptions{};
+		importOptions.transform = wv::Math::translate( importOptions.transform, { 0.0f, -45.0f, 0.0f } );
+		
+		wv::MeshComponent* meshComponent = backdrop->createComponent<wv::MeshComponent>();
+		meshComponent->setFilePath( "meshes/SM_Tatiana.glb" );
+		meshComponent->importOptions = importOptions;
+	}
+
+	{
 		wv::Entity* player = WV_NEW( wv::Entity, "Player" );
 		sector->addEntity( player );
 
 		wv::MeshImportOptions importOptions{};
-		importOptions.transform = wv::Math::scale( importOptions.transform, { 10.0f, 10.0f, 10.0f } );
-		importOptions.transform = wv::Math::translate( importOptions.transform, { 0.0f, -0.25f, 0.0f } );
+		importOptions.transform = wv::Math::translate( importOptions.transform, { 0.0f, 0.0f, 0.0f } );
 
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_Frog.glb" );
