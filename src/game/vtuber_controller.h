@@ -24,9 +24,21 @@ protected:
 	float m_time = 0.0f;
 	float m_talkingTime = 0.0f;
 	float m_interpolation = 0.0f;
+	float m_currentMicValue = 0.0f;
 
 	float m_yVelocity = 0.0f;
 
+	float m_micAmplifier = 60.0f;
+	float m_micThreshold = 0.5f;
+
 	float m_interpolateInTime = 0.075f;
 	float m_interpolateOutTime = 0.2f;
+
+	float m_idleBobSpeed  = 1.0f;
+	float m_idleBobAmount = 0.1f;
+
+	float m_talkingBobSpeed  = 10.0f;
+	float m_talkingBobAmount = 0.2f;
+
+	float m_squishMultiplier = 6.0f;
 };
