@@ -312,7 +312,13 @@ bool wv::Renderer::initialize()
 		initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &swapchainFormat;
 
 		initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		
 
+		ImGui_ImplVulkan_LoadFunctions( VK_API_VERSION_1_3, 
+										[]( const char* function_name, void* vulkan_instance )
+										{
+											return vkGetInstanceProcAddr( *( reinterpret_cast<VkInstance*>( vulkan_instance ) ), function_name );
+										}, (void*)&m_instance );
 		ImGui_ImplVulkan_Init( &initInfo );
 
 		// ImGui_ImplVulkan_CreateFontsTexture();
@@ -512,15 +518,17 @@ wv::ResourceID wv::Renderer::allocateMesh( uint32_t _numIndices, uint32_t _numPo
 	MeshAllocation meshAllocation{};
 
 	meshAllocation.indexBuffer = createBuffer(
-		_numIndices * sizeof( uint16_t ),
+		_numIndices * sizeof( uint32_t ),
 		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-		VMA_MEMORY_USAGE_GPU_ONLY );
+		VMA_MEMORY_USAGE_GPU_ONLY,
+		"Index Buffer" );
 
 	// create position buffer
 	meshAllocation.positionBuffer = createBuffer(
 		_numPositions * sizeof( Vector3f ),
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-		VMA_MEMORY_USAGE_GPU_ONLY );
+		VMA_MEMORY_USAGE_GPU_ONLY,
+		"Position Buffer" );
 	
 	// create vertex data buffer
 	if ( _vertexDataSize > 0 )
@@ -528,7 +536,8 @@ wv::ResourceID wv::Renderer::allocateMesh( uint32_t _numIndices, uint32_t _numPo
 		meshAllocation.vertexDataBuffer = createBuffer(
 			_vertexDataSize,
 			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-			VMA_MEMORY_USAGE_GPU_ONLY );
+			VMA_MEMORY_USAGE_GPU_ONLY,
+			"Vertex Data Buffer" );
 
 		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = meshAllocation.vertexDataBuffer.buffer };
 		meshAllocation.vertexDataBufferAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
@@ -563,7 +572,7 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 	} );
 }
 
-void wv::Renderer::uploadMesh( ResourceID _mesh, const uint16_t* _indices, const Vector3f* _positions, const void* _vertexData )
+void wv::Renderer::uploadMesh( ResourceID _mesh, const uint32_t* _indices, const Vector3f* _positions, const void* _vertexData )
 {
 	std::scoped_lock lock{ m_mtx };
 
@@ -661,6 +670,9 @@ bool wv::Renderer::initVulkan()
 	auto ret = builder.set_app_name( "Wyvern" )
 		.request_validation_layers( m_useValidationLayers )
 		.set_debug_callback( debugCallback )
+	#ifdef WV_DEBUG
+		.enable_extension( VK_EXT_DEBUG_UTILS_EXTENSION_NAME )
+	#endif
 		.require_api_version( 1, 3, 0 )
 		.build();
 
@@ -725,11 +737,17 @@ bool wv::Renderer::initVulkan()
 	m_graphicsQueue = vkbDevice.get_queue( vkb::QueueType::graphics ).value();
 	m_graphicsQueueFamily = vkbDevice.get_queue_index( vkb::QueueType::graphics ).value();
 
+	VmaVulkanFunctions func = {};
+	func.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+	func.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+
 	VmaAllocatorCreateInfo vmaInfo{};
 	vmaInfo.physicalDevice = m_physicalDevice;
 	vmaInfo.device = m_device;
 	vmaInfo.instance = m_instance;
 	vmaInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+	vmaInfo.pVulkanFunctions = &func;
+
 	vmaCreateAllocator( &vmaInfo, &m_allocator );
 
 	m_mainDeleteQueue.push( [ & ]() {
@@ -955,7 +973,7 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
 
 			WV_ASSERT( mesh.indexBuffer.buffer != VK_NULL_HANDLE );
-			vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+			vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
 
 			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
 
@@ -1127,14 +1145,14 @@ void wv::Renderer::immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd 
 	vkWaitForFences( m_device, 1, &fence, true, 9999999999 );
 }
 
-wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage )
+wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage, const char* _debugName )
 {
 	ZoneScoped;
 
 	std::scoped_lock lock{ m_mtx };
 
 	VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-	bufferInfo.size = _size;
+	bufferInfo.size = wv::Math::align( _size, 4096LLU );
 	bufferInfo.usage = _usage;
 
 	VmaAllocationCreateInfo allocInfo{};
@@ -1151,6 +1169,18 @@ wv::AllocatedBuffer wv::Renderer::createBuffer( size_t _size, VkBufferUsageFlags
 		VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = buffer.buffer };
 		buffer.deviceAddress = vkGetBufferDeviceAddress( m_device, &deviceAdressInfo );
 	}
+
+#ifdef WV_DEBUG
+	if ( _debugName )
+	{
+		// set the name
+		VkDebugUtilsObjectNameInfoEXT nameInfo{ .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
+		nameInfo.objectType   = VK_OBJECT_TYPE_BUFFER;
+		nameInfo.objectHandle = (uint64_t)buffer.buffer; // this cast may vary by platform/compiler
+		nameInfo.pObjectName  = _debugName;
+		vkSetDebugUtilsObjectNameEXT( m_device, &nameInfo );		
+	}
+#endif
 
 	return buffer;
 }
