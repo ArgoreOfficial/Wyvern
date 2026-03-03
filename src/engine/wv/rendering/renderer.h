@@ -149,7 +149,7 @@ private:
 		// allocate buffer
 
 		VkBufferCreateInfo bufferInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		bufferInfo.size = _size;
+		bufferInfo.size = wv::Math::align<VkDeviceSize>( _size, 4096 );
 		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
 		VmaAllocationCreateInfo allocInfo{};
@@ -207,7 +207,7 @@ public:
 
 	ResourceID allocateMesh( uint32_t _numIndices, uint32_t _numPositions, uint32_t _vertexDataSize = 0 );
 	void deallocateMesh( ResourceID _mesh );
-	void uploadMesh( ResourceID _mesh, const uint16_t* _indices, const Vector3f* _positions, const void* _vertexData = nullptr );
+	void uploadMesh( ResourceID _mesh, const uint32_t* _indices, const Vector3f* _positions, const void* _vertexData = nullptr );
 
 	ResourceID allocateImage( const void* _data, int _width, int _height, bool _mipmapped );
 	void deallocateImage( ResourceID _image );
@@ -263,7 +263,7 @@ protected:
 
 	void immediateCmdSubmit( std::function<void( VkCommandBuffer _cmd )>&& _func );
 
-	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage );
+	AllocatedBuffer createBuffer( size_t _size, VkBufferUsageFlags _usage, VmaMemoryUsage _memoryUsage, const char* _debugName = nullptr );
 	void destroyBuffer( const AllocatedBuffer& _buffer );
 
 	void storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at );

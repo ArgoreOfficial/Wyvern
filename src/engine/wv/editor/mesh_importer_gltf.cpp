@@ -207,9 +207,9 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions
 	
 		for ( auto& primitive : mesh.primitives )
 		{
-			uint16_t indexOffset = surface.vertexCount();
+			uint32_t indexOffset = surface.vertexCount();
 
-			std::vector<uint16_t> indices;
+			std::vector<uint32_t> indices;
 			std::vector<Vector3f> positions;
 			std::vector<Vector3f> normals;
 			std::vector<Vector2f> uv0s;
@@ -224,7 +224,7 @@ void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions
 			{
 				fastgltf::Accessor& indexAccessor = _asset.accessors[ primitive.indicesAccessor.value() ];
 				indices.resize( indexAccessor.count );
-				fastgltf::copyFromAccessor<uint16_t>( _asset, indexAccessor, indices.data() );
+				fastgltf::copyFromAccessor<uint32_t>( _asset, indexAccessor, indices.data() );
 			}
 
 			// load vertex data

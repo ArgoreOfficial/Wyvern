@@ -29,6 +29,8 @@ namespace Math
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+template<typename Ty> constexpr Ty align( Ty _sz, Ty _step = 16, Ty _min = 16 );
+
 template<typename _Ty> constexpr _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max );
 
 template<typename _Ty> _Ty pow2( const _Ty& _value );
@@ -85,6 +87,13 @@ inline uint32_t randomU32() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Ty>
+constexpr Ty align( Ty _sz, Ty _step, Ty _min )
+{
+	const Ty s = wv::Math::max( _sz + _step - 1, _min );
+	return s - s % _step;
+}
 
 template<typename _Ty> constexpr _Ty clamp( const _Ty& _value, const _Ty& _min, const _Ty& _max )
 {
