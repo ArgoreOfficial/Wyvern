@@ -67,12 +67,8 @@ void GameWorld::onSceneCreate()
 		wv::Entity* player = WV_NEW( wv::Entity, "Player" );
 		sector->addEntity( player );
 
-		wv::MeshImportOptions importOptions{};
-		importOptions.transform = wv::Math::translate( importOptions.transform, { 0.0f, 0.0f, 0.0f } );
-
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
 		meshComponent->setFilePath( "meshes/SM_Frog.glb" );
-		meshComponent->importOptions = importOptions;
 
 		player->createSystem<VtuberControllerSystem>()->setBackdropEntity( backdrop );
 	}
@@ -87,5 +83,4 @@ void GameWorld::onSceneCreate()
 	}
 
 	addSector( sector );
-
 }
