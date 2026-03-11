@@ -24,6 +24,9 @@ end
 if is_plat("windows") then 
     set_languages( "c17", "cxx20" )
     
+    add_syslinks("user32")
+    add_syslinks("Xinput", "Xinput9_1_0")
+    
     -- Platform Defines
     add_defines( "WV_X64", "WV_ARCH_X64", "WV_PLATFORM_WINDOWS" )
 

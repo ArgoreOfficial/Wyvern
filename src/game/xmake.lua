@@ -16,5 +16,12 @@ target("Game")
         "./",
         "../engine/"
     )
+
+    add_packages(
+        "tracy",
+        "vulkan-headers", 
+        "volk", 
+        "vulkan-memory-allocator" 
+    )
 target_end()
 

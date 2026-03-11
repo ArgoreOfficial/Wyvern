@@ -9,8 +9,6 @@
 
 #include "game_world.h"
 
-#pragma comment( lib, "user32.lib" )
-
 #ifdef WV_PLATFORM_WINDOWS
 bool wv::Remote::isRunningRemoteTarget( int argc, char* argv[] ) { return false; }
 void wv::Remote::initializeRemoteTarget() { }
