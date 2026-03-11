@@ -6,28 +6,29 @@ target "Wyvern"
     set_kind "static"
 
     set_warnings("extra")
-
-    if not is_mode("Package") then
-        set_basename("Wyvern_$(mode)_$(arch)")
-    end
     
     if not is_arch("x64") then
         set_prefixname("lib")
     end
 
-    add_headerfiles("**.h", {install = false})
-    add_headerfiles("**.hpp", {install = false})   
-    
-    add_files("**.cpp")
+    add_includedirs("./")
+    add_headerfiles("**.h", "**.hpp")
+    add_headerfiles()
     add_files(
-        "**.comp", 
-        "**.vert", 
-        "**.frag"
+        --"**.comp", "**.vert", "**.frag",
+        "**.cpp"
     )
 
-    add_includedirs("./")
+    add_packages(
+        "fastgltf",
+        "libsdl3",
+        "tracy",
+        "vulkan-headers", 
+        "volk", 
+        "vulkan-memory-allocator" 
+    )
 
-    add_rules("utils.glsl2spv", {outputdir = "data/shaders/"})
+    -- add_rules("utils.glsl2spv", {outputdir = "data/shaders/"})
 
     if is_arch("psvita") and has_vitasdk then 
         add_rules("vitaCg")

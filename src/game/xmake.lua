@@ -10,8 +10,7 @@ target("Game")
         set_basename("Game_$(mode)_$(arch)")
     end
     
-    add_headerfiles("**.h", {install = false})
-    add_headerfiles("**.hpp", {install = false})
+    add_headerfiles("**.h")
     add_files("**.cpp")
     add_includedirs(
         "./",
