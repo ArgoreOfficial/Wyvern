@@ -9,7 +9,7 @@ if( $LASTEXITCODE -lt 0 )
 else {
     Get-ChildItem "$(Get-Item .)\build\vsxmake2022" -Filter *.sln |
     ForEach-Object {
-        write-host ($_.BaseName)
+        write-host ("Created shortcut to $($_.BaseName).sln")
         $WshShell = New-Object -COMObject WScript.Shell
         $Shortcut = $WshShell.CreateShortcut("$(Get-Item .)\_$($_.BaseName).sln.lnk")
         $Shortcut.TargetPath = "$(Get-Item .)\build\vsxmake2022\$($_.BaseName).sln"

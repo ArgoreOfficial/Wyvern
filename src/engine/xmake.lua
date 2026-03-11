@@ -33,6 +33,4 @@ target "Wyvern"
         add_rules("vitaCg")
         add_files(ROOTDIR .. "data/shaders/**.cg")
     end
-
-    target_platform(ENGINE_NAMESPACE)
 target_end()

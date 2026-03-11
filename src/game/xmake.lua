@@ -1,13 +1,13 @@
-target(PROJECT_NAME)
+target("Game")
     set_kind "binary"
     add_deps("Wyvern")
 
     set_warnings( "extra" )
 
     if is_mode("Package") then
-        set_basename(PROJECT_NAME .. "_$(arch)")
+        set_basename("Game_$(arch)")
     else
-        set_basename(PROJECT_NAME .. "_$(mode)_$(arch)")
+        set_basename("Game_$(mode)_$(arch)")
     end
     
     add_headerfiles("**.h", {install = false})
@@ -17,7 +17,5 @@ target(PROJECT_NAME)
         "./",
         "../engine/"
     )
-    
-    target_platform(ENGINE_NAMESPACE)
 target_end()
 
