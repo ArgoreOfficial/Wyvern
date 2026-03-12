@@ -1,21 +1,23 @@
 local has_vulkansdk = os.getenv("VULKAN_SDK") ~= nil
 
-set_project( "Game" )
-set_version( "0.0.1" )
+set_project("Game")
+set_version("0.0.1")
 
 includes("xmake/rules/mode")
 includes("xmake/rules/platform")
 
 set_allowedmodes("debug", "release", "package")
-set_allowedarchs( "x64", "wasm32" )
-set_allowedplats( "windows", "wasm" )
+set_allowedarchs("x64", "wasm32")
+set_allowedplats("windows", "wasm")
 
 add_rules("wv.debug", "wv.release", "wv.package")
-add_rules("wv.platform.windows")
 
 if is_plat("windows") then 
-    -- Support Defines
+    add_rules("wv.platform.windows")
+
     add_defines( 
+        --"TRACY_ENABLE",
+
         "WV_SUPPORT_OPENGL",
         "WV_SUPPORT_OPENGLES",
         "WV_SUPPORT_FASTGLTF",
@@ -25,9 +27,8 @@ if is_plat("windows") then
     )
 
     if has_vulkansdk then 
-        add_defines("WV_SUPPORT_VULKAN")
-
         add_defines( 
+            "WV_SUPPORT_VULKAN",
             "VK_NO_PROTOTYPES", 
             "IMGUI_IMPL_VULKAN_USE_VOLK", 
             "IMGUI_IMPL_VULKAN_USE_LOADER" 
@@ -40,16 +41,11 @@ if is_plat("windows") then
         )
     end
 
-    
-    -- Flags
-    -- add_defines( "TRACY_ENABLE" )
-    
-    -- Package Requires
-    add_requires( 
-        "fastgltf",
-        "libsdl3",
-        "tracy"
-    )
+    add_requires("fastgltf", "libsdl3")
+
+    if not is_mode("package") then 
+        add_requires("tracy")
+    end
 end
 
 includes( "src/engine" )

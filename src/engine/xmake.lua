@@ -16,11 +16,11 @@ target "Wyvern"
     add_headerfiles()
     add_files("**.cpp")
 
-    add_packages(
-        "fastgltf",
-        "libsdl3",
-        "tracy"
-    )
+    add_packages("fastgltf", "libsdl3")
+
+    if not is_mode("package") then 
+        add_packages("tracy")
+    end
 
     if has_vulkansdk then -- Vulkan Shaders
         add_rules("utils.glsl2spv", {outputdir = "data/shaders/"})
