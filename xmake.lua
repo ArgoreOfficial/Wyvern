@@ -1,67 +1,54 @@
+local has_vulkansdk = os.getenv("VULKAN_SDK") ~= nil
+
 set_project( "Game" )
 set_version( "0.0.1" )
 
---set_allowedmodes("debug", "release", "package")
+includes("xmake/rules/mode")
+includes("xmake/rules/platform")
+
+set_allowedmodes("debug", "release", "package")
 set_allowedarchs( "x64", "wasm32" )
 set_allowedplats( "windows", "wasm" )
 
--- Configure Modes
-if is_mode("Debug") then
-    set_symbols "debug"
-    set_optimize "none"
-    set_strip "none"
-    add_defines( "WV_TRACK_MEMORY" )
-elseif is_mode("Release") then 
-    set_symbols "debug"
-    set_optimize "fast"
-    set_strip "debug"
-elseif is_mode("Package") then 
-    set_symbols "none"
-    set_optimize "fastest"
-    set_strip "all"
-end
+add_rules("wv.debug", "wv.release", "wv.package")
+add_rules("wv.platform.windows")
 
 if is_plat("windows") then 
-    set_languages( "c17", "cxx20" )
-    
-    add_syslinks("user32")
-    add_syslinks("Xinput", "Xinput9_1_0")
-    
-    -- Platform Defines
-    add_defines( "WV_X64", "WV_ARCH_X64", "WV_PLATFORM_WINDOWS" )
-
-    -- Language Defines
-    add_defines( "WV_C17", "WV_CPP20" )
-
     -- Support Defines
     add_defines( 
-        "WV_SUPPORT_VULKAN",
         "WV_SUPPORT_OPENGL",
         "WV_SUPPORT_OPENGLES",
         "WV_SUPPORT_FASTGLTF",
         "WV_SUPPORT_SDL", "WV_SUPPORT_SDL3",
         "WV_SUPPORT_IMGUI",
-        "WV_SUPPORT_TRACY",
-        "WV_ENABLE_SIMD"
+        "WV_SUPPORT_TRACY"
     )
+
+    if has_vulkansdk then 
+        add_defines("WV_SUPPORT_VULKAN")
+
+        add_defines( 
+            "VK_NO_PROTOTYPES", 
+            "IMGUI_IMPL_VULKAN_USE_VOLK", 
+            "IMGUI_IMPL_VULKAN_USE_LOADER" 
+        )
+
+        add_requires(
+            "vulkan-headers", 
+            "volk", 
+            "vulkan-memory-allocator"
+        )
+    end
+
     
     -- Flags
-    add_defines( 
-        -- "TRACY_ENABLE",
-        "VK_NO_PROTOTYPES", 
-        "IMGUI_IMPL_VULKAN_USE_VOLK", 
-        "IMGUI_IMPL_VULKAN_USE_LOADER" 
-    )
+    -- add_defines( "TRACY_ENABLE" )
     
     -- Package Requires
-    -- TODO: check for availability
     add_requires( 
         "fastgltf",
         "libsdl3",
-        "tracy",
-        "vulkan-headers", 
-        "volk", 
-        "vulkan-memory-allocator" 
+        "tracy"
     )
 end
 

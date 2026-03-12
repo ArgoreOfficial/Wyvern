@@ -1,5 +1,5 @@
 & "xmake" f -y --vs=2022
-& "xmake" project -k vsxmake -y -m "Debug,Release,Package" -a "x64" ./build
+& "xmake" project -k vsxmake -y -m "debug,release,package" -a "x64" ./build
 
 if( $LASTEXITCODE -lt 0 )
 {
