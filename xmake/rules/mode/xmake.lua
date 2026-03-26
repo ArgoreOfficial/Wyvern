@@ -15,7 +15,8 @@ rule("wv.debug")
         -- is this needed?
         _target:add("cuflags", "-G")
 
-        _target:add( "defines", "WV_TRACK_MEMORY" ) -- enable memory tracking
+        _target:add("defines", "WV_DEBUG")
+        _target:add("defines", "WV_TRACK_MEMORY") -- enable memory tracking
 
     end)
 rule_end()
@@ -36,6 +37,8 @@ rule("wv.release")
         -- enable NDEBUG macros to disables standard-C assertions
         _target:add("cxflags", "-DNDEBUG")
         _target:add("cuflags", "-DNDEBUG")
+
+        _target:add("defines", "WV_RELEASE")
     end)
 rule_end()
 
@@ -56,5 +59,6 @@ rule("wv.package")
         _target:add("cxflags", "-DNDEBUG")
         _target:add("cuflags", "-DNDEBUG")
         
+        _target:add("defines", "WV_PACKAGE")
     end)
 rule_end()

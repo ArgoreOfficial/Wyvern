@@ -12,6 +12,9 @@ set_allowedplats("windows", "wasm")
 
 add_rules("wv.debug", "wv.release", "wv.package")
 
+set_objectdir("./build/obj/$(plat)/$(mode)")
+set_targetdir("./game/$(plat)")
+
 if is_plat("windows") then 
     add_rules("wv.platform.windows")
 
