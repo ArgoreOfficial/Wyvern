@@ -201,8 +201,8 @@ void GameWorld::onSceneCreate()
 
 		wv::MeshComponent* meshComponent = player->createComponent<wv::MeshComponent>();
 
-		meshComponent->setFilePath( "meshes/SM_Frog.glb" );
-		//meshComponent->setFilePath( "meshes/engine_basic.glb" );
+		//meshComponent->setFilePath( "meshes/SM_Frog.glb" );
+		meshComponent->setFilePath( "meshes/engine_basic.glb" );
 
 		player->createComponent<TrackEngineComponent>();
 		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
