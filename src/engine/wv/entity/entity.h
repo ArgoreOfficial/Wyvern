@@ -84,7 +84,7 @@ private:
 	UUID m_ID = 0;
 	std::string m_debugName = "";
 
-	bool m_debugDisplayEnabled = false;
+	bool m_debugDisplayEnabled = true;
 
 	Transformf m_transform;
 
