@@ -14,6 +14,8 @@ class World;
 struct WorldLoadContext;
 struct WorldUpdateContext;
 
+struct Archetype;
+
 class Entity final : wv::IReflectedType
 {
 	friend class WorldSector;
@@ -70,6 +72,9 @@ public:
 
 	bool getDebugDisplayEnabled() const { return m_debugDisplayEnabled; }
 	void setDebugDisplayEnabled( bool _enabled ) { m_debugDisplayEnabled = _enabled; }
+
+	Archetype* archetype = nullptr;
+	size_t archetypeIndex = 0;
 
 private:
 	// The sector that this entity originates from. 

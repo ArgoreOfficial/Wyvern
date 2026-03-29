@@ -48,6 +48,18 @@ class ECSEngine;
 class ISystem;
 struct IComponentVector;
 
+static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>& _componentTypeIndices )
+{
+	std::bitset<256> bitmask{};
+	for ( int i : _componentTypeIndices )
+	{
+		if ( i < 0 )
+			continue;
+		bitmask[ i ] = true;
+	}
+	return bitmask;
+}
+
 struct ArchetypeConfig
 {
 	ECSEngine* engine;
@@ -58,14 +70,7 @@ struct ArchetypeConfig
 	void addComponentType();
 
 	std::bitset<256> getBitmask() {
-		std::bitset<256> bitmask{};
-		for ( int i : componentTypeIndices )
-		{
-			if ( i < 0 )
-				continue;
-			bitmask[ i ] = true;
-		}
-		return bitmask;
+		return bitmaskFromComponentTypeIndices( componentTypeIndices );
 	}
 
 private:
@@ -84,12 +89,6 @@ public:
 	template<typename Ty>
 	struct ComponentTypeDef { static inline int index = -1; };
 
-	struct ArchetypeTypeDef
-	{
-		std::bitset<256> bitmask;
-		Archetype* archetype;
-	};
-
 	int numComponentTypes = 0;
 
 	template<typename Ty>
@@ -104,20 +103,36 @@ public:
 	template<typename Ty>
 	Ty* addSystem();
 
-	void registerArchetype( ArchetypeConfig& _config );
+	Archetype* registerArchetype( ArchetypeConfig& _config );
+	Archetype* getExactArchetype( std::bitset<256> _bitmask );
 
 	void updateSystems();
+	void updateEntityArchetype( Entity* _entity );
 
-	std::vector<ArchetypeTypeDef> m_archetypes;
+	template<typename Ty>
+	void addComponent( Entity* _entity, const Ty& _component );
+
+	std::vector<Archetype*> m_archetypes;
 	std::vector<ISystem*> m_systems;
 };
 
-struct IComponentVector { }; // helper
+struct IComponentVector { 
+	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) = 0;
+};
+
 template<typename Ty>
-struct ComponentVector
+struct ComponentVector : public IComponentVector
 {
 	std::vector<Ty> components;
-	std::vector<Entity*> entities;
+	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) override
+	{
+		ComponentVector<Ty>* oldVector = reinterpret_cast<ComponentVector<Ty>*>( _oldVector );
+		
+		Ty comp = oldVector->components[ _index ];
+		oldVector->components.erase( oldVector->components.begin() + _index );
+		
+		components.push_back( comp );
+	}
 };
 
 template<typename Ty>
@@ -136,6 +151,9 @@ void ArchetypeConfig::addComponentType()
 struct Archetype
 {
 	std::unordered_map<int, IComponentVector*> m_vectors;
+	std::vector<Entity*> m_entities;
+
+	std::bitset<256> m_bitmask{};
 
 	template<typename Ty>
 	std::vector<Ty>& getComponents() {
@@ -144,6 +162,16 @@ struct Archetype
 		
 		ComponentVector<Ty>* vec = reinterpret_cast<ComponentVector<Ty>*>( m_vectors.at( componentTypeIndex ) );
 		return vec->components;
+	}
+
+	void moveComponents( Archetype* _oldArchetype, size_t _index ) {
+		for ( auto pair : _oldArchetype->m_vectors )
+			m_vectors[ pair.first ]->moveComponent( pair.second, _index );
+		
+		_oldArchetype->m_entities.erase( _oldArchetype->m_entities.begin() + _index );
+
+		for ( auto e : _oldArchetype->m_entities )
+			e->archetypeIndex--;
 	}
 };
 
@@ -183,25 +211,25 @@ Ty* ECSEngine::addSystem() {
 	return (Ty*)s;
 }
 
-void ECSEngine::registerArchetype( ArchetypeConfig& _config )
+Archetype* ECSEngine::registerArchetype( ArchetypeConfig& _config )
 {
 	auto bitmask = _config.getBitmask();
 	if ( bitmask.none() )
-		return; // empty config
+		return nullptr; // empty config
 
 	for ( size_t i = 0; i < m_archetypes.size(); i++ )
 	{
-		if ( m_archetypes[ i ].bitmask != bitmask )
+		if ( m_archetypes[ i ]->m_bitmask != bitmask )
 			continue;
 
 		_config.freeContainers();
-		return; // exact match found, archetype already exists
+		return nullptr; // exact match found, archetype already exists
 	}
-
 
 	// create new archetype
 
 	Archetype* archetype = WV_NEW( Archetype );
+	archetype->m_bitmask = bitmask;
 
 	for ( size_t i = 0; i < _config.componentTypeIndices.size(); i++ )
 	{
@@ -212,7 +240,19 @@ void ECSEngine::registerArchetype( ArchetypeConfig& _config )
 		);
 	}
 	
-	m_archetypes.emplace_back( bitmask, archetype );
+	m_archetypes.push_back( archetype );
+	return archetype;
+}
+
+Archetype* ECSEngine::getExactArchetype( std::bitset<256> _bitmask )
+{
+	for ( auto a : m_archetypes )
+	{
+		if ( a->m_bitmask == _bitmask )
+			return a;
+	}
+
+	return nullptr;
 }
 
 void ECSEngine::updateSystems()
@@ -226,13 +266,63 @@ void ECSEngine::updateSystems()
 		{
 			for ( auto& archetype : m_archetypes )
 			{
-				if ( ( archetype.bitmask & bitmask ).any() )
-					s->m_archetypes.push_back( archetype.archetype );
+				if ( ( archetype->m_bitmask & bitmask ) == bitmask )
+					s->m_archetypes.push_back( archetype );
 			}
 		}
 
 		s->update();
 	}
+}
+
+void ECSEngine::updateEntityArchetype( Entity* _entity )
+{
+}
+
+template<typename Ty>
+void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
+{
+	WV_ASSERT_MSG( _entity != nullptr, "Entity cannot be nullptr" );
+
+	Archetype* oldArchetype = _entity->archetype;
+	int oldArchetypeIndex = _entity->archetypeIndex;
+
+	std::bitset<256> bitmask{};
+	int index = ComponentTypeDef<Ty>::index;
+	WV_ASSERT( index >= 0 );
+	bitmask[ index ] = true;
+
+	if ( oldArchetype )
+	{
+		if ( ( bitmask & oldArchetype->m_bitmask ).any() )
+		{
+			WV_LOG_ERROR( "Only one component per type per object\n" );
+			return;
+		}
+
+		bitmask |= oldArchetype->m_bitmask;
+	}
+	
+	Archetype* newArchetype = getExactArchetype( bitmask );
+
+	if ( newArchetype == nullptr )
+	{
+		// new archetype, register
+
+		ArchetypeConfig config{};
+		config.engine = this;
+		config.addComponentType<Ty>();
+		newArchetype = registerArchetype( config );
+	}
+	
+	if ( oldArchetype )
+		newArchetype->moveComponents( oldArchetype, oldArchetypeIndex );
+	
+	newArchetype->getComponents<Ty>().push_back( _component );
+	newArchetype->m_entities.push_back( _entity );
+
+	_entity->archetype = newArchetype;
+	_entity->archetypeIndex = newArchetype->m_entities.size() - 1;
 }
 
 struct TestComponent
@@ -423,11 +513,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->createWorldSystem<EditorInterfaceSystem>();
 
 	m_world->onSceneCreate();
-
+	
 	testSystem = ecsEngine.addSystem<TestSystem>();
-
-
-
+	
 	return true;
 }
 
@@ -483,6 +571,7 @@ void wv::Application::shutdown()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+static bool hasAdded = false;
 
 bool wv::Application::tick()
 {
@@ -509,6 +598,16 @@ bool wv::Application::tick()
 
 	m_audioSystem->updateRecordingDevices();
 
+
+	if ( !hasAdded )
+	{
+		if ( Entity* player = m_world->findFirstEntityByName( "Player" ) )
+		{
+			ecsEngine.addComponent<TestComponent>( player, { 12 } );
+			ecsEngine.addComponent<TestComponentDifferent>( player, { } );
+			hasAdded = true;
+		}
+	}
 	update();
 	render();
 
