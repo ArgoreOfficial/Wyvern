@@ -134,6 +134,10 @@ public:
 	std::bitset<256> getArchetypeBitmask() const { return m_archetypeBitmask; }
 
 	virtual void configure( ArchetypeConfig& _config ) = 0;
+
+	virtual void initialize() { }
+	virtual void shutdown() { }
+
 	virtual void update() = 0;
 
 private:

@@ -258,8 +258,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->onSetupInput( m_inputSystem );
 
-	m_world->createWorldSystem<EditorInterfaceSystem>();
-
 	m_world->onSceneCreate();
 	
 	testSystem  = ecsEngine.addSystem<TestSystem>();
@@ -389,8 +387,7 @@ void wv::Application::update()
 
 	m_world->updateLoading();
 	m_world->updateSectors( m_deltatime );
-	m_world->updateWorldSystems( m_deltatime );
-
+	
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{
@@ -434,8 +431,8 @@ void wv::Application::render()
 
 		// Don't render debug if the window isn't focused
 		// This should be togglable
-		if( m_displayDriver->isFocused() )
-			m_world->onDebugRender();
+		//if( m_displayDriver->isFocused() )
+		//	m_world->onDebugRender();
 
 		ecsEngine.updateSystems();
 

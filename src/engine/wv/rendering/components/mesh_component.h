@@ -2,8 +2,6 @@
 
 #include <wv/editor/mesh_importer_gltf.h>
 
-#include <wv/entity/entity_component.h>
-
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 
@@ -15,32 +13,10 @@ namespace wv {
 
 class TextureAsset;
 
-class MeshComponent : public IEntityComponent
+struct MeshComponent
 {
-	WV_REFLECT_TYPE( MeshComponent, IEntityComponent )
-public:
-	MeshComponent() = default;
-	virtual ~MeshComponent();
-
-	void setFilePath( const std::filesystem::path& _path ) { m_path = _path; }
-	
-	MeshAsset* getMeshAsset() const { return m_meshAsset.get(); }
-	
-	const std::vector<MaterialInstance>& getMaterials() const { return m_materials; }
-
-	template<typename Ty>
-	void setMaterialValue( size_t _materialIndex, const std::string& _name, const Ty& _value ) {
-		m_materials.at( _materialIndex )->setValue<Ty>(_name, _value);
-	}
-
 	MeshImportOptions importOptions{};
 
-protected:
-
-	virtual void load( WorldLoadContext& _ctx ) override;
-	virtual void unload( WorldLoadContext& _ctx ) override;
-
-private:
 	std::filesystem::path m_path;
 
 	Ref<MeshAsset> m_meshAsset;
@@ -48,9 +24,8 @@ private:
 	
 	Ref<TextureAsset> m_texture;
 
-private:
-	WV_REFLECT_MEMBER( m_path )
-	WV_REFLECT_MEMBER( m_meshAsset )
+//	WV_REFLECT_MEMBER( m_path )
+//	WV_REFLECT_MEMBER( m_meshAsset )
 };
 
 }

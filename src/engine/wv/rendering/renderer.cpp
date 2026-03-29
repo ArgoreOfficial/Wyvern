@@ -919,8 +919,8 @@ void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
 
 void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 { 
+	/*
 	ZoneScoped;
-
 	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
 	if ( !worldRenderSystem )
 		return;
@@ -1012,6 +1012,7 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 	}
 	
 	vkCmdEndRendering( _cmd );
+	*/
 }
 
 void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )

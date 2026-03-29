@@ -27,16 +27,13 @@ wv::CameraManagerSystem::~CameraManagerSystem()
 
 void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
 {
-	for ( CameraComponent* comp : m_cameraComponents.getComponents() )
-	{
-		if ( comp != _camera )
-			continue;
-
-		m_activeCamera = _camera;
-		return;
-	}
 	
-	WV_LOG_ERROR( "Camera is not registered with CameraManagerSystem\n" );
+}
+
+void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
+{
+	_config.addComponentType<PlayerInputComponent>();
+	_config.addComponentType<CameraComponent>();
 }
 
 void wv::CameraManagerSystem::initialize()
@@ -46,71 +43,12 @@ void wv::CameraManagerSystem::initialize()
 
 void wv::CameraManagerSystem::shutdown()
 {
-	m_entityDatas.clear();
+
 }
 
-void wv::CameraManagerSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
+void wv::CameraManagerSystem::update( /*WorldUpdateContext& _ctx*/ )
 {
-	if ( auto camera = tryCast<CameraComponent>( _component ) )
-	{
-		if ( !m_cameraComponents.registerComponent( _entity, _component ) )
-			return;
-
-		auto entityIt = findEntity( _entity );
-		if ( entityIt == m_entityDatas.end() )
-		{
-			m_entityDatas.emplace_back( _entity );
-			entityIt = findEntity( _entity );
-			WV_ASSERT( entityIt != m_entityDatas.end() );
-		}
-
-		camera->getViewVolume()->recalculateProjMatrix( false );
-		m_cameraComponentsChanged = true;
-		
-		entityIt->camera = camera;
-		entityIt->entity->getTransform().addChild( &camera->getViewVolume()->getTransform() );
-	}
-	else if ( PlayerInputComponent* playerInput = tryCast<PlayerInputComponent>( _component ) )
-	{
-		if ( !m_playerInputComponents.registerComponent( _entity, _component ) )
-			return;
-
-		auto entityIt = findEntity( _entity );
-		if ( entityIt == m_entityDatas.end() )
-		{
-			m_entityDatas.emplace_back( _entity );
-			entityIt = findEntity( _entity );
-			WV_ASSERT( entityIt != m_entityDatas.end() );
-		}
-
-		entityIt->playerInput = playerInput;
-	}
-}
-
-void wv::CameraManagerSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
-{
-	if ( auto camera = tryCast<CameraComponent>( _component ) )
-	{
-		if ( !m_cameraComponents.unregisterComponent( _entity, _component ) )
-			return;
-		
-		auto entityIt = findEntity( _entity );
-		if ( entityIt != m_entityDatas.end() && entityIt->camera == camera )
-			entityIt->camera = nullptr;
-	}
-	else if ( auto playerInput = tryCast<PlayerInputComponent>( _component ) )
-	{
-		if ( !m_playerInputComponents.unregisterComponent( _entity, _component ) )
-			return;
-
-		auto entityIt = findEntity( _entity );
-		if ( entityIt != m_entityDatas.end() && entityIt->playerInput == playerInput )
-			entityIt->playerInput = nullptr;
-	}
-}
-
-void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
-{
+	/*
 	if ( m_cameraComponentsChanged )
 	{
 		if ( m_activeCamera == nullptr && m_cameraComponents.getComponents().size() > 0 )
@@ -178,5 +116,6 @@ void wv::CameraManagerSystem::update( WorldUpdateContext& _ctx )
 			_ctx.viewport->setViewVolume( viewVolume );
 		}
 	}
+	*/
 
 }

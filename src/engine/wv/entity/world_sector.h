@@ -26,16 +26,7 @@ public:
 
 	void updateLoading( WorldLoadContext& _ctx );
 	void update( WorldUpdateContext& _ctx );
-	void onDebugRender();
-
-	bool isLoading() const {
-		for ( auto ent : m_entities )
-			if ( ent->isLoading() )
-				return true;
-
-		return false;
-	}
-
+	
 	Entity* findEntity( UUID _UUID ) const {
 		auto it = m_entityMap.find( _UUID );
 		if ( it == m_entityMap.end() )

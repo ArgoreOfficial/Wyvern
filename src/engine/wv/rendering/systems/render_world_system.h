@@ -1,16 +1,13 @@
 #pragma once
 
-#include <wv/entity/entity_component.h>
-#include <wv/entity/entity_component_container.h>
-#include <wv/entity/world_system.h>
-#include <wv/entity/world_sector.h>
+#include <wv/entity/ecs.h>
 #include <wv/types.h>
 
 #include <span>
 
 namespace wv {
 
-class MeshComponent;
+struct MeshComponent;
 
 struct RenderMesh
 {
@@ -31,14 +28,10 @@ struct SectorRenderBucket
 	std::vector<Matrix4x4f> matrices;
 };
 
-class RenderWorldSystem : public IWorldSystem
+class RenderWorldSystem : public ISystem
 {
-	WV_REFLECT_TYPE( RenderWorldSystem, IWorldSystem )
+//	WV_REFLECT_TYPE( RenderWorldSystem, IWorldSystem )
 public:
-	RenderWorldSystem() = default;
-
-	const std::vector<MeshComponent*>& getRegisteredMeshComponents() const { return m_meshComponents.getComponents(); }
-
 	std::vector<SectorRenderBucket> getRenderBuckets() const {
 		std::vector<SectorRenderBucket> buckets;
 
@@ -49,15 +42,12 @@ public:
 	}
 
 protected:
+	virtual void configure( ArchetypeConfig& _config ) override;
 	virtual void initialize() override;
 	virtual void shutdown  () override;
 	
-	virtual void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override;
-	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
+	void update() override;
 
-	void update( WorldUpdateContext& _ctx ) override;
-
-	EntityComponentContainer<MeshComponent> m_meshComponents;
 	std::unordered_map<UUID, SectorRenderBucket> m_renderBucketMap;
 };
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wv/entity/entity_system.h>
-#include <wv/entity/entity_component.h>
+#include <wv/entity/ecs.h>
 
 #include <wv/input/action.h>
 
@@ -10,30 +9,19 @@
 
 namespace wv {
 
-class PlayerControllerComponent;
-class PlayerInputComponent;
+struct PlayerControllerComponent;
+struct PlayerInputComponent;
 
-class PlayerControllerSystem : public IEntitySystem
+class PlayerControllerSystem : public ISystem
 {
-	WV_REFLECT_TYPE( PlayerControllerSystem, IEntitySystem )
+//	WV_REFLECT_TYPE( PlayerControllerSystem, IEntitySystem )
 public:
-	PlayerControllerSystem() = default;
-	~PlayerControllerSystem() { }
-
-protected:
+	
+	virtual void configure( ArchetypeConfig& _config ) override;
 	virtual void initialize() override;
 	virtual void shutdown() override;
 
-	virtual void registerComponent( IEntityComponent* _component ) override;
-	virtual void unregisterComponent( IEntityComponent* _component ) override;
-
-	virtual void update( WorldUpdateContext& _ctx ) override;
-
-	PlayerControllerComponent* m_player = nullptr;
-	PlayerInputComponent*      m_playerInput = nullptr;
-
-	wv::Vector2f m_move;
-	wv::Vector3f m_velocity;
+	virtual void update() override;
 
 	uint32_t m_moveActionID = 0;
 	uint32_t m_jumpActionID = 0;

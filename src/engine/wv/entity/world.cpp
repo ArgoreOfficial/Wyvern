@@ -42,14 +42,9 @@ void wv::World::shutdown()
 	for ( WorldSector* sector : m_sectors )
 		sector->unload( ctx );
 	
-	for ( auto system : m_systems )
-		system->shutdown();
-	
-	for ( IWorldSystem* system : m_systems ) WV_FREE( system );
 	for ( WorldSector*  sector : m_sectors ) WV_FREE( sector );
 	
 	m_sectors.clear();
-	m_systems.clear();
 }
 
 void wv::World::addSector( WorldSector* _sector )
@@ -113,28 +108,6 @@ void wv::World::updateSectors( double _deltaTime )
 		sector->update( ctx );
 }
 
-void wv::World::updateWorldSystems( double _deltaTime )
-{
-	WorldUpdateContext ctx{};
-	ctx.viewport = m_viewport;
-	ctx.deltaTime = _deltaTime;
-	ctx.inputSystem = wv::Application::getSingleton()->getInputSystem();
-	ctx.actionEventQueue = ctx.inputSystem->getActionEventQueue();
-
-	for ( auto system : m_systems )
-		system->update( ctx );
-
-}
-
-void wv::World::onDebugRender()
-{
-	for ( auto sector : m_sectors )
-		sector->onDebugRender();
-
-	for ( auto system : m_systems )
-		system->onDebugRender();
-}
-
 wv::WorldLoadContext wv::World::getLoadContext()
 {
 	WorldLoadContext ctx{};
@@ -143,24 +116,4 @@ wv::WorldLoadContext wv::World::getLoadContext()
 	ctx.inputSystem     = wv::Application::getSingleton()->getInputSystem();
 	ctx.textureManager  = m_textureManager;
 	return ctx;
-}
-
-void wv::World::createWorldSystem( IWorldSystem* _system )
-{
-	if ( _system == nullptr )
-		return;
-
-	m_systems.push_back( _system );
-
-	_system->initialize();
-
-	for ( auto sector : m_sectors )
-	{
-		for ( auto entity : sector->getEntities() )
-		{
-			
-			for ( auto component : entity->getComponents() )
-				_system->registerComponent( entity, component );
-		}
-	}
 }

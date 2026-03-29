@@ -22,7 +22,6 @@ void wv::WorldSector::unload( WorldLoadContext& _ctx )
 {
 	for ( Entity* entity : m_entities )
 	{
-		entity->unload();
 		WV_FREE( entity );
 	}
 	
@@ -48,29 +47,18 @@ void wv::WorldSector::updateLoading( WorldLoadContext& _ctx )
 		Entity* entity = m_entityDestroyQueue.front(); 
 		m_entityDestroyQueue.pop();
 
-		entity->unload();
 		WV_FREE( entity );
 	}
 
-	for ( auto entity : m_entities )
-		entity->updateLoading( _ctx );
-	
 }
 
 void wv::WorldSector::update( WorldUpdateContext& _ctx )
 {
 	for ( auto entity : m_entities )
 	{
-		entity->updateSystems( _ctx );
 		entity->m_transform.update( nullptr );
 	}
 
-}
-
-void wv::WorldSector::onDebugRender()
-{
-	for ( auto entity : m_entities )
-		entity->onDebugRender();
 }
 
 void wv::WorldSector::addEntity( Entity* _entity )

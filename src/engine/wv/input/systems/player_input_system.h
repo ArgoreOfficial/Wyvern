@@ -1,8 +1,6 @@
 #pragma once
 
-#include <wv/entity/world_system.h>
-#include <wv/entity/entity_component.h>
-
+#include <wv/entity/ecs.h>
 #include <wv/input/action.h>
 
 #include <wv/math/vector2.h>
@@ -15,18 +13,15 @@ namespace wv {
 class PlayerInputComponent;
 class InputSystem;
 
-class PlayerInputSystem : public IWorldSystem
+class PlayerInputSystem : public ISystem
 {
-	WV_REFLECT_TYPE( PlayerInputSystem, IWorldSystem )
+//	WV_REFLECT_TYPE( PlayerInputSystem, IWorldSystem )
 public:
 	enum class SelectionMode
 	{
 		ANY_TRIGGER_ACTION = 0,
 		SPECIFIC_TRIGGER_ACTION
 	};
-
-	PlayerInputSystem();
-	~PlayerInputSystem();
 
 	void setSelectionMode( SelectionMode _mode ) { m_selectionMode = _mode; }
 	void setActionID( ActionID _actionID ) { m_joinActionID = _actionID; }
@@ -37,14 +32,11 @@ public:
 
 	void clearPlayers();
 
-protected:
+	virtual void configure( ArchetypeConfig& _config ) override;
 	virtual void initialize() override;
 	virtual void shutdown() override;
 
-	virtual void registerComponent( Entity* _entity, IEntityComponent* _component ) override;
-	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
-
-	void update( WorldUpdateContext& _ctx ) override;
+	void update() override;
 
 	void updateNextAvailableIndex() {
 		m_nextAvailableIndex = 0;

@@ -1,30 +1,20 @@
 #pragma once
 
-#include <wv/entity/world_system.h>
-#include <wv/entity/entity_component.h>
-#include <wv/entity/entity_component_container.h>
-
+#include <wv/entity/ecs.h>
 #include <wv/math/vector2.h>
-
-#include <vector>
 
 namespace wv {
 
-class CameraComponent;
-class OrbitCameraComponent;
-class PlayerInputComponent;
+struct CameraComponent;
+struct OrbitCameraComponent;
+struct PlayerInputComponent;
 
-class CameraManagerSystem : public IWorldSystem
+class ViewVolume;
+
+class CameraManagerSystem : public ISystem
 {
-	WV_REFLECT_TYPE( CameraManagerSystem, IWorldSystem )
+//	WV_REFLECT_TYPE( CameraManagerSystem, ISystem )
 public:
-	struct EntityData
-	{
-		Entity* entity;
-		PlayerInputComponent* playerInput;
-		CameraComponent* camera;
-	};
-
 	CameraManagerSystem();
 	~CameraManagerSystem();
 
@@ -33,35 +23,20 @@ public:
 	CameraComponent* getActiveCamera() { return m_activeCamera; }
 
 protected:
+	virtual void configure( ArchetypeConfig& _config ) override;
 	virtual void initialize() override;
 	virtual void shutdown  () override;
 
-	virtual void registerComponent  ( Entity* _entity, IEntityComponent* _component ) override;
-	virtual void unregisterComponent( Entity* _entity, IEntityComponent* _component ) override;
-
-	virtual void update( WorldUpdateContext& _ctx ) override;
+	virtual void update() override;
 	
-	std::vector<EntityData>::iterator findEntity( Entity* _entity ) {
-		for ( auto it = m_entityDatas.begin(); it != m_entityDatas.end(); it++ )
-			if ( it->entity == _entity ) return it;
-		return m_entityDatas.end();
-	}
-
-	EntityComponentContainer<OrbitCameraComponent> m_cameraComponents;
-	EntityComponentContainer<PlayerInputComponent> m_playerInputComponents;
-
-	std::vector<EntityData> m_entityDatas;
-
-	bool m_cameraComponentsChanged = false;
-
 	CameraComponent* m_activeCamera = nullptr;
 
 	float m_orbitDistance = 16.0f; 
 	wv::Vector2f m_cameraMove = { 0.0f, 0.0f };
 
 private:
-	WV_REFLECT_MEMBER( m_orbitDistance, "Orbit Distance" )
-	WV_REFLECT_MEMBER( m_cameraMove, "Camera Move" )
+//	WV_REFLECT_MEMBER( m_orbitDistance, "Orbit Distance" )
+//	WV_REFLECT_MEMBER( m_cameraMove, "Camera Move" )
 };
 
 }
