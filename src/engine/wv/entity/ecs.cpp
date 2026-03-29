@@ -55,6 +55,9 @@ void wv::ECSEngine::updateSystems()
 		{
 			for ( auto& archetype : m_archetypes )
 			{
+				if ( archetype->getNumEntities() == 0 )
+					continue; // skip if empty 
+
 				if ( ( archetype->m_bitmask & bitmask ) == bitmask )
 					s->m_archetypes.push_back( archetype );
 			}

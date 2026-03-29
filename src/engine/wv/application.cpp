@@ -75,7 +75,7 @@ public:
 				std::vector<TestComponent>&          testComps  = archetype->getComponents<TestComponent>();
 				std::vector<TestComponentDifferent>& testCompsD = archetype->getComponents<TestComponentDifferent>();
 
-				for ( size_t i = 0; i < testComps.size(); i++ )
+				for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 				{
 					ImGui::Text( "%i . %f, %s", testComps[ i ].value, testCompsD[ i ].foo, testCompsD[ i ].bar ? "true" : "false" );
 				}
@@ -85,6 +85,34 @@ public:
 	}
 };
 
+
+class TestSystem2 : public wv::ISystem
+{
+public:
+	virtual void configure( ArchetypeConfig& _config ) override
+	{
+		_config.addComponentType<TestComponent>();
+	}
+
+	virtual void update() override
+	{
+		if ( ImGui::Begin( "TestSystem2" ) )
+		{
+			for ( auto archetype : getArchetypes() )
+			{
+				ImGui::Text( "Archetype" );
+
+				std::vector<TestComponent>& testComps = archetype->getComponents<TestComponent>();
+				
+				for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+					ImGui::Text( "%i", testComps[ i ].value );
+			}
+		}
+		ImGui::End();
+	}
+};
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +121,7 @@ wv::Application* wv::Application::singleton = nullptr;
 
 static wv::ECSEngine ecsEngine;
 static wv::TestSystem* testSystem;
+static wv::TestSystem2* testSystem2;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -233,7 +262,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->onSceneCreate();
 	
-	testSystem = ecsEngine.addSystem<TestSystem>();
+	testSystem  = ecsEngine.addSystem<TestSystem>();
+	testSystem2 = ecsEngine.addSystem<TestSystem2>();
 	
 	return true;
 }
@@ -324,6 +354,12 @@ bool wv::Application::tick()
 		{
 			ecsEngine.addComponent<TestComponent>( player, { 12 } );
 			ecsEngine.addComponent<TestComponentDifferent>( player, { } );
+			hasAdded = true;
+		}
+
+		if ( Entity* camera = m_world->findFirstEntityByName( "Orbit Camera" ) )
+		{
+			ecsEngine.addComponent<TestComponent>( camera, { 15 } );
 			hasAdded = true;
 		}
 	}

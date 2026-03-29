@@ -119,6 +119,8 @@ struct Archetype
 		return vec->components;
 	}
 
+	size_t getNumEntities() const { return m_entities.size(); }
+
 	void moveComponents( Archetype* _oldArchetype, size_t _index );
 };
 
