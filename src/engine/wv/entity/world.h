@@ -54,6 +54,19 @@ public:
 		return it->second;
 	}
 
+	Entity* findFirstEntityByName( const std::string& _name ) const {
+		for ( auto sector : m_sectors )
+		{
+			for ( auto entity : sector->getEntities() )
+			{
+				if ( entity->getName() == _name )
+					return entity;
+			}
+		}
+
+		return nullptr;
+	}
+
 	void addSector( WorldSector* _sector );
 	void destroySector( UUID _sectorID );
 
