@@ -1,5 +1,11 @@
 #include "ecs.h"
 
+wv::ECSEngine::~ECSEngine()
+{
+	for ( Archetype* archetype : m_archetypes )
+		WV_FREE( archetype );
+}
+
 wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
 {
 	auto bitmask = _config.getBitmask();
@@ -67,17 +73,11 @@ void wv::ECSEngine::updateSystems()
 	}
 }
 
-void wv::ECSEngine::updateEntityArchetype( Entity* _entity )
+void wv::ECSEngine::removeAllComponents( Entity* _entity )
 {
-}
-
-void wv::Archetype::moveComponents( Archetype* _oldArchetype, size_t _index )
-{
-	for ( auto pair : _oldArchetype->m_vectors )
-		m_vectors[ pair.first ]->moveComponent( pair.second, _index );
-
-	_oldArchetype->m_entities.erase( _oldArchetype->m_entities.begin() + _index );
-
-	for ( auto e : _oldArchetype->m_entities )
-		e->archetypeIndex--;
+	for ( auto v : _entity->archetype->m_vectors )
+		v.second->eraseComponent( _entity->archetypeIndex );
+	
+	_entity->archetype = nullptr;
+	_entity->archetypeIndex = 0;
 }

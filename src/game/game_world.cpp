@@ -1,5 +1,10 @@
 #include "game_world.h"
 
+#include <wv/entity/ecs.h>
+#include <wv/entity/entity.h>
+
+#include <wv/rendering/components/mesh_component.h>
+
 #include <wv/input/input_system.h>
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
@@ -23,21 +28,26 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
-	/*
-	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
-
 	{
-		wv::Entity* player = WV_NEW( wv::Entity, "Player" );
-		sector->addEntity( player );
-		player->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
+		wv::Entity* cube = WV_NEW( wv::Entity, "Cube" );
+		cube->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
+		addEntity( cube );
+		
+		wv::MeshImporterGLTF importer = wv::MeshImporterGLTF( m_meshManager, m_materialManager, m_textureManager );
+		importer.load( "meshes/SM_Suzanne.glb", {} );
+
+		wv::MeshComponent meshComponent{};
+		meshComponent.meshAsset = importer.getMesh();
+		meshComponent.materials = importer.getMaterials();
+
+		m_ecsEngine->addComponent<wv::MeshComponent>( cube, meshComponent );
+		//m_ecsEngine->removeComponent<wv::MeshComponent>( cube );
 	}
 
 	{
 		wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
-		sector->addEntity( camera );
+		
+		addEntity( camera );
 	}
-
-	addSector( sector );
-	*/
-
+	
 }

@@ -6,6 +6,7 @@
 namespace wv {
 
 class ECSEngine;
+class Entity;
 
 class ViewVolume;
 class Viewport;
@@ -48,12 +49,18 @@ public:
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
+	void addEntity( Entity* _entity ) {
+		m_entities.push_back( _entity );
+	}
+
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 		
 	Viewport* m_viewport = nullptr;
 	ECSEngine* m_ecsEngine = nullptr;
+
+	std::vector<Entity*> m_entities;
 
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;

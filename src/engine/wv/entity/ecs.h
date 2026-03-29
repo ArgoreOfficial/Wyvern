@@ -56,16 +56,10 @@ public:
 	template<typename Ty>
 	struct ComponentTypeDef { static inline int index = -1; };
 
-	int numComponentTypes = 0;
+	~ECSEngine();
 
 	template<typename Ty>
-	int addComponentType()
-	{
-		if ( ComponentTypeDef<Ty>::index == -1 )
-			ComponentTypeDef<Ty>::index = numComponentTypes++;
-
-		return ComponentTypeDef<Ty>::index;
-	}
+	int registerComponentType();
 
 	template<typename Ty>
 	Ty* addSystem();
@@ -74,11 +68,16 @@ public:
 	Archetype* getExactArchetype( std::bitset<256> _bitmask );
 
 	void updateSystems();
-	void updateEntityArchetype( Entity* _entity );
-
+	
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component );
 
+	template<typename Ty>
+	void removeComponent( Entity* _entity );
+
+	void removeAllComponents( Entity* _entity );
+
+	int numComponentTypes = 0;
 	std::vector<Archetype*> m_archetypes;
 	std::vector<ISystem*> m_systems;
 };
@@ -86,12 +85,14 @@ public:
 struct IComponentVector
 {
 	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) = 0;
+	virtual void eraseComponent( size_t _index ) = 0;
 };
 
 template<typename Ty>
 struct ComponentVector : public IComponentVector
 {
 	std::vector<Ty> components;
+
 	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) override
 	{
 		ComponentVector<Ty>* oldVector = reinterpret_cast<ComponentVector<Ty>*>( _oldVector );
@@ -101,10 +102,23 @@ struct ComponentVector : public IComponentVector
 
 		components.push_back( comp );
 	}
+
+	virtual void eraseComponent( size_t _index ) override
+	{
+		components.erase( components.begin() + _index );
+	}
 };
 
 struct Archetype
 {
+	~Archetype() {
+		for ( auto pair : m_vectors )
+			WV_FREE( pair.second );
+
+		m_vectors.clear();
+		m_entities.clear();
+	}
+
 	std::unordered_map<int, IComponentVector*> m_vectors;
 	std::vector<Entity*> m_entities;
 
@@ -120,8 +134,6 @@ struct Archetype
 	}
 
 	size_t getNumEntities() const { return m_entities.size(); }
-
-	void moveComponents( Archetype* _oldArchetype, size_t _index );
 };
 
 class ISystem
@@ -150,7 +162,7 @@ private:
 template<typename Ty>
 void wv::ArchetypeConfig::addComponentType()
 {
-	int componentTypeIndex = engine->addComponentType<Ty>();
+	int componentTypeIndex = engine->registerComponentType<Ty>();
 
 	for ( size_t i = 0; i < componentTypeIndices.size(); i++ )
 		if ( componentTypeIndices[ i ] == componentTypeIndex )
@@ -158,6 +170,15 @@ void wv::ArchetypeConfig::addComponentType()
 
 	componentTypeIndices.push_back( componentTypeIndex );
 	componentContainers.push_back( (IComponentVector*)WV_NEW( ComponentVector<Ty> ) );
+}
+
+template<typename Ty>
+inline int ECSEngine::registerComponentType()
+{
+	if ( ComponentTypeDef<Ty>::index == -1 )
+		ComponentTypeDef<Ty>::index = numComponentTypes++;
+
+	return ComponentTypeDef<Ty>::index;
 }
 
 template<typename Ty>
@@ -213,14 +234,72 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 		newArchetype = registerArchetype( config );
 	}
 
+	// move other components over to the new archetype
 	if ( oldArchetype )
-		newArchetype->moveComponents( oldArchetype, oldArchetypeIndex );
+	{
+		for ( auto pair : oldArchetype->m_vectors )
+			newArchetype->m_vectors[ pair.first ]->moveComponent( pair.second, oldArchetypeIndex );
+
+		oldArchetype->m_entities.erase( oldArchetype->m_entities.begin() + oldArchetypeIndex );
+
+		for ( auto e : oldArchetype->m_entities )
+			e->archetypeIndex--;
+	}
 
 	newArchetype->getComponents<Ty>().push_back( _component );
 	newArchetype->m_entities.push_back( _entity );
 
 	_entity->archetype = newArchetype;
 	_entity->archetypeIndex = newArchetype->m_entities.size() - 1;
+}
+
+template<typename Ty>
+inline void ECSEngine::removeComponent( Entity* _entity )
+{
+	WV_ASSERT_MSG( _entity != nullptr, "Entity cannot be nullptr" );
+	int index = ComponentTypeDef<Ty>::index;
+	WV_ASSERT( index >= 0 );
+
+	Archetype* oldArchetype = _entity->archetype;
+	int oldArchetypeIndex   = _entity->archetypeIndex;
+
+	if ( !oldArchetype->m_bitmask[ index ] )
+	{
+		WV_LOG_ERROR( "Entity does not have component\n" );
+		return;
+	}
+
+	// create new bitmask for this archetype
+	std::bitset<256> bitmask = oldArchetype->m_bitmask;
+	bitmask[ index ] = false;
+
+	if ( bitmask.any() )
+	{
+		Archetype* newArchetype = getExactArchetype( bitmask ); // find it
+
+		// move other components to the new archetype
+		for ( auto& [compTypeIndex, oldCompVec] : oldArchetype->m_vectors )
+		{
+			if ( compTypeIndex == index )
+				continue;
+
+			newArchetype->m_vectors[ compTypeIndex ]->moveComponent( oldCompVec, oldArchetypeIndex );
+		}
+
+		_entity->archetype = newArchetype;
+		_entity->archetypeIndex = newArchetype->m_entities.size() - 1;
+	}
+	else
+	{
+		_entity->archetype = nullptr;
+		_entity->archetypeIndex = 0;
+	}
+	
+	oldArchetype->m_vectors[ index ]->eraseComponent( oldArchetypeIndex );
+	oldArchetype->m_entities.erase( oldArchetype->m_entities.begin() + oldArchetypeIndex );
+
+	for ( auto e : oldArchetype->m_entities )
+		e->archetypeIndex--;
 }
 
 }

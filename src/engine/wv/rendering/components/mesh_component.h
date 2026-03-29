@@ -15,14 +15,12 @@ class TextureAsset;
 
 struct MeshComponent
 {
-	MeshImportOptions importOptions{};
+	std::filesystem::path path;
 
-	std::filesystem::path m_path;
-
-	Ref<MeshAsset> m_meshAsset;
-	std::vector<MaterialInstance> m_materials;
+	Ref<MeshAsset> meshAsset;
+	std::vector<MaterialInstance> materials;
 	
-	Ref<TextureAsset> m_texture;
+	Ref<TextureAsset> texture;
 
 //	WV_REFLECT_MEMBER( m_path )
 //	WV_REFLECT_MEMBER( m_meshAsset )
