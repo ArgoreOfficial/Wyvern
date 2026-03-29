@@ -10,15 +10,10 @@ namespace wv {
 
 class World;
 
-struct WorldLoadContext;
-struct WorldUpdateContext;
-
 struct Archetype;
 
 class Entity final : wv::IReflectedType
 {
-	friend class WorldSector;
-
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	Entity( const std::string& _debugName = "" ) : 
@@ -35,7 +30,6 @@ public:
 
 	UUID getID() const { return m_ID; }
 	std::string getName() { return m_debugName; }
-	WorldSector* getParentSector() const { return m_parentSector; }
 
 	Transformf& getTransform() { return m_transform; }
 
@@ -46,10 +40,6 @@ public:
 	size_t archetypeIndex = 0;
 
 private:
-	// The sector that this entity originates from. 
-	// This may be different from the one it's currently in
-	WorldSector* m_parentSector = nullptr;
-
 	UUID m_ID = 0;
 	std::string m_debugName = "";
 

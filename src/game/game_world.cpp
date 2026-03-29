@@ -1,6 +1,5 @@
 #include "game_world.h"
 
-#include <wv/entity/world_sector.h>
 #include <wv/input/input_system.h>
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
@@ -24,7 +23,7 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
-	
+	/*
 	wv::WorldSector* sector = WV_NEW( wv::WorldSector );
 
 	{
@@ -39,5 +38,6 @@ void GameWorld::onSceneCreate()
 	}
 
 	addSector( sector );
+	*/
 
 }

@@ -33,95 +33,15 @@
 
 #include <tracy/Tracy.hpp>
 
-#include <bitset>
-#include <wv/entity/ecs.h>
-
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui/imgui.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-namespace wv {
-
-struct TestComponent
-{
-	int value;
-};
-
-struct TestComponentDifferent
-{
-	float foo;
-	bool bar;
-};
-
-class TestSystem : public wv::ISystem
-{
-public:
-	virtual void configure( ArchetypeConfig& _config ) override
-	{
-		_config.addComponentType<TestComponent>();
-		_config.addComponentType<TestComponentDifferent>();
-	}
-
-	virtual void update() override
-	{
-		if ( ImGui::Begin( "TestSystem" ) )
-		{
-			for ( auto archetype : getArchetypes() )
-			{
-				ImGui::Text( "Archetype" );
-				
-				std::vector<TestComponent>&          testComps  = archetype->getComponents<TestComponent>();
-				std::vector<TestComponentDifferent>& testCompsD = archetype->getComponents<TestComponentDifferent>();
-
-				for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
-				{
-					ImGui::Text( "%i . %f, %s", testComps[ i ].value, testCompsD[ i ].foo, testCompsD[ i ].bar ? "true" : "false" );
-				}
-			}
-		}
-		ImGui::End();
-	}
-};
-
-
-class TestSystem2 : public wv::ISystem
-{
-public:
-	virtual void configure( ArchetypeConfig& _config ) override
-	{
-		_config.addComponentType<TestComponent>();
-	}
-
-	virtual void update() override
-	{
-		if ( ImGui::Begin( "TestSystem2" ) )
-		{
-			for ( auto archetype : getArchetypes() )
-			{
-				ImGui::Text( "Archetype" );
-
-				std::vector<TestComponent>& testComps = archetype->getComponents<TestComponent>();
-				
-				for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
-					ImGui::Text( "%i", testComps[ i ].value );
-			}
-		}
-		ImGui::End();
-	}
-};
-
-
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 wv::Application* wv::Application::singleton = nullptr;
-
-static wv::ECSEngine ecsEngine;
-static wv::TestSystem* testSystem;
-static wv::TestSystem2* testSystem2;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -260,9 +180,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->onSceneCreate();
 	
-	testSystem  = ecsEngine.addSystem<TestSystem>();
-	testSystem2 = ecsEngine.addSystem<TestSystem2>();
-	
 	return true;
 }
 
@@ -274,7 +191,6 @@ void wv::Application::shutdown()
 
 	if ( m_world )
 	{
-		m_world->shutdown();
 		WV_FREE( m_world );
 	}
 	
@@ -345,22 +261,6 @@ bool wv::Application::tick()
 
 	m_audioSystem->updateRecordingDevices();
 
-
-	if ( !hasAdded )
-	{
-		if ( Entity* player = m_world->findFirstEntityByName( "Player" ) )
-		{
-			ecsEngine.addComponent<TestComponent>( player, { 12 } );
-			ecsEngine.addComponent<TestComponentDifferent>( player, { } );
-			hasAdded = true;
-		}
-
-		if ( Entity* camera = m_world->findFirstEntityByName( "Orbit Camera" ) )
-		{
-			ecsEngine.addComponent<TestComponent>( camera, { 15 } );
-			hasAdded = true;
-		}
-	}
 	update();
 	render();
 
@@ -385,9 +285,6 @@ void wv::Application::update()
 
 	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
 
-	m_world->updateLoading();
-	m_world->updateSectors( m_deltatime );
-	
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{
@@ -425,16 +322,13 @@ void wv::Application::render()
 
 #ifdef WV_DEBUG
 	if ( shouldRender )
-	{
-		
+	{		
 		m_renderer->beginDebugRender();
 
 		// Don't render debug if the window isn't focused
 		// This should be togglable
 		//if( m_displayDriver->isFocused() )
 		//	m_world->onDebugRender();
-
-		ecsEngine.updateSystems();
 
 		m_renderer->endDebugRender();
 	}
