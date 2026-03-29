@@ -330,6 +330,24 @@ void wv::Application::render()
 		//if( m_displayDriver->isFocused() )
 		//	m_world->onDebugRender();
 
+
+		if ( ImGui::Begin( "ECS Debug Info" ) )
+		{
+			for ( size_t i = 0; i < m_world->m_ecsEngine->m_archetypes.size(); i++ )
+			{
+				Archetype* archetype = m_world->m_ecsEngine->m_archetypes[ i ];
+			
+				std::string sepTitle = std::format( "Archetype {}", i );
+				ImGui::SeparatorText( sepTitle.c_str() );
+				ImGui::Text( "Entities: %zu", archetype->getNumEntities() );
+
+				for ( auto vec : archetype->m_vectors )
+					ImGui::Text( "  Component %i", vec.first );
+			}
+		}
+		ImGui::End();
+
+
 		m_renderer->endDebugRender();
 	}
 #endif
