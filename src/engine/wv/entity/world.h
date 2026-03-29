@@ -5,6 +5,7 @@
 
 namespace wv {
 
+class ECSEngine;
 
 class ViewVolume;
 class Viewport;
@@ -52,6 +53,7 @@ protected:
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 		
 	Viewport* m_viewport = nullptr;
+	ECSEngine* m_ecsEngine = nullptr;
 
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
