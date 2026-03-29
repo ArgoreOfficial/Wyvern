@@ -33,13 +33,257 @@
 
 #include <tracy/Tracy.hpp>
 
+#include <bitset>
+
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui/imgui.h>
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+namespace wv {
+
+class Archetype;
+class ECSEngine;
+class ISystem;
+struct IComponentVector;
+
+struct ArchetypeConfig
+{
+	ECSEngine* engine;
+	std::vector<int> componentTypeIndices{};
+	std::vector<IComponentVector*> componentContainers{};
+
+	template<typename Ty>
+	void addComponentType();
+
+	std::bitset<256> getBitmask() {
+		std::bitset<256> bitmask{};
+		for ( int i : componentTypeIndices )
+		{
+			if ( i < 0 )
+				continue;
+			bitmask[ i ] = true;
+		}
+		return bitmask;
+	}
+
+private:
+	friend class ECSEngine;
+
+	void freeContainers() {
+		for ( size_t i = 0; i < componentContainers.size(); i++ )
+			WV_FREE( componentContainers[ i ] );
+	}
+
+};
+
+class ECSEngine
+{
+public:
+	template<typename Ty>
+	struct ComponentTypeDef { static inline int index = -1; };
+
+	struct ArchetypeTypeDef
+	{
+		std::bitset<256> bitmask;
+		Archetype* archetype;
+	};
+
+	int numComponentTypes = 0;
+
+	template<typename Ty>
+	int addComponentType()
+	{
+		if ( ComponentTypeDef<Ty>::index == -1 )
+			ComponentTypeDef<Ty>::index = numComponentTypes++;
+
+		return ComponentTypeDef<Ty>::index;
+	}
+
+	template<typename Ty>
+	Ty* addSystem();
+
+	void registerArchetype( ArchetypeConfig& _config );
+
+	void updateSystems();
+
+	std::vector<ArchetypeTypeDef> m_archetypes;
+	std::vector<ISystem*> m_systems;
+};
+
+struct IComponentVector { }; // helper
+template<typename Ty>
+struct ComponentVector
+{
+	std::vector<Ty> components;
+	std::vector<Entity*> entities;
+};
+
+template<typename Ty>
+void ArchetypeConfig::addComponentType()
+{
+	int componentTypeIndex = engine->addComponentType<Ty>();
+
+	for ( size_t i = 0; i < componentTypeIndices.size(); i++ )
+		if ( componentTypeIndices[ i ] == componentTypeIndex )
+			return;
+	
+	componentTypeIndices.push_back( componentTypeIndex );
+	componentContainers.push_back( (IComponentVector*)WV_NEW( ComponentVector<Ty> ) );
+}
+
+struct Archetype
+{
+	std::unordered_map<int, IComponentVector*> m_vectors;
+
+	template<typename Ty>
+	std::vector<Ty>& getComponents() {
+		int componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
+		WV_ASSERT_MSG( componentTypeIndex >= 0, "Component type not registered" );
+		
+		ComponentVector<Ty>* vec = reinterpret_cast<ComponentVector<Ty>*>( m_vectors.at( componentTypeIndex ) );
+		return vec->components;
+	}
+};
+
+class ISystem
+{
+public:
+	std::vector<Archetype*>& getArchetypes() {
+		return m_archetypes;
+	}
+
+	std::bitset<256> getArchetypeBitmask() const { return m_archetypeBitmask; }
+
+	virtual void configure( ArchetypeConfig& _config ) = 0;
+	virtual void update() = 0;
+
+private:
+	friend class ECSEngine;
+
+	std::bitset<256> m_archetypeBitmask{};
+	std::vector<Archetype*> m_archetypes;
+};
+
+template<typename Ty>
+Ty* ECSEngine::addSystem() {
+	static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
+
+	ISystem* s = WV_NEW( Ty );
+	ArchetypeConfig config{};
+	config.engine = this;
+	s->configure( config );
+
+	s->m_archetypeBitmask = config.getBitmask();
+	registerArchetype( config );
+
+	m_systems.push_back( s );
+
+	return (Ty*)s;
+}
+
+void ECSEngine::registerArchetype( ArchetypeConfig& _config )
+{
+	auto bitmask = _config.getBitmask();
+	if ( bitmask.none() )
+		return; // empty config
+
+	for ( size_t i = 0; i < m_archetypes.size(); i++ )
+	{
+		if ( m_archetypes[ i ].bitmask != bitmask )
+			continue;
+
+		_config.freeContainers();
+		return; // exact match found, archetype already exists
+	}
+
+
+	// create new archetype
+
+	Archetype* archetype = WV_NEW( Archetype );
+
+	for ( size_t i = 0; i < _config.componentTypeIndices.size(); i++ )
+	{
+		// give ownership of the container 
+		archetype->m_vectors.emplace(
+			_config.componentTypeIndices[ i ],
+			_config.componentContainers[ i ]
+		);
+	}
+	
+	m_archetypes.emplace_back( bitmask, archetype );
+}
+
+void ECSEngine::updateSystems()
+{
+	for ( ISystem* s : m_systems )
+	{
+		s->m_archetypes.clear();
+
+		std::bitset<256> bitmask = s->getArchetypeBitmask();
+		if ( bitmask.any() )
+		{
+			for ( auto& archetype : m_archetypes )
+			{
+				if ( ( archetype.bitmask & bitmask ).any() )
+					s->m_archetypes.push_back( archetype.archetype );
+			}
+		}
+
+		s->update();
+	}
+}
+
+struct TestComponent
+{
+	int value;
+};
+
+struct TestComponentDifferent
+{
+	float foo;
+	bool bar;
+};
+
+class TestSystem : public wv::ISystem
+{
+public:
+	virtual void configure( ArchetypeConfig& _config ) override
+	{
+		_config.addComponentType<TestComponent>();
+		_config.addComponentType<TestComponentDifferent>();
+	}
+
+	virtual void update() override
+	{
+		if ( ImGui::Begin( "TestSystem" ) )
+		{
+			for ( auto archetype : getArchetypes() )
+			{
+				ImGui::Text( "Archetype" );
+				
+				std::vector<TestComponent>&          testComps  = archetype->getComponents<TestComponent>();
+				std::vector<TestComponentDifferent>& testCompsD = archetype->getComponents<TestComponentDifferent>();
+
+				for ( size_t i = 0; i < testComps.size(); i++ )
+				{
+					ImGui::Text( "%i . %f, %s", testComps[ i ].value, testCompsD[ i ].foo, testCompsD[ i ].bar ? "true" : "false" );
+				}
+			}
+		}
+		ImGui::End();
+	}
+};
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 wv::Application* wv::Application::singleton = nullptr;
+
+static wv::ECSEngine ecsEngine;
+static wv::TestSystem* testSystem;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -179,6 +423,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->createWorldSystem<EditorInterfaceSystem>();
 
 	m_world->onSceneCreate();
+
+	testSystem = ecsEngine.addSystem<TestSystem>();
+
+
 
 	return true;
 }
@@ -334,6 +582,8 @@ void wv::Application::render()
 		// This should be togglable
 		if( m_displayDriver->isFocused() )
 			m_world->onDebugRender();
+
+		ecsEngine.updateSystems();
 
 		m_renderer->endDebugRender();
 	}
