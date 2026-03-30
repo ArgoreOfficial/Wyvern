@@ -25,10 +25,6 @@
 #include <wv/systems/camera_manager_system.h>
 #include <wv/systems/orbit_controller_system.h>
 
-#include <wv/components/camera_component.h>
-#include <wv/components/mesh_component.h>
-#include <wv/components/orbit_controller_component.h>
-
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
 #include <wv/platform/platform.h>
@@ -72,14 +68,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 {
 	m_graphicsDriverName = "vulkan"; // TODO
 	m_world = _world;
-
-	// IEngineSystem ?
-	// might help with cleanup and such
-	// systemManager->createSystem<DisplayDriver>( Platform::createDisplayDriver() );
-	// systemManager->createSystem<Renderer>( Platform::createRenderer() );
-	// systemManager->createSystem<FileSystem>( Platform::createFileSystem( "data" ) );
-	// systemManager->createSystem<InputSystem>();
-	// systemManager->initialize();
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
@@ -248,7 +236,6 @@ void wv::Application::shutdown()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-static bool hasAdded = false;
 
 bool wv::Application::tick()
 {
@@ -342,7 +329,6 @@ void wv::Application::render()
 		//if( m_displayDriver->isFocused() )
 		//	m_world->onDebugRender();
 
-
 		if ( ImGui::Begin( "ECS Debug Info" ) )
 		{
 			for ( size_t i = 0; i < m_world->m_ecsEngine->m_archetypes.size(); i++ )
@@ -358,7 +344,6 @@ void wv::Application::render()
 			}
 		}
 		ImGui::End();
-
 
 		m_renderer->endDebugRender();
 	}
