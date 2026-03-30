@@ -4,8 +4,7 @@
 #include <wv/entity/entity.h>
 
 #include <wv/components/mesh_component.h>
-#include <wv/camera/components/camera_component.h>
-#include <wv/camera/view_volume.h>
+#include <wv/components/camera_component.h>
 
 #include <wv/input/input_system.h>
 
@@ -52,7 +51,7 @@ void GameWorld::onSceneCreate()
 		
 		wv::CameraComponent cameraComponent{};
 		cameraComponent.active = true;
-		cameraComponent.viewVolume = WV_NEW( wv::ViewVolume, wv::ViewVolume::kPerspective, 900, 600 );
+		cameraComponent.viewVolume = wv::ViewVolume( wv::ViewVolume::kPerspective, 900, 600 );
 		m_ecsEngine->addComponent<wv::CameraComponent>( camera, cameraComponent );
 	}
 	

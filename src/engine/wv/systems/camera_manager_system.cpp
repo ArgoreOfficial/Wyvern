@@ -2,9 +2,7 @@
 
 #include <wv/application.h>
 #include <wv/camera/view_volume.h>
-#include <wv/camera/components/camera_component.h>
-
-#include <wv/input/components/player_input_component.h>
+#include <wv/components/camera_component.h>
 
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
@@ -61,16 +59,13 @@ void wv::CameraManagerSystem::update()
 
 void wv::CameraManagerSystem::updateCamera( Entity* _entity, CameraComponent& _component )
 {
-	if ( !_component.viewVolume )
-		return;
-
 	World* world = wv::getApp()->getWorld();
 
-	_component.viewVolume->setViewDimensions( world->getViewport()->getSize());
+	_component.viewVolume.setViewDimensions( world->getViewport()->getSize());
 
-	_component.viewVolume->recalculateViewMatrix( &_entity->getTransform(), false );
-	_component.viewVolume->recalculateProjMatrix( true );
+	_component.viewVolume.recalculateViewMatrix( &_entity->getTransform(), false );
+	_component.viewVolume.recalculateProjMatrix( true );
 
-	world->getViewport()->setViewVolume( _component.viewVolume );
+	world->getViewport()->setViewVolume( &_component.viewVolume );
 	
 }

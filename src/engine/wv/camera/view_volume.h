@@ -27,6 +27,7 @@ namespace wv
 			kOrthographic
 		};
 
+		ViewVolume() = default;
 		ViewVolume( CameraType _type, size_t _width, size_t _height, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
 		inline void recalculateViewMatrix( Transformf* _parent, bool _cacheViewProj = true ) 

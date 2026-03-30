@@ -22,7 +22,7 @@
 #include <wv/reflection/reflection.h>
 
 #include <wv/systems/mesh_render_system.h>
-#include <wv/camera/systems/camera_manager_system.h>
+#include <wv/systems/camera_manager_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
