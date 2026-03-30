@@ -292,6 +292,12 @@ void wv::Application::update()
 
 	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
 
+	// TODO: proper hierarchy
+	for ( Entity* entity : m_world->m_entities )
+		entity->getTransform().update( nullptr );
+	
+	m_world->m_ecsEngine->updateSystems();
+
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{
