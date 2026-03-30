@@ -5,6 +5,7 @@
 
 #include <wv/components/mesh_component.h>
 #include <wv/components/camera_component.h>
+#include <wv/components/orbit_controller_component.h>
 
 #include <wv/input/input_system.h>
 
@@ -47,9 +48,8 @@ void GameWorld::onSceneCreate()
 		wv::Entity* camera = createEntity( "Orbit Camera" );
 		
 		wv::CameraComponent cameraComponent{};
-		cameraComponent.active = true;
-		cameraComponent.viewVolume = wv::ViewVolume( wv::ViewVolume::kPerspective, 900, 600 );
-		m_ecsEngine->addComponent<wv::CameraComponent>( camera, cameraComponent );
+		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { { wv::ViewVolume::kPerspective, 900, 600 }, true } );
+		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, {} );
 	}
 	
 }

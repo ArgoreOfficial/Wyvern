@@ -23,6 +23,11 @@
 
 #include <wv/systems/mesh_render_system.h>
 #include <wv/systems/camera_manager_system.h>
+#include <wv/systems/orbit_controller_system.h>
+
+#include <wv/components/camera_component.h>
+#include <wv/components/mesh_component.h>
+#include <wv/components/orbit_controller_component.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -180,12 +185,12 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
-
 	m_world->onSetupInput( m_inputSystem );
 
 	// systems must be set up first
 	m_world->addSystem<MeshRenderSystem>();
 	m_world->addSystem<CameraManagerSystem>();
+	m_world->addSystem<OrbitControllerSystem>();
 
 	m_world->onSceneCreate();
 
