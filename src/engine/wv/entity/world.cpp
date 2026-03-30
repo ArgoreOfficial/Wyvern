@@ -8,12 +8,21 @@
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
 
+#include <wv/components/camera_component.h>
+#include <wv/components/mesh_component.h>
+#include <wv/components/orbit_controller_component.h>
+
 wv::World::World()
 { 
 	m_meshManager     = WV_NEW( MeshManager );
 	m_materialManager = WV_NEW( MaterialManager );
 	m_textureManager  = WV_NEW( TextureManager );
 	m_ecsEngine       = WV_NEW( ECSEngine );
+
+	// register order determines internal ID
+	m_ecsEngine->registerComponentType<CameraComponent>();
+	m_ecsEngine->registerComponentType<MeshComponent>();
+	m_ecsEngine->registerComponentType<OrbitControllerComponent>();
 }
 
 wv::World::~World()
