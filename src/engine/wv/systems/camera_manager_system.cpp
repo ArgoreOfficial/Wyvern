@@ -60,11 +60,11 @@ void wv::CameraManagerSystem::updateCamera( Entity* _entity, CameraComponent& _c
 {
 	World* world = wv::getApp()->getWorld();
 
-	_component.viewVolume.setViewDimensions( world->getViewport()->getSize());
+	_component.viewDimensions = world->getViewport()->size;
 
-	_component.viewVolume.recalculateViewMatrix( &_entity->getTransform(), false );
-	_component.viewVolume.recalculateProjMatrix( true );
+	_component.recalculateViewMatrix( &_entity->getTransform(), false );
+	_component.recalculateProjMatrix( true );
 
-	world->getViewport()->setViewVolume( &_component.viewVolume );
+	world->getViewport()->viewProj = _component.viewProjMatrix;
 	
 }

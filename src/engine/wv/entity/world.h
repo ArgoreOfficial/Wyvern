@@ -7,14 +7,13 @@
 namespace wv {
 
 class Entity;
-
-class ViewVolume;
-class Viewport;
 class InputSystem;
 
 class MeshManager;
 class MaterialManager;
 class TextureManager;
+
+struct Viewport;
 
 struct WorldLoadContext
 {

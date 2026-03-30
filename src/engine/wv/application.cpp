@@ -297,14 +297,13 @@ void wv::Application::update()
 	if ( windowSize.x == 0 ) windowSize.x = 1;
 	if ( windowSize.y == 0 ) windowSize.y = 1;
 
-	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
+	m_world->getViewport()->size = { windowSize.x, windowSize.y };
 
-	// TODO: proper hierarchy
+	m_world->m_ecsEngine->updateSystems();
+
 	for ( Entity* entity : m_world->m_entities )
 		entity->getTransform().update( nullptr );
 	
-	m_world->m_ecsEngine->updateSystems();
-
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{
@@ -313,13 +312,6 @@ void wv::Application::update()
 	//	m_fixed_runtime += m_fixed_delta_time;
 	//	m_accumulator -= m_fixed_delta_time;
 	//}
-
-	//m_app->preUpdate();
-
-	//m_app->onUpdate( m_deltatime );
-	//m_sprite_renderer->update();
-
-	//m_app->postUpdate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <wv/math/vector3.h>
-#include <wv/camera/view_volume.h>
 #include <wv/debug/error.h>
+
+#include <wv/math/vector2.h>
+#include <wv/math/vector3.h>
 
 #include <wv/resource_id.h>
 #include <wv/types.h>

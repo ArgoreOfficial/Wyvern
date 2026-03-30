@@ -48,7 +48,7 @@ void GameWorld::onSceneCreate()
 		wv::Entity* camera = createEntity( "Orbit Camera" );
 		
 		wv::CameraComponent cameraComponent{};
-		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { { wv::ViewVolume::kPerspective, 900, 600 }, true } );
+		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = true } );
 		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, {} );
 	}
 	

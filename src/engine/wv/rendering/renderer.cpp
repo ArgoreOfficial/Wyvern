@@ -401,11 +401,8 @@ void wv::Renderer::render( World* _world )
 
 	if ( Viewport* worldViewport = _world->getViewport() )
 	{
-		if ( ViewVolume* viewVolume = worldViewport->getViewVolume() )
-		{
-			m_drawExtent.width  = viewVolume->getViewDimensions().x;
-			m_drawExtent.height = viewVolume->getViewDimensions().y;
-		}
+		m_drawExtent.width  = worldViewport->size.x;
+		m_drawExtent.height = worldViewport->size.y;
 	}
 	
 	{
@@ -928,10 +925,6 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 	if ( !worldViewport )
 		return;
 
-	ViewVolume* viewVolume = worldViewport->getViewVolume();
-	if ( !viewVolume )
-		return;
-
 	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
@@ -954,8 +947,6 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		vkCmdSetPrimitiveTopology( _cmd, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
 	}
 
-	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
-			
 	auto& renderMeshes = worldRenderSystem->getRenderMeshes();
 	auto& matrices     = worldRenderSystem->getMatrices();
 
@@ -979,7 +970,7 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 		GPUDrawPushConstants pc{};
-		pc.viewProj       = viewProj;
+		pc.viewProj       = worldViewport->viewProj;
 		pc.model          = matrices[ i ];
 		pc.positionBuffer = mesh.positionBufferAddress;
 
@@ -1061,10 +1052,6 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	if ( !worldViewport )
 		return;
 
-	ViewVolume* viewVolume = worldViewport->getViewVolume();
-	if ( !viewVolume )
-		return;
-
 	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
@@ -1087,8 +1074,6 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		vkCmdSetPrimitiveTopology( _cmd, VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
 	}
 
-	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
-
 	MaterialInstance debugMaterial = _world->getMaterialManager()->get( "Debug" );
 	debugMaterial.setValue( "color", wv::Vector4f{ 1.f, 0.f, 1.f, 1.f } );
 
@@ -1098,7 +1083,7 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 	GPUDrawPushConstants pc{};
-	pc.viewProj = viewProj;
+	pc.viewProj = worldViewport->viewProj;
 	pc.model = wv::Matrix4x4f::identity( 1.0 );
 	pc.positionBuffer = debugBuffer.deviceAddress;
 
