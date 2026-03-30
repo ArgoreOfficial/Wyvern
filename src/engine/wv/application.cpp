@@ -14,6 +14,7 @@
 #include <wv/event/event_manager.h>
 
 #include <wv/rendering/renderer.h>
+#include <wv/rendering/systems/render_world_system.h>
 #include <wv/rendering/material.h>
 
 #include <wv/rendering/viewport.h>
@@ -176,10 +177,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
+
 	m_world->onSetupInput( m_inputSystem );
 
+	// systems must be set up first
+	m_world->addSystem<RenderWorldSystem>();
+
 	m_world->onSceneCreate();
-	
+
 	return true;
 }
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
+#include <wv/entity/ecs.h>
 #include <wv/input/input_system.h>
+#include <wv/reflection/reflection.h>
 
 namespace wv {
 
-class ECSEngine;
 class Entity;
 
 class ViewVolume;
@@ -51,6 +51,26 @@ public:
 
 	void addEntity( Entity* _entity ) {
 		m_entities.push_back( _entity );
+	}
+
+	template<typename Ty>
+	void addComponent( Entity* _entity, const Ty& _component ) {
+		m_ecsEngine->addComponent<Ty>( _entity, _component );
+	}
+
+	template<typename Ty>
+	void removeComponent( Entity* _entity ) {
+		m_ecsEngine->removeComponent<Ty>( _entity );
+	}
+
+	template<typename Ty>
+	Ty* addSystem() {
+		return m_ecsEngine->addSystem<Ty>();
+	}
+
+	template<typename Ty>
+	Ty* getSystem() {
+		return m_ecsEngine->getSystem<Ty>();
 	}
 
 protected:

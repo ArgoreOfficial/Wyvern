@@ -55,6 +55,9 @@ class ECSEngine
 public:
 	template<typename Ty>
 	struct ComponentTypeDef { static inline int index = -1; };
+	
+	template<typename Ty>
+	struct SystemTypeDef { static inline int index = -1; };
 
 	~ECSEngine();
 
@@ -63,6 +66,17 @@ public:
 
 	template<typename Ty>
 	Ty* addSystem();
+
+	template<typename Ty>
+	Ty* getSystem() {
+		static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
+
+		int index = SystemTypeDef<Ty>::index;
+		if ( !m_systemIndexMap.contains( index ) )
+			return nullptr;
+
+		return (Ty*)m_systemIndexMap.at( index );
+	}
 
 	Archetype* registerArchetype( ArchetypeConfig& _config );
 	Archetype* getExactArchetype( std::bitset<256> _bitmask );
@@ -78,8 +92,11 @@ public:
 	void removeAllComponents( Entity* _entity );
 
 	int numComponentTypes = 0;
+	int numSystemTypes = 0;
+
 	std::vector<Archetype*> m_archetypes;
 	std::vector<ISystem*> m_systems;
+	std::unordered_map<int, ISystem*> m_systemIndexMap;
 };
 
 struct IComponentVector
@@ -185,6 +202,9 @@ template<typename Ty>
 Ty* ECSEngine::addSystem() {
 	static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
 
+	if ( SystemTypeDef<Ty>::index == -1 )
+		SystemTypeDef<Ty>::index = numSystemTypes++;
+
 	ISystem* s = WV_NEW_NAMED( Ty, "Ty : ISystem" );
 	ArchetypeConfig config{};
 	config.engine = this;
@@ -194,7 +214,7 @@ Ty* ECSEngine::addSystem() {
 	registerArchetype( config );
 
 	m_systems.push_back( s );
-
+	m_systemIndexMap.emplace( SystemTypeDef<Ty>::index, s );
 	return (Ty*)s;
 }
 

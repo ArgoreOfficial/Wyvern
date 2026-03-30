@@ -8,16 +8,12 @@
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
 
-#include <wv/rendering/components/mesh_component.h>
-
 wv::World::World()
 { 
 	m_meshManager     = WV_NEW( MeshManager );
 	m_materialManager = WV_NEW( MaterialManager );
 	m_textureManager  = WV_NEW( TextureManager );
 	m_ecsEngine       = WV_NEW( ECSEngine );
-
-	m_ecsEngine->registerComponentType<MeshComponent>();
 }
 
 wv::World::~World()

@@ -37,11 +37,10 @@ void GameWorld::onSceneCreate()
 		importer.load( "meshes/SM_Suzanne.glb", {} );
 
 		wv::MeshComponent meshComponent{};
-		meshComponent.meshAsset = importer.getMesh();
 		meshComponent.materials = importer.getMaterials();
+		meshComponent.meshAsset = importer.getMesh();
 
 		m_ecsEngine->addComponent<wv::MeshComponent>( cube, meshComponent );
-		//m_ecsEngine->removeComponent<wv::MeshComponent>( cube );
 	}
 
 	{

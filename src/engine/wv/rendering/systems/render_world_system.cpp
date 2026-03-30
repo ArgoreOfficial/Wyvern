@@ -14,21 +14,49 @@ void wv::RenderWorldSystem::initialize()
 
 void wv::RenderWorldSystem::shutdown()
 {
-	m_renderBucketMap.clear();
+	m_renderMeshes.clear();
+	m_matrices.clear();
 }
 
 void wv::RenderWorldSystem::update()
 {
-	/*
-	for ( auto& pair : m_renderBucketMap )
-	{
-		SectorRenderBucket& bucket = pair.second;
+	m_renderMeshes.clear();
+	m_matrices.clear();
 
-		for ( size_t i = 0; i < bucket.matrices.size(); i++ )
+	for ( Archetype* archetype : getArchetypes() )
+	{
+		auto& meshes = archetype->getComponents<MeshComponent>();
+
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
-			auto matrix = bucket.renderMeshes[ i ].entity->getTransform().getMatrix();
-			bucket.matrices[ i ] = matrix;
+			wv::MeshComponent& meshComponent = meshes[ i ];
+
+			const auto  meshAsset  = meshComponent.meshAsset;
+			const auto& primitives = meshAsset->getPrimitives();
+
+			for ( size_t i = 0; i < primitives.size(); i++ )
+			{
+				auto& primitive = primitives[ i ];
+				RenderMesh mesh{};
+				mesh.mesh = meshAsset->getGPUAllocation();
+
+				const MaterialInstance& material = meshComponent.materials[ primitive.material ];
+				mesh.pipeline = material.material->getPipeline();
+				mesh.materialData = {
+					material.buffer.data(),
+					material.buffer.size()
+				};
+
+				mesh.indexCount = primitive.indexCount;
+				mesh.firstIndex = primitive.firstIndex;
+				mesh.vertexOffset = primitive.vertexOffset;
+
+				m_renderMeshes.push_back( mesh );
+				
+				// TODO: big buffer of matrices that updates 
+				// all at once instead of PushConstants
+				m_matrices.push_back( archetype->m_entities[ i ]->getTransform().getMatrix() );
+			}
 		}
 	}
-	*/
 }

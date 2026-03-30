@@ -919,9 +919,8 @@ void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
 
 void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 { 
-	/*
 	ZoneScoped;
-	RenderWorldSystem* worldRenderSystem = _world->getWorldSystem<RenderWorldSystem>();
+	RenderWorldSystem* worldRenderSystem = _world->getSystem<RenderWorldSystem>();
 	if ( !worldRenderSystem )
 		return;
 
@@ -957,62 +956,60 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 
 	Matrix4x4f viewProj = viewVolume->getViewProjMatrix();
 			
-	auto buckets = worldRenderSystem->getRenderBuckets();
+	auto& renderMeshes = worldRenderSystem->getRenderMeshes();
+	auto& matrices     = worldRenderSystem->getMatrices();
 
-	for ( auto bucket : buckets )
+	for ( size_t i = 0; i < renderMeshes.size(); i++ )
 	{
-		for ( size_t i = 0; i < bucket.renderMeshes.size(); i++ )
-		{
-			RenderMesh& renderMesh = bucket.renderMeshes[ i ];
-			ResourceID meshHandle = bucket.renderMeshes[ i ].mesh;
-			if ( !meshHandle.isValid() )
-				continue; // no allocated mesh
-			if ( !renderMesh.pipeline.isValid() )
-				continue; // no material
+		RenderMesh& renderMesh = renderMeshes[ i ];
+		ResourceID meshHandle = renderMeshes[ i ].mesh;
+		if ( !meshHandle.isValid() )
+			continue; // no allocated mesh
+		if ( !renderMesh.pipeline.isValid() )
+			continue; // no material
 			
-			const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
+		const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
 
-			WV_ASSERT( mesh.indexBuffer.buffer != VK_NULL_HANDLE );
-			vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
+		WV_ASSERT( mesh.indexBuffer.buffer != VK_NULL_HANDLE );
+		vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
 
-			Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
+		Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
 
-			WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
-			vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
+		WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
+		vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
-			GPUDrawPushConstants pc{};
-			pc.viewProj = viewProj;
-			pc.model = bucket.matrices[ i ];
-			pc.positionBuffer = mesh.positionBufferAddress;
+		GPUDrawPushConstants pc{};
+		pc.viewProj       = viewProj;
+		pc.model          = matrices[ i ];
+		pc.positionBuffer = mesh.positionBufferAddress;
 
-			if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
-				pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
+		if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+			pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 
-			vkCmdPushConstants(
-				_cmd,
+		vkCmdPushConstants(
+			_cmd,
+			m_bindlessPipelineLayout,
+			VK_SHADER_STAGE_ALL, 0,
+			sizeof( GPUDrawPushConstants ),
+			&pc
+		);
+
+		if ( renderMesh.materialData.size() > 0 )
+		{
+			vkCmdPushConstants( 
+				_cmd, 
 				m_bindlessPipelineLayout,
-				VK_SHADER_STAGE_ALL, 0,
-				sizeof( GPUDrawPushConstants ),
-				&pc
+				VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
+				renderMesh.materialData.size(),
+				renderMesh.materialData.data()
 			);
-
-			if ( renderMesh.materialData.size() > 0 )
-			{
-				vkCmdPushConstants( 
-					_cmd, 
-					m_bindlessPipelineLayout,
-					VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-					renderMesh.materialData.size(),
-					renderMesh.materialData.data()
-				);
-			}
-
-			vkCmdDrawIndexed( _cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 		}
+
+		vkCmdDrawIndexed( _cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 	}
 	
+	
 	vkCmdEndRendering( _cmd );
-	*/
 }
 
 void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
