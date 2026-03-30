@@ -29,9 +29,12 @@ namespace wv
 
 		ViewVolume( CameraType _type, size_t _width, size_t _height, float _fov = 60.0f, float _near = 0.01f, float _far = 10000.0f );
 
-		inline void recalculateViewMatrix( Transformf* _parent, bool _cacheViewProj = true ) {
-			m_transform.update( _parent );
-			m_viewMatrix = m_transform.getMatrix().inverse();
+		inline void recalculateViewMatrix( Transformf* _parent, bool _cacheViewProj = true ) 
+		{	
+			if( _parent )
+				m_viewMatrix = _parent->getMatrix().inverse();
+			else
+				m_viewMatrix = wv::Matrix4x4f::identity( 1.0f ).inverse();
 
 			if ( _cacheViewProj )
 				m_viewProjMatrix = m_viewMatrix * m_projMatrix;
@@ -63,14 +66,11 @@ namespace wv
 		Matrix4x4f  getViewMatrix()       const { return m_viewMatrix; }
 		Matrix4x4f  getProjectionMatrix() const { return m_projMatrix; }
 		Matrix4x4f  getViewProjMatrix()   const { return m_viewProjMatrix; }
-		Vector3f    getViewDirection()    const;
-
+		
 		wv::Vector2f getViewDimensions() const { return m_viewDimensions; }
 		size_t getPixelWidth() const { return m_viewDimensions.x; }
 		size_t getPixelHeight() const { return m_viewDimensions.y; }
 
-		Transformf& getTransform( void ) { return m_transform; }
-		
 		void  setOrthoScale( float _scale ) { m_orthoScale = _scale; }
 		float getOrthoScale() const { return m_orthoScale; }
 
@@ -93,7 +93,6 @@ namespace wv
 		wv::Vector2f m_viewDimensions{ 900.0f, 600.0f };
 		float m_aspect = 1.777777778f;
 
-		wv::Transformf m_transform;
 		CameraType m_type = kPerspective;
 
 		Matrix4x4f m_viewMatrix{};

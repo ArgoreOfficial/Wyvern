@@ -56,17 +56,3 @@ wv::Matrix4x4f wv::ViewVolume::calculateOrthographicMatrix( void ) const
 		-1000.0f, 
 		 1000.0f );
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wv::Vector3f wv::ViewVolume::getViewDirection() const
-{
-	float yaw   = Math::radians( m_transform.rotation.y - 90.0f );
-	float pitch = Math::radians( m_transform.rotation.x );
-
-	return Vector3f{
-		std::cos( yaw )* std::cos( pitch ),
-		std::sin( pitch ),
-		std::sin( yaw )* std::cos( pitch )
-	};
-}

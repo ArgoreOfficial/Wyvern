@@ -22,6 +22,7 @@
 #include <wv/reflection/reflection.h>
 
 #include <wv/systems/mesh_render_system.h>
+#include <wv/camera/systems/camera_manager_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -184,6 +185,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	// systems must be set up first
 	m_world->addSystem<MeshRenderSystem>();
+	m_world->addSystem<CameraManagerSystem>();
 
 	m_world->onSceneCreate();
 

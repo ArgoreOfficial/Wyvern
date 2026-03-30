@@ -6,7 +6,8 @@ class ViewVolume;
 
 struct CameraComponent
 {
-	ViewVolume* m_viewVolume{ nullptr };
+	ViewVolume* viewVolume{ nullptr };
+	bool active = false;
 };
 
 }

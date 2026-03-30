@@ -3,7 +3,6 @@
 #include <wv/application.h>
 #include <wv/camera/view_volume.h>
 #include <wv/camera/components/camera_component.h>
-#include <wv/camera/components/orbit_camera_component.h>
 
 #include <wv/input/components/player_input_component.h>
 
@@ -11,28 +10,8 @@
 #include <wv/entity/world.h>
 #include <wv/rendering/viewport.h>
 
-#include <wv/debug/log.h>
-#include <wv/input/input_system.h>
-#include <wv/event/event_manager.h>
-
-wv::CameraManagerSystem::CameraManagerSystem()
-{
-
-}
-
-wv::CameraManagerSystem::~CameraManagerSystem()
-{
-	EventManager* eventManager = wv::Application::getSingleton()->getEventManager();
-}
-
-void wv::CameraManagerSystem::setActiveCamera( CameraComponent* _camera )
-{
-	
-}
-
 void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
 {
-	_config.addComponentType<PlayerInputComponent>();
 	_config.addComponentType<CameraComponent>();
 }
 
@@ -46,76 +25,52 @@ void wv::CameraManagerSystem::shutdown()
 
 }
 
-void wv::CameraManagerSystem::update( /*WorldUpdateContext& _ctx*/ )
+void wv::CameraManagerSystem::update()
 {
-	/*
-	if ( m_cameraComponentsChanged )
+	int numActiveCameras = 0;
+
+	for ( Archetype* archetype : getArchetypes() )
 	{
-		if ( m_activeCamera == nullptr && m_cameraComponents.getComponents().size() > 0 )
-			m_activeCamera = m_cameraComponents.getComponents()[ 0 ];
-		m_cameraComponentsChanged = false;
-	}
+		auto& cameras = archetype->getComponents<CameraComponent>();
 
-	for ( auto& [entity, playerInput, camera] : m_entityDatas )
-	{
-		if ( !camera )
-			continue;
-
-		if ( playerInput )
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
-			int playerIndex = playerInput->getPlayerIndex();
+			if ( !cameras[ i ].active )
+				continue;
 
-			if ( _ctx.inputSystem->getMouseButtonState( 2 ) )
-			{
-				m_cameraMove = {};
+			numActiveCameras++;
 
-				Vector2i motion = _ctx.inputSystem->getMouseMotion();
-				m_cameraMove.x += 0.4f * (float)motion.x;
-				m_cameraMove.y += 0.4f * (float)motion.y;
-			}
-			else
-			{
-				const float friction = 5.f;
-				const float frictionDecay = 1 / ( 1 + ( _ctx.deltaTime * friction ) );
-
-				m_cameraMove *= frictionDecay;
-			}
-
-			m_orbitDistance -= _ctx.inputSystem->getMouseScroll() * 120 * _ctx.deltaTime;
-		}
-
-		wv::Transformf& entityTransform = entity->getTransform();
-
-		wv::ViewVolume* viewVolume    = camera->getViewVolume();
-		wv::Transformf& viewTransform = viewVolume->getTransform();
-
-		// check if camera is orbit camera
-		if ( auto orbitCamera = tryCast<OrbitCameraComponent>( camera ) )
-		{
-			viewTransform.rotation += wv::Vector3f{
-					-m_cameraMove.y,
-					-m_cameraMove.x,
-					0.0f
-			};
-
-			viewTransform.setPosition( viewTransform.rotation.eulerToDirection() * m_orbitDistance );
-			viewTransform.update( &entityTransform );
+			// TODO: allow multi-camera rendering
+			if ( numActiveCameras > 1 ) // only update first active camera
+				continue;
+			
+			updateCamera( archetype->m_entities[ i ], cameras[ i ] );
 		}
 	}
 
-	if ( m_activeCamera )
+	if ( numActiveCameras == 0 )
 	{
-		if ( ViewVolume* viewVolume = m_activeCamera->getViewVolume() )
-		{
-			viewVolume->setViewDimensions( _ctx.viewport->getSize() );
+		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
+		Entity*          entity = getArchetypes()[ 0 ]->m_entities[ 0 ];
+		
+		camera.active = true;
 
-			Entity* cameraEntity = m_cameraComponents.getEntity( m_activeCamera->getID() );
-			viewVolume->recalculateViewMatrix( &cameraEntity->getTransform(), false );
-			viewVolume->recalculateProjMatrix( true );
-
-			_ctx.viewport->setViewVolume( viewVolume );
-		}
+		updateCamera( entity, camera );
 	}
-	*/
+}
 
+void wv::CameraManagerSystem::updateCamera( Entity* _entity, CameraComponent& _component )
+{
+	if ( !_component.viewVolume )
+		return;
+
+	World* world = wv::getApp()->getWorld();
+
+	_component.viewVolume->setViewDimensions( world->getViewport()->getSize());
+
+	_component.viewVolume->recalculateViewMatrix( &_entity->getTransform(), false );
+	_component.viewVolume->recalculateProjMatrix( true );
+
+	world->getViewport()->setViewVolume( _component.viewVolume );
+	
 }

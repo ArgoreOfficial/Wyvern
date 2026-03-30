@@ -3,7 +3,9 @@
 #include <wv/entity/ecs.h>
 #include <wv/entity/entity.h>
 
-#include <wv/rendering/components/mesh_component.h>
+#include <wv/components/mesh_component.h>
+#include <wv/camera/components/camera_component.h>
+#include <wv/camera/view_volume.h>
 
 #include <wv/input/input_system.h>
 
@@ -30,11 +32,11 @@ void GameWorld::onSceneCreate()
 {
 	{
 		wv::Entity* cube = WV_NEW( wv::Entity, "Cube" );
-		cube->getTransform().setPosition( { 0.0f, -1.0f, 0.0f } );
+		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, -2.0f }, { 0.0f, -45.0f, 0.0f } );
 		addEntity( cube );
 		
 		wv::MeshImporterGLTF importer = wv::MeshImporterGLTF( m_meshManager, m_materialManager, m_textureManager );
-		importer.load( "meshes/SM_Suzanne.glb", {} );
+		importer.load( "meshes/SM_Tofumotive.glb", {} );
 
 		wv::MeshComponent meshComponent{};
 		meshComponent.materials = importer.getMaterials();
@@ -45,8 +47,13 @@ void GameWorld::onSceneCreate()
 
 	{
 		wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
-		
+		camera->getTransform().setPosition( { 0.0f, 0.0f, 10.0f } );
 		addEntity( camera );
+		
+		wv::CameraComponent cameraComponent{};
+		cameraComponent.active = true;
+		cameraComponent.viewVolume = WV_NEW( wv::ViewVolume, wv::ViewVolume::kPerspective, 900, 600 );
+		m_ecsEngine->addComponent<wv::CameraComponent>( camera, cameraComponent );
 	}
 	
 }
