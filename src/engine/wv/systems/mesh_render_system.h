@@ -1,18 +1,12 @@
 #pragma once
 
+#include <wv/components/mesh_component.h>
+
 #include <wv/entity/ecs.h>
-#include <wv/types.h>
-
-#include <wv/rendering/components/mesh_component.h>
-
-#include <span>
 
 namespace wv {
 
-struct MeshComponent;
-
-
-class RenderWorldSystem : public ISystem
+class MeshRenderSystem : public ISystem
 {
 public:
 	std::vector<RenderMesh>& getRenderMeshes() { return m_renderMeshes; }

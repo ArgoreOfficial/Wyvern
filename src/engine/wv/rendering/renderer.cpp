@@ -9,8 +9,8 @@
 #include <wv/rendering/viewport.h>
 #include <wv/rendering/swapchain.h>
 
-#include <wv/rendering/components/mesh_component.h>
-#include <wv/rendering/systems/render_world_system.h>
+#include <wv/components/mesh_component.h>
+#include <wv/systems/mesh_render_system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -920,7 +920,7 @@ void wv::Renderer::drawBackground( VkCommandBuffer _cmd )
 void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 { 
 	ZoneScoped;
-	RenderWorldSystem* worldRenderSystem = _world->getSystem<RenderWorldSystem>();
+	MeshRenderSystem* worldRenderSystem = _world->getSystem<MeshRenderSystem>();
 	if ( !worldRenderSystem )
 		return;
 

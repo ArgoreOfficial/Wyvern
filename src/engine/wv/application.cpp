@@ -13,13 +13,15 @@
 
 #include <wv/event/event_manager.h>
 
-#include <wv/rendering/renderer.h>
-#include <wv/rendering/systems/render_world_system.h>
-#include <wv/rendering/material.h>
-
-#include <wv/rendering/viewport.h>
-#include <wv/reflection/reflection.h>
 #include <wv/input/input_system.h>
+
+#include <wv/rendering/renderer.h>
+#include <wv/rendering/material.h>
+#include <wv/rendering/viewport.h>
+
+#include <wv/reflection/reflection.h>
+
+#include <wv/systems/mesh_render_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -181,7 +183,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->onSetupInput( m_inputSystem );
 
 	// systems must be set up first
-	m_world->addSystem<RenderWorldSystem>();
+	m_world->addSystem<MeshRenderSystem>();
 
 	m_world->onSceneCreate();
 

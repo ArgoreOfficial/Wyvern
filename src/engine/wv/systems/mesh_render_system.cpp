@@ -1,24 +1,22 @@
-#include "render_world_system.h"
+#include "mesh_render_system.h"
 
-#include <wv/rendering/components/mesh_component.h>
-
-void wv::RenderWorldSystem::configure( ArchetypeConfig& _config )
+void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 {
 	_config.addComponentType<MeshComponent>();
 }
 
-void wv::RenderWorldSystem::initialize()
+void wv::MeshRenderSystem::initialize()
 {
 	
 }
 
-void wv::RenderWorldSystem::shutdown()
+void wv::MeshRenderSystem::shutdown()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
 }
 
-void wv::RenderWorldSystem::update()
+void wv::MeshRenderSystem::update()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
