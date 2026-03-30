@@ -15,26 +15,23 @@ wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
 	if ( bitmask.none() )
 		return nullptr; // empty config
 
-	for ( size_t i = 0; i < m_archetypes.size(); i++ )
-	{
-		if ( m_archetypes[ i ]->m_bitmask != bitmask )
-			continue;
+	Archetype* archetype = getExactArchetype( bitmask );
 
-		_config.freeContainers();
-		return nullptr; // exact match found, archetype already exists
-	}
+	if ( archetype )
+		return archetype; // exact match found, archetype already exists
 
 	// create new archetype
 
-	Archetype* archetype = WV_NEW( Archetype );
+	archetype = WV_NEW( Archetype );
 	archetype->m_bitmask = bitmask;
 
 	for ( size_t i = 0; i < _config.componentTypeIndices.size(); i++ )
 	{
 		// give ownership of the container 
+
 		archetype->m_vectors.emplace(
 			_config.componentTypeIndices[ i ],
-			_config.componentContainers[ i ]
+			m_componentVectorFuns[ _config.componentTypeIndices[ i ] ]()
 		);
 	}
 
@@ -83,4 +80,13 @@ void wv::ECSEngine::removeAllComponents( Entity* _entity )
 	
 	_entity->archetype = nullptr;
 	_entity->archetypeIndex = 0;
+}
+
+void wv::ArchetypeConfig::addComponentType( int _typeIndex )
+{
+	for ( size_t i = 0; i < componentTypeIndices.size(); i++ )
+		if ( componentTypeIndices[ i ] == _typeIndex )
+			return;
+
+	componentTypeIndices.push_back( _typeIndex );
 }
