@@ -185,7 +185,7 @@ template<typename Ty>
 Ty* ECSEngine::addSystem() {
 	static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
 
-	ISystem* s = WV_NEW( Ty );
+	ISystem* s = WV_NEW_NAMED( Ty, "Ty : ISystem" );
 	ArchetypeConfig config{};
 	config.engine = this;
 	s->configure( config );

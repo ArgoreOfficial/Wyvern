@@ -4,6 +4,9 @@ wv::ECSEngine::~ECSEngine()
 {
 	for ( Archetype* archetype : m_archetypes )
 		WV_FREE( archetype );
+
+	for ( ISystem* sys : m_systems )
+		WV_FREE( sys );
 }
 
 wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
