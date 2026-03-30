@@ -7,14 +7,6 @@
 #include <wv/debug/log.h>
 #include <wv/input/input_system.h>
 
-wv::PlayerInputSystem::PlayerInputSystem()
-{
-}
-
-wv::PlayerInputSystem::~PlayerInputSystem()
-{
-}
-
 void wv::PlayerInputSystem::joinPlayer( uint32_t _deviceID, int _playerIndex )
 {
 	if ( _playerIndex == -1 )
@@ -59,6 +51,11 @@ void wv::PlayerInputSystem::clearPlayers()
 	WV_ASSERT( m_activePlayers.size() == 0 );
 }
 
+void wv::PlayerInputSystem::configure( ArchetypeConfig& _config )
+{
+
+}
+
 void wv::PlayerInputSystem::initialize()
 {
 	if ( m_inputSystem == nullptr )
@@ -70,18 +67,10 @@ void wv::PlayerInputSystem::shutdown()
 
 }
 
-void wv::PlayerInputSystem::registerComponent( Entity* _entity, IEntityComponent* _component )
+void wv::PlayerInputSystem::update()
 {
-
-}
-
-void wv::PlayerInputSystem::unregisterComponent( Entity* _entity, IEntityComponent* _component )
-{
-
-}
-
-void wv::PlayerInputSystem::update( WorldUpdateContext& _ctx )
-{
+	/*
+	
 	while ( m_activePlayers.contains( m_nextAvailableIndex ) )
 		m_nextAvailableIndex++;
 
@@ -117,4 +106,5 @@ void wv::PlayerInputSystem::update( WorldUpdateContext& _ctx )
 				joinPlayer( action.vdID );
 		}
 	}
+	*/
 }

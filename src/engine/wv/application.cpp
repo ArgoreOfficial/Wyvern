@@ -13,12 +13,17 @@
 
 #include <wv/event/event_manager.h>
 
+#include <wv/input/input_system.h>
+
 #include <wv/rendering/renderer.h>
 #include <wv/rendering/material.h>
-
 #include <wv/rendering/viewport.h>
+
 #include <wv/reflection/reflection.h>
-#include <wv/input/input_system.h>
+
+#include <wv/systems/mesh_render_system.h>
+#include <wv/systems/camera_manager_system.h>
+#include <wv/systems/orbit_controller_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -36,6 +41,8 @@
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui/imgui.h>
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,14 +68,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 {
 	m_graphicsDriverName = "vulkan"; // TODO
 	m_world = _world;
-
-	// IEngineSystem ?
-	// might help with cleanup and such
-	// systemManager->createSystem<DisplayDriver>( Platform::createDisplayDriver() );
-	// systemManager->createSystem<Renderer>( Platform::createRenderer() );
-	// systemManager->createSystem<FileSystem>( Platform::createFileSystem( "data" ) );
-	// systemManager->createSystem<InputSystem>();
-	// systemManager->initialize();
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
@@ -176,7 +175,10 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->onSetupInput( m_inputSystem );
 
-	m_world->createWorldSystem<EditorInterfaceSystem>();
+	// systems must be set up first
+	m_world->addSystem<MeshRenderSystem>();
+	m_world->addSystem<CameraManagerSystem>();
+	m_world->addSystem<OrbitControllerSystem>();
 
 	m_world->onSceneCreate();
 
@@ -191,7 +193,6 @@ void wv::Application::shutdown()
 
 	if ( m_world )
 	{
-		m_world->shutdown();
 		WV_FREE( m_world );
 	}
 	
@@ -283,12 +284,13 @@ void wv::Application::update()
 	if ( windowSize.x == 0 ) windowSize.x = 1;
 	if ( windowSize.y == 0 ) windowSize.y = 1;
 
-	m_world->getViewport()->setSize( windowSize.x, windowSize.y );
+	m_world->getViewport()->size = { windowSize.x, windowSize.y };
 
-	m_world->updateLoading();
-	m_world->updateSectors( m_deltatime );
-	m_world->updateWorldSystems( m_deltatime );
+	m_world->m_ecsEngine->updateSystems();
 
+	for ( Entity* entity : m_world->m_entities )
+		entity->getTransform().update( nullptr );
+	
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{
@@ -297,13 +299,6 @@ void wv::Application::update()
 	//	m_fixed_runtime += m_fixed_delta_time;
 	//	m_accumulator -= m_fixed_delta_time;
 	//}
-
-	//m_app->preUpdate();
-
-	//m_app->onUpdate( m_deltatime );
-	//m_sprite_renderer->update();
-
-	//m_app->postUpdate();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -326,14 +321,29 @@ void wv::Application::render()
 
 #ifdef WV_DEBUG
 	if ( shouldRender )
-	{
-		
+	{		
 		m_renderer->beginDebugRender();
 
 		// Don't render debug if the window isn't focused
 		// This should be togglable
-		if( m_displayDriver->isFocused() )
-			m_world->onDebugRender();
+		//if( m_displayDriver->isFocused() )
+		//	m_world->onDebugRender();
+
+		if ( ImGui::Begin( "ECS Debug Info" ) )
+		{
+			for ( size_t i = 0; i < m_world->m_ecsEngine->m_archetypes.size(); i++ )
+			{
+				Archetype* archetype = m_world->m_ecsEngine->m_archetypes[ i ];
+			
+				std::string sepTitle = std::format( "Archetype {}", i );
+				ImGui::SeparatorText( sepTitle.c_str() );
+				ImGui::Text( "Entities: %zu", archetype->getNumEntities() );
+
+				for ( auto vec : archetype->m_vectors )
+					ImGui::Text( "  Component %i", vec.first );
+			}
+		}
+		ImGui::End();
 
 		m_renderer->endDebugRender();
 	}

@@ -1,23 +1,19 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
-
-#include <wv/entity/world_sector.h>
-#include <wv/entity/world_system.h>
-
-#include <wv/math/vector2.h>
+#include <wv/entity/ecs.h>
 #include <wv/input/input_system.h>
+#include <wv/reflection/reflection.h>
 
 namespace wv {
 
-class WorldSector;
-class ViewVolume;
-class Viewport;
+class Entity;
 class InputSystem;
 
 class MeshManager;
 class MaterialManager;
 class TextureManager;
+
+struct Viewport;
 
 struct WorldLoadContext
 {
@@ -45,73 +41,6 @@ public:
 	World();
 	virtual ~World();
 
-	void shutdown();
-
-	WorldSector* findSector( UUID _UUID ) const {
-		auto it = m_sectorMap.find( _UUID );
-		if ( it == m_sectorMap.end() )
-			return nullptr;
-		return it->second;
-	}
-
-	void addSector( WorldSector* _sector );
-	void destroySector( UUID _sectorID );
-
-	template<typename Ty>
-	Ty* createWorldSystem();
-
-	template<typename Ty>
-	Ty* getWorldSystem() {
-		static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IWorldSystem" );
-
-		for ( size_t i = 0; i < m_systems.size(); i++ )
-		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
-				continue;
-			return static_cast<Ty*>( m_systems[ i ] );
-		}
-
-		// Does not contain system of type
-		return nullptr;
-	}
-
-	template<typename Ty>
-	void destroyWorldSystem() {
-		static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IWorldSystem" );
-
-		for ( size_t i = 0; i < m_systems.size(); i++ )
-		{
-			if ( m_systems[ i ]->getTypeUUID() != Ty::getStaticTypeUUID() )
-				continue;
-
-			Ty* system = static_cast<Ty*>( m_systems[ i ] );
-			m_systems.erase( m_systems.begin() + i );
-
-			if ( !system )
-				continue;
-
-			delete system;
-		}
-	}
-
-	std::vector<IWorldSystem*> getWorldSystems() const { return m_systems; }
-
-	void updateLoading();
-	void updateSectors( double _deltaTime );
-	void updateWorldSystems( double _deltaTime );
-
-	void onDebugRender();
-
-	void registerComponent( Entity* _entity, IEntityComponent* _component ) { 
-		for ( auto system : m_systems )
-			system->registerComponent( _entity, _component);
-	}
-
-	void unregisterComponent( Entity* _entity, IEntityComponent* _component ) {
-		for ( auto system : m_systems )
-			system->unregisterComponent( _entity, _component );
-	}
-	
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
 	TextureManager*  getTextureManager()  const { return m_textureManager; }
@@ -119,34 +48,44 @@ public:
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
-	WorldLoadContext getLoadContext();
+	void addEntity( Entity* _entity ) {
+		m_entities.push_back( _entity );
+	}
+
+	Entity* createEntity( const std::string& _name = "" );
+
+	template<typename Ty>
+	void addComponent( Entity* _entity, const Ty& _component ) {
+		m_ecsEngine->addComponent<Ty>( _entity, _component );
+	}
+
+	template<typename Ty>
+	void removeComponent( Entity* _entity ) {
+		m_ecsEngine->removeComponent<Ty>( _entity );
+	}
+
+	template<typename Ty>
+	Ty* addSystem() {
+		return m_ecsEngine->addSystem<Ty>();
+	}
+
+	template<typename Ty>
+	Ty* getSystem() {
+		return m_ecsEngine->getSystem<Ty>();
+	}
 
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
-
-	void createWorldSystem( IWorldSystem* _system );
-	
-	std::vector<IWorldSystem*> m_systems;
-
-	std::vector<WorldSector*> m_sectors;
-	std::vector<WorldSector*> m_sectorsToLoad;
-	std::unordered_map<UUID, WorldSector*> m_sectorMap;
-	
+		
 	Viewport* m_viewport = nullptr;
+	ECSEngine* m_ecsEngine = nullptr;
+
+	std::vector<Entity*> m_entities;
 
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
 	TextureManager*  m_textureManager  = nullptr;
 };
-
-template<typename Ty>
-inline Ty* World::createWorldSystem()
-{
-	static_assert( std::is_base_of<IWorldSystem, Ty>(), "Type must derive from IEntitySystem" );
-	IWorldSystem* system = WV_NEW_NAMED( Ty, Ty::getStaticTypeName() );
-	createWorldSystem( system );
-	return static_cast<Ty*>( system );
-}
 
 }
