@@ -32,9 +32,8 @@ void wv::MeshRenderSystem::update()
 			const auto  meshAsset  = meshComponent.meshAsset;
 			const auto& primitives = meshAsset->getPrimitives();
 
-			for ( size_t i = 0; i < primitives.size(); i++ )
+			for ( auto& primitive : meshAsset->getPrimitives() )
 			{
-				auto& primitive = primitives[ i ];
 				RenderMesh mesh{};
 				mesh.mesh = meshAsset->getGPUAllocation();
 
