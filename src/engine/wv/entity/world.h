@@ -53,6 +53,8 @@ public:
 		m_entities.push_back( _entity );
 	}
 
+	Entity* createEntity( const std::string& _name = "" );
+
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
 		m_ecsEngine->addComponent<Ty>( _entity, _component );

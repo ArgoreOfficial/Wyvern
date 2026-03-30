@@ -39,3 +39,10 @@ wv::World::~World()
 	WV_FREE( m_materialManager );
 	WV_FREE( m_meshManager );
 }
+
+wv::Entity* wv::World::createEntity( const std::string& _name )
+{
+	Entity* e = WV_NEW( Entity, _name );
+	addEntity( e );
+	return e;
+}

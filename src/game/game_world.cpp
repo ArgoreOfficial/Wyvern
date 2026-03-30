@@ -30,9 +30,8 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 void GameWorld::onSceneCreate()
 {
 	{
-		wv::Entity* cube = WV_NEW( wv::Entity, "Cube" );
-		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, -2.0f }, { 0.0f, -45.0f, 0.0f } );
-		addEntity( cube );
+		wv::Entity* cube = createEntity( "Cube" );
+		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, 0.0f }, { 0.0f, -45.0f, 0.0f } );
 		
 		wv::MeshImporterGLTF importer = wv::MeshImporterGLTF( m_meshManager, m_materialManager, m_textureManager );
 		importer.load( "meshes/SM_Tofumotive.glb", {} );
@@ -45,9 +44,7 @@ void GameWorld::onSceneCreate()
 	}
 
 	{
-		wv::Entity* camera = WV_NEW( wv::Entity, "Orbit Camera" );
-		camera->getTransform().setPosition( { 0.0f, 0.0f, 10.0f } );
-		addEntity( camera );
+		wv::Entity* camera = createEntity( "Orbit Camera" );
 		
 		wv::CameraComponent cameraComponent{};
 		cameraComponent.active = true;

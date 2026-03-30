@@ -136,11 +136,6 @@ struct Archetype
 		m_entities.clear();
 	}
 
-	std::unordered_map<int, IComponentVector*> m_vectors;
-	std::vector<Entity*> m_entities;
-
-	std::bitset<256> m_bitmask{};
-
 	template<typename Ty>
 	std::vector<Ty>& getComponents() {
 		int componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
@@ -151,6 +146,11 @@ struct Archetype
 	}
 
 	size_t getNumEntities() const { return m_entities.size(); }
+	Entity* getEntity( size_t _index ) { return m_entities[ _index ]; }
+
+	std::unordered_map<int, IComponentVector*> m_vectors;
+	std::vector<Entity*> m_entities;
+	std::bitset<256> m_bitmask{};
 };
 
 class ISystem

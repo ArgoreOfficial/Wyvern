@@ -1,7 +1,6 @@
 #include "camera_manager_system.h"
 
 #include <wv/application.h>
-#include <wv/camera/view_volume.h>
 #include <wv/components/camera_component.h>
 
 #include <wv/entity/entity.h>
