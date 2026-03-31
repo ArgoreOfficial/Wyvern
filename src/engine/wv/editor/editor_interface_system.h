@@ -12,11 +12,7 @@ class EditorInterfaceSystem : public ISystem
 public:
 
 	virtual void configure( ArchetypeConfig& _config ) override { }
-	virtual void initialize() override { }
-	virtual void shutdown() override { }
-
-	virtual void update() override { }
-
+	
 };
 
 }

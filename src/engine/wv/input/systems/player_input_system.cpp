@@ -56,18 +56,13 @@ void wv::PlayerInputSystem::configure( ArchetypeConfig& _config )
 
 }
 
-void wv::PlayerInputSystem::initialize()
+void wv::PlayerInputSystem::onInitialize()
 {
 	if ( m_inputSystem == nullptr )
 		m_inputSystem = wv::Application::getSingleton()->getInputSystem();
 }
 
-void wv::PlayerInputSystem::shutdown()
-{
-
-}
-
-void wv::PlayerInputSystem::update()
+void wv::PlayerInputSystem::onUpdate()
 {
 	/*
 	

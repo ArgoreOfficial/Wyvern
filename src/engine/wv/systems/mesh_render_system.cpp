@@ -5,18 +5,13 @@ void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<MeshComponent>();
 }
 
-void wv::MeshRenderSystem::initialize()
-{
-	
-}
-
-void wv::MeshRenderSystem::shutdown()
+void wv::MeshRenderSystem::onShutdown()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
 }
 
-void wv::MeshRenderSystem::update()
+void wv::MeshRenderSystem::onUpdate()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();

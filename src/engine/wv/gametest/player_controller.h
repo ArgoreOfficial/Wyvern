@@ -18,10 +18,9 @@ class PlayerControllerSystem : public ISystem
 public:
 	
 	virtual void configure( ArchetypeConfig& _config ) override;
-	virtual void initialize() override;
-	virtual void shutdown() override;
-
-	virtual void update() override;
+	virtual void onInitialize() override;
+	
+	virtual void onUpdate() override;
 
 	uint32_t m_moveActionID = 0;
 	uint32_t m_jumpActionID = 0;

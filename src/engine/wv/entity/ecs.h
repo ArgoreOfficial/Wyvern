@@ -2,6 +2,7 @@
 
 #include <wv/entity/entity.h>
 #include <wv/memory/memory.h>
+#include <wv/updatable.h>
 
 #include <bitset>
 #include <vector>
@@ -15,7 +16,6 @@ class ECSEngine;
 class ISystem;
 
 struct ArchetypeConfig;
-struct IComponentVector;
 
 static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>& _componentTypeIndices )
 {
@@ -28,6 +28,33 @@ static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>&
 	}
 	return bitmask;
 }
+
+struct IComponentVector
+{
+	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) = 0;
+	virtual void eraseComponent( size_t _index ) = 0;
+};
+
+template<typename Ty>
+struct ComponentVector : public IComponentVector
+{
+	std::vector<Ty> components;
+
+	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) override
+	{
+		ComponentVector<Ty>* oldVector = reinterpret_cast<ComponentVector<Ty>*>( _oldVector );
+
+		Ty comp = oldVector->components[ _index ];
+		oldVector->components.erase( oldVector->components.begin() + _index );
+
+		components.push_back( comp );
+	}
+
+	virtual void eraseComponent( size_t _index ) override
+	{
+		components.erase( components.begin() + _index );
+	}
+};
 
 class ECSEngine
 {
@@ -60,10 +87,21 @@ public:
 		return (Ty*)m_systemIndexMap.at( index );
 	}
 
+	template<typename Ty>
+	void eraseSystem() {
+		static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
+
+		int index = SystemTypeDef<Ty>::index;
+		if ( !m_systemIndexMap.contains( index ) )
+			return;
+
+		m_systemIndexMap.erase( index );
+	}
+
 	Archetype* registerArchetype( ArchetypeConfig& _config );
 	Archetype* getExactArchetype( std::bitset<256> _bitmask );
 
-	void updateSystems();
+	void updateSystemsArchetypes();
 	
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component );
@@ -77,7 +115,6 @@ public:
 	int numSystemTypes = 0;
 
 	std::vector<Archetype*> m_archetypes;
-	std::vector<ISystem*> m_systems;
 	std::unordered_map<int, ISystem*> m_systemIndexMap;
 
 	std::unordered_map<int, std::function<IComponentVector* ( )>> m_componentVectorFuns;
@@ -93,33 +130,6 @@ struct ArchetypeConfig
 
 	std::bitset<256> getBitmask() {
 		return bitmaskFromComponentTypeIndices( componentTypeIndices );
-	}
-};
-
-struct IComponentVector
-{
-	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) = 0;
-	virtual void eraseComponent( size_t _index ) = 0;
-};
-
-template<typename Ty>
-struct ComponentVector : public IComponentVector
-{
-	std::vector<Ty> components;
-
-	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) override
-	{
-		ComponentVector<Ty>* oldVector = reinterpret_cast<ComponentVector<Ty>*>( _oldVector );
-
-		Ty comp = oldVector->components[ _index ];
-		oldVector->components.erase( oldVector->components.begin() + _index );
-
-		components.push_back( comp );
-	}
-
-	virtual void eraseComponent( size_t _index ) override
-	{
-		components.erase( components.begin() + _index );
 	}
 };
 
@@ -150,7 +160,7 @@ struct Archetype
 	std::bitset<256> m_bitmask{};
 };
 
-class ISystem
+class ISystem : public IUpdatable
 {
 public:
 	std::vector<Archetype*>& getArchetypes() {
@@ -161,13 +171,9 @@ public:
 
 	virtual void configure( ArchetypeConfig& _config ) = 0;
 
-	virtual void initialize() { }
-	virtual void shutdown() { }
-
-	virtual void update() = 0;
-
 private:
 	friend class ECSEngine;
+	friend class World;
 
 	std::bitset<256> m_archetypeBitmask{};
 	std::vector<Archetype*> m_archetypes;
@@ -205,6 +211,9 @@ Ty* ECSEngine::addSystem()
 {
 	static_assert( std::is_base_of<ISystem, Ty>(), "Type must derive from wv::ISystem" );
 
+	if( SystemTypeDef<Ty>::index == -1 )
+		registerSystemType<Ty>();
+
 	ISystem* s = WV_NEW_NAMED( Ty, "Ty : ISystem" );
 	ArchetypeConfig config{};
 	s->configure( config );
@@ -212,7 +221,6 @@ Ty* ECSEngine::addSystem()
 	s->m_archetypeBitmask = config.getBitmask();
 	registerArchetype( config );
 
-	m_systems.push_back( s );
 	m_systemIndexMap.emplace( SystemTypeDef<Ty>::index, s );
 	return (Ty*)s;
 }

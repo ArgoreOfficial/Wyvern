@@ -13,7 +13,7 @@ class OrbitControllerSystem : public ISystem
 public:
 	virtual void configure( ArchetypeConfig& _config ) override;
 	
-	virtual void update() override;
+	virtual void onUpdate() override;
 private:
 
 };

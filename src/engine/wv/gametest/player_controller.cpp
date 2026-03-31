@@ -15,7 +15,7 @@ void wv::PlayerControllerSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<PlayerControllerComponent>();
 }
 
-void wv::PlayerControllerSystem::initialize()
+void wv::PlayerControllerSystem::onInitialize()
 {
 	InputSystem* inputSystem = wv::Application::getSingleton()->getInputSystem();
 
@@ -26,12 +26,7 @@ void wv::PlayerControllerSystem::initialize()
 	}
 }
 
-void wv::PlayerControllerSystem::shutdown()
-{
-
-}
-
-void wv::PlayerControllerSystem::update()
+void wv::PlayerControllerSystem::onUpdate()
 {
 	/*
 	if ( m_playerInput == nullptr || m_player == nullptr )

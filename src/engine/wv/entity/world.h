@@ -7,6 +7,7 @@
 namespace wv {
 
 class Entity;
+class IUpdatable;
 class InputSystem;
 
 class MeshManager;
@@ -31,6 +32,16 @@ struct WorldUpdateContext
 	
 	InputSystem* inputSystem = nullptr;
 	std::vector<ActionEvent> actionEventQueue;
+};
+
+enum UpdateMessageType
+{
+	UpdateMessageType_initialize,
+	UpdateMessageType_shutdown,
+
+	UpdateMessageType_preUpdate,
+	UpdateMessageType_update,
+	UpdateMessageType_postUpdate
 };
 
 class World : public IReflectedType
@@ -66,12 +77,36 @@ public:
 
 	template<typename Ty>
 	Ty* addSystem() {
-		return m_ecsEngine->addSystem<Ty>();
+		Ty* s = m_ecsEngine->addSystem<Ty>();
+		insertUpdatable( (IUpdatable*)s );
+		return s;
+	}
+
+	template<typename Ty>
+	void removeSystem() {
+		WV_ASSERT( false );
+		//eraseUpdatable()
 	}
 
 	template<typename Ty>
 	Ty* getSystem() {
 		return m_ecsEngine->getSystem<Ty>();
+	}
+
+	void dispatchUpdateMessage( UpdateMessageType _type );
+
+	void insertUpdatable( IUpdatable* _updatable ) {
+		if ( m_updatables.contains( _updatable ) )
+			return;
+
+		m_updatables.insert( _updatable );
+	}
+
+	void eraseUpdatable( IUpdatable* _updatable ) {
+		if ( !m_updatables.contains( _updatable ) )
+			return;
+
+		m_updatables.erase( _updatable );
 	}
 
 protected:
@@ -82,6 +117,7 @@ protected:
 	ECSEngine* m_ecsEngine = nullptr;
 
 	std::vector<Entity*> m_entities;
+	std::unordered_set<IUpdatable*> m_updatables;
 
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;

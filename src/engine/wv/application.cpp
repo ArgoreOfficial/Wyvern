@@ -264,7 +264,7 @@ bool wv::Application::tick()
 
 	update();
 	render();
-
+	
 	// Update runtime and deltatime
 	m_deltatime = timer.elapsed();
 	m_runtime += m_deltatime;
@@ -283,14 +283,19 @@ void wv::Application::update()
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	if ( windowSize.x == 0 ) windowSize.x = 1;
 	if ( windowSize.y == 0 ) windowSize.y = 1;
-
 	m_world->getViewport()->size = { windowSize.x, windowSize.y };
 
-	m_world->m_ecsEngine->updateSystems();
+	// updates archetype lists. Move to only update when modified?
+	m_world->m_ecsEngine->updateSystemsArchetypes();
 
+	m_world->dispatchUpdateMessage( UpdateMessageType_preUpdate );
+
+	m_world->dispatchUpdateMessage( UpdateMessageType_update );
 	for ( Entity* entity : m_world->m_entities )
 		entity->getTransform().update( nullptr );
-	
+
+	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
+
 	//m_accumulator += m_deltatime;
 	//while ( m_accumulator > m_fixed_delta_time )
 	//{

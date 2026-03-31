@@ -14,11 +14,10 @@ public:
 
 protected:
 	virtual void configure( ArchetypeConfig& _config ) override;
-	virtual void initialize() override;
-	virtual void shutdown  () override;
-	
-	void update() override;
 
+	virtual void onShutdown() override;
+	virtual void onUpdate() override;
+	
 	std::vector<RenderMesh> m_renderMeshes;
 	std::vector<Matrix4x4f> m_matrices;
 };

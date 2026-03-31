@@ -12,17 +12,7 @@ void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<CameraComponent>();
 }
 
-void wv::CameraManagerSystem::initialize()
-{
-
-}
-
-void wv::CameraManagerSystem::shutdown()
-{
-
-}
-
-void wv::CameraManagerSystem::update()
+void wv::CameraManagerSystem::onUpdate()
 {
 	int numActiveCameras = 0;
 

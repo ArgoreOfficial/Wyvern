@@ -5,8 +5,11 @@ wv::ECSEngine::~ECSEngine()
 	for ( Archetype* archetype : m_archetypes )
 		WV_FREE( archetype );
 
-	for ( ISystem* sys : m_systems )
-		WV_FREE( sys );
+	for ( auto& [i,s] : m_systemIndexMap )
+		WV_FREE( s );
+
+	m_archetypes.clear();
+	m_systemIndexMap.clear();
 }
 
 wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
@@ -27,8 +30,6 @@ wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
 
 	for ( size_t i = 0; i < _config.componentTypeIndices.size(); i++ )
 	{
-		// give ownership of the container 
-
 		archetype->m_vectors.emplace(
 			_config.componentTypeIndices[ i ],
 			m_componentVectorFuns[ _config.componentTypeIndices[ i ] ]()
@@ -50,9 +51,9 @@ wv::Archetype* wv::ECSEngine::getExactArchetype( std::bitset<256> _bitmask )
 	return nullptr;
 }
 
-void wv::ECSEngine::updateSystems()
+void wv::ECSEngine::updateSystemsArchetypes()
 {
-	for ( ISystem* s : m_systems )
+	for ( auto& [i, s] : m_systemIndexMap )
 	{
 		s->m_archetypes.clear();
 
@@ -68,8 +69,6 @@ void wv::ECSEngine::updateSystems()
 					s->m_archetypes.push_back( archetype );
 			}
 		}
-
-		s->update();
 	}
 }
 

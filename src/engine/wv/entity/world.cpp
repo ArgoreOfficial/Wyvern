@@ -2,8 +2,6 @@
 
 #include <wv/entity/ecs.h>
 
-#include <wv/input/input_system.h>
-
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/texture.h>
@@ -11,6 +9,8 @@
 #include <wv/components/camera_component.h>
 #include <wv/components/mesh_component.h>
 #include <wv/components/orbit_controller_component.h>
+
+#include <wv/updatable.h>
 
 wv::World::World()
 { 
@@ -54,4 +54,29 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 	Entity* e = WV_NEW( Entity, _name );
 	addEntity( e );
 	return e;
+}
+
+void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
+{
+	for ( IUpdatable* updatable : m_updatables )
+	{
+		switch ( _type )
+		{
+		case UpdateMessageType_initialize: 
+			if( !updatable->m_initalized )
+				updatable->onInitialize();
+			updatable->m_initalized = true;
+			break;
+
+		case UpdateMessageType_shutdown: 
+			if ( updatable->m_initalized )
+				updatable->onShutdown();
+			updatable->m_initalized = false;
+			break;
+
+		case UpdateMessageType_preUpdate:  updatable->onPreUpdate();  break;
+		case UpdateMessageType_update:     updatable->onUpdate();     break;
+		case UpdateMessageType_postUpdate: updatable->onPostUpdate(); break;
+		}
+	}
 }

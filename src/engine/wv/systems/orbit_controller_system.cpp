@@ -9,7 +9,7 @@ void wv::OrbitControllerSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<OrbitControllerComponent>();
 }
 
-void wv::OrbitControllerSystem::update()
+void wv::OrbitControllerSystem::onUpdate()
 {
 	InputSystem* inputSystem = getApp()->getInputSystem();
 	double deltaTime = getApp()->getDeltaTime();

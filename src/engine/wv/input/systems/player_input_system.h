@@ -33,11 +33,10 @@ public:
 	void clearPlayers();
 
 	virtual void configure( ArchetypeConfig& _config ) override;
-	virtual void initialize() override;
-	virtual void shutdown() override;
-
-	void update() override;
-
+	
+	virtual void onInitialize() override;
+	virtual void onUpdate() override;
+	
 	void updateNextAvailableIndex() {
 		m_nextAvailableIndex = 0;
 		while ( m_activePlayers.contains( m_nextAvailableIndex ) )
