@@ -294,6 +294,22 @@ void wv::Application::update()
 	// updates archetype lists. Move to only update when modified?
 	m_world->m_ecsEngine->updateSystemsArchetypes();
 
+	// physics update
+
+	wv::PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
+	physicsSystem->onInternalPrePhysicsUpdate();
+
+	m_accumulator += m_deltatime;
+	while ( m_accumulator > m_fixedDeltaTime )
+	{
+		physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
+
+		m_fixedRuntime += m_fixedDeltaTime;
+		m_accumulator -= m_fixedDeltaTime;
+	}
+
+	// normal update
+
 	m_world->dispatchUpdateMessage( UpdateMessageType_preUpdate );
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_update );
@@ -301,15 +317,6 @@ void wv::Application::update()
 		entity->getTransform().update( nullptr );
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
-
-	//m_accumulator += m_deltatime;
-	//while ( m_accumulator > m_fixed_delta_time )
-	//{
-	//	m_app->onFixedUpdate( m_fixed_delta_time );
-	//
-	//	m_fixed_runtime += m_fixed_delta_time;
-	//	m_accumulator -= m_fixed_delta_time;
-	//}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

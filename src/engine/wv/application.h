@@ -70,8 +70,8 @@ private:
 	double m_runtime = 0.0;
 	double m_deltatime = 1.0 / 60.0;
 
-	const double m_fixed_delta_time = 0.01;
-	double m_fixed_runtime = 0.0;
+	const double m_fixedDeltaTime = 0.01;
+	double m_fixedRuntime = 0.0;
 	double m_accumulator = 0.0;
 
 	// Subsystems

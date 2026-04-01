@@ -6,6 +6,7 @@
 #include <wv/components/mesh_component.h>
 #include <wv/components/camera_component.h>
 #include <wv/components/orbit_controller_component.h>
+#include <wv/components/rigidbody_component.h>
 
 #include <wv/input/input_system.h>
 
@@ -30,6 +31,25 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
+	
+
+	for ( size_t y = 0; y < 25; y++ )
+	{
+		for ( size_t x = 0; x < 25; x++ )
+		{
+			wv::Entity* ball = createEntity( "Ball" );
+			ball->getTransform().position = {
+				( (float)x - 12.5f ) * 2.0f,
+				(float)( x + y ),
+				( (float)y - 12.5f ) * 2.0f
+			};
+
+			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+			m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
+		}
+	}
+
+	if( false )
 	{
 		wv::Entity* cube = createEntity( "Cube" );
 		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, 0.0f }, { 0.0f, -45.0f, 0.0f } );
@@ -42,7 +62,7 @@ void GameWorld::onSceneCreate()
 		
 		wv::CameraComponent cameraComponent{};
 		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = true } );
-		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, {} );
+		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 45.0f } );
 	}
 	
 }

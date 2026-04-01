@@ -1,9 +1,16 @@
 #pragma once
 
 #include <wv/entity/ecs.h>
+#include <wv/helpers/unordered_array.hpp>
+
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
 namespace JPH {
 class PhysicsSystem;
+class TempAllocatorImpl;
+class JobSystemThreadPool;
+class Body;
 }
 
 namespace wv {
@@ -11,6 +18,8 @@ namespace wv {
 class BPLayerInterfaceImpl;
 class ObjectVsBroadPhaseLayerFilterImpl;
 class ObjectLayerPairFilterImpl;
+
+class PhysicsObjectContainer;
 
 class PhysicsSystem : public ISystem
 {
@@ -22,17 +31,26 @@ public:
 
 	virtual void onUpdate() override;
 
+	void onInternalPrePhysicsUpdate(); // runs once
+	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times
+	
 protected:
-	BPLayerInterfaceImpl* m_broadPhaseLayerInterface;
-	ObjectVsBroadPhaseLayerFilterImpl* m_objectVsBroadphaseLayerFilter;
-	ObjectLayerPairFilterImpl* m_objectVsObjectLayerFilter;
+	wv::unordered_array<int, JPH::BodyID> m_bodies;
 
-	JPH::PhysicsSystem* m_physicsSystem;
+	BPLayerInterfaceImpl*              m_broadPhaseLayerInterface      = nullptr;
+	ObjectVsBroadPhaseLayerFilterImpl* m_objectVsBroadphaseLayerFilter = nullptr;
+	ObjectLayerPairFilterImpl*         m_objectVsObjectLayerFilter     = nullptr;
 
-	const uint32_t m_maxPhysicsBodies = 1024;
+	JPH::TempAllocatorImpl*   m_tempAllocator = nullptr;
+	JPH::JobSystemThreadPool* m_jobSystem     = nullptr;
+	JPH::PhysicsSystem*       m_physicsSystem = nullptr;
+
+	const uint32_t m_maxPhysicsBodies = 65536;
 	const uint32_t m_numBodyMutexes = 0;
-	const uint32_t m_maxBodyPairs = 1024;
-	const uint32_t m_maxContactConstraints = 1024;
+	const uint32_t m_maxBodyPairs = 65536;
+	const uint32_t m_maxContactConstraints = 10240;
+
+	JPH::Body* m_staticFloor = nullptr;
 };
 
 }
