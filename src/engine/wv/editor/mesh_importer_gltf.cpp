@@ -22,6 +22,8 @@ struct fastgltf::ElementTraits<wv::Vector2f> : fastgltf::ElementTraitsBase<wv::V
 
 void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportOptions _options )
 {
+	m_loaded = false;
+
 	// Load file
 	IFileSystem* fs = Application::getSingleton()->getFileSystem();
 
@@ -203,6 +205,8 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 		m_materials.push_back( instance );
 	}
+
+	m_loaded = true;
 }
 
 void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions _options )

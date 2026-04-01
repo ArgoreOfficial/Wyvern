@@ -1,5 +1,9 @@
 #include "mesh_render_system.h"
 
+#include <wv/application.h>
+#include <wv/entity/world.h>
+#include <wv/editor/mesh_importer_gltf.h>
+
 void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 {
 	_config.addComponentType<MeshComponent>();
@@ -23,6 +27,31 @@ void wv::MeshRenderSystem::onUpdate()
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
 			wv::MeshComponent& meshComponent = meshes[ i ];
+
+			if ( meshComponent.meshAsset == nullptr )
+			{
+				if ( !meshComponent.assetPath.empty() && meshComponent.loadState == meshComponent.LoadState_unloaded )
+				{
+					meshComponent.loadState = MeshComponent::LoadState_loading;
+
+					World* world = wv::getApp()->getWorld();
+					MeshImporterGLTF importer = wv::MeshImporterGLTF( world->getMeshManager(), world->getMaterialManager(), world->getTextureManager() );
+					importer.load( meshComponent.assetPath, meshComponent.importOptions );
+
+					if ( importer.hasLoaded() )
+					{
+						meshComponent.materials = importer.getMaterials();
+						meshComponent.meshAsset = importer.getMesh();
+						meshComponent.loadState = MeshComponent::LoadState_loaded;
+					}
+					else
+					{
+						meshComponent.loadState = MeshComponent::LoadState_loadFailed;
+					}
+				}
+
+				continue;
+			}
 
 			const auto  meshAsset  = meshComponent.meshAsset;
 			const auto& primitives = meshAsset->getPrimitives();

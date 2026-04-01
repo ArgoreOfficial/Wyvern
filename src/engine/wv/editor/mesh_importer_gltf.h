@@ -40,6 +40,7 @@ public:
 	}
 	
 	void load( const std::filesystem::path& _path, MeshImportOptions _options = {} );
+	bool hasLoaded() const { return m_loaded; }
 
 	Ref<MeshAsset> getMesh() const { return m_meshAsset; }
 	std::vector<MaterialInstance> getMaterials() const { return m_materials; }
@@ -51,6 +52,8 @@ private:
 	MeshManager* m_meshManager;
 	MaterialManager* m_materialManager;
 	TextureManager* m_textureManager;
+
+	bool m_loaded = false;
 
 	Ref<MeshAsset> m_meshAsset = {};
 	std::vector<MaterialInstance> m_materials = {};

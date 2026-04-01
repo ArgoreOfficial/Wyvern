@@ -34,14 +34,7 @@ void GameWorld::onSceneCreate()
 		wv::Entity* cube = createEntity( "Cube" );
 		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, 0.0f }, { 0.0f, -45.0f, 0.0f } );
 		
-		wv::MeshImporterGLTF importer = wv::MeshImporterGLTF( m_meshManager, m_materialManager, m_textureManager );
-		importer.load( "meshes/SM_Tofumotive.glb", {} );
-
-		wv::MeshComponent meshComponent{};
-		meshComponent.materials = importer.getMaterials();
-		meshComponent.meshAsset = importer.getMesh();
-
-		m_ecsEngine->addComponent<wv::MeshComponent>( cube, meshComponent );
+		m_ecsEngine->addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_Tofumotive.glb" } );
 	}
 
 	{
