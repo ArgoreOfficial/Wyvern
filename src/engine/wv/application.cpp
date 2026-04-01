@@ -24,6 +24,7 @@
 #include <wv/systems/mesh_render_system.h>
 #include <wv/systems/camera_manager_system.h>
 #include <wv/systems/orbit_controller_system.h>
+#include <wv/systems/physics_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -177,10 +178,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	// systems must be set up first
 	m_world->addSystem<MeshRenderSystem>();
+	m_world->addSystem<PhysicsSystem>();
 	m_world->addSystem<CameraManagerSystem>();
 	m_world->addSystem<OrbitControllerSystem>();
 
 	m_world->onSceneCreate();
+
+	m_world->dispatchUpdateMessage( UpdateMessageType_initialize );
 
 	return true;
 }
@@ -189,6 +193,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
+	m_world->dispatchUpdateMessage( UpdateMessageType_shutdown );
+
 	m_renderer->waitForRenderer();
 
 	if ( m_world )

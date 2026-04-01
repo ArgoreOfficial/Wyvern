@@ -16,7 +16,7 @@ target "Wyvern"
     add_headerfiles()
     add_files("**.cpp")
 
-    add_packages("fastgltf", "libsdl3")
+    add_packages("fastgltf", "libsdl3", "joltphysics")
 
     if not is_mode("package") then 
         add_packages("tracy")

@@ -26,7 +26,8 @@ if is_plat("windows") then
         "WV_SUPPORT_FASTGLTF",
         "WV_SUPPORT_SDL", "WV_SUPPORT_SDL3",
         "WV_SUPPORT_IMGUI",
-        "WV_SUPPORT_TRACY"
+        "WV_SUPPORT_TRACY",
+        "WV_SUPPORT_JOLT"
     )
 
     if has_vulkansdk then 
@@ -44,7 +45,7 @@ if is_plat("windows") then
         )
     end
 
-    add_requires("fastgltf", "libsdl3")
+    add_requires("fastgltf", "libsdl3", "joltphysics")
 
     if not is_mode("package") then 
         add_requires("tracy")
