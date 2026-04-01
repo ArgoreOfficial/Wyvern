@@ -74,11 +74,18 @@ void wv::ECSEngine::updateSystemsArchetypes()
 
 void wv::ECSEngine::removeAllComponents( Entity* _entity )
 {
-	for ( auto v : _entity->archetype->m_vectors )
-		v.second->eraseComponent( _entity->archetypeIndex );
-	
+	Archetype* archetype = _entity->archetype;
+	int archetypeIndex = _entity->archetypeIndex;
+
 	_entity->archetype = nullptr;
 	_entity->archetypeIndex = 0;
+
+	for ( auto v : archetype->m_vectors )
+		v.second->eraseComponent( archetypeIndex );
+
+	for ( size_t i = archetypeIndex; i < archetype->m_entities.size(); i++ )
+		archetype->m_entities[ i ]->archetypeIndex--;
+	
 }
 
 void wv::ArchetypeConfig::addComponentType( int _typeIndex )

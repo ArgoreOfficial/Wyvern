@@ -330,8 +330,11 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 	oldArchetype->m_vectors[ index ]->eraseComponent( oldArchetypeIndex );
 	oldArchetype->m_entities.erase( oldArchetype->m_entities.begin() + oldArchetypeIndex );
 
-	for ( auto e : oldArchetype->m_entities )
-		e->archetypeIndex--;
+	// decrement other entities' indices. TODO: stable index container
+
+	for ( size_t i = oldArchetypeIndex; i < oldArchetype->m_entities.size(); i++ )
+		oldArchetype->m_entities[ i ]->archetypeIndex--;
+
 }
 
 }
