@@ -57,6 +57,13 @@ struct SlotMap
 		data.clear();
 	}
 
+	bool contains( size_t _index ) const {
+		if ( _index >= dataIndices.size() )
+			return false;
+
+		return dataIndices[ _index ] < data.size();
+	}
+
 	size_t size() const { return data.size(); }
 
 	std::vector<Ty>::iterator       begin()       { return data.begin(); }
