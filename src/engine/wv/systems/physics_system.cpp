@@ -22,6 +22,10 @@ JPH_SUPPRESS_WARNINGS
 #include <wv/math/math.h>
 #include <wv/rendering/renderer.h>
 
+#ifdef WV_SUPPORT_IMGUI
+#include <imgui/imgui.h>
+#endif
+
 namespace wv {
 
 namespace Layers {
@@ -224,14 +228,34 @@ void wv::PhysicsSystem::onShutdown()
 	JPH::Factory::sInstance = nullptr;
 }
 
-void wv::PhysicsSystem::onUpdate()
+void wv::PhysicsSystem::onDebugRender()
 {
-	JPH::BodyManager::DrawSettings drawSettings;
-	drawSettings.mDrawShape = true;
-	drawSettings.mDrawShapeWireframe = true; // Wireframe for debug
-	drawSettings.mDrawBoundingBox = false;
-	//m_debugRenderer->SetCameraPos( camera_x, camera_y, camera_z );
-	m_physicsSystem->DrawBodies( drawSettings, JPH::DebugRenderer::sInstance );
+	if( ImGui::Begin( "Physics Debug" ) )
+	{
+		ImGui::Checkbox( "Enable Debug Draw",             &m_drawEnabled );
+		ImGui::BeginDisabled( !m_drawEnabled );
+		ImGui::Checkbox( "Draw Wireframe",                &m_drawWireframe );
+		ImGui::Checkbox( "Draw Bounding Box",             &m_drawBoundingBox );
+		ImGui::Checkbox( "Draw Center of Mass Transform", &m_drawCenterOfMassTransform );
+		ImGui::Checkbox( "Draw World Transform",          &m_drawWorldTransform );
+		ImGui::Checkbox( "Draw Velocity",                 &m_drawVelocity );
+		ImGui::Checkbox( "Draw Mass and Inertia",         &m_drawMassAndInertia );
+		ImGui::EndDisabled();
+	}
+	ImGui::End();
+
+	if ( m_drawEnabled )
+	{
+		JPH::BodyManager::DrawSettings drawSettings{};
+		drawSettings.mDrawShape = m_drawEnabled;
+		drawSettings.mDrawShapeWireframe        = m_drawWireframe;
+		drawSettings.mDrawBoundingBox           = m_drawBoundingBox;
+		drawSettings.mDrawCenterOfMassTransform = m_drawCenterOfMassTransform;
+		drawSettings.mDrawWorldTransform        = m_drawWorldTransform;
+		drawSettings.mDrawVelocity              = m_drawVelocity;
+		drawSettings.mDrawMassAndInertia        = m_drawMassAndInertia;
+		m_physicsSystem->DrawBodies( drawSettings, JPH::DebugRenderer::sInstance );
+	}
 }
 
 void wv::PhysicsSystem::onInternalPrePhysicsUpdate()

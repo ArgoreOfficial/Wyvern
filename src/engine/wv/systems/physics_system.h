@@ -30,7 +30,7 @@ public:
 	virtual void onInitialize() override;
 	virtual void onShutdown() override;
 
-	virtual void onUpdate() override;
+	virtual void onDebugRender() override;
 
 	void onInternalPrePhysicsUpdate(); // runs once
 	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times
@@ -53,6 +53,16 @@ protected:
 	const uint32_t m_maxContactConstraints = 10240;
 
 	JPH::Body* m_staticFloor = nullptr;
+
+	// Debug Drawing
+
+	bool m_drawEnabled = false;
+	bool m_drawWireframe = false;
+	bool m_drawBoundingBox = false;
+	bool m_drawCenterOfMassTransform = false;
+	bool m_drawWorldTransform = false;
+	bool m_drawVelocity = false;
+	bool m_drawMassAndInertia = false;
 };
 
 }
