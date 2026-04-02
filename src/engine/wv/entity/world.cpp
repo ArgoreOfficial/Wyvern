@@ -86,3 +86,74 @@ void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
 		}
 	}
 }
+
+void wv::World::updateComponentChanges() 
+{
+	for ( auto& change : m_componentChangeQueue )
+	{
+		std::bitset<256> oldBitmask{};
+		std::bitset<256> newBitmask{};
+
+		// get old archetype, if any
+		if ( Archetype* oldArchetype = change.entity->archetype )
+		{
+			oldBitmask = oldArchetype->m_bitmask;
+			newBitmask = oldArchetype->m_bitmask;
+		}
+
+		if ( change.type == ComponentChange::ComponentChangeType_add )
+		{
+			newBitmask[ change.componentTypeIndex ] = true;
+
+			// add first, notify after
+			change.callback();
+			checkComponentAddChanges( oldBitmask, newBitmask, change.entity );
+		}
+		else
+		{
+			newBitmask[ change.componentTypeIndex ] = false;
+
+			// notify first, remove after
+			checkComponentRemoveChanges( oldBitmask, newBitmask, change.entity );
+			change.callback();
+		}
+	}
+
+	m_componentChangeQueue.clear();
+}
+
+void wv::World::checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _entity )
+{
+	// find systems that previously didn't match
+	std::vector<ISystem*> systemsToCheck;
+	for ( auto& [k, v] : m_ecsEngine->m_systemIndexMap )
+	{
+		if ( !v->matchesBitmask( _oldBitmask ) )
+			systemsToCheck.push_back( v );
+	}
+
+	for ( auto* s : systemsToCheck )
+	{
+		// if a system that previously didn't match but now does, it needs to get notified
+		if ( s->matchesBitmask( _newBitmask ) )
+			s->onComponentAdded( _entity->archetype, _entity->archetypeIndex );
+	}
+}
+
+void wv::World::checkComponentRemoveChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _entity )
+{
+	// find systems that previously matched
+	std::vector<ISystem*> systemsToCheck;
+	for ( auto& [k, v] : m_ecsEngine->m_systemIndexMap )
+	{
+		if ( v->matchesBitmask( _oldBitmask ) )
+			systemsToCheck.push_back( v );
+	}
+
+	for ( auto* s : systemsToCheck )
+	{
+		// if a system that previously matched but no longer does, it needs to get notified
+		if ( !s->matchesBitmask( _newBitmask ) )
+			s->onComponentRemoved( _entity->archetype, _entity->archetypeIndex );
+	}
+}

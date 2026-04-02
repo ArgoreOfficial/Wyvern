@@ -70,20 +70,30 @@ public:
 
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
-		m_componentChangeQueue.push_back(
-			[this, _entity, _component]()
+		ComponentChange compChange{};
+		compChange.type = ComponentChange::ComponentChangeType_add;
+		compChange.entity = _entity;
+		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
+		compChange.callback = [ this, _entity, _component ]()
 			{
 				m_ecsEngine->addComponent<Ty>( _entity, _component );
-			} );
+			};
+		
+		m_componentChangeQueue.push_back( compChange );
 	}
 
 	template<typename Ty>
 	void removeComponent( Entity* _entity ) {
-		m_componentChangeQueue.push_back(
-			[ this, _entity ]()
+		ComponentChange compChange{};
+		compChange.type = ComponentChange::ComponentChangeType_remove;
+		compChange.entity = _entity;
+		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
+		compChange.callback = [ this, _entity ]()
 			{
 				m_ecsEngine->removeComponent<Ty>( _entity );
-			} );
+			};
+
+		m_componentChangeQueue.push_back( compChange );
 	}
 
 	template<typename Ty>
@@ -135,13 +145,24 @@ protected:
 	TextureManager*  m_textureManager  = nullptr;
 
 private:
-	void updateComponentChanges() {
-		for ( auto& f : m_componentChangeQueue )
-			f();
-		m_componentChangeQueue.clear();
-	}
+	struct ComponentChange
+	{
+		enum ComponentChangeType
+		{
+			ComponentChangeType_add,
+			ComponentChangeType_remove
+		};
+		ComponentChangeType type;
+		Entity* entity;
+		int componentTypeIndex;
+		std::function<void()> callback;
+	};
 
-	std::vector<std::function<void()>> m_componentChangeQueue;
+	void updateComponentChanges();
+	void checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _change );
+	void checkComponentRemoveChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _change );
+
+	std::vector<ComponentChange> m_componentChangeQueue;
 };
 
 }

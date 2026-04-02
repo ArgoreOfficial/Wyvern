@@ -171,8 +171,14 @@ public:
 	}
 
 	std::bitset<256> getArchetypeBitmask() const { return m_archetypeBitmask; }
+	bool matchesBitmask( std::bitset<256> _bitmask ) const {
+		return ( m_archetypeBitmask & _bitmask ) == m_archetypeBitmask;
+	}
 
 	virtual void configure( ArchetypeConfig& _config ) = 0;
+
+	virtual void onComponentAdded( Archetype* _archetype, size_t _index ) { }
+	virtual void onComponentRemoved( Archetype* _archetype, size_t _index ) { }
 
 private:
 	friend class ECSEngine;
