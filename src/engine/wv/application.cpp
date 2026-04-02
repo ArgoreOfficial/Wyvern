@@ -181,6 +181,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->addSystem<OrbitControllerSystem>();
 
 	m_world->onSceneCreate();
+	m_world->updateComponentChanges();
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_initialize );
 
@@ -265,7 +266,7 @@ bool wv::Application::tick()
 	m_eventManager->processEvents();
 
 	m_audioSystem->updateRecordingDevices();
-
+	
 	update();
 	render();
 	
@@ -289,6 +290,8 @@ void wv::Application::update()
 	if ( windowSize.y == 0 ) windowSize.y = 1;
 	m_world->getViewport()->size = { windowSize.x, windowSize.y };
 
+	// adds and removes components
+	m_world->updateComponentChanges();
 	// updates archetype lists. Move to only update when modified?
 	m_world->m_ecsEngine->updateSystemsArchetypes();
 

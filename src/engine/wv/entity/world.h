@@ -70,12 +70,20 @@ public:
 
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
-		m_ecsEngine->addComponent<Ty>( _entity, _component );
+		m_componentChangeQueue.push_back(
+			[this, _entity, _component]()
+			{
+				m_ecsEngine->addComponent<Ty>( _entity, _component );
+			} );
 	}
 
 	template<typename Ty>
 	void removeComponent( Entity* _entity ) {
-		m_ecsEngine->removeComponent<Ty>( _entity );
+		m_componentChangeQueue.push_back(
+			[ this, _entity ]()
+			{
+				m_ecsEngine->removeComponent<Ty>( _entity );
+			} );
 	}
 
 	template<typename Ty>
@@ -125,6 +133,15 @@ protected:
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
 	TextureManager*  m_textureManager  = nullptr;
+
+private:
+	void updateComponentChanges() {
+		for ( auto& f : m_componentChangeQueue )
+			f();
+		m_componentChangeQueue.clear();
+	}
+
+	std::vector<std::function<void()>> m_componentChangeQueue;
 };
 
 }

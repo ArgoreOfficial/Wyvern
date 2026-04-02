@@ -41,27 +41,27 @@ void GameWorld::onSceneCreate()
 		wv::Entity* ball = createEntity( "Ball" );
 		ball->getTransform().position = { 0.0f, 4.0f, 0.0f };
 
-		m_ecsEngine->addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
-		m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
-		m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+		addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
+		addComponent<wv::RigidBodyComponent>( ball, {} );
+		addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
 	}
 	
 	{
 		wv::Entity* cube = createEntity( "Cube" );
 		cube->getTransform().position = { 0.1f, 5.0f, 0.0f };
 
-		m_ecsEngine->addComponent<wv::ColliderComponent>( cube, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
-		m_ecsEngine->addComponent<wv::RigidBodyComponent>( cube, {} );
-		m_ecsEngine->addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+		addComponent<wv::ColliderComponent>( cube, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
+		addComponent<wv::RigidBodyComponent>( cube, {} );
+		addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_MaterialCube.glb" } );
 
 		wv::TaskSystem* taskSystem = wv::getApp()->getTaskSystem();
 		wv::ThreadWorker* worker = taskSystem->getThreadWorker();
 
-		//worker->push( [ this, cube ]( auto, auto )
-		//			  {
-		//				  wv::Thread::sleepForSeconds( 5.0 );
-		//				  m_ecsEngine->removeComponent<wv::RigidBodyComponent>( cube );
-		//			  } );
+		worker->push( [ this, cube ]( auto, auto )
+					  {
+						  wv::Thread::sleepForSeconds( 1.5 );
+						  removeComponent<wv::RigidBodyComponent>( cube );
+					  } );
 	}
 
 	{
