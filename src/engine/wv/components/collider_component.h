@@ -22,7 +22,7 @@ struct ColliderComponent
 	float cylinderHeight = 1.0f;
 
 	// used with ColliderShape_cylinder & ColliderShape_sphere
-	float radius = 1.0f;
+	float radius = 0.5f;
 };
 
 }

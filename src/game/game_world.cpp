@@ -11,6 +11,10 @@
 
 #include <wv/input/input_system.h>
 
+#include <wv/application.h>
+#include <wv/thread/task_system.h>
+#include <wv/thread/thread.h>
+
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
@@ -32,40 +36,38 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
-	for ( size_t y = 0; y < 25; y++ )
+	
 	{
-		for ( size_t x = 0; x < 25; x++ )
-		{
-			wv::Entity* ball = createEntity( "Ball" );
-			ball->getTransform().position = {
-				( (float)x - 12.5f ) * 0.9f,
-				(float)( x + y ) * 1.5f,
-				( (float)y - 12.5f ) * 0.9f
-			};
+		wv::Entity* ball = createEntity( "Ball" );
+		ball->getTransform().position = { 0.0f, 4.0f, 0.0f };
 
-			m_ecsEngine->addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
-			m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
-			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialCube.glb" } );
-
-			if ( x == 10 && y == 10 )
-			{
-				m_ecsEngine->addComponent<wv::CameraComponent>( ball, { .active = true } );
-			}
-		}
+		m_ecsEngine->addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
+		m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
+		m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
 	}
-
-	if( false )
+	
 	{
 		wv::Entity* cube = createEntity( "Cube" );
-		cube->getTransform().setPositionRotation( { 0.0f, -1.0f, 0.0f }, { 0.0f, -45.0f, 0.0f } );
-		
-		m_ecsEngine->addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_Tofumotive.glb" } );
+		cube->getTransform().position = { 0.1f, 5.0f, 0.0f };
+
+		m_ecsEngine->addComponent<wv::ColliderComponent>( cube, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
+		m_ecsEngine->addComponent<wv::RigidBodyComponent>( cube, {} );
+		m_ecsEngine->addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+
+		wv::TaskSystem* taskSystem = wv::getApp()->getTaskSystem();
+		wv::ThreadWorker* worker = taskSystem->getThreadWorker();
+
+		//worker->push( [ this, cube ]( auto, auto )
+		//			  {
+		//				  wv::Thread::sleepForSeconds( 5.0 );
+		//				  m_ecsEngine->removeComponent<wv::RigidBodyComponent>( cube );
+		//			  } );
 	}
 
 	{
 		wv::Entity* camera = createEntity( "Orbit Camera" );
 		
-		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = false } );
+		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = true } );
 		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 45.0f } );
 	}
 	

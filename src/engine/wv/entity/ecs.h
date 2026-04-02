@@ -2,6 +2,7 @@
 
 #include <wv/entity/entity.h>
 #include <wv/memory/memory.h>
+#include <wv/slot_map.h>
 #include <wv/updatable.h>
 
 #include <bitset>
@@ -29,30 +30,30 @@ static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>&
 	return bitmask;
 }
 
-struct IComponentVector
+struct IComponentContainer
 {
-	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) = 0;
+	/**
+	 * @brief move component between `_from` to this container
+	 * @return new index of component
+	 */
+	virtual size_t moveComponent( IComponentContainer* _from, size_t _index ) = 0;
 	virtual void eraseComponent( size_t _index ) = 0;
 };
 
 template<typename Ty>
-struct ComponentVector : public IComponentVector
+struct ComponentContainer : public IComponentContainer
 {
-	std::vector<Ty> components;
+	wv::SlotMap<Ty> components;
 
-	virtual void moveComponent( IComponentVector* _oldVector, size_t _index ) override
-	{
-		ComponentVector<Ty>* oldVector = reinterpret_cast<ComponentVector<Ty>*>( _oldVector );
-
-		Ty comp = oldVector->components[ _index ];
-		oldVector->components.erase( oldVector->components.begin() + _index );
-
-		components.push_back( comp );
+	virtual size_t moveComponent( IComponentContainer* _from, size_t _index ) override {
+		wv::SlotMap<Ty>& fromComponents = ( ( ComponentContainer<Ty>* )_from )->components;
+		size_t newIndex = components.push( fromComponents[ _index ] );
+		fromComponents.erase( _index );
+		return newIndex;
 	}
 
-	virtual void eraseComponent( size_t _index ) override
-	{
-		components.erase( components.begin() + _index );
+	virtual void eraseComponent( size_t _index ) override {
+		components.erase( _index );
 	}
 };
 
@@ -99,6 +100,7 @@ public:
 	}
 
 	Archetype* registerArchetype( ArchetypeConfig& _config );
+	Archetype* registerArchetype( std::bitset<256> _bitmask );
 	Archetype* getExactArchetype( std::bitset<256> _bitmask );
 
 	void updateSystemsArchetypes();
@@ -117,7 +119,7 @@ public:
 	std::vector<Archetype*> m_archetypes;
 	std::unordered_map<int, ISystem*> m_systemIndexMap;
 
-	std::unordered_map<int, std::function<IComponentVector* ( )>> m_componentVectorFuns;
+	std::unordered_map<int, std::function<IComponentContainer* ( )>> m_componentVectorFuns;
 };
 
 struct ArchetypeConfig
@@ -136,27 +138,28 @@ struct ArchetypeConfig
 struct Archetype
 {
 	~Archetype() {
-		for ( auto pair : m_vectors )
+		for ( auto pair : m_containers )
 			WV_FREE( pair.second );
 
-		m_vectors.clear();
+		m_containers.clear();
 		m_entities.clear();
 	}
 
 	template<typename Ty>
-	std::vector<Ty>& getComponents() {
+	wv::SlotMap<Ty>& getComponents() {
 		int componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		WV_ASSERT_MSG( componentTypeIndex >= 0, "Component type not registered" );
 
-		ComponentVector<Ty>* vec = reinterpret_cast<ComponentVector<Ty>*>( m_vectors.at( componentTypeIndex ) );
+		ComponentContainer<Ty>* vec = reinterpret_cast<ComponentContainer<Ty>*>( m_containers.at( componentTypeIndex ) );
 		return vec->components;
 	}
 
 	size_t getNumEntities() const { return m_entities.size(); }
 	Entity* getEntity( size_t _index ) { return m_entities[ _index ]; }
+	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
 
-	std::unordered_map<int, IComponentVector*> m_vectors;
-	std::vector<Entity*> m_entities;
+	std::unordered_map<int, IComponentContainer*> m_containers;
+	wv::SlotMap<Entity*> m_entities;
 	std::bitset<256> m_bitmask{};
 };
 
@@ -187,7 +190,7 @@ inline int ECSEngine::registerComponentType()
 		ComponentTypeDef<Ty>::index = numComponentTypes++;
 		m_componentVectorFuns[ ComponentTypeDef<Ty>::index ] = []()
 			{
-				return (IComponentVector*)WV_NEW( ComponentVector<Ty> );
+				return (IComponentContainer*)WV_NEW( ComponentContainer<Ty> );
 			};
 	}
 
@@ -251,38 +254,28 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 
 	Archetype* newArchetype = getExactArchetype( bitmask );
 
-	if ( newArchetype == nullptr )
-	{
-		// new archetype, register
-
-		ArchetypeConfig config{};
-		config.addComponentType<Ty>();
-		if ( oldArchetype )
-		{
-			for ( auto& [tindex, vec] : oldArchetype->m_vectors )
-				config.addComponentType( tindex );
-		}
-		
-		newArchetype = registerArchetype( config );
-	}
-
+	if ( newArchetype == nullptr ) // new archetype, register
+		newArchetype = registerArchetype( bitmask );
+	
 	// move other components over to the new archetype
+	size_t newIndex = 0;
 	if ( oldArchetype )
 	{
-		for ( auto& [tindex, vec] : oldArchetype->m_vectors )
-			newArchetype->m_vectors[ tindex ]->moveComponent( vec, oldArchetypeIndex );
+		for ( auto& [compTypeIndex, oldContainer] : oldArchetype->m_containers )
+		{
+			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
+			newIndex = newContainer->moveComponent( oldContainer, oldArchetypeIndex );
+		}
 
-		oldArchetype->m_entities.erase( oldArchetype->m_entities.begin() + oldArchetypeIndex );
-
-		for ( auto e : oldArchetype->m_entities )
-			e->archetypeIndex--;
+		// should this be removed?
+		oldArchetype->m_entities.erase( oldArchetypeIndex );
 	}
 
-	newArchetype->getComponents<Ty>().push_back( _component );
-	newArchetype->m_entities.push_back( _entity );
-
+	newArchetype->m_entities.push( _entity );
+	_entity->archetypeIndex = newArchetype->getComponents<Ty>().push( _component );
 	_entity->archetype = newArchetype;
-	_entity->archetypeIndex = newArchetype->m_entities.size() - 1;
+
+	WV_ASSERT( newIndex == _entity->archetypeIndex );
 }
 
 template<typename Ty>
@@ -308,18 +301,22 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 	if ( bitmask.any() )
 	{
 		Archetype* newArchetype = getExactArchetype( bitmask ); // find it
+		if ( newArchetype == nullptr ) // new archetype, register
+			newArchetype = registerArchetype( bitmask );
 
 		// move other components to the new archetype
-		for ( auto& [compTypeIndex, oldCompVec] : oldArchetype->m_vectors )
+		
+		for ( auto& [compTypeIndex, oldContainer] : oldArchetype->m_containers )
 		{
 			if ( compTypeIndex == index )
 				continue;
 
-			newArchetype->m_vectors[ compTypeIndex ]->moveComponent( oldCompVec, oldArchetypeIndex );
+			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
+			newContainer->moveComponent( oldContainer, oldArchetypeIndex );
 		}
 
 		_entity->archetype = newArchetype;
-		_entity->archetypeIndex = newArchetype->m_entities.size() - 1;
+		_entity->archetypeIndex = newArchetype->m_entities.push( _entity );
 	}
 	else
 	{
@@ -327,14 +324,8 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 		_entity->archetypeIndex = 0;
 	}
 	
-	oldArchetype->m_vectors[ index ]->eraseComponent( oldArchetypeIndex );
-	oldArchetype->m_entities.erase( oldArchetype->m_entities.begin() + oldArchetypeIndex );
-
-	// decrement other entities' indices. TODO: stable index container
-
-	for ( size_t i = oldArchetypeIndex; i < oldArchetype->m_entities.size(); i++ )
-		oldArchetype->m_entities[ i ]->archetypeIndex--;
-
+	oldArchetype->container( index )->eraseComponent( oldArchetypeIndex );
+	oldArchetype->m_entities.erase( oldArchetypeIndex );
 }
 
 }

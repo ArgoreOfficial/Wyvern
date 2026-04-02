@@ -30,7 +30,7 @@ wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
 
 	for ( size_t i = 0; i < _config.componentTypeIndices.size(); i++ )
 	{
-		archetype->m_vectors.emplace(
+		archetype->m_containers.emplace(
 			_config.componentTypeIndices[ i ],
 			m_componentVectorFuns[ _config.componentTypeIndices[ i ] ]()
 		);
@@ -49,6 +49,17 @@ wv::Archetype* wv::ECSEngine::getExactArchetype( std::bitset<256> _bitmask )
 	}
 
 	return nullptr;
+}
+
+wv::Archetype* wv::ECSEngine::registerArchetype( std::bitset<256> _bitmask )
+{
+	ArchetypeConfig config{};
+	
+	for ( size_t i = 0; i < numComponentTypes; i++ )
+		if( _bitmask[ i ] )
+			config.addComponentType( i );
+	
+	return registerArchetype( config );
 }
 
 void wv::ECSEngine::updateSystemsArchetypes()
@@ -80,12 +91,8 @@ void wv::ECSEngine::removeAllComponents( Entity* _entity )
 	_entity->archetype = nullptr;
 	_entity->archetypeIndex = 0;
 
-	for ( auto v : archetype->m_vectors )
+	for ( auto v : archetype->m_containers )
 		v.second->eraseComponent( archetypeIndex );
-
-	for ( size_t i = archetypeIndex; i < archetype->m_entities.size(); i++ )
-		archetype->m_entities[ i ]->archetypeIndex--;
-	
 }
 
 void wv::ArchetypeConfig::addComponentType( int _typeIndex )

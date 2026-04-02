@@ -57,6 +57,8 @@ struct SlotMap
 		data.clear();
 	}
 
+	size_t size() const { return data.size(); }
+
 	std::vector<Ty>::iterator       begin()       { return data.begin(); }
 	std::vector<Ty>::const_iterator begin() const { return data.begin(); }
 	std::vector<Ty>::iterator       end()       { return data.end(); }

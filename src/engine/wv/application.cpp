@@ -77,8 +77,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_taskSystem = WV_NEW( TaskSystem );
 	m_taskSystem->createThreads( 20 );
 
-	Debug::Print( "Wait complete\n" );
-
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
 	m_inputSystem->createInputDriver<WindowsMouseDriver>();
