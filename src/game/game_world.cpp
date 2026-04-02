@@ -45,7 +45,12 @@ void GameWorld::onSceneCreate()
 
 			m_ecsEngine->addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 			m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
-			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+
+			if ( x == 10 && y == 10 )
+			{
+				m_ecsEngine->addComponent<wv::CameraComponent>( ball, { .active = true } );
+			}
 		}
 	}
 
@@ -60,8 +65,7 @@ void GameWorld::onSceneCreate()
 	{
 		wv::Entity* camera = createEntity( "Orbit Camera" );
 		
-		wv::CameraComponent cameraComponent{};
-		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = true } );
+		m_ecsEngine->addComponent<wv::CameraComponent>( camera, { .active = false } );
 		m_ecsEngine->addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 45.0f } );
 	}
 	
