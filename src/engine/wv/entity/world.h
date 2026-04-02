@@ -55,6 +55,8 @@ public:
 	World();
 	virtual ~World();
 
+	void destroyAllEntities();
+	
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
 	TextureManager*  getTextureManager()  const { return m_textureManager; }
@@ -74,10 +76,7 @@ public:
 		compChange.type = ComponentChange::ComponentChangeType_add;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
-		compChange.callback = [ this, _entity, _component ]()
-			{
-				m_ecsEngine->addComponent<Ty>( _entity, _component );
-			};
+		compChange.callback = [ this, _entity, _component ]() { m_ecsEngine->addComponent<Ty>( _entity, _component ); };
 		
 		m_componentChangeQueue.push_back( compChange );
 	}
@@ -88,10 +87,16 @@ public:
 		compChange.type = ComponentChange::ComponentChangeType_remove;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
-		compChange.callback = [ this, _entity ]()
-			{
-				m_ecsEngine->removeComponent<Ty>( _entity );
-			};
+		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeComponent<Ty>( _entity ); };
+
+		m_componentChangeQueue.push_back( compChange );
+	}
+
+	void removeAllComponents( Entity* _entity ) {
+		ComponentChange compChange{};
+		compChange.type = ComponentChange::ComponentChangeType_removeAll;
+		compChange.entity = _entity;
+		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeAllComponents( _entity ); };
 
 		m_componentChangeQueue.push_back( compChange );
 	}
@@ -135,7 +140,6 @@ protected:
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 		
 	Viewport* m_viewport = nullptr;
-	ECSEngine* m_ecsEngine = nullptr;
 
 	std::vector<Entity*> m_entities;
 	std::unordered_set<IUpdatable*> m_updatables;
@@ -145,12 +149,15 @@ protected:
 	TextureManager*  m_textureManager  = nullptr;
 
 private:
+	ECSEngine* m_ecsEngine = nullptr;
+
 	struct ComponentChange
 	{
 		enum ComponentChangeType
 		{
 			ComponentChangeType_add,
-			ComponentChangeType_remove
+			ComponentChangeType_remove,
+			ComponentChangeType_removeAll
 		};
 		ComponentChangeType type;
 		Entity* entity;

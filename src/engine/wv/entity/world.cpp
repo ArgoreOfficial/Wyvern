@@ -31,15 +31,10 @@ wv::World::World()
 
 wv::World::~World()
 {
-	for ( Entity* e : m_entities )
-		if ( e->archetype )
-			m_ecsEngine->removeAllComponents( e );
-	
+	destroyAllEntities();
+
 	WV_FREE( m_ecsEngine );
 
-	for ( Entity* e : m_entities )
-		WV_FREE( e );
-	
 	m_textureManager->clearPersistent();
 	m_materialManager->clearPersistent();
 	m_meshManager->clearPersistent();
@@ -51,6 +46,23 @@ wv::World::~World()
 	WV_FREE( m_textureManager );
 	WV_FREE( m_materialManager );
 	WV_FREE( m_meshManager );
+}
+
+void wv::World::destroyAllEntities()
+{
+	if ( m_entities.empty() )
+		return;
+
+	for ( Entity* e : m_entities )
+		if ( e->archetype )
+			removeAllComponents( e );
+
+	updateComponentChanges();
+
+	for ( Entity* e : m_entities )
+		WV_FREE( e );
+
+	m_entities.clear();
 }
 
 wv::Entity* wv::World::createEntity( const std::string& _name )
@@ -109,9 +121,17 @@ void wv::World::updateComponentChanges()
 			change.callback();
 			checkComponentAddChanges( oldBitmask, newBitmask, change.entity );
 		}
-		else
+		else if ( change.type == ComponentChange::ComponentChangeType_remove )
 		{
 			newBitmask[ change.componentTypeIndex ] = false;
+
+			// notify first, remove after
+			checkComponentRemoveChanges( oldBitmask, newBitmask, change.entity );
+			change.callback();
+		}
+		else if ( change.type == ComponentChange::ComponentChangeType_removeAll )
+		{
+			newBitmask = {};
 
 			// notify first, remove after
 			checkComponentRemoveChanges( oldBitmask, newBitmask, change.entity );
