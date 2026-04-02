@@ -135,8 +135,12 @@ struct ArchetypeConfig
 	}
 };
 
-struct Archetype
+class Archetype
 {
+	friend class ECSEngine;
+	friend class World;
+
+public:
 	~Archetype() {
 		for ( auto pair : m_containers )
 			WV_FREE( pair.second );
@@ -146,7 +150,16 @@ struct Archetype
 	}
 
 	template<typename Ty>
-	wv::SlotMap<Ty>& getComponents() {
+	std::vector<Ty>& getComponents() {
+		int componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
+		WV_ASSERT_MSG( componentTypeIndex >= 0, "Component type not registered" );
+
+		ComponentContainer<Ty>* vec = reinterpret_cast<ComponentContainer<Ty>*>( m_containers.at( componentTypeIndex ) );
+		return vec->components.data;
+	}
+
+	template<typename Ty>
+	wv::SlotMap<Ty>& getComponentContainer() {
 		int componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		WV_ASSERT_MSG( componentTypeIndex >= 0, "Component type not registered" );
 
@@ -155,9 +168,13 @@ struct Archetype
 	}
 
 	size_t getNumEntities() const { return m_entities.size(); }
-	Entity* getEntity( size_t _index ) { return m_entities[ _index ]; }
+	
+	std::vector<Entity*>& getEntities() { return m_entities.data; }
+	wv::SlotMap<Entity*>& getEntitiesContainer() { return m_entities; }
+
 	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
 
+private:
 	std::unordered_map<int, IComponentContainer*> m_containers;
 	wv::SlotMap<Entity*> m_entities;
 	std::bitset<256> m_bitmask{};
@@ -278,7 +295,7 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 	}
 
 	newArchetype->m_entities.push( _entity );
-	_entity->archetypeIndex = newArchetype->getComponents<Ty>().push( _component );
+	_entity->archetypeIndex = newArchetype->getComponentContainer<Ty>().push( _component );
 	_entity->archetype = newArchetype;
 
 	WV_ASSERT( newIndex == _entity->archetypeIndex );

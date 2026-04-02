@@ -27,6 +27,9 @@ class PhysicsSystem : public ISystem
 public:
 	virtual void configure( ArchetypeConfig& _config ) override;
 
+	virtual void onComponentAdded( Archetype* _archetype, size_t _index ) override;
+	virtual void onComponentRemoved( Archetype* _archetype, size_t _index ) override;
+
 	virtual void onInitialize() override;
 	virtual void onShutdown() override;
 
@@ -53,6 +56,9 @@ protected:
 	const uint32_t m_maxContactConstraints = 10240;
 
 	JPH::Body* m_staticFloor = nullptr;
+
+	// number of removes and adds
+	size_t m_numPhysicsBodyChanges = 0;
 
 	// Debug Drawing
 

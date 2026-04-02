@@ -153,6 +153,63 @@ void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<ColliderComponent>();
 }
 
+void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
+{
+	Entity* ent = _archetype->getEntities()[ _index ];
+	ColliderComponent&  collider  = _archetype->getComponents<ColliderComponent>()[ _index ];
+	RigidBodyComponent& rigidbody = _archetype->getComponents<RigidBodyComponent>()[ _index ];
+
+	if ( rigidbody.id != -1 )
+		return;
+
+	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
+
+	wv::Vector3f pos = ent->getTransform().position;
+	wv::Vector3f rot = ent->getTransform().rotation;
+	JPH::BodyCreationSettings shapeSetting{};
+
+	auto jphPos = JPH::RVec3( pos.x, pos.y, pos.z );
+	auto jphRot = JPH::Quat::sEulerAngles( { rot.x, rot.y, rot.z } );
+	auto motionType = JPH::EMotionType::Dynamic;
+	auto layers = Layers::MOVING;
+
+	switch ( collider.shape )
+	{
+	case ColliderShape_box:
+	{
+		shapeSetting = JPH::BodyCreationSettings(
+			new JPH::BoxShape( { collider.boxSize.x / 2.0f, collider.boxSize.y / 2.0f, collider.boxSize.z / 2.0f } ),
+			jphPos, jphRot, motionType, layers
+		);
+	} break;
+
+	case ColliderShape_cylinder:
+	{
+		shapeSetting = JPH::BodyCreationSettings(
+			new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
+			jphPos, jphRot, motionType, layers
+		);
+	} break;
+
+	case ColliderShape_sphere:
+	{
+		shapeSetting = JPH::BodyCreationSettings(
+			new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
+			jphPos, jphRot, motionType, layers
+		);
+	} break;
+	}
+
+	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( shapeSetting, JPH::EActivation::Activate );
+	rigidbody.id = m_bodies.emplace( bodyID );
+	m_numPhysicsBodyChanges++;
+}
+
+void wv::PhysicsSystem::onComponentRemoved( Archetype* _archetype, size_t _index )
+{
+	Debug::Print( "Physics Component Removed\n" );
+}
+
 void wv::PhysicsSystem::onInitialize()
 {
 	JPH::RegisterDefaultAllocator();
@@ -260,71 +317,10 @@ void wv::PhysicsSystem::onDebugRender()
 
 void wv::PhysicsSystem::onInternalPrePhysicsUpdate()
 {
-	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-
-	uint32_t numCreatedBodies = 0;
-
-	for ( Archetype* archetype : getArchetypes() )
-	{
-		auto& colliders   = archetype->getComponents<ColliderComponent>();
-		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
-
-		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
-		{
-			ColliderComponent&  collider  = colliders[ i ];
-			RigidBodyComponent& rigidbody = rigidbodies[ i ];
-
-			if ( rigidbody.id == -1 )
-			{
-				Entity* ent = archetype->getEntity( i );
-				wv::Vector3f pos = ent->getTransform().position;
-				wv::Vector3f rot = ent->getTransform().rotation;
-				JPH::BodyCreationSettings shapeSetting;
-
-				auto jphPos = JPH::RVec3( pos.x, pos.y, pos.z );
-				auto jphRot = JPH::Quat::sEulerAngles( { rot.x, rot.y, rot.z } );
-				auto motionType = JPH::EMotionType::Dynamic;
-				auto layers = Layers::MOVING;
-
-				switch ( collider.shape )
-				{
-				case ColliderShape_box: 
-				{
-					shapeSetting = JPH::BodyCreationSettings(
-						new JPH::BoxShape( { collider.boxSize.x / 2.0f, collider.boxSize.y / 2.0f, collider.boxSize.z / 2.0f } ),
-						jphPos, jphRot, motionType, layers
-					);
-				} break;
-
-				case ColliderShape_cylinder: 
-				{
-					shapeSetting = JPH::BodyCreationSettings(
-						new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
-						jphPos, jphRot, motionType, layers
-					);
-				} break;
-
-				case ColliderShape_sphere: 
-				{
-					shapeSetting = JPH::BodyCreationSettings(
-						new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
-						jphPos, jphRot, motionType, layers
-					);
-				} break;
-				}
-
-				JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( shapeSetting, JPH::EActivation::Activate );
-				rigidbodies[ i ].id = m_bodies.emplace( bodyID );
-				numCreatedBodies++;
-			}
-		}
-	}
-
-	if ( numCreatedBodies > 0 )
-	{
+	if ( m_numPhysicsBodyChanges > 0 )
 		m_physicsSystem->OptimizeBroadPhase();
-	}
 
+	m_numPhysicsBodyChanges = 0;
 }
 
 void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
@@ -336,6 +332,7 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 	for ( Archetype* archetype : getArchetypes() )
 	{
 		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
+		auto& entities = archetype->getEntities();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
@@ -347,8 +344,7 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			auto rot = bodyInterface.GetRotation( bodyID );
 			auto rotEuler = rot.GetEulerAngles();
 
-			Entity* entity = archetype->getEntity( i );
-			
+			Entity* entity = entities[ i ];
 			entity->getTransform().position = { pos.GetX(), pos.GetY(), pos.GetZ() };
 			entity->getTransform().rotation = { 
 				wv::Math::degrees( rotEuler.GetX() ), 

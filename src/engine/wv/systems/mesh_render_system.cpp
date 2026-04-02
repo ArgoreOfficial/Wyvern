@@ -22,7 +22,8 @@ void wv::MeshRenderSystem::onUpdate()
 
 	for ( Archetype* archetype : getArchetypes() )
 	{
-		auto& meshes = archetype->getComponents<MeshComponent>();
+		auto& meshes   = archetype->getComponents<MeshComponent>();
+		auto& entities = archetype->getEntities();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
@@ -76,7 +77,7 @@ void wv::MeshRenderSystem::onUpdate()
 				
 				// TODO: big buffer of matrices that updates 
 				// all at once instead of PushConstants
-				m_matrices.push_back( archetype->m_entities[ i ]->getTransform().getMatrix() );
+				m_matrices.push_back( entities[ i ]->getTransform().getMatrix());
 			}
 		}
 	}

@@ -17,11 +17,12 @@ void wv::OrbitControllerSystem::onUpdate()
 	for ( Archetype* archetype : getArchetypes() )
 	{
 		auto& controllers = archetype->getComponents<OrbitControllerComponent>();
+		auto& entities    = archetype->getEntities();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
 			OrbitControllerComponent& component = controllers[ i ];
-			Entity* entity = archetype->getEntity( i );
+			Entity* entity = entities[ i ];
 
 			if ( inputSystem->getMouseButtonState( 2 ) )
 			{

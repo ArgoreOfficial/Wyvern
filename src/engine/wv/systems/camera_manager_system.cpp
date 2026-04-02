@@ -18,7 +18,8 @@ void wv::CameraManagerSystem::onUpdate()
 
 	for ( Archetype* archetype : getArchetypes() )
 	{
-		auto& cameras = archetype->getComponents<CameraComponent>();
+		auto& cameras  = archetype->getComponents<CameraComponent>();
+		auto& entities = archetype->getEntities();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
@@ -31,14 +32,20 @@ void wv::CameraManagerSystem::onUpdate()
 			if ( numActiveCameras > 1 ) // only update first active camera
 				continue;
 			
-			updateCamera( archetype->m_entities[ i ], cameras[ i ] );
+			updateCamera( entities[ i ], cameras[ i ] );
 		}
 	}
 
 	if ( numActiveCameras == 0 )
 	{
+		if ( getArchetypes().empty() )
+		{
+			WV_LOG_ERROR( "No Camera\n" );
+			return;
+		}
+
 		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
-		Entity*          entity = getArchetypes()[ 0 ]->m_entities[ 0 ];
+		Entity*          entity = getArchetypes()[ 0 ]->getEntities()[ 0 ];
 		
 		camera.active = true;
 
