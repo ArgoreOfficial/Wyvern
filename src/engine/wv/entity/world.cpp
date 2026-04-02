@@ -156,7 +156,10 @@ void wv::World::checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bit
 	{
 		// if a system that previously didn't match but now does, it needs to get notified
 		if ( s->matchesBitmask( _newBitmask ) )
-			s->onComponentAdded( _entity->archetype, _entity->archetypeIndex );
+		{
+			size_t realIndex = _entity->archetype->getRealIndex( _entity->archetypeIndex );
+			s->onComponentAdded( _entity->archetype, realIndex );
+		}
 	}
 }
 
@@ -174,6 +177,9 @@ void wv::World::checkComponentRemoveChanges( std::bitset<256> _oldBitmask, std::
 	{
 		// if a system that previously matched but no longer does, it needs to get notified
 		if ( !s->matchesBitmask( _newBitmask ) )
-			s->onComponentRemoved( _entity->archetype, _entity->archetypeIndex );
+		{
+			size_t realIndex = _entity->archetype->getRealIndex( _entity->archetypeIndex );
+			s->onComponentRemoved( _entity->archetype, realIndex );
+		}
 	}
 }

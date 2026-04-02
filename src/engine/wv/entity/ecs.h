@@ -38,6 +38,8 @@ struct IComponentContainer
 	 */
 	virtual size_t moveComponent( IComponentContainer* _from, size_t _index ) = 0;
 	virtual void eraseComponent( size_t _index ) = 0;
+	virtual size_t getRealIndex( size_t _indirectIndex ) const = 0;
+
 };
 
 template<typename Ty>
@@ -54,6 +56,10 @@ struct ComponentContainer : public IComponentContainer
 
 	virtual void eraseComponent( size_t _index ) override {
 		components.erase( _index );
+	}
+
+	virtual size_t getRealIndex( size_t _indirectIndex ) const override {
+		return components.dataIndices[ _indirectIndex ];
 	}
 };
 
@@ -171,6 +177,10 @@ public:
 	
 	std::vector<Entity*>& getEntities() { return m_entities.data; }
 	wv::SlotMap<Entity*>& getEntitiesContainer() { return m_entities; }
+
+	size_t getRealIndex( size_t _indirectIndex ) const { 
+		return m_containers.begin()->second->getRealIndex( _indirectIndex ); 
+	}
 
 	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
 

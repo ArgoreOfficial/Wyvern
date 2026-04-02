@@ -204,7 +204,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 void wv::PhysicsSystem::onComponentRemoved( Archetype* _archetype, size_t _index )
 {
-	int id = _archetype->getComponentContainer<RigidBodyComponent>()[ _index ].id;
+	int id = _archetype->getComponents<RigidBodyComponent>()[ _index ].id;
 	
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	JPH::BodyID bodyID = m_bodies[ id ];
