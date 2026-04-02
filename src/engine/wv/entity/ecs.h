@@ -178,8 +178,22 @@ public:
 	std::vector<Entity*>& getEntities() { return m_entities.data; }
 	wv::SlotMap<Entity*>& getEntitiesContainer() { return m_entities; }
 
-	size_t getRealIndex( size_t _indirectIndex ) const { 
-		return m_containers.begin()->second->getRealIndex( _indirectIndex ); 
+	size_t getEntityIndex( Entity* _entity ) const { 
+		for ( size_t i = 0; i < m_entities.data.size(); i++ )
+			if ( _entity == m_entities.data[ i ] )
+				return i;
+		
+		WV_ASSERT_MSG( false, "Entity does not exist here" );
+		return 0;
+	}
+
+	size_t getEntityIndirectIndex( Entity* _entity ) const { 
+		for ( size_t i = 0; i < m_entities.data.size(); i++ )
+			if ( _entity == m_entities.data[ i ] )
+				return m_entities.dataIDs[ i ];
+		
+		WV_ASSERT_MSG( false, "Entity does not exist here" );
+		return 0;
 	}
 
 	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
@@ -267,8 +281,11 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 	WV_ASSERT_MSG( _entity != nullptr, "Entity cannot be nullptr" );
 
 	Archetype* oldArchetype = _entity->archetype;
-	int oldArchetypeIndex = _entity->archetypeIndex;
+	size_t indirectIndex = 0;
 
+	if ( oldArchetype )
+		indirectIndex = oldArchetype->getEntityIndirectIndex( _entity );
+	
 	std::bitset<256> bitmask{};
 	int compTypeIndex = ComponentTypeDef<Ty>::index;
 	WV_ASSERT( compTypeIndex >= 0 );
@@ -297,18 +314,15 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 		for ( auto& [compTypeIndex, oldContainer] : oldArchetype->m_containers )
 		{
 			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
-			newIndex = newContainer->moveComponent( oldContainer, oldArchetypeIndex );
+			newIndex = newContainer->moveComponent( oldContainer, indirectIndex );
 		}
 
-		// should this be removed?
-		oldArchetype->m_entities.erase( oldArchetypeIndex );
+		oldArchetype->m_entities.erase( indirectIndex );
 	}
 
 	newArchetype->m_entities.push( _entity );
-	_entity->archetypeIndex = newArchetype->getComponentContainer<Ty>().push( _component );
+	newArchetype->getComponentContainer<Ty>().push( _component );
 	_entity->archetype = newArchetype;
-
-	WV_ASSERT( newIndex == _entity->archetypeIndex );
 }
 
 template<typename Ty>
@@ -319,7 +333,7 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 	WV_ASSERT( index >= 0 );
 
 	Archetype* oldArchetype = _entity->archetype;
-	int oldArchetypeIndex   = _entity->archetypeIndex;
+	int indirectIndex = oldArchetype->getEntityIndirectIndex( _entity );
 
 	if ( !oldArchetype->m_bitmask[ index ] )
 	{
@@ -345,20 +359,19 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 				continue;
 
 			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
-			newContainer->moveComponent( oldContainer, oldArchetypeIndex );
+			newContainer->moveComponent( oldContainer, indirectIndex );
 		}
 
 		_entity->archetype = newArchetype;
-		_entity->archetypeIndex = newArchetype->m_entities.push( _entity );
+		newArchetype->m_entities.push( _entity );
 	}
 	else
 	{
 		_entity->archetype = nullptr;
-		_entity->archetypeIndex = 0;
 	}
 	
-	oldArchetype->container( index )->eraseComponent( oldArchetypeIndex );
-	oldArchetype->m_entities.erase( oldArchetypeIndex );
+	oldArchetype->container( index )->eraseComponent( indirectIndex );
+	oldArchetype->m_entities.erase( indirectIndex );
 }
 
 }

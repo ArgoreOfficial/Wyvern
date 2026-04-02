@@ -37,8 +37,7 @@ public:
 	void setDebugDisplayEnabled( bool _enabled ) { m_debugDisplayEnabled = _enabled; }
 
 	Archetype* archetype = nullptr;
-	size_t archetypeIndex = 0;
-
+	
 private:
 	UUID m_ID = 0;
 	std::string m_debugName = "";
