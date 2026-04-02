@@ -9,6 +9,7 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 
@@ -16,6 +17,7 @@ JPH_SUPPRESS_WARNINGS
 
 #include <wv/debug/log.h>
 #include <wv/components/rigidbody_component.h>
+#include <wv/components/collider_component.h>
 #include <wv/math/math.h>
 
 namespace wv {
@@ -114,6 +116,7 @@ public:
 void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
 {
 	_config.addComponentType<RigidBodyComponent>();
+	_config.addComponentType<ColliderComponent>();
 }
 
 void wv::PhysicsSystem::onInitialize()
@@ -201,31 +204,54 @@ void wv::PhysicsSystem::onInternalPrePhysicsUpdate()
 
 	for ( Archetype* archetype : getArchetypes() )
 	{
+		auto& colliders   = archetype->getComponents<ColliderComponent>();
 		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
-			if ( rigidbodies[ i ].id == -1 )
+			ColliderComponent&  collider  = colliders[ i ];
+			RigidBodyComponent& rigidbody = rigidbodies[ i ];
+
+			if ( rigidbody.id == -1 )
 			{
 				Entity* ent = archetype->getEntity( i );
 				wv::Vector3f pos = ent->getTransform().position;
 				wv::Vector3f rot = ent->getTransform().rotation;
+				JPH::BodyCreationSettings shapeSetting;
 
-				JPH::BodyCreationSettings sphereSettings( 
-					new JPH::SphereShape( 1.0f ), 
-					JPH::RVec3( pos.x, pos.y, pos.z ), 
-					JPH::Quat::sEulerAngles( 
-						{ 
-							rot.x, 
-							rot.y, 
-							rot.z 
-						} 
-					),
-					JPH::EMotionType::Dynamic, 
-					Layers::MOVING 
-				);
+				auto jphPos = JPH::RVec3( pos.x, pos.y, pos.z );
+				auto jphRot = JPH::Quat::sEulerAngles( { rot.x, rot.y, rot.z } );
+				auto motionType = JPH::EMotionType::Dynamic;
+				auto layers = Layers::MOVING;
 
-				JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( sphereSettings, JPH::EActivation::Activate );
+				switch ( collider.shape )
+				{
+				case ColliderShape_box: 
+				{
+					shapeSetting = JPH::BodyCreationSettings(
+						new JPH::BoxShape( { collider.boxSize.x / 2.0f, collider.boxSize.y / 2.0f, collider.boxSize.z / 2.0f } ),
+						jphPos, jphRot, motionType, layers
+					);
+				} break;
+
+				case ColliderShape_cylinder: 
+				{
+					shapeSetting = JPH::BodyCreationSettings(
+						new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
+						jphPos, jphRot, motionType, layers
+					);
+				} break;
+
+				case ColliderShape_sphere: 
+				{
+					shapeSetting = JPH::BodyCreationSettings(
+						new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
+						jphPos, jphRot, motionType, layers
+					);
+				} break;
+				}
+
+				JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( shapeSetting, JPH::EActivation::Activate );
 				rigidbodies[ i ].id = m_bodies.emplace( bodyID );
 				numCreatedBodies++;
 			}

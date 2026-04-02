@@ -10,6 +10,7 @@
 #include <wv/components/mesh_component.h>
 #include <wv/components/orbit_controller_component.h>
 #include <wv/components/rigidbody_component.h>
+#include <wv/components/collider_component.h>
 
 #include <wv/updatable.h>
 
@@ -22,6 +23,7 @@ wv::World::World()
 
 	// register order determines internal ID
 	m_ecsEngine->registerComponentType<CameraComponent>();
+	m_ecsEngine->registerComponentType<ColliderComponent>();
 	m_ecsEngine->registerComponentType<MeshComponent>();
 	m_ecsEngine->registerComponentType<OrbitControllerComponent>();
 	m_ecsEngine->registerComponentType<RigidBodyComponent>();

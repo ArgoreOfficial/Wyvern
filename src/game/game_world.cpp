@@ -7,6 +7,7 @@
 #include <wv/components/camera_component.h>
 #include <wv/components/orbit_controller_component.h>
 #include <wv/components/rigidbody_component.h>
+#include <wv/components/collider_component.h>
 
 #include <wv/input/input_system.h>
 
@@ -31,21 +32,20 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
-	
-
 	for ( size_t y = 0; y < 25; y++ )
 	{
 		for ( size_t x = 0; x < 25; x++ )
 		{
 			wv::Entity* ball = createEntity( "Ball" );
 			ball->getTransform().position = {
-				( (float)x - 12.5f ) * 2.0f,
-				(float)( x + y ),
-				( (float)y - 12.5f ) * 2.0f
+				( (float)x - 12.5f ) * 0.9f,
+				(float)( x + y ) * 1.5f,
+				( (float)y - 12.5f ) * 0.9f
 			};
 
-			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+			m_ecsEngine->addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 			m_ecsEngine->addComponent<wv::RigidBodyComponent>( ball, {} );
+			m_ecsEngine->addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
 		}
 	}
 
