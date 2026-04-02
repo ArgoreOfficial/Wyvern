@@ -207,7 +207,17 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 void wv::PhysicsSystem::onComponentRemoved( Archetype* _archetype, size_t _index )
 {
-	Debug::Print( "Physics Component Removed\n" );
+	int id = _archetype->getComponents<RigidBodyComponent>()[ _index ].id;
+	if ( !m_bodies.contains( id ) )
+		return;
+
+	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
+	JPH::BodyID bodyID = m_bodies[ id ];
+	bodyInterface.RemoveBody ( bodyID );
+	bodyInterface.DestroyBody( bodyID );
+	m_bodies.erase( id );
+
+	m_numPhysicsBodyChanges++;
 }
 
 void wv::PhysicsSystem::onInitialize()
