@@ -11,14 +11,16 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Renderer/DebugRendererSimple.h>
 
 JPH_SUPPRESS_WARNINGS
 
+#include <wv/application.h>
 #include <wv/debug/log.h>
 #include <wv/components/rigidbody_component.h>
 #include <wv/components/collider_component.h>
 #include <wv/math/math.h>
+#include <wv/rendering/renderer.h>
 
 namespace wv {
 
@@ -111,6 +113,34 @@ public:
 	}
 };
 
+class PhysicsDebugRenderer : public JPH::DebugRendererSimple
+{
+public:
+	PhysicsDebugRenderer() {
+		m_wvRenderer = wv::getApp()->getRenderer();
+	}
+
+	virtual void DrawLine( JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor ) override
+	{
+		m_wvRenderer->addDebugLine(
+			{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() },
+			{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }
+		);
+	}
+
+	virtual void DrawTriangle( JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow ) override
+	{
+		// Implement
+	}
+
+	virtual void DrawText3D( JPH::RVec3Arg inPosition, const std::string_view& inString, JPH::ColorArg inColor, float inHeight ) override
+	{
+		// Implement
+	}
+
+	wv::Renderer* m_wvRenderer = nullptr;
+};
+
 }
 
 void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
@@ -126,9 +156,10 @@ void wv::PhysicsSystem::onInitialize()
 	JPH::Factory::sInstance = WV_NEW( JPH::Factory );
 
 	JPH::RegisterTypes();
-
+	
 	m_tempAllocator = WV_NEW( JPH::TempAllocatorImpl, 10 * 1024 * 1024 );
 	m_jobSystem = WV_NEW( JPH::JobSystemThreadPool, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1 );
+	m_debugRenderer = WV_NEW( wv::PhysicsDebugRenderer );
 
 	m_broadPhaseLayerInterface = WV_NEW( BPLayerInterfaceImpl );
 	m_objectVsBroadphaseLayerFilter = WV_NEW( ObjectVsBroadPhaseLayerFilterImpl );
@@ -185,6 +216,7 @@ void wv::PhysicsSystem::onShutdown()
 	WV_FREE( m_objectVsBroadphaseLayerFilter );
 	WV_FREE( m_broadPhaseLayerInterface );
 
+	WV_FREE( m_debugRenderer );
 	WV_FREE( m_jobSystem );
 	WV_FREE( m_tempAllocator );
 
@@ -194,6 +226,12 @@ void wv::PhysicsSystem::onShutdown()
 
 void wv::PhysicsSystem::onUpdate()
 {
+	JPH::BodyManager::DrawSettings drawSettings;
+	drawSettings.mDrawShape = true;
+	drawSettings.mDrawShapeWireframe = true; // Wireframe for debug
+	drawSettings.mDrawBoundingBox = false;
+	//m_debugRenderer->SetCameraPos( camera_x, camera_y, camera_z );
+	m_physicsSystem->DrawBodies( drawSettings, JPH::DebugRenderer::sInstance );
 }
 
 void wv::PhysicsSystem::onInternalPrePhysicsUpdate()

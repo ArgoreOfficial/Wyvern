@@ -18,6 +18,7 @@ namespace wv {
 class BPLayerInterfaceImpl;
 class ObjectVsBroadPhaseLayerFilterImpl;
 class ObjectLayerPairFilterImpl;
+class PhysicsDebugRenderer;
 
 class PhysicsObjectContainer;
 
@@ -40,6 +41,7 @@ protected:
 	BPLayerInterfaceImpl*              m_broadPhaseLayerInterface      = nullptr;
 	ObjectVsBroadPhaseLayerFilterImpl* m_objectVsBroadphaseLayerFilter = nullptr;
 	ObjectLayerPairFilterImpl*         m_objectVsObjectLayerFilter     = nullptr;
+	PhysicsDebugRenderer*              m_debugRenderer = nullptr;
 
 	JPH::TempAllocatorImpl*   m_tempAllocator = nullptr;
 	JPH::JobSystemThreadPool* m_jobSystem     = nullptr;
