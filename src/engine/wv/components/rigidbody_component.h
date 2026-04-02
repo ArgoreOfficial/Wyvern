@@ -4,7 +4,7 @@ namespace wv {
 
 struct RigidBodyComponent
 {
-	int id = -1;
+	size_t id = (size_t)-1;
 };
 
 }

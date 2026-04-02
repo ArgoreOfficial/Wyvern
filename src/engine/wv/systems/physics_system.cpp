@@ -159,9 +159,6 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	ColliderComponent&  collider  = _archetype->getComponents<ColliderComponent>()[ _index ];
 	RigidBodyComponent& rigidbody = _archetype->getComponents<RigidBodyComponent>()[ _index ];
 
-	if ( rigidbody.id != -1 )
-		return;
-
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
 	wv::Vector3f pos = ent->getTransform().position;
@@ -201,16 +198,14 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	}
 
 	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( shapeSetting, JPH::EActivation::Activate );
-	rigidbody.id = m_bodies.emplace( bodyID );
+	rigidbody.id = m_bodies.push( bodyID );
 	m_numPhysicsBodyChanges++;
 }
 
 void wv::PhysicsSystem::onComponentRemoved( Archetype* _archetype, size_t _index )
 {
 	int id = _archetype->getComponents<RigidBodyComponent>()[ _index ].id;
-	if ( !m_bodies.contains( id ) )
-		return;
-
+	
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	JPH::BodyID bodyID = m_bodies[ id ];
 	bodyInterface.RemoveBody ( bodyID );
@@ -271,12 +266,12 @@ void wv::PhysicsSystem::onShutdown()
 	bodyInterface.RemoveBody( m_staticFloor->GetID() );
 	bodyInterface.DestroyBody( m_staticFloor->GetID() );
 
-	for ( size_t i = 0; i < m_bodies.count(); i++ )
+	for ( JPH::BodyID bodyID : m_bodies )
 	{
-		JPH::BodyID bodyID = m_bodies[ i + 1 ];
 		bodyInterface.RemoveBody( bodyID );
 		bodyInterface.DestroyBody( bodyID );
 	}
+	m_bodies.clear();
 
 	// Unregisters all types with the factory and cleans up the default material
 	JPH::UnregisterTypes();

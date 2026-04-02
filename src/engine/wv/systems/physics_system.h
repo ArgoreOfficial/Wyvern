@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/entity/ecs.h>
-#include <wv/helpers/unordered_array.hpp>
+#include <wv/slot_map.h>
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
@@ -39,7 +39,7 @@ public:
 	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times
 	
 protected:
-	wv::unordered_array<int, JPH::BodyID> m_bodies;
+	wv::SlotMap<JPH::BodyID> m_bodies;
 
 	BPLayerInterfaceImpl*              m_broadPhaseLayerInterface      = nullptr;
 	ObjectVsBroadPhaseLayerFilterImpl* m_objectVsBroadphaseLayerFilter = nullptr;
