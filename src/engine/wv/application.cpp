@@ -181,9 +181,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->addSystem<OrbitControllerSystem>();
 
 	m_world->onSceneCreate();
-	m_world->updateComponentChanges();
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_initialize );
+	m_world->updateComponentChanges();
 
 	return true;
 }
