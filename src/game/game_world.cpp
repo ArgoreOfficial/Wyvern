@@ -11,10 +11,6 @@
 
 #include <wv/input/input_system.h>
 
-#include <wv/application.h>
-#include <wv/thread/task_system.h>
-#include <wv/thread/thread.h>
-
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
@@ -53,15 +49,6 @@ void GameWorld::onSceneCreate()
 		addComponent<wv::ColliderComponent>( cube, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 		addComponent<wv::RigidBodyComponent>( cube, {} );
 		addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_MaterialCube.glb" } );
-
-		wv::TaskSystem* taskSystem = wv::getApp()->getTaskSystem();
-		wv::ThreadWorker* worker = taskSystem->getThreadWorker();
-
-		worker->push( [ this, cube ]( auto, auto )
-					  {
-						  wv::Thread::sleepForSeconds( 1.5 );
-						  removeComponent<wv::RigidBodyComponent>( cube );
-					  } );
 	}
 
 	{
