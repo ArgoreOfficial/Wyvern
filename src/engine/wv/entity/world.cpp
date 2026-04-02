@@ -81,6 +81,8 @@ void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
 		case UpdateMessageType_preUpdate:  updatable->onPreUpdate();  break;
 		case UpdateMessageType_update:     updatable->onUpdate();     break;
 		case UpdateMessageType_postUpdate: updatable->onPostUpdate(); break;
+		case UpdateMessageType_debugRender:updatable->onDebugRender();break;
+		case UpdateMessageType_render:     updatable->onRender();     break;
 		}
 	}
 }

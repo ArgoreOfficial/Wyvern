@@ -317,6 +317,7 @@ void wv::Application::update()
 		entity->getTransform().update( nullptr );
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -339,35 +340,19 @@ void wv::Application::render()
 
 #ifdef WV_DEBUG
 	if ( shouldRender )
-	{		
+	{
 		m_renderer->beginDebugRender();
-
-		// Don't render debug if the window isn't focused
-		// This should be togglable
-		//if( m_displayDriver->isFocused() )
-		//	m_world->onDebugRender();
-
-		if ( ImGui::Begin( "ECS Debug Info" ) )
-		{
-			for ( size_t i = 0; i < m_world->m_ecsEngine->m_archetypes.size(); i++ )
-			{
-				Archetype* archetype = m_world->m_ecsEngine->m_archetypes[ i ];
-			
-				std::string sepTitle = std::format( "Archetype {}", i );
-				ImGui::SeparatorText( sepTitle.c_str() );
-				ImGui::Text( "Entities: %zu", archetype->getNumEntities() );
-
-				for ( auto vec : archetype->m_vectors )
-					ImGui::Text( "  Component %i", vec.first );
-			}
-		}
-		ImGui::End();
+		
+		m_world->dispatchUpdateMessage( UpdateMessageType_debugRender );
 
 		m_renderer->endDebugRender();
 	}
 #endif
 
 	if ( shouldRender )
+	{
+		m_world->dispatchUpdateMessage( UpdateMessageType_render );
 		m_renderer->render( m_world );
+	}
 	
 }

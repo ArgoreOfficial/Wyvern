@@ -41,7 +41,10 @@ enum UpdateMessageType
 
 	UpdateMessageType_preUpdate,
 	UpdateMessageType_update,
-	UpdateMessageType_postUpdate
+	UpdateMessageType_postUpdate,
+
+	UpdateMessageType_debugRender,
+	UpdateMessageType_render
 };
 
 class World : public IReflectedType

@@ -14,6 +14,9 @@ public:
 	virtual void onUpdate() { }
 	virtual void onPostUpdate() { }
 
+	virtual void onDebugRender() { }
+	virtual void onRender() { }
+
 private:
 	bool m_initalized = false;
 };
