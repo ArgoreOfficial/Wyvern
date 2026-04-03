@@ -29,15 +29,22 @@ public:
 	virtual void onInitialize() override
 	{
 		m_moveActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Move" );
+		m_jumpActionID = updateContext->inputSystem->getActionGroup( "Player" )->getTriggerActionID( "Jump" );
 	}
 
 	virtual void onUpdate() override
 	{
 		for ( auto& ae : updateContext->actionEventQueue )
 		{
-			if ( m_moveActionID == ae.actionID )
+			if ( ae.actionID == m_moveActionID )
 				m_move = ae.action.axis->getValue();
+
+			if ( ae.actionID == m_jumpActionID && ae.action.trigger->getValue() )
+				jump = true;
 		}
+
+		if ( m_move.length() > 1.0f )
+			m_move.normalize();
 	}
 
 	virtual void onPhysicsUpdate() override 
@@ -51,13 +58,20 @@ public:
 				rigidbodies[ i ].linearVelocity.x =  m_move.x * 2.0f;
 				rigidbodies[ i ].linearVelocity.z = -m_move.y * 2.0f;
 
+				if( jump )
+					rigidbodies[ i ].linearVelocity.y += 5.0f;
+
 				rigidbodies[ i ].rotation = { 0.0f, 0.0f, 0.0f };
 			}
 		}
+
+		jump = false;
 	}
 
+	bool jump = false;
 	wv::Vector2f m_move = {};
 	wv::ActionID m_moveActionID;
+	wv::ActionID m_jumpActionID;
 };
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
@@ -86,7 +100,7 @@ void GameWorld::onSceneCreate()
 
 	{
 		wv::Entity* entity = createEntity( "Ball" );
-		entity->getTransform().position = { 6.0f, 6.0f, 3.0f };
+		entity->getTransform().position = { -3.0f, 2.0f, 0.0f };
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
@@ -95,7 +109,7 @@ void GameWorld::onSceneCreate()
 	
 	{
 		wv::Entity* entity = createEntity( "Cube" );
-		entity->getTransform().position = { 3.0f, 2.0f, 5.0f };
+		entity->getTransform().position = { 3.0f, 2.0f, 0.0f };
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
@@ -104,19 +118,20 @@ void GameWorld::onSceneCreate()
 	
 	{
 		wv::Entity* entity = createEntity( "Player" );
-		entity->getTransform().position = { 4.0f, 6.0f, 1.1f };
+		entity->getTransform().position = { 0.0f, 1.0f, 0.0f };
 
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCylinder.glb" } );
 		addComponent<PlayerComponent>( entity, { } );
+		addComponent<wv::CameraComponent>( entity, { .active = false } );
 	}
 
 	{
-		wv::Entity* camera = createEntity( "Orbit Camera" );
+		wv::Entity* entity = createEntity( "Orbit Camera" );
 		
-		addComponent<wv::CameraComponent>( camera, { .active = true } );
-		addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 15.0f } );
+		addComponent<wv::CameraComponent>( entity, { .active = true } );
+		addComponent<wv::OrbitControllerComponent>( entity, { .orbitDistance = 10.0f } );
 	}
 	
 }
