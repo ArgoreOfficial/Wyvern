@@ -22,11 +22,11 @@ wv::World::World()
 	m_ecsEngine       = WV_NEW( ECSEngine );
 
 	// register order determines internal ID
-	m_ecsEngine->registerComponentType<CameraComponent>();
-	m_ecsEngine->registerComponentType<ColliderComponent>();
-	m_ecsEngine->registerComponentType<MeshComponent>();
-	m_ecsEngine->registerComponentType<OrbitControllerComponent>();
-	m_ecsEngine->registerComponentType<RigidBodyComponent>();
+	registerComponentType<CameraComponent>();
+	registerComponentType<ColliderComponent>();
+	registerComponentType<MeshComponent>();
+	registerComponentType<OrbitControllerComponent>();
+	registerComponentType<RigidBodyComponent>();
 }
 
 wv::World::~World()

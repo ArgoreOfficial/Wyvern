@@ -73,6 +73,11 @@ public:
 	Entity* createEntity( const std::string& _name = "" );
 
 	template<typename Ty>
+	int registerComponentType() {
+		return m_ecsEngine->registerComponentType<Ty>();
+	}
+
+	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
 		ComponentChange compChange{};
 		compChange.type = ComponentChange::ComponentChangeType_add;
