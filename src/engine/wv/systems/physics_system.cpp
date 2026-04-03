@@ -330,21 +330,40 @@ void wv::PhysicsSystem::onInternalPrePhysicsUpdate()
 
 void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 {
-	m_physicsSystem->Update( _fixedDeltaTime, 1, m_tempAllocator, m_jobSystem );
-
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
+	// set velocities
 	for ( Archetype* archetype : getArchetypes() )
 	{
-		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
+		for ( RigidBodyComponent& rigidbody : archetype->getComponents<RigidBodyComponent>() )
+		{
+			if ( !m_bodies.contains( rigidbody.id ) )
+				continue;
+
+			bodyInterface.SetLinearVelocity( 
+				m_bodies.at( rigidbody.id ),
+				{ rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z } 
+			);
+		}
+	}
+
+	// do jolt physics update
+	m_physicsSystem->Update( _fixedDeltaTime, 1, m_tempAllocator, m_jobSystem );
+
+	// update entity and rigidbody data
+	for ( Archetype* archetype : getArchetypes() )
+	{
 		auto& entities = archetype->getEntities();
+		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
-			if ( rigidbodies[ i ].id == -1 )
+			RigidBodyComponent& rigidbody = rigidbodies[ i ];
+
+			if ( rigidbody.id == -1 )
 				continue;
 
-			JPH::BodyID bodyID = m_bodies.at( rigidbodies[ i ].id );
+			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
 			auto pos = bodyInterface.GetPosition( bodyID );
 			auto rot = bodyInterface.GetRotation( bodyID );
 			auto rotEuler = rot.GetEulerAngles();
@@ -356,6 +375,9 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				wv::Math::degrees( rotEuler.GetY() ), 
 				wv::Math::degrees( rotEuler.GetZ() ) 
 			};
+
+			auto vel = bodyInterface.GetLinearVelocity( bodyID );
+			rigidbody.velocity = { vel.GetX(), vel.GetY(), vel.GetZ() };
 		}
 	}
 }

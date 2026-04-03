@@ -1,10 +1,14 @@
 #pragma once
 
+#include <wv/math/vector3.h>
+
 namespace wv {
 
 struct RigidBodyComponent
 {
-	size_t id = (size_t)-1;
+	size_t id = 0;
+
+	Vector3f velocity;
 };
 
 }
