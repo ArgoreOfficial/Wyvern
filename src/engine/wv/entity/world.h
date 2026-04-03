@@ -16,20 +16,8 @@ class TextureManager;
 
 struct Viewport;
 
-struct WorldLoadContext
-{
-	InputSystem* inputSystem = nullptr;
-	
-	MeshManager*     meshManager     = nullptr;
-	MaterialManager* materialManager = nullptr;
-	TextureManager*  textureManager  = nullptr;
-};
-
 struct WorldUpdateContext
 {
-	Viewport* viewport = nullptr;
-	double deltaTime = 0.0;
-	
 	InputSystem* inputSystem = nullptr;
 	std::vector<ActionEvent> actionEventQueue;
 };
@@ -126,6 +114,7 @@ public:
 		return m_ecsEngine->getSystem<Ty>();
 	}
 
+	void updateFrameData( double _deltaTime, double _physicsDeltaTime );
 	void dispatchUpdateMessage( UpdateMessageType _type );
 
 	void insertUpdatable( IUpdatable* _updatable ) {
@@ -154,6 +143,8 @@ protected:
 	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
 	TextureManager*  m_textureManager  = nullptr;
+	
+	WorldUpdateContext m_updateContext{};
 
 private:
 	ECSEngine* m_ecsEngine = nullptr;

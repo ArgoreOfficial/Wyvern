@@ -17,6 +17,7 @@ class ECSEngine;
 class ISystem;
 
 struct ArchetypeConfig;
+struct WorldUpdateContext;
 
 static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>& _componentTypeIndices )
 {
@@ -206,6 +207,9 @@ private:
 
 class ISystem : public IUpdatable
 {
+	friend class ECSEngine;
+	friend class World;
+
 public:
 	std::vector<Archetype*>& getArchetypes() {
 		return m_archetypes;
@@ -221,10 +225,12 @@ public:
 	virtual void onComponentAdded( Archetype* _archetype, size_t _index ) { }
 	virtual void onComponentRemoved( Archetype* _archetype, size_t _index ) { }
 
-private:
-	friend class ECSEngine;
-	friend class World;
+protected:
+	double deltaTime        = 0.0;
+	double physicsDeltaTime = 0.0;
+	WorldUpdateContext* updateContext = nullptr;
 
+private:
 	std::bitset<256> m_archetypeBitmask{};
 	std::vector<Archetype*> m_archetypes;
 };

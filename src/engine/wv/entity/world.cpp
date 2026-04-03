@@ -13,6 +13,7 @@
 #include <wv/components/collider_component.h>
 
 #include <wv/updatable.h>
+#include <wv/application.h>
 
 wv::World::World()
 { 
@@ -72,6 +73,20 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 	return e;
 }
 
+void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )
+{
+	m_updateContext = {};
+	m_updateContext.inputSystem = getApp()->getInputSystem();
+	m_updateContext.actionEventQueue = getApp()->getInputSystem()->getActionEventQueue();
+
+	for ( auto& [i, sys] : m_ecsEngine->m_systemIndexMap )
+	{
+		sys->deltaTime = _deltaTime;
+		sys->physicsDeltaTime = _physicsDeltaTime;
+		sys->updateContext = &m_updateContext;
+	}
+}
+
 void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
 {
 	for ( IUpdatable* updatable : m_updatables )
@@ -96,8 +111,8 @@ void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
 
 		case UpdateMessageType_physicsUpdate: updatable->onPhysicsUpdate(); break;
 
-		case UpdateMessageType_debugRender: updatable->onDebugRender();break;
-		case UpdateMessageType_render:      updatable->onRender();     break;
+		case UpdateMessageType_debugRender: updatable->onDebugRender(); break;
+		case UpdateMessageType_render:      updatable->onRender();      break;
 		}
 	}
 }
@@ -142,6 +157,9 @@ void wv::World::updateComponentChanges()
 		}
 	}
 
+	if ( m_componentChangeQueue.size() > 0 )
+		m_ecsEngine->updateSystemsArchetypes();
+	
 	m_componentChangeQueue.clear();
 }
 

@@ -182,6 +182,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->onSceneCreate();
 
+	m_world->updateFrameData( 0.0f, 0.0f );
 	m_world->dispatchUpdateMessage( UpdateMessageType_initialize );
 	m_world->updateComponentChanges();
 	
@@ -262,6 +263,7 @@ bool wv::Application::tick()
 	
 		if( isActionsEnabled )
 			m_inputSystem->setActionsEnabled( true );
+
 	}
 
 	m_eventManager->processEvents();
@@ -291,11 +293,9 @@ void wv::Application::update()
 	if ( windowSize.y == 0 ) windowSize.y = 1;
 	m_world->getViewport()->size = { windowSize.x, windowSize.y };
 
-	// adds and removes components
+	m_world->updateFrameData( m_deltatime, m_fixedDeltaTime );
 	m_world->updateComponentChanges();
-	// updates archetype lists. Move to only update when modified?
-	m_world->m_ecsEngine->updateSystemsArchetypes();
-
+	
 	// physics update
 
 	wv::PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();

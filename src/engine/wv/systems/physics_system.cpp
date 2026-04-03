@@ -342,7 +342,11 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 
 			bodyInterface.SetLinearVelocity( 
 				m_bodies.at( rigidbody.id ),
-				{ rigidbody.velocity.x, rigidbody.velocity.y, rigidbody.velocity.z } 
+				{ 
+					rigidbody.velocity.x, 
+					rigidbody.velocity.y, 
+					rigidbody.velocity.z 
+				} 
 			);
 		}
 	}

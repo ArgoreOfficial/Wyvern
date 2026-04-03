@@ -12,8 +12,7 @@ void wv::OrbitControllerSystem::configure( ArchetypeConfig& _config )
 void wv::OrbitControllerSystem::onUpdate()
 {
 	InputSystem* inputSystem = getApp()->getInputSystem();
-	double deltaTime = getApp()->getDeltaTime();
-
+	
 	for ( Archetype* archetype : getArchetypes() )
 	{
 		auto& controllers = archetype->getComponents<OrbitControllerComponent>();
