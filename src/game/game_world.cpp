@@ -11,6 +11,53 @@
 
 #include <wv/input/input_system.h>
 
+
+struct PlayerComponent
+{
+
+};
+
+
+class PlayerSystem : public wv::ISystem
+{
+public:
+	virtual void configure( wv::ArchetypeConfig& _config ) override {
+		_config.addComponentType<wv::RigidBodyComponent>();
+		_config.addComponentType<PlayerComponent>();
+	}
+
+	virtual void onInitialize() override
+	{
+		m_moveActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Move" );
+	}
+
+	virtual void onUpdate() override
+	{
+		for ( auto& ae : updateContext->actionEventQueue )
+		{
+			if ( m_moveActionID == ae.actionID )
+				m_move = ae.action.axis->getValue();
+		}
+	}
+
+	virtual void onPhysicsUpdate() override 
+	{
+		for ( wv::Archetype* archetype : getArchetypes() )
+		{
+			auto& rigidbodies = archetype->getComponents<wv::RigidBodyComponent>();
+			auto& entities = archetype->getEntities();
+			for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+			{
+				rigidbodies[ i ].velocity.x = m_move.x * 2.0f;
+				rigidbodies[ i ].velocity.z = -m_move.y * 2.0f;
+			}
+		}
+	}
+
+	wv::Vector2f m_move = {};
+	wv::ActionID m_moveActionID;
+};
+
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
@@ -32,23 +79,35 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 
 void GameWorld::onSceneCreate()
 {
-	
-	{
-		wv::Entity* ball = createEntity( "Ball" );
-		ball->getTransform().position = { 0.0f, 4.0f, 0.0f };
+	registerComponentType<PlayerComponent>();
+	addSystem<PlayerSystem>();
 
-		addComponent<wv::ColliderComponent>( ball, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
-		addComponent<wv::RigidBodyComponent>( ball, {} );
-		addComponent<wv::MeshComponent>( ball, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+	{
+		wv::Entity* entity = createEntity( "Ball" );
+		entity->getTransform().position = { 6.0f, 6.0f, 3.0f };
+
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
+		addComponent<wv::RigidBodyComponent>( entity, {} );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
 	}
 	
 	{
-		wv::Entity* cube = createEntity( "Cube" );
-		cube->getTransform().position = { 0.1f, 5.0f, 0.0f };
+		wv::Entity* entity = createEntity( "Cube" );
+		entity->getTransform().position = { 3.0f, 2.0f, 5.0f };
 
-		addComponent<wv::ColliderComponent>( cube, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
-		addComponent<wv::RigidBodyComponent>( cube, {} );
-		addComponent<wv::MeshComponent>( cube, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
+		addComponent<wv::RigidBodyComponent>( entity, {} );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+	}
+	
+	{
+		wv::Entity* entity = createEntity( "Player" );
+		entity->getTransform().position = { 4.0f, 6.0f, 1.1f };
+
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
+		addComponent<wv::RigidBodyComponent>( entity, {} );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+		addComponent<PlayerComponent>( entity, { } );
 	}
 
 	{
