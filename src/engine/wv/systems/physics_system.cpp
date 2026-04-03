@@ -340,13 +340,31 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			if ( !m_bodies.contains( rigidbody.id ) )
 				continue;
 
-			bodyInterface.SetLinearVelocity( 
-				m_bodies.at( rigidbody.id ),
-				{ 
-					rigidbody.velocity.x, 
-					rigidbody.velocity.y, 
-					rigidbody.velocity.z 
-				} 
+			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
+
+			bodyInterface.SetPositionRotationAndVelocity(
+				bodyID,
+				{
+					rigidbody.position.x,
+					rigidbody.position.y,
+					rigidbody.position.z
+				},
+				JPH::Quat::sEulerAngles(
+					{
+						wv::Math::radians( rigidbody.rotation.x ),
+						wv::Math::radians( rigidbody.rotation.y ),
+						wv::Math::radians( rigidbody.rotation.z )
+					} ),
+				{
+					rigidbody.linearVelocity.x,
+					rigidbody.linearVelocity.y,
+					rigidbody.linearVelocity.z
+				},
+				{
+					rigidbody.angularVelocity.x,
+					rigidbody.angularVelocity.y,
+					rigidbody.angularVelocity.z
+				}
 			);
 		}
 	}
@@ -368,20 +386,39 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				continue;
 
 			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
-			auto pos = bodyInterface.GetPosition( bodyID );
-			auto rot = bodyInterface.GetRotation( bodyID );
-			auto rotEuler = rot.GetEulerAngles();
-
-			Entity* entity = entities[ i ];
-			entity->getTransform().position = { pos.GetX(), pos.GetY(), pos.GetZ() };
-			entity->getTransform().rotation = { 
-				wv::Math::degrees( rotEuler.GetX() ), 
-				wv::Math::degrees( rotEuler.GetY() ), 
-				wv::Math::degrees( rotEuler.GetZ() ) 
+			JPH::Vec3 rotation = bodyInterface.GetRotation( bodyID ).GetEulerAngles();
+			JPH::Vec3 position = bodyInterface.GetPosition( bodyID );
+			JPH::Vec3 linearVelocity  = bodyInterface.GetLinearVelocity( bodyID );
+			JPH::Vec3 angularVelocity = bodyInterface.GetAngularVelocity( bodyID );
+			
+			rigidbody.position = { 
+				position.GetX(),
+				position.GetY(), 
+				position.GetZ() 
 			};
 
-			auto vel = bodyInterface.GetLinearVelocity( bodyID );
-			rigidbody.velocity = { vel.GetX(), vel.GetY(), vel.GetZ() };
+			rigidbody.rotation = { 
+				wv::Math::degrees( rotation.GetX() ), 
+				wv::Math::degrees( rotation.GetY() ), 
+				wv::Math::degrees( rotation.GetZ() ) 
+			};
+
+			rigidbody.linearVelocity  = { 
+				linearVelocity.GetX(), 
+				linearVelocity.GetY(), 
+				linearVelocity.GetZ() 
+			};
+
+			rigidbody.angularVelocity = { 
+				angularVelocity.GetX(),
+				angularVelocity.GetY(), 
+				angularVelocity.GetZ() 
+			};
+
+			Entity* entity = entities[ i ];
+			entity->getTransform().position = rigidbody.position;
+			entity->getTransform().rotation = rigidbody.rotation;
+
 		}
 	}
 }

@@ -8,7 +8,10 @@ struct RigidBodyComponent
 {
 	size_t id = 0;
 
-	Vector3f velocity;
+	Vector3f position;
+	Vector3f rotation;
+	Vector3f linearVelocity;
+	Vector3f angularVelocity;
 };
 
 }
