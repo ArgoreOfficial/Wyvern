@@ -304,6 +304,8 @@ void wv::Application::update()
 	m_accumulator += m_deltatime;
 	while ( m_accumulator > m_fixedDeltaTime )
 	{
+		m_world->dispatchUpdateMessage( UpdateMessageType_physicsUpdate );
+
 		physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
 
 		m_fixedRuntime += m_fixedDeltaTime;

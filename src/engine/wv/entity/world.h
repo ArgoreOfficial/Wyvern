@@ -42,6 +42,8 @@ enum UpdateMessageType
 	UpdateMessageType_preUpdate,
 	UpdateMessageType_update,
 	UpdateMessageType_postUpdate,
+	
+	UpdateMessageType_physicsUpdate,
 
 	UpdateMessageType_debugRender,
 	UpdateMessageType_render

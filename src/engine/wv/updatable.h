@@ -13,6 +13,8 @@ public:
 	virtual void onPreUpdate() { }
 	virtual void onUpdate() { }
 	virtual void onPostUpdate() { }
+	
+	virtual void onPhysicsUpdate() { }
 
 	virtual void onDebugRender() { }
 	virtual void onRender() { }
