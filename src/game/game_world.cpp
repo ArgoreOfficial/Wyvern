@@ -48,8 +48,10 @@ public:
 			auto& entities = archetype->getEntities();
 			for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 			{
-				rigidbodies[ i ].velocity.x = m_move.x * 2.0f;
-				rigidbodies[ i ].velocity.z = -m_move.y * 2.0f;
+				rigidbodies[ i ].linearVelocity.x =  m_move.x * 2.0f;
+				rigidbodies[ i ].linearVelocity.z = -m_move.y * 2.0f;
+
+				rigidbodies[ i ].rotation = { 0.0f, 0.0f, 0.0f };
 			}
 		}
 	}
