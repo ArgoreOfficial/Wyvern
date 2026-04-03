@@ -63,11 +63,11 @@ protected:
 	// Debug Drawing
 
 	bool m_drawEnabled = true;
-	bool m_drawWireframe = true;
+	bool m_drawWireframe = false;
 	bool m_drawBoundingBox = false;
 	bool m_drawCenterOfMassTransform = false;
 	bool m_drawWorldTransform = false;
-	bool m_drawVelocity = false;
+	bool m_drawVelocity = true;
 	bool m_drawMassAndInertia = false;
 };
 

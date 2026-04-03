@@ -161,12 +161,12 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
-	wv::Vector3f pos = ent->getTransform().position;
-	wv::Vector3f rot = ent->getTransform().rotation;
+	rigidbody.position = ent->getTransform().position;
+	rigidbody.rotation = ent->getTransform().rotation;
 	JPH::BodyCreationSettings shapeSetting{};
 
-	auto jphPos = JPH::RVec3( pos.x, pos.y, pos.z );
-	auto jphRot = JPH::Quat::sEulerAngles( { rot.x, rot.y, rot.z } );
+	auto jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
+	auto jphRot = JPH::Quat::sEulerAngles( { rigidbody.rotation.x, rigidbody.rotation.y, rigidbody.rotation.z } );
 	auto motionType = JPH::EMotionType::Dynamic;
 	auto layers = Layers::MOVING;
 
