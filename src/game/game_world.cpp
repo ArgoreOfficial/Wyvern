@@ -104,7 +104,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialSphere.glb" } );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Sphere.glb" } );
 	}
 	
 	{
@@ -113,7 +113,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCube.glb" } );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cube.glb" } );
 	}
 	
 	{
@@ -122,7 +122,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_MaterialCylinder.glb" } );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cylinder.glb" } );
 		addComponent<PlayerComponent>( entity, { } );
 		addComponent<wv::CameraComponent>( entity, { .active = false } );
 	}
