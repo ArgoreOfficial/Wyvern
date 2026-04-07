@@ -270,6 +270,18 @@ bool wv::SDLDisplayDriver::isFocused() const
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
+void wv::SDLDisplayDriver::setCursorLock( bool _lock )
+{
+	SDL_SetWindowRelativeMouseMode( m_windowContext, _lock );
+}
+
+void wv::SDLDisplayDriver::setCursorVisible( bool _visible )
+{
+	if ( _visible )
+		SDL_ShowCursor();
+	else
+		SDL_HideCursor();
+}
 
 #ifdef WV_PLATFORM_WINDOWS
 HWND wv::SDLDisplayDriver::getWindowHandle()

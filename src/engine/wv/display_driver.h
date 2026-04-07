@@ -21,6 +21,9 @@ public:
 	virtual bool isMinimized() const { return false; }
 	virtual bool isFocused()   const { return true; }
 
+	virtual void setCursorLock( bool _lock ) { }
+	virtual void setCursorVisible( bool _visible ) { }
+
 protected:
 
 	bool m_initialized = false;

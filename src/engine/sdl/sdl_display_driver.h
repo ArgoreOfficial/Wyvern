@@ -33,6 +33,9 @@ public:
 	virtual bool isMinimized() const override;
 	virtual bool isFocused()   const override;
 
+	virtual void setCursorLock( bool _lock ) override;
+	virtual void setCursorVisible( bool _visible ) override;
+	
 #ifdef WV_PLATFORM_WINDOWS
 	HWND getWindowHandle();
 #endif

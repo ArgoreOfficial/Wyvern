@@ -56,6 +56,12 @@ public:
 	inline World*         getWorld()              const { return m_world; }
 
 	void quit() { m_alive = false; }
+
+	// helpers
+
+	void setCursorLock( bool _lock );
+	void setCursorVisible( bool _visible );
+
 private:
 	
 	static Application* singleton;

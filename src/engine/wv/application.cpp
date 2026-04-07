@@ -261,9 +261,9 @@ bool wv::Application::tick()
 	
 		m_inputSystem->processInputEvents( m_eventManager );
 	
-		if( isActionsEnabled )
+		if ( isActionsEnabled )
 			m_inputSystem->setActionsEnabled( true );
-
+		
 	}
 
 	m_eventManager->processEvents();
@@ -285,6 +285,16 @@ bool wv::Application::tick()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Application::setCursorLock( bool _lock )
+{
+	m_displayDriver->setCursorLock( _lock );
+}
+
+void wv::Application::setCursorVisible( bool _visible )
+{
+	m_displayDriver->setCursorVisible( _visible );
+}
 
 void wv::Application::update()
 {
