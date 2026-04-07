@@ -55,12 +55,43 @@ public:
 			auto& entities = archetype->getEntities();
 			for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 			{
-				rigidbodies[ i ].linearVelocity.x =  m_move.x * 2.0f;
-				rigidbodies[ i ].linearVelocity.z = -m_move.y * 2.0f;
+				wv::RigidBodyComponent& rb = rigidbodies[ i ];
 
-				if( jump )
-					rigidbodies[ i ].linearVelocity.y += 5.0f;
+				const float force     = 200.0f;
+				const float jumpforce = 50.0f;
 
+				rb.addForce(
+					{ m_move.x * force, 0.0f, -m_move.y * force },
+					wv::ForceType_force
+				);
+				
+				// Clamp speed
+				{ 
+					wv::Vector3f vel = rb.linearVelocity;
+					vel.y = 0.0f;
+
+					if ( vel.length() > 3.0f )
+					{
+						vel.normalize( 3.0f );
+						rb.linearVelocity.x = vel.x;
+						rb.linearVelocity.z = vel.z;
+					}
+				}
+				
+				// Move damping
+				if( m_move.length() < 0.0001f )
+				{
+					wv::Vector3f vel = rb.linearVelocity;
+					vel.y = 0.0f;
+
+					rb.addForce( -vel * 10.0f, wv::ForceType_acceleration );
+				}
+
+				// Jump
+				if ( jump )
+					rb.addForce( { 0.0f, jumpforce, 0.0f }, wv::ForceType_impulse );
+
+				/// TODO: lock rotation
 				rigidbodies[ i ].rotation = { 0.0f, 0.0f, 0.0f };
 			}
 		}
@@ -121,7 +152,7 @@ void GameWorld::onSceneCreate()
 		entity->getTransform().position = { 0.0f, 1.0f, 0.0f };
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
-		addComponent<wv::RigidBodyComponent>( entity, {} );
+		addComponent<wv::RigidBodyComponent>( entity, { .mass = 10.0f } );
 		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cylinder.glb" } );
 		addComponent<PlayerComponent>( entity, { } );
 		addComponent<wv::CameraComponent>( entity, { .active = false } );
