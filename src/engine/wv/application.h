@@ -42,8 +42,10 @@ public:
 
 	bool tick();
 
-	inline double getApplicationTime( void ) const { return m_runtime; }
-	inline double getDeltaTime      ( void ) const { return m_deltatime; }
+	inline double getApplicationTime ( void ) const { return m_runtime; }
+	inline double getDeltaTime       ( void ) const { return m_deltatime; }
+	inline double getPhysicsDeltaTime( void ) const { return m_fixedDeltaTime; }
+	inline double getPhysicsFraction ( void ) const { return m_accumulator / m_fixedDeltaTime; }
 
 	inline std::string    getGraphicsDriverName() const { return m_graphicsDriverName; }
 	inline DisplayDriver* getDisplayDriver()      const { return m_displayDriver; }
@@ -76,7 +78,7 @@ private:
 	double m_runtime = 0.0;
 	double m_deltatime = 1.0 / 60.0;
 
-	const double m_fixedDeltaTime = 0.01;
+	const double m_fixedDeltaTime = 0.02;
 	double m_fixedRuntime = 0.0;
 	double m_accumulator = 0.0;
 

@@ -37,7 +37,8 @@ public:
 
 	void onInternalPrePhysicsUpdate(); // runs once
 	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times
-	
+	void onInternalPostPhysicsUpdate( double _fraction );
+
 protected:
 	wv::SlotMap<JPH::BodyID> m_bodies;
 
@@ -62,13 +63,13 @@ protected:
 
 	// Debug Drawing
 
-	bool m_drawEnabled = true;
-	bool m_drawWireframe = false;
-	bool m_drawBoundingBox = false;
+	bool m_drawEnabled               = false;
+	bool m_drawWireframe             = false;
+	bool m_drawBoundingBox           = false;
 	bool m_drawCenterOfMassTransform = false;
-	bool m_drawWorldTransform = false;
-	bool m_drawVelocity = true;
-	bool m_drawMassAndInertia = false;
+	bool m_drawWorldTransform        = false;
+	bool m_drawVelocity              = false;
+	bool m_drawMassAndInertia        = false;
 };
 
 }

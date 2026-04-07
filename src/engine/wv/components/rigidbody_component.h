@@ -11,6 +11,18 @@ enum ForceType
 	ForceType_acceleration // acceleration per second. Eg. falling
 };
 
+struct RigidBodyComponentInternal
+{
+private:
+	friend struct RigidBodyComponent;
+	friend class PhysicsSystem;
+
+	Vector3f previousPosition{};
+	Vector3f previousRotation{};
+
+	double fixedDeltaTime = 0.02;
+};
+
 struct RigidBodyComponent
 {
 	size_t id = 0;
@@ -27,15 +39,15 @@ struct RigidBodyComponent
 	Vector3f angularVelocity{};
 
 	void addForce( Vector3f _force, ForceType _forceType ) {
-		constexpr double fixedDeltaTime = 0.01; // application.h:73
-
 		switch ( _forceType )
 		{
-		case ForceType_force:        linearVelocity += ( _force * fixedDeltaTime ) / mass; break;
-		case ForceType_impulse:      linearVelocity += _force / mass;                      break;
-		case ForceType_acceleration: linearVelocity += _force * fixedDeltaTime;            break;
+		case ForceType_force:        linearVelocity += ( _force * internal.fixedDeltaTime ) / mass; break;
+		case ForceType_impulse:      linearVelocity += _force / mass;                               break;
+		case ForceType_acceleration: linearVelocity += _force * internal.fixedDeltaTime;            break;
 		}
 	}
+
+	RigidBodyComponentInternal internal;
 };
 
 }

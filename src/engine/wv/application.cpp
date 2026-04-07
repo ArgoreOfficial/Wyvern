@@ -322,6 +322,8 @@ void wv::Application::update()
 		m_accumulator -= m_fixedDeltaTime;
 	}
 
+	physicsSystem->onInternalPostPhysicsUpdate( m_accumulator / m_fixedDeltaTime );
+
 	// normal update
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_preUpdate );

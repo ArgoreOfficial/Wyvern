@@ -163,6 +163,10 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 	rigidbody.position = ent->getTransform().position;
 	rigidbody.rotation = ent->getTransform().rotation;
+	rigidbody.internal.previousPosition = rigidbody.position;
+	rigidbody.internal.previousRotation = rigidbody.rotation;
+	rigidbody.internal.fixedDeltaTime = getApp()->getPhysicsDeltaTime();
+
 	JPH::BodyCreationSettings bodySetting{};
 
 	auto jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
@@ -355,6 +359,7 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				continue;
 
 			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
+			rigidbody.internal.fixedDeltaTime = _fixedDeltaTime;
 
 			{
 				JPH::BodyLockWrite lock( m_physicsSystem->GetBodyLockInterface(), bodyID );
@@ -400,7 +405,7 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 	// do jolt physics update
 	m_physicsSystem->Update( _fixedDeltaTime, 1, m_tempAllocator, m_jobSystem );
 
-	// update entity and rigidbody data
+	// update rigidbody data
 	for ( Archetype* archetype : getArchetypes() )
 	{
 		auto& entities = archetype->getEntities();
@@ -419,12 +424,14 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			JPH::Vec3 linearVelocity  = bodyInterface.GetLinearVelocity( bodyID );
 			JPH::Vec3 angularVelocity = bodyInterface.GetAngularVelocity( bodyID );
 			
+			rigidbody.internal.previousPosition = rigidbody.position;
 			rigidbody.position = { 
 				position.GetX(),
 				position.GetY(), 
 				position.GetZ() 
 			};
 
+			rigidbody.internal.previousRotation = rigidbody.rotation;
 			rigidbody.rotation = { 
 				wv::Math::degrees( rotation.GetX() ), 
 				wv::Math::degrees( rotation.GetY() ), 
@@ -442,11 +449,27 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				angularVelocity.GetY(), 
 				angularVelocity.GetZ() 
 			};
+		}
+	}
+}
+
+void wv::PhysicsSystem::onInternalPostPhysicsUpdate( double _fraction )
+{
+	for ( Archetype* archetype : getArchetypes() )
+	{
+		auto& entities = archetype->getEntities();
+		auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
+
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+		{
+			RigidBodyComponent& rigidbody = rigidbodies[ i ];
+
+			if ( rigidbody.id == -1 )
+				continue;
 
 			Entity* entity = entities[ i ];
-			entity->getTransform().position = rigidbody.position;
-			entity->getTransform().rotation = rigidbody.rotation;
-
+			entity->getTransform().position = wv::Math::lerp( rigidbody.internal.previousPosition, rigidbody.position, _fraction );
+			entity->getTransform().rotation = wv::Math::lerp( rigidbody.internal.previousRotation, rigidbody.rotation, _fraction );
 		}
 	}
 }
