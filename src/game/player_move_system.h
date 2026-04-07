@@ -24,14 +24,14 @@ struct PlayerMoveComponent
 	float damping            = 6;
 
 	//[Header( "View Bobbing" )]
-	float viewBobbing      = 0.04f;
-	float viewBobbingSpeed = 9;
-	bool  resetBobPosition = true;
+	float viewBobbing      = 0.05f;
+	float viewBobbingSpeed = 7;
+	bool  resetBobPosition = false;
 
 	// In degrees
 
-	float viewRotting      = 1.0f;
-	float viewRotFrequency = 1.0f;
+	float viewRotting      = 1.5f;
+	float viewRotFrequency = 1.75f;
 	float viewRotOffset    = 0.0f;
 };
 
