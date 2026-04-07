@@ -24,6 +24,29 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 	Application* app = Application::getSingleton();
 	SDL_Event ev;
 
+	
+	SDLDisplayDriver* dd = (SDLDisplayDriver*)app->getDisplayDriver();
+	bool isRelativeMotion = SDL_GetWindowRelativeMouseMode( dd->getSDLWindowContext() );
+
+	if ( isRelativeMotion )
+	{
+		float x{}, y{};
+		SDL_GetRelativeMouseState( &x, &y );
+		if ( x != 0.0f || y != 0 )
+		{
+			_inputEventQueue.pushEvent(
+				{
+					.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+					.mouse = {
+						.move = {
+							.position = dd->getWindowSize() / 2,
+							.delta = { (int)x, (int)y }
+						}
+					}
+				} );
+		}
+	}
+
 	while ( SDL_PollEvent( &ev ) )
 	{
 		bool handled = false;
@@ -34,70 +57,68 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 
 		switch ( ev.type )
 		{
-		case SDL_EVENT_QUIT: app->quit(); break;
+		case SDL_EVENT_QUIT: 
+			app->quit(); 
+			break;
 
 		case SDL_EVENT_MOUSE_MOTION:
 		{
+			if ( isRelativeMotion )
+				break;
+
 		#ifdef WV_SUPPORT_IMGUI
-			handled = ImGui::GetIO().WantCaptureMouse;
+			if ( ImGui::GetIO().WantCaptureMouse )
+				break;
 		#endif
 
-			if( !handled )
-			{
-				_inputEventQueue.pushEvent(
-					{
-						.type = LowLevelInputQueue::WV_MOUSE_MOVE,
-						.mouse = {
-							.move = {
-								.position = { (int)ev.motion.x,    (int)ev.motion.y },
-								.delta    = { (int)ev.motion.xrel, (int)ev.motion.yrel }
-							}
+			_inputEventQueue.pushEvent(
+				{
+					.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+					.mouse = {
+						.move = {
+							.position = { (int)ev.motion.x,    (int)ev.motion.y },
+							.delta    = { (int)ev.motion.xrel, (int)ev.motion.yrel }
 						}
-					} );
-			}
+					}
+				} );
 		} break;
 
 		case SDL_EVENT_MOUSE_WHEEL:
 		{
 		#ifdef WV_SUPPORT_IMGUI
-			handled = ImGui::GetIO().WantCaptureMouse;
+			if ( ImGui::GetIO().WantCaptureMouse )
+				break;
 		#endif
 
-			if ( !handled )
-			{
-				_inputEventQueue.pushEvent(
-					{
-						.type = LowLevelInputQueue::WV_MOUSE_SCROLL,
-						.mouse = {
-							.scroll = {
-								.delta = ev.wheel.integer_y
-							}
+			_inputEventQueue.pushEvent(
+				{
+					.type = LowLevelInputQueue::WV_MOUSE_SCROLL,
+					.mouse = {
+						.scroll = {
+							.delta = ev.wheel.integer_y
 						}
-					} );
-			}
+					}
+				} );			
 		} break;
 
-		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			[[fallthrough]];
+		case SDL_EVENT_MOUSE_BUTTON_DOWN: [[fallthrough]];
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 		{
 		#ifdef WV_SUPPORT_IMGUI
-			handled = ImGui::GetIO().WantCaptureMouse;
+			if ( ImGui::GetIO().WantCaptureMouse )
+				break;
 		#endif
 
-			if ( !handled )
-			{
-				_inputEventQueue.pushEvent(
-					{
-						.type = LowLevelInputQueue::WV_MOUSE_BUTTON,
-						.mouse = {
-							.button = {
-								.index = ev.button.button,
-								.state = ev.button.down
-							}
+			_inputEventQueue.pushEvent(
+				{
+					.type = LowLevelInputQueue::WV_MOUSE_BUTTON,
+					.mouse = {
+						.button = {
+							.index = ev.button.button,
+							.state = ev.button.down
 						}
-					} );
-			}
+					}
+				} );
 		} break;
 		}
 	}
