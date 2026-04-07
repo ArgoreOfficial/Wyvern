@@ -48,6 +48,45 @@ void PlayerMoveSystem::onUpdate()
 		m_moveInput.normalize();
 
 	m_isWalking = m_moveInput.length() > 0.0f;
+
+	// 
+
+	for ( wv::Archetype* archetype : getArchetypes() )
+	{
+		auto& entities = archetype->getEntities();
+		auto& rigidbodies = archetype->getComponents<wv::RigidBodyComponent>();
+		auto& playerComponents = archetype->getComponents<PlayerMoveComponent>();
+
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+		{
+			auto& rb = rigidbodies[ i ];
+			auto& pc = playerComponents[ i ];
+
+			wv::Vector3f flatVelocity = wv::Vector3f( rb.linearVelocity.x, 0.0f, rb.linearVelocity.z );
+			speedDiff = wv::Math::clamp( flatVelocity.length() / pc.moveSpeed, 0.0f, 1.0f ); 
+
+			if ( m_isWalking && speedDiff > 0.1f )
+			{
+				walkTimer += deltaTime;
+
+				footstepTimer -= deltaTime;
+				if ( footstepTimer < 0 )
+				{
+					//footstepTimer = Random.Range( FootstepMinDelay, FootstepMaxDelay );
+					if ( isGrounded )
+					{
+						//FootstepAudioSource.pitch = Random.Range( 0.8f, 1.2f );
+						//FootstepAudioSource.Play();
+					}
+				}
+			}
+
+			if ( cameraShake > 0.0f )
+				cameraShake -= pc.cameraShakeDecay * deltaTime;
+		}
+	}
+
+	
 }
 
 void PlayerMoveSystem::onPostUpdate()
