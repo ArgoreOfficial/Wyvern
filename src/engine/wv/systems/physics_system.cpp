@@ -170,10 +170,6 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	auto motionType = JPH::EMotionType::Dynamic;
 	auto layers = Layers::MOVING;
 
-	bodySetting.mMassPropertiesOverride = {};
-	bodySetting.mMassPropertiesOverride.ScaleToMass( rigidbody.mass ); // actual mass in kg
-	bodySetting.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
-
 	switch ( collider.shape )
 	{
 	case ColliderShape_box:
@@ -201,6 +197,9 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	} break;
 	}
 
+	bodySetting.mMassPropertiesOverride = {};
+	bodySetting.mMassPropertiesOverride.ScaleToMass( rigidbody.mass ); // actual mass in kg
+	bodySetting.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
 	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( bodySetting, JPH::EActivation::Activate );
 	rigidbody.id = m_bodies.push( bodyID );
 	m_numPhysicsBodyChanges++;
