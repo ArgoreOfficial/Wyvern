@@ -14,7 +14,7 @@
 
 struct PlayerComponent
 {
-
+	wv::Entity* cameraEntity;
 };
 
 
@@ -51,19 +51,32 @@ public:
 	{
 		for ( wv::Archetype* archetype : getArchetypes() )
 		{
-			auto& rigidbodies = archetype->getComponents<wv::RigidBodyComponent>();
-			auto& entities = archetype->getEntities();
+			auto& entities         = archetype->getEntities();
+			auto& rigidbodies      = archetype->getComponents<wv::RigidBodyComponent>();
+			auto& playerComponents = archetype->getComponents<PlayerComponent>();
+
 			for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 			{
 				wv::RigidBodyComponent& rb = rigidbodies[ i ];
+				PlayerComponent& pc = playerComponents[ i ];
 
-				const float force     = 200.0f;
+				wv::Vector3f forward = pc.cameraEntity->getTransform().forward();
+				wv::Vector3f right   = pc.cameraEntity->getTransform().right();
+
+				const float force     = 50.0f;
 				const float jumpforce = 5.0f * rb.mass;
+				wv::Vector3 moveDirection = forward * m_move.y + right * m_move.x;
+				
+				if ( moveDirection.length() > 0.0f )
+				{
+					moveDirection.y = 0.0f;
+					moveDirection.normalize();
 
-				rb.addForce(
-					{ m_move.x * force, 0.0f, -m_move.y * force },
-					wv::ForceType_force
-				);
+					rb.addForce(
+						moveDirection * force,
+						wv::ForceType_force
+					);
+				}
 				
 				// Clamp speed
 				{ 
@@ -145,30 +158,33 @@ void GameWorld::onSceneCreate()
 	}
 	
 	{
-		wv::Entity* entity = createEntity( "Player" );
-		entity->getTransform().position = { 0.0f, 1.0f, 0.0f };
 
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
+		// Camera
+
+		wv::Entity* camera = createEntity( "Orbit Camera" );
+
+		addComponent<wv::CameraComponent>( camera, { .active = true } );
+		addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 10.0f } );
+
+		// Player
+
+		wv::Entity* player = createEntity( "Player" );
+		player->getTransform().position = { 0.0f, 1.0f, 0.0f };
+
+		addComponent<wv::ColliderComponent>( player, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
 		addComponent<wv::RigidBodyComponent>( 
-			entity, 
+			player,
 			{ 
 				.mass = 1.0f, 
 				.lockRotationAxis{ true, true, true } 
 			} 
 		);
 
-		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cylinder.glb" } );
-		
-		addComponent<wv::CameraComponent>( entity, { .active = false } );
-		
-		addComponent<PlayerComponent>( entity, { } );
-	}
-
-	{
-		wv::Entity* entity = createEntity( "Orbit Camera" );
-		
-		addComponent<wv::CameraComponent>( entity, { .active = true } );
-		addComponent<wv::OrbitControllerComponent>( entity, { .orbitDistance = 10.0f } );
+		addComponent<wv::MeshComponent>( player, { .assetPath = "meshes/SM_Cylinder.glb" } );
+		addComponent<PlayerComponent>( player, { .cameraEntity = camera } );
+	
+		// I don't like this
+		player->getTransform().addChild( &camera->getTransform() );
 	}
 	
 }
