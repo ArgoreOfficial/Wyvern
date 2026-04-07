@@ -16,6 +16,10 @@ struct RigidBodyComponent
 	size_t id = 0;
 
 	float mass = 1.0f;
+
+	Vector3<bool> lockPositionAxis{ false, false, false };
+	Vector3<bool> lockRotationAxis{ false, false, false };
+
 	Vector3f position{};
 	Vector3f rotation{};
 	Vector3f linearVelocity{};

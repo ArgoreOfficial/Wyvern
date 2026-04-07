@@ -200,6 +200,15 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	bodySetting.mMassPropertiesOverride = {};
 	bodySetting.mMassPropertiesOverride.ScaleToMass( rigidbody.mass ); // actual mass in kg
 	bodySetting.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
+	bodySetting.mAllowedDOFs = JPH::EAllowedDOFs::None;
+	if ( !rigidbody.lockPositionAxis.x ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::TranslationX;
+	if ( !rigidbody.lockPositionAxis.y ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::TranslationY;
+	if ( !rigidbody.lockPositionAxis.z ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::TranslationZ;
+	if ( !rigidbody.lockRotationAxis.x ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::RotationX;
+	if ( !rigidbody.lockRotationAxis.y ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::RotationY;
+	if ( !rigidbody.lockRotationAxis.z ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::RotationZ;
+
 	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( bodySetting, JPH::EActivation::Activate );
 	rigidbody.id = m_bodies.push( bodyID );
 	m_numPhysicsBodyChanges++;

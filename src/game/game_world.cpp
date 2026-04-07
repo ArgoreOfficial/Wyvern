@@ -90,9 +90,6 @@ public:
 				// Jump
 				if ( jump )
 					rb.addForce( { 0.0f, jumpforce, 0.0f }, wv::ForceType_impulse );
-
-				/// TODO: lock rotation
-				rigidbodies[ i ].rotation = { 0.0f, 0.0f, 0.0f };
 			}
 		}
 
@@ -152,10 +149,19 @@ void GameWorld::onSceneCreate()
 		entity->getTransform().position = { 0.0f, 1.0f, 0.0f };
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 1.0f } );
-		addComponent<wv::RigidBodyComponent>( entity, { .mass = 10.0f } );
+		addComponent<wv::RigidBodyComponent>( 
+			entity, 
+			{ 
+				.mass = 10.0f, 
+				.lockRotationAxis{ true, true, true } 
+			} 
+		);
+
 		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cylinder.glb" } );
-		addComponent<PlayerComponent>( entity, { } );
+		
 		addComponent<wv::CameraComponent>( entity, { .active = false } );
+		
+		addComponent<PlayerComponent>( entity, { } );
 	}
 
 	{
