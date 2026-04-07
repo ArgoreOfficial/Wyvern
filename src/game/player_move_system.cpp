@@ -6,6 +6,8 @@
 #include <wv/components/rigidbody_component.h>
 #include <wv/input/input_system.h>
 
+#include <wv/application.h>
+
 void PlayerMoveSystem::configure( wv::ArchetypeConfig& _config )
 {
 	_config.addComponentType<wv::RigidBodyComponent>();
@@ -16,17 +18,30 @@ void PlayerMoveSystem::onInitialize()
 {
 	m_moveActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Move" );
 	m_jumpActionID = updateContext->inputSystem->getActionGroup( "Player" )->getTriggerActionID( "Jump" );
+	m_lookActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Look" );
+
+	
 }
 
 void PlayerMoveSystem::onUpdate()
 {
+	m_lookInput = { 0.0f, 0.0f };
+
 	for ( auto& ae : updateContext->actionEventQueue )
 	{
 		if ( ae.actionID == m_moveActionID )
+		{
 			m_moveInput = ae.action.axis->getValue();
-
-		if ( ae.actionID == m_jumpActionID && ae.action.trigger->getValue() )
-			jump = true;
+		}
+		else if ( ae.actionID == m_lookActionID )
+		{
+			m_lookInput = ae.action.axis->getValue();
+		}
+		else if ( ae.actionID == m_jumpActionID && ae.action.trigger->getValue() )
+		{
+			wv::getApp()->setCursorLock( !isLocked );
+			isLocked = !isLocked;
+		}
 	}
 
 	if ( m_moveInput.length() > 1.0f )
@@ -37,7 +52,20 @@ void PlayerMoveSystem::onUpdate()
 
 void PlayerMoveSystem::onPostUpdate()
 {
+	
 
+	for ( wv::Archetype* archetype : getArchetypes() )
+	{
+		auto& entities = archetype->getEntities();
+		auto& rigidbodies = archetype->getComponents<wv::RigidBodyComponent>();
+		auto& playerComponents = archetype->getComponents<PlayerMoveComponent>();
+
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+		{
+			updateMouseLook      ( entities[ i ], rigidbodies[ i ], playerComponents[ i ] );
+			updateCameraTransform( entities[ i ], rigidbodies[ i ], playerComponents[ i ] );
+		}
+	}
 }
 
 void PlayerMoveSystem::onPhysicsUpdate()
@@ -50,11 +78,8 @@ void PlayerMoveSystem::onPhysicsUpdate()
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
 		{
-			wv::RigidBodyComponent& rb = rigidbodies[ i ];
-			PlayerMoveComponent& pc = playerComponents[ i ];
-
-			updateMove( entities[ i ], rb, pc );
-			capSpeed( entities[ i ], rb, pc );
+			updateMove( entities[ i ], rigidbodies[ i ], playerComponents[ i ] );
+			capSpeed  ( entities[ i ], rigidbodies[ i ], playerComponents[ i ] );
 		}
 	}
 
@@ -65,15 +90,15 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 {
 	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
 	
-	wv::Vector3 forward = cameraTransform.forward(); 
+	wv::Vector3f forward = cameraTransform.forward(); 
 	forward.y = 0.0f; 
 	forward.normalize();
 	
-	wv::Vector3 right = cameraTransform.right();
+	wv::Vector3f right = cameraTransform.right();
 	right.y = 0.0f; 
 	right.normalize();
 
-	wv::Vector3 moveDirection = 
+	wv::Vector3f moveDirection = 
 		forward * m_moveInput.y + 
 		right   * m_moveInput.x;
 
@@ -81,8 +106,8 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 		_rb.addForce( moveDirection * _pc.acceleration * 10.0f, wv::ForceType_force );
 	else
 	{
-		wv::Vector3 targetVelocity = moveDirection * _pc.moveSpeed;
-		_rb.linearVelocity = wv::Vector3f( targetVelocity.x, _rb.linearVelocity.y, targetVelocity.z );
+		wv::Vector3f targetVelocity = moveDirection * _pc.moveSpeed;
+		_rb.linearVelocity = wv::Vector3f{ targetVelocity.x, _rb.linearVelocity.y, targetVelocity.z };
 	}
 
 	// apply damping if grounded
@@ -101,12 +126,48 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 
 void PlayerMoveSystem::capSpeed( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
 {
-	wv::Vector3 flatVelocity = wv::Vector3{ _rb.linearVelocity.x, 0.0f, _rb.linearVelocity.z };
+	wv::Vector3f flatVelocity = wv::Vector3{ _rb.linearVelocity.x, 0.0f, _rb.linearVelocity.z };
 	if ( flatVelocity.length() > _pc.moveSpeed )
 	{
-		wv::Vector3 limitedVelocity = flatVelocity.normalized() * _pc.moveSpeed;
+		wv::Vector3f limitedVelocity = flatVelocity.normalized() * _pc.moveSpeed;
 		_rb.linearVelocity = wv::Vector3{ limitedVelocity.x, _rb.linearVelocity.y, limitedVelocity.z };
 	}
+}
+
+void PlayerMoveSystem::updateMouseLook( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
+{
+	// 0.01f here so to keep CameraSensitivity in a 1-100 range
+	wv::Vector2f cameraInput = m_lookInput * 0.01f * _pc.cameraSensitivity;
+	
+	yaw   -= cameraInput.x;
+	pitch -= cameraInput.y;
+	roll  = 0;
+	
+	pitch = wv::Math::clamp( pitch, -85.0f, 85.0f );
+}
+
+void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
+{
+	float currentRot = _pc.viewRotOffset + ( std::sinf( walkTimer * _pc.viewRotFrequency ) * _pc.viewRotting );
+	float currentBob = std::sinf( walkTimer * _pc.viewBobbingSpeed ) * _pc.viewBobbing;
+	if ( _pc.resetBobPosition )
+		currentBob *= speedDiff;
+
+	wv::Vector3f localPosition = wv::Vector3f( 0, ( _pc.cameraHeight - 1.0f ) + currentBob, 0 );
+
+	float shakePitch = 0.0f;
+	float shakeYaw = 0.0f;
+
+	if ( cameraShake > 0 )
+	{
+		//shakePitch = cameraShake * Random.Range( -1.0f, 1.0f );
+		//shakeYaw = cameraShake * Random.Range( -1.0f, 1.0f );
+	}
+
+	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
+	cameraTransform.position = localPosition;
+	cameraTransform.rotation = { pitch + shakePitch, yaw + shakeYaw, roll + currentRot };
+	//OrientationTransform.rotation = Quaternion.Euler( 0, yaw, 0 );
 }
 
 

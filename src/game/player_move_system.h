@@ -11,12 +11,28 @@ struct RigidBodyComponent;
 
 struct PlayerMoveComponent
 {
-	wv::Entity* cameraEntity;
+	// Camera
+	wv::Entity* cameraEntity = nullptr;
+	float cameraSensitivity  = 15.0f;
+	float cameraHeight       = 1.6f;
+	float cameraShakeDecay   = 0.5f;
 
+	// Movement
 	bool  smoothAcceleration = false;
-	float acceleration = 3;
-	float moveSpeed = 2;
-	float damping = 6;
+	float acceleration       = 3;
+	float moveSpeed          = 2;
+	float damping            = 6;
+
+	//[Header( "View Bobbing" )]
+	float viewBobbing      = 0.04f;
+	float viewBobbingSpeed = 9;
+	bool  resetBobPosition = true;
+
+	// In degrees
+
+	float viewRotting      = 1.0f;
+	float viewRotFrequency = 1.0f;
+	float viewRotOffset    = 0.0f;
 };
 
 class PlayerMoveSystem : public wv::ISystem
@@ -35,10 +51,37 @@ protected:
 	void updateMove( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc );
 	void capSpeed( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc );
 
-	bool m_isWalking = false;
+	void updateMouseLook( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc );
+	void updateCameraTransform( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc );
 
+	bool isLocked = false;
+
+
+
+	bool m_isWalking = false;
 	bool jump = false;
+
+	float pitch = 0.0f;
+	float yaw = 0.0f;
+	float roll = 0.0f;
+
+
+
+	float cameraShake = 0.0f;
+
+	int groundLayerMask = 0;
+
+	bool isGrounded = false;
+
+	float speedDiff = 0.0f;
+	float walkTimer = 0.0f;
+	float footstepTimer = 0.0f;
+
+
 	wv::Vector2f m_moveInput = {};
+	wv::Vector2f m_lookInput = {};
+
 	wv::ActionID m_moveActionID = {};
 	wv::ActionID m_jumpActionID = {};
+	wv::ActionID m_lookActionID = {};
 };
