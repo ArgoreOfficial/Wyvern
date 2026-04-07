@@ -82,9 +82,35 @@ public:
 		return m_valueActions.nameMap.at( _name )->getValue( _playerID );
 	}
 
-	inline ActionID getTriggerActionID( const std::string& _name ) const { return m_triggerActions.getActionID( _name ); }
-	inline ActionID getValueActionID( const std::string& _name ) const { return m_valueActions.getActionID( _name ); }
-	inline ActionID getAxisActionID( const std::string& _name ) const { return m_axisActions.getActionID( _name ); }
+	inline ActionID getTriggerActionID( const std::string& _name ) const { 
+		ActionID id = m_triggerActions.getActionID( _name ); 
+		if ( id == 0 )
+		{
+			WV_LOG_ERROR( "There is no trigger action named '%s' in group '%s'\n", _name.c_str(), m_name.c_str() );
+		}
+
+		return id;
+	}
+
+	inline ActionID getValueActionID( const std::string& _name ) const { 
+		ActionID id = m_valueActions.getActionID( _name );
+		if ( id == 0 )
+		{
+			WV_LOG_ERROR( "There is no value action named '%s' in group '%s'\n", _name.c_str(), m_name.c_str() );
+		}
+
+		return id;
+	}
+
+	inline ActionID getAxisActionID( const std::string& _name ) const { 
+		ActionID id = m_axisActions.getActionID( _name );
+		if ( id == 0 )
+		{
+			WV_LOG_ERROR( "There is no axis action named '%s' in group '%s'\n", _name.c_str(), m_name.c_str() );
+		}
+
+		return id;
+	}
 
 	std::vector<TriggerActionMapping> getTriggerActionsByDevice( const std::string& _deviceName ) const {
 		return m_triggerActions.getActionsByDevice( _deviceName );
