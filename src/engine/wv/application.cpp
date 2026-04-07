@@ -318,7 +318,13 @@ void wv::Application::update()
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_update );
 	for ( Entity* entity : m_world->m_entities )
+	{
+		// if an entity has a parent, it will be updated through the parents update() function
+		if ( entity->getTransform().pParent )
+			continue;
+
 		entity->getTransform().update( nullptr );
+	}
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
 	
