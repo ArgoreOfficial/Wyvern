@@ -12,12 +12,13 @@ class ViewVolume;
 
 class CameraManagerSystem : public ISystem
 {
+	friend class Application;
 public:
 	virtual void configure( ArchetypeConfig& _config ) override;
 	
-	virtual void onUpdate() override;
-
 private:
+
+	void onInternalCameraUpdate();
 	void updateCamera( Entity* _entity, CameraComponent& _component );
 
 };

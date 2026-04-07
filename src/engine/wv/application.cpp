@@ -308,7 +308,7 @@ void wv::Application::update()
 	
 	// physics update
 
-	wv::PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
+	PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
 	physicsSystem->onInternalPrePhysicsUpdate();
 
 	m_accumulator += m_deltatime;
@@ -325,8 +325,12 @@ void wv::Application::update()
 	// normal update
 
 	m_world->dispatchUpdateMessage( UpdateMessageType_preUpdate );
-
 	m_world->dispatchUpdateMessage( UpdateMessageType_update );
+	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
+
+	CameraManagerSystem* cameraSystem = m_world->m_ecsEngine->getSystem<CameraManagerSystem>();
+	cameraSystem->onInternalCameraUpdate();
+
 	for ( Entity* entity : m_world->m_entities )
 	{
 		// if an entity has a parent, it will be updated through the parents update() function
@@ -336,8 +340,6 @@ void wv::Application::update()
 		entity->getTransform().update( nullptr );
 	}
 
-	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
-	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
