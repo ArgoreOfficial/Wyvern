@@ -15,7 +15,7 @@ void wv::MeshRenderSystem::onShutdown()
 	m_matrices.clear();
 }
 
-void wv::MeshRenderSystem::onUpdate()
+void wv::MeshRenderSystem::onRender()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();

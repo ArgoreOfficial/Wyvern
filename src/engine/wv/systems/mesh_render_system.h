@@ -16,7 +16,7 @@ protected:
 	virtual void configure( ArchetypeConfig& _config ) override;
 
 	virtual void onShutdown() override;
-	virtual void onUpdate() override;
+	virtual void onRender() override;
 	
 	std::vector<RenderMesh> m_renderMeshes;
 	std::vector<Matrix4x4f> m_matrices;
