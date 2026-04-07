@@ -58,7 +58,7 @@ public:
 				wv::RigidBodyComponent& rb = rigidbodies[ i ];
 
 				const float force     = 200.0f;
-				const float jumpforce = 50.0f;
+				const float jumpforce = 5.0f * rb.mass;
 
 				rb.addForce(
 					{ m_move.x * force, 0.0f, -m_move.y * force },
@@ -152,7 +152,7 @@ void GameWorld::onSceneCreate()
 		addComponent<wv::RigidBodyComponent>( 
 			entity, 
 			{ 
-				.mass = 10.0f, 
+				.mass = 1.0f, 
 				.lockRotationAxis{ true, true, true } 
 			} 
 		);
