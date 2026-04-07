@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/entity/ecs.h>
-#include <wv/input/action.h>
+#include <wv/input/action_group.h>
 
 namespace wv {
 
@@ -18,7 +18,7 @@ struct PlayerMoveComponent
 	float cameraShakeDecay   = 0.5f;
 
 	// Movement
-	bool  smoothAcceleration = false;
+	bool  smoothAcceleration = true;
 	float acceleration       = 3;
 	float moveSpeed          = 2;
 	float damping            = 6;
@@ -81,7 +81,7 @@ protected:
 	wv::Vector2f m_moveInput = {};
 	wv::Vector2f m_lookInput = {};
 
+	wv::ActionGroup* playerActionGroup = nullptr;
 	wv::ActionID m_moveActionID = {};
 	wv::ActionID m_jumpActionID = {};
-	wv::ActionID m_lookActionID = {};
 };

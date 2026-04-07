@@ -16,26 +16,23 @@ void PlayerMoveSystem::configure( wv::ArchetypeConfig& _config )
 
 void PlayerMoveSystem::onInitialize()
 {
-	m_moveActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Move" );
-	m_jumpActionID = updateContext->inputSystem->getActionGroup( "Player" )->getTriggerActionID( "Jump" );
-	m_lookActionID = updateContext->inputSystem->getActionGroup( "Player" )->getAxisActionID( "Look" );
-
+	playerActionGroup = updateContext->inputSystem->getActionGroup( "Player" );
 	
+	m_moveActionID = playerActionGroup->getAxisActionID( "Move" );
+	m_jumpActionID = updateContext->inputSystem->getActionGroup( "Player" )->getTriggerActionID( "Jump" );
 }
 
 void PlayerMoveSystem::onUpdate()
 {
-	m_lookInput = { 0.0f, 0.0f };
+	
+	// special case because we are dealing with mouse *and* controller look input
+	m_lookInput = playerActionGroup->getAxisValue( -1, "Look" );
 
 	for ( auto& ae : updateContext->actionEventQueue )
 	{
 		if ( ae.actionID == m_moveActionID )
 		{
 			m_moveInput = ae.action.axis->getValue();
-		}
-		else if ( ae.actionID == m_lookActionID )
-		{
-			m_lookInput = ae.action.axis->getValue();
 		}
 		else if ( ae.actionID == m_jumpActionID && ae.action.trigger->getValue() )
 		{
@@ -91,8 +88,6 @@ void PlayerMoveSystem::onUpdate()
 
 void PlayerMoveSystem::onPostUpdate()
 {
-	
-
 	for ( wv::Archetype* archetype : getArchetypes() )
 	{
 		auto& entities = archetype->getEntities();
@@ -176,7 +171,7 @@ void PlayerMoveSystem::capSpeed( wv::Entity* _entity, wv::RigidBodyComponent& _r
 void PlayerMoveSystem::updateMouseLook( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
 {
 	// 0.01f here so to keep CameraSensitivity in a 1-100 range
-	wv::Vector2f cameraInput = m_lookInput * 0.01f * _pc.cameraSensitivity;
+	wv::Vector2f cameraInput = m_lookInput * ( _pc.cameraSensitivity * 0.01f );
 	
 	yaw   -= cameraInput.x;
 	pitch -= cameraInput.y;
@@ -204,8 +199,8 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 	}
 
 	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
-	cameraTransform.position = localPosition;
-	cameraTransform.rotation = { pitch + shakePitch, yaw + shakeYaw, roll + currentRot };
+	cameraTransform.setPosition( localPosition );
+	cameraTransform.setRotation( { pitch + shakePitch, yaw + shakeYaw, roll + currentRot } );
 	//OrientationTransform.rotation = Quaternion.Euler( 0, yaw, 0 );
 }
 

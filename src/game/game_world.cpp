@@ -24,9 +24,7 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
 	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
 
-	playerActionGroup->bindAxisAction( "Throttle", "Keyboard", wv::AXIS_DIRECTION_NORTH, wv::SCANCODE_W );
-	playerActionGroup->bindAxisAction( "Throttle", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
-	
+	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AXIS_DIRECTION_ALL, wv::CONTROLLER_JOYSTICK_RIGHT );
 	playerActionGroup->bindAxisAction( "Look", "Mouse", wv::AXIS_DIRECTION_ALL, wv::MOUSE_MOTION_AXIS );
 
 	playerActionGroup->enable();
@@ -61,8 +59,7 @@ void GameWorld::onSceneCreate()
 
 		wv::Entity* camera = createEntity( "PlayerCamera" );
 		addComponent<wv::CameraComponent>( camera, { .active = true } );
-		//addComponent<wv::OrbitControllerComponent>( camera, { .orbitDistance = 10.0f } );
-
+		
 		// Player
 
 		wv::Entity* player = createEntity( "Player" );
@@ -77,7 +74,6 @@ void GameWorld::onSceneCreate()
 			} 
 		);
 
-		//addComponent<wv::MeshComponent>( player, { .assetPath = "meshes/SM_Cylinder.glb" } );
 		addComponent<PlayerMoveComponent>( player, { .cameraEntity = camera } );
 	
 		// I don't like this
