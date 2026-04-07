@@ -31,6 +31,13 @@ void PlayerMoveSystem::onUpdate()
 
 	if ( m_moveInput.length() > 1.0f )
 		m_moveInput.normalize();
+
+	m_isWalking = m_moveInput.length() > 0.0f;
+}
+
+void PlayerMoveSystem::onPostUpdate()
+{
+
 }
 
 void PlayerMoveSystem::onPhysicsUpdate()
@@ -45,7 +52,9 @@ void PlayerMoveSystem::onPhysicsUpdate()
 		{
 			wv::RigidBodyComponent& rb = rigidbodies[ i ];
 			PlayerMoveComponent& pc = playerComponents[ i ];
+
 			updateMove( entities[ i ], rb, pc );
+			capSpeed( entities[ i ], rb, pc );
 		}
 	}
 
@@ -54,50 +63,50 @@ void PlayerMoveSystem::onPhysicsUpdate()
 
 void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
 {
+	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
+	
+	wv::Vector3 forward = cameraTransform.forward(); 
+	forward.y = 0.0f; 
+	forward.normalize();
+	
+	wv::Vector3 right = cameraTransform.right();
+	right.y = 0.0f; 
+	right.normalize();
 
-	wv::Vector3f forward = _pc.cameraEntity->getTransform().forward();
-	wv::Vector3f right = _pc.cameraEntity->getTransform().right();
+	wv::Vector3 moveDirection = 
+		forward * m_moveInput.y + 
+		right   * m_moveInput.x;
 
-	const float force = 50.0f;
-	const float jumpforce = 5.0f * _rb.mass;
-	wv::Vector3 moveDirection = forward * m_moveInput.y + right * m_moveInput.x;
-
-	if ( moveDirection.length() > 0.0f )
+	if ( _pc.smoothAcceleration )
+		_rb.addForce( moveDirection * _pc.acceleration * 10.0f, wv::ForceType_force );
+	else
 	{
-		moveDirection.y = 0.0f;
-		moveDirection.normalize();
-
-		_rb.addForce(
-			moveDirection * force,
-			wv::ForceType_force
-		);
+		wv::Vector3 targetVelocity = moveDirection * _pc.moveSpeed;
+		_rb.linearVelocity = wv::Vector3f( targetVelocity.x, _rb.linearVelocity.y, targetVelocity.z );
 	}
 
-	// Clamp speed
+	// apply damping if grounded
+	/*
+	RaycastHit hit;
+	isGrounded = Physics.SphereCast( transform.position, GroundedCheckRadius, Vector3.down, out hit, GroundedCheckDistance, groundLayerMask );
+
+	if ( isGrounded )
+		_rb.linearDamping = damping;
+	else
+		_rb.linearDamping = 0.0f;
+	*/
+
+	_rb.linearDamping = _pc.damping;
+}
+
+void PlayerMoveSystem::capSpeed( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
+{
+	wv::Vector3 flatVelocity = wv::Vector3{ _rb.linearVelocity.x, 0.0f, _rb.linearVelocity.z };
+	if ( flatVelocity.length() > _pc.moveSpeed )
 	{
-		wv::Vector3f vel = _rb.linearVelocity;
-		vel.y = 0.0f;
-
-		if ( vel.length() > 3.0f )
-		{
-			vel.normalize( 3.0f );
-			_rb.linearVelocity.x = vel.x;
-			_rb.linearVelocity.z = vel.z;
-		}
+		wv::Vector3 limitedVelocity = flatVelocity.normalized() * _pc.moveSpeed;
+		_rb.linearVelocity = wv::Vector3{ limitedVelocity.x, _rb.linearVelocity.y, limitedVelocity.z };
 	}
-
-	// Move damping
-	if ( m_moveInput.length() < 0.0001f )
-	{
-		wv::Vector3f vel = _rb.linearVelocity;
-		vel.y = 0.0f;
-
-		_rb.addForce( -vel * 10.0f, wv::ForceType_acceleration );
-	}
-
-	// Jump
-	if ( jump )
-		_rb.addForce( { 0.0f, jumpforce, 0.0f }, wv::ForceType_impulse );
 }
 
 
