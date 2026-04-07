@@ -80,7 +80,7 @@ public:
 
 	static inline Vector3<Ty> eulerToDirection( Vector3<Ty> _vec ) {
 		Ty pitch = wv::Math::radians( _vec.x );
-		Ty yaw = wv::Math::radians( _vec.y );
+		Ty yaw   = wv::Math::radians( _vec.y );
 
 		return Vector3<Ty>(
 			 std::cos( pitch ) * std::sin( yaw ),
@@ -97,8 +97,8 @@ public:
 		);
 	}
 
-	inline Vector3<Ty> eulerToDirection() { return Vector3<Ty>::eulerToDirection( *this ); }
-	inline Vector3<Ty> directionToEuler() { return Vector3<Ty>::directionToEuler( *this ); }
+	inline Vector3<Ty> eulerToDirection() const { return Vector3<Ty>::eulerToDirection( *this ); }
+	inline Vector3<Ty> directionToEuler() const { return Vector3<Ty>::directionToEuler( *this ); }
 
 	Vector3<Ty>& operator = ( const Vector3<Ty>& _other );
 	Vector3<Ty>& operator +=( const Vector3<Ty>& _other );

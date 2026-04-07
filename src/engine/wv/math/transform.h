@@ -38,7 +38,9 @@ public:
 
 	bool update( Transform<_Ty>* _parent, bool _recalculateMatrix = true );
 
-	inline Vector3<_Ty> forward() { return rotation.eulerToDirection(); }
+	inline Vector3<_Ty> forward() const { return -rotation.eulerToDirection(); }
+	inline Vector3<_Ty> right()   const { return ( rotation + Vector3<_Ty>{  0.0f, 90.0f, 0.0f } ).eulerToDirection(); }
+	inline Vector3<_Ty> up()      const { return ( rotation + Vector3<_Ty>{ 90.0f,  0.0f, 0.0f } ).eulerToDirection(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
