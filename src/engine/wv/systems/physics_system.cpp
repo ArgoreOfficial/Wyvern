@@ -163,18 +163,22 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 	rigidbody.position = ent->getTransform().position;
 	rigidbody.rotation = ent->getTransform().rotation;
-	JPH::BodyCreationSettings shapeSetting{};
+	JPH::BodyCreationSettings bodySetting{};
 
 	auto jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
 	auto jphRot = JPH::Quat::sEulerAngles( { rigidbody.rotation.x, rigidbody.rotation.y, rigidbody.rotation.z } );
 	auto motionType = JPH::EMotionType::Dynamic;
 	auto layers = Layers::MOVING;
 
+	bodySetting.mMassPropertiesOverride = {};
+	bodySetting.mMassPropertiesOverride.ScaleToMass( rigidbody.mass ); // actual mass in kg
+	bodySetting.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
 	switch ( collider.shape )
 	{
 	case ColliderShape_box:
 	{
-		shapeSetting = JPH::BodyCreationSettings(
+		bodySetting = JPH::BodyCreationSettings(
 			new JPH::BoxShape( { collider.boxSize.x / 2.0f, collider.boxSize.y / 2.0f, collider.boxSize.z / 2.0f } ),
 			jphPos, jphRot, motionType, layers
 		);
@@ -182,7 +186,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 	case ColliderShape_cylinder:
 	{
-		shapeSetting = JPH::BodyCreationSettings(
+		bodySetting = JPH::BodyCreationSettings(
 			new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
 			jphPos, jphRot, motionType, layers
 		);
@@ -190,14 +194,14 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 
 	case ColliderShape_sphere:
 	{
-		shapeSetting = JPH::BodyCreationSettings(
+		bodySetting = JPH::BodyCreationSettings(
 			new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
 			jphPos, jphRot, motionType, layers
 		);
 	} break;
 	}
 
-	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( shapeSetting, JPH::EActivation::Activate );
+	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( bodySetting, JPH::EActivation::Activate );
 	rigidbody.id = m_bodies.push( bodyID );
 	m_numPhysicsBodyChanges++;
 }
