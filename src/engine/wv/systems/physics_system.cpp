@@ -209,6 +209,8 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	if ( !rigidbody.lockRotationAxis.y ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::RotationY;
 	if ( !rigidbody.lockRotationAxis.z ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::RotationZ;
 
+	bodySetting.mLinearDamping = rigidbody.linearDamping;
+
 	JPH::BodyID bodyID = bodyInterface.CreateAndAddBody( bodySetting, JPH::EActivation::Activate );
 	rigidbody.id = m_bodies.push( bodyID );
 	m_numPhysicsBodyChanges++;
@@ -354,6 +356,20 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 
 			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
 
+			{
+				JPH::BodyLockWrite lock( m_physicsSystem->GetBodyLockInterface(), bodyID );
+				if ( !lock.Succeeded() )
+					continue;
+
+				JPH::Body& body = lock.GetBody();
+
+				// Set damping 
+				JPH::MotionProperties* mp = body.GetMotionProperties();
+				mp->SetLinearDamping( rigidbody.linearDamping );
+				//mp->SetAngularDamping( angular_damping );
+			}
+	
+			// Set pos, rot, vel
 			bodyInterface.SetPositionRotationAndVelocity(
 				bodyID,
 				{
