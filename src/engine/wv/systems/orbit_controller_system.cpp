@@ -43,16 +43,13 @@ void wv::OrbitControllerSystem::onUpdate()
 
 			wv::Transformf& entityTransform = entity->getTransform();
 
-			// check if camera is orbit camera
-			{
-				entityTransform.rotation += wv::Vector3f{
-						-component.cameraMove.y,
-						-component.cameraMove.x,
-						0.0f
-				};
+			entityTransform.rotation += wv::Vector3f{
+					-component.cameraMove.y,
+					-component.cameraMove.x,
+					0.0f
+			};
 
-				entityTransform.setPosition( entityTransform.rotation.eulerToDirection() * component.orbitDistance );
-			}
+			entityTransform.setPosition( entityTransform.rotation.eulerToDirection() * component.orbitDistance );
 		}
 	}
 
