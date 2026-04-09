@@ -43,8 +43,7 @@ template<typename _Ty> _Ty abs( const _Ty& _value );
 template<typename _Ty> _Ty min( const _Ty& _a, const _Ty& _b );
 template<typename _Ty> _Ty max( const _Ty& _a, const _Ty& _b );
 
-template<typename _Ty> _Ty lerp( const _Ty& _a, const _Ty& _b, float _t );
-template<typename _Ty> _Ty lerp( const _Ty& _a, const _Ty& _b, double _t );
+template<typename Ty> Ty lerp( const Ty& _a, const Ty& _b, float _t );
 
 inline float  radians( const float& _degrees ) { 
 	return _degrees * ( Const::Float::PI / 180.0f ); 
@@ -136,11 +135,10 @@ template<typename _Ty> _Ty max( const _Ty& _a, const _Ty& _b )
 	return _a > _b ? _a : _b;
 }
 
-template<typename _Ty>
-_Ty lerp( const _Ty& _a, const _Ty& _b, float _t ) { return _a + ( _b - _a ) * _t; }
-
-template<typename _Ty>
-_Ty lerp( const _Ty& _a, const _Ty& _b, double _t ) { return _a + ( _b - _a ) * _t; }
+template<typename Ty>
+Ty lerp( const Ty& _a, const Ty& _b, float _t ) { 
+	return _a + ( _b - _a ) * _t; 
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
