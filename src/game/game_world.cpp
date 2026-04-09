@@ -53,6 +53,16 @@ void GameWorld::onSceneCreate()
 		addComponent<wv::RigidBodyComponent>( entity, {} );
 		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cube.glb" } );
 	}
+
+	{
+		wv::Entity* entity = createEntity( "Floor" );
+		entity->getTransform().position = { 0.0f, -5.0f, 0.0f };
+		entity->getTransform().scale = { 50.0f, 0.5f, 50.0f };
+
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
+		addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
+		addComponent<wv::MeshComponent>( entity, { .assetPath = "meshes/SM_Cube.glb" } );
+	}
 	
 	{
 		// Camera
