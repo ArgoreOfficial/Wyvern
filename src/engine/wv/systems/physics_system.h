@@ -56,8 +56,6 @@ protected:
 	const uint32_t m_maxBodyPairs = 65536;
 	const uint32_t m_maxContactConstraints = 10240;
 
-	JPH::Body* m_staticFloor = nullptr;
-
 	// number of removes and adds
 	size_t m_numPhysicsBodyChanges = 0;
 

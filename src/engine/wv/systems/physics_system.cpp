@@ -266,33 +266,12 @@ void wv::PhysicsSystem::onInitialize()
 		*(JPH::ObjectVsBroadPhaseLayerFilter*)m_objectVsBroadphaseLayerFilter,
 		*(JPH::ObjectLayerPairFilter*)m_objectVsObjectLayerFilter
 	);
-	
-
-	// Static floor
-
-	JPH::BoxShapeSettings floorShapeSettings( JPH::Vec3( 100.0f, 1.0f, 100.0f ) );
-	floorShapeSettings.SetEmbedded();
-	
-	JPH::BodyCreationSettings floorSettings( 
-		floorShapeSettings.Create().Get(),
-		JPH::RVec3( 0.0f, -5.0f, 0.0f ), 
-		JPH::Quat::sIdentity(), 
-		JPH::EMotionType::Static, 
-		Layers::NON_MOVING 
-	);
-	
-	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-	m_staticFloor = bodyInterface.CreateBody( floorSettings );
-	bodyInterface.AddBody( m_staticFloor->GetID(), JPH::EActivation::DontActivate );
 }
 
 void wv::PhysicsSystem::onShutdown()
 {
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 	
-	bodyInterface.RemoveBody( m_staticFloor->GetID() );
-	bodyInterface.DestroyBody( m_staticFloor->GetID() );
-
 	for ( JPH::BodyID bodyID : m_bodies )
 	{
 		bodyInterface.RemoveBody( bodyID );
