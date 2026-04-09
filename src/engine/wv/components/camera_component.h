@@ -20,7 +20,7 @@ struct CameraComponent
 
 	float getAspect() { return viewDimensions.x / viewDimensions.y; }
 
-	inline void recalculateViewMatrix( Transformf* _parent, bool _cacheViewProj = true )
+	inline void recalculateViewMatrix( Transform* _parent, bool _cacheViewProj = true )
 	{
 		if ( _parent )
 			viewMatrix = _parent->getMatrix().inverse();

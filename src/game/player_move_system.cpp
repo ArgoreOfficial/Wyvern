@@ -122,13 +122,13 @@ void PlayerMoveSystem::onPhysicsUpdate()
 
 void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
 {
-	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
+	wv::Transform& transform = _entity->getTransform();
 	
-	wv::Vector3f forward = cameraTransform.forward(); 
+	wv::Vector3f forward = transform.forward();
 	forward.y = 0.0f; 
 	forward.normalize();
 	
-	wv::Vector3f right = cameraTransform.right();
+	wv::Vector3f right = transform.right();
 	right.y = 0.0f; 
 	right.normalize();
 
@@ -198,10 +198,16 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 		//shakeYaw = cameraShake * Random.Range( -1.0f, 1.0f );
 	}
 
-	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
+	wv::Transform& cameraTransform = _pc.cameraEntity->getTransform();
 	cameraTransform.position = localPosition;
-	cameraTransform.rotation = wv::Rotorf::euler( { pitch + shakePitch, yaw + shakeYaw, roll + currentRot } );
-	//OrientationTransform.rotation = Quaternion.Euler( 0, yaw, 0 );
+	cameraTransform.rotation = wv::Rotorf::euler( 
+		{ 
+			pitch + shakePitch, 
+			        shakeYaw, 
+			roll  + currentRot
+		} 
+	);
+	_entity->getTransform().rotation = wv::Rotorf::euler( 0.0f, yaw, 0.0f );
 }
 
 

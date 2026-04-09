@@ -31,7 +31,7 @@ public:
 	UUID getID() const { return m_ID; }
 	std::string getName() { return m_debugName; }
 
-	Transformf& getTransform() { return m_transform; }
+	Transform& getTransform() { return m_transform; }
 
 	bool getDebugDisplayEnabled() const { return m_debugDisplayEnabled; }
 	void setDebugDisplayEnabled( bool _enabled ) { m_debugDisplayEnabled = _enabled; }
@@ -44,7 +44,7 @@ private:
 
 	bool m_debugDisplayEnabled = true;
 
-	Transformf m_transform;
+	Transform m_transform;
 
 private:
 	WV_REFLECT_MEMBER( m_ID, "UUID" )

@@ -13,61 +13,53 @@ namespace wv
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _Ty>
 class Transform
 {
 
 public:
 	Transform() = default;
 
-	inline void setPosition( const wv::Vector3<_Ty>& _position ) { position = _position; }
-	inline void setScale( const wv::Vector3<_Ty>& _scale ) { scale = _scale; }
+	inline void setPosition( const wv::Vector3f& _position ) { position = _position; }
+	inline void setScale( const wv::Vector3f& _scale ) { scale = _scale; }
 
-	inline void translate( wv::Vector3<_Ty> _translation ) { position += _translation; }
+	inline void translate( wv::Vector3f _translation ) { position += _translation; }
 	//inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }
 
-	inline Matrix<_Ty, 4, 4> getMatrix() const { return m_matrix; }
+	inline Matrix4x4f getMatrix() const { return m_matrix; }
 
-	void addChild( Transform<_Ty>* _child );
-	void removeChild( Transform<_Ty>* _child );
+	void addChild( Transform* _child );
+	void removeChild( Transform* _child );
 
-	bool update( Transform<_Ty>* _parent, bool _recalculateMatrix = true );
+	bool update( Transform* _parent, bool _recalculateMatrix = true );
 
-	inline Vector3<_Ty> forward() const { return rotation.rotateVector( { 0.0f, 0.0f, -1.0f } ); }
-	inline Vector3<_Ty> right()   const { return rotation.rotateVector( { 1.0f, 0.0f,  0.0f } ); }
-	inline Vector3<_Ty> up()      const { return rotation.rotateVector( { 0.0f, 1.0f,  0.0f } ); }
+	inline Vector3f forward() const { return rotation.rotateVector( { 0.0f, 0.0f, -1.0f } ); }
+	inline Vector3f right()   const { return rotation.rotateVector( { 1.0f, 0.0f,  0.0f } ); }
+	inline Vector3f up()      const { return rotation.rotateVector( { 0.0f, 1.0f,  0.0f } ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	Vector3<_Ty> position{};
-	Rotor<_Ty>   rotation{};
-	Vector3<_Ty> scale{ 1, 1, 1 };
+	Vector3f position{};
+	Rotorf   rotation{};
+	Vector3f scale{ 1, 1, 1 };
 
-	Transform<_Ty>* pParent = nullptr;
+	Transform* pParent = nullptr;
 
-	Matrix<_Ty, 4, 4> m_matrix{ 1 };
+	Matrix4x4f m_matrix{ 1 };
 
 private:
 
-	Matrix<_Ty, 4, 4> m_localMatrix{ 1 };
+	Matrix4x4f m_localMatrix{ 1 };
 
-	Vector3<_Ty> m_cachedPosition{ 0, 0, 0 };
-	Rotor<_Ty>   m_cachedRotation{};
-	Vector3<_Ty> m_cachedScale{ 1, 1, 1 };
+	Vector3f m_cachedPosition{ 0, 0, 0 };
+	Rotorf   m_cachedRotation{};
+	Vector3f m_cachedScale{ 1, 1, 1 };
 
-	std::vector<Transform<_Ty>*> m_children;
+	std::vector<Transform*> m_children;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-typedef Transform<float>  Transformf;
-typedef Transform<double> Transformd;
-typedef Transform<int>    Transformi;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-template<typename _Ty>
-inline void Transform<_Ty>::addChild( Transform<_Ty>* _child )
+inline void Transform::addChild( Transform* _child )
 {
 	if ( _child == nullptr )
 		return;
@@ -80,13 +72,12 @@ inline void Transform<_Ty>::addChild( Transform<_Ty>* _child )
 	_child->pParent = this;
 }
 
-template<typename _Ty>
-inline void Transform<_Ty>::removeChild( Transform<_Ty>* _child )
+inline void Transform::removeChild( Transform* _child )
 {
 	if ( _child == nullptr )
 		return;
 
-	for ( size_t i = 0; i++; i < m_children.size() )
+	for ( size_t i = 0; i < m_children.size(); i++ )
 	{
 		if ( m_children[ i ] != _child )
 			continue;
@@ -96,8 +87,7 @@ inline void Transform<_Ty>::removeChild( Transform<_Ty>* _child )
 	}
 }
 
-template<typename _Ty>
-inline bool Transform<_Ty>::update( Transform<_Ty>* _parent, bool _recalculateMatrix )
+inline bool Transform::update( Transform* _parent, bool _recalculateMatrix )
 {
 
 	bool posChanged = position != m_cachedPosition;
@@ -107,7 +97,7 @@ inline bool Transform<_Ty>::update( Transform<_Ty>* _parent, bool _recalculateMa
 
 	if ( recalc )
 	{
-		Matrix<_Ty, 4, 4> model{ 1 };
+		Matrix4x4f model{ 1 };
 
 		model = Math::translate( model, position );
 		model = rotation.toMatrix4x4() * model;

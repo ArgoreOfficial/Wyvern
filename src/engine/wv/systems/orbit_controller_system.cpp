@@ -41,7 +41,7 @@ void wv::OrbitControllerSystem::onUpdate()
 
 			component.orbitDistance -= inputSystem->getMouseScroll() * 120 * deltaTime;
 
-			wv::Transformf& entityTransform = entity->getTransform();
+			wv::Transform& entityTransform = entity->getTransform();
 
 			entityTransform.rotation.rotate(
 				Rotor<float>::euler(
