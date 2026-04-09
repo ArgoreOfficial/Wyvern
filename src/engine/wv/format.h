@@ -67,7 +67,8 @@ template <typename Ty>
 struct formatter<wv::Transform<Ty>> : std::formatter<std::string>
 {
 	auto format( wv::Transform<Ty> _v, format_context& _ctx ) const {
-		return std::formatter<std::string>::format( std::format( "[{}, {}, {}]", _v.position, _v.rotation, _v.scale ), _ctx );
+		wv::Vector3f v;
+		return std::formatter<std::string>::format( std::format( "[{}, {}, {}]", _v.position, v, _v.scale), _ctx);
 	}
 };
 

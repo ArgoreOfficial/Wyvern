@@ -199,8 +199,8 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 	}
 
 	wv::Transformf& cameraTransform = _pc.cameraEntity->getTransform();
-	cameraTransform.setPosition( localPosition );
-	cameraTransform.setRotation( { pitch + shakePitch, yaw + shakeYaw, roll + currentRot } );
+	cameraTransform.position = localPosition;
+	cameraTransform.rotation = wv::Rotorf::euler( { pitch + shakePitch, yaw + shakeYaw, roll + currentRot } );
 	//OrientationTransform.rotation = Quaternion.Euler( 0, yaw, 0 );
 }
 

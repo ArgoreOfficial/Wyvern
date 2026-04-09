@@ -168,9 +168,10 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	rigidbody.internal.fixedDeltaTime = getApp()->getPhysicsDeltaTime();
 
 	JPH::BodyCreationSettings bodySetting{};
+	Vector4f quat = rigidbody.rotation.toQuaternion();
 
 	auto jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
-	auto jphRot = JPH::Quat::sEulerAngles( { rigidbody.rotation.x, rigidbody.rotation.y, rigidbody.rotation.z } );
+	auto jphRot = JPH::Quat( quat.x, quat.y, quat.z, quat.w );
 	auto motionType = JPH::EMotionType::Dynamic;
 	auto layers = Layers::MOVING;
 
@@ -373,7 +374,9 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				mp->SetLinearDamping( rigidbody.linearDamping );
 				//mp->SetAngularDamping( angular_damping );
 			}
-	
+			auto jquat = bodyInterface.GetRotation( bodyID );
+			Vector4f quat = rigidbody.rotation.toQuaternion();
+
 			// Set pos, rot, vel
 			bodyInterface.SetPositionRotationAndVelocity(
 				bodyID,
@@ -382,12 +385,12 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 					rigidbody.position.y,
 					rigidbody.position.z
 				},
-				JPH::Quat::sEulerAngles(
-					{
-						wv::Math::radians( rigidbody.rotation.x ),
-						wv::Math::radians( rigidbody.rotation.y ),
-						wv::Math::radians( rigidbody.rotation.z )
-					} ),
+				{
+					quat.x,
+					quat.y,
+					quat.z,
+					quat.w
+				},
 				{
 					rigidbody.linearVelocity.x,
 					rigidbody.linearVelocity.y,
@@ -419,7 +422,7 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 				continue;
 
 			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
-			JPH::Vec3 rotation = bodyInterface.GetRotation( bodyID ).GetEulerAngles();
+			JPH::Quat rotation = bodyInterface.GetRotation( bodyID );
 			JPH::Vec3 position = bodyInterface.GetPosition( bodyID );
 			JPH::Vec3 linearVelocity  = bodyInterface.GetLinearVelocity( bodyID );
 			JPH::Vec3 angularVelocity = bodyInterface.GetAngularVelocity( bodyID );
@@ -432,11 +435,14 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			};
 
 			rigidbody.internal.previousRotation = rigidbody.rotation;
-			rigidbody.rotation = { 
-				wv::Math::degrees( rotation.GetX() ), 
-				wv::Math::degrees( rotation.GetY() ), 
-				wv::Math::degrees( rotation.GetZ() ) 
+			
+			const Vector4f quat{
+				rotation.GetX(),
+				rotation.GetY(),
+				rotation.GetZ(),
+				rotation.GetW()
 			};
+			rigidbody.rotation = Rotorf::fromQuaternion( quat );
 
 			rigidbody.linearVelocity  = { 
 				linearVelocity.GetX(), 

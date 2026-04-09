@@ -18,7 +18,7 @@ private:
 	friend class PhysicsSystem;
 
 	Vector3f previousPosition{};
-	Vector3f previousRotation{};
+	Rotorf   previousRotation{};
 
 	double fixedDeltaTime = 0.02;
 };
@@ -34,7 +34,7 @@ struct RigidBodyComponent
 	Vector3<bool> lockRotationAxis{ false, false, false };
 
 	Vector3f position{};
-	Vector3f rotation{};
+	Rotorf   rotation{};
 	Vector3f linearVelocity{};
 	Vector3f angularVelocity{};
 

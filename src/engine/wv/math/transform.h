@@ -2,6 +2,7 @@
 
 #include <wv/math/vector3.h>
 #include <wv/math/matrix.h>
+#include <wv/math/rotor.h>
 
 #include <vector>
 
@@ -20,16 +21,10 @@ public:
 	Transform() = default;
 
 	inline void setPosition( const wv::Vector3<_Ty>& _position ) { position = _position; }
-	inline void setRotation( const wv::Vector3<_Ty>& _rotation ) { rotation = _rotation; }
 	inline void setScale( const wv::Vector3<_Ty>& _scale ) { scale = _scale; }
 
-	inline void setPositionRotation( const wv::Vector3<_Ty>& _position, const wv::Vector3<_Ty>& _rotation ) {
-		position = _position;
-		rotation = _rotation;
-	}
-
 	inline void translate( wv::Vector3<_Ty> _translation ) { position += _translation; }
-	inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }
+	//inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }
 
 	inline Matrix<_Ty, 4, 4> getMatrix() const { return m_matrix; }
 
@@ -38,14 +33,14 @@ public:
 
 	bool update( Transform<_Ty>* _parent, bool _recalculateMatrix = true );
 
-	inline Vector3<_Ty> forward() const { return -rotation.eulerToDirection(); }
-	inline Vector3<_Ty> right()   const { return ( rotation + Vector3<_Ty>{  0.0f, 90.0f, 0.0f } ).eulerToDirection(); }
-	inline Vector3<_Ty> up()      const { return ( rotation + Vector3<_Ty>{ 90.0f,  0.0f, 0.0f } ).eulerToDirection(); }
+	inline Vector3<_Ty> forward() const { return rotation.rotateVector( { 0.0f, 0.0f, -1.0f } ); }
+	inline Vector3<_Ty> right()   const { return rotation.rotateVector( { 1.0f, 0.0f,  0.0f } ); }
+	inline Vector3<_Ty> up()      const { return rotation.rotateVector( { 0.0f, 1.0f,  0.0f } ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-	Vector3<_Ty> position{ 0, 0, 0 };
-	Vector3<_Ty> rotation{ 0, 0, 0 };
+	Vector3<_Ty> position{};
+	Rotor<_Ty>   rotation{};
 	Vector3<_Ty> scale{ 1, 1, 1 };
 
 	Transform<_Ty>* pParent = nullptr;
@@ -57,7 +52,7 @@ private:
 	Matrix<_Ty, 4, 4> m_localMatrix{ 1 };
 
 	Vector3<_Ty> m_cachedPosition{ 0, 0, 0 };
-	Vector3<_Ty> m_cachedRotation{ 0, 0, 0 };
+	Rotor<_Ty>   m_cachedRotation{};
 	Vector3<_Ty> m_cachedScale{ 1, 1, 1 };
 
 	std::vector<Transform<_Ty>*> m_children;
@@ -115,11 +110,7 @@ inline bool Transform<_Ty>::update( Transform<_Ty>* _parent, bool _recalculateMa
 		Matrix<_Ty, 4, 4> model{ 1 };
 
 		model = Math::translate( model, position );
-
-		model = Math::rotateZ( model, Math::radians( rotation.z ) );
-		model = Math::rotateY( model, Math::radians( rotation.y ) );
-		model = Math::rotateX( model, Math::radians( rotation.x ) );
-
+		model = rotation.toMatrix4x4() * model;
 		model = Math::scale( model, scale );
 
 		m_cachedPosition = position;
@@ -138,7 +129,6 @@ inline bool Transform<_Ty>::update( Transform<_Ty>* _parent, bool _recalculateMa
 	}
 	else
 		m_matrix = m_localMatrix;
-
 
 	for ( auto& child : m_children )
 		child->update( this, recalc || _recalculateMatrix );

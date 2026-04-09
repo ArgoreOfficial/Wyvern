@@ -43,13 +43,16 @@ void wv::OrbitControllerSystem::onUpdate()
 
 			wv::Transformf& entityTransform = entity->getTransform();
 
-			entityTransform.rotation += wv::Vector3f{
+			entityTransform.rotation.rotate(
+				Rotor<float>::euler(
+					{
 					-component.cameraMove.y,
 					-component.cameraMove.x,
 					0.0f
-			};
+					} )
+			);
 
-			entityTransform.setPosition( entityTransform.rotation.eulerToDirection() * component.orbitDistance );
+			entityTransform.setPosition( -entityTransform.forward() * component.orbitDistance );
 		}
 	}
 
