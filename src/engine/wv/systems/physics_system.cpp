@@ -170,9 +170,17 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	JPH::BodyCreationSettings bodySetting{};
 	Vector4f quat = rigidbody.rotation.toQuaternion();
 
-	auto jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
-	auto jphRot = JPH::Quat( quat.x, quat.y, quat.z, quat.w );
-	auto motionType = JPH::EMotionType::Dynamic;
+	JPH::RVec3 jphPos = JPH::RVec3( rigidbody.position.x, rigidbody.position.y, rigidbody.position.z );
+	JPH::Quat  jphRot = JPH::Quat( quat.x, quat.y, quat.z, quat.w );
+
+	JPH::EMotionType motionType = JPH::EMotionType::Dynamic;
+	switch ( rigidbody.bodyType )
+	{
+	case BodyType_Static:    motionType = JPH::EMotionType::Static; break;
+	case BodyType_Dynamic:   motionType = JPH::EMotionType::Dynamic; break;
+	case BodyType_Kinematic: motionType = JPH::EMotionType::Kinematic; break;
+	}
+	
 	auto layers = Layers::MOVING;
 
 	switch ( collider.shape )
@@ -362,18 +370,20 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
 			rigidbody.internal.fixedDeltaTime = _fixedDeltaTime;
 
+			if ( rigidbody.bodyType != BodyType_Static )
 			{
 				JPH::BodyLockWrite lock( m_physicsSystem->GetBodyLockInterface(), bodyID );
 				if ( !lock.Succeeded() )
 					continue;
 
 				JPH::Body& body = lock.GetBody();
+				JPH::MotionProperties* mp = body.GetMotionProperties();
 
 				// Set damping 
-				JPH::MotionProperties* mp = body.GetMotionProperties();
 				mp->SetLinearDamping( rigidbody.linearDamping );
-				//mp->SetAngularDamping( angular_damping );
+				//mp->SetAngularDamping( rigidbody.angularDamping );
 			}
+
 			auto jquat = bodyInterface.GetRotation( bodyID );
 			Vector4f quat = rigidbody.rotation.toQuaternion();
 

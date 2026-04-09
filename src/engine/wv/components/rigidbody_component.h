@@ -11,6 +11,13 @@ enum ForceType
 	ForceType_acceleration // acceleration per second. Eg. falling
 };
 
+enum BodyType
+{
+	BodyType_Static,
+	BodyType_Dynamic,
+	BodyType_Kinematic
+};
+
 struct RigidBodyComponentInternal
 {
 private:
@@ -26,6 +33,8 @@ private:
 struct RigidBodyComponent
 {
 	size_t id = 0;
+
+	BodyType bodyType = BodyType_Dynamic;
 
 	float mass = 1.0f;
 	float linearDamping = 0.05f;
