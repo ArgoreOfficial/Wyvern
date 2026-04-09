@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <wv/math/math.h>
 
 #ifdef WV_CPP20
@@ -59,13 +58,13 @@ public:
 
 	_Ty dot( const Vector4<_Ty>& _other ) const {
 		return x * _other.x
-			+ y * _other.y
-			+ z * _other.z
-			+ w * _other.w;
+			 + y * _other.y
+			 + z * _other.z
+			 + w * _other.w;
 	}
 
-	void normalize( int _magnitude = 1.0f ) {
-		_Ty magnitude = length();
+	void normalize( _Ty _magnitude = 1.0f ) {
+		const _Ty magnitude = length();
 		x /= magnitude;
 		y /= magnitude;
 		z /= magnitude;
