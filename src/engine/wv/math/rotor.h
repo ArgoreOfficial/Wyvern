@@ -102,6 +102,7 @@ public:
 		};
 	}
 
+	static Rotor<Ty> euler( const Ty& _x, const Ty& _y, const Ty& _z );
 	static Rotor<Ty> euler( const Vector3<Ty>& _degrees );
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -181,17 +182,23 @@ inline Matrix<Ty, 4, 4> Rotor<Ty>::toMatrix4x4() const
 }
 
 template<typename Ty>
-Rotor<Ty> Rotor<Ty>::euler( const Vector3<Ty>& _degrees )
+Rotor<Ty> Rotor<Ty>::euler( const Ty& _x, const Ty& _y, const Ty& _z )
 {
-	Rotor<Ty> xrotor( { 1.0,  0.0, 0.0 }, wv::Math::radians( (double)_degrees.z ) );
-	Rotor<Ty> yrotor( { 0.0, -1.0, 0.0 }, wv::Math::radians( (double)_degrees.y ) );
-	Rotor<Ty> zrotor( { 0.0,  0.0, 1.0 }, wv::Math::radians( (double)_degrees.x ) );
+	Rotor<Ty> xrotor( { 0.0,  0.0, 1.0 }, wv::Math::radians( (double)_x ) );
+	Rotor<Ty> yrotor( { 0.0, -1.0, 0.0 }, wv::Math::radians( (double)_y ) );
+	Rotor<Ty> zrotor( { 1.0,  0.0, 0.0 }, wv::Math::radians( (double)_z ) );
 
 	Rotor<Ty> r;
-	r = r * xrotor;
 	r = r * yrotor;
+	r = r * xrotor;
 	r = r * zrotor;
 	return r;
+}
+
+template<typename Ty>
+Rotor<Ty> Rotor<Ty>::euler( const Vector3<Ty>& _degrees )
+{
+	return Rotor<Ty>::euler( _degrees.x, _degrees.y, _degrees.z );
 }
 
 template<typename Ty>
