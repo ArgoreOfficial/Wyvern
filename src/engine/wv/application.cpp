@@ -183,7 +183,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->onSceneCreate();
 
 	m_world->updateFrameData( 0.0f, 0.0f );
-	m_world->dispatchUpdateMessage( UpdateMessageType_initialize );
+	m_world->dispatchUpdateMessage( UpdateEvent_initialize );
 	m_world->updateComponentChanges();
 	
 	return true;
@@ -194,7 +194,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 void wv::Application::shutdown()
 {
 	m_world->destroyAllEntities();
-	m_world->dispatchUpdateMessage( UpdateMessageType_shutdown );
+	m_world->dispatchUpdateMessage( UpdateEvent_shutdown );
 
 	m_renderer->waitForRenderer();
 
@@ -314,7 +314,7 @@ void wv::Application::update()
 	m_accumulator += m_deltatime;
 	while ( m_accumulator > m_fixedDeltaTime )
 	{
-		m_world->dispatchUpdateMessage( UpdateMessageType_physicsUpdate );
+		m_world->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
 
 		physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
 
@@ -326,9 +326,9 @@ void wv::Application::update()
 
 	// normal update
 
-	m_world->dispatchUpdateMessage( UpdateMessageType_preUpdate );
-	m_world->dispatchUpdateMessage( UpdateMessageType_update );
-	m_world->dispatchUpdateMessage( UpdateMessageType_postUpdate );
+	m_world->dispatchUpdateMessage( UpdateEvent_preUpdate );
+	m_world->dispatchUpdateMessage( UpdateEvent_update );
+	m_world->dispatchUpdateMessage( UpdateEvent_postUpdate );
 
 	for ( Entity* entity : m_world->m_entities )
 	{
@@ -367,7 +367,7 @@ void wv::Application::render()
 	{
 		m_renderer->beginDebugRender();
 		
-		m_world->dispatchUpdateMessage( UpdateMessageType_debugRender );
+		m_world->dispatchUpdateMessage( UpdateEvent_debugRender );
 
 		m_renderer->endDebugRender();
 	}
@@ -375,7 +375,7 @@ void wv::Application::render()
 
 	if ( shouldRender )
 	{
-		m_world->dispatchUpdateMessage( UpdateMessageType_render );
+		m_world->dispatchUpdateMessage( UpdateEvent_render );
 		m_renderer->render( m_world );
 	}
 	

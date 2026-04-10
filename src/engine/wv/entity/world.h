@@ -22,19 +22,19 @@ struct WorldUpdateContext
 	std::vector<ActionEvent> actionEventQueue;
 };
 
-enum UpdateMessageType
+enum UpdateEventType
 {
-	UpdateMessageType_initialize,
-	UpdateMessageType_shutdown,
+	UpdateEvent_initialize,
+	UpdateEvent_shutdown,
 
-	UpdateMessageType_preUpdate,
-	UpdateMessageType_update,
-	UpdateMessageType_postUpdate,
+	UpdateEvent_preUpdate,
+	UpdateEvent_update,
+	UpdateEvent_postUpdate,
 	
-	UpdateMessageType_physicsUpdate,
+	UpdateEvent_physicsUpdate,
 
-	UpdateMessageType_debugRender,
-	UpdateMessageType_render
+	UpdateEvent_debugRender,
+	UpdateEvent_render
 };
 
 class World : public IReflectedType
@@ -115,7 +115,7 @@ public:
 	}
 
 	void updateFrameData( double _deltaTime, double _physicsDeltaTime );
-	void dispatchUpdateMessage( UpdateMessageType _type );
+	void dispatchUpdateMessage( UpdateEventType _type );
 
 	void insertUpdatable( IUpdatable* _updatable ) {
 		if ( m_updatables.contains( _updatable ) )

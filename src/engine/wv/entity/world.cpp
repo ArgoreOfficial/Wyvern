@@ -87,32 +87,32 @@ void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )
 	}
 }
 
-void wv::World::dispatchUpdateMessage( UpdateMessageType _type )
+void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 {
 	for ( IUpdatable* updatable : m_updatables )
 	{
 		switch ( _type )
 		{
-		case UpdateMessageType_initialize: 
+		case UpdateEvent_initialize: 
 			if( !updatable->m_initalized )
 				updatable->onInitialize();
 			updatable->m_initalized = true;
 			break;
 
-		case UpdateMessageType_shutdown: 
+		case UpdateEvent_shutdown: 
 			if ( updatable->m_initalized )
 				updatable->onShutdown();
 			updatable->m_initalized = false;
 			break;
 
-		case UpdateMessageType_preUpdate:  updatable->onPreUpdate();  break;
-		case UpdateMessageType_update:     updatable->onUpdate();     break;
-		case UpdateMessageType_postUpdate: updatable->onPostUpdate(); break;
+		case UpdateEvent_preUpdate:  updatable->onPreUpdate();  break;
+		case UpdateEvent_update:     updatable->onUpdate();     break;
+		case UpdateEvent_postUpdate: updatable->onPostUpdate(); break;
 
-		case UpdateMessageType_physicsUpdate: updatable->onPhysicsUpdate(); break;
+		case UpdateEvent_physicsUpdate: updatable->onPhysicsUpdate(); break;
 
-		case UpdateMessageType_debugRender: updatable->onDebugRender(); break;
-		case UpdateMessageType_render:      updatable->onRender();      break;
+		case UpdateEvent_debugRender: updatable->onDebugRender(); break;
+		case UpdateEvent_render:      updatable->onRender();      break;
 		}
 	}
 }
