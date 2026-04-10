@@ -28,23 +28,21 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 	SDLDisplayDriver* dd = (SDLDisplayDriver*)app->getDisplayDriver();
 	bool isRelativeMotion = SDL_GetWindowRelativeMouseMode( dd->getSDLWindowContext() );
 
-	if ( isRelativeMotion )
+	wv::Vector2f relativeMove{};
+	SDL_GetRelativeMouseState( &relativeMove.x, &relativeMove.y );
+	
+	if ( isRelativeMotion && !relativeMove.isZero() )
 	{
-		float x{}, y{};
-		SDL_GetRelativeMouseState( &x, &y );
-		if ( x != 0.0f || y != 0 )
-		{
-			_inputEventQueue.pushEvent(
-				{
-					.type = LowLevelInputQueue::WV_MOUSE_MOVE,
-					.mouse = {
-						.move = {
-							.position = dd->getWindowSize() / 2,
-							.delta = { (int)x, (int)y }
-						}
+		_inputEventQueue.pushEvent(
+			{
+				.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+				.mouse = {
+					.move = {
+						.position = (wv::Vector2f)dd->getWindowSize() / 2.0f,
+						.delta = relativeMove
 					}
-				} );
-		}
+				}
+			} );
 	}
 
 	while ( SDL_PollEvent( &ev ) )
@@ -76,8 +74,8 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 					.type = LowLevelInputQueue::WV_MOUSE_MOVE,
 					.mouse = {
 						.move = {
-							.position = { (int)ev.motion.x,    (int)ev.motion.y },
-							.delta    = { (int)ev.motion.xrel, (int)ev.motion.yrel }
+							.position = { ev.motion.x,    ev.motion.y },
+							.delta    = { ev.motion.xrel, ev.motion.yrel }
 						}
 					}
 				} );

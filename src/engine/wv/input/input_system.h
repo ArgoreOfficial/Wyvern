@@ -65,8 +65,8 @@ public:
 		{
 			struct MouseMoveEvent
 			{
-				wv::Vector2i position;
-				wv::Vector2i delta;
+				wv::Vector2f position;
+				wv::Vector2f delta;
 			} move;
 
 			struct MouseButtonEvent
