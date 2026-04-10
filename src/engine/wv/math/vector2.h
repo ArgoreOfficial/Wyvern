@@ -43,30 +43,13 @@ public:
 		y( static_cast<Ty>( _other.y ) )
 	{ }
 
-	Ty length( void ) const {
-		return std::sqrt( x * x + y * y );
-	}
+	Ty length() const;
+	Ty dot( const Vector2<Ty>& _other ) const;
 
-	Ty dot( const Vector2<Ty>& _other ) const {
-		return 
-			x * _other.x + 
-			y * _other.y;
-	}
+	void normalize( Ty _magnitude = 1.0 );
+	Vector2<Ty> normalized() const;
 
-	void normalize( int _magnitude = 1.0f ) {
-		Ty magnitude = length();
-		x /= magnitude;
-		y /= magnitude;
-		
-		if ( _magnitude != 1.0f )
-			*this *= _magnitude;
-	}
-
-	Vector2<Ty> normalized() const {
-		Vector2 vec{ x, y };
-		vec.normalize();
-		return vec;
-	}
+	bool isZero() const { return ( x == (Ty)0 && y == (Ty)0 ); }
 
 	Vector2<Ty>& operator = ( const Vector2<Ty>& _other );
 	Vector2<Ty>& operator +=( const Vector2<Ty>& _other );
@@ -92,6 +75,39 @@ typedef Vector2<double> Vector2d;
 typedef Vector2<int> Vector2i;
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Ty>
+inline Ty Vector2<Ty>::length() const
+{
+	return std::sqrt( x * x + y * y );
+}
+
+template<typename Ty>
+inline Ty Vector2<Ty>::dot( const Vector2<Ty>& _other ) const
+{
+	return
+		x * _other.x +
+		y * _other.y;
+}
+
+template<typename Ty>
+void Vector2<Ty>::normalize( Ty _magnitude )
+{
+	Ty magnitude = length();
+	x /= magnitude;
+	y /= magnitude;
+
+	if ( _magnitude != 1.0f )
+		*this *= _magnitude;
+}
+
+template<typename Ty>
+Vector2<Ty> Vector2<Ty>::normalized() const
+{
+	Vector2 vec{ x, y };
+	vec.normalize();
+	return vec;
+}
 
 template<typename Ty>
 inline Vector2<Ty>& Vector2<Ty>::operator=( const Vector2<Ty>& _other )
