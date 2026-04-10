@@ -83,5 +83,6 @@ protected:
 
 	wv::ActionGroup* playerActionGroup = nullptr;
 	wv::ActionID m_moveActionID = {};
-	wv::ActionID m_jumpActionID = {};
+	wv::ActionID m_shakeActionID = {};
+	wv::ActionID m_mouseLockActionID = {};
 };

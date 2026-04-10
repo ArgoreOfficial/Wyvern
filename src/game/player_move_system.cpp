@@ -18,14 +18,16 @@ void PlayerMoveSystem::onInitialize()
 {
 	playerActionGroup = updateContext->inputSystem->getActionGroup( "Player" );
 	
-	m_moveActionID = playerActionGroup->getAxisActionID( "Move" );
-	m_jumpActionID = updateContext->inputSystem->getActionGroup( "Player" )->getTriggerActionID( "Jump" );
+	m_moveActionID  = playerActionGroup->getAxisActionID( "Move" );
+	m_shakeActionID = playerActionGroup->getTriggerActionID( "Shake" );
+
+	m_mouseLockActionID = playerActionGroup->getTriggerActionID( "DebugMouseLock" );
 }
 
 void PlayerMoveSystem::onUpdate()
 {
-	
 	// special case because we are dealing with mouse *and* controller look input
+	
 	m_lookInput = playerActionGroup->getAxisValue( -1, "Look" );
 
 	for ( auto& ae : updateContext->actionEventQueue )
@@ -34,17 +36,29 @@ void PlayerMoveSystem::onUpdate()
 		{
 			m_moveInput = ae.action.axis->getValue();
 		}
-		else if ( ae.actionID == m_jumpActionID && ae.action.trigger->getValue() )
+		else if ( ae.actionID == m_mouseLockActionID && ae.action.trigger->getValue() )
 		{
 			wv::getApp()->setCursorLock( !isLocked );
 			isLocked = !isLocked;
 		}
+		else if ( ae.actionID == m_shakeActionID && ae.action.trigger->getValue() )
+		{
+			cameraShake = 1.0f;
+		}
+	}
+
+	// if the mouse isn't locked, skip input
+	if ( !isLocked )
+	{
+		m_moveInput = {};
+		m_lookInput = {};
 	}
 
 	if ( m_moveInput.length() > 1.0f )
 		m_moveInput.normalize();
 
 	m_isWalking = m_moveInput.length() > 0.0f;
+
 
 	// 
 
@@ -194,8 +208,8 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 
 	if ( cameraShake > 0 )
 	{
-		//shakePitch = cameraShake * Random.Range( -1.0f, 1.0f );
-		//shakeYaw = cameraShake * Random.Range( -1.0f, 1.0f );
+		shakePitch = cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
+		shakeYaw   = cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
 	}
 
 	wv::Transform& cameraTransform = _pc.cameraEntity->getTransform();
