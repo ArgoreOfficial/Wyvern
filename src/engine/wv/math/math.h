@@ -85,6 +85,13 @@ inline uint32_t randomU32() {
 	return dis( gen );
 }
 
+inline float randomRange( float _min, float _max ) {
+	const float random = ( (float)rand() ) / (float)RAND_MAX;
+	const float diff = _max - _min;
+	const float r = random * diff;
+	return _min + r;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Ty>
