@@ -53,8 +53,6 @@ void wv::IKeyboardDriver::sendAxisEvents( InputSystem* _inputSystem )
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
 			if ( mapping.inputID >= SCANCODE_MAX ) continue;
 
-			Debug::Print( "Keyboard %s %f\n", mapping.action->name.c_str(), m_scancodeStates[ mapping.inputID ] ? 1.0f : -1.0f );
-
 			handleAxisAction( 
 				_inputSystem, m_vdID, 
 				mapping.action, mapping.direction, 
