@@ -20,6 +20,8 @@ void wv::CameraManagerSystem::onInternalCameraUpdate()
 {
 	int numActiveCameras = 0;
 
+	m_activeCameras.clear();
+
 	for ( Archetype* archetype : getArchetypes() )
 	{
 		auto& cameras  = archetype->getComponents<CameraComponent>();
@@ -29,25 +31,24 @@ void wv::CameraManagerSystem::onInternalCameraUpdate()
 		{
 			if ( !cameras[ i ].active )
 				continue;
-
-			numActiveCameras++;
-
-			// TODO: allow multi-camera rendering
-			if ( numActiveCameras > 1 ) // only update first active camera
-				continue;
 			
-			updateCamera( entities[ i ], cameras[ i ] );
+			if ( m_activeCameras.empty() ) // only update the first available
+				updateCamera( entities[ i ], cameras[ i ] );
+			
+			m_activeCameras.push_back( entities[ i ] );
 		}
 	}
-
-	if ( numActiveCameras == 0 )
+	
+	if ( m_activeCameras.empty() )
 	{
+		// no active cameras
+		
 		if ( getArchetypes().empty() )
 		{
 			WV_LOG_ERROR( "No Camera\n" );
 			return;
 		}
-
+		
 		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
 		Entity*          entity = getArchetypes()[ 0 ]->getEntities()[ 0 ];
 		
