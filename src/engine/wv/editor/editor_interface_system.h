@@ -25,9 +25,14 @@ public:
 	virtual void onEditorRender() override;
 
 private:
+	void updateEditorState();
+
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
 	void renderStatusBar();
+
+	Entity* m_editorCameraEntity  = nullptr;
+	Entity* m_runtimeCameraEntity = nullptr;
 
 	bool m_showSystemsMenu = false;
 

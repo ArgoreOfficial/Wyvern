@@ -3,12 +3,22 @@
 #include <wv/application.h>
 #include <wv/entity/world.h>
 
+#include <wv/components/camera_component.h>
+#include <wv/systems/camera_manager_system.h>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
 void wv::EditorInterfaceSystem::onInitialize()
 {
 	setEditorRenderEnabled( true );
+
+	World* world = getApp()->getWorld();
+
+	m_editorCameraEntity = world->createEntity( "EditorCamera" );
+	world->addComponent<wv::CameraComponent>( m_editorCameraEntity, { .active = false } );
+	m_editorCameraEntity->getTransform().setPosition( { 0.0f, 10.0f, 10.0f } );
+
 }
 
 void wv::EditorInterfaceSystem::onUpdate()
@@ -66,6 +76,39 @@ void wv::EditorInterfaceSystem::onEditorRender()
 }
 
 
+void wv::EditorInterfaceSystem::updateEditorState()
+{
+	World* world = getApp()->getWorld();
+
+	CameraManagerSystem* cameraManagerSystem = world->getSystem<CameraManagerSystem>();
+	CameraComponent& editorCameraComp = world->getComponent<CameraComponent>( m_editorCameraEntity );
+
+	if ( world->isEditorState() )
+	{
+		// save previous active camera
+		const std::vector<Entity*>& activeCameras = cameraManagerSystem->getActiveCameras();
+		if ( !activeCameras.empty() )
+		{
+			m_runtimeCameraEntity = activeCameras[ 0 ];
+
+			CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
+			runtimeCameraComponent.active = false;
+		}
+
+		editorCameraComp.active = true;
+	}
+	else
+	{
+		if ( m_runtimeCameraEntity )
+		{
+			CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
+			runtimeCameraComponent.active = true;
+		}
+
+		editorCameraComp.active = false;
+	}
+}
+
 void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
 	if ( ImGui::BeginMainMenuBar() )
@@ -87,10 +130,18 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 	float height = ImGui::GetFrameHeight();
 
+	World* world = getApp()->getWorld();
+
 	if ( ImGui::BeginViewportSideBar( "##SecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags ) )
 	{
 		if ( ImGui::BeginMenuBar() )
 		{
+			if ( ImGui::Button( "Runtime" ) )
+			{
+				world->toggleEditorState();
+				updateEditorState();
+			}
+			
 			if ( ImGui::Button( "Systems" ) )
 				m_showSystemsMenu = !m_showSystemsMenu;
 
