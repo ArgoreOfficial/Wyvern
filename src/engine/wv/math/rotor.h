@@ -26,6 +26,12 @@ inline Vector3<Ty> wedge( const Vector3<Ty>& u, const Vector3<Ty>& v )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+enum RotateSpace
+{
+	RotateSpace_local,
+	RotateSpace_world
+};
+
 template<typename Ty>
 class Rotor
 {
@@ -69,7 +75,10 @@ public:
 
 	Ty length() const;
 	Rotor<Ty> reverse() const;
-	Rotor<Ty> rotate( const Rotor<Ty>& _r ) const;
+
+	void rotate( const Rotor<Ty>& _r,       RotateSpace _space = RotateSpace_local );
+	void rotate( const Vector3<Ty>& _euler, RotateSpace _space = RotateSpace_local );
+	
 	inline Vector3<Ty> rotateVector( const Vector3<Ty>& _v ) const; 
 	inline Matrix<Ty, 4, 4> toMatrix4x4() const;
 
@@ -136,10 +145,19 @@ inline Rotor<Ty> Rotor<Ty>::reverse() const
 }
 
 template<typename Ty>
-inline Rotor<Ty> Rotor<Ty>::rotate( const Rotor<Ty>& _r ) const
+inline void Rotor<Ty>::rotate( const Rotor<Ty>& _r, RotateSpace _space )
 {
-	const Rotor<Ty> r = *this;
-	return r * _r * r.reverse();
+	Rotor<Ty>& r = *this;
+	if( _space == RotateSpace_local )
+		r = r * _r;
+	else
+		r = _r * r;
+}
+
+template<typename Ty>
+inline void Rotor<Ty>::rotate( const Vector3<Ty>& _euler, RotateSpace _space )
+{
+	rotate( Rotor<Ty>::euler( _euler.x, _euler.y, _euler.z ), _space );
 }
 
 template<typename Ty>
