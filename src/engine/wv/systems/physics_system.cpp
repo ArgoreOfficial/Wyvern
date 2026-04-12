@@ -300,6 +300,22 @@ void wv::PhysicsSystem::onShutdown()
 	JPH::Factory::sInstance = nullptr;
 }
 
+void wv::PhysicsSystem::onDebugRender()
+{
+	if ( m_drawEnabled )
+	{
+		JPH::BodyManager::DrawSettings drawSettings{};
+		drawSettings.mDrawShape = m_drawEnabled;
+		drawSettings.mDrawShapeWireframe = m_drawWireframe;
+		drawSettings.mDrawBoundingBox = m_drawBoundingBox;
+		drawSettings.mDrawCenterOfMassTransform = m_drawCenterOfMassTransform;
+		drawSettings.mDrawWorldTransform = m_drawWorldTransform;
+		drawSettings.mDrawVelocity = m_drawVelocity;
+		drawSettings.mDrawMassAndInertia = m_drawMassAndInertia;
+		m_physicsSystem->DrawBodies( drawSettings, JPH::DebugRenderer::sInstance );
+	}
+}
+
 void wv::PhysicsSystem::onEditorRender()
 {
 	if( ImGui::Begin( "Physics Debug" ) )
@@ -315,19 +331,6 @@ void wv::PhysicsSystem::onEditorRender()
 		ImGui::EndDisabled();
 	}
 	ImGui::End();
-
-	if ( m_drawEnabled )
-	{
-		JPH::BodyManager::DrawSettings drawSettings{};
-		drawSettings.mDrawShape = m_drawEnabled;
-		drawSettings.mDrawShapeWireframe        = m_drawWireframe;
-		drawSettings.mDrawBoundingBox           = m_drawBoundingBox;
-		drawSettings.mDrawCenterOfMassTransform = m_drawCenterOfMassTransform;
-		drawSettings.mDrawWorldTransform        = m_drawWorldTransform;
-		drawSettings.mDrawVelocity              = m_drawVelocity;
-		drawSettings.mDrawMassAndInertia        = m_drawMassAndInertia;
-		m_physicsSystem->DrawBodies( drawSettings, JPH::DebugRenderer::sInstance );
-	}
 }
 
 void wv::PhysicsSystem::onInternalPrePhysicsUpdate()
