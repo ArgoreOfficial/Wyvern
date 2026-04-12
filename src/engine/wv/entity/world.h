@@ -33,7 +33,9 @@ enum UpdateEventType
 	
 	UpdateEvent_physicsUpdate,
 
-	UpdateEvent_debugRender,
+	UpdateEvent_debugRender,  // for world debug rendering, such as lines, icons, and text
+	UpdateEvent_editorRender, // for editor interface and debug windows
+
 	UpdateEvent_render
 };
 

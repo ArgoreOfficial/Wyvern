@@ -372,10 +372,10 @@ void wv::Application::render()
 #ifdef WV_DEBUG
 	if ( shouldRender )
 	{
-		m_renderer->beginDebugRender();
-		
 		m_world->dispatchUpdateMessage( UpdateEvent_debugRender );
-
+		
+		m_renderer->beginDebugRender();
+		m_world->dispatchUpdateMessage( UpdateEvent_editorRender );
 		m_renderer->endDebugRender();
 	}
 #endif

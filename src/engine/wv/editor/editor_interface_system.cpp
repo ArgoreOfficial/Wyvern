@@ -3,6 +3,11 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
+void wv::EditorInterfaceSystem::onInitialize()
+{
+	setEditorRenderEnabled( true );
+}
+
 void wv::EditorInterfaceSystem::onUpdate()
 {
 	m_timeSinceFPSUpdate += deltaTime;
@@ -20,7 +25,7 @@ void wv::EditorInterfaceSystem::onUpdate()
 	}
 }
 
-void wv::EditorInterfaceSystem::onDebugRender()
+void wv::EditorInterfaceSystem::onEditorRender()
 {
 #ifdef WV_SUPPORT_IMGUI
 	renderPrimaryMenuBar();

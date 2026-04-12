@@ -33,7 +33,7 @@ public:
 	virtual void onInitialize() override;
 	virtual void onShutdown() override;
 
-	virtual void onDebugRender() override;
+	virtual void onEditorRender() override;
 
 	void onInternalPrePhysicsUpdate(); // runs once
 	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times

@@ -16,8 +16,9 @@ public:
 		_config.addComponentType<EditorObjectComponent>();
 	}
 
+	virtual void onInitialize() override;
 	virtual void onUpdate() override;
-	virtual void onDebugRender() override;
+	virtual void onEditorRender() override;
 
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();

@@ -109,10 +109,21 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 		case UpdateEvent_update:     updatable->onUpdate();     break;
 		case UpdateEvent_postUpdate: updatable->onPostUpdate(); break;
 
-		case UpdateEvent_physicsUpdate: updatable->onPhysicsUpdate(); break;
+		case UpdateEvent_physicsUpdate: 
+			updatable->onPhysicsUpdate(); 
+			break;
 
-		case UpdateEvent_debugRender: updatable->onDebugRender(); break;
-		case UpdateEvent_render:      updatable->onRender();      break;
+		case UpdateEvent_debugRender: 
+			if( updatable->getDebugRenderEnabled() )
+				updatable->onDebugRender(); 
+			break;
+
+		case UpdateEvent_editorRender: 
+			if( updatable->getEditorRenderEnabled() )
+				updatable->onEditorRender();
+			break;
+
+		case UpdateEvent_render: updatable->onRender(); break;
 		}
 	}
 }

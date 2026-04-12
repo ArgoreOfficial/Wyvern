@@ -296,7 +296,7 @@ void wv::PhysicsSystem::onShutdown()
 	JPH::Factory::sInstance = nullptr;
 }
 
-void wv::PhysicsSystem::onDebugRender()
+void wv::PhysicsSystem::onEditorRender()
 {
 	if( ImGui::Begin( "Physics Debug" ) )
 	{
