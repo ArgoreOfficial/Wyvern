@@ -13,6 +13,8 @@ class EditorInterfaceSystem : public ISystem
 {
 public:
 	virtual void configure( ArchetypeConfig& _config ) override {
+		m_debugName = "EditorInterfaceSystem";
+
 		_config.addComponentType<EditorObjectComponent>();
 	}
 

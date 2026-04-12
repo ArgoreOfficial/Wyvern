@@ -7,6 +7,8 @@ class IUpdatable
 	friend class World;
 
 public:
+	std::string getDebugName() const { return m_debugName; }
+
 	virtual void onInitialize() { }
 	virtual void onShutdown() { }
 
@@ -26,6 +28,9 @@ public:
 
 	void setEditorRenderEnabled( bool _enabled ) { m_editorRenderEnabled = _enabled; }
 	bool getEditorRenderEnabled()          const { return m_editorRenderEnabled; }
+
+protected:
+	std::string m_debugName = "";
 
 private:
 	bool m_editorRenderEnabled = false;

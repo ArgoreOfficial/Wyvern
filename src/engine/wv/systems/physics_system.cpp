@@ -149,6 +149,8 @@ public:
 
 void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
 {
+	m_debugName = "PhysicsSystem";
+
 	_config.addComponentType<RigidBodyComponent>();
 	_config.addComponentType<ColliderComponent>();
 }

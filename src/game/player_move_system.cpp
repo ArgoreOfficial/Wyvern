@@ -10,6 +10,8 @@
 
 void PlayerMoveSystem::configure( wv::ArchetypeConfig& _config )
 {
+	m_debugName = "PlayerMoveSystem";
+
 	_config.addComponentType<wv::RigidBodyComponent>();
 	_config.addComponentType<PlayerMoveComponent>();
 }
