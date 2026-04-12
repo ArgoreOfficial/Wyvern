@@ -53,12 +53,9 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	// Platform events, must ALWAYS be polled
 	wv::Platform::pollEvents( m_lowLevelInputQueue );
 
-	if ( m_shouldSendActionEvents )
-	{
-		for ( IInputDriver* driver : m_inputDrivers )
-			driver->pollActions( this );
-	}
-
+	for ( IInputDriver* driver : m_inputDrivers )
+		driver->pollActions( this );
+	
 	if ( IMouseDriver* mouseDriver = getInputDriver<IMouseDriver>() )
 	{
 		m_mouseState     = mouseDriver->getMouseState();

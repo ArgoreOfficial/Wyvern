@@ -31,7 +31,7 @@ protected:
 
 	void handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state );
 	void handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value );
-	void handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive = false );
+	void handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _sendEvent, bool _additive = false );
 
 };
 

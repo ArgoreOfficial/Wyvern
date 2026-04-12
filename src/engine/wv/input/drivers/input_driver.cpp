@@ -18,7 +18,7 @@ void wv::IInputDriver::handleValueAction( InputSystem* _inputSystem, uint32_t _v
 	_inputSystem->pushActionEvent( _action, _vdID );
 }
 
-void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _additive )
+void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _sendEvent, bool _additive )
 {
 	wv::Vector2f value = _action->getValue( _inputSystem->getDevicePlayer( _vdID ) );
 	
@@ -46,6 +46,9 @@ void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vd
 		}
 	}
 
-	if ( _action->setValue( _inputSystem->getDevicePlayer( _vdID ), value ) )
+	if ( !_action->setValue( _inputSystem->getDevicePlayer( _vdID ), value ) )
+		return; // value was identical, return
+
+	if( _sendEvent && _inputSystem->getActionsEnabled() )
 		_inputSystem->pushActionEvent( _action, _vdID );
 }

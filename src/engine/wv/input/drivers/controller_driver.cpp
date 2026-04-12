@@ -63,9 +63,6 @@ void wv::IControllerDriver::sendAxisEvents( InputSystem* _inputSystem, Controlle
 {
 	for ( ActionGroup* group : _inputSystem->getActionGroups() )
 	{
-		if ( !group->isEnabled() )
-			continue;
-
 		for ( auto& mapping : group->getAxisActionsByDevice( "Controller" ) )
 		{
 			switch ( mapping.inputID )
@@ -92,12 +89,12 @@ void wv::IControllerDriver::sendAxisEvents( InputSystem* _inputSystem, Controlle
 				
 			case CONTROLLER_JOYSTICK_LEFT:  
 				if( _device->leftJoystick != _prevDeviceState->leftJoystick )
-					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->leftJoystick );
+					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->leftJoystick, group->isEnabled() );
 				break;
 
 			case CONTROLLER_JOYSTICK_RIGHT: 
 				if( _device->rightJoystick != _prevDeviceState->rightJoystick )
-					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->rightJoystick ); 
+					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->rightJoystick, group->isEnabled() );
 				break;
 
 			default:

@@ -58,14 +58,14 @@ void wv::IMouseDriver::sendAxisEvents( InputSystem* _inputSystem )
 		for ( auto& mapping : group->getAxisActionsByDevice( "Mouse" ) )
 		{
 			if ( mapping.inputID == MOUSE_POSITION_AXIS && hasStateChanged( MOUSE_POSITION_AXIS ) )
-				handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, m_state.position );
+				handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, m_state.position, group->isEnabled() );
 
 			if ( mapping.inputID == MOUSE_MOTION_AXIS && hasStateChanged( MOUSE_MOTION_AXIS ) )
 			{
 				double dt = wv::Application::getSingleton()->getDeltaTime(); // mouse movement needs to be un-scaled by delta time
 
 				// TODO: replace 200 with mouse sensitivity, inversely proportional
-				handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, wv::Vector2f{ m_state.motion } / dt / 200.0f );
+				handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, wv::Vector2f{ m_state.motion } / dt / 200.0f, group->isEnabled() );
 			}
 			
 		}
