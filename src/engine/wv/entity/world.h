@@ -68,6 +68,14 @@ public:
 	}
 
 	template<typename Ty>
+	Ty& getComponent( Entity* _entity ) {
+		Archetype* archetype = _entity->archetype;
+		WV_ASSERT( archetype != nullptr );
+
+		return archetype->getComponents<Ty>()[ archetype->getEntityIndex( _entity ) ];
+	}
+
+	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
 		ComponentChange compChange{};
 		compChange.type = ComponentChange::ComponentChangeType_add;
@@ -158,7 +166,7 @@ protected:
 	
 	WorldUpdateContext m_updateContext{};
 
-	bool m_isInEditorState = true;
+	bool m_isInEditorState = false;
 
 private:
 	ECSEngine* m_ecsEngine = nullptr;
