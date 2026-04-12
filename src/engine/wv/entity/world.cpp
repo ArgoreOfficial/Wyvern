@@ -91,7 +91,7 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 {
 	for ( IUpdatable* updatable : m_updatables )
 	{
-		// init and shutdown will always run
+		// init, shutdown, and debug rendering will always run
 		switch ( _type )
 		{
 		case UpdateEvent_initialize:
@@ -104,6 +104,16 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 			if ( updatable->m_initalized )
 				updatable->onShutdown();
 			updatable->m_initalized = false;
+			break;
+
+		case UpdateEvent_debugRender:
+			if ( updatable->getDebugRenderEnabled() )
+				updatable->onDebugRender();
+			break;
+
+		case UpdateEvent_editorRender:
+			if ( updatable->getEditorRenderEnabled() )
+				updatable->onEditorRender();
 			break;
 		}
 
@@ -125,17 +135,9 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 			updatable->onPhysicsUpdate(); 
 			break;
 
-		case UpdateEvent_debugRender: 
-			if( updatable->getDebugRenderEnabled() )
-				updatable->onDebugRender(); 
+		case UpdateEvent_render:
+			updatable->onRender();
 			break;
-
-		case UpdateEvent_editorRender: 
-			if( updatable->getEditorRenderEnabled() )
-				updatable->onEditorRender();
-			break;
-
-		case UpdateEvent_render: updatable->onRender(); break;
 		}
 	}
 }
