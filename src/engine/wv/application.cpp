@@ -7,6 +7,7 @@
 #include <wv/display_driver.h>
 
 #include <wv/editor/editor_interface_system.h>
+#include <wv/editor/editor_camera_system.h>
 
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
@@ -170,17 +171,29 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	// Editor features
+
+#ifndef WV_PACKAGE
+	wv::ActionGroup* editorActionGroup = m_inputSystem->createActionGroup( "Editor" );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_NORTH, wv::SCANCODE_W );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
+	editorActionGroup->disable(); // default off
+
+	m_world->registerComponentType<EditorObjectComponent>();
+	m_world->registerComponentType<EditorCameraComponent>();
+
+	m_world->addSystem<EditorInterfaceSystem>();
+	m_world->addSystem<EditorCameraSystem>();
+#endif
+
+	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
 	m_world->onSetupInput( m_inputSystem );
 
 	// systems must be set up first
-
-#ifndef WV_PACKAGE
-	m_world->registerComponentType<EditorObjectComponent>();
-
-	m_world->addSystem<EditorInterfaceSystem>();
-#endif
 
 	m_world->addSystem<MeshRenderSystem>();
 	m_world->addSystem<PhysicsSystem>();

@@ -5,6 +5,7 @@
 
 #include <wv/components/camera_component.h>
 #include <wv/systems/camera_manager_system.h>
+#include <wv/editor/editor_camera_system.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -17,6 +18,8 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
 	world->addComponent<wv::CameraComponent>( m_editorCameraEntity, { .active = false } );
+	world->addComponent<wv::EditorCameraComponent>( m_editorCameraEntity, {} );
+	
 	m_editorCameraEntity->getTransform().setPosition( { 0.0f, 10.0f, 10.0f } );
 
 }
