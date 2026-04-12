@@ -22,8 +22,8 @@ public:
 	inline void setPosition( const wv::Vector3f& _position ) { position = _position; }
 	inline void setScale( const wv::Vector3f& _scale ) { scale = _scale; }
 
-	inline void translate( wv::Vector3f _translation ) { position += _translation; }
-	//inline void rotate( wv::Vector3<_Ty> _rotation ) { rotation += _rotation; }
+	inline void translate( const Vector3f& _translation ) { position += _translation; }
+	inline void rotate   ( const Vector3f& _rotation, RotateSpace _space = RotateSpace_local ) { rotation.rotate( _rotation, _space ); }
 
 	inline Matrix4x4f getMatrix() const { return m_matrix; }
 

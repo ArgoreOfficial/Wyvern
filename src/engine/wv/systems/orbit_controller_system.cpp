@@ -47,8 +47,8 @@ void wv::OrbitControllerSystem::onUpdate()
 
 			wv::Transform& entityTransform = entity->getTransform();
 
-			entityTransform.rotation.rotate( { -component.cameraMove.y, 0.0f, 0.0f } );
-			entityTransform.rotation.rotate( { 0.0f, -component.cameraMove.x, 0.0f }, RotateSpace_world );
+			entityTransform.rotate( { -component.cameraMove.y, 0.0f, 0.0f } );
+			entityTransform.rotate( { 0.0f, -component.cameraMove.x, 0.0f }, RotateSpace_world );
 
 			entityTransform.setPosition( -entityTransform.forward() * component.orbitDistance );
 		}
