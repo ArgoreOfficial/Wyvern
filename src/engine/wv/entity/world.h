@@ -116,6 +116,8 @@ public:
 		return m_ecsEngine->getSystem<Ty>();
 	}
 
+	std::vector<ISystem*> getSystems() const { return m_ecsEngine->getSystems(); }
+
 	void updateFrameData( double _deltaTime, double _physicsDeltaTime );
 	void dispatchUpdateMessage( UpdateEventType _type );
 

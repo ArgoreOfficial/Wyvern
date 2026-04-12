@@ -102,6 +102,13 @@ public:
 
 		m_systemIndexMap.erase( index );
 	}
+	
+	std::vector<ISystem*> getSystems() const {
+		std::vector<ISystem*> systems;
+		for ( auto [k,v] : m_systemIndexMap )
+			systems.push_back( v );
+		return systems;
+	}
 
 	Archetype* registerArchetype( ArchetypeConfig& _config );
 	Archetype* registerArchetype( std::bitset<256> _bitmask );
