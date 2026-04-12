@@ -91,20 +91,32 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 {
 	for ( IUpdatable* updatable : m_updatables )
 	{
+		// init and shutdown will always run
 		switch ( _type )
 		{
-		case UpdateEvent_initialize: 
-			if( !updatable->m_initalized )
+		case UpdateEvent_initialize:
+			if ( !updatable->m_initalized )
 				updatable->onInitialize();
 			updatable->m_initalized = true;
 			break;
 
-		case UpdateEvent_shutdown: 
+		case UpdateEvent_shutdown:
 			if ( updatable->m_initalized )
 				updatable->onShutdown();
 			updatable->m_initalized = false;
 			break;
+		}
 
+		bool runInRuntime = updatable->getUpdateMode() & UpdateMode_runtime;
+		bool runInEditor  = updatable->getUpdateMode() & UpdateMode_editor;
+
+		if ( m_isInEditorState && !runInEditor )
+			continue;
+		if ( !m_isInEditorState && !runInRuntime )
+			continue;
+
+		switch ( _type )
+		{
 		case UpdateEvent_preUpdate:  updatable->onPreUpdate();  break;
 		case UpdateEvent_update:     updatable->onUpdate();     break;
 		case UpdateEvent_postUpdate: updatable->onPostUpdate(); break;

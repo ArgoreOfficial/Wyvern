@@ -6,6 +6,10 @@
 
 void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 {
+	m_debugName = "MeshRenderSystem";
+
+	setUpdateMode( UpdateMode_always );
+
 	_config.addComponentType<MeshComponent>();
 }
 

@@ -15,6 +15,8 @@ public:
 	virtual void configure( ArchetypeConfig& _config ) override {
 		m_debugName = "EditorInterfaceSystem";
 
+		setUpdateMode( UpdateMode_always );
+
 		_config.addComponentType<EditorObjectComponent>();
 	}
 

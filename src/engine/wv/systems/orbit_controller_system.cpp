@@ -6,6 +6,10 @@
 
 void wv::OrbitControllerSystem::configure( ArchetypeConfig& _config )
 {
+	m_debugName = "OrbitControllerSystem";
+
+	setUpdateMode( UpdateMode_runtime );
+
 	_config.addComponentType<OrbitControllerComponent>();
 }
 

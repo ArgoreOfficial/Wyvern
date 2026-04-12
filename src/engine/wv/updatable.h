@@ -2,6 +2,13 @@
 
 namespace wv {
 
+enum UpdateMode
+{
+	UpdateMode_runtime = 1 << 0,
+	UpdateMode_editor  = 1 << 1,
+	UpdateMode_always  = UpdateMode_runtime | UpdateMode_editor,
+};
+
 class IUpdatable
 {
 	friend class World;
@@ -29,10 +36,15 @@ public:
 	void setEditorRenderEnabled( bool _enabled ) { m_editorRenderEnabled = _enabled; }
 	bool getEditorRenderEnabled()          const { return m_editorRenderEnabled; }
 
+	void       setUpdateMode( UpdateMode _mode ) { m_updateMode = _mode; }
+	UpdateMode getUpdateMode()             const { return m_updateMode; }
+
 protected:
 	std::string m_debugName = "";
 
 private:
+	UpdateMode m_updateMode = UpdateMode_runtime;
+
 	bool m_editorRenderEnabled = false;
 	bool m_debugRenderEnabled = true;
 	bool m_initalized = false;

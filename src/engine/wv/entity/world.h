@@ -135,6 +135,14 @@ public:
 		m_updatables.erase( _updatable );
 	}
 
+	void toggleEditorState() { m_isInEditorState = !m_isInEditorState; }
+
+	bool isEditorState()  const { return m_isInEditorState; }
+	bool isRuntimeState() const { return !m_isInEditorState; }
+
+	// Sets the editor/runtime state
+	void setEditorState( bool _editorState ) { m_isInEditorState = _editorState; }
+
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
@@ -149,6 +157,8 @@ protected:
 	TextureManager*  m_textureManager  = nullptr;
 	
 	WorldUpdateContext m_updateContext{};
+
+	bool m_isInEditorState = true;
 
 private:
 	ECSEngine* m_ecsEngine = nullptr;
