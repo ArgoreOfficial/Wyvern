@@ -328,21 +328,26 @@ void wv::Application::update()
 	
 	// physics update
 
-	PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
-	physicsSystem->onInternalPrePhysicsUpdate();
-
-	m_accumulator += m_deltatime;
-	while ( m_accumulator > m_fixedDeltaTime )
+	if ( m_world->isRuntimeState() )
 	{
-		m_world->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
+		PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
+		
+		physicsSystem->onInternalPrePhysicsUpdate();
 
-		physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
+		m_accumulator += m_deltatime;
+		while ( m_accumulator > m_fixedDeltaTime )
+		{
+			m_world->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
 
-		m_fixedRuntime += m_fixedDeltaTime;
-		m_accumulator -= m_fixedDeltaTime;
+
+			physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
+
+			m_fixedRuntime += m_fixedDeltaTime;
+			m_accumulator -= m_fixedDeltaTime;
+		}
+
+		physicsSystem->onInternalPostPhysicsUpdate( m_accumulator / m_fixedDeltaTime );
 	}
-
-	physicsSystem->onInternalPostPhysicsUpdate( m_accumulator / m_fixedDeltaTime );
 
 	// normal update
 
