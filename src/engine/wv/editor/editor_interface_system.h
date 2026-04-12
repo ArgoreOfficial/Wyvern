@@ -22,9 +22,12 @@ public:
 	virtual void onUpdate() override;
 	virtual void onEditorRender() override;
 
+private:
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
 	void renderStatusBar();
+
+	bool m_showSystemsMenu = false;
 
 	double m_timeSinceFPSUpdate = 0.0;
 	size_t m_framesSinceFPSUpdate = 0;

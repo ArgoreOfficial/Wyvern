@@ -1,5 +1,8 @@
 #include "editor_interface_system.h"
 
+#include <wv/application.h>
+#include <wv/entity/world.h>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -32,8 +35,32 @@ void wv::EditorInterfaceSystem::onEditorRender()
 	renderSecondaryMenuBar();
 	renderStatusBar();
 
-//	if ( m_showRenderWorldWindow )
-//		renderWorldWindow();
+	if ( m_showSystemsMenu )
+	{
+		if ( ImGui::Begin( "Systems" ) )
+		{
+			auto systems = wv::getApp()->getWorld()->getSystems();
+			for ( ISystem* system : systems )
+			{
+				std::string systemName = system->getDebugName();
+
+				if ( systemName == "" )
+					continue;
+				
+				// we don't wanna accidentally turn off ourselves lmfao
+				if ( systemName == m_debugName )
+					continue; 
+
+				bool editorEnabled = system->getEditorRenderEnabled();
+
+				ImGui::Text( systemName.c_str() );
+				std::string editorToolLabel = "Enable Editor Tools##" + systemName;
+				if ( ImGui::Checkbox( editorToolLabel.c_str(), &editorEnabled) )
+					system->setEditorRenderEnabled( editorEnabled );
+			}
+		}
+		ImGui::End();
+	}
 
 #endif
 }
@@ -64,6 +91,9 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 	{
 		if ( ImGui::BeginMenuBar() )
 		{
+			if ( ImGui::Button( "Systems" ) )
+				m_showSystemsMenu = !m_showSystemsMenu;
+
 			//drawBuildWindow();
 			//m_runComboButton.draw();
 			ImGui::EndMenuBar();
