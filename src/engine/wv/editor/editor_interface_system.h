@@ -35,6 +35,7 @@ private:
 	Entity* m_runtimeCameraEntity = nullptr;
 
 	bool m_showSystemsMenu = false;
+	bool m_hasEnabledFirstFrame = false;
 
 	double m_timeSinceFPSUpdate = 0.0;
 	size_t m_framesSinceFPSUpdate = 0;

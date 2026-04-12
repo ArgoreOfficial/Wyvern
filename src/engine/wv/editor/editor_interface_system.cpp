@@ -26,6 +26,14 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 void wv::EditorInterfaceSystem::onUpdate()
 {
+	if ( !m_hasEnabledFirstFrame )
+	{
+		getApp()->getWorld()->toggleEditorState();
+		updateEditorState();
+
+		m_hasEnabledFirstFrame = true;
+	}
+
 	m_timeSinceFPSUpdate += deltaTime;
 	m_framesSinceFPSUpdate++;
 
