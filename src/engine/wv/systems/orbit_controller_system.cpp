@@ -27,7 +27,7 @@ void wv::OrbitControllerSystem::onUpdate()
 			OrbitControllerComponent& component = controllers[ i ];
 			Entity* entity = entities[ i ];
 
-			if ( inputSystem->getMouseButtonState( 2 ) )
+			if ( inputSystem->getMouseButtonState( MOUSE_BUTTON_MIDDLE ) )
 			{
 				component.cameraMove = {};
 

@@ -79,8 +79,8 @@ enum MouseInputs : uint32_t
 	// Only Trigger and Value actions
 
 	MOUSE_BUTTON_LEFT = 0,
-	MOUSE_BUTTON_RIGHT,
 	MOUSE_BUTTON_MIDDLE,
+	MOUSE_BUTTON_RIGHT,
 	MOUSE_BUTTON_X1,
 	MOUSE_BUTTON_X2,
 

@@ -112,7 +112,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 					.type = LowLevelInputQueue::WV_MOUSE_BUTTON,
 					.mouse = {
 						.button = {
-							.index = ev.button.button,
+							.index = ev.button.button - 1, // SDL buttons are 1 indexed https://wiki.libsdl.org/SDL3/SDL_MouseButtonFlags
 							.state = ev.button.down
 						}
 					}
