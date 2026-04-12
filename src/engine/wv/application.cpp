@@ -175,6 +175,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->onSetupInput( m_inputSystem );
 
 	// systems must be set up first
+
+#ifndef WV_PACKAGE
+	m_world->registerComponentType<EditorObjectComponent>();
+
+	m_world->addSystem<EditorInterfaceSystem>();
+#endif
+
 	m_world->addSystem<MeshRenderSystem>();
 	m_world->addSystem<PhysicsSystem>();
 	m_world->addSystem<CameraManagerSystem>();

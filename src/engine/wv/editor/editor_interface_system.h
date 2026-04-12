@@ -2,17 +2,30 @@
 
 #include <wv/entity/ecs.h>
 
-#include <set>
-
 namespace wv {
+
+struct EditorObjectComponent
+{
+
+};
 
 class EditorInterfaceSystem : public ISystem
 {
-//	WV_REFLECT_TYPE( EditorInterfaceSystem, IWorldSystem )
 public:
+	virtual void configure( ArchetypeConfig& _config ) override {
+		_config.addComponentType<EditorObjectComponent>();
+	}
 
-	virtual void configure( ArchetypeConfig& _config ) override { }
-	
+	virtual void onUpdate() override;
+	virtual void onDebugRender() override;
+
+	void renderPrimaryMenuBar();
+	void renderSecondaryMenuBar();
+	void renderStatusBar();
+
+	double m_timeSinceFPSUpdate = 0.0;
+	size_t m_framesSinceFPSUpdate = 0;
+	double m_averageFPS = 0.0;
 };
 
 }
