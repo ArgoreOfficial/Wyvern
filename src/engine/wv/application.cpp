@@ -87,7 +87,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	if ( !m_displayDriver->initializeDisplay( _windowWidth, _windowHeight ) )
 	{
-		WV_LOG_ERROR( "Failed to initalize display\n" );
+		WV_LOG_ERROR( "Failed to initialize display\n" );
 		WV_FREE( m_displayDriver );
 		return false;
 	}
@@ -99,7 +99,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	if ( !m_renderer->initialize() )
 	{
-		WV_LOG_ERROR( "Failed to initalize renderer\n" );
+		WV_LOG_ERROR( "Failed to initialize renderer\n" );
 		shutdown();
 		return false;
 	}

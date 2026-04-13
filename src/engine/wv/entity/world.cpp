@@ -95,15 +95,15 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 		switch ( _type )
 		{
 		case UpdateEvent_initialize:
-			if ( !updatable->m_initalized )
+			if ( !updatable->m_initialized )
 				updatable->onInitialize();
-			updatable->m_initalized = true;
+			updatable->m_initialized = true;
 			break;
 
 		case UpdateEvent_shutdown:
-			if ( updatable->m_initalized )
+			if ( updatable->m_initialized )
 				updatable->onShutdown();
-			updatable->m_initalized = false;
+			updatable->m_initialized = false;
 			break;
 
 		case UpdateEvent_debugRender:

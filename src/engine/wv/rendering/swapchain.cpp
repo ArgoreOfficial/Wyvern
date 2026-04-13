@@ -186,8 +186,8 @@ VkExtent2D wv::Swapchain::chooseSwapExtent( uint32_t _desiredWidth, uint32_t _de
 	VkExtent2D maxExtent = m_supportDetails.capabilities.maxImageExtent;
 
 	VkExtent2D extent{ 
-		wv::Math::clamp( _desiredWidth,  minExtent.width, maxExtent.width ),
-		wv::Math::clamp( _desiredHeight, minExtent.width, maxExtent.width )
+		wv::Math::clamp( _desiredWidth,  minExtent.width,  maxExtent.width ),
+		wv::Math::clamp( _desiredHeight, minExtent.height, maxExtent.height )
 	};
 
 	return extent;

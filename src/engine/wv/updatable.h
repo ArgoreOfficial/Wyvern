@@ -47,7 +47,7 @@ private:
 
 	bool m_editorRenderEnabled = false;
 	bool m_debugRenderEnabled = true;
-	bool m_initalized = false;
+	bool m_initialized = false;
 };
 
 }
