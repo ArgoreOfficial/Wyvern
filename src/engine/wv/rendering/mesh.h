@@ -41,6 +41,8 @@ struct GeometrySurface
 
 class MeshAsset : public IReflectedType
 {
+	friend class MeshImporterGLTF;
+
 	WV_REFLECT_TYPE( MeshAsset, IReflectedType )
 
 public:
@@ -48,6 +50,7 @@ public:
 	MeshAsset( const std::filesystem::path& _path );
 	~MeshAsset();
 
+	void serialize( const std::filesystem::path& _path );
 	GeometrySurface deserialize( const std::filesystem::path& _path );
 	void initialize( const GeometrySurface& _geometry );
 
@@ -58,6 +61,7 @@ public:
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
 	uint32_t getNumMaterials() const { return m_numMaterials; }
+
 private:
 	std::filesystem::path m_path;
 

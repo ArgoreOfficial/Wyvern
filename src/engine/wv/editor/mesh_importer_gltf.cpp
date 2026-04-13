@@ -68,10 +68,15 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 		m_meshAsset = std::make_shared<MeshAsset>();
 		m_meshManager->add( _path, m_meshAsset );
 
-		worker->push( loadFence, [ this, _path, _options, &asset ]( auto, auto ) {
+		worker->push( loadFence, [ this, _path, fullpath, _options, &asset ]( auto, auto ) {
 			parseMesh( asset, _options );
+			
+			// serialize
+			m_meshAsset->m_path = _path;
+			m_meshAsset->serialize( fullpath );
 		} );
 	}
+
 	for ( size_t i = 0; i < asset.images.size(); i++ )
 	{
 		fastgltf::Image& image = asset.images[ i ];
