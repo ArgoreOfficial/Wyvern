@@ -37,7 +37,7 @@ wv::MaterialDefinition wv::MaterialAsset::deserialize( const std::filesystem::pa
 	MaterialDefinition def{};
 
 	def.fragShaderPath = _fsPath;
-	def.vertShaderPath = _fsPath;
+	def.vertShaderPath = _vsPath;
 
 	def.fragCode = fs->loadEntireFile( _fsPath );
 	def.vertCode = fs->loadEntireFile( _vsPath );

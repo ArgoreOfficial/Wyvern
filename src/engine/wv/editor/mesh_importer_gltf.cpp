@@ -190,21 +190,6 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 		
 		m_materials.push_back( instance );
 	}
-	
-	// there must always be at least one material
-	if ( m_materials.size() == 0 )
-	{
-		Ref<MaterialAsset> newMat = m_materialManager->get( shaderName );
-		MaterialInstance instance{ newMat };
-		
-		instance.setValue( "albedoIndex", 2 );
-		instance.setValue(
-			"albedoColor",
-			wv::Vector4f( 1.0f, 1.0f, 1.0f, 1.0f )
-		);
-
-		m_materials.push_back( instance );
-	}
 
 	m_loaded = true;
 }

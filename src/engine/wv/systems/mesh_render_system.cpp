@@ -13,16 +13,33 @@ void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 	_config.addComponentType<MeshComponent>();
 }
 
+void wv::MeshRenderSystem::onInitialize()
+{
+	World* world = wv::getApp()->getWorld();
+	MaterialManager* materialManager = world->getMaterialManager();
+
+	m_defaultMaterialInstance = materialManager->get( "Default Lit" );
+	m_defaultMaterialInstance.setValue( "albedoIndex", 2 ); // white is texture 2
+	m_defaultMaterialInstance.setValue(
+		"albedoColor",
+		wv::Vector4f( 1.0f, 1.0f, 1.0f, 1.0f )
+	);
+}
+
 void wv::MeshRenderSystem::onShutdown()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
+
+	m_defaultMaterialInstance = {};
 }
 
 void wv::MeshRenderSystem::onRender()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
+
+	World* world = wv::getApp()->getWorld();
 
 	for ( Archetype* archetype : getArchetypes() )
 	{
@@ -39,7 +56,6 @@ void wv::MeshRenderSystem::onRender()
 				{
 					meshComponent.loadState = MeshComponent::LoadState_loading;
 
-					World* world = wv::getApp()->getWorld();
 					MeshImporterGLTF importer = wv::MeshImporterGLTF( world->getMeshManager(), world->getMaterialManager(), world->getTextureManager() );
 					importer.load( meshComponent.assetPath, meshComponent.importOptions );
 
@@ -66,12 +82,24 @@ void wv::MeshRenderSystem::onRender()
 				RenderMesh mesh{};
 				mesh.mesh = meshAsset->getGPUAllocation();
 
-				const MaterialInstance& material = meshComponent.materials[ primitive.material ];
-				mesh.pipeline = material.material->getPipeline();
-				mesh.materialData = {
-					material.buffer.data(),
-					material.buffer.size()
-				};
+				if ( primitive.material < meshComponent.materials.size() )
+				{
+					const MaterialInstance& material = meshComponent.materials[ primitive.material ];
+					mesh.pipeline = material.material->getPipeline();
+					mesh.materialData = {
+						material.buffer.data(),
+						material.buffer.size()
+					};
+				}
+				else
+				{
+					// no material assigned, use default
+					mesh.pipeline = m_defaultMaterialInstance.material->getPipeline();
+					mesh.materialData = {
+						m_defaultMaterialInstance.buffer.data(),
+						m_defaultMaterialInstance.buffer.size()
+					};
+				}
 
 				mesh.indexCount = primitive.indexCount;
 				mesh.firstIndex = primitive.firstIndex;
