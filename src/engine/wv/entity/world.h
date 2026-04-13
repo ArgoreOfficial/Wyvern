@@ -49,7 +49,6 @@ public:
 
 	void destroyAllEntities();
 	
-	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
 	TextureManager*  getTextureManager()  const { return m_textureManager; }
 
@@ -160,7 +159,6 @@ protected:
 	std::vector<Entity*> m_entities;
 	std::unordered_set<IUpdatable*> m_updatables;
 
-	MeshManager*     m_meshManager     = nullptr;
 	MaterialManager* m_materialManager = nullptr;
 	TextureManager*  m_textureManager  = nullptr;
 	

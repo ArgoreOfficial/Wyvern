@@ -23,6 +23,8 @@ class AudioSystem;
 
 class MaterialAsset;
 
+class MeshManager;
+
 struct VertexData
 {
 	wv::Vector3f normal;
@@ -56,6 +58,8 @@ public:
 	inline TaskSystem*    getTaskSystem()         const { return m_taskSystem; }
 	inline AudioSystem*   getAudioSystem()        const { return m_audioSystem; }
 	inline World*         getWorld()              const { return m_world; }
+
+	MeshManager* getMeshManager() const { return m_meshManager; }
 
 	void quit() { m_alive = false; }
 
@@ -91,6 +95,10 @@ private:
 	wv::Renderer*       m_renderer      = nullptr;
 	wv::TaskSystem*     m_taskSystem    = nullptr;
 	wv::AudioSystem*    m_audioSystem   = nullptr;
+
+	// Managers
+	
+	wv::MeshManager* m_meshManager = nullptr;
 
 	wv::World* m_world = nullptr;
 };

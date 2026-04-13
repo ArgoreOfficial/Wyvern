@@ -39,6 +39,7 @@ void wv::MeshRenderSystem::onRender()
 	m_renderMeshes.clear();
 	m_matrices.clear();
 
+	Application* app = wv::getApp();
 	World* world = wv::getApp()->getWorld();
 
 	for ( Archetype* archetype : getArchetypes() )
@@ -56,7 +57,7 @@ void wv::MeshRenderSystem::onRender()
 				{
 					meshComponent.loadState = MeshComponent::LoadState_loading;
 
-					MeshImporterGLTF importer = wv::MeshImporterGLTF( world->getMeshManager(), world->getMaterialManager(), world->getTextureManager() );
+					MeshImporterGLTF importer = wv::MeshImporterGLTF( app->getMeshManager(), world->getMaterialManager(), world->getTextureManager() );
 					importer.load( meshComponent.assetPath, meshComponent.importOptions );
 
 					if ( importer.hasLoaded() )

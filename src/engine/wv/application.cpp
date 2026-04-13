@@ -71,6 +71,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_graphicsDriverName = "vulkan"; // TODO
 	m_world = _world;
 
+	m_meshManager = WV_NEW( MeshManager );
+
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
 	m_filesystem   = Platform::createFileSystem( "data" );
@@ -221,6 +223,13 @@ void wv::Application::shutdown()
 	if ( m_world )
 	{
 		WV_FREE( m_world );
+	}
+	
+	if ( m_meshManager )
+	{
+		m_meshManager->clearPersistent();
+
+		WV_FREE( m_meshManager );
 	}
 	
 	if ( m_taskSystem )
