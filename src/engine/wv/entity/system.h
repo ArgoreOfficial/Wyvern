@@ -18,6 +18,8 @@ class ISystem : public IUpdatable
 	friend class World;
 
 public:
+	virtual ~ISystem() { }
+
 	std::vector<Archetype*>& getArchetypes() {
 		return m_archetypes;
 	}
