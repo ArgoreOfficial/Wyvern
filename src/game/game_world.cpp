@@ -9,7 +9,6 @@
 #include <wv/components/collider_component.h>
 
 #include "player_move_system.h"
-#include <wv/components/orbit_controller_component.h>
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -44,11 +43,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( 
-			entity, 
-			wv::MeshComponent{ 
-				.meshAsset = std::make_shared<wv::MeshAsset>( "meshes/SM_Sphere.wvb" )
-			} );
+		addComponent<wv::MeshComponent>( entity, wv::MeshComponent{ .meshAsset = wv::MeshAsset::get( "meshes/SM_Sphere.wvb" ) } );
 	}
 	
 	{
@@ -57,11 +52,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( 
-			entity, 
-			{ 
-				.meshAsset = std::make_shared<wv::MeshAsset>( "meshes/SM_Cube.wvb" )
-			} );
+		addComponent<wv::MeshComponent>( entity, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
 	}
 
 	{
@@ -71,11 +62,7 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
 		addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
-		addComponent<wv::MeshComponent>(
-			entity,
-			{
-				.meshAsset = std::make_shared<wv::MeshAsset>( "meshes/SM_Cube.wvb" )
-			} );
+		addComponent<wv::MeshComponent>( entity, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
 	}
 	
 	{
