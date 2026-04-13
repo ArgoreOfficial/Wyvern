@@ -7,6 +7,7 @@
 
 #include <wv/read_through_cache.h>
 #include <wv/reflection/reflection.h>
+#include <wv/debug/log.h>
 
 #include <filesystem>
 #include <vector>
@@ -50,11 +51,14 @@ public:
 	MeshAsset( const std::filesystem::path& _path );
 	~MeshAsset();
 
+	static Ref<MeshAsset> get( const std::filesystem::path& _path );
+
 	void serialize( const std::filesystem::path& _path );
 	GeometrySurface deserialize( const std::filesystem::path& _path );
 	void initialize( const GeometrySurface& _geometry );
 
 	void load( const std::filesystem::path& _path ) {
+		Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Mesh %s\n", _path.string().c_str() );
 		initialize( deserialize( _path ) );
 	}
 

@@ -22,6 +22,11 @@ wv::MeshAsset::~MeshAsset()
 	renderer->deallocateMesh( m_gpuAllocation );
 }
 
+wv::Ref<wv::MeshAsset> wv::MeshAsset::get( const std::filesystem::path& _path )
+{
+	return getApp()->getMeshManager()->get( _path );
+}
+
 void wv::MeshAsset::serialize( const std::filesystem::path& _path )
 {
 	std::filesystem::path bindataPath = _path;
