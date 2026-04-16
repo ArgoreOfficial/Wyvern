@@ -20,6 +20,7 @@ protected:
 	virtual void onRender() override;
 	
 	MaterialInstance m_defaultMaterialInstance;
+	wv::Ref<TextureAsset> m_prototypeTexture;
 
 	std::vector<RenderMesh> m_renderMeshes;
 	std::vector<Matrix4x4f> m_matrices;

@@ -4,6 +4,8 @@
 #include <wv/entity/world.h>
 #include <wv/editor/mesh_importer_gltf.h>
 
+#include <wv/rendering/texture.h>
+
 void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "MeshRenderSystem";
@@ -18,12 +20,11 @@ void wv::MeshRenderSystem::onInitialize()
 	World* world = wv::getApp()->getWorld();
 	MaterialManager* materialManager = world->getMaterialManager();
 
-	m_defaultMaterialInstance = materialManager->get( "Default Lit" );
-	m_defaultMaterialInstance.setValue( "albedoIndex", 2 ); // white is texture 2
-	m_defaultMaterialInstance.setValue(
-		"albedoColor",
-		wv::Vector4f( 1.0f, 1.0f, 1.0f, 1.0f )
-	);
+	m_prototypeTexture = world->getTextureManager()->get("textures/texture_06.png");
+	
+	m_defaultMaterialInstance = world->getMaterialManager()->get( "Default Lit" );
+	m_defaultMaterialInstance.setValue( "albedoIndex", m_prototypeTexture->getImageSlot() ); // white is texture 2
+	m_defaultMaterialInstance.setValue( "albedoColor", Vector4f{ 1.0f, 1.0f, 1.0f, 1.0f } );
 }
 
 void wv::MeshRenderSystem::onShutdown()
