@@ -45,7 +45,7 @@ if is_plat("windows") then
         )
     end
 
-    add_requires("fastgltf", "libsdl3", "joltphysics")
+    add_requires("fastgltf", "libsdl3", "joltphysics", "nlohmann_json")
 
     if not is_mode("package") then 
         add_requires("tracy")
