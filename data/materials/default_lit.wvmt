@@ -1,0 +1,15 @@
+{
+ "vertShaderPath": "shaders/default_lit.vert.spv",
+ "fragShaderPath": "shaders/default_lit.frag.spv",
+ "topology": "Triangle",
+ "uniforms": [
+  {
+   "name": "albedoIndex",
+   "size": 4
+  },
+  {
+   "name": "albedoColor",
+   "size": 16
+  }
+ ]
+}

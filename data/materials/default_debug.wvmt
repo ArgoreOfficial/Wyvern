@@ -1,0 +1,11 @@
+{
+ "vertShaderPath": "shaders/default_debug.vert.spv",
+ "fragShaderPath": "shaders/default_debug.frag.spv",
+ "topology": "Line",
+ "uniforms": [
+  {
+   "name": "color",
+   "size": 16
+  }
+ ]
+}

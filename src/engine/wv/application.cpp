@@ -14,6 +14,8 @@
 
 #include <wv/event/event_manager.h>
 
+#include <wv/filesystem/file_system.h>
+
 #include <wv/input/input_system.h>
 
 #include <wv/rendering/renderer.h>
@@ -125,49 +127,21 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	// Default lit material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
-		auto def = material->deserialize( "shaders/default_lit.vert.spv", "shaders/default_lit.frag.spv" );
-
-		def.uniforms = {
-			{ "albedoIndex", sizeof( uint32_t ) },
-			{ "albedoColor", sizeof( Vector4f ) }
-		};
-		
-		material->initialize( def );
-
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_lit" );
 		materialManager->add( "Default Lit", material );
 		materialManager->makePersistent( material );
 	}
 
 	// Default unlit material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
-		auto def = material->deserialize( "shaders/default_unlit.vert.spv", "shaders/default_unlit.frag.spv" );
-
-		def.uniforms = {
-			{ "albedoIndex", sizeof( uint32_t ) },
-			{ "albedoColor", sizeof( Vector4f ) }
-		};
-		
-		material->initialize( def );
-
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_unlit" );
 		materialManager->add( "Default Unlit", material );
 		materialManager->makePersistent( material );
 	}
 
 	// Default debug material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>();
-		auto def = material->deserialize( "shaders/default_debug.vert.spv", "shaders/default_debug.frag.spv" );
-		
-		def.uniforms = { 
-			{ "color", sizeof( wv::Vector4f ) } 
-		};
-		
-		def.topology = TopologyClass::WV_LINE;
-
-		material->initialize( def );
-
+		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_debug" );
 		materialManager->add( "Debug", material );
 		materialManager->makePersistent( material );
 	}
