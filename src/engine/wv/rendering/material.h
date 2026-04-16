@@ -50,6 +50,7 @@ public:
 	MaterialAsset( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath );
 	~MaterialAsset();
 
+	void               serialize  ( const std::filesystem::path& _path );
 	MaterialDefinition deserialize( const std::filesystem::path& _path );
 	MaterialDefinition deserialize( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath );
 

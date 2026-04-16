@@ -7,8 +7,12 @@
 #include <wv/filesystem/file_system.h>
 #include <wv/memory/memory.h>
 
+#include <nlohmann/json.hpp>
+
+#include <fstream>
+
 wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
-{ 
+{
 	MaterialDefinition def = deserialize( _path );
 	initialize( def );
 }
@@ -25,10 +29,76 @@ wv::MaterialAsset::~MaterialAsset()
 	renderer->destroyPipeline( m_pipeline );
 }
 
+void wv::MaterialAsset::serialize( const std::filesystem::path& _path )
+{
+	std::string topology = "Triangle";
+	switch ( m_definition.topology )
+	{
+	case TopologyClass::WV_POINT: topology = "Point"; break;
+	case TopologyClass::WV_LINE:  topology = "Line";  break;
+	}
+
+	std::vector<nlohmann::ordered_json> uniforms;
+	for ( auto& u : m_definition.uniforms )
+	{
+		uniforms.push_back(
+			{
+				{ "name", u.name },
+				{ "size", u.size },
+			} );
+	}
+
+	nlohmann::ordered_json j{
+		{ "vertShaderPath", m_definition.vertShaderPath },
+		{ "fragShaderPath", m_definition.fragShaderPath },
+		{ "topology", topology },
+		{ "uniforms", uniforms }
+	};
+
+	std::filesystem::path path = _path;
+	path.replace_extension( ".wvmt" );
+
+	std::ofstream stream{ path };
+	stream << j.dump( 1 );
+}
+
 wv::MaterialDefinition wv::MaterialAsset::deserialize( const std::filesystem::path& _path )
 {
-	WV_LOG_ERROR( __FUNCTION__ " not implemented\n" );
-	return {};
+	IFileSystem* fs = getApp()->getFileSystem();
+
+	std::filesystem::path path = _path;
+	path = fs->getFullPath( path.replace_extension( ".wvmt" ) );
+
+	std::ifstream f{ path };
+	if ( !f )
+		return {};
+
+	nlohmann::json j = nlohmann::json::parse( f );
+	
+	std::string topology{};
+	MaterialDefinition def{};
+	def.path = _path;
+
+	j.at( "vertShaderPath" ).get_to( def.vertShaderPath );
+	j.at( "fragShaderPath" ).get_to( def.fragShaderPath );
+	j.at( "topology" ).get_to( topology );
+
+	     if ( topology == "Triangle" ) def.topology = TopologyClass::WV_TRIANGLE;
+	else if ( topology == "Line" )     def.topology = TopologyClass::WV_LINE;
+	else if ( topology == "Point" )    def.topology = TopologyClass::WV_POINT;
+
+	for ( nlohmann::json& u : j[ "uniforms" ] )
+	{
+		MaterialUniform uniform{};
+		u.at( "name" ).get_to( uniform.name );
+		u.at( "size" ).get_to( uniform.size );
+		def.uniforms.push_back( uniform );
+	}
+
+	def.vertCode = fs->loadEntireFile( def.vertShaderPath );
+	def.fragCode = fs->loadEntireFile( def.fragShaderPath );
+
+	return def;
 }
 
 wv::MaterialDefinition wv::MaterialAsset::deserialize( const std::filesystem::path& _vsPath, const std::filesystem::path& _fsPath )
