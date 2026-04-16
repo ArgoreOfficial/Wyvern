@@ -101,14 +101,19 @@ bool wv::IFileSystem::fileExists( const std::filesystem::path& _path )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::filesystem::path wv::IFileSystem::getFullPath( const std::filesystem::path& _fileName )
+std::filesystem::path wv::IFileSystem::getFullPath( const std::filesystem::path& _path )
 {
-	if( fileExists( _fileName ) )
-		return _fileName;
+	if( fileExists( _path ) )
+		return _path;
 	
-	std::filesystem::path path = m_mounted / _fileName;
+	const std::filesystem::path path = getMountedPath( _path );
 	if( fileExists( path ) )
 		return path;
 
 	return "";
+}
+
+std::filesystem::path wv::IFileSystem::getMountedPath( const std::filesystem::path& _path ) const
+{
+	return m_mounted / _path;
 }

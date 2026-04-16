@@ -45,6 +45,7 @@ public:
 
 	bool fileExists( const std::filesystem::path& _path );
 	std::filesystem::path getFullPath( const std::filesystem::path& _fileName );
+	std::filesystem::path getMountedPath( const std::filesystem::path& _fileName ) const;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
