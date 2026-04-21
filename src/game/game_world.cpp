@@ -2,6 +2,8 @@
 
 #include <wv/application.h>
 
+#include <wv/editor/mesh_importer_gltf.h>
+
 #include <wv/entity/ecs.h>
 #include <wv/entity/entity.h>
 
@@ -75,10 +77,6 @@ void GameWorld::onSceneCreate()
 	}
 	
 	{
-		wv::Entity* entity = createEntity( "Floor" );
-		entity->getTransform().position = { 0.0f, 0.0f, 10.0f };
-		entity->getTransform().scale = { 0.5f, 0.5f, 0.5f };
-
 		wv::MeshImporterGLTF importer(
 			wv::getApp()->getMeshManager(),
 			wv::getApp()->getMaterialManager(),
@@ -87,9 +85,8 @@ void GameWorld::onSceneCreate()
 
 		importer.load( "meshes/SM_Tofumotive.glb" );
 
-
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
-		//addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
+		wv::Entity* entity = createEntity( "Train" );
+		entity->getTransform().position = { 0.0f, -4.5f, 10.0f };
 		addComponent<wv::MeshComponent>( entity, { .meshAsset = importer.getMesh(), .materials = importer.getMaterials() });
 	}
 	

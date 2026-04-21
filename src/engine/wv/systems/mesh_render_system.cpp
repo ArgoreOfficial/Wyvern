@@ -43,29 +43,8 @@ void wv::MeshRenderSystem::onRender()
 			wv::MeshComponent& meshComponent = meshes[ i ];
 
 			if ( meshComponent.meshAsset == nullptr )
-			{
-				if ( !meshComponent.assetPath.empty() && meshComponent.loadState == meshComponent.LoadState_unloaded )
-				{
-					meshComponent.loadState = MeshComponent::LoadState_loading;
-
-					MeshImporterGLTF importer = wv::MeshImporterGLTF( app->getMeshManager(), app->getMaterialManager(), app->getTextureManager() );
-					importer.load( meshComponent.assetPath, meshComponent.importOptions );
-
-					if ( importer.hasLoaded() )
-					{
-						meshComponent.materials = importer.getMaterials();
-						meshComponent.meshAsset = importer.getMesh();
-						meshComponent.loadState = MeshComponent::LoadState_loaded;
-					}
-					else
-					{
-						meshComponent.loadState = MeshComponent::LoadState_loadFailed;
-					}
-				}
-
 				continue;
-			}
-
+			
 			const auto  meshAsset  = meshComponent.meshAsset;
 			const auto& primitives = meshAsset->getPrimitives();
 
