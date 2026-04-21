@@ -17,6 +17,8 @@
 #include <fastgltf/types.hpp>
 #include <fastgltf/tools.hpp>
 
+#include <nlohmann/json.hpp>
+
 template <>
 struct fastgltf::ElementTraits<wv::Vector3f> : fastgltf::ElementTraitsBase<wv::Vector3f, AccessorType::Vec3, float> { };
 
@@ -128,7 +130,8 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 	for ( fastgltf::Material& mat : asset.materials )
 	{
-		Ref<MaterialAsset> material = m_materialManager->get( shaderName );
+		Ref<IShader> shader = getApp()->getShaderManager()->get( "lit" );
+		Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( shader );
 		LitShader::LitMaterialData materialData{};
 		
 		/*
@@ -163,6 +166,18 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 		materialResources.dataBufferOffset = data_index * sizeof( GLTFMetallic_Roughness::MaterialConstants );
 		// grab textures from gltf file
 		*/
+		
+		nlohmann::ordered_json jsonData;
+
+		materialData.albedoColor = wv::Vector4f(
+			mat.pbrData.baseColorFactor.x(),
+			mat.pbrData.baseColorFactor.y(),
+			mat.pbrData.baseColorFactor.z(),
+			mat.pbrData.baseColorFactor.w()
+		);
+
+		jsonData[ "albedo" ] = std::vector<float>{ materialData.albedoColor.x, materialData.albedoColor.y, materialData.albedoColor.z, materialData.albedoColor.w };
+
 		if ( mat.pbrData.baseColorTexture.has_value() )
 		{
 			size_t img = asset.textures[ mat.pbrData.baseColorTexture.value().textureIndex ].imageIndex.value();
@@ -183,15 +198,33 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 			// if there is not albedo texture, default to white (index 2), it will be multiplied later in the shader
 			materialData.albedoIndex = 2;
 		}
-
-		materialData.albedoColor = wv::Vector4f(
-			mat.pbrData.baseColorFactor.x(),
-			mat.pbrData.baseColorFactor.y(),
-			mat.pbrData.baseColorFactor.z(),
-			mat.pbrData.baseColorFactor.w()
-		);
 		
 		material->shaderType->setMaterialData( *material, &materialData );
+
+		// serialize new wvmt file
+
+		{
+			nlohmann::ordered_json json{ { "shader", "lit" }, { "data", jsonData } };
+
+			int nameappend = 1;
+			std::string materialFilename = (std::string)mat.name + ".wvmt";
+			if ( fs->fileExists( "materials/" + mat.name + ".wvmt" ) )
+			{
+				do
+				{
+					materialFilename = (std::string)mat.name + "." + std::to_string(nameappend) + ".wvmt";
+					nameappend++;
+				} while ( fs->fileExists( "materials/" + materialFilename ) );
+			}
+
+			std::ofstream materialStream( fs->getMountedPath( "materials/" + materialFilename ) );
+			materialStream << json.dump( 1 );
+
+			material->path = "materials/" + materialFilename;
+
+			m_materialManager->add( material->path, material );
+		}
+
 
 		m_materials.push_back( material );
 	}

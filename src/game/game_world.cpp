@@ -1,5 +1,7 @@
 #include "game_world.h"
 
+#include <wv/application.h>
+
 #include <wv/entity/ecs.h>
 #include <wv/entity/entity.h>
 
@@ -9,6 +11,7 @@
 #include <wv/components/collider_component.h>
 
 #include "player_move_system.h"
+
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -69,6 +72,25 @@ void GameWorld::onSceneCreate()
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
 		addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
 		addComponent<wv::MeshComponent>( entity, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
+	}
+	
+	{
+		wv::Entity* entity = createEntity( "Floor" );
+		entity->getTransform().position = { 0.0f, 0.0f, 10.0f };
+		entity->getTransform().scale = { 0.5f, 0.5f, 0.5f };
+
+		wv::MeshImporterGLTF importer(
+			wv::getApp()->getMeshManager(),
+			wv::getApp()->getMaterialManager(),
+			wv::getApp()->getTextureManager()
+		);
+
+		importer.load( "meshes/SM_Tofumotive.glb" );
+
+
+		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
+		//addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
+		addComponent<wv::MeshComponent>( entity, { .meshAsset = importer.getMesh(), .materials = importer.getMaterials() });
 	}
 	
 	{
