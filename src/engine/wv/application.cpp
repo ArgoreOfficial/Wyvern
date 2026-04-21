@@ -83,8 +83,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_meshManager = WV_NEW( MeshManager );
-	m_shaderManager = WV_NEW( ShaderManager );
 	m_materialManager = WV_NEW( MaterialManager );
+	m_textureManager = WV_NEW( TextureManager );
+	m_shaderManager = WV_NEW( ShaderManager );
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
@@ -240,6 +241,12 @@ void wv::Application::shutdown()
 	{
 		m_materialManager->clearPersistent();
 		WV_FREE( m_materialManager );
+	}
+
+	if ( m_textureManager )
+	{
+		m_textureManager->clearPersistent();
+		WV_FREE( m_textureManager );
 	}
 
 	if ( m_shaderManager )

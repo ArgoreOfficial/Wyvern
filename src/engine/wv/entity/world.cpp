@@ -16,7 +16,6 @@
 
 wv::World::World()
 { 
-	m_textureManager  = WV_NEW( TextureManager );
 	m_ecsEngine       = WV_NEW( ECSEngine );
 
 	// register order determines internal ID
@@ -33,14 +32,8 @@ wv::World::~World()
 
 	WV_FREE( m_ecsEngine );
 
-	m_textureManager->clearPersistent();
-	
 	if ( m_viewport )
-		WV_FREE( m_viewport );
-
-	// free managers
-	WV_FREE( m_textureManager );
-	
+		WV_FREE( m_viewport );	
 }
 
 void wv::World::destroyAllEntities()

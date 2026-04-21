@@ -10,9 +10,6 @@ class Entity;
 class IUpdatable;
 class InputSystem;
 
-class MeshManager;
-class TextureManager;
-
 struct Viewport;
 
 struct WorldUpdateContext
@@ -48,8 +45,6 @@ public:
 
 	void destroyAllEntities();
 	
-	TextureManager*  getTextureManager()  const { return m_textureManager; }
-
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
@@ -157,8 +152,6 @@ protected:
 	std::vector<Entity*> m_entities;
 	std::unordered_set<IUpdatable*> m_updatables;
 
-	TextureManager* m_textureManager = nullptr;
-	
 	WorldUpdateContext m_updateContext{};
 
 	bool m_isInEditorState = false;
