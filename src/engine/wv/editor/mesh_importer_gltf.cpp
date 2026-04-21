@@ -126,8 +126,6 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 	taskSystem->waitAndFreeFence( loadFence );
 
-	const char* shaderName = "materials/default_lit.wvmt";
-
 	for ( fastgltf::Material& mat : asset.materials )
 	{
 		Ref<IShader> shader = getApp()->getShaderManager()->get( "lit" );
@@ -178,6 +176,8 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 		jsonData[ "albedo" ] = std::vector<float>{ materialData.albedoColor.x, materialData.albedoColor.y, materialData.albedoColor.z, materialData.albedoColor.w };
 
+		
+
 		if ( mat.pbrData.baseColorTexture.has_value() )
 		{
 			size_t img = asset.textures[ mat.pbrData.baseColorTexture.value().textureIndex ].imageIndex.value();
@@ -206,17 +206,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 		{
 			nlohmann::ordered_json json{ { "shader", "lit" }, { "data", jsonData } };
 
-			int nameappend = 1;
-			std::string materialFilename = (std::string)mat.name + ".wvmt";
-			if ( fs->fileExists( "materials/" + mat.name + ".wvmt" ) )
-			{
-				do
-				{
-					materialFilename = (std::string)mat.name + "." + std::to_string(nameappend) + ".wvmt";
-					nameappend++;
-				} while ( fs->fileExists( "materials/" + materialFilename ) );
-			}
-
+			std::string materialFilename = (std::string)mat.name + "." + _path.stem().string() + ".wvmt";
 			std::ofstream materialStream( fs->getMountedPath( "materials/" + materialFilename ) );
 			materialStream << json.dump( 1 );
 
