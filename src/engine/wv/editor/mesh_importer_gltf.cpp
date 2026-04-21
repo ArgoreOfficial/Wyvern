@@ -121,13 +121,14 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 	taskSystem->waitAndFreeFence( loadFence );
 
-	const char* shaderName = "Default Lit";
+	const char* shaderName = "materials/default_lit.wvmt";
 
 	for ( fastgltf::Material& mat : asset.materials )
 	{
-		Ref<MaterialAsset> newMat = m_materialManager->get( shaderName );
-		MaterialInstance instance{ newMat };
-
+		Ref<MaterialAsset> material = m_materialManager->get( shaderName );
+		
+		LitShader::LitMaterialData materialData{};
+		
 		/*
 		file.materials[ mat.name.c_str() ] = newMat;
 
@@ -167,33 +168,30 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 			if ( textures[ img ] )
 			{
-				instance.textures.push_back( textures[ img ] );
-				instance.setValue( "albedoIndex", textures[ img ]->getImageSlot() );
+				material->textureAssets.push_back( textures[ img ] );
+				materialData.albedoIndex = textures[ img ]->getImageSlot();
 			}
 			else
 			{
-				instance.setValue( "albedoIndex", 0 );
+				materialData.albedoIndex = 0;
 			}
 		}
 		else
 		{
 			// if there is not albedo texture, default to white (index 2), it will be multiplied later in the shader
-			// TODO: abstract default texture index
-
-			instance.setValue( "albedoIndex", 2 );
+			materialData.albedoIndex = 2;
 		}
 
-		instance.setValue( 
-			"albedoColor", 
-			wv::Vector4f( 
-				mat.pbrData.baseColorFactor.x(),
-				mat.pbrData.baseColorFactor.y(),
-				mat.pbrData.baseColorFactor.z(),
-				mat.pbrData.baseColorFactor.w()
-			)
+		materialData.albedoColor = wv::Vector4f(
+			mat.pbrData.baseColorFactor.x(),
+			mat.pbrData.baseColorFactor.y(),
+			mat.pbrData.baseColorFactor.z(),
+			mat.pbrData.baseColorFactor.w()
 		);
 		
-		m_materials.push_back( instance );
+		material->shaderType->setMaterialData( material->m_materialIndex, &materialData );
+
+		m_materials.push_back( material );
 	}
 
 	m_loaded = true;

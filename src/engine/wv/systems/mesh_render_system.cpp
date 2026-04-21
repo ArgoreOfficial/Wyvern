@@ -18,21 +18,12 @@ void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 void wv::MeshRenderSystem::onInitialize()
 {
 	World* world = wv::getApp()->getWorld();
-	MaterialManager* materialManager = world->getMaterialManager();
-
-	m_prototypeTexture = world->getTextureManager()->get("textures/texture_06.png");
-	
-	m_defaultMaterialInstance = world->getMaterialManager()->get( "Default Lit" );
-	m_defaultMaterialInstance.setValue( "albedoIndex", m_prototypeTexture->getImageSlot() ); // white is texture 2
-	m_defaultMaterialInstance.setValue( "albedoColor", Vector4f{ 1.0f, 1.0f, 1.0f, 1.0f } );
 }
 
 void wv::MeshRenderSystem::onShutdown()
 {
 	m_renderMeshes.clear();
 	m_matrices.clear();
-
-	m_defaultMaterialInstance = {};
 }
 
 void wv::MeshRenderSystem::onRender()
@@ -58,7 +49,7 @@ void wv::MeshRenderSystem::onRender()
 				{
 					meshComponent.loadState = MeshComponent::LoadState_loading;
 
-					MeshImporterGLTF importer = wv::MeshImporterGLTF( app->getMeshManager(), world->getMaterialManager(), world->getTextureManager() );
+					MeshImporterGLTF importer = wv::MeshImporterGLTF( app->getMeshManager(), app->getMaterialManager(), world->getTextureManager() );
 					importer.load( meshComponent.assetPath, meshComponent.importOptions );
 
 					if ( importer.hasLoaded() )
@@ -81,13 +72,13 @@ void wv::MeshRenderSystem::onRender()
 
 			for ( auto& primitive : meshAsset->getPrimitives() )
 			{
+				/*
 				RenderMesh mesh{};
 				mesh.mesh = meshAsset->getGPUAllocation();
-
 				if ( primitive.material < meshComponent.materials.size() )
 				{
-					const MaterialInstance& material = meshComponent.materials[ primitive.material ];
-					mesh.pipeline = material.material->getPipeline();
+					Ref<MaterialAsset> material = meshComponent.materials[ primitive.material ];
+					mesh.pipeline = material->shaderType->getPipelineID();
 					mesh.materialData = {
 						material.buffer.data(),
 						material.buffer.size()
@@ -112,6 +103,7 @@ void wv::MeshRenderSystem::onRender()
 				// TODO: big buffer of matrices that updates 
 				// all at once instead of PushConstants
 				m_matrices.push_back( entities[ i ]->getTransform().getMatrix());
+				*/
 			}
 		}
 	}

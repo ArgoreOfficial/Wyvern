@@ -1232,11 +1232,9 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		vkCmdSetPrimitiveTopology( _cmd, VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
 	}
 
-	MaterialInstance debugMaterial = _world->getMaterialManager()->get( "Debug" );
-	debugMaterial.setValue( "color", wv::Vector4f{ 1.f, 0.f, 1.f, 1.f } );
-
-	Pipeline pipeline = m_pipelineManager.getPipeline( debugMaterial.material->getPipeline() );
-
+	Ref<MaterialAsset> debugMaterial = getApp()->getMaterialManager()->get("Debug");
+	Pipeline pipeline = m_pipelineManager.getPipeline( debugMaterial->shaderType->getPipelineID() );
+	
 	WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
 	vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
@@ -1252,7 +1250,8 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		sizeof( GPUDrawPushConstants ),
 		&pc
 	);
-
+	
+	/*
 	vkCmdPushConstants(
 		_cmd,
 		m_bindlessPipelineLayout,
@@ -1260,6 +1259,7 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		debugMaterial.buffer.size(),
 		debugMaterial.buffer.data()
 	);
+	*/
 
 	vkCmdDraw( _cmd, m_debugLinePositions.size(), 1, 0, 0 );
 

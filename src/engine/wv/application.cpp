@@ -46,6 +46,11 @@
 #include <imgui/imgui.h>
 #endif
 
+#include <nlohmann/json.hpp>
+
+#include <fstream>
+#include <set>
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +79,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_meshManager = WV_NEW( MeshManager );
+	m_shaderManager = WV_NEW( ShaderManager );
 	m_materialManager = WV_NEW( MaterialManager );
 
 	m_eventManager = WV_NEW( EventManager );
@@ -122,30 +128,40 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Set up default assets
+	// Set up shaders
+	
+	{
+		wv::Ref<IShader> litShader = std::make_shared<LitShader>();
+		litShader->initialize();
+		m_shaderManager->add( "lit", litShader );
+		m_shaderManager->makePersistent( litShader );
+	}
 
-	MaterialManager* materialManager = m_world->getMaterialManager();
+	///////////////////////////////////////////////////////////////////////////
+	// Set up default assets
 
 	// Default lit material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_lit" );
-		materialManager->add( "Default Lit", material );
-		materialManager->makePersistent( material );
+		wv::Ref<MaterialAsset> material = m_materialManager->get( "materials/default_lit.wvmt" );
+		m_materialManager->makePersistent( material );
 	}
 
+	/*
 	// Default unlit material
 	{
 		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_unlit" );
-		materialManager->add( "Default Unlit", material );
-		materialManager->makePersistent( material );
+		m_materialManager->add( "Default Unlit", material );
+		m_materialManager->makePersistent( material );
 	}
 
 	// Default debug material
 	{
 		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_debug" );
-		materialManager->add( "Debug", material );
-		materialManager->makePersistent( material );
+		m_materialManager->add( "Debug", material );
+		m_materialManager->makePersistent( material );
 	}
+	*/
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// Editor features
@@ -203,7 +219,6 @@ void wv::Application::shutdown()
 	if ( m_meshManager )
 	{
 		m_meshManager->clearPersistent();
-
 		WV_FREE( m_meshManager );
 	}
 	
@@ -212,6 +227,13 @@ void wv::Application::shutdown()
 		m_materialManager->clearPersistent();
 		WV_FREE( m_materialManager );
 	}
+
+	if ( m_shaderManager )
+	{
+		m_shaderManager->clearPersistent();
+		WV_FREE( m_shaderManager );
+	}
+
 	if ( m_taskSystem )
 	{
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Waiting for threads\n" );

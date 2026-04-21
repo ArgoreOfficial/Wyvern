@@ -22,6 +22,8 @@ class TaskSystem;
 class AudioSystem;
 
 class MaterialAsset;
+class MaterialManager;
+class ShaderManager;
 
 class MeshManager;
 
@@ -60,6 +62,7 @@ public:
 	inline World*         getWorld()              const { return m_world; }
 
 	MeshManager* getMeshManager() const { return m_meshManager; }
+	ShaderManager* getShaderManager() const { return m_shaderManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
 
 	void quit() { m_alive = false; }
@@ -101,6 +104,7 @@ private:
 	
 	wv::MeshManager* m_meshManager = nullptr;
 	wv::MaterialManager* m_materialManager = nullptr;
+	wv::ShaderManager* m_shaderManager = nullptr;
 
 	wv::World* m_world = nullptr;
 };

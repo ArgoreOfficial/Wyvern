@@ -57,11 +57,6 @@ public:
 	GeometrySurface deserialize( const std::filesystem::path& _path );
 	void initialize( const GeometrySurface& _geometry );
 
-	void load( const std::filesystem::path& _path ) {
-		Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Mesh %s\n", _path.string().c_str() );
-		initialize( deserialize( _path ) );
-	}
-
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
 	uint32_t getNumMaterials() const { return m_numMaterials; }

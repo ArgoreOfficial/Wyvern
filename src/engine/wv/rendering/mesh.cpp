@@ -10,6 +10,8 @@
 
 wv::MeshAsset::MeshAsset( const std::filesystem::path& _path )
 {
+	Debug::Print( Debug::WV_PRINT_DEBUG, "Loading Mesh %s\n", _path.string().c_str() );
+
 	GeometrySurface surface = deserialize( _path );
 	initialize( surface );
 
@@ -165,6 +167,8 @@ wv::GeometrySurface wv::MeshAsset::deserialize( const std::filesystem::path& _pa
 		
 		return surface;
 	}
+
+	return {};
 }
 
 void wv::MeshAsset::initialize( const GeometrySurface& _geometry )

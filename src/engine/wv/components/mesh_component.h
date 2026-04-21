@@ -38,7 +38,7 @@ struct MeshComponent
 	std::filesystem::path assetPath{}; 
 	
 	Ref<MeshAsset> meshAsset;
-	std::vector<MaterialInstance> materials;
+	std::vector<Ref<MaterialAsset>> materials;
 };
 
 }

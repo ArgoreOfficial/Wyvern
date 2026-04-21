@@ -19,7 +19,6 @@ protected:
 	virtual void onShutdown() override;
 	virtual void onRender() override;
 	
-	MaterialInstance m_defaultMaterialInstance;
 	wv::Ref<TextureAsset> m_prototypeTexture;
 
 	std::vector<RenderMesh> m_renderMeshes;

@@ -43,7 +43,7 @@ public:
 	bool hasLoaded() const { return m_loaded; }
 
 	Ref<MeshAsset> getMesh() const { return m_meshAsset; }
-	std::vector<MaterialInstance> getMaterials() const { return m_materials; }
+	std::vector<Ref<MaterialAsset>> getMaterials() const { return m_materials; }
 	
 private:
 
@@ -56,7 +56,7 @@ private:
 	bool m_loaded = false;
 
 	Ref<MeshAsset> m_meshAsset = {};
-	std::vector<MaterialInstance> m_materials = {};
+	std::vector<Ref<MaterialAsset>> m_materials = {};
 
 };
 
