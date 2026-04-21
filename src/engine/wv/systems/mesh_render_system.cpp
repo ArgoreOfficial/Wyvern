@@ -17,7 +17,7 @@ void wv::MeshRenderSystem::configure( ArchetypeConfig& _config )
 
 void wv::MeshRenderSystem::onInitialize()
 {
-	World* world = wv::getApp()->getWorld();
+	m_defaultMaterial = wv::getApp()->getMaterialManager()->get( "materials/default_lit.wvmt" );
 }
 
 void wv::MeshRenderSystem::onShutdown()
@@ -72,26 +72,22 @@ void wv::MeshRenderSystem::onRender()
 
 			for ( auto& primitive : meshAsset->getPrimitives() )
 			{
-				/*
 				RenderMesh mesh{};
 				mesh.mesh = meshAsset->getGPUAllocation();
 				if ( primitive.material < meshComponent.materials.size() )
 				{
 					Ref<MaterialAsset> material = meshComponent.materials[ primitive.material ];
 					mesh.pipeline = material->shaderType->getPipelineID();
-					mesh.materialData = {
-						material.buffer.data(),
-						material.buffer.size()
-					};
+					mesh.materialBuffer = material->shaderType->getBufferID();
+					mesh.materialIndex = material->m_materialIndex;
+
 				}
 				else
 				{
 					// no material assigned, use default
-					mesh.pipeline = m_defaultMaterialInstance.material->getPipeline();
-					mesh.materialData = {
-						m_defaultMaterialInstance.buffer.data(),
-						m_defaultMaterialInstance.buffer.size()
-					};
+					mesh.pipeline = m_defaultMaterial->shaderType->getPipelineID();
+					mesh.materialBuffer = m_defaultMaterial->shaderType->getBufferID();
+					mesh.materialIndex = m_defaultMaterial->m_materialIndex;
 				}
 
 				mesh.indexCount = primitive.indexCount;
@@ -103,7 +99,6 @@ void wv::MeshRenderSystem::onRender()
 				// TODO: big buffer of matrices that updates 
 				// all at once instead of PushConstants
 				m_matrices.push_back( entities[ i ]->getTransform().getMatrix());
-				*/
 			}
 		}
 	}

@@ -136,6 +136,20 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		m_shaderManager->add( "lit", litShader );
 		m_shaderManager->makePersistent( litShader );
 	}
+	
+	{
+		wv::Ref<IShader> litShader = std::make_shared<UnlitShader>();
+		litShader->initialize();
+		m_shaderManager->add( "unlit", litShader );
+		m_shaderManager->makePersistent( litShader );
+	}
+	
+	{
+		wv::Ref<IShader> litShader = std::make_shared<DebugShader>();
+		litShader->initialize();
+		m_shaderManager->add( "debug", litShader );
+		m_shaderManager->makePersistent( litShader );
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up default assets
@@ -146,22 +160,21 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 		m_materialManager->makePersistent( material );
 	}
 
-	/*
 	// Default unlit material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_unlit" );
-		m_materialManager->add( "Default Unlit", material );
+		wv::Ref<MaterialAsset> material = m_materialManager->get( "materials/default_unlit.wvmt" );
 		m_materialManager->makePersistent( material );
 	}
 
 	// Default debug material
 	{
-		wv::Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( "materials/default_debug" );
-		m_materialManager->add( "Debug", material );
+		wv::Ref<MaterialAsset> material = m_materialManager->get( "materials/default_debug.wvmt" );
 		m_materialManager->makePersistent( material );
 	}
-	*/
 
+	m_shaderManager->get( "lit" )->updateMaterialBuffer();
+	m_shaderManager->get( "unlit" )->updateMaterialBuffer();
+	m_shaderManager->get( "debug" )->updateMaterialBuffer();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Editor features
@@ -412,6 +425,11 @@ void wv::Application::render()
 	if ( shouldRender )
 	{
 		m_world->dispatchUpdateMessage( UpdateEvent_render );
+
+		m_shaderManager->get( "lit" )->updateMaterialBuffer();
+		m_shaderManager->get( "unlit" )->updateMaterialBuffer();
+		m_shaderManager->get( "debug" )->updateMaterialBuffer();
+
 		m_renderer->render( m_world );
 	}
 	

@@ -8,6 +8,8 @@ target("Game")
     add_files("**.cpp")
     add_includedirs("./", "../engine/")
     
+    add_packages("nlohmann_json")
+
     if not is_mode("package") then 
         add_packages("tracy")
     end

@@ -10,8 +10,13 @@ struct Vertex {
 	float texCoord0[2];
 }; 
 
+struct MaterialData {
+	vec4 color;
+};
+
 DEFINE_POSITION_BUFFER();
 DEFINE_VERTEX_BUFFER(Vertex);
+DEFINE_MATERIAL_BUFFER(MaterialData);
 
 layout (location = 0) out vec4 outColor;
 
@@ -20,8 +25,8 @@ layout(push_constant) uniform pushConstant {
     mat4 modelMatrix;
 	PositionBuffer positionBuffer;
 	VertexBuffer vertexBuffer;
-	
-	vec4 color;
+	MaterialBuffer materialBuffer;
+	uint materialIndex;
 };
 
 void main() 
@@ -31,5 +36,5 @@ void main()
 	//output the position of each vertex
 	gl_Position = viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
 	
-	outColor = color;
+	outColor = getMaterial(materialIndex).color;
 }

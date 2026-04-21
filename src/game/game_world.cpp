@@ -43,7 +43,13 @@ void GameWorld::onSceneCreate()
 
 		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
 		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, wv::MeshComponent{ .meshAsset = wv::MeshAsset::get( "meshes/SM_Sphere.wvb" ) } );
+		addComponent<wv::MeshComponent>( 
+			entity, 
+			wv::MeshComponent{ 
+				.meshAsset = wv::MeshAsset::get( "meshes/SM_Sphere.wvb" ),
+				.materials = { wv::MaterialAsset::get( "materials/default_unlit.wvmt" ) }
+			} 
+		);
 	}
 	
 	{

@@ -781,7 +781,7 @@ void wv::Renderer::destroyGPUBuffer( ResourceID _buffer )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void wv::Renderer::uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size, size_t _offset )
+void wv::Renderer::uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size )
 {
 	std::scoped_lock lock{ m_mtx };
 
@@ -798,18 +798,17 @@ void wv::Renderer::uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _siz
 
 	// Upload buffers
 
-	VkDeviceSize stagingSize = _size;
-	VirtualAllocSpan staging = m_stagingRing.allocate( stagingSize );
-	WV_ASSERT( staging.size == _size );
+	VirtualAllocSpan staging = m_stagingRing.allocate( allocation.actualSize );
+	WV_ASSERT( staging.size == allocation.actualSize );
 
-	memcpy( staging.mapping, _data, stagingSize ); // copy buffer to staging
+	memcpy( staging.mapping, _data, allocation.actualSize ); // copy buffer to staging
 	
 	immediateCmdSubmit( [ = ]( VkCommandBuffer _cmd )
 						{
 							VkBufferCopy bufferCopy{ 0 };
 							bufferCopy.dstOffset = 0;
 							bufferCopy.srcOffset = staging.offset;
-							bufferCopy.size = stagingSize;
+							bufferCopy.size = allocation.actualSize;
 
 							vkCmdCopyBuffer( _cmd, staging.buffer, buffer, 1, &bufferCopy );
 						} );
@@ -1135,6 +1134,13 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 			pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 
+		{
+			size_t idx = (size_t)renderMesh.materialBuffer.value;
+			pc.materialDataBuffer = m_bufferAllocations.at( idx ).deviceAddress;
+		}
+
+		pc.materialIndex = renderMesh.materialIndex;
+
 		vkCmdPushConstants(
 			_cmd,
 			m_bindlessPipelineLayout,
@@ -1142,17 +1148,6 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 			sizeof( GPUDrawPushConstants ),
 			&pc
 		);
-
-		if ( renderMesh.materialData.size() > 0 )
-		{
-			vkCmdPushConstants( 
-				_cmd, 
-				m_bindlessPipelineLayout,
-				VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-				renderMesh.materialData.size(),
-				renderMesh.materialData.data()
-			);
-		}
 
 		vkCmdDrawIndexed( _cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );
 	}
@@ -1232,7 +1227,7 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		vkCmdSetPrimitiveTopology( _cmd, VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
 	}
 
-	Ref<MaterialAsset> debugMaterial = getApp()->getMaterialManager()->get("Debug");
+	Ref<MaterialAsset> debugMaterial = getApp()->getMaterialManager()->get( "materials/default_debug.wvmt" );
 	Pipeline pipeline = m_pipelineManager.getPipeline( debugMaterial->shaderType->getPipelineID() );
 	
 	WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
@@ -1243,6 +1238,13 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	pc.model = wv::Matrix4x4f::identity( 1.0 );
 	pc.positionBuffer = debugBuffer.deviceAddress;
 
+	{
+		size_t idx = (size_t)debugMaterial->shaderType->getBufferID().value;
+		pc.materialDataBuffer = m_bufferAllocations.at( idx ).deviceAddress;
+	}
+		
+	pc.materialIndex = debugMaterial->m_materialIndex;
+
 	vkCmdPushConstants(
 		_cmd,
 		m_bindlessPipelineLayout,
@@ -1251,16 +1253,6 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 		&pc
 	);
 	
-	/*
-	vkCmdPushConstants(
-		_cmd,
-		m_bindlessPipelineLayout,
-		VK_SHADER_STAGE_ALL, sizeof( GPUDrawPushConstants ),
-		debugMaterial.buffer.size(),
-		debugMaterial.buffer.data()
-	);
-	*/
-
 	vkCmdDraw( _cmd, m_debugLinePositions.size(), 1, 0, 0 );
 
 	//vkCmdDrawIndexed( _cmd, renderMesh.indexCount, 1, renderMesh.firstIndex, renderMesh.vertexOffset, 0 );

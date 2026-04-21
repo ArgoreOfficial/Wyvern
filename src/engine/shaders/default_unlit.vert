@@ -10,8 +10,14 @@ struct Vertex {
 	float texCoord0[2];
 }; 
 
+struct MaterialData {	
+	vec4 albedoColor;
+	uint albedoIndex;
+};
+
 DEFINE_POSITION_BUFFER();
 DEFINE_VERTEX_BUFFER(Vertex);
+DEFINE_MATERIAL_BUFFER(MaterialData);
 
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoord0;
@@ -23,21 +29,21 @@ layout(push_constant) uniform pushConstant {
     mat4 modelMatrix;
 	PositionBuffer positionBuffer;
 	VertexBuffer vertexBuffer;
-
-	uint albedoIndex;
-	vec4 albedoColor;
+	MaterialBuffer materialBuffer;
+	uint materialIndex;
 };
 
 void main() 
 {
+	MaterialData material = getMaterial(materialIndex);
+	
 	Vertex v = getVertex(gl_VertexIndex);
 	vec3 pos = getPosition(gl_VertexIndex);
 	
 	//output the position of each vertex
 	gl_Position = viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
 	
-	outColor     = unpackFloat3(v.color) * albedoColor.rgb;
-	outTexCoord0 = unpackFloat2(v.texCoord0);
-	
-	outAlbedoIndex = albedoIndex;
+	outColor       = unpackFloat3(v.color) * material.albedoColor.rgb;
+	outTexCoord0   = unpackFloat2(v.texCoord0);
+	outAlbedoIndex = material.albedoIndex;
 }

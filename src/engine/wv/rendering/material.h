@@ -43,6 +43,8 @@ public:
 	wv::ResourceID getBufferID()   const { return m_allocatedBufferID; }
 
 protected:
+	void setDebugName( const std::string& _debugName ) { m_debugName = _debugName; }
+
 	void setTopology( wv::TopologyClass _topology ) { m_topology = _topology; }
 
 	void setVertPath( const std::filesystem::path& _path ) {
@@ -64,6 +66,7 @@ private:
 	size_t m_elementSize = 0;
 	std::vector<uint8_t> m_materialData;
 
+	std::string m_debugName = "";
 	wv::TopologyClass m_topology = wv::TopologyClass::WV_TRIANGLE;
 
 	bool m_useVertShader = false;
@@ -94,6 +97,8 @@ public:
 		textureAssets.clear();
 	}
 
+	static Ref<MaterialAsset> get( const std::filesystem::path& _path );
+
 	Ref<IShader> shaderType = nullptr;
 	size_t m_materialIndex = SIZE_MAX;
 
@@ -119,11 +124,13 @@ class LitShader : public wv::IShader
 public:
 	struct LitMaterialData
 	{
+		Vector4f albedoColor;
 		uint32_t albedoIndex;
-		wv::Vector4f albedoColor;
-	};
+		uint32_t pad0[ 3 ];
+	};	
 
 	virtual void initialize() override {
+		setDebugName( "Lit" );
 		setTopology( wv::TopologyClass::WV_TRIANGLE );
 		setVertPath( "shaders/default_lit.vert.spv" );
 		setFragPath( "shaders/default_lit.frag.spv" );
@@ -137,8 +144,8 @@ public:
 		auto albedo = _json[ "albedo" ];
 		if ( albedo.is_string() )
 		{
+			data.albedoColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			data.albedoIndex = 0;
-			data.albedoColor = { 1.0f,1.0f,1.0f,1.0f };
 
 			// get texture from albedo path
 		}
@@ -157,9 +164,85 @@ public:
 	}
 };
 
+class UnlitShader : public wv::IShader
+{
+public:
+	struct UnlitMaterialData
+	{
+		Vector4f albedoColor;
+		uint32_t albedoIndex;
+		uint32_t pad0[ 3 ];
+	};
 
+	virtual void initialize() override {
+		setDebugName( "Unlit" );
+		setTopology( wv::TopologyClass::WV_TRIANGLE );
+		setVertPath( "shaders/default_unlit.vert.spv" );
+		setFragPath( "shaders/default_unlit.frag.spv" );
+		create( sizeof( UnlitMaterialData ) );
+	}
 
+	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) override
+	{
+		UnlitMaterialData data{};
 
+		auto albedo = _json[ "albedo" ];
+		if ( albedo.is_string() )
+		{
+			data.albedoIndex = 0;
+			data.albedoColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			// get texture from albedo path
+		}
+		else if ( albedo.is_array() )
+		{
+			data.albedoIndex = 2;
+			data.albedoColor = {
+				albedo[ 0 ],
+				albedo[ 1 ],
+				albedo[ 2 ],
+				albedo[ 3 ]
+			};
+		}
+
+		setMaterialData( _index, &data );
+	}
+};
+
+class DebugShader : public wv::IShader
+{
+public:
+	struct DebugMaterialData
+	{
+		wv::Vector4f color;
+	};
+
+	virtual void initialize() override {
+		setDebugName( "Debug" );
+		setTopology( wv::TopologyClass::WV_LINE );
+		setVertPath( "shaders/default_debug.vert.spv" );
+		setFragPath( "shaders/default_debug.frag.spv" );
+		create( sizeof( DebugMaterialData ) );
+	}
+
+	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) override
+	{
+		DebugMaterialData data{};
+
+		auto albedo = _json[ "color" ];
+		if ( albedo.is_array() )
+		{
+			data.color = {
+				albedo[ 0 ],
+				albedo[ 1 ],
+				albedo[ 2 ],
+				albedo[ 3 ]
+			};
+		}
+
+		setMaterialData( _index, &data );
+	}
+};
 
 
 }

@@ -4,26 +4,7 @@
 #include <wv/filesystem/file_system.h>
 #include <wv/rendering/renderer.h>
 
-#include <nlohmann/json.hpp>
-
 #include <fstream>
-
-wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
-{
-	auto app = wv::getApp();
-	auto fs = app->getFileSystem();
-
-	std::ifstream jfile{ fs->getFullPath( _path ) };
-	nlohmann::json j = nlohmann::json::parse( jfile );
-
-	std::string shaderName;
-	j[ "shader" ].get_to( shaderName );
-
-	shaderType = app->getShaderManager()->get( shaderName );
-	m_materialIndex = shaderType->createMaterial();
-
-	shaderType->parseMaterialData( m_materialIndex, j[ "data" ] );
-}
 
 wv::IShader::~IShader()
 {
@@ -43,6 +24,7 @@ size_t wv::IShader::createMaterial()
 	while ( m_materialSlots.contains( slot ) )
 		slot++;
 
+	m_materialSlots.insert( slot );
 	m_lowestSlot = slot;
 
 	// check if cpu side buffer requires resize
@@ -79,10 +61,14 @@ void wv::IShader::updateMaterialBuffer()
 			renderer->destroyGPUBuffer( m_allocatedBufferID );
 
 		m_allocatedBufferSize = m_materialData.size();
-		m_allocatedBufferID = renderer->createGPUBuffer( m_allocatedBufferSize, "Material Buffer" );
+
+		std::string debugStr = "Material Buffer : ";
+		debugStr += m_debugName;
+
+		m_allocatedBufferID = renderer->createGPUBuffer( m_allocatedBufferSize, debugStr.c_str() );
 	}
 
-	renderer->uploadGPUBuffer( m_allocatedBufferID, m_materialData.data(), m_materialData.size(), 0 );
+	renderer->uploadGPUBuffer( m_allocatedBufferID, m_materialData.data(), m_materialData.size() );
 }
 
 void wv::IShader::create( size_t _elementSize )
@@ -111,3 +97,24 @@ void wv::IShader::create( size_t _elementSize )
 	m_materialData.resize( m_elementSize );
 }
 
+wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
+{
+	auto app = wv::getApp();
+	auto fs = app->getFileSystem();
+
+	std::ifstream jfile{ fs->getFullPath( _path ) };
+	nlohmann::json j = nlohmann::json::parse( jfile );
+
+	std::string shaderName;
+	j[ "shader" ].get_to( shaderName );
+
+	shaderType = app->getShaderManager()->get( shaderName );
+	m_materialIndex = shaderType->createMaterial();
+
+	shaderType->parseMaterialData( m_materialIndex, j[ "data" ] );
+}
+
+wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& _path )
+{
+	return getApp()->getMaterialManager()->get( _path );
+}

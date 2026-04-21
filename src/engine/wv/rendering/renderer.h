@@ -79,6 +79,8 @@ struct GPUDrawPushConstants
 	wv::Matrix4x4f model;
 	VkDeviceAddress positionBuffer;
 	VkDeviceAddress vertexDataBuffer;
+	VkDeviceAddress materialDataBuffer;
+	uint32_t materialIndex;
 };
 
 enum class SamplerState
@@ -215,7 +217,7 @@ public:
 
 	ResourceID createGPUBuffer( size_t _size, const char* _debugName = nullptr );
 	void destroyGPUBuffer( ResourceID _buffer );
-	void uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size, size_t _offset );
+	void uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size );
 
 	uint32_t storeImage( ResourceID _imageID, SamplerState _filter ) {
 		std::scoped_lock lock{ m_mtx };

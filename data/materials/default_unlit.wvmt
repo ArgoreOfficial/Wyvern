@@ -1,15 +1,6 @@
 {
- "vertShaderPath": "shaders/default_unlit.vert.spv",
- "fragShaderPath": "shaders/default_unlit.frag.spv",
- "topology": "Triangle",
- "uniforms": [
-  {
-   "name": "albedoIndex",
-   "size": 4
-  },
-  {
-   "name": "albedoColor",
-   "size": 16
-  }
- ]
+ "shader": "unlit",
+ "data" : {
+    "albedo" : [1.0, 1.0, 1.0, 1.0]
+ }
 }

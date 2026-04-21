@@ -10,8 +10,14 @@ struct Vertex {
 	float texCoord0[2];
 }; 
 
+struct MaterialData {	
+	vec4 albedoColor;
+	uint albedoIndex;
+};
+
 DEFINE_POSITION_BUFFER();
 DEFINE_VERTEX_BUFFER(Vertex);
+DEFINE_MATERIAL_BUFFER(MaterialData);
 
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoord0;
@@ -19,18 +25,19 @@ layout (location = 2) out vec3 outNormal;
 
 layout (location = 3) flat out uint outAlbedoIndex;
 
-layout(push_constant) uniform pushConstant {
+layout(std430, push_constant) uniform pushConstant {
     mat4 viewProjMatrix;
     mat4 modelMatrix;
 	PositionBuffer positionBuffer;
 	VertexBuffer vertexBuffer;
-
-	uint albedoIndex;
-	vec4 albedoColor;
+	MaterialBuffer materialBuffer;
+	uint materialIndex;
 };
 
 void main() 
 {
+	MaterialData material = getMaterial(materialIndex);
+	
 	Vertex v = getVertex(gl_VertexIndex);
 	vec3 pos = getPosition(gl_VertexIndex);
 	
@@ -39,9 +46,8 @@ void main()
 	
 	mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
 
-	outColor     = unpackFloat3(v.color) * albedoColor.rgb;
-	outTexCoord0 = unpackFloat2(v.texCoord0);
-	outNormal    = normalMatrix * unpackFloat3(v.normal);
-
-	outAlbedoIndex = albedoIndex;
+	outColor       = unpackFloat3(v.color) * material.albedoColor.rgb;
+	outTexCoord0   = unpackFloat2(v.texCoord0);
+	outNormal      = normalMatrix * unpackFloat3(v.normal);
+	outAlbedoIndex = material.albedoIndex;
 }
