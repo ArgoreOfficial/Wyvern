@@ -60,6 +60,7 @@ public:
 	inline World*         getWorld()              const { return m_world; }
 
 	MeshManager* getMeshManager() const { return m_meshManager; }
+	MaterialManager* getMaterialManager() const { return m_materialManager; }
 
 	void quit() { m_alive = false; }
 
@@ -99,6 +100,7 @@ private:
 	// Managers
 	
 	wv::MeshManager* m_meshManager = nullptr;
+	wv::MaterialManager* m_materialManager = nullptr;
 
 	wv::World* m_world = nullptr;
 };

@@ -11,7 +11,6 @@ class IUpdatable;
 class InputSystem;
 
 class MeshManager;
-class MaterialManager;
 class TextureManager;
 
 struct Viewport;
@@ -49,7 +48,6 @@ public:
 
 	void destroyAllEntities();
 	
-	MaterialManager* getMaterialManager() const { return m_materialManager; }
 	TextureManager*  getTextureManager()  const { return m_textureManager; }
 
 	Viewport* getViewport() const                { return m_viewport; }
@@ -159,8 +157,7 @@ protected:
 	std::vector<Entity*> m_entities;
 	std::unordered_set<IUpdatable*> m_updatables;
 
-	MaterialManager* m_materialManager = nullptr;
-	TextureManager*  m_textureManager  = nullptr;
+	TextureManager* m_textureManager = nullptr;
 	
 	WorldUpdateContext m_updateContext{};
 

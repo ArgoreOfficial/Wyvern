@@ -74,6 +74,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world = _world;
 
 	m_meshManager = WV_NEW( MeshManager );
+	m_materialManager = WV_NEW( MaterialManager );
 
 	m_eventManager = WV_NEW( EventManager );
 	m_inputSystem  = WV_NEW( InputSystem );
@@ -206,6 +207,11 @@ void wv::Application::shutdown()
 		WV_FREE( m_meshManager );
 	}
 	
+	if ( m_materialManager )
+	{
+		m_materialManager->clearPersistent();
+		WV_FREE( m_materialManager );
+	}
 	if ( m_taskSystem )
 	{
 		Debug::Print( Debug::WV_PRINT_DEBUG, "Waiting for threads\n" );
