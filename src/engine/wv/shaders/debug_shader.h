@@ -20,7 +20,7 @@ public:
 		create( sizeof( DebugMaterialData ) );
 	}
 
-	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) override
+	virtual void parseMaterialData( MaterialAsset& _material, nlohmann::json _json ) override
 	{
 		DebugMaterialData data{};
 
@@ -35,7 +35,7 @@ public:
 			};
 		}
 
-		setMaterialData( _index, &data );
+		setMaterialData( _material, &data );
 	}
 };
 }

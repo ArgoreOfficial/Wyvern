@@ -191,7 +191,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 			mat.pbrData.baseColorFactor.w()
 		);
 		
-		material->shaderType->setMaterialData( material->m_materialIndex, &materialData );
+		material->shaderType->setMaterialData( *material, &materialData );
 
 		m_materials.push_back( material );
 	}

@@ -23,6 +23,11 @@ wv::TextureAsset::~TextureAsset()
 	renderer->deallocateImage( m_gpuAllocation );
 }
 
+wv::Ref<wv::TextureAsset> wv::TextureAsset::get( const std::filesystem::path& _path )
+{
+    return getApp()->getTextureManager()->get( _path );
+}
+
 wv::TextureData wv::TextureAsset::deserialize( const uint8_t* _data, size_t _size )
 {
 	TextureData textureData{};

@@ -22,17 +22,25 @@ public:
 		create( sizeof( UnlitMaterialData ) );
 	}
 
-	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) override
+	virtual void parseMaterialData( MaterialAsset& _material, nlohmann::json _json ) override
 	{
 		UnlitMaterialData data{};
 
 		auto albedo = _json[ "albedo" ];
 		if ( albedo.is_string() )
 		{
-			data.albedoIndex = 0;
 			data.albedoColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-			// get texture from albedo path
+			Ref<TextureAsset> texture = TextureAsset::get( albedo.get<std::string>() );
+			if ( texture )
+			{
+				data.albedoIndex = texture->getImageSlot();
+				_material.textureAssets.push_back( texture );
+			}
+			else
+			{
+				data.albedoIndex = 0;
+			}
 		}
 		else if ( albedo.is_array() )
 		{
@@ -45,7 +53,7 @@ public:
 			};
 		}
 
-		setMaterialData( _index, &data );
+		setMaterialData( _material, &data );
 	}
 };
 }

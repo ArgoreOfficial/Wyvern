@@ -2,12 +2,9 @@
 
 #include <wv/debug/log.h>
 
-#include <wv/helpers/unordered_array.hpp>
-
-#include <wv/math/vector4.h>
-
 #include <wv/read_through_cache.h>
 #include <wv/resource_id.h>
+#include <wv/slot_map.h>
 
 #include <nlohmann/json.hpp>
 
@@ -27,19 +24,19 @@ public:
 	IShader() = default;
 	virtual ~IShader();
 	
-	size_t createMaterial();
-
-	void destroyMaterial( size_t _index );
-
-	void setMaterialData( size_t _index, void* _data );
+	size_t createMaterial( WeakRef<MaterialAsset> _material );
+	void destroyMaterial( MaterialAsset& _material );
+	void setMaterialData( MaterialAsset& _material, void* _data );
 
 	void updateMaterialBuffer();
 
 	virtual void initialize() = 0;
-	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) { };
+	virtual void parseMaterialData( MaterialAsset& _material, nlohmann::json _json ) { };
 
 	wv::ResourceID getPipelineID() const { return m_pipelineID; }
 	wv::ResourceID getBufferID()   const { return m_allocatedBufferID; }
+
+	Ref<MaterialAsset> getMaterial( size_t _index ) { return m_materials.at( _index ).lock(); }
 
 protected:
 	void setDebugName( const std::string& _debugName ) { m_debugName = _debugName; }
@@ -59,8 +56,7 @@ protected:
 	void create( size_t _elementSize );
 
 private:
-	std::set<size_t> m_materialSlots;
-	size_t m_lowestSlot = 0;
+	SlotMap<WeakRef<MaterialAsset>> m_materials;
 
 	size_t m_elementSize = 0;
 	std::vector<uint8_t> m_materialData;
@@ -79,7 +75,7 @@ private:
 	size_t m_allocatedBufferSize = 0;
 };
 
-class MaterialAsset
+class MaterialAsset : public std::enable_shared_from_this<MaterialAsset>
 {
 public:
 	MaterialAsset() = default;
@@ -88,7 +84,7 @@ public:
 	~MaterialAsset()
 	{
 		if ( shaderType )
-			shaderType->destroyMaterial( m_materialIndex );
+			shaderType->destroyMaterial( *this );
 
 		shaderType = {};
 		m_materialIndex = SIZE_MAX;

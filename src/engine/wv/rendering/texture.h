@@ -25,6 +25,8 @@ public:
 	TextureAsset( const std::filesystem::path& _path );
 	~TextureAsset();
 
+	static Ref<TextureAsset> get( const std::filesystem::path& _path );
+
 	void load( const std::filesystem::path& _path ) {
 		initialize( deserialize( _path ) );
 	}

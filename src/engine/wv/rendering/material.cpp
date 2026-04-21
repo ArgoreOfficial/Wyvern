@@ -18,35 +18,29 @@ wv::IShader::~IShader()
 	m_allocatedBufferSize = 0;
 }
 
-size_t wv::IShader::createMaterial()
+size_t wv::IShader::createMaterial( WeakRef<MaterialAsset> _material )
 {
-	size_t slot = m_lowestSlot;
-	while ( m_materialSlots.contains( slot ) )
-		slot++;
-
-	m_materialSlots.insert( slot );
-	m_lowestSlot = slot;
-
+	size_t slot = m_materials.push( _material );
+	
 	// check if cpu side buffer requires resize
-	size_t requiredSize = slot * m_elementSize + m_elementSize;
+	size_t requiredSize = m_materials.size() * m_elementSize + m_elementSize;
 	if ( m_materialData.size() < requiredSize )
 		m_materialData.resize( requiredSize );
 
 	return slot;
 }
 
-void wv::IShader::destroyMaterial( size_t _index )
+void wv::IShader::destroyMaterial( MaterialAsset& _material )
 {
-	if ( !m_materialSlots.contains( _index ) )
+	if ( !m_materials.contains( _material.m_materialIndex ) )
 		return;
 
-	m_materialSlots.erase( _index );
-	m_lowestSlot = wv::Math::min( m_lowestSlot, _index );
+	m_materials.erase( _material.m_materialIndex );
 }
 
-void wv::IShader::setMaterialData( size_t _index, void* _data )
+void wv::IShader::setMaterialData( MaterialAsset& _material, void* _data )
 {
-	size_t offset = _index * m_elementSize;
+	size_t offset = _material.m_materialIndex * m_elementSize;
 	std::memcpy( m_materialData.data() + offset, _data, m_elementSize );
 }
 
@@ -103,15 +97,28 @@ wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
 	auto fs = app->getFileSystem();
 
 	std::ifstream jfile{ fs->getFullPath( _path ) };
+	if ( !jfile )
+	{
+		WV_LOG_ERROR( "Failed to open material file %s\n", _path.string().c_str() );
+		return;
+	}
+
 	nlohmann::json j = nlohmann::json::parse( jfile );
 
 	std::string shaderName;
 	j[ "shader" ].get_to( shaderName );
 
 	shaderType = app->getShaderManager()->get( shaderName );
-	m_materialIndex = shaderType->createMaterial();
 
-	shaderType->parseMaterialData( m_materialIndex, j[ "data" ] );
+	if ( !shaderType )
+	{
+		WV_LOG_ERROR( "'%s' is not a valid shader type\n", shaderName.c_str() );
+		return;
+	}
+
+	m_materialIndex = shaderType->createMaterial( weak_from_this() );
+
+	shaderType->parseMaterialData( *this, j[ "data" ] );
 }
 
 wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& _path )

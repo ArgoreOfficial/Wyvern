@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wv/rendering/material.h>
+#include <wv/rendering/texture.h>
 
 namespace wv {
 
@@ -22,7 +23,7 @@ public:
 		create( sizeof( LitMaterialData ) );
 	}
 
-	virtual void parseMaterialData( size_t _index, nlohmann::json _json ) override
+	virtual void parseMaterialData( MaterialAsset& _material, nlohmann::json _json ) override
 	{
 		LitMaterialData data{};
 
@@ -30,9 +31,17 @@ public:
 		if ( albedo.is_string() )
 		{
 			data.albedoColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-			data.albedoIndex = 0;
 
-			// get texture from albedo path
+			Ref<TextureAsset> texture = TextureAsset::get( albedo.get<std::string>() );
+			if ( texture )
+			{
+				data.albedoIndex = texture->getImageSlot();
+				_material.textureAssets.push_back( texture );
+			}
+			else
+			{
+				data.albedoIndex = 0;
+			}
 		}
 		else if ( albedo.is_array() )
 		{
@@ -45,7 +54,7 @@ public:
 			};
 		}
 
-		setMaterialData( _index, &data );
+		setMaterialData( _material, &data );
 	}
 };
 
