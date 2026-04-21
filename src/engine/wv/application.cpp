@@ -24,6 +24,10 @@
 
 #include <wv/reflection/reflection.h>
 
+#include <wv/shaders/lit_shader.h>
+#include <wv/shaders/unlit_shader.h>
+#include <wv/shaders/debug_shader.h>
+
 #include <wv/systems/mesh_render_system.h>
 #include <wv/systems/camera_manager_system.h>
 #include <wv/systems/orbit_controller_system.h>
@@ -205,7 +209,6 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_world->dispatchUpdateMessage( UpdateEvent_initialize );
 	m_world->updateComponentChanges();
 	
-
 	// Update material buffers, as new materials have likely been loaded during world creation
 
 	m_shaderManager->updateBuffers();

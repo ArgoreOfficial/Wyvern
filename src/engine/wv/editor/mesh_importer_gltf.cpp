@@ -1,11 +1,14 @@
 #include "mesh_importer_gltf.h"
 
 #include <wv/application.h>
+
+#include <wv/filesystem/file_system.h>
+
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/texture.h>
 
-#include <wv/filesystem/file_system.h>
+#include <wv/shaders/lit_shader.h>
 
 #include <wv/thread/task_system.h>
 #include <wv/debug/timer.h>
@@ -126,7 +129,6 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 	for ( fastgltf::Material& mat : asset.materials )
 	{
 		Ref<MaterialAsset> material = m_materialManager->get( shaderName );
-		
 		LitShader::LitMaterialData materialData{};
 		
 		/*
