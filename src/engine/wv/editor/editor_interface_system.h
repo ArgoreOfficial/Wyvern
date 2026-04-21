@@ -33,15 +33,21 @@ private:
 
 	void reloadMaterials();
 
+	void renderMaterialView();
+
 	Entity* m_editorCameraEntity  = nullptr;
 	Entity* m_runtimeCameraEntity = nullptr;
 
 	bool m_showSystemsMenu = false;
+	bool m_showMaterialMenu = true;
+
 	bool m_hasEnabledFirstFrame = false;
 
 	double m_timeSinceFPSUpdate = 0.0;
 	size_t m_framesSinceFPSUpdate = 0;
 	double m_averageFPS = 0.0;
+
+	int m_currentMaterialViewSelected = 0;
 };
 
 }

@@ -85,6 +85,9 @@ void wv::EditorInterfaceSystem::onEditorRender()
 		ImGui::End();
 	}
 
+	if ( m_showMaterialMenu )
+		renderMaterialView();
+
 #endif
 }
 
@@ -148,7 +151,7 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 	{
 		if ( ImGui::BeginMenuBar() )
 		{
-			if ( ImGui::Button( "Runtime" ) )
+			if ( ImGui::ArrowButton( "Runtime", ImGuiDir_Right ) )
 			{
 				world->toggleEditorState();
 				updateEditorState();
@@ -156,6 +159,8 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 			
 			if ( ImGui::Button( "Systems" ) )
 				m_showSystemsMenu = !m_showSystemsMenu;
+			if ( ImGui::Button( "Materials" ) )
+				m_showMaterialMenu = !m_showMaterialMenu;
 
 			//drawBuildWindow();
 			//m_runComboButton.draw();
@@ -188,4 +193,25 @@ void wv::EditorInterfaceSystem::reloadMaterials()
 
 	for ( Ref<MaterialAsset> mat : materials )
 		mat->reload();
+}
+
+void wv::EditorInterfaceSystem::renderMaterialView()
+{
+	auto materials = wv::getApp()->getMaterialManager()->getManaged();
+	std::vector<std::string> materialNames;
+	materialNames.resize( materials.size() );
+
+	std::vector<const char*> materialNamesCstr;
+
+	size_t i = 0;
+	for ( Ref<MaterialAsset> mat : materials )
+	{
+		materialNames[ i ] = mat->path.string();
+		materialNamesCstr.push_back( materialNames[ i ].c_str());
+		i++;
+	}
+	
+	if ( ImGui::Begin( "Material View" ) )
+		ImGui::ListBox( "Materials", &m_currentMaterialViewSelected, materialNamesCstr.data(), materialNamesCstr.size() );
+	ImGui::End();
 }
