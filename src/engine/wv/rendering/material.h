@@ -96,6 +96,8 @@ public:
 
 	static Ref<MaterialAsset> get( const std::filesystem::path& _path );
 
+	void reload();
+
 	std::filesystem::path path;
 
 	Ref<IShader> shaderType = nullptr;

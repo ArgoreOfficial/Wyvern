@@ -127,3 +127,37 @@ wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& 
 {
 	return getApp()->getMaterialManager()->get( _path );
 }
+
+void wv::MaterialAsset::reload()
+{
+	if ( path.empty() )
+		return;
+
+	auto app = wv::getApp();
+	auto fs = app->getFileSystem();
+
+	std::ifstream jfile{ fs->getFullPath( path ) };
+	if ( !jfile )
+		return;
+	
+	nlohmann::json j = nlohmann::json::parse( jfile );
+
+	std::string shaderName;
+	j[ "shader" ].get_to( shaderName );
+
+	Ref<IShader> newShaderType = app->getShaderManager()->get( shaderName );
+
+	if ( !newShaderType )
+	{
+		WV_LOG_ERROR( "'%s' is not a valid shader type\n", shaderName.c_str() );
+		return;
+	}
+	else
+	{
+		shaderType->destroyMaterial( *this );
+		shaderType = newShaderType;
+	}
+
+	m_materialIndex = shaderType->createMaterial();
+	shaderType->parseMaterialData( *this, j[ "data" ] );
+}

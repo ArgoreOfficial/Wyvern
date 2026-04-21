@@ -7,6 +7,8 @@
 #include <wv/systems/camera_manager_system.h>
 #include <wv/editor/editor_camera_system.h>
 
+#include <wv/rendering/material.h>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -126,8 +128,7 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 	{
 		if ( ImGui::BeginMenu( "Tools" ) )
 		{
-//			if ( ImGui::MenuItem( "World" ) )
-//				m_showRenderWorldWindow = !m_showRenderWorldWindow;
+			if ( ImGui::MenuItem( "Reload Materials" ) ) reloadMaterials();
 			ImGui::EndMenu();
 		}
 	}
@@ -179,4 +180,12 @@ void wv::EditorInterfaceSystem::renderStatusBar()
 		}
 	}
 	ImGui::End();
+}
+
+void wv::EditorInterfaceSystem::reloadMaterials()
+{
+	auto materials = wv::getApp()->getMaterialManager()->getManaged();
+
+	for ( Ref<MaterialAsset> mat : materials )
+		mat->reload();
 }

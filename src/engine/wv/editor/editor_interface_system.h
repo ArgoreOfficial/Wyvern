@@ -31,6 +31,8 @@ private:
 	void renderSecondaryMenuBar();
 	void renderStatusBar();
 
+	void reloadMaterials();
+
 	Entity* m_editorCameraEntity  = nullptr;
 	Entity* m_runtimeCameraEntity = nullptr;
 
