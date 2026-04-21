@@ -158,6 +158,7 @@ void wv::MaterialAsset::reload()
 		shaderType = newShaderType;
 	}
 
+	textureAssets.clear();
 	m_materialIndex = shaderType->createMaterial();
 	shaderType->parseMaterialData( *this, j[ "data" ] );
 }

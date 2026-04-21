@@ -14,6 +14,7 @@ wv::TextureAsset::TextureAsset( const uint8_t* _data, size_t _size )
 
 wv::TextureAsset::TextureAsset( const std::filesystem::path& _path )
 {
+	m_path = _path;
 	initialize( deserialize( _path ) );
 }
 

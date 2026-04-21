@@ -41,6 +41,8 @@ public:
 
 	const TextureData& getData() const { return m_data; }
 
+	std::filesystem::path getPath() const { return m_path; }
+
 private:
 	std::filesystem::path m_path;
 
