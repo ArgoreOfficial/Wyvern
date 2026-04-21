@@ -755,6 +755,68 @@ void wv::Renderer::deallocateImage( ResourceID _image )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+wv::ResourceID wv::Renderer::createGPUBuffer( size_t _size, const char* _debugName )
+{
+	AllocatedBuffer buffer = createBuffer(
+		_size,
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+		VMA_MEMORY_USAGE_GPU_ONLY,
+		_debugName
+	);
+
+	size_t idx = m_bufferAllocations.push( buffer );
+
+	return ResourceID( (uint32_t)idx );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Renderer::destroyGPUBuffer( ResourceID _buffer )
+{
+	size_t idx = (size_t)_buffer.value;
+	AllocatedBuffer& buffer = m_bufferAllocations.at( idx );
+	destroyBuffer( buffer );
+	m_bufferAllocations.erase( idx );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void wv::Renderer::uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size, size_t _offset )
+{
+	std::scoped_lock lock{ m_mtx };
+
+	size_t idx = (size_t)_buffer.value;
+
+	if ( !m_bufferAllocations.contains( idx ) )
+	{
+		WV_LOG_ERROR( "Buffer does not exist\n" );
+		return;
+	}
+
+	AllocatedBuffer allocation = m_bufferAllocations.at( idx );
+	VkBuffer buffer = allocation.buffer;
+
+	// Upload buffers
+
+	VkDeviceSize stagingSize = _size;
+	VirtualAllocSpan staging = m_stagingRing.allocate( stagingSize );
+	WV_ASSERT( staging.size == _size );
+
+	memcpy( staging.mapping, _data, stagingSize ); // copy buffer to staging
+	
+	immediateCmdSubmit( [ = ]( VkCommandBuffer _cmd )
+						{
+							VkBufferCopy bufferCopy{ 0 };
+							bufferCopy.dstOffset = 0;
+							bufferCopy.srcOffset = staging.offset;
+							bufferCopy.size = stagingSize;
+
+							vkCmdCopyBuffer( _cmd, staging.buffer, buffer, 1, &bufferCopy );
+						} );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 bool wv::Renderer::initVulkan()
 {
 	volkInitialize();

@@ -14,10 +14,11 @@
 #include <wv/rendering/command_buffer.h>
 #include <wv/rendering/pipeline_manager.h>
 #include <wv/rendering/image_manager.h>
+#include <wv/rendering/vulkan.h>
 
 #include <wv/resource_id.h>
 
-#include <wv/rendering/vulkan.h>
+#include <wv/slot_map.h>
 #include <vk_mem_alloc.h>
 
 #include <functional>
@@ -212,6 +213,10 @@ public:
 	ResourceID allocateImage( const void* _data, int _width, int _height, bool _mipmapped );
 	void deallocateImage( ResourceID _image );
 
+	ResourceID createGPUBuffer( size_t _size, const char* _debugName = nullptr );
+	void destroyGPUBuffer( ResourceID _buffer );
+	void uploadGPUBuffer( ResourceID _buffer, void* _data, size_t _size, size_t _offset );
+
 	uint32_t storeImage( ResourceID _imageID, SamplerState _filter ) {
 		std::scoped_lock lock{ m_mtx };
 
@@ -342,6 +347,7 @@ protected:
 	ResourceID m_debugImage{};
 	
 	unordered_array<ResourceID, MeshAllocation> m_meshAllocations;
+	wv::SlotMap<AllocatedBuffer> m_bufferAllocations;
 
 	// Debug drawing
 
