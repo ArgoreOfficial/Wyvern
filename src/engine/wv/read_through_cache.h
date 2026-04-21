@@ -36,6 +36,14 @@ public:
 		return ref;
 	}
 
+	std::vector<Ref<Ty>> getManaged() const {
+		std::vector<Ref<Ty>> vec{};
+		for ( auto& [k, v] : m_managed )
+			if ( !v.expired() )
+				vec.push_back( v.lock() );
+		return vec;
+	}
+
 	void add( const std::filesystem::path& _path, const Ref<Ty>& _ref )
 	{
 		std::scoped_lock lock( m_mtx );
