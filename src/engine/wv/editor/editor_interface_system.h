@@ -48,6 +48,7 @@ private:
 	double m_averageFPS = 0.0;
 
 	int m_currentMaterialViewSelected = 0;
+	int m_currentMaterialViewTextureSelected = 0;
 };
 
 }

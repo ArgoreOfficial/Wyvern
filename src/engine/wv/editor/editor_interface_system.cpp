@@ -8,6 +8,7 @@
 #include <wv/editor/editor_camera_system.h>
 
 #include <wv/rendering/material.h>
+#include <wv/rendering/texture.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -159,6 +160,7 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 			
 			if ( ImGui::Button( "Systems" ) )
 				m_showSystemsMenu = !m_showSystemsMenu;
+			
 			if ( ImGui::Button( "Materials" ) )
 				m_showMaterialMenu = !m_showMaterialMenu;
 
@@ -199,19 +201,38 @@ void wv::EditorInterfaceSystem::renderMaterialView()
 {
 	auto materials = wv::getApp()->getMaterialManager()->getManaged();
 	std::vector<std::string> materialNames;
-	materialNames.resize( materials.size() );
+	materialNames.reserve( materials.size() );
 
 	std::vector<const char*> materialNamesCstr;
 
 	size_t i = 0;
 	for ( Ref<MaterialAsset> mat : materials )
 	{
-		materialNames[ i ] = mat->path.string();
-		materialNamesCstr.push_back( materialNames[ i ].c_str());
-		i++;
+		materialNames.push_back( mat->path.string() );
+		materialNamesCstr.push_back( materialNames.back().c_str() );
 	}
 	
 	if ( ImGui::Begin( "Material View" ) )
+	{
 		ImGui::ListBox( "Materials", &m_currentMaterialViewSelected, materialNamesCstr.data(), materialNamesCstr.size() );
+
+		auto& textureAssets = materials[ m_currentMaterialViewSelected ]->textureAssets;
+		std::vector<std::string> textureNames;
+		textureNames.reserve( textureAssets.size() );
+
+		std::vector<const char*> textureNamesCstr;
+
+		for ( Ref<TextureAsset> tex : textureAssets )
+		{
+			textureNames.push_back( tex->getPath().string() );
+			textureNamesCstr.push_back( textureNames.back().c_str() );
+		}
+
+		ImGui::ListBox( "Textures", &m_currentMaterialViewTextureSelected, textureNamesCstr.data(), textureNamesCstr.size() );
+
+	}
+
+
+
 	ImGui::End();
 }
