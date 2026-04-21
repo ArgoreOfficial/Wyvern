@@ -16,7 +16,6 @@
 #include <unordered_map>
 #include <filesystem>
 
-
 namespace wv {
 
 class MaterialAsset;
@@ -106,9 +105,33 @@ public:
 };
 
 class MaterialManager : public ReadThroughCache<MaterialAsset> { };
-class ShaderManager : public ManagedReadThroughCache<IShader> { };
 
+class ShaderManager
+{
+public:
+	void add( const std::string& _name, Ref<IShader>& _shader ) {
+		if ( m_managed.contains( _name ) )
+		{
+			WV_LOG_ERROR( "Shader %s already exists\n", _name.c_str() );
+			return;
+		}
 
+		m_managed.insert( { _name, _shader } );
+	}
+
+	Ref<IShader> get( const std::string& _name ) const {
+		if ( m_managed.contains( _name ) )
+			return m_managed.at( _name );
+		return nullptr;
+	}
+
+	void updateBuffers() {
+		for ( auto& [k,v] : m_managed )
+			v->updateMaterialBuffer();
+	}
+
+	std::unordered_map<std::string, Ref<IShader>> m_managed;
+};
 
 
 
