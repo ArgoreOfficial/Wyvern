@@ -18,9 +18,9 @@ wv::IShader::~IShader()
 	m_allocatedBufferSize = 0;
 }
 
-size_t wv::IShader::createMaterial( WeakRef<MaterialAsset> _material )
+size_t wv::IShader::createMaterial()
 {
-	size_t slot = m_materials.push( _material );
+	size_t slot = m_materials.push( 0 );
 	
 	// check if cpu side buffer requires resize
 	size_t requiredSize = m_materials.size() * m_elementSize + m_elementSize;
@@ -116,9 +116,11 @@ wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
 		return;
 	}
 
-	m_materialIndex = shaderType->createMaterial( weak_from_this() );
+	m_materialIndex = shaderType->createMaterial();
 
 	shaderType->parseMaterialData( *this, j[ "data" ] );
+
+	path = _path;
 }
 
 wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& _path )

@@ -24,7 +24,7 @@ public:
 	IShader() = default;
 	virtual ~IShader();
 	
-	size_t createMaterial( WeakRef<MaterialAsset> _material );
+	size_t createMaterial();
 	void destroyMaterial( MaterialAsset& _material );
 	void setMaterialData( MaterialAsset& _material, void* _data );
 
@@ -35,8 +35,6 @@ public:
 
 	wv::ResourceID getPipelineID() const { return m_pipelineID; }
 	wv::ResourceID getBufferID()   const { return m_allocatedBufferID; }
-
-	Ref<MaterialAsset> getMaterial( size_t _index ) { return m_materials.at( _index ).lock(); }
 
 protected:
 	void setDebugName( const std::string& _debugName ) { m_debugName = _debugName; }
@@ -56,7 +54,7 @@ protected:
 	void create( size_t _elementSize );
 
 private:
-	SlotMap<WeakRef<MaterialAsset>> m_materials;
+	SlotMap<uint8_t> m_materials;
 
 	size_t m_elementSize = 0;
 	std::vector<uint8_t> m_materialData;
@@ -75,11 +73,15 @@ private:
 	size_t m_allocatedBufferSize = 0;
 };
 
-class MaterialAsset : public std::enable_shared_from_this<MaterialAsset>
+class MaterialAsset
 {
 public:
 	MaterialAsset() = default;
 	MaterialAsset( const std::filesystem::path& _path );
+	MaterialAsset( Ref<IShader> _shader ) {
+		shaderType = _shader;
+		m_materialIndex = shaderType->createMaterial();
+	}
 
 	~MaterialAsset()
 	{
@@ -93,6 +95,8 @@ public:
 	}
 
 	static Ref<MaterialAsset> get( const std::filesystem::path& _path );
+
+	std::filesystem::path path;
 
 	Ref<IShader> shaderType = nullptr;
 	size_t m_materialIndex = SIZE_MAX;
