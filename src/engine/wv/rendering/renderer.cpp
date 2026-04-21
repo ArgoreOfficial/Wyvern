@@ -656,13 +656,11 @@ void wv::Renderer::deallocateMesh( ResourceID _mesh )
 
 	// Push mesh allocation to frame deletion queue
 
-	m_deleteQueueRing.get().push( [ this, surface ]() {
-		destroyBuffer( surface.positionBuffer );
-		destroyBuffer( surface.indexBuffer );
+	destroyBuffer( surface.positionBuffer );
+	destroyBuffer( surface.indexBuffer );
 
-		if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
-			destroyBuffer( surface.vertexDataBuffer );
-	} );
+	if ( surface.vertexDataBuffer.buffer != VK_NULL_HANDLE )
+		destroyBuffer( surface.vertexDataBuffer );
 }
 
 void wv::Renderer::uploadMesh( ResourceID _mesh, const uint32_t* _indices, const Vector3f* _positions, const void* _vertexData )
@@ -1322,9 +1320,13 @@ void wv::Renderer::destroyBuffer( const AllocatedBuffer& _buffer )
 {
 	ZoneScoped;
 
-	std::scoped_lock lock{ m_mtx };
+	VkBuffer buffer = _buffer.buffer;
+	VmaAllocation allocation = _buffer.allocation;
 
-	vmaDestroyBuffer( m_allocator, _buffer.buffer, _buffer.allocation );
+	m_deleteQueueRing.get().push( [=]()
+		{
+			vmaDestroyBuffer( m_allocator, buffer, allocation );
+		} );
 }
 
 void wv::Renderer::storeImage( ResourceID _imageID, VkSampler _sampler, uint32_t _at )
