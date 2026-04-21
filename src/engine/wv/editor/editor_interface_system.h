@@ -33,6 +33,7 @@ private:
 
 	void reloadMaterials();
 
+	void renderEntityView();
 	void renderMaterialView();
 
 	Entity* m_editorCameraEntity  = nullptr;
@@ -40,6 +41,7 @@ private:
 
 	bool m_showSystemsMenu = false;
 	bool m_showMaterialMenu = true;
+	bool m_showEntitiesMenu = true;
 
 	bool m_hasEnabledFirstFrame = false;
 
@@ -47,6 +49,7 @@ private:
 	size_t m_framesSinceFPSUpdate = 0;
 	double m_averageFPS = 0.0;
 
+	int m_currentSelectedEntity = 0;
 	int m_currentMaterialViewSelected = 0;
 	int m_currentMaterialViewTextureSelected = 0;
 };

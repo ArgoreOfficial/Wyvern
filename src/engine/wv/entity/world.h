@@ -143,6 +143,13 @@ public:
 	// Sets the editor/runtime state
 	void setEditorState( bool _editorState ) { m_isInEditorState = _editorState; }
 
+	std::vector<Entity*> getActiveEntities() const {
+		std::vector<Entity*> vec;
+		for ( auto& e : m_entities )
+			vec.push_back( e );
+		return vec;
+	}
+
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }

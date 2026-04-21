@@ -89,6 +89,8 @@ void wv::EditorInterfaceSystem::onEditorRender()
 	if ( m_showMaterialMenu )
 		renderMaterialView();
 
+	if ( m_showEntitiesMenu )
+		renderEntityView();
 #endif
 }
 
@@ -158,12 +160,14 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 				updateEditorState();
 			}
 			
+			if ( ImGui::Button( "Entities" ) )
+				m_showEntitiesMenu = !m_showEntitiesMenu;
+
 			if ( ImGui::Button( "Systems" ) )
 				m_showSystemsMenu = !m_showSystemsMenu;
 			
 			if ( ImGui::Button( "Materials" ) )
 				m_showMaterialMenu = !m_showMaterialMenu;
-
 			//drawBuildWindow();
 			//m_runComboButton.draw();
 			ImGui::EndMenuBar();
@@ -195,6 +199,27 @@ void wv::EditorInterfaceSystem::reloadMaterials()
 
 	for ( Ref<MaterialAsset> mat : materials )
 		mat->reload();
+}
+
+void wv::EditorInterfaceSystem::renderEntityView()
+{
+	if( ImGui::Begin( "Entities" ) )
+	{
+		auto entities = wv::getApp()->getWorld()->getActiveEntities();
+		std::vector<std::string> entityNames;
+		std::vector<const char*> entityNamesCstr;
+
+		entityNames.reserve( entities.size() );
+
+		for ( Entity* e : entities )
+		{
+			entityNames.push_back( e->getName() );
+			entityNamesCstr.push_back( entityNames.back().c_str());
+		}
+		
+		ImGui::ListBox( "Entities", &m_currentSelectedEntity, entityNamesCstr.data(), entityNamesCstr.size() );
+	}
+	ImGui::End();
 }
 
 void wv::EditorInterfaceSystem::renderMaterialView()
