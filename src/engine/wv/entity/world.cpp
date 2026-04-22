@@ -157,7 +157,7 @@ wv::World::World()
 
 wv::World::~World()
 {
-	destroyAllEntities( true );
+	unload( true );
 
 	WV_FREE( m_serializer );
 	WV_FREE( m_ecsEngine );
@@ -166,7 +166,7 @@ wv::World::~World()
 		WV_FREE( m_viewport );
 }
 
-void wv::World::destroyAllEntities( bool _destroyPersistent )
+void wv::World::unload( bool _destroyPersistent )
 {
 	if ( m_entities.empty() )
 		return;
@@ -190,6 +190,8 @@ void wv::World::destroyAllEntities( bool _destroyPersistent )
 	}
 
 	m_entities = newEntities;
+
+	m_path = "";
 }
 
 wv::Entity* wv::World::createEntity( const std::string& _name )
@@ -199,7 +201,7 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 	return e;
 }
 
-void wv::World::loadWorld( const std::filesystem::path& _path )
+void wv::World::load( const std::filesystem::path& _path )
 {
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getFullPath( _path );
 	std::fstream stream{ fullpath };
@@ -243,7 +245,7 @@ void wv::World::loadWorld( const std::filesystem::path& _path )
 
 }
 
-void wv::World::saveWorld( const std::filesystem::path& _path )
+void wv::World::save( const std::filesystem::path& _path )
 {
 	m_path = _path;
 
@@ -293,11 +295,6 @@ void wv::World::saveWorld( const std::filesystem::path& _path )
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
 	std::ofstream stream{ fullpath };
 	stream << json.dump( 2 );
-}
-
-void wv::World::destroyWorld()
-{
-	destroyAllEntities( false );
 }
 
 void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )

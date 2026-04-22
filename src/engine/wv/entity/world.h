@@ -50,7 +50,7 @@ public:
 	World();
 	virtual ~World();
 
-	void destroyAllEntities( bool _destroyPersistent );
+	void unload( bool _destroyPersistent );
 	
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
@@ -65,9 +65,13 @@ public:
 		return nullptr;
 	}
 
-	void loadWorld( const std::filesystem::path& _path );
-	void saveWorld( const std::filesystem::path& _path );
-	void destroyWorld();
+	void load( const std::filesystem::path& _path );
+	void save( const std::filesystem::path& _path );
+	void reload() {
+		std::filesystem::path path = m_path;
+		unload( false );
+		load( path );
+	}
 
 	std::filesystem::path getPath() const { return m_path; }
 

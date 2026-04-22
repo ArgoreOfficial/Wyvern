@@ -90,5 +90,5 @@ void GameWorld::onSceneCreate()
 	addSystem<PlayerMoveSystem>();
 	
 	// Load World
-	loadWorld( "worlds/test_world.world" );
+	load( "worlds/test_world.world" );
 }

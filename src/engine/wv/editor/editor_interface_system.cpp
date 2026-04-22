@@ -115,14 +115,10 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 		if ( ImGui::BeginMenu( "File" ) )
 		{
 			if ( ImGui::MenuItem( "Save" ) )
-				world->saveWorld( "worlds/test_world.world" );
+				world->save( "worlds/test_world.world" );
 			
 			if ( ImGui::MenuItem( "Reload" ) )
-			{
-				std::filesystem::path path = world->getPath();
-				world->destroyWorld();
-				world->loadWorld( path );
-			}
+				world->reload();
 			
 			//
 			ImGui::EndMenu();
@@ -151,7 +147,13 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 		if ( ImGui::BeginMenuBar() )
 		{
 			if ( ImGui::ArrowButton( "Runtime", ImGuiDir_Right ) )
+			{
 				world->toggleEditorState();
+				if ( world->isEditorState() )
+				{
+					world->reload();
+				}
+			}
 			
 			if ( ImGui::Button( "Entities" ) )
 				m_showEntitiesMenu = !m_showEntitiesMenu;

@@ -183,6 +183,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
 	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
 	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
+	editorActionGroup->bindTriggerAction( "MoveObject", "Keyboard", wv::SCANCODE_G );
+	
 	editorActionGroup->disable(); // default off
 
 	m_world->registerComponentType<EditorObjectComponent>();
@@ -221,7 +223,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
-	m_world->destroyAllEntities( true );
+	m_world->unload( true );
 	m_world->dispatchUpdateMessage( UpdateEvent_shutdown );
 
 	m_renderer->waitForRenderer();
