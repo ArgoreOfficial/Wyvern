@@ -45,10 +45,14 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 			} );
 	}
 
+	if ( isRelativeMotion )
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+	else
+		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+
 	while ( SDL_PollEvent( &ev ) )
 	{
 		bool handled = false;
-
 	#ifdef WV_SUPPORT_IMGUI
 		ImGui_ImplSDL3_ProcessEvent( &ev );
 	#endif
@@ -84,7 +88,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 		case SDL_EVENT_MOUSE_WHEEL:
 		{
 		#ifdef WV_SUPPORT_IMGUI
-			if ( ImGui::GetIO().WantCaptureMouse )
+			if ( !isRelativeMotion && ImGui::GetIO().WantCaptureMouse )
 				break;
 		#endif
 
@@ -103,7 +107,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 		{
 		#ifdef WV_SUPPORT_IMGUI
-			if ( ImGui::GetIO().WantCaptureMouse )
+			if ( !isRelativeMotion && ImGui::GetIO().WantCaptureMouse )
 				break;
 		#endif
 
