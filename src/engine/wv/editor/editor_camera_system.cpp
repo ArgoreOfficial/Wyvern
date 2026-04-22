@@ -78,7 +78,7 @@ void wv::EditorCameraSystem::onUpdate()
 			editorComp.look = {};
 			editorComp.move *= frictionDecay;
 
-			if ( !cameraComp.active )
+			if ( !editorComp.active )
 				continue;
 
 			if ( isLockedIn )

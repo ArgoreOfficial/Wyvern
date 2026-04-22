@@ -8,6 +8,7 @@ namespace wv {
 
 struct EditorCameraComponent
 {
+	bool active = false;
 	Vector2f look{ 0.0f, 0.0f };
 	Vector2f move{ 0.0f, 0.0f };
 };

@@ -21,6 +21,7 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
 	m_editorCameraEntity->setShouldSerialize( false );
+	m_editorCameraEntity->setIsPersistent( true );
 
 	world->addComponent<wv::CameraComponent>( m_editorCameraEntity, { .active = false } );
 	world->addComponent<wv::EditorCameraComponent>( m_editorCameraEntity, {} );
@@ -31,13 +32,22 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 void wv::EditorInterfaceSystem::onUpdate()
 {
+	World* world = getApp()->getWorld();
+	
 	if ( !m_hasEnabledFirstFrame )
 	{
-		getApp()->getWorld()->toggleEditorState();
-		updateEditorState();
-
+		world->toggleEditorState();
 		m_hasEnabledFirstFrame = true;
 	}
+
+	CameraManagerSystem* cameraManagerSystem = world->getSystem<CameraManagerSystem>();
+
+	bool editorState = world->isEditorState();
+
+	auto& comp = world->getComponent<EditorCameraComponent>( m_editorCameraEntity );
+	comp.active = editorState;
+
+	cameraManagerSystem->setCameraOverride( editorState ? m_editorCameraEntity : nullptr );
 
 	m_timeSinceFPSUpdate += deltaTime;
 	m_framesSinceFPSUpdate++;
@@ -96,40 +106,6 @@ void wv::EditorInterfaceSystem::onEditorRender()
 #endif
 }
 
-
-void wv::EditorInterfaceSystem::updateEditorState()
-{
-	World* world = getApp()->getWorld();
-
-	CameraManagerSystem* cameraManagerSystem = world->getSystem<CameraManagerSystem>();
-	CameraComponent& editorCameraComp = world->getComponent<CameraComponent>( m_editorCameraEntity );
-
-	if ( world->isEditorState() )
-	{
-		// save previous active camera
-		const std::vector<Entity*>& activeCameras = cameraManagerSystem->getActiveCameras();
-		if ( !activeCameras.empty() )
-		{
-			m_runtimeCameraEntity = activeCameras[ 0 ];
-
-			CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
-			runtimeCameraComponent.active = false;
-		}
-
-		editorCameraComp.active = true;
-	}
-	else
-	{
-		if ( m_runtimeCameraEntity )
-		{
-			CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
-			runtimeCameraComponent.active = true;
-		}
-
-		editorCameraComp.active = false;
-	}
-}
-
 void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
 	World* world = getApp()->getWorld();
@@ -139,23 +115,16 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 		if ( ImGui::BeginMenu( "File" ) )
 		{
 			if ( ImGui::MenuItem( "Save" ) )
+				world->saveWorld( "worlds/test_world.world" );
+			
+			if ( ImGui::MenuItem( "Reload" ) )
 			{
-				bool editorState = world->isEditorState(); // if we're in editor state, we need to make the runtime camera active, otherwise it gets saved as off
-
-				if ( editorState && m_runtimeCameraEntity )
-				{
-					CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
-					runtimeCameraComponent.active = true;
-				}
-
-				getApp()->getWorld()->saveWorld( "worlds/test_world.world" );
-
-				if ( editorState && m_runtimeCameraEntity )
-				{
-					CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
-					runtimeCameraComponent.active = false;
-				}
+				std::filesystem::path path = world->getPath();
+				world->destroyWorld();
+				world->loadWorld( path );
 			}
+			
+			//
 			ImGui::EndMenu();
 		}
 
@@ -182,10 +151,7 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 		if ( ImGui::BeginMenuBar() )
 		{
 			if ( ImGui::ArrowButton( "Runtime", ImGuiDir_Right ) )
-			{
 				world->toggleEditorState();
-				updateEditorState();
-			}
 			
 			if ( ImGui::Button( "Entities" ) )
 				m_showEntitiesMenu = !m_showEntitiesMenu;

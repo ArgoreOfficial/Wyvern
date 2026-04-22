@@ -18,6 +18,7 @@ void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
 
 void wv::CameraManagerSystem::onInternalCameraUpdate()
 {
+	Entity* cameraToUpdate = nullptr;
 	int numActiveCameras = 0;
 
 	m_activeCameras.clear();
@@ -32,29 +33,37 @@ void wv::CameraManagerSystem::onInternalCameraUpdate()
 			if ( !cameras[ i ].active )
 				continue;
 			
-			if ( m_activeCameras.empty() ) // only update the first available
-				updateCamera( entities[ i ], cameras[ i ] );
-			
 			m_activeCameras.push_back( entities[ i ] );
 		}
 	}
 	
-	if ( m_activeCameras.empty() )
+	if ( !m_activeCameras.empty() )
+		cameraToUpdate = m_activeCameras[ 0 ];
+	else
 	{
 		// no active cameras
-		
+
 		if ( getArchetypes().empty() )
 		{
 			WV_LOG_ERROR( "No Camera\n" );
 			return;
 		}
-		
-		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
-		Entity*          entity = getArchetypes()[ 0 ]->getEntities()[ 0 ];
-		
-		camera.active = true;
 
-		updateCamera( entity, camera );
+		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
+		cameraToUpdate = getArchetypes()[ 0 ]->getEntities()[ 0 ];
+
+		camera.active = true;
+	}
+
+	if ( m_cameraOverride )
+		cameraToUpdate = m_cameraOverride;
+	
+	if( cameraToUpdate )
+	{
+		size_t idx = cameraToUpdate->archetype->getEntityIndex( cameraToUpdate );
+		CameraComponent& camera = cameraToUpdate->archetype->getComponents<CameraComponent>()[ idx ];
+		
+		updateCamera( cameraToUpdate, camera );
 	}
 }
 

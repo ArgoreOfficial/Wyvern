@@ -25,8 +25,6 @@ public:
 	virtual void onEditorRender() override;
 
 private:
-	void updateEditorState();
-
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
 	void renderStatusBar();
@@ -37,8 +35,7 @@ private:
 	void renderMaterialView();
 
 	Entity* m_editorCameraEntity  = nullptr;
-	Entity* m_runtimeCameraEntity = nullptr;
-
+	
 	bool m_showSystemsMenu = false;
 	bool m_showMaterialMenu = true;
 	bool m_showEntitiesMenu = true;
