@@ -134,6 +134,12 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
 	if ( ImGui::BeginMainMenuBar() )
 	{
+		if ( ImGui::BeginMenu( "File" ) )
+		{
+			if ( ImGui::MenuItem( "Save" ) ) getApp()->getWorld()->saveWorld( "worlds/test_world.world" );
+			ImGui::EndMenu();
+		}
+
 		if ( ImGui::BeginMenu( "Tools" ) )
 		{
 			if ( ImGui::MenuItem( "Reload Materials" ) ) reloadMaterials();
