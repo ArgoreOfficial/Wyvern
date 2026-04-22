@@ -51,7 +51,7 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 	fastgltf::Expected<fastgltf::Asset> load = parser.loadGltf( data.get(), fullpath.parent_path(), gltfOptions );
 	if ( load.error() != fastgltf::Error::None )
 	{
-		WV_LOG_ERROR( "Failed to parse model%s\n", _path.string().c_str() );
+		WV_LOG_ERROR( "Failed to parse model %s\n", _path.string().c_str() );
 		return;
 	}
 
@@ -77,8 +77,12 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 			parseMesh( asset, _options );
 			
 			// serialize
-			m_meshAsset->m_path = _path;
-			m_meshAsset->serialize( fullpath );
+
+			std::filesystem::path wvbpath = _path; wvbpath.replace_extension( ".wvb" );
+			std::filesystem::path fullwvbpath = fullpath; fullwvbpath.replace_extension( ".wvb" );
+
+			m_meshAsset->m_path = wvbpath;
+			m_meshAsset->serialize( fullwvbpath );
 		} );
 	}
 

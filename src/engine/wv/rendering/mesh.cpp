@@ -31,10 +31,7 @@ wv::Ref<wv::MeshAsset> wv::MeshAsset::get( const std::filesystem::path& _path )
 
 void wv::MeshAsset::serialize( const std::filesystem::path& _path )
 {
-	std::filesystem::path bindataPath = _path;
-	bindataPath.replace_extension( ".wvb" );
-
-	std::ofstream stream{ bindataPath, std::ios::binary };
+	std::ofstream stream{ _path, std::ios::binary };
 	// std::ios::app | 
 	size_t primCount   = m_surface.primitives.size();
 	size_t vertexCount = m_surface.vertexCount();
