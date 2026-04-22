@@ -53,13 +53,23 @@ private:
 	double m_averageFPS = 0.0;
 
 	wv::ActionGroup* m_editorActionGroup = nullptr;
+	
 	wv::ActionID m_moveObjectActionID = {};
+	wv::ActionID m_moveObjectXActionID = {};
+	wv::ActionID m_moveObjectYActionID = {};
+	wv::ActionID m_moveObjectZActionID = {};
+
+	wv::ActionID m_shiftActionID = {};
 	wv::ActionID m_mouseLeftActionID = {};
 	wv::ActionID m_mouseRightActionID = {};
 
 	Entity* m_selectedEntity = nullptr;
 	bool m_isMovingObject = false;
+	int m_lockMovementAxis = -1;
 	
+	bool m_leftShiftState = false;
+
+	wv::Vector2f m_accumulatedMouseMove;
 	wv::Vector3f m_moveObjectStartPosition;
 
 	int m_currentSelectedEntityIndex = 0;

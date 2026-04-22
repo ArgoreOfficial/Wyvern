@@ -19,9 +19,16 @@ void wv::EditorInterfaceSystem::onInitialize()
 	setEditorRenderEnabled( true );
 
 	m_editorActionGroup  = updateContext->inputSystem->getActionGroup( "Editor" );
+	
 	m_moveObjectActionID = m_editorActionGroup->getTriggerActionID( "MoveObject" );
+	m_moveObjectXActionID = m_editorActionGroup->getTriggerActionID( "MoveObjectX" );
+	m_moveObjectYActionID = m_editorActionGroup->getTriggerActionID( "MoveObjectY" );
+	m_moveObjectZActionID = m_editorActionGroup->getTriggerActionID( "MoveObjectZ" );
+	
 	m_mouseLeftActionID  = m_editorActionGroup->getTriggerActionID( "MouseLeft" );
 	m_mouseRightActionID = m_editorActionGroup->getTriggerActionID( "MouseRight" );
+
+	m_shiftActionID = m_editorActionGroup->getValueActionID( "ShiftLeft" );
 
 	World* world = getApp()->getWorld();
 
@@ -87,6 +94,12 @@ void wv::EditorInterfaceSystem::onUpdate()
 		
 		if ( ae.actionID == m_mouseRightActionID )
 			if ( m_isMovingObject ) endMoveObject( false );
+
+		if ( ae.actionID == m_moveObjectXActionID && ae.action.trigger->getValue() ) m_lockMovementAxis = 0;
+		if ( ae.actionID == m_moveObjectYActionID && ae.action.trigger->getValue() ) m_lockMovementAxis = 1;
+		if ( ae.actionID == m_moveObjectZActionID && ae.action.trigger->getValue() ) m_lockMovementAxis = 2;
+
+		if ( ae.actionID == m_shiftActionID ) m_leftShiftState = ae.action.value->getValue() > 0.001f;
 	}
 
 	if ( m_selectedEntity && m_isMovingObject )
@@ -95,11 +108,33 @@ void wv::EditorInterfaceSystem::onUpdate()
 		float dist = ( tfm.position - m_editorCameraEntity->getTransform().position ).length();
 
 		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion() / 1000.0f * dist;
-		
-		Vector3f right = m_editorCameraEntity->getTransform().right();
-		Vector3f up = m_editorCameraEntity->getTransform().up();
 
-		tfm.position += right * mouseMove.x + up * -mouseMove.y;
+		if ( m_leftShiftState )
+			mouseMove *= 0.1f;
+
+		m_accumulatedMouseMove += mouseMove;
+		switch ( m_lockMovementAxis )
+		{
+		case -1:
+		{
+			Vector3f right = m_editorCameraEntity->getTransform().right();
+			Vector3f up = m_editorCameraEntity->getTransform().up();
+
+			tfm.position = m_moveObjectStartPosition + ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y );
+		} break;
+
+		case 0:
+			tfm.position = m_moveObjectStartPosition + Vector3f{ m_accumulatedMouseMove.x, 0.0f, 0.0f };
+			break;
+
+		case 1:
+			tfm.position = m_moveObjectStartPosition + Vector3f{ 0.0f, -m_accumulatedMouseMove.y, 0.0f };
+			break;
+
+		case 2:
+			tfm.position = m_moveObjectStartPosition + Vector3f{ 0.0f, 0.0f, -m_accumulatedMouseMove.y };
+			break;
+		}
 	}
 }
 
@@ -155,6 +190,8 @@ void wv::EditorInterfaceSystem::beginMoveObject()
 	
 	app->setCursorLock( true );
 	m_moveObjectStartPosition = m_selectedEntity->getTransform().position;
+	m_lockMovementAxis = -1;
+	m_accumulatedMouseMove = {};
 }
 
 void wv::EditorInterfaceSystem::endMoveObject( bool _confirm )
