@@ -24,8 +24,13 @@ public:
 		auto it = m_managed.find( _path );
 		m_mtx.unlock();
 		
-		if ( it != m_managed.end() && !it->second.expired() )
-			return it->second.lock();
+		if ( it != m_managed.end() )
+		{
+			if ( !it->second.expired() )
+				return it->second.lock();
+			else
+				m_managed.erase( it );
+		}
 		
 		Ref<Ty> ref = std::make_shared<Ty>( _path );
 		
