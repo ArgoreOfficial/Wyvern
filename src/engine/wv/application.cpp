@@ -214,6 +214,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_shaderManager->updateBuffers();
 
+	m_world->saveWorld( "worlds/test_world.world" );
+
 	return true;
 }
 

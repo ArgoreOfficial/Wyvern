@@ -4,11 +4,14 @@
 #include <wv/input/input_system.h>
 #include <wv/reflection/reflection.h>
 
+#include <nlohmann/json.hpp>
+
 namespace wv {
 
 class Entity;
 class IUpdatable;
 class InputSystem;
+class WorldSerializer;
 
 struct Viewport;
 
@@ -48,11 +51,11 @@ public:
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
-	void addEntity( Entity* _entity ) {
-		m_entities.push_back( _entity );
-	}
-
+	void    addEntity   ( Entity* _entity ) { m_entities.push_back( _entity ); }
 	Entity* createEntity( const std::string& _name = "" );
+
+	void loadWorld( const std::filesystem::path& _path );
+	void saveWorld( const std::filesystem::path& _path );
 
 	template<typename Ty>
 	int registerComponentType() {
@@ -154,6 +157,8 @@ protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 		
+	WorldSerializer* m_serializer{};
+
 	Viewport* m_viewport = nullptr;
 
 	std::vector<Entity*> m_entities;

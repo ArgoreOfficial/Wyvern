@@ -2,9 +2,6 @@
 
 #include <wv/entity/ecs.h>
 
-#include <wv/rendering/mesh.h>
-#include <wv/rendering/texture.h>
-
 #include <wv/components/camera_component.h>
 #include <wv/components/mesh_component.h>
 #include <wv/components/orbit_controller_component.h>
@@ -14,9 +11,81 @@
 #include <wv/updatable.h>
 #include <wv/application.h>
 
+#include <wv/filesystem/file_system.h>
+
+#include <wv/serialize.h>
+
+#include <fstream>
+
+namespace wv {
+
+void to_json( nlohmann::json& _json, const MeshComponent& _comp ) {
+	std::vector<std::string> materials;
+
+	for ( size_t i = 0; i < _comp.materials.size(); i++ )
+		materials.push_back( _comp.materials[ i ]->path.string() );
+	
+	_json = nlohmann::json{
+		{ "mesh", _comp.meshAsset->getPath().string() },
+		{ "materials", materials }
+	};
+}
+
+void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
+	_json = nlohmann::json{
+		{ "projectionType", _comp.projectionType },
+		{ "fov", _comp.fov },
+		{ "clipNear", _comp.clipNear },
+		{ "clipFar", _comp.clipFar },
+		{ "orthoScale", _comp.orthoScale },
+		{ "aspect", _comp.aspect }
+	};
+}
+
+void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
+	_json = nlohmann::json{
+		{ "shape", _comp.shape }
+	};
+
+	switch ( _comp.shape )
+	{
+	case ColliderShape_box: 
+		_json[ "boxSize" ] = _comp.boxSize; 
+		break;
+	case ColliderShape_cylinder: 
+		_json[ "boxSize" ] = _comp.boxSize; 
+		_json[ "cylinderHeight" ] = _comp.cylinderHeight;
+		_json[ "radius" ] = _comp.radius;
+		break;
+	case ColliderShape_sphere: 
+		_json[ "boxSize" ] = _comp.boxSize; 
+		_json[ "radius" ] = _comp.radius;
+		break;
+	}
+}
+
+void to_json( nlohmann::json& _json, const OrbitControllerComponent& _comp ) {
+	_json = nlohmann::json{
+		{ "orbitDistance", _comp.orbitDistance },
+	};
+}
+
+void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
+	_json = nlohmann::json{
+		{ "bodyType", _comp.bodyType },
+		{ "mass", _comp.mass },
+		{ "linearDamping", _comp.linearDamping },
+		{ "lockPositionAxis", _comp.lockPositionAxis },
+		{ "lockRotationAxis", _comp.lockRotationAxis }
+	};
+}
+
+}
+
 wv::World::World()
 { 
-	m_ecsEngine       = WV_NEW( ECSEngine );
+	m_ecsEngine  = WV_NEW( ECSEngine );
+	m_serializer = WV_NEW( WorldSerializer, m_ecsEngine );
 
 	// register order determines internal ID
 	registerComponentType<CameraComponent>();
@@ -24,12 +93,19 @@ wv::World::World()
 	registerComponentType<MeshComponent>();
 	registerComponentType<OrbitControllerComponent>();
 	registerComponentType<RigidBodyComponent>();
+
+	m_serializer->addComponentFunction<CameraComponent>();
+	m_serializer->addComponentFunction<ColliderComponent>();
+	m_serializer->addComponentFunction<MeshComponent>();
+	m_serializer->addComponentFunction<OrbitControllerComponent>();
+	m_serializer->addComponentFunction<RigidBodyComponent>();
 }
 
 wv::World::~World()
 {
 	destroyAllEntities();
 
+	WV_FREE( m_serializer );
 	WV_FREE( m_ecsEngine );
 
 	if ( m_viewport )
@@ -58,6 +134,22 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 	Entity* e = WV_NEW( Entity, _name );
 	addEntity( e );
 	return e;
+}
+
+void wv::World::loadWorld( const std::filesystem::path& _path )
+{
+}
+
+void wv::World::saveWorld( const std::filesystem::path& _path )
+{
+	nlohmann::ordered_json json{};
+	json[ "name" ] = "Test World";
+
+	json[ "components" ] = m_serializer->serializeComponents();
+
+	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
+	std::ofstream stream{ fullpath };
+	stream << json.dump( 2 );
 }
 
 void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )

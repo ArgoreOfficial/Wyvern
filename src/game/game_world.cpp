@@ -12,8 +12,9 @@
 #include <wv/components/rigidbody_component.h>
 #include <wv/components/collider_component.h>
 
-#include "player_move_system.h"
+#include <wv/serialize.h>
 
+#include "player_move_system.h"
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -36,10 +37,30 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->enable();
 }
 
+void to_json( nlohmann::json& _json, const PlayerMoveComponent& _comp ) { 
+	_json = nlohmann::json{
+		{ "cameraSensitivity",  _comp.cameraSensitivity },
+		{ "cameraHeight",       _comp.cameraHeight },
+		{ "cameraShakeDecay",   _comp.cameraShakeDecay },
+		{ "smoothAcceleration", _comp.smoothAcceleration },
+		{ "acceleration",       _comp.acceleration },
+		{ "moveSpeed",          _comp.moveSpeed },
+		{ "damping",            _comp.damping },
+		{ "viewBobbing",        _comp.viewBobbing },
+		{ "viewBobbingSpeed",   _comp.viewBobbingSpeed },
+		{ "resetBobPosition",   _comp.resetBobPosition },
+		{ "viewRotting",        _comp.viewRotting },
+		{ "viewRotFrequency",   _comp.viewRotFrequency },
+		{ "viewRotOffset",      _comp.viewRotOffset }
+	};
+}
+
 void GameWorld::onSceneCreate()
 {
 	registerComponentType<PlayerMoveComponent>();
 	
+	m_serializer->addComponentFunction<PlayerMoveComponent>();
+
 	addSystem<PlayerMoveSystem>();
 
 	{
