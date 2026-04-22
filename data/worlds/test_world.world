@@ -229,7 +229,7 @@
         {
           "data": {
             "materials": [
-              "materials/default_unlit.wvmt"
+              "materials/default_lit.wvmt"
             ],
             "mesh": "meshes/SM_Sphere.wvb"
           },
@@ -244,7 +244,7 @@
         },
         {
           "data": {
-            "materials": [],
+            "materials": ["materials/floor.wvmt"],
             "mesh": "meshes/SM_Cube.wvb"
           },
           "entity": 1675939424
