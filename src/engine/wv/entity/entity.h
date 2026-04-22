@@ -33,8 +33,11 @@ public:
 
 	Transform& getTransform() { return m_transform; }
 
-	bool getDebugDisplayEnabled() const { return m_debugDisplayEnabled; }
+	bool getDebugDisplayEnabled()          const { return m_debugDisplayEnabled; }
 	void setDebugDisplayEnabled( bool _enabled ) { m_debugDisplayEnabled = _enabled; }
+
+	bool getShouldSerialize()            const { return m_shouldSerialize; }
+	void setShouldSerialize( bool _serialize ) { m_shouldSerialize = _serialize; }
 
 	Archetype* archetype = nullptr;
 	
@@ -42,6 +45,7 @@ private:
 	UUID m_ID = 0;
 	std::string m_debugName = "";
 
+	bool m_shouldSerialize = true;
 	bool m_debugDisplayEnabled = true;
 
 	Transform m_transform;

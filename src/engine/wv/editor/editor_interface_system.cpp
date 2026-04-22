@@ -20,6 +20,8 @@ void wv::EditorInterfaceSystem::onInitialize()
 	World* world = getApp()->getWorld();
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
+	m_editorCameraEntity->setShouldSerialize( false );
+
 	world->addComponent<wv::CameraComponent>( m_editorCameraEntity, { .active = false } );
 	world->addComponent<wv::EditorCameraComponent>( m_editorCameraEntity, {} );
 	

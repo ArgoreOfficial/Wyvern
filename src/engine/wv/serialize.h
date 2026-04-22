@@ -29,7 +29,11 @@ public:
 	nlohmann::json serializeComponents() {
 		std::vector<nlohmann::ordered_json> components;
 		for ( auto& func : m_componentToJsonFuncs )
-			components.push_back( func() );
+		{
+			nlohmann::json j = func();
+			if ( !j.at( "comps" ).empty() )
+				components.push_back( j );
+		}
 
 		return components;
 	}
@@ -60,6 +64,9 @@ inline void WorldSerializer::addComponentFunction()
 
 				for ( size_t i = 0; i < arch->getNumEntities(); i++ )
 				{
+					if ( !ents[ i ]->getShouldSerialize() ) // do not serialize components on this entity
+						continue;
+
 					meshComponents.push_back(
 						nlohmann::json{
 							{ "entity", (uint64_t)ents[ i ]->getID() },
