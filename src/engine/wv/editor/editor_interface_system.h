@@ -27,6 +27,9 @@ public:
 	virtual void onEditorRender() override;
 
 private:
+	void beginMoveObject();
+	void endMoveObject( bool _confirm );
+
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
 	void renderStatusBar();
@@ -35,6 +38,7 @@ private:
 
 	void renderEntityView();
 	void renderMaterialView();
+
 
 	Entity* m_editorCameraEntity  = nullptr;
 	
@@ -48,8 +52,15 @@ private:
 	size_t m_framesSinceFPSUpdate = 0;
 	double m_averageFPS = 0.0;
 
-	int m_currentSelectedEntity = 0;
 	wv::ActionGroup* m_editorActionGroup = nullptr;
+	wv::ActionID m_moveObjectActionID = {};
+
+	Entity* m_selectedEntity = nullptr;
+	bool m_isMovingObject = false;
+	
+	wv::Vector3f m_moveObjectStartPosition;
+
+	int m_currentSelectedEntityIndex = 0;
 	int m_currentMaterialViewSelected = 0;
 	int m_currentMaterialViewTextureSelected = 0;
 };

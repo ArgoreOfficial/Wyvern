@@ -19,6 +19,8 @@ void wv::EditorInterfaceSystem::onInitialize()
 	setEditorRenderEnabled( true );
 
 	m_editorActionGroup  = updateContext->inputSystem->getActionGroup( "Editor" );
+	m_moveObjectActionID = m_editorActionGroup->getTriggerActionID( "MoveObject" );
+
 	World* world = getApp()->getWorld();
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
@@ -67,6 +69,35 @@ void wv::EditorInterfaceSystem::onUpdate()
 		m_timeSinceFPSUpdate -= 0.5;
 		m_framesSinceFPSUpdate = 0;
 	}
+
+	for ( ActionEvent& ae : updateContext->actionEventQueue )
+	{
+		if ( ae.actionID == m_moveObjectActionID && ae.action.trigger->getValue() )
+		{
+			if( m_isMovingObject )
+				endMoveObject( true );
+			else
+				beginMoveObject();
+
+		}
+
+	}
+
+	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_RIGHT ) )
+		endMoveObject( false );
+	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_LEFT ) )
+		endMoveObject( true );
+
+	if ( m_selectedEntity && m_isMovingObject )
+	{
+		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion() / 150.0f;
+		Transform& tfm = m_selectedEntity->getTransform();
+		
+		Vector3f right = m_editorCameraEntity->getTransform().right();
+		Vector3f up = m_editorCameraEntity->getTransform().up();
+
+		tfm.position += right * mouseMove.x + up * -mouseMove.y;
+	}
 }
 
 void wv::EditorInterfaceSystem::onEditorRender()
@@ -109,6 +140,32 @@ void wv::EditorInterfaceSystem::onEditorRender()
 	if ( m_showEntitiesMenu )
 		renderEntityView();
 #endif
+}
+
+void wv::EditorInterfaceSystem::beginMoveObject()
+{
+	if ( m_isMovingObject )
+		return;
+
+	Application* app = getApp();
+	m_isMovingObject = true;
+	
+	app->setCursorLock( true );
+	m_moveObjectStartPosition = m_selectedEntity->getTransform().position;
+}
+
+void wv::EditorInterfaceSystem::endMoveObject( bool _confirm )
+{
+	if ( !m_isMovingObject )
+		return;
+
+	Application* app = getApp();
+	m_isMovingObject = false;
+
+	app->setCursorLock( false );
+
+	if( !_confirm )
+		m_selectedEntity->getTransform().position = m_moveObjectStartPosition;
 }
 
 void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
@@ -220,7 +277,12 @@ void wv::EditorInterfaceSystem::renderEntityView()
 			entityNamesCstr.push_back( entityNames.back().c_str());
 		}
 		
-		ImGui::ListBox( "Entities", &m_currentSelectedEntity, entityNamesCstr.data(), entityNamesCstr.size() );
+		ImGui::ListBox( "Entities", &m_currentSelectedEntityIndex, entityNamesCstr.data(), entityNamesCstr.size() );
+
+		if ( m_currentSelectedEntityIndex >= 0 && m_currentSelectedEntityIndex < entities.size() )
+			m_selectedEntity = entities[ m_currentSelectedEntityIndex ];
+		else
+			m_selectedEntity = nullptr;
 	}
 	ImGui::End();
 }
