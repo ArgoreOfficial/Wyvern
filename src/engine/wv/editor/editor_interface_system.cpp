@@ -183,7 +183,7 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 				world->save( "worlds/test_world.world" );
 			
 			if ( ImGui::MenuItem( "Reload" ) )
-				world->reload();
+				world->reload( true );
 			
 			//
 			ImGui::EndMenu();
@@ -217,13 +217,13 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 				if ( world->isEditorState() )
 				{
 					m_editorActionGroup->enable();
-					world->reload();
+					world->reload( false );
 				}
 				else
 				{
 					m_editorActionGroup->disable();
 					world->save( world->getPath() );
-					world->reload();
+					world->reload( false );
 				}
 			}
 			

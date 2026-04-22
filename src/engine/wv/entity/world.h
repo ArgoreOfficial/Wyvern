@@ -67,11 +67,7 @@ public:
 
 	void load( const std::filesystem::path& _path );
 	void save( const std::filesystem::path& _path );
-	void reload() {
-		std::filesystem::path path = m_path;
-		unload( false );
-		load( path );
-	}
+	void reload( bool _reloadAssets = true );
 
 	std::filesystem::path getPath() const { return m_path; }
 

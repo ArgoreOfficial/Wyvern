@@ -8,6 +8,10 @@
 #include <wv/components/rigidbody_component.h>
 #include <wv/components/collider_component.h>
 
+#include <wv/rendering/mesh.h>
+#include <wv/rendering/material.h>
+#include <wv/rendering/texture.h>
+
 #include <wv/updatable.h>
 #include <wv/application.h>
 
@@ -295,6 +299,26 @@ void wv::World::save( const std::filesystem::path& _path )
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
 	std::ofstream stream{ fullpath };
 	stream << json.dump( 2 );
+}
+
+void wv::World::reload( bool _reloadAssets )
+{
+	std::filesystem::path path = m_path;
+
+	Application* app = getApp();
+	std::vector<Ref<MeshAsset>> meshes;
+	std::vector<Ref<MaterialAsset>> materials;
+	std::vector<Ref<TextureAsset>> textures;
+	
+	if ( !_reloadAssets )
+	{
+		meshes = app->getMeshManager()->getManaged();
+		materials = app->getMaterialManager()->getManaged();
+		textures = app->getTextureManager()->getManaged();
+	}
+	
+	unload( false );
+	load( path );
 }
 
 void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )
