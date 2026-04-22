@@ -211,6 +211,17 @@ void wv::World::loadWorld( const std::filesystem::path& _path )
 		entity->m_ID = id;
 	}
 
+	// parse hierarchy
+	for ( auto& ent : json[ "hierarchy" ] )
+	{
+		Entity* entity = getEntityFromID( (uint64_t)ent[ "entity" ] );
+		if ( !entity )
+			continue;
+
+		for ( auto& child : ent[ "children" ] )
+			entity->addChild( getEntityFromID( (uint64_t)child ) );
+	}
+
 	// parse components
 	for ( auto& comps : json[ "components" ] )
 	{
@@ -227,6 +238,7 @@ void wv::World::saveWorld( const std::filesystem::path& _path )
 	json[ "name" ] = "Test World";
 
 	std::vector<nlohmann::json> entities{};
+	std::vector<nlohmann::json> hierarchy{};
 
 	for ( Entity* e : m_entities )
 	{
@@ -241,7 +253,28 @@ void wv::World::saveWorld( const std::filesystem::path& _path )
 			} );
 	}
 
+	for ( Entity* e : m_entities )
+	{
+		if ( !e->getShouldSerialize() )
+			continue;
+
+		std::vector<uint64_t> children;
+		
+		for ( Entity* child : e->getChildren() )
+			children.push_back( child->getID() );
+		
+		if ( !children.empty() )
+		{
+			hierarchy.push_back(
+				nlohmann::json{
+					{ "entity", (uint64_t)e->m_ID },
+					{ "children", children }
+				} );
+		}
+	}
+
 	json[ "entities" ] = entities;
+	json[ "hierarchy" ] = hierarchy;
 	json[ "components" ] = m_serializer->serializeComponents();
 
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
