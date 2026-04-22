@@ -24,11 +24,23 @@ void to_json( nlohmann::json& _json, const MeshComponent& _comp ) {
 
 	for ( size_t i = 0; i < _comp.materials.size(); i++ )
 		materials.push_back( _comp.materials[ i ]->path.string() );
-	
+
 	_json = nlohmann::json{
 		{ "mesh", _comp.meshAsset->getPath().string() },
 		{ "materials", materials }
 	};
+}
+
+static void from_json( const nlohmann::json& _json, MeshComponent& _comp ) {
+	std::string meshPath;
+	std::vector<std::string> materials;
+
+	_json.at( "mesh" ).get_to( meshPath );
+	_json.at( "materials" ).get_to( materials );
+
+	_comp.meshAsset = MeshAsset::get( meshPath );
+	for ( const std::string& mat : materials )
+		_comp.materials.push_back( MaterialAsset::get( mat ) );
 }
 
 void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
@@ -41,6 +53,14 @@ void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
 		{ "aspect", _comp.aspect }
 	};
 }
+static void from_json( const nlohmann::json& _json, CameraComponent& _comp ) {
+	_json.at( "projectionType" ).get_to( _comp.projectionType );
+	_json.at( "fov" ).get_to( _comp.fov );
+	_json.at( "clipNear" ).get_to( _comp.clipNear );
+	_json.at( "clipFar" ).get_to( _comp.clipFar );
+	_json.at( "orthoScale" ).get_to( _comp.orthoScale );
+	_json.at( "aspect" ).get_to( _comp.aspect );
+}
 
 void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
 	_json = nlohmann::json{
@@ -49,17 +69,37 @@ void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
 
 	switch ( _comp.shape )
 	{
-	case ColliderShape_box: 
-		_json[ "boxSize" ] = _comp.boxSize; 
+	case ColliderShape_box:
+		_json[ "boxSize" ] = _comp.boxSize;
 		break;
-	case ColliderShape_cylinder: 
-		_json[ "boxSize" ] = _comp.boxSize; 
+	case ColliderShape_cylinder:
+		_json[ "boxSize" ] = _comp.boxSize;
 		_json[ "cylinderHeight" ] = _comp.cylinderHeight;
 		_json[ "radius" ] = _comp.radius;
 		break;
-	case ColliderShape_sphere: 
-		_json[ "boxSize" ] = _comp.boxSize; 
+	case ColliderShape_sphere:
+		_json[ "boxSize" ] = _comp.boxSize;
 		_json[ "radius" ] = _comp.radius;
+		break;
+	}
+}
+
+static void from_json( const nlohmann::json& _json, ColliderComponent& _comp ) {
+	_json.at( "shape" ).get_to( _comp.shape );
+
+	switch ( _comp.shape )
+	{
+	case ColliderShape_box:
+		_json.at( "boxSize" ).get_to( _comp.boxSize );
+		break;
+	case ColliderShape_cylinder:
+		_json.at( "boxSize" ).get_to( _comp.boxSize );
+		_json.at( "cylinderHeight" ).get_to( _comp.cylinderHeight );
+		_json.at( "radius" ).get_to( _comp.radius );
+		break;
+	case ColliderShape_sphere:
+		_json.at( "boxSize" ).get_to( _comp.boxSize );
+		_json.at( "radius" ).get_to( _comp.radius );
 		break;
 	}
 }
@@ -68,6 +108,10 @@ void to_json( nlohmann::json& _json, const OrbitControllerComponent& _comp ) {
 	_json = nlohmann::json{
 		{ "orbitDistance", _comp.orbitDistance },
 	};
+}
+
+static void from_json( const nlohmann::json& _json, OrbitControllerComponent& _comp ) {
+	_json.at( "orbitDistance" ).get_to( _comp.orbitDistance );
 }
 
 void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
@@ -80,11 +124,19 @@ void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
 	};
 }
 
+static void from_json( const nlohmann::json& _json, RigidBodyComponent& _comp ) {
+	_json.at( "bodyType" ).get_to( _comp.bodyType );
+	_json.at( "mass" ).get_to( _comp.mass );
+	_json.at( "linearDamping" ).get_to( _comp.linearDamping );
+	_json.at( "lockPositionAxis" ).get_to( _comp.lockPositionAxis );
+	_json.at( "lockRotationAxis" ).get_to( _comp.lockRotationAxis );
+}
+
 }
 
 wv::World::World()
-{ 
-	m_ecsEngine  = WV_NEW( ECSEngine );
+{
+	m_ecsEngine = WV_NEW( ECSEngine );
 	m_serializer = WV_NEW( WorldSerializer, m_ecsEngine );
 
 	// register order determines internal ID
@@ -109,7 +161,7 @@ wv::World::~World()
 	WV_FREE( m_ecsEngine );
 
 	if ( m_viewport )
-		WV_FREE( m_viewport );	
+		WV_FREE( m_viewport );
 }
 
 void wv::World::destroyAllEntities()
@@ -138,6 +190,33 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 
 void wv::World::loadWorld( const std::filesystem::path& _path )
 {
+	std::filesystem::path fullpath = getApp()->getFileSystem()->getFullPath( _path );
+	std::fstream stream{ fullpath };
+	if ( !stream )
+		return;
+
+	nlohmann::json json = nlohmann::json::parse( stream );
+
+	// parse entities
+
+	for ( auto& ent : json[ "entities" ] )
+	{
+		Entity* entity = createEntity( ent[ "name" ] );
+		uint64_t id;
+
+		ent[ "tfm" ].get_to( entity->m_transform );
+		ent[ "id" ].get_to( id );
+		entity->m_ID = id;
+	}
+
+	// parse components
+	for ( auto& comps : json[ "components" ] )
+	{
+		int index = comps[ "index" ];
+
+		m_serializer->deserializeComponents( index, this, comps[ "comps" ] );
+	}
+
 }
 
 void wv::World::saveWorld( const std::filesystem::path& _path )
@@ -145,6 +224,22 @@ void wv::World::saveWorld( const std::filesystem::path& _path )
 	nlohmann::ordered_json json{};
 	json[ "name" ] = "Test World";
 
+	std::vector<nlohmann::json> entities{};
+
+	for ( Entity* e : m_entities )
+	{
+		if ( !e->getShouldSerialize() )
+			continue;
+
+		entities.push_back(
+			nlohmann::json{
+				{ "id", (uint64_t)e->m_ID },
+				{ "name", e->m_debugName },
+				{ "tfm", e->m_transform },
+			} );
+	}
+
+	json[ "entities" ] = entities;
 	json[ "components" ] = m_serializer->serializeComponents();
 
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );

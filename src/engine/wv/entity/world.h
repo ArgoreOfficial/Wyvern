@@ -41,6 +41,8 @@ enum UpdateEventType
 class World : public IReflectedType
 {
 	friend class Application;
+	friend class WorldSerializer;
+
 	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World();
@@ -53,6 +55,13 @@ public:
 
 	void    addEntity   ( Entity* _entity ) { m_entities.push_back( _entity ); }
 	Entity* createEntity( const std::string& _name = "" );
+
+	Entity* getEntityFromID( UUID _id ) const {
+		for ( Entity* e : m_entities )
+			if ( e->getID() == _id )
+				return e;
+		return nullptr;
+	}
 
 	void loadWorld( const std::filesystem::path& _path );
 	void saveWorld( const std::filesystem::path& _path );

@@ -37,7 +37,7 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->enable();
 }
 
-void to_json( nlohmann::json& _json, const PlayerMoveComponent& _comp ) { 
+static void to_json( nlohmann::json& _json, const PlayerMoveComponent& _comp ) { 
 	_json = nlohmann::json{
 		{ "cameraSensitivity",  _comp.cameraSensitivity },
 		{ "cameraHeight",       _comp.cameraHeight },
@@ -53,6 +53,31 @@ void to_json( nlohmann::json& _json, const PlayerMoveComponent& _comp ) {
 		{ "viewRotFrequency",   _comp.viewRotFrequency },
 		{ "viewRotOffset",      _comp.viewRotOffset }
 	};
+
+	if ( _comp.cameraEntity )
+		_json[ "cameraEntity" ] = (uint64_t)_comp.cameraEntity->getID();
+}
+
+static void from_json( const nlohmann::json& _json, PlayerMoveComponent& _comp ) {
+	_json.at( "cameraSensitivity" ).get_to( _comp.cameraSensitivity );
+	_json.at( "cameraHeight" ).get_to( _comp.cameraHeight );
+	_json.at( "cameraShakeDecay" ).get_to( _comp.cameraShakeDecay );
+	_json.at( "smoothAcceleration" ).get_to( _comp.smoothAcceleration );
+	_json.at( "acceleration" ).get_to( _comp.acceleration );
+	_json.at( "moveSpeed" ).get_to( _comp.moveSpeed );
+	_json.at( "damping" ).get_to( _comp.damping );
+	_json.at( "viewBobbing" ).get_to( _comp.viewBobbing );
+	_json.at( "viewBobbingSpeed" ).get_to( _comp.viewBobbingSpeed );
+	_json.at( "resetBobPosition" ).get_to( _comp.resetBobPosition );
+	_json.at( "viewRotting" ).get_to( _comp.viewRotting );
+	_json.at( "viewRotFrequency" ).get_to( _comp.viewRotFrequency );
+	_json.at( "viewRotOffset" ).get_to( _comp.viewRotOffset );
+
+	if ( _json.contains( "cameraEntity" ) )
+	{
+		uint64_t id = (uint64_t)_json.at( "cameraEntity" );
+		_comp.cameraEntity = wv::getApp()->getWorld()->getEntityFromID( id );
+	}
 }
 
 void GameWorld::onSceneCreate()

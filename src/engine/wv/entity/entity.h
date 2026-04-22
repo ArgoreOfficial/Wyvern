@@ -14,6 +14,8 @@ struct Archetype;
 
 class Entity final : wv::IReflectedType
 {
+	friend class World;
+
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	Entity( const std::string& _debugName = "" ) : 
