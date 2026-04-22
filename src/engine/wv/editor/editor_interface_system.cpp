@@ -132,11 +132,30 @@ void wv::EditorInterfaceSystem::updateEditorState()
 
 void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
+	World* world = getApp()->getWorld();
+
 	if ( ImGui::BeginMainMenuBar() )
 	{
 		if ( ImGui::BeginMenu( "File" ) )
 		{
-			if ( ImGui::MenuItem( "Save" ) ) getApp()->getWorld()->saveWorld( "worlds/test_world.world" );
+			if ( ImGui::MenuItem( "Save" ) )
+			{
+				bool editorState = world->isEditorState(); // if we're in editor state, we need to make the runtime camera active, otherwise it gets saved as off
+
+				if ( editorState && m_runtimeCameraEntity )
+				{
+					CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
+					runtimeCameraComponent.active = true;
+				}
+
+				getApp()->getWorld()->saveWorld( "worlds/test_world.world" );
+
+				if ( editorState && m_runtimeCameraEntity )
+				{
+					CameraComponent& runtimeCameraComponent = world->getComponent<CameraComponent>( m_runtimeCameraEntity );
+					runtimeCameraComponent.active = false;
+				}
+			}
 			ImGui::EndMenu();
 		}
 

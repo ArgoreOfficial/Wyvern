@@ -45,6 +45,7 @@ static void from_json( const nlohmann::json& _json, MeshComponent& _comp ) {
 
 void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
 	_json = nlohmann::json{
+		{ "active", _comp.active },
 		{ "projectionType", _comp.projectionType },
 		{ "fov", _comp.fov },
 		{ "clipNear", _comp.clipNear },
@@ -54,6 +55,7 @@ void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
 	};
 }
 static void from_json( const nlohmann::json& _json, CameraComponent& _comp ) {
+	_json.at( "active" ).get_to( _comp.active );
 	_json.at( "projectionType" ).get_to( _comp.projectionType );
 	_json.at( "fov" ).get_to( _comp.fov );
 	_json.at( "clipNear" ).get_to( _comp.clipNear );
