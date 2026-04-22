@@ -115,6 +115,7 @@ public:
 	Archetype* getExactArchetype( std::bitset<256> _bitmask );
 
 	void updateSystemsArchetypes();
+	std::vector<Archetype*> getMatchingArchetypes( std::bitset<256> _bitmask );
 	
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component );

@@ -83,6 +83,25 @@ void wv::ECSEngine::updateSystemsArchetypes()
 	}
 }
 
+std::vector<wv::Archetype*> wv::ECSEngine::getMatchingArchetypes( std::bitset<256> _bitmask )
+{
+	if ( _bitmask.none() )
+		return {};
+
+    std::vector<Archetype*> vec;
+
+	for ( auto& archetype : m_archetypes )
+	{
+		if ( archetype->getNumEntities() == 0 )
+			continue; // skip if empty 
+
+		if ( ( archetype->m_bitmask & _bitmask ) == _bitmask )
+			vec.push_back( archetype );
+	}
+
+	return vec;
+}
+
 void wv::ECSEngine::removeAllComponents( Entity* _entity )
 {
 	Archetype* archetype = _entity->archetype;
