@@ -83,12 +83,17 @@ public:
 	bool getShouldSerialize()            const { return m_shouldSerialize; }
 	void setShouldSerialize( bool _serialize ) { m_shouldSerialize = _serialize; }
 
+	// Persistent entities don't get destroyed on world->destroyWorld()
+	bool getIsPersistent() const { return m_isPersistent; }
+	void setIsPersistent( bool _persistent ) { m_isPersistent = _persistent; }
+
 	Archetype* archetype = nullptr;
 	
 private:
 	UUID m_ID = 0;
 	std::string m_debugName = "";
 
+	bool m_isPersistent = false;
 	bool m_shouldSerialize = true;
 	bool m_debugDisplayEnabled = true;
 

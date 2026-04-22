@@ -157,7 +157,7 @@ wv::World::World()
 
 wv::World::~World()
 {
-	destroyAllEntities();
+	destroyAllEntities( true );
 
 	WV_FREE( m_serializer );
 	WV_FREE( m_ecsEngine );
@@ -166,21 +166,30 @@ wv::World::~World()
 		WV_FREE( m_viewport );
 }
 
-void wv::World::destroyAllEntities()
+void wv::World::destroyAllEntities( bool _destroyPersistent )
 {
 	if ( m_entities.empty() )
 		return;
 
 	for ( Entity* e : m_entities )
-		if ( e->archetype )
+	{
+		if ( ( !e->getIsPersistent() || _destroyPersistent ) && e->archetype )
 			removeAllComponents( e );
+	}
 
 	updateComponentChanges();
 
-	for ( Entity* e : m_entities )
-		WV_FREE( e );
+	std::vector<Entity*> newEntities{};
 
-	m_entities.clear();
+	for ( Entity* e : m_entities )
+	{
+		if ( !e->getIsPersistent() || _destroyPersistent )
+			WV_FREE( e );
+		else
+			newEntities.push_back( e );
+	}
+
+	m_entities = newEntities;
 }
 
 wv::Entity* wv::World::createEntity( const std::string& _name )
@@ -196,6 +205,8 @@ void wv::World::loadWorld( const std::filesystem::path& _path )
 	std::fstream stream{ fullpath };
 	if ( !stream )
 		return;
+
+	m_path = _path;
 
 	nlohmann::json json = nlohmann::json::parse( stream );
 
@@ -234,6 +245,8 @@ void wv::World::loadWorld( const std::filesystem::path& _path )
 
 void wv::World::saveWorld( const std::filesystem::path& _path )
 {
+	m_path = _path;
+
 	nlohmann::ordered_json json{};
 	json[ "name" ] = "Test World";
 
@@ -280,6 +293,11 @@ void wv::World::saveWorld( const std::filesystem::path& _path )
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
 	std::ofstream stream{ fullpath };
 	stream << json.dump( 2 );
+}
+
+void wv::World::destroyWorld()
+{
+	destroyAllEntities( false );
 }
 
 void wv::World::updateFrameData( double _deltaTime, double _physicsDeltaTime )

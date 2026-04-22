@@ -4,6 +4,8 @@
 #include <wv/input/input_system.h>
 #include <wv/reflection/reflection.h>
 
+#include <filesystem>
+
 #include <nlohmann/json.hpp>
 
 namespace wv {
@@ -48,7 +50,7 @@ public:
 	World();
 	virtual ~World();
 
-	void destroyAllEntities();
+	void destroyAllEntities( bool _destroyPersistent );
 	
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
@@ -65,6 +67,9 @@ public:
 
 	void loadWorld( const std::filesystem::path& _path );
 	void saveWorld( const std::filesystem::path& _path );
+	void destroyWorld();
+
+	std::filesystem::path getPath() const { return m_path; }
 
 	template<typename Ty>
 	int registerComponentType() {
@@ -165,7 +170,8 @@ public:
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
-		
+	
+	std::filesystem::path m_path;
 	WorldSerializer* m_serializer{};
 
 	Viewport* m_viewport = nullptr;

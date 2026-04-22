@@ -221,7 +221,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
-	m_world->destroyAllEntities();
+	m_world->destroyAllEntities( true );
 	m_world->dispatchUpdateMessage( UpdateEvent_shutdown );
 
 	m_renderer->waitForRenderer();
