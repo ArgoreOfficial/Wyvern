@@ -61,6 +61,8 @@ public:
 	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
 	uint32_t getNumMaterials() const { return m_numMaterials; }
 
+	std::filesystem::path getPath() const { return m_path; }
+
 private:
 	std::filesystem::path m_path;
 
