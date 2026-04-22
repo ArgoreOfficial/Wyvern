@@ -1,0 +1,357 @@
+{
+  "name": "Test World",
+  "entities": [
+    {
+      "id": 1743062762,
+      "name": "Ball",
+      "tfm": {
+        "pos": [
+          -3.0,
+          2.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": 1473708041,
+      "name": "Cube",
+      "tfm": {
+        "pos": [
+          3.0,
+          2.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": 1675939424,
+      "name": "Floor",
+      "tfm": {
+        "pos": [
+          0.0,
+          -5.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          50.0,
+          0.5,
+          50.0
+        ]
+      }
+    },
+    {
+      "id": 2525744056,
+      "name": "Train",
+      "tfm": {
+        "pos": [
+          0.0,
+          -4.5,
+          10.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": 505515108,
+      "name": "PlayerCamera",
+      "tfm": {
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": 3132744809,
+      "name": "Player",
+      "tfm": {
+        "pos": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  ],
+  "hierarchy": [
+    {
+      "children": [
+        505515108
+      ],
+      "entity": 3132744809
+    }
+  ],
+  "components": [
+    {
+      "comps": [
+        {
+          "data": {
+            "active": true,
+            "aspect": 1.7777777910232544,
+            "clipFar": 10000.0,
+            "clipNear": 0.009999999776482582,
+            "fov": 60.0,
+            "orthoScale": 0.10000000149011612,
+            "projectionType": 0
+          },
+          "entity": 505515108
+        }
+      ],
+      "index": 0
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "boxSize": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "radius": 0.5,
+            "shape": 2
+          },
+          "entity": 1743062762
+        },
+        {
+          "data": {
+            "boxSize": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "shape": 0
+          },
+          "entity": 1473708041
+        },
+        {
+          "data": {
+            "boxSize": [
+              50.0,
+              0.5,
+              50.0
+            ],
+            "shape": 0
+          },
+          "entity": 1675939424
+        },
+        {
+          "data": {
+            "boxSize": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "cylinderHeight": 2.0,
+            "radius": 0.25,
+            "shape": 1
+          },
+          "entity": 3132744809
+        }
+      ],
+      "index": 1
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "materials": [
+              "materials/Under.SM_Tofumotive.wvmt",
+              "materials/Middle.SM_Tofumotive.wvmt",
+              "materials/Line.SM_Tofumotive.wvmt",
+              "materials/Top.SM_Tofumotive.wvmt"
+            ],
+            "mesh": "meshes/SM_Tofumotive.wvb"
+          },
+          "entity": 2525744056
+        },
+        {
+          "data": {
+            "materials": [
+              "materials/default_unlit.wvmt"
+            ],
+            "mesh": "meshes/SM_Sphere.wvb"
+          },
+          "entity": 1743062762
+        },
+        {
+          "data": {
+            "materials": [],
+            "mesh": "meshes/SM_Cube.wvb"
+          },
+          "entity": 1473708041
+        },
+        {
+          "data": {
+            "materials": [],
+            "mesh": "meshes/SM_Cube.wvb"
+          },
+          "entity": 1675939424
+        }
+      ],
+      "index": 2
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "bodyType": 1,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 1743062762
+        },
+        {
+          "data": {
+            "bodyType": 1,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 1473708041
+        },
+        {
+          "data": {
+            "bodyType": 0,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 1675939424
+        },
+        {
+          "data": {
+            "bodyType": 1,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              true,
+              true,
+              true
+            ],
+            "mass": 1.0
+          },
+          "entity": 3132744809
+        }
+      ],
+      "index": 4
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "acceleration": 3.0,
+            "cameraEntity": 505515108,
+            "cameraHeight": 1.600000023841858,
+            "cameraSensitivity": 15.0,
+            "cameraShakeDecay": 0.5,
+            "damping": 6.0,
+            "moveSpeed": 2.0,
+            "resetBobPosition": false,
+            "smoothAcceleration": true,
+            "viewBobbing": 0.05000000074505806,
+            "viewBobbingSpeed": 7.0,
+            "viewRotFrequency": 1.75,
+            "viewRotOffset": 0.0,
+            "viewRotting": 1.5
+          },
+          "entity": 3132744809
+        }
+      ],
+      "index": 7
+    }
+  ]
+}

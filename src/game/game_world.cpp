@@ -82,84 +82,13 @@ static void from_json( const nlohmann::json& _json, PlayerMoveComponent& _comp )
 
 void GameWorld::onSceneCreate()
 {
+	// Components
 	registerComponentType<PlayerMoveComponent>();
-	
 	m_serializer->addComponentFunction<PlayerMoveComponent>();
-
+	
+	// Systems
 	addSystem<PlayerMoveSystem>();
-
-	{
-		wv::Entity* entity = createEntity( "Ball" );
-		entity->getTransform().position = { -3.0f, 2.0f, 0.0f };
-
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_sphere } );
-		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( 
-			entity, 
-			wv::MeshComponent{ 
-				.meshAsset = wv::MeshAsset::get( "meshes/SM_Sphere.wvb" ),
-				.materials = { wv::MaterialAsset::get( "materials/default_unlit.wvmt" ) }
-			} 
-		);
-	}
 	
-	{
-		wv::Entity* entity = createEntity( "Cube" );
-		entity->getTransform().position = { 3.0f, 2.0f, 0.0f };
-
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box } );
-		addComponent<wv::RigidBodyComponent>( entity, {} );
-		addComponent<wv::MeshComponent>( entity, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
-	}
-
-	{
-		wv::Entity* entity = createEntity( "Floor" );
-		entity->getTransform().position = { 0.0f, -5.0f, 0.0f };
-		entity->getTransform().scale = { 50.0f, 0.5f, 50.0f };
-
-		addComponent<wv::ColliderComponent>( entity, wv::ColliderComponent{ .shape = wv::ColliderShape_box,.boxSize = { 50.0f, 0.5f, 50.0f } } );
-		addComponent<wv::RigidBodyComponent>( entity, wv::RigidBodyComponent{ .bodyType = wv::BodyType_Static } );
-		addComponent<wv::MeshComponent>( entity, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
-	}
-	
-	{
-		wv::MeshImporterGLTF importer(
-			wv::getApp()->getMeshManager(),
-			wv::getApp()->getMaterialManager(),
-			wv::getApp()->getTextureManager()
-		);
-
-		importer.load( "meshes/SM_Tofumotive.glb" );
-
-		wv::Entity* entity = createEntity( "Train" );
-		entity->getTransform().position = { 0.0f, -4.5f, 10.0f };
-		addComponent<wv::MeshComponent>( entity, { .meshAsset = importer.getMesh(), .materials = importer.getMaterials() });
-	}
-	
-	{
-		// Camera
-
-		wv::Entity* camera = createEntity( "PlayerCamera" );
-		addComponent<wv::CameraComponent>( camera, { .active = true } );
-		
-		// Player
-
-		wv::Entity* player = createEntity( "Player" );
-		player->getTransform().position = { 0.0f, 1.0f, 0.0f };
-
-		addComponent<wv::ColliderComponent>( player, wv::ColliderComponent{ .shape = wv::ColliderShape_cylinder, .cylinderHeight = 2.0f, .radius = 0.25f } );
-		addComponent<wv::RigidBodyComponent>( 
-			player,
-			{ 
-				.mass = 1.0f, 
-				.lockRotationAxis{ true, true, true } 
-			} 
-		);
-
-		addComponent<PlayerMoveComponent>( player, { .cameraEntity = camera } );
-	
-		// I don't like this
-		player->addChild( camera );
-	}
-	
+	// Load World
+	loadWorld( "worlds/test_world.world" );
 }
