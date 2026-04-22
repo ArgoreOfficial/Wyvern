@@ -73,6 +73,13 @@ public:
 	~ECSEngine();
 
 	template<typename Ty>
+	std::bitset<256> getComponentBitset() const {
+		std::bitset<256> b{};
+		b[ ComponentTypeDef<Ty>::index ] = true;
+		return b;
+	}
+
+	template<typename Ty>
 	int registerComponentType();
 
 	template<typename Ty>
