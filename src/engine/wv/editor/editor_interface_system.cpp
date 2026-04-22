@@ -182,9 +182,16 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 			if ( ImGui::MenuItem( "Save" ) )
 				world->save( "worlds/test_world.world" );
 			
-			if ( ImGui::MenuItem( "Reload" ) )
-				world->reload( true );
+			if ( ImGui::MenuItem( "Reload" ) ) 
+				world->reload( false );
+			if ( ImGui::IsItemHovered() ) 
+				ImGui::SetTooltip( "Reloads only scene" );
 			
+			if ( ImGui::MenuItem( "Reload All" ) ) 
+				world->reload( true );
+			if ( ImGui::IsItemHovered() ) 
+				ImGui::SetTooltip( "Reloads scene and assets" );
+
 			//
 			ImGui::EndMenu();
 		}
