@@ -2,6 +2,8 @@
 
 #include <wv/entity/ecs.h>
 
+#include <wv/input/action_group.h>
+
 namespace wv {
 
 struct EditorObjectComponent
@@ -47,6 +49,7 @@ private:
 	double m_averageFPS = 0.0;
 
 	int m_currentSelectedEntity = 0;
+	wv::ActionGroup* m_editorActionGroup = nullptr;
 	int m_currentMaterialViewSelected = 0;
 	int m_currentMaterialViewTextureSelected = 0;
 };

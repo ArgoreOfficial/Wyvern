@@ -18,6 +18,7 @@ void wv::EditorCameraSystem::configure( ArchetypeConfig& _config )
 void wv::EditorCameraSystem::onInitialize()
 {
 	m_editorActionGroup = updateContext->inputSystem->getActionGroup( "Editor" );
+	
 	m_moveActionID = m_editorActionGroup->getAxisActionID( "Move" );
 }
 
@@ -27,16 +28,10 @@ void wv::EditorCameraSystem::onUpdate()
 	InputSystem* inputSystem = app->getInputSystem();
 
 	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_RIGHT ) )
-	{
-		m_editorActionGroup->enable();
 		app->setCursorLock( true );
-	}
 	else if ( inputSystem->getMouseButtonUp( MOUSE_BUTTON_RIGHT ) )
-	{
-		m_editorActionGroup->disable();
 		app->setCursorLock( false );
-	}
-
+	
 	for ( auto& ae : updateContext->actionEventQueue )
 		if ( ae.actionID == m_moveActionID )
 			m_moveInput = ae.action.axis->getValue();
@@ -58,9 +53,6 @@ void wv::EditorCameraSystem::onUpdate()
 
 		if ( m_moveSpeed < 0.2f )
 			m_moveSpeed = 0.2f;
-
-		if ( inputSystem->getMouseScroll() != 0 )
-			Debug::Print( "Move Speed: %f\n", m_moveSpeed );
 	}
 
 	for ( Archetype* archetype : getArchetypes() )

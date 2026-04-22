@@ -2,6 +2,7 @@
 
 #include <wv/application.h>
 #include <wv/entity/world.h>
+#include <wv/input/input_system.h>
 
 #include <wv/components/camera_component.h>
 #include <wv/systems/camera_manager_system.h>
@@ -17,6 +18,7 @@ void wv::EditorInterfaceSystem::onInitialize()
 {
 	setEditorRenderEnabled( true );
 
+	m_editorActionGroup  = updateContext->inputSystem->getActionGroup( "Editor" );
 	World* world = getApp()->getWorld();
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
@@ -32,10 +34,13 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 void wv::EditorInterfaceSystem::onUpdate()
 {
-	World* world = getApp()->getWorld();
+	Application* app = getApp();
+	InputSystem* inputSystem = app->getInputSystem();
+	World* world = app->getWorld();
 	
 	if ( !m_hasEnabledFirstFrame )
 	{
+		m_editorActionGroup->enable();
 		world->toggleEditorState();
 		m_hasEnabledFirstFrame = true;
 	}
@@ -151,8 +156,11 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 				world->toggleEditorState();
 				if ( world->isEditorState() )
 				{
+					m_editorActionGroup->enable();
 					world->reload();
 				}
+				else
+					m_editorActionGroup->disable();
 			}
 			
 			if ( ImGui::Button( "Entities" ) )

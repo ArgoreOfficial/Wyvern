@@ -26,6 +26,8 @@ private:
 
 	wv::ActionGroup* m_editorActionGroup = nullptr;
 	wv::ActionID m_moveActionID = {};
+	
+	bool m_cameraLocked = false;
 
 	float m_moveSpeed = 50.0f;
 };
