@@ -159,7 +159,7 @@ void GameWorld::onSceneCreate()
 		addComponent<PlayerMoveComponent>( player, { .cameraEntity = camera } );
 	
 		// I don't like this
-		player->getTransform().addChild( &camera->getTransform() );
+		player->addChild( camera );
 	}
 	
 }

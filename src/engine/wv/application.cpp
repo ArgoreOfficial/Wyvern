@@ -387,10 +387,10 @@ void wv::Application::update()
 	for ( Entity* entity : m_world->m_entities )
 	{
 		// if an entity has a parent, it will be updated through the parents update() function
-		if ( entity->getTransform().pParent )
+		if ( entity->getParent() )
 			continue;
 
-		entity->getTransform().update( nullptr, true );
+		entity->update( nullptr, true );
 	}
 
 	CameraManagerSystem* cameraSystem = m_world->m_ecsEngine->getSystem<CameraManagerSystem>();
