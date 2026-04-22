@@ -184,6 +184,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
 	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
 	editorActionGroup->bindTriggerAction( "MoveObject", "Keyboard", wv::SCANCODE_G );
+	editorActionGroup->bindTriggerAction( "MouseLeft", "Mouse", wv::MOUSE_BUTTON_LEFT );
+	editorActionGroup->bindTriggerAction( "MouseRight", "Mouse", wv::MOUSE_BUTTON_RIGHT );
 	
 	editorActionGroup->disable(); // default off
 

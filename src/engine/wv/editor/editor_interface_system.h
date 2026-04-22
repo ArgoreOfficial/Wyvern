@@ -54,6 +54,8 @@ private:
 
 	wv::ActionGroup* m_editorActionGroup = nullptr;
 	wv::ActionID m_moveObjectActionID = {};
+	wv::ActionID m_mouseLeftActionID = {};
+	wv::ActionID m_mouseRightActionID = {};
 
 	Entity* m_selectedEntity = nullptr;
 	bool m_isMovingObject = false;

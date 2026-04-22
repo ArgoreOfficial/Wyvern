@@ -20,6 +20,8 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 	m_editorActionGroup  = updateContext->inputSystem->getActionGroup( "Editor" );
 	m_moveObjectActionID = m_editorActionGroup->getTriggerActionID( "MoveObject" );
+	m_mouseLeftActionID  = m_editorActionGroup->getTriggerActionID( "MouseLeft" );
+	m_mouseRightActionID = m_editorActionGroup->getTriggerActionID( "MouseRight" );
 
 	World* world = getApp()->getWorld();
 
@@ -78,20 +80,21 @@ void wv::EditorInterfaceSystem::onUpdate()
 				endMoveObject( true );
 			else
 				beginMoveObject();
-
 		}
-
+		
+		if ( ae.actionID == m_mouseLeftActionID )
+			if ( m_isMovingObject ) endMoveObject( true );
+		
+		if ( ae.actionID == m_mouseRightActionID )
+			if ( m_isMovingObject ) endMoveObject( false );
 	}
-
-	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_RIGHT ) )
-		endMoveObject( false );
-	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_LEFT ) )
-		endMoveObject( true );
 
 	if ( m_selectedEntity && m_isMovingObject )
 	{
-		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion() / 150.0f;
 		Transform& tfm = m_selectedEntity->getTransform();
+		float dist = ( tfm.position - m_editorCameraEntity->getTransform().position ).length();
+
+		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion() / 1000.0f * dist;
 		
 		Vector3f right = m_editorCameraEntity->getTransform().right();
 		Vector3f up = m_editorCameraEntity->getTransform().up();
