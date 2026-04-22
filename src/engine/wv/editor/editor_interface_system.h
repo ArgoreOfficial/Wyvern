@@ -43,7 +43,7 @@ private:
 	Entity* m_editorCameraEntity  = nullptr;
 	
 	bool m_showSystemsMenu = false;
-	bool m_showMaterialMenu = true;
+	bool m_showMaterialMenu = false;
 	bool m_showEntitiesMenu = true;
 
 	bool m_hasEnabledFirstFrame = false;

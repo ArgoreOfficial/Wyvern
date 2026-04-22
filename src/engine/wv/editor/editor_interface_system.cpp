@@ -220,7 +220,11 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 					world->reload();
 				}
 				else
+				{
 					m_editorActionGroup->disable();
+					world->save( world->getPath() );
+					world->reload();
+				}
 			}
 			
 			if ( ImGui::Button( "Entities" ) )
