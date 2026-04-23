@@ -63,7 +63,10 @@ struct CameraComponent
 
 	Vector3f screenToWorld( float _clipX, float _clipY, float _depth ) {
 		Matrix4x4f invViewProj = viewProjMatrix.inverse();
-		Vector4f screenspacePoint{ _clipX, _clipY, -_depth, 1.0f };
+
+		_depth = wv::Math::clamp( _depth, 0.0f, 1.0f );
+
+		Vector4f screenspacePoint{ _clipX, _clipY, 1.0f - _depth, 1.0f };
 		Vector4f worldPoint = screenspacePoint * invViewProj;
 
 		return Vector3f{
