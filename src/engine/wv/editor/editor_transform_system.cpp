@@ -4,8 +4,14 @@
 #include <wv/entity/world.h>
 #include <wv/input/input_system.h>
 
+#include <wv/math/geometry.h>
+
 #include <wv/editor/editor_camera_system.h>
-#include <wv/systems/camera_manager_system.h>
+#include <wv/editor/editor_interface_system.h>
+
+#include <wv/components/camera_component.h>
+
+#include <wv/rendering/renderer.h>
 
 void wv::EditorTransformSystem::onInitialize()
 {
@@ -33,10 +39,10 @@ void wv::EditorTransformSystem::onUpdate()
 	InputSystem* inputSystem = getApp()->getInputSystem();
 	World* world = getWorld();
 
-	CameraManagerSystem* cameraManager = world->getSystem<CameraManagerSystem>();
-	Entity* camera = cameraManager->getCameraOverride();
+	if ( m_editorCamera == nullptr )
+		m_editorCamera = world->getSystem<EditorInterfaceSystem>()->getEditorCamera();
 	
-	if ( !camera )
+	if ( !m_editorCamera )
 		return;
 
 	// Get number of selected objects and centre of mass
@@ -99,7 +105,17 @@ void wv::EditorTransformSystem::onUpdate()
 	}
 
 	if ( prevTransformMode == EditTransformMode_None && m_transformMode != EditTransformMode_None )
+	{
 		justStartedTransform = true;
+		
+		CameraComponent& cameraComp = getWorld()->getComponent<CameraComponent>( m_editorCamera );
+
+		Vector2i mousePos = inputSystem->getMousePosition();
+		m_mousePosWhenTransformStart = mousePos;
+
+		m_transformLineStart = cameraComp.screenToWorld( mousePos.x, mousePos.y, 0.01f );
+		m_transformLineEnd   = cameraComp.screenToWorld( mousePos.x, mousePos.y, 1.0f );
+	}
 
 	if ( m_transformMode != EditTransformMode_None )
 	{
@@ -134,13 +150,11 @@ void wv::EditorTransformSystem::onUpdate()
 					editorObject.scaleStart = tfm.scale;
 				}
 
-				float strength = 0.001f;
-
 				switch ( m_transformMode )
 				{
-				case EditTransformMode_Translate: translateObject( entity, editorObject, centreOfMass, strength ); break;
-				case EditTransformMode_Rotate:    rotateObject( entity, editorObject, centreOfMass, strength ); break;
-				case EditTransformMode_Scale:     scaleObject( entity, editorObject, centreOfMass, strength ); break;
+				case EditTransformMode_Translate: translateObject( entity, editorObject, centreOfMass, 0.001f ); break;
+				case EditTransformMode_Rotate:    rotateObject( entity, editorObject, centreOfMass, 0.001f ); break;
+				case EditTransformMode_Scale:     scaleObject( entity, editorObject, centreOfMass, 0.25f ); break;
 				}
 
 				if ( cancelledTransform )
@@ -156,8 +170,8 @@ void wv::EditorTransformSystem::onUpdate()
 
 void wv::EditorTransformSystem::onEditorRender()
 {
+	
 }
-
 
 void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
 {
@@ -188,20 +202,18 @@ void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
 
 void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
-	CameraManagerSystem* cameraManager = getWorld()->getSystem<CameraManagerSystem>();
-	Entity* camera = cameraManager->getCameraOverride();
 	Transform& tfm = _entity->getTransform();
 	Vector3f move{};
 
-	float dist = ( _com - camera->getTransform().position ).length();
+	float dist = ( _com - m_editorCamera->getTransform().position ).length();
 	_strength *= dist;
 
 	switch ( m_lockMovementAxis )
 	{
 	case -1:
 	{
-		Vector3f right = camera->getTransform().right();
-		Vector3f up = camera->getTransform().up();
+		Vector3f right = m_editorCamera->getTransform().right();
+		Vector3f up = m_editorCamera->getTransform().up();
 
 		move = ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y );
 	} break;
@@ -218,11 +230,9 @@ void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectCo
 
 void wv::EditorTransformSystem::rotateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
-	CameraManagerSystem* cameraManager = getWorld()->getSystem<CameraManagerSystem>();
-	Entity* camera = cameraManager->getCameraOverride();
 	Transform& tfm = _entity->getTransform();
 	
-	Vector3f bvPlane = wv::Math::wedge( camera->getTransform().right(), camera->getTransform().up() );
+	Vector3f bvPlane = wv::Math::wedge( m_editorCamera->getTransform().right(), m_editorCamera->getTransform().up() );
 	Rotorf rotor{ bvPlane, -m_accumulatedMouseMove.x * _strength };
 
 	tfm.position = _editorComponent.translateStart;
@@ -232,9 +242,22 @@ void wv::EditorTransformSystem::rotateObject( Entity* _entity, EditorObjectCompo
 
 void wv::EditorTransformSystem::scaleObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
+	InputSystem* inputSystem = getApp()->getInputSystem();
 	Transform& tfm = _entity->getTransform();
 
-	float scale = 1 + ( m_accumulatedMouseMove.length() * _strength );
+	CameraComponent& cameraComp = getWorld()->getComponent<CameraComponent>( m_editorCamera );
+
+	Vector2i mousePos  = m_mousePosWhenTransformStart + m_accumulatedMouseMove;
+	Vector3f lineStart = cameraComp.screenToWorld( mousePos.x, mousePos.y, 0.01f );
+	Vector3f lineEnd   = cameraComp.screenToWorld( mousePos.x, mousePos.y, 1.0f );
+
+	Vector3f editOriginPoint  = Math::lineClosestPointClamped( m_transformLineStart, m_transformLineEnd, _com );
+	Vector3f editCurrentPoint = wv::Math::lineClosestPointClamped( lineStart, lineEnd, _com );
+
+	float editOriginDistance  = ( editOriginPoint  - _com ).length();
+	float editCurrentDistance = ( editCurrentPoint - _com ).length();
+
+	float scale = 1 + ( editCurrentDistance - editOriginDistance ) * _strength;
 
 	tfm.position = _editorComponent.translateStart;
 	tfm.rotation = _editorComponent.rotateStart;

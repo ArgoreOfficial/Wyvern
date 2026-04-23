@@ -35,6 +35,7 @@ private:
 	void rotateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength );
 	void scaleObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength );
 
+	Entity* m_editorCamera = nullptr;
 	ActionGroup* m_editorActionGroup = nullptr;
 	
 	ActionID m_editTranslateActionID{};
@@ -53,6 +54,10 @@ private:
 	int m_lockMovementAxis = -1;
 
 	bool m_leftShiftState = false;
+
+	Vector2i m_mousePosWhenTransformStart;
+	Vector3f m_transformLineStart{};
+	Vector3f m_transformLineEnd{};
 
 	Vector2f m_accumulatedMouseMove;
 
