@@ -39,9 +39,9 @@ void wv::EditorCameraSystem::onUpdate()
 	const float friction = 10.f;
 	const float frictionDecay = 1 / ( 1 + ( deltaTime * friction ) );
 
-	bool isLockedIn = inputSystem->getMouseButtonState( MOUSE_BUTTON_RIGHT );
+	m_isCameraLocked = inputSystem->getMouseButtonState( MOUSE_BUTTON_RIGHT );
 
-	if ( isLockedIn )
+	if ( m_isCameraLocked )
 	{
 		float speedChange = 1.0f;
 		
@@ -69,11 +69,14 @@ void wv::EditorCameraSystem::onUpdate()
 
 			editorComp.look = {};
 			editorComp.move *= frictionDecay;
+			editorComp.isMoving = false;
 
 			if ( !editorComp.active )
 				continue;
 
-			if ( isLockedIn )
+			editorComp.isMoving = m_isCameraLocked;
+
+			if ( m_isCameraLocked )
 			{
 				Vector2i motion = inputSystem->getMouseMotion();
 				editorComp.look.x += 0.15f * (float)motion.x;

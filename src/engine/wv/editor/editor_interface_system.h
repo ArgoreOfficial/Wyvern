@@ -23,9 +23,6 @@ public:
 	virtual void onEditorRender() override;
 
 private:
-	void beginMoveObject();
-	void endMoveObject( bool _confirm );
-
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
 	void renderStatusBar();

@@ -21,20 +21,35 @@ public:
 	virtual void onEditorRender() override;
 
 private:
-	void setIsMoveObject( bool _moving );
+	enum EditTransformMode
+	{
+		EditTransformMode_None,
+		EditTransformMode_Translate,
+		EditTransformMode_Rotate,
+		EditTransformMode_Scale
+	};
+
+	void setEditTransformMode( EditTransformMode _mode );
+
+	void translateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength );
+	void rotateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength );
+	void scaleObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength );
 
 	ActionGroup* m_editorActionGroup = nullptr;
 	
-	ActionID m_moveObjectActionID = {};
-	ActionID m_moveObjectXActionID = {};
-	ActionID m_moveObjectYActionID = {};
-	ActionID m_moveObjectZActionID = {};
+	ActionID m_editTranslateActionID{};
+	ActionID m_editRotateActionID{};
+	ActionID m_editScaleActionID{};
+
+	ActionID m_lockAxisXActionID{};
+	ActionID m_lockAxisYActionID{};
+	ActionID m_lockAxisZActionID{};
 
 	ActionID m_shiftActionID = {};
 	ActionID m_mouseLeftActionID = {};
 	ActionID m_mouseRightActionID = {};
 
-	bool m_isMovingObject = false;
+	EditTransformMode m_transformMode = EditTransformMode_None;
 	int m_lockMovementAxis = -1;
 
 	bool m_leftShiftState = false;
