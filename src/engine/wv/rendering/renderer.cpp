@@ -330,10 +330,11 @@ bool wv::Renderer::initialize()
 									vkDestroyDescriptorPool( m_device, imguiPool, nullptr );
 								} );
 
+		ImGuiIO& io = ImGui::GetIO();
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		
 		// Steam style from ImThemes
 		ImGuiStyle& style = ImGui::GetStyle();
 
