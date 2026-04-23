@@ -257,9 +257,6 @@ void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectCo
 				case 1: newPosition.y += editCurrentPoint.y - editStartPoint.y; break;
 				case 2: newPosition.z += editCurrentPoint.z - editStartPoint.z; break;
 				}
-
-				getApp()->getRenderer()->addDebugSphere( editStartPoint, 0.3f );
-				getApp()->getRenderer()->addDebugSphere( editCurrentPoint, 0.3f );
 			}
 		}
 	}
