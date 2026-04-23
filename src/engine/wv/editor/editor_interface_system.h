@@ -2,19 +2,17 @@
 
 #include <wv/editor/editor_object_component.h>
 #include <wv/entity/ecs.h>
-
 #include <wv/input/action_group.h>
 
+#include <set>
+
 namespace wv {
-
-
 
 class EditorInterfaceSystem : public ISystem
 {
 public:
 	virtual void configure( ArchetypeConfig& _config ) override {
-		m_debugName = "EditorInterfaceSystem";
-
+		setDebugName( "EditorInterfaceSystem" );
 		setUpdateMode( UpdateMode_always );
 
 		_config.addComponentType<EditorObjectComponent>();
@@ -37,7 +35,6 @@ private:
 	void renderEntityView();
 	void renderMaterialView();
 
-
 	Entity* m_editorCameraEntity  = nullptr;
 	
 	bool m_showSystemsMenu = false;
@@ -52,27 +49,17 @@ private:
 
 	wv::ActionGroup* m_editorActionGroup = nullptr;
 	
-	wv::ActionID m_moveObjectActionID = {};
-	wv::ActionID m_moveObjectXActionID = {};
-	wv::ActionID m_moveObjectYActionID = {};
-	wv::ActionID m_moveObjectZActionID = {};
-
 	wv::ActionID m_shiftActionID = {};
 	wv::ActionID m_mouseLeftActionID = {};
 	wv::ActionID m_mouseRightActionID = {};
 
 	Entity* m_selectedEntity = nullptr;
-	bool m_isMovingObject = false;
-	int m_lockMovementAxis = -1;
 	
-	bool m_leftShiftState = false;
-
-	wv::Vector2f m_accumulatedMouseMove;
-	wv::Vector3f m_moveObjectStartPosition;
-
 	int m_currentSelectedEntityIndex = 0;
 	int m_currentMaterialViewSelected = 0;
 	int m_currentMaterialViewTextureSelected = 0;
+
+	std::set<UUID> m_selectedEntities;
 };
 
 }

@@ -8,6 +8,7 @@
 
 #include <wv/editor/editor_interface_system.h>
 #include <wv/editor/editor_camera_system.h>
+#include <wv/editor/editor_transform_system.h>
 
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
@@ -200,6 +201,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_world->addSystem<EditorInterfaceSystem>();
 	m_world->addSystem<EditorCameraSystem>();
+	m_world->addSystem<EditorTransformSystem>();
 #endif
 
 	///////////////////////////////////////////////////////////////////////////
