@@ -22,6 +22,8 @@ public:
 	virtual void onUpdate() override;
 	virtual void onEditorRender() override;
 
+	Entity* getEditorCamera() const { return m_editorCameraEntity; }
+
 private:
 	void renderPrimaryMenuBar();
 	void renderSecondaryMenuBar();
