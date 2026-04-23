@@ -14,8 +14,6 @@ class IUpdatable
 	friend class World;
 
 public:
-	std::string getDebugName() const { return m_debugName; }
-
 	virtual void onInitialize() { }
 	virtual void onShutdown() { }
 
@@ -29,15 +27,18 @@ public:
 	virtual void onEditorRender() { }
 
 	virtual void onRender() { }
+	
+	std::string getDebugName()                     const { return m_debugName; }
+	void        setDebugName( const std::string& _name ) { m_debugName = _name; }
 
-	void setDebugRenderEnabled( bool _enabled ) { m_debugRenderEnabled = _enabled; }
 	bool getDebugRenderEnabled()          const { return m_debugRenderEnabled; }
+	void setDebugRenderEnabled( bool _enabled ) { m_debugRenderEnabled = _enabled; }
 
-	void setEditorRenderEnabled( bool _enabled ) { m_editorRenderEnabled = _enabled; }
 	bool getEditorRenderEnabled()          const { return m_editorRenderEnabled; }
+	void setEditorRenderEnabled( bool _enabled ) { m_editorRenderEnabled = _enabled; }
 
-	void       setUpdateMode( UpdateMode _mode ) { m_updateMode = _mode; }
 	UpdateMode getUpdateMode()             const { return m_updateMode; }
+	void       setUpdateMode( UpdateMode _mode ) { m_updateMode = _mode; }
 
 protected:
 	std::string m_debugName = "";
