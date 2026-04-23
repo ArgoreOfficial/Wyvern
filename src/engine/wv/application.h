@@ -61,7 +61,7 @@ public:
 	inline Renderer*      getRenderer()           const { return m_renderer; }
 	inline TaskSystem*    getTaskSystem()         const { return m_taskSystem; }
 	inline AudioSystem*   getAudioSystem()        const { return m_audioSystem; }
-	inline World*         getWorld()              const { return m_world; }
+	inline World*         getActiveWorld()        const { return m_activeWorld; }
 
 	MeshManager*     getMeshManager()     const { return m_meshManager; }
 	MaterialManager* getMaterialManager() const { return m_materialManager; }
@@ -111,7 +111,7 @@ private:
 	wv::ShaderManager* m_shaderManager = nullptr;
 
 
-	wv::World* m_world = nullptr;
+	wv::World* m_activeWorld = nullptr;
 };
 
 static Application* getApp() {

@@ -76,7 +76,7 @@ static void from_json( const nlohmann::json& _json, PlayerMoveComponent& _comp )
 	if ( _json.contains( "cameraEntity" ) )
 	{
 		uint64_t id = (uint64_t)_json.at( "cameraEntity" );
-		_comp.cameraEntity = wv::getApp()->getWorld()->getEntityFromID( id );
+		_comp.cameraEntity = wv::getApp()->getActiveWorld()->getEntityFromID( id );
 	}
 }
 

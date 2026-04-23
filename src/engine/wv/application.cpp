@@ -81,7 +81,7 @@ wv::Application::Application()
 bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHeight )
 {
 	m_graphicsDriverName = "vulkan"; // TODO
-	m_world = _world;
+	m_activeWorld = _world;
 
 	m_meshManager = WV_NEW( MeshManager );
 	m_materialManager = WV_NEW( MaterialManager );
@@ -126,11 +126,11 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 
-	Viewport* viewport = m_world->getViewport();
+	Viewport* viewport = m_activeWorld->getViewport();
 	if ( !viewport )
 	{
 		viewport = WV_NEW( Viewport );
-		m_world->setViewport( viewport );
+		m_activeWorld->setViewport( viewport );
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -196,31 +196,31 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	editorActionGroup->disable(); // default off
 
-	m_world->registerComponentType<EditorObjectComponent>();
-	m_world->registerComponentType<EditorCameraComponent>();
+	m_activeWorld->registerComponentType<EditorObjectComponent>();
+	m_activeWorld->registerComponentType<EditorCameraComponent>();
 
-	m_world->addSystem<EditorInterfaceSystem>();
-	m_world->addSystem<EditorCameraSystem>();
-	m_world->addSystem<EditorTransformSystem>();
+	m_activeWorld->addSystem<EditorInterfaceSystem>();
+	m_activeWorld->addSystem<EditorCameraSystem>();
+	m_activeWorld->addSystem<EditorTransformSystem>();
 #endif
 
 	///////////////////////////////////////////////////////////////////////////
 	// Set up world
 
-	m_world->onSetupInput( m_inputSystem );
+	m_activeWorld->onSetupInput( m_inputSystem );
 
 	// systems must be set up first
 
-	m_world->addSystem<MeshRenderSystem>();
-	m_world->addSystem<PhysicsSystem>();
-	m_world->addSystem<CameraManagerSystem>();
-	m_world->addSystem<OrbitControllerSystem>();
+	m_activeWorld->addSystem<MeshRenderSystem>();
+	m_activeWorld->addSystem<PhysicsSystem>();
+	m_activeWorld->addSystem<CameraManagerSystem>();
+	m_activeWorld->addSystem<OrbitControllerSystem>();
 
-	m_world->onSceneCreate();
+	m_activeWorld->onSceneCreate();
 
-	m_world->updateFrameData( 0.0f, 0.0f );
-	m_world->dispatchUpdateMessage( UpdateEvent_initialize );
-	m_world->updateComponentChanges();
+	m_activeWorld->updateFrameData( 0.0f, 0.0f );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_initialize );
+	m_activeWorld->updateComponentChanges();
 	
 	// Update material buffers, as new materials have likely been loaded during world creation
 
@@ -233,14 +233,14 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 void wv::Application::shutdown()
 {
-	m_world->unload( true );
-	m_world->dispatchUpdateMessage( UpdateEvent_shutdown );
+	m_activeWorld->unload( true );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_shutdown );
 
 	m_renderer->waitForRenderer();
 
-	if ( m_world )
+	if ( m_activeWorld )
 	{
-		WV_FREE( m_world );
+		WV_FREE( m_activeWorld );
 	}
 	
 	if ( m_meshManager )
@@ -362,23 +362,23 @@ void wv::Application::update()
 	wv::Vector2i windowSize = m_displayDriver->getWindowSize();
 	if ( windowSize.x == 0 ) windowSize.x = 1;
 	if ( windowSize.y == 0 ) windowSize.y = 1;
-	m_world->getViewport()->size = { windowSize.x, windowSize.y };
+	m_activeWorld->getViewport()->size = { windowSize.x, windowSize.y };
 
-	m_world->updateFrameData( m_deltatime, m_fixedDeltaTime );
-	m_world->updateComponentChanges();
+	m_activeWorld->updateFrameData( m_deltatime, m_fixedDeltaTime );
+	m_activeWorld->updateComponentChanges();
 	
 	// physics update
 
-	if ( m_world->isRuntimeState() )
+	if ( m_activeWorld->isRuntimeState() )
 	{
-		PhysicsSystem* physicsSystem = m_world->m_ecsEngine->getSystem<PhysicsSystem>();
+		PhysicsSystem* physicsSystem = m_activeWorld->m_ecsEngine->getSystem<PhysicsSystem>();
 		
 		physicsSystem->onInternalPrePhysicsUpdate();
 
 		m_accumulator += m_deltatime;
 		while ( m_accumulator > m_fixedDeltaTime )
 		{
-			m_world->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
+			m_activeWorld->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
 
 
 			physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
@@ -392,11 +392,11 @@ void wv::Application::update()
 
 	// normal update
 
-	m_world->dispatchUpdateMessage( UpdateEvent_preUpdate );
-	m_world->dispatchUpdateMessage( UpdateEvent_update );
-	m_world->dispatchUpdateMessage( UpdateEvent_postUpdate );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_preUpdate );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_update );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_postUpdate );
 
-	for ( Entity* entity : m_world->m_entities )
+	for ( Entity* entity : m_activeWorld->m_entities )
 	{
 		// if an entity has a parent, it will be updated through the parents update() function
 		if ( entity->getParent() )
@@ -405,7 +405,7 @@ void wv::Application::update()
 		entity->update( nullptr, true );
 	}
 
-	CameraManagerSystem* cameraSystem = m_world->m_ecsEngine->getSystem<CameraManagerSystem>();
+	CameraManagerSystem* cameraSystem = m_activeWorld->m_ecsEngine->getSystem<CameraManagerSystem>();
 	cameraSystem->onInternalCameraUpdate();
 
 }
@@ -431,19 +431,19 @@ void wv::Application::render()
 #ifdef WV_DEBUG
 	if ( shouldRender )
 	{
-		m_world->dispatchUpdateMessage( UpdateEvent_debugRender );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_debugRender );
 		
 		m_renderer->beginDebugRender();
-		m_world->dispatchUpdateMessage( UpdateEvent_editorRender );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_editorRender );
 		m_renderer->endDebugRender();
 	}
 #endif
 
 	if ( shouldRender )
 	{
-		m_world->dispatchUpdateMessage( UpdateEvent_render );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_render );
 		m_shaderManager->updateBuffers();
-		m_renderer->render( m_world );
+		m_renderer->render( m_activeWorld );
 	}
 	
 }
