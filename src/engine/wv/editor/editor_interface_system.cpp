@@ -43,6 +43,12 @@ void wv::EditorInterfaceSystem::onUpdate()
 	InputSystem* inputSystem = getApp()->getInputSystem();
 	World* world = getWorld();
 	
+	for ( ActionEvent& ae : updateContext->actionEventQueue )
+	{
+		if ( ae.actionID == m_shiftActionID ) 
+			m_leftShiftState = ae.action.value->getValue() > 0.001f;
+	}
+
 	if ( !m_hasEnabledFirstFrame )
 	{
 		m_editorActionGroup->enable();
@@ -230,28 +236,59 @@ void wv::EditorInterfaceSystem::reloadMaterials()
 		mat->reload();
 }
 
+void wv::EditorInterfaceSystem::renderEntityTreeNode( Entity* _entity )
+{
+	std::string entityNodeID = _entity->getName() + "##" + std::to_string( (uint64_t)_entity->getID() );
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	auto children = _entity->getChildren();
+
+	if ( children.empty() )
+		flags |= ImGuiTreeNodeFlags_Leaf;
+
+	UUID id = _entity->getID();
+	
+	if ( m_selectedEntities.contains( id ) )
+		flags |= ImGuiTreeNodeFlags_Selected;
+
+	if ( ImGui::TreeNodeEx( entityNodeID.c_str(), flags ) )
+	{
+		if ( ImGui::IsItemClicked() )
+		{
+			if( !m_leftShiftState )
+				m_selectedEntities.clear();
+
+			if ( m_selectedEntities.contains( id ) )
+				m_selectedEntities.erase( id );
+			else
+				m_selectedEntities.insert( id );
+		}
+
+		for ( Entity* e : children )
+			renderEntityTreeNode( e );
+
+		ImGui::TreePop();
+	}
+}
+
 void wv::EditorInterfaceSystem::renderEntityView()
 {
-	m_selectedEntities = {};
-
-	if( ImGui::Begin( "Entities" ) )
+	if ( ImGui::Begin( "Scene View##editor_scene_window" ) )
 	{
-		auto entities = getWorld()->getActiveEntities();
-		std::vector<std::string> entityNames;
-		std::vector<const char*> entityNamesCstr;
-
-		entityNames.reserve( entities.size() );
-
-		for ( Entity* e : entities )
-		{
-			entityNames.push_back( e->getName() );
-			entityNamesCstr.push_back( entityNames.back().c_str());
-		}
+		std::vector<Entity*> entities = getWorld()->getActiveEntities();
 		
-		ImGui::ListBox( "Entities", &m_currentSelectedEntityIndex, entityNamesCstr.data(), entityNamesCstr.size() );
+		if ( ImGui::TreeNodeEx( "World##world_root_node", ImGuiTreeNodeFlags_DefaultOpen ) )
+		{
+			for ( Entity* e : entities )
+			{
+				if ( e->getParent() )
+					continue;
 
-		if ( m_currentSelectedEntityIndex >= 0 && m_currentSelectedEntityIndex < entities.size() )
-			m_selectedEntities.insert( entities[ m_currentSelectedEntityIndex ]->getID() );
+				renderEntityTreeNode( e );
+			}
+			ImGui::TreePop();
+		}
+
 	}
 	ImGui::End();
 }

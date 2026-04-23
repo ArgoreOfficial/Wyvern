@@ -32,6 +32,7 @@ private:
 
 	void reloadMaterials();
 
+	void renderEntityTreeNode( Entity* _entity );
 	void renderEntityView();
 	void renderMaterialView();
 
@@ -52,6 +53,8 @@ private:
 	wv::ActionID m_shiftActionID = {};
 	wv::ActionID m_mouseLeftActionID = {};
 	wv::ActionID m_mouseRightActionID = {};
+
+	bool m_leftShiftState = false;
 
 	Entity* m_selectedEntity = nullptr;
 	
