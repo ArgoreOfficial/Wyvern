@@ -19,7 +19,7 @@ class Entity final : wv::IReflectedType
 	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	Entity( const std::string& _debugName = "" ) : 
-		m_ID{ wv::Math::randomU32() },
+		m_ID{ wv::Math::randomU64() },
 		m_debugName{ _debugName }
 	{ }
 

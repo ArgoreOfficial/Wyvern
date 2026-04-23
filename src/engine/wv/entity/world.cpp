@@ -227,17 +227,15 @@ void wv::World::load( const std::filesystem::path& _path )
 	for ( auto& ent : json[ "entities" ] )
 	{
 		Entity* entity = createEntity( ent[ "name" ] );
-		uint64_t id;
-
-		ent[ "tfm" ].get_to( entity->m_transform );
-		ent[ "id" ].get_to( id );
-		entity->m_ID = id;
+		
+		entity->m_transform = ent.value<Transform>( "tfm", {} );
+		entity->m_ID = ent.value<uint64_t>( "id", wv::Math::randomU64() );
 	}
 
 	// parse hierarchy
 	for ( auto& ent : json[ "hierarchy" ] )
 	{
-		Entity* entity = getEntityFromID( (uint64_t)ent[ "entity" ] );
+		Entity* entity = getEntityFromID( ent.value<uint64_t>( "entity", 0 ) );
 		if ( !entity )
 			continue;
 
