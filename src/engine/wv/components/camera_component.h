@@ -76,6 +76,12 @@ struct CameraComponent
 		};
 	}
 
+	void screenToWorldRay( int _pixelX, int _pixelY, float _minDepth, float _maxDepth, Vector3f& _outStart, Vector3f& _outEnd )
+	{
+		_outStart = screenToWorld( _pixelX, _pixelY, _minDepth );
+		_outEnd   = screenToWorld( _pixelX, _pixelY, _maxDepth );
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	bool active;

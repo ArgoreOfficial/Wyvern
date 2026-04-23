@@ -112,9 +112,7 @@ void wv::EditorTransformSystem::onUpdate()
 
 		Vector2i mousePos = inputSystem->getMousePosition();
 		m_mousePosWhenTransformStart = mousePos;
-
-		m_transformLineStart = cameraComp.screenToWorld( mousePos.x, mousePos.y, 0.01f );
-		m_transformLineEnd   = cameraComp.screenToWorld( mousePos.x, mousePos.y, 1.0f );
+		cameraComp.screenToWorldRay( mousePos.x, mousePos.y, 0.01f, 1.0f, m_transformLineStart, m_transformLineEnd );
 	}
 
 	if ( m_transformMode != EditTransformMode_None )
@@ -265,8 +263,9 @@ void wv::EditorTransformSystem::scaleObject( Entity* _entity, EditorObjectCompon
 	CameraComponent& cameraComp = getWorld()->getComponent<CameraComponent>( m_editorCamera );
 
 	Vector2i mousePos  = m_mousePosWhenTransformStart + m_accumulatedMouseMove;
-	Vector3f lineStart = cameraComp.screenToWorld( mousePos.x, mousePos.y, 0.01f );
-	Vector3f lineEnd   = cameraComp.screenToWorld( mousePos.x, mousePos.y, 1.0f );
+	Vector3f lineStart, lineEnd;
+
+	cameraComp.screenToWorldRay( mousePos.x, mousePos.y, 0.01f, 1.0f, lineStart, lineEnd );
 
 	Vector3f editOriginPoint  = Math::lineClosestPointClamped( m_transformLineStart, m_transformLineEnd, _com );
 	Vector3f editCurrentPoint = wv::Math::lineClosestPointClamped( lineStart, lineEnd, _com );
