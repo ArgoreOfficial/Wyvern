@@ -26,9 +26,8 @@ void wv::EditorTransformSystem::onInitialize()
 
 void wv::EditorTransformSystem::onUpdate()
 {
-	Application* app = getApp();
-	InputSystem* inputSystem = app->getInputSystem();
-	World* world = app->getWorld();
+	InputSystem* inputSystem = getApp()->getInputSystem();
+	World* world = getWorld();
 
 	CameraManagerSystem* cameraManager = world->getSystem<CameraManagerSystem>();
 	Entity* camera = cameraManager->getCameraOverride();

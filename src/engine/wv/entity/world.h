@@ -137,19 +137,8 @@ public:
 	void updateFrameData( double _deltaTime, double _physicsDeltaTime );
 	void dispatchUpdateMessage( UpdateEventType _type );
 
-	void insertUpdatable( IUpdatable* _updatable ) {
-		if ( m_updatables.contains( _updatable ) )
-			return;
-
-		m_updatables.insert( _updatable );
-	}
-
-	void eraseUpdatable( IUpdatable* _updatable ) {
-		if ( !m_updatables.contains( _updatable ) )
-			return;
-
-		m_updatables.erase( _updatable );
-	}
+	void insertUpdatable( IUpdatable* _updatable );
+	void eraseUpdatable( IUpdatable* _updatable );
 
 	void toggleEditorState() { m_isInEditorState = !m_isInEditorState; }
 

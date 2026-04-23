@@ -40,11 +40,14 @@ public:
 	UpdateMode getUpdateMode()             const { return m_updateMode; }
 	void       setUpdateMode( UpdateMode _mode ) { m_updateMode = _mode; }
 
+	World* getWorld() const { return m_world; }
+
 protected:
 	std::string m_debugName = "";
 
 private:
 	UpdateMode m_updateMode = UpdateMode_runtime;
+	World* m_world = nullptr;
 
 	bool m_editorRenderEnabled = false;
 	bool m_debugRenderEnabled = true;

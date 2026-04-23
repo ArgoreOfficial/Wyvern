@@ -396,6 +396,24 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 	}
 }
 
+void wv::World::insertUpdatable( IUpdatable* _updatable )
+{
+	if ( m_updatables.contains( _updatable ) )
+		return;
+
+	_updatable->m_world = this;
+	m_updatables.insert( _updatable );
+}
+
+void wv::World::eraseUpdatable( IUpdatable* _updatable )
+{
+	if ( !m_updatables.contains( _updatable ) )
+		return;
+
+	_updatable->m_world = nullptr;
+	m_updatables.erase( _updatable );
+}
+
 void wv::World::updateComponentChanges() 
 {
 	for ( auto& change : m_componentChangeQueue )

@@ -25,7 +25,7 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 	m_shiftActionID = m_editorActionGroup->getValueActionID( "ShiftLeft" );
 
-	World* world = getApp()->getWorld();
+	World* world = getWorld();
 
 	m_editorCameraEntity = world->createEntity( "EditorCamera" );
 	m_editorCameraEntity->setShouldSerialize( false );
@@ -40,9 +40,8 @@ void wv::EditorInterfaceSystem::onInitialize()
 
 void wv::EditorInterfaceSystem::onUpdate()
 {
-	Application* app = getApp();
-	InputSystem* inputSystem = app->getInputSystem();
-	World* world = app->getWorld();
+	InputSystem* inputSystem = getApp()->getInputSystem();
+	World* world = getWorld();
 	
 	if ( !m_hasEnabledFirstFrame )
 	{
@@ -96,7 +95,7 @@ void wv::EditorInterfaceSystem::onEditorRender()
 	{
 		if ( ImGui::Begin( "Systems" ) )
 		{
-			auto systems = wv::getApp()->getWorld()->getSystems();
+			auto systems = getWorld()->getSystems();
 			for ( ISystem* system : systems )
 			{
 				std::string systemName = system->getDebugName();
@@ -129,7 +128,7 @@ void wv::EditorInterfaceSystem::onEditorRender()
 
 void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
-	World* world = getApp()->getWorld();
+	World* world = getWorld();
 
 	if ( ImGui::BeginMainMenuBar() )
 	{
@@ -168,7 +167,7 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 	float height = ImGui::GetFrameHeight();
 
-	World* world = getApp()->getWorld();
+	World* world = getWorld();
 
 	if ( ImGui::BeginViewportSideBar( "##SecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags ) )
 	{
@@ -237,7 +236,7 @@ void wv::EditorInterfaceSystem::renderEntityView()
 
 	if( ImGui::Begin( "Entities" ) )
 	{
-		auto entities = wv::getApp()->getWorld()->getActiveEntities();
+		auto entities = getWorld()->getActiveEntities();
 		std::vector<std::string> entityNames;
 		std::vector<const char*> entityNamesCstr;
 

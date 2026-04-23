@@ -69,7 +69,7 @@ void wv::CameraManagerSystem::onInternalCameraUpdate()
 
 void wv::CameraManagerSystem::updateCamera( Entity* _entity, CameraComponent& _component )
 {
-	World* world = wv::getApp()->getWorld();
+	World* world = getWorld();
 
 	_component.viewDimensions = world->getViewport()->size;
 
