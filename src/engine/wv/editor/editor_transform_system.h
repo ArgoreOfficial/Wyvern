@@ -21,12 +21,10 @@ public:
 	virtual void onEditorRender() override;
 
 private:
-	void beginMoveObject();
-	void endMoveObject( bool _confirm );
+	void setIsMoveObject( bool _moving );
 
 	ActionGroup* m_editorActionGroup = nullptr;
-	Entity* m_selectedEntity = nullptr;
-
+	
 	ActionID m_moveObjectActionID = {};
 	ActionID m_moveObjectXActionID = {};
 	ActionID m_moveObjectYActionID = {};
@@ -42,7 +40,6 @@ private:
 	bool m_leftShiftState = false;
 
 	Vector2f m_accumulatedMouseMove;
-	Vector3f m_moveObjectStartPosition;
 
 };
 

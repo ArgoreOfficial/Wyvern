@@ -35,36 +35,30 @@ void wv::EditorTransformSystem::onUpdate()
 	if ( !camera )
 		return;
 
-	m_selectedEntity = nullptr;
-
-	for ( Archetype* arch : getArchetypes() )
-	{
-		auto& comps = arch->getComponents<EditorObjectComponent>();
-		auto& ents = arch->getEntities();
-
-		for ( size_t i = 0; i < arch->getNumEntities(); i++ )
-			if ( comps[ i ].selected )
-				m_selectedEntity = ents[ i ];
-	}
-
-	if ( !m_selectedEntity )
-		return;
+	bool justStartedTransform = false;
+	bool cancelledTransform = false;
 
 	for ( ActionEvent& ae : updateContext->actionEventQueue )
 	{
 		if ( ae.actionID == m_moveObjectActionID && ae.action.trigger->getValue() )
 		{
 			if ( m_isMovingObject )
-				endMoveObject( true );
+				setIsMoveObject( false );
 			else
-				beginMoveObject();
+			{
+				justStartedTransform = true;
+				setIsMoveObject( true );
+			}
 		}
 
-		if ( ae.actionID == m_mouseLeftActionID )
-			if ( m_isMovingObject ) endMoveObject( true );
-
-		if ( ae.actionID == m_mouseRightActionID )
-			if ( m_isMovingObject ) endMoveObject( false );
+		if ( ae.actionID == m_mouseLeftActionID && m_isMovingObject )
+			setIsMoveObject( false );
+			
+		if ( ae.actionID == m_mouseRightActionID && m_isMovingObject )
+		{
+			setIsMoveObject( false );
+			cancelledTransform = true;
+		}
 
 		if ( ae.actionID == m_moveObjectXActionID && ae.action.trigger->getValue() ) m_lockMovementAxis = 0;
 		if ( ae.actionID == m_moveObjectYActionID && ae.action.trigger->getValue() ) m_lockMovementAxis = 1;
@@ -73,38 +67,60 @@ void wv::EditorTransformSystem::onUpdate()
 		if ( ae.actionID == m_shiftActionID ) m_leftShiftState = ae.action.value->getValue() > 0.001f;
 	}
 
-	if ( m_selectedEntity && m_isMovingObject )
+	if ( m_isMovingObject )
 	{
-		Transform& tfm = m_selectedEntity->getTransform();
-		float dist = ( tfm.position - camera->getTransform().position ).length();
-
-		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion() / 1000.0f * dist;
+		Vector2f mouseMove = (Vector2f)inputSystem->getMouseMotion();
 
 		if ( m_leftShiftState )
 			mouseMove *= 0.1f;
 
 		m_accumulatedMouseMove += mouseMove;
-		switch ( m_lockMovementAxis )
+	}
+
+	for ( Archetype* arch : getArchetypes() )
+	{
+		auto& comps = arch->getComponents<EditorObjectComponent>();
+		auto& ents = arch->getEntities();
+
+		for ( size_t i = 0; i < arch->getNumEntities(); i++ )
 		{
-		case -1:
-		{
-			Vector3f right = camera->getTransform().right();
-			Vector3f up = camera->getTransform().up();
+			EditorObjectComponent& editorObject = comps[ i ];
+			Entity* entity = ents[ i ];
 
-			tfm.position = m_moveObjectStartPosition + ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y );
-		} break;
+			if ( editorObject.selected )
+			{
+				Transform& tfm = entity->getTransform();
 
-		case 0:
-			tfm.position = m_moveObjectStartPosition + Vector3f{ m_accumulatedMouseMove.x, 0.0f, 0.0f };
-			break;
+				if ( justStartedTransform )
+					editorObject.translateStart = tfm.position;
+				
+				if ( m_isMovingObject )
+				{
+					float dist = ( tfm.position - camera->getTransform().position ).length();
 
-		case 1:
-			tfm.position = m_moveObjectStartPosition + Vector3f{ 0.0f, -m_accumulatedMouseMove.y, 0.0f };
-			break;
+					Vector3f move{};
 
-		case 2:
-			tfm.position = m_moveObjectStartPosition + Vector3f{ 0.0f, 0.0f, -m_accumulatedMouseMove.y };
-			break;
+					switch ( m_lockMovementAxis )
+					{
+					case -1:
+					{
+						Vector3f right = camera->getTransform().right();
+						Vector3f up = camera->getTransform().up();
+
+						move = ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y );
+					} break;
+
+					case 0: move = Vector3f{ m_accumulatedMouseMove.x,  0.0f, 0.0f }; break;
+					case 1: move = Vector3f{ 0.0f, -m_accumulatedMouseMove.y, 0.0f }; break;
+					case 2: move = Vector3f{ 0.0f, 0.0f, -m_accumulatedMouseMove.y }; break;
+					}
+
+					tfm.position = editorObject.translateStart + ( move / 1000.0f * dist );
+				}
+
+				if ( cancelledTransform )
+					tfm.position = editorObject.translateStart;
+			}
 		}
 	}
 }
@@ -114,30 +130,11 @@ void wv::EditorTransformSystem::onEditorRender()
 }
 
 
-void wv::EditorTransformSystem::beginMoveObject()
+void wv::EditorTransformSystem::setIsMoveObject( bool _moving )
 {
-	if ( m_isMovingObject )
-		return;
+	getApp()->setCursorLock( _moving );
 
-	Application* app = getApp();
-	m_isMovingObject = true;
-
-	app->setCursorLock( true );
-	m_moveObjectStartPosition = m_selectedEntity->getTransform().position;
+	m_isMovingObject = _moving;
 	m_lockMovementAxis = -1;
 	m_accumulatedMouseMove = {};
-}
-
-void wv::EditorTransformSystem::endMoveObject( bool _confirm )
-{
-	if ( !m_isMovingObject )
-		return;
-
-	Application* app = getApp();
-	m_isMovingObject = false;
-
-	app->setCursorLock( false );
-
-	if ( !_confirm )
-		m_selectedEntity->getTransform().position = m_moveObjectStartPosition;
 }

@@ -86,7 +86,7 @@ void wv::EditorInterfaceSystem::onUpdate()
 
 		for ( size_t i = 0; i < arch->getNumEntities(); i++ )
 			comps[ i ].selected = m_selectedEntities.contains( entities[ i ]->getID() );
-
+		
 	}
 }
 
