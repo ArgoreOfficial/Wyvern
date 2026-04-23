@@ -17,9 +17,10 @@ static void to_json( nlohmann::json& _json, const Vector3<Ty>& _vec ) {
 
 template<typename Ty>
 static void from_json( const nlohmann::json& _json, Vector3<Ty>& _vec ) {
-	_json.at( 0 ).get_to( _vec.x );
-	_json.at( 1 ).get_to( _vec.y );
-	_json.at( 2 ).get_to( _vec.z );
+	     if ( _json.size() == 0 ) _vec = Vector3<Ty>{};
+	else if ( _json.size() == 1 ) _vec = Vector3<Ty>{ _json[ 0 ], 0.0f, 0.0f };
+	else if ( _json.size() == 2 ) _vec = Vector3<Ty>{ _json[ 0 ], _json[ 1 ], 0.0f };
+	else if ( _json.size() == 3 ) _vec = Vector3<Ty>{ _json[ 0 ], _json[ 1 ], _json[ 2 ] };
 }
 
 template<typename Ty>
@@ -29,10 +30,13 @@ static void to_json( nlohmann::json& _json, const Rotor<Ty>& _rot ) {
 
 template<typename Ty>
 static void from_json( const nlohmann::json& _json, Rotor<Ty>& _rot ) {
-	_json.at( 0 ).get_to( _rot.s );
-	_json.at( 1 ).get_to( _rot.xy );
-	_json.at( 2 ).get_to( _rot.xz );
-	_json.at( 3 ).get_to( _rot.yz );
+	if ( _json.size() == 0 )
+	{
+		_rot.s  = _json[ 0 ];
+		_rot.xy = _json[ 1 ];
+		_rot.xz = _json[ 2 ];
+		_rot.yz = _json[ 3 ];
+	}
 }
 
 static void to_json( nlohmann::json& _json, const Transform& _tfm ) {
@@ -44,9 +48,18 @@ static void to_json( nlohmann::json& _json, const Transform& _tfm ) {
 }
 
 static void from_json( const nlohmann::json& _json, Transform& _tfm ) {
-	_json.at( "pos" ).get_to( _tfm.position );
-	_json.at( "rot" ).get_to( _tfm.rotation );
-	_json.at( "scl" ).get_to( _tfm.scale );
+	_tfm.position = _json.value<Vector3f>( "pos", {} );
+	_tfm.rotation = _json.value<Rotorf>( "rot", {} );
+
+	if ( !_json[ "scl" ].is_array() || _json[ "scl" ].size() == 0 )
+		_tfm.scale = { 1.0f, 1.0f, 1.0f };
+	else
+	{
+		_tfm.scale = _json[ "scl" ];
+
+		     if ( _json[ "scl" ].size() == 1 ) _tfm.scale = { _tfm.scale.x, 1.0f, 1.0f };
+		else if ( _json[ "scl" ].size() == 2 ) _tfm.scale = { _tfm.scale.x, _tfm.scale.y, 1.0f };
+	}
 }
 
 class WorldSerializer
