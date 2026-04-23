@@ -55,7 +55,6 @@ public:
 	Viewport* getViewport() const                { return m_viewport; }
 	void      setViewport( Viewport* _viewport ) { m_viewport = _viewport; }
 
-	void    addEntity   ( Entity* _entity ) { m_entities.push_back( _entity ); }
 	Entity* createEntity( const std::string& _name = "" );
 
 	Entity* getEntityFromID( UUID _id ) const {

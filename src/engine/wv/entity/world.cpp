@@ -1,6 +1,7 @@
 #include "world.h"
 
 #include <wv/entity/ecs.h>
+#include <wv/editor/editor_object_component.h>
 
 #include <wv/components/camera_component.h>
 #include <wv/components/mesh_component.h>
@@ -201,7 +202,12 @@ void wv::World::unload( bool _destroyPersistent )
 wv::Entity* wv::World::createEntity( const std::string& _name )
 {
 	Entity* e = WV_NEW( Entity, _name );
-	addEntity( e );
+	
+#ifndef WV_PACKAGE
+	addComponent<EditorObjectComponent>( e, {} );
+#endif
+
+	m_entities.push_back( e );
 	return e;
 }
 

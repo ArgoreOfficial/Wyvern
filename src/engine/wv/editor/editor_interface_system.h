@@ -1,15 +1,13 @@
 #pragma once
 
+#include <wv/editor/editor_object_component.h>
 #include <wv/entity/ecs.h>
 
 #include <wv/input/action_group.h>
 
 namespace wv {
 
-struct EditorObjectComponent
-{
 
-};
 
 class EditorInterfaceSystem : public ISystem
 {
