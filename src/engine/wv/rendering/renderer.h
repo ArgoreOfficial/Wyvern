@@ -237,6 +237,15 @@ public:
 		return index;
 	}
 
+	void addDebugArrow( const wv::Vector3f& _start, const wv::Vector3f& _end ) {
+		Vector3f dir = ( _end - _start ).normalized();
+		Vector3f right = dir.cross( { 0.0f, 1.0f, 0.0f } );
+
+		addDebugLine( _start, _end );
+		addDebugLine( _end, _end - ( dir * 0.1f ) + ( right * 0.1f ) );
+		addDebugLine( _end, _end - ( dir * 0.1f ) + ( right * -0.1f ) );
+	}
+
 	void addDebugLine( const wv::Vector3f& _start, const wv::Vector3f& _end ) {
 		m_debugLinePositions.push_back( _start );
 		m_debugLinePositions.push_back( _end );
