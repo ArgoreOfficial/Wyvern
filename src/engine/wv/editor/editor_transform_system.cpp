@@ -201,26 +201,70 @@ void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
 void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
 	Transform& tfm = _entity->getTransform();
+	CameraComponent& cameraComp = getWorld()->getComponent<CameraComponent>( m_editorCamera );
+
 	Vector3f newPosition = _editorComponent.translateStart;
 
 	float dist = ( _com - m_editorCamera->getTransform().position ).length();
 	_strength *= dist;
 
-	switch ( m_lockMovementAxis )
-	{
-	case -1:
+	if ( m_lockMovementAxis == -1 )
 	{
 		Vector3f right = m_editorCamera->getTransform().right();
 		Vector3f up = m_editorCamera->getTransform().up();
 
 		newPosition += ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y ) * _strength;
-	} break;
+	}
+	else
+	{
+		Vector3f planeDirection{};
+		
+		switch ( m_lockMovementAxis )
+		{
+		case 0: planeDirection = { 0.0f, 1.0f, 0.0f }; break;
 
-	case 0: newPosition.x +=  m_accumulatedMouseMove.x * _strength; break;
-	case 1: newPosition.y += -m_accumulatedMouseMove.y * _strength; break;
-	case 2: newPosition.z += -m_accumulatedMouseMove.y * _strength; break;
+		case 1:
+		{
+			Vector3f absDir = m_editorCamera->getTransform().forward();
+			absDir.x = Math::abs( absDir.x );
+			absDir.z = Math::abs( absDir.z );
+
+			if( absDir.x > absDir.z ) planeDirection = { 1.0f, 0.0f, 0.0f };
+			if( absDir.z > absDir.x ) planeDirection = { 0.0f, 0.0f, 1.0f };
+
+		} break;
+
+		case 2: planeDirection = { 0.0f, 1.0f, 0.0f }; break;
+		}
+
+		Vector3f editStartPoint, editCurrentPoint;
+		Vector3f transformLineDir = ( m_transformLineEnd - m_transformLineStart ).normalized();
+
+		if ( Math::linePlaneIntersection( m_transformLineStart, transformLineDir, _com, planeDirection, &editStartPoint ) )
+		{
+			Vector2i mousePos = m_mousePosWhenTransformStart + m_accumulatedMouseMove;
+			Vector3f lineStart, lineEnd;
+
+			cameraComp.screenToWorldRay( mousePos.x, mousePos.y, 0.01f, 1.0f, lineStart, lineEnd );
+
+			Vector3f lineDir = ( lineEnd - lineStart ).normalized();
+
+			if ( Math::linePlaneIntersection( lineStart, lineDir, _com, planeDirection, &editCurrentPoint ) )
+			{
+				switch ( m_lockMovementAxis )
+				{
+				case 0: newPosition.x += editCurrentPoint.x - editStartPoint.x; break;
+				case 1: newPosition.y += editCurrentPoint.y - editStartPoint.y; break;
+				case 2: newPosition.z += editCurrentPoint.z - editStartPoint.z; break;
+				}
+
+				getApp()->getRenderer()->addDebugSphere( editStartPoint, 0.3f );
+				getApp()->getRenderer()->addDebugSphere( editCurrentPoint, 0.3f );
+			}
+		}
 	}
 
+	
 	tfm.position = newPosition;
 	tfm.rotation = _editorComponent.rotateStart;
 	tfm.scale = _editorComponent.scaleStart;
@@ -229,7 +273,7 @@ void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectCo
 void wv::EditorTransformSystem::rotateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
 	Transform& tfm = _entity->getTransform();
-	
+
 	Rotorf rotor{};
 	float radians = -m_accumulatedMouseMove.x * _strength;
 
@@ -259,7 +303,6 @@ void wv::EditorTransformSystem::scaleObject( Entity* _entity, EditorObjectCompon
 {
 	InputSystem* inputSystem = getApp()->getInputSystem();
 	Transform& tfm = _entity->getTransform();
-
 	CameraComponent& cameraComp = getWorld()->getComponent<CameraComponent>( m_editorCamera );
 
 	Vector2i mousePos  = m_mousePosWhenTransformStart + m_accumulatedMouseMove;
