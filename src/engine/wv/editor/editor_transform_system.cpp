@@ -203,7 +203,7 @@ void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
 void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectComponent& _editorComponent, Vector3f _com, float _strength )
 {
 	Transform& tfm = _entity->getTransform();
-	Vector3f move{};
+	Vector3f newPosition = _editorComponent.translateStart;
 
 	float dist = ( _com - m_editorCamera->getTransform().position ).length();
 	_strength *= dist;
@@ -215,15 +215,15 @@ void wv::EditorTransformSystem::translateObject( Entity* _entity, EditorObjectCo
 		Vector3f right = m_editorCamera->getTransform().right();
 		Vector3f up = m_editorCamera->getTransform().up();
 
-		move = ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y );
+		newPosition += ( right * m_accumulatedMouseMove.x + up * -m_accumulatedMouseMove.y ) * _strength;
 	} break;
 
-	case 0: move = Vector3f{ m_accumulatedMouseMove.x,  0.0f, 0.0f }; break;
-	case 1: move = Vector3f{ 0.0f, -m_accumulatedMouseMove.y, 0.0f }; break;
-	case 2: move = Vector3f{ 0.0f, 0.0f, -m_accumulatedMouseMove.y }; break;
+	case 0: newPosition.x +=  m_accumulatedMouseMove.x * _strength; break;
+	case 1: newPosition.y += -m_accumulatedMouseMove.y * _strength; break;
+	case 2: newPosition.z += -m_accumulatedMouseMove.y * _strength; break;
 	}
 
-	tfm.position = _editorComponent.translateStart + move * _strength;
+	tfm.position = newPosition;
 	tfm.rotation = _editorComponent.rotateStart;
 	tfm.scale = _editorComponent.scaleStart;
 }
@@ -232,8 +232,25 @@ void wv::EditorTransformSystem::rotateObject( Entity* _entity, EditorObjectCompo
 {
 	Transform& tfm = _entity->getTransform();
 	
-	Vector3f bvPlane = wv::Math::wedge( m_editorCamera->getTransform().right(), m_editorCamera->getTransform().up() );
-	Rotorf rotor{ bvPlane, -m_accumulatedMouseMove.x * _strength };
+	Rotorf rotor{};
+	float radians = -m_accumulatedMouseMove.x * _strength;
+
+	switch ( m_lockMovementAxis )
+	{
+	case -1:
+	{
+		Vector3f bvPlane = wv::Math::wedge( 
+			m_editorCamera->getTransform().right(), 
+			m_editorCamera->getTransform().up() 
+		);
+
+		rotor = Rotorf{ bvPlane, radians }; 
+	} break;
+
+	case 0: rotor = Rotorf{ { 0.0,  0.0, 1.0 }, radians }; break;
+	case 1: rotor = Rotorf{ { 0.0, -1.0, 0.0 }, radians }; break;
+	case 2: rotor = Rotorf{ { 1.0,  0.0, 0.0 }, radians }; break;
+	}
 
 	tfm.position = _editorComponent.translateStart;
 	tfm.rotation = rotor * _editorComponent.rotateStart;
@@ -258,8 +275,17 @@ void wv::EditorTransformSystem::scaleObject( Entity* _entity, EditorObjectCompon
 	float editCurrentDistance = ( editCurrentPoint - _com ).length();
 
 	float scale = 1 + ( editCurrentDistance - editOriginDistance ) * _strength;
+	Vector3f newScale = _editorComponent.scaleStart;
+
+	switch ( m_lockMovementAxis )
+	{
+	case -1: newScale   *= scale; break;
+	case 0:  newScale.x *= scale; break;
+	case 1:  newScale.y *= scale; break;
+	case 2:  newScale.z *= scale; break;
+	}
 
 	tfm.position = _editorComponent.translateStart;
 	tfm.rotation = _editorComponent.rotateStart;
-	tfm.scale = _editorComponent.scaleStart * scale;
+	tfm.scale = newScale;
 }
