@@ -14,6 +14,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
+#include <set>
+
 void wv::EditorInterfaceSystem::onInitialize()
 {
 	setEditorRenderEnabled( true );
@@ -303,29 +305,71 @@ void wv::EditorInterfaceSystem::renderEntityView()
 
 void wv::EditorInterfaceSystem::renderComponentView()
 {
+	World* world = getWorld();
+
+	int editorObjectIndex = ECSEngine::ComponentTypeDef<EditorObjectComponent>::index;
+	int editorCameraIndex = ECSEngine::ComponentTypeDef<EditorCameraComponent>::index;
+
 	if ( ImGui::Begin( "Entity Properties##entity_properties_window" ) )
 	{
 		if ( m_selectedEntities.size() > 0 )
 		{
-			Entity* selectedEntity = getWorld()->getEntityFromID( *m_selectedEntities.begin() );
+			Entity* selectedEntity = world->getEntityFromID( *m_selectedEntities.begin() );
 
 			ImGui::SeparatorText( selectedEntity->getName().c_str() );
+
+			std::vector<int> allComponent = world->getRegisteredComponents();
+			std::set<int> existingComponents;
 
 			if ( selectedEntity->archetype )
 			{
 				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-				int editorObjectIndex = ECSEngine::ComponentTypeDef<EditorObjectComponent>::index;
-
 				for ( int& index : componentIndices )
+					existingComponents.insert( index );
+			}
+			
+			if ( ImGui::BeginMenu( "Add Component" ) )
+			{
+				for ( int index : allComponent )
 				{
-					if ( index == editorObjectIndex )
+					if ( index == editorObjectIndex || index == editorCameraIndex )
 						continue;
 
-					std::string componentNameID = getWorld()->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
+					std::string compName = world->getComponentName( index );
+					bool hasComponent = existingComponents.contains( index );
+
+					if ( hasComponent )
+						ImGui::BeginDisabled();
+
+					if ( ImGui::Selectable( compName.c_str() ) )
+						world->addComponent( index, selectedEntity );
+
+					if ( hasComponent )
+						ImGui::EndDisabled();
+				}
+				ImGui::EndMenu();
+			}
+
+			if ( selectedEntity->archetype )
+			{
+				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+				
+				for ( int& index : componentIndices )
+				{
+					if ( index == editorObjectIndex || index == editorCameraIndex )
+						continue;
+
+					std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
 					if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
-						
+						ImGui::PushID( index );
+						if ( ImGui::Button( "Delete##component_delete_button" ) )
+							world->removeComponent( index, selectedEntity );
+						ImGui::PopID();
+
 					}
+					
+
 				}
 			}
 		}
