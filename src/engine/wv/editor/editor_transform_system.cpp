@@ -200,7 +200,7 @@ void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
 		getApp()->setCursorLock( isTransforming );
 
 	// if no longer transforming, or if we just started transforming
-	if ( !isTransforming || ( m_transformMode != isTransforming ) )
+	if ( !isTransforming || ( m_transformMode != _mode ) )
 	{
 		m_accumulatedMouseMove = {};
 		m_lockMovementAxis = -1;
