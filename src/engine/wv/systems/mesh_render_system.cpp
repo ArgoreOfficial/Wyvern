@@ -52,21 +52,19 @@ void wv::MeshRenderSystem::onRender()
 			{
 				RenderMesh mesh{};
 				mesh.mesh = meshAsset->getGPUAllocation();
-				if ( primitive.material < meshComponent.materials.size() )
-				{
-					Ref<MaterialAsset> material = meshComponent.materials[ primitive.material ];
-					mesh.pipeline = material->shaderType->getPipelineID();
-					mesh.materialBuffer = material->shaderType->getBufferID();
-					mesh.materialIndex = material->m_materialIndex;
+				
+				Ref<MaterialAsset> material = nullptr;
 
-				}
-				else
-				{
-					// no material assigned, use default
-					mesh.pipeline = m_defaultMaterial->shaderType->getPipelineID();
-					mesh.materialBuffer = m_defaultMaterial->shaderType->getBufferID();
-					mesh.materialIndex = m_defaultMaterial->m_materialIndex;
-				}
+				if ( primitive.material < meshComponent.materials.size() )
+					material = meshComponent.materials[ primitive.material ];
+				
+				if( !material || !material->shaderType )
+					material = m_defaultMaterial;
+
+				mesh.pipeline = material->shaderType->getPipelineID();
+				mesh.materialBuffer = material->shaderType->getBufferID();
+				mesh.materialIndex = material->m_materialIndex;
+
 
 				mesh.indexCount = primitive.indexCount;
 				mesh.firstIndex = primitive.firstIndex;

@@ -93,6 +93,7 @@ void wv::IShader::create( size_t _elementSize )
 
 wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
 {
+	path = _path;
 	auto app = wv::getApp();
 	auto fs = app->getFileSystem();
 
@@ -119,8 +120,6 @@ wv::MaterialAsset::MaterialAsset( const std::filesystem::path& _path )
 	m_materialIndex = shaderType->createMaterial();
 
 	shaderType->parseMaterialData( *this, j[ "data" ] );
-
-	path = _path;
 }
 
 wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& _path )
