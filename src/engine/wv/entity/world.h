@@ -84,6 +84,13 @@ public:
 		return index;
 	}
 
+	std::vector<int> getRegisteredComponents() const {
+		std::vector<int> vec;
+		for ( auto& [k, v] : m_editorComponentInfos )
+			vec.push_back( k );
+		return vec;
+	}
+
 	template<typename Ty>
 	Ty& getComponent( Entity* _entity ) {
 		Archetype* archetype = _entity->archetype;
