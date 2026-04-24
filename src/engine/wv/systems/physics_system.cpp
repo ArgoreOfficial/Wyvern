@@ -21,6 +21,7 @@ JPH_SUPPRESS_WARNINGS
 #include <wv/components/collider_component.h>
 #include <wv/math/math.h>
 #include <wv/rendering/renderer.h>
+#include <wv/entity/world.h>
 
 #ifdef WV_SUPPORT_IMGUI
 #include <imgui/imgui.h>
@@ -151,7 +152,7 @@ void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "PhysicsSystem";
 
-	setUpdateMode( UpdateMode_runtime );
+	setUpdateMode( UpdateMode_always );
 
 	_config.addComponentType<RigidBodyComponent>();
 	_config.addComponentType<ColliderComponent>();
@@ -162,6 +163,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	Entity* ent = _archetype->getEntities()[ _index ];
 	ColliderComponent&  collider  = _archetype->getComponents<ColliderComponent>()[ _index ];
 	RigidBodyComponent& rigidbody = _archetype->getComponents<RigidBodyComponent>()[ _index ];
+	Transform& tfm = ent->getTransform();
 
 	JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
@@ -192,7 +194,12 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	case ColliderShape_box:
 	{
 		bodySetting = JPH::BodyCreationSettings(
-			new JPH::BoxShape( { collider.boxSize.x / 2.0f, collider.boxSize.y / 2.0f, collider.boxSize.z / 2.0f } ),
+			new JPH::BoxShape( 
+				{ 
+					collider.boxSize.x / 2.0f * tfm.scale.x, 
+					collider.boxSize.y / 2.0f * tfm.scale.y, 
+					collider.boxSize.z / 2.0f * tfm.scale.z 
+				} ),
 			jphPos, jphRot, motionType, layers
 		);
 	} break;
@@ -298,6 +305,64 @@ void wv::PhysicsSystem::onShutdown()
 
 	WV_FREE( JPH::Factory::sInstance );
 	JPH::Factory::sInstance = nullptr;
+}
+
+void wv::PhysicsSystem::onUpdate()
+{
+	if ( getWorld()->isEditorState() )
+	{
+		JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
+
+	// set velocities
+		for ( Archetype* archetype : getArchetypes() )
+		{
+			auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
+			auto& entities = archetype->getEntities();
+
+			for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+			{
+				RigidBodyComponent& rigidbody = rigidbodies[ i ];
+				if ( !m_bodies.contains( rigidbody.id ) )
+					continue;
+
+				Entity* entity = entities[ i ];
+				Transform& tfm = entity->getTransform();
+				JPH::BodyID bodyID = m_bodies.at( rigidbody.id );
+				
+				auto jquat = bodyInterface.GetRotation( bodyID );
+				Vector4f quat = rigidbody.rotation.toQuaternion();
+
+				rigidbody.position = tfm.position;
+				rigidbody.rotation = tfm.rotation;
+				
+				// Set pos, rot, vel
+				bodyInterface.SetPositionRotationAndVelocity(
+					bodyID,
+					{
+						rigidbody.position.x,
+						rigidbody.position.y,
+						rigidbody.position.z
+					},
+				{
+					quat.x,
+					quat.y,
+					quat.z,
+					quat.w
+				},
+				{
+					rigidbody.linearVelocity.x,
+					rigidbody.linearVelocity.y,
+					rigidbody.linearVelocity.z
+				},
+				{
+					rigidbody.angularVelocity.x,
+					rigidbody.angularVelocity.y,
+					rigidbody.angularVelocity.z
+				}
+				);
+			}
+		}
+	}
 }
 
 void wv::PhysicsSystem::onDebugRender()
