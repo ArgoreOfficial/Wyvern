@@ -76,6 +76,8 @@ public:
 
 		EditorComponentInfo info{};
 		info.name = _name;
+		info.addComponentFunction       = []( World* _world, Entity* _entity ) { _world->addComponent<Ty>( _entity, Ty{} ); };
+		info.removeComponentFunction    = []( World* _world, Entity* _entity ) { _world->removeComponent<Ty>( _entity ); };
 		
 		m_editorComponentInfos.emplace( index, info );
 
@@ -110,6 +112,20 @@ public:
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeComponent<Ty>( _entity ); };
 
 		m_componentChangeQueue.push_back( compChange );
+	}
+
+	void addComponent( int _typeIndex, Entity* _entity ) {
+		if ( !m_editorComponentInfos.contains( _typeIndex ) )
+			return;
+
+		m_editorComponentInfos.at( _typeIndex ).addComponentFunction( this, _entity );
+	}
+
+	void removeComponent( int _typeIndex, Entity* _entity ) {
+		if ( !m_editorComponentInfos.contains( _typeIndex ) )
+			return;
+
+		m_editorComponentInfos.at( _typeIndex ).removeComponentFunction( this, _entity );
 	}
 
 	std::string getComponentName( int _typeIndex ) const {
@@ -204,6 +220,8 @@ private:
 	struct EditorComponentInfo
 	{
 		std::string name;
+		std::function<void( World*, Entity* )> addComponentFunction;
+		std::function<void( World*, Entity* )> removeComponentFunction;
 	};
 
 	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;

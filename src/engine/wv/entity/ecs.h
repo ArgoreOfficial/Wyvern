@@ -211,6 +211,13 @@ public:
 
 	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
 
+	std::vector<int> getComponentIndices() const {
+		std::vector<int> vec;
+		for ( auto& [k, v] : m_containers )
+			vec.push_back( k );
+		return vec;
+	}
+
 private:
 	std::unordered_map<int, IComponentContainer*> m_containers;
 	wv::SlotMap<Entity*> m_entities;

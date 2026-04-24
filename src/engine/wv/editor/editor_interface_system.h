@@ -33,6 +33,7 @@ private:
 
 	void renderEntityTreeNode( Entity* _entity );
 	void renderEntityView();
+	void renderComponentView();
 	void renderMaterialView();
 
 	Entity* m_editorCameraEntity  = nullptr;
@@ -55,8 +56,6 @@ private:
 
 	bool m_leftShiftState = false;
 
-	Entity* m_selectedEntity = nullptr;
-	
 	int m_currentSelectedEntityIndex = 0;
 	int m_currentMaterialViewSelected = 0;
 	int m_currentMaterialViewTextureSelected = 0;

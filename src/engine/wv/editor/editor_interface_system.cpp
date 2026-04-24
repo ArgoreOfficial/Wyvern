@@ -128,7 +128,10 @@ void wv::EditorInterfaceSystem::onEditorRender()
 		renderMaterialView();
 
 	if ( m_showEntitiesMenu )
+	{
 		renderEntityView();
+		renderComponentView();
+	}
 #endif
 }
 
@@ -240,7 +243,12 @@ void wv::EditorInterfaceSystem::renderEntityTreeNode( Entity* _entity )
 {
 	std::string entityNodeID = _entity->getName() + "##" + std::to_string( (uint64_t)_entity->getID() );
 
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	ImGuiTreeNodeFlags flags 
+		= ImGuiTreeNodeFlags_DefaultOpen 
+		| ImGuiTreeNodeFlags_OpenOnArrow 
+		| ImGuiTreeNodeFlags_OpenOnDoubleClick 
+		| ImGuiTreeNodeFlags_DrawLinesToNodes;
+
 	auto children = _entity->getChildren();
 
 	if ( children.empty() )
@@ -289,6 +297,38 @@ void wv::EditorInterfaceSystem::renderEntityView()
 			ImGui::TreePop();
 		}
 
+	}
+	ImGui::End();
+}
+
+void wv::EditorInterfaceSystem::renderComponentView()
+{
+	if ( ImGui::Begin( "Entity Properties##entity_properties_window" ) )
+	{
+		if ( m_selectedEntities.size() > 0 )
+		{
+			Entity* selectedEntity = getWorld()->getEntityFromID( *m_selectedEntities.begin() );
+
+			ImGui::SeparatorText( selectedEntity->getName().c_str() );
+
+			if ( selectedEntity->archetype )
+			{
+				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+				int editorObjectIndex = ECSEngine::ComponentTypeDef<EditorObjectComponent>::index;
+
+				for ( int& index : componentIndices )
+				{
+					if ( index == editorObjectIndex )
+						continue;
+
+					std::string componentNameID = getWorld()->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
+					if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					{
+						
+					}
+				}
+			}
+		}
 	}
 	ImGui::End();
 }
