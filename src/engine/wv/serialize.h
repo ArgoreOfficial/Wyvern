@@ -30,7 +30,7 @@ static void to_json( nlohmann::json& _json, const Rotor<Ty>& _rot ) {
 
 template<typename Ty>
 static void from_json( const nlohmann::json& _json, Rotor<Ty>& _rot ) {
-	if ( _json.size() == 0 )
+	if ( _json.size() != 0 )
 	{
 		_rot.s  = _json[ 0 ];
 		_rot.xy = _json[ 1 ];
