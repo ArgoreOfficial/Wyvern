@@ -37,7 +37,9 @@ private:
 
 	Entity* m_editorCamera = nullptr;
 	ActionGroup* m_editorActionGroup = nullptr;
-	
+
+	Vector3f m_editCenterOfMass{};
+
 	ActionID m_editTranslateActionID{};
 	ActionID m_editRotateActionID{};
 	ActionID m_editScaleActionID{};

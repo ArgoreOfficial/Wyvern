@@ -126,6 +126,7 @@ void wv::EditorTransformSystem::onUpdate()
 	}
 
 	centreOfMass /= (float)numSelectedObjects;
+	m_editCenterOfMass = centreOfMass;
 
 	for ( Archetype* arch : getArchetypes() )
 	{
@@ -150,9 +151,9 @@ void wv::EditorTransformSystem::onUpdate()
 
 				switch ( m_transformMode )
 				{
-				case EditTransformMode_Translate: translateObject( entity, editorObject, centreOfMass, 0.001f ); break;
-				case EditTransformMode_Rotate:    rotateObject( entity, editorObject, centreOfMass, 0.001f ); break;
-				case EditTransformMode_Scale:     scaleObject( entity, editorObject, centreOfMass, 0.25f ); break;
+				case EditTransformMode_Translate: translateObject( entity, editorObject, m_editCenterOfMass, 0.001f ); break;
+				case EditTransformMode_Rotate:    rotateObject( entity, editorObject, m_editCenterOfMass, 0.001f ); break;
+				case EditTransformMode_Scale:     scaleObject( entity, editorObject, m_editCenterOfMass, 0.25f ); break;
 				}
 
 				if ( cancelledTransform )
@@ -168,7 +169,17 @@ void wv::EditorTransformSystem::onUpdate()
 
 void wv::EditorTransformSystem::onEditorRender()
 {
-	
+	if ( m_transformMode != EditTransformMode_None )
+	{
+		Renderer* renderer = getApp()->getRenderer();
+
+		switch ( m_lockMovementAxis )
+		{
+		case 0: renderer->addDebugLine( m_editCenterOfMass + Vector3f{ -100.0f, 0.0f, 0.0f }, m_editCenterOfMass + Vector3f{ 100.0f, 0.0f, 0.0f } ); break;
+		case 1: renderer->addDebugLine( m_editCenterOfMass + Vector3f{ 0.0f, -100.0f, 0.0f }, m_editCenterOfMass + Vector3f{ 0.0f, 100.0f, 0.0f } ); break;
+		case 2: renderer->addDebugLine( m_editCenterOfMass + Vector3f{ 0.0f, 0.0f, -100.0f }, m_editCenterOfMass + Vector3f{ 0.0f, 0.0f, 100.0f } ); break;
+		}
+	}
 }
 
 void wv::EditorTransformSystem::setEditTransformMode( EditTransformMode _mode )
