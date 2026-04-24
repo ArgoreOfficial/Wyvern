@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv//serialize.h>
 #include <wv/entity/ecs.h>
 #include <wv/input/action_group.h>
 
@@ -13,7 +14,7 @@ struct PlayerMoveComponent
 {
 	// Camera
 	wv::Entity* cameraEntity = nullptr;
-	float cameraSensitivity  = 15.0f;
+	float cameraSensitivity  = 7.0f;
 	float cameraHeight       = 1.6f;
 	float cameraShakeDecay   = 0.5f;
 
@@ -34,6 +35,30 @@ struct PlayerMoveComponent
 	float viewRotFrequency = 1.75f;
 	float viewRotOffset    = 0.0f;
 };
+
+
+template<>
+static void wv::serialize<PlayerMoveComponent>( SerializeInfo& _info )
+{
+	_info.name = "PlayerMoveComponent";
+	_info.registerMember( &PlayerMoveComponent::cameraSensitivity, "cameraSensitivity" );
+	_info.registerMember( &PlayerMoveComponent::cameraHeight, "cameraHeight" );
+	_info.registerMember( &PlayerMoveComponent::cameraHeight, "cameraHeight" );
+
+	_info.registerMember( &PlayerMoveComponent::smoothAcceleration, "smoothAcceleration" );
+	_info.registerMember( &PlayerMoveComponent::acceleration, "acceleration" );
+	_info.registerMember( &PlayerMoveComponent::moveSpeed, "moveSpeed" );
+	_info.registerMember( &PlayerMoveComponent::damping, "damping" );
+
+	_info.registerMember( &PlayerMoveComponent::viewBobbing, "viewBobbing" );
+	_info.registerMember( &PlayerMoveComponent::viewBobbingSpeed, "viewBobbingSpeed" );
+	_info.registerMember( &PlayerMoveComponent::resetBobPosition, "resetBobPosition" );
+
+	_info.registerMember( &PlayerMoveComponent::viewRotting, "viewRotting" );
+	_info.registerMember( &PlayerMoveComponent::viewRotFrequency, "viewRotFrequency" );
+	_info.registerMember( &PlayerMoveComponent::viewRotOffset, "viewRotOffset" );
+}
+
 
 class PlayerMoveSystem : public wv::ISystem
 {

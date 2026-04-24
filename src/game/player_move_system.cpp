@@ -214,15 +214,18 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 		shakeYaw   = cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
 	}
 
-	wv::Transform& cameraTransform = _pc.cameraEntity->getTransform();
-	cameraTransform.position = localPosition;
-	cameraTransform.rotation = wv::Rotorf::euler( 
-		{ 
-			pitch + shakePitch, 
-			        shakeYaw, 
-			roll  + currentRot
-		} 
-	);
+	if ( _pc.cameraEntity )
+	{
+		wv::Transform& cameraTransform = _pc.cameraEntity->getTransform();
+		cameraTransform.position = localPosition;
+		cameraTransform.rotation = wv::Rotorf::euler( 
+			{ 
+				pitch + shakePitch, 
+						shakeYaw, 
+				roll  + currentRot
+			} 
+		);
+	}
 	_entity->getTransform().rotation = wv::Rotorf::euler( 0.0f, yaw, 0.0f );
 }
 

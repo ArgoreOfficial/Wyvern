@@ -374,7 +374,7 @@ void wv::EditorInterfaceSystem::renderComponentView()
 							const SerializeInfo& info = serializer->getSerializeInfo( index );
 							for ( auto& m : info.members )
 							{
-								ImGui::Text( "%s", m->name.c_str() );
+								ImGui::Text( "%s value: FIXME", m->name.c_str() );
 							}
 						}
 					}

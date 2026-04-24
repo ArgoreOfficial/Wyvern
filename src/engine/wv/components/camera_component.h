@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wv/serialize.h>
+
 #include <wv/math/transform.h>
 #include <wv/math/vector3.h>
 #include <wv/math/vector2.h>
@@ -99,5 +101,18 @@ struct CameraComponent
 	Matrix4x4f projMatrix{};
 	Matrix4x4f viewProjMatrix{};
 };
+
+template<>
+static void serialize<CameraComponent>( SerializeInfo& _info )
+{
+	_info.name = "CameraComponent";
+	_info.registerMember( &CameraComponent::active, "active" );
+	_info.registerMember( &CameraComponent::projectionType, "projectionType" );
+	_info.registerMember( &CameraComponent::fov, "fov" );
+	_info.registerMember( &CameraComponent::clipNear, "clipNear" );
+	_info.registerMember( &CameraComponent::clipFar, "clipFar" );
+	_info.registerMember( &CameraComponent::orthoScale, "orthoScale" );
+	_info.registerMember( &CameraComponent::aspect, "aspect" );
+}
 
 }

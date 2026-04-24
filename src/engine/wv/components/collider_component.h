@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/serialize.h>
 #include <wv/math/vector3.h>
 
 namespace wv {
@@ -24,5 +25,15 @@ struct ColliderComponent
 	// used with ColliderShape_cylinder & ColliderShape_sphere
 	float radius = 0.5f;
 };
+
+template<>
+static void serialize<ColliderComponent>( SerializeInfo& _info )
+{
+	_info.name = "ColliderComponent";
+	_info.registerMember( &ColliderComponent::shape, "shape" );
+	_info.registerMember( &ColliderComponent::boxSize, "boxSize" );
+	_info.registerMember( &ColliderComponent::cylinderHeight, "cylinderHeight" );
+	_info.registerMember( &ColliderComponent::radius, "radius" );
+}
 
 }

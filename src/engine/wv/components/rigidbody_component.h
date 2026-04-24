@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/serialize.h>
 #include <wv/math/vector3.h>
 
 namespace wv {
@@ -58,5 +59,16 @@ struct RigidBodyComponent
 
 	RigidBodyComponentInternal internal;
 };
+
+template<>
+static void serialize<RigidBodyComponent>( SerializeInfo& _info )
+{
+	_info.name = "RigidBodyComponent";
+	_info.registerMember( &RigidBodyComponent::bodyType, "bodyType" );
+	_info.registerMember( &RigidBodyComponent::mass, "mass" );
+	_info.registerMember( &RigidBodyComponent::linearDamping, "linearDamping" );
+	_info.registerMember( &RigidBodyComponent::lockPositionAxis, "lockPositionAxis" );
+	_info.registerMember( &RigidBodyComponent::lockRotationAxis, "lockRotationAxis" );
+}
 
 }

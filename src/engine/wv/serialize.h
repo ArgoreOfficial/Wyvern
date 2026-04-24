@@ -24,10 +24,11 @@ template<typename Ty>
 struct SerializeMemberTypeInfo : ISerializeMemberTypeInfo
 {
 	virtual std::string format( void* _class ) override {
-		WV_ASSERT( _class != nullptr );
-
-		Ty* v = reinterpret_cast<Ty*>( (char*)_class + offset );
-		return std::format( "{}", *v );
+		//WV_ASSERT( _class != nullptr );
+		//
+		//Ty* v = reinterpret_cast<Ty*>( (char*)_class + offset );
+		//return std::format( "{}", *v );
+		return "FIXME";
 	}
 };
 
