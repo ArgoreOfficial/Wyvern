@@ -191,6 +191,8 @@ public:
 		return vec;
 	}
 
+	WorldSerializer* getWorldSerializer() const { return m_serializer; }
+
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }

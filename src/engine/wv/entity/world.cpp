@@ -140,6 +140,14 @@ static void from_json( const nlohmann::json& _json, RigidBodyComponent& _comp ) 
 	_json.at( "lockRotationAxis" ).get_to( _comp.lockRotationAxis );
 }
 
+template<> void serialize<CameraComponent>( SerializeInfo& _info ) { }
+template<> void serialize<ColliderComponent>( SerializeInfo& _info ) { }
+template<> void serialize<MeshComponent>( SerializeInfo& _info ) { 
+	_info.registerMember( &MeshComponent::meshAsset, "meshAssset" );
+}
+template<> void serialize<OrbitControllerComponent>( SerializeInfo& _info ) { }
+template<> void serialize<RigidBodyComponent>( SerializeInfo& _info ) { }
+
 }
 
 wv::World::World()

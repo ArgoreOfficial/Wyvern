@@ -350,14 +350,16 @@ void wv::EditorInterfaceSystem::renderComponentView()
 				ImGui::EndMenu();
 			}
 
+			WorldSerializer* serializer = world->getWorldSerializer();
+
 			if ( selectedEntity->archetype )
 			{
 				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
 				
 				for ( int& index : componentIndices )
 				{
-					if ( index == editorObjectIndex || index == editorCameraIndex )
-						continue;
+					//if ( index == editorObjectIndex || index == editorCameraIndex )
+					//	continue;
 
 					std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
 					if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
@@ -367,6 +369,14 @@ void wv::EditorInterfaceSystem::renderComponentView()
 							world->removeComponent( index, selectedEntity );
 						ImGui::PopID();
 
+						if ( serializer->hasSerializeInfo( index ) )
+						{
+							const SerializeInfo& info = serializer->getSerializeInfo( index );
+							for ( auto& m : info.members )
+							{
+								ImGui::Text( "%s", m->name.c_str() );
+							}
+						}
 					}
 					
 

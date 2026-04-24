@@ -4,11 +4,62 @@
 #include <wv/entity/world.h>
 
 #include <nlohmann/json.hpp>
+#include <imgui/imgui.h>
 
 #include <vector>
+#include <string>
 #include <functional>
 
 namespace wv {
+
+struct ISerializeMemberTypeInfo
+{
+	std::string name;
+	std::string displayName;
+	size_t offset;
+	virtual std::string format( void* _class ) = 0;
+};
+
+template<typename Ty>
+struct SerializeMemberTypeInfo : ISerializeMemberTypeInfo
+{
+	virtual std::string format( void* _class ) override {
+		WV_ASSERT( _class != nullptr );
+
+		Ty* v = reinterpret_cast<Ty*>( (char*)_class + offset );
+		return std::format( "{}", *v );
+	}
+};
+
+struct SerializeInfo
+{
+	template <typename C, typename M>
+	constexpr void registerMember( M C::* _p, const std::string& _name, const std::string& _displayName = "" )
+	{
+		SerializeMemberTypeInfo<M>* member = new SerializeMemberTypeInfo<M>();
+		member->name = _name;
+		member->offset = offset_of2( _p );
+
+		if ( _displayName == "" )
+			member->displayName = _name;
+		else
+			member->displayName = _displayName;
+
+		members.push_back( (ISerializeMemberTypeInfo*)member );
+	}
+
+	bool serialize = true;
+	std::string name;
+	std::vector<ISerializeMemberTypeInfo*> members;
+
+	std::function<nlohmann::json()> toJsonFunc;
+	std::function<void( World* _world, const nlohmann::json& _json )> createFromJsonFunc;
+};
+
+template<typename Ty>
+static void serialize( SerializeInfo& _info ) {
+	_info.serialize = false; // specialization is required
+}
 
 template<typename Ty>
 static void to_json( nlohmann::json& _json, const Vector3<Ty>& _vec ) {
@@ -69,9 +120,9 @@ public:
 
 	nlohmann::json serializeComponents() {
 		std::vector<nlohmann::ordered_json> components;
-		for ( auto& func : m_componentToJsonFuncs )
+		for ( auto& [k, v] : m_serializeInfos )
 		{
-			nlohmann::json j = func();
+			nlohmann::json j = v.toJsonFunc();
 			if ( !j.at( "comps" ).empty() )
 				components.push_back( j );
 		}
@@ -80,27 +131,42 @@ public:
 	}
 
 	void deserializeComponents( int _typeIndex, World* _world, const nlohmann::json& _json ) {
-		if ( !m_createComponentFromJsonFuncs.contains( _typeIndex ) )
+		if ( !m_serializeInfos.contains( _typeIndex ) )
 			return;
 
-		m_createComponentFromJsonFuncs.at( _typeIndex )( _world, _json );
+		m_serializeInfos.at( _typeIndex ).createFromJsonFunc( _world, _json );
 	}
 
 	template<typename Ty>
 	void addComponentFunction();
 
+	bool hasSerializeInfo( int _typeIndex ) const { 
+		return m_serializeInfos.contains( _typeIndex ); 
+	}
+
+	const SerializeInfo& getSerializeInfo( int _typeIndex ) const {
+		return m_serializeInfos.at( _typeIndex );
+	}
+
 private:
 	wv::ECSEngine* m_ecs;
 
-	std::vector<std::function<nlohmann::json()>> m_componentToJsonFuncs;
-	std::unordered_map<int, std::function<void( World* _world, const nlohmann::json& _json )>> m_createComponentFromJsonFuncs;
+	std::unordered_map<int, SerializeInfo> m_serializeInfos;
 
 };
 
 template<typename Ty>
 inline void WorldSerializer::addComponentFunction()
 {
-	m_componentToJsonFuncs.push_back(
+	int index = wv::ECSEngine::ComponentTypeDef<Ty>::index;
+
+	SerializeInfo info{};
+	serialize<Ty>( info );
+
+	if ( !info.serialize )
+		return;
+
+	info.toJsonFunc =
 		[ this ]() -> nlohmann::json
 		{
 			std::vector<nlohmann::json> meshComponents{};
@@ -129,10 +195,9 @@ inline void WorldSerializer::addComponentFunction()
 				{ "index", wv::ECSEngine::ComponentTypeDef<Ty>::index },
 				{ "comps", meshComponents }
 			};
-		} );
+		};
 
-	int index = wv::ECSEngine::ComponentTypeDef<Ty>::index;
-	m_createComponentFromJsonFuncs[ index ] = 
+	info.createFromJsonFunc =
 		[]( World* _world, const nlohmann::json& _json ) // _json here is the { "comps" : [] } array
 		{
 			for ( auto& j : _json )
@@ -150,5 +215,7 @@ inline void WorldSerializer::addComponentFunction()
 				_world->addComponent<Ty>( ent, comp );
 			}
 		};
+
+	m_serializeInfos[ index ] = info;
 }
 }

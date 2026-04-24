@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wv/serialize.h>
+
 #include <wv/math/vector3.h>
 #include <wv/math/rotor.h>
 
@@ -14,5 +16,12 @@ struct EditorObjectComponent
 	Vector3f scaleStart{};
 
 };
+
+template<>
+static void serialize<EditorObjectComponent>( SerializeInfo& _info )
+{
+	_info.name = "EditorObjectComponent";
+	_info.registerMember( &EditorObjectComponent::selected, "selected" );
+}
 
 }
