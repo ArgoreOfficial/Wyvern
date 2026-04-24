@@ -307,13 +307,12 @@ void wv::EditorTransformSystem::scaleObject( Entity* _entity, EditorObjectCompon
 
 	cameraComp.screenToWorldRay( mousePos.x, mousePos.y, 0.01f, 1.0f, lineStart, lineEnd );
 
-	Vector3f editOriginPoint  = Math::lineClosestPointClamped( m_transformLineStart, m_transformLineEnd, _com );
-	Vector3f editCurrentPoint = wv::Math::lineClosestPointClamped( lineStart, lineEnd, _com );
+	const Vector3f editOriginPoint  = Math::lineClosestPointClamped( m_transformLineStart, m_transformLineEnd, _com );
+	const Vector3f editCurrentPoint = wv::Math::lineClosestPointClamped( lineStart, lineEnd, _com );
+	const float editOriginDistance  = ( editOriginPoint  - _com ).length();
+	const float editCurrentDistance = ( editCurrentPoint - _com ).length();
+	const float scale = editCurrentDistance / editOriginDistance;
 
-	float editOriginDistance  = ( editOriginPoint  - _com ).length();
-	float editCurrentDistance = ( editCurrentPoint - _com ).length();
-
-	float scale = 1 + ( editCurrentDistance - editOriginDistance ) * _strength;
 	Vector3f newScale = _editorComponent.scaleStart;
 
 	switch ( m_lockMovementAxis )
