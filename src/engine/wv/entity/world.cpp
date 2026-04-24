@@ -24,7 +24,7 @@
 
 namespace wv {
 
-void to_json( nlohmann::json& _json, const MeshComponent& _comp ) {
+static void to_json( nlohmann::json& _json, const MeshComponent& _comp ) {
 	std::vector<std::string> materials;
 
 	for ( size_t i = 0; i < _comp.materials.size(); i++ )
@@ -48,7 +48,7 @@ static void from_json( const nlohmann::json& _json, MeshComponent& _comp ) {
 		_comp.materials.push_back( MaterialAsset::get( mat ) );
 }
 
-void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
+static void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
 	_json = nlohmann::json{
 		{ "active", _comp.active },
 		{ "projectionType", _comp.projectionType },
@@ -59,6 +59,7 @@ void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
 		{ "aspect", _comp.aspect }
 	};
 }
+
 static void from_json( const nlohmann::json& _json, CameraComponent& _comp ) {
 	_json.at( "active" ).get_to( _comp.active );
 	_json.at( "projectionType" ).get_to( _comp.projectionType );
@@ -69,7 +70,7 @@ static void from_json( const nlohmann::json& _json, CameraComponent& _comp ) {
 	_json.at( "aspect" ).get_to( _comp.aspect );
 }
 
-void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
+static void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
 	_json = nlohmann::json{
 		{ "shape", _comp.shape }
 	};
@@ -111,7 +112,7 @@ static void from_json( const nlohmann::json& _json, ColliderComponent& _comp ) {
 	}
 }
 
-void to_json( nlohmann::json& _json, const OrbitControllerComponent& _comp ) {
+static void to_json( nlohmann::json& _json, const OrbitControllerComponent& _comp ) {
 	_json = nlohmann::json{
 		{ "orbitDistance", _comp.orbitDistance },
 	};
@@ -121,7 +122,7 @@ static void from_json( const nlohmann::json& _json, OrbitControllerComponent& _c
 	_json.at( "orbitDistance" ).get_to( _comp.orbitDistance );
 }
 
-void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
+static void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
 	_json = nlohmann::json{
 		{ "bodyType", _comp.bodyType },
 		{ "mass", _comp.mass },
