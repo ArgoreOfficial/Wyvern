@@ -147,11 +147,11 @@ wv::World::World()
 	m_serializer = WV_NEW( WorldSerializer, m_ecsEngine );
 
 	// register order determines internal ID
-	registerComponentType<CameraComponent>();
-	registerComponentType<ColliderComponent>();
-	registerComponentType<MeshComponent>();
-	registerComponentType<OrbitControllerComponent>();
-	registerComponentType<RigidBodyComponent>();
+	registerComponentType<CameraComponent>( "CameraComponent" );
+	registerComponentType<ColliderComponent>( "ColliderComponent" );
+	registerComponentType<MeshComponent>( "MeshComponent" );
+	registerComponentType<OrbitControllerComponent>( "OrbitControllerComponent" );
+	registerComponentType<RigidBodyComponent>( "RigidBodyComponent" );
 
 	m_serializer->addComponentFunction<CameraComponent>();
 	m_serializer->addComponentFunction<ColliderComponent>();

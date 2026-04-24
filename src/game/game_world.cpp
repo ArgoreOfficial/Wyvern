@@ -83,7 +83,7 @@ static void from_json( const nlohmann::json& _json, PlayerMoveComponent& _comp )
 void GameWorld::onSceneCreate()
 {
 	// Components
-	registerComponentType<PlayerMoveComponent>();
+	registerComponentType<PlayerMoveComponent>( "PlayerMoveComponent" );
 	m_serializer->addComponentFunction<PlayerMoveComponent>();
 	
 	// Systems

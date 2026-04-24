@@ -71,8 +71,15 @@ public:
 	std::filesystem::path getPath() const { return m_path; }
 
 	template<typename Ty>
-	int registerComponentType() {
-		return m_ecsEngine->registerComponentType<Ty>();
+	int registerComponentType( const std::string& _name = "Unnamed Component" ) {
+		int index = m_ecsEngine->registerComponentType<Ty>();
+
+		EditorComponentInfo info{};
+		info.name = _name;
+		
+		m_editorComponentInfos.emplace( index, info );
+
+		return index;
 	}
 
 	template<typename Ty>
@@ -103,6 +110,12 @@ public:
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeComponent<Ty>( _entity ); };
 
 		m_componentChangeQueue.push_back( compChange );
+	}
+
+	std::string getComponentName( int _typeIndex ) const {
+		if ( !m_editorComponentInfos.contains( _typeIndex ) )
+			return "";
+		return m_editorComponentInfos.at( _typeIndex ).name;
 	}
 
 	void removeAllComponents( Entity* _entity ) {
@@ -187,6 +200,13 @@ private:
 		int componentTypeIndex;
 		std::function<void()> callback;
 	};
+
+	struct EditorComponentInfo
+	{
+		std::string name;
+	};
+
+	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;
 
 	void updateComponentChanges();
 	void checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _change );
