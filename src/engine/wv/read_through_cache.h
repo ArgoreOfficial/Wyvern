@@ -54,7 +54,7 @@ public:
 		std::scoped_lock lock( m_mtx );
 
 		auto it = m_managed.find( _path );
-		if ( it != m_managed.end() )
+		if ( it != m_managed.end() && !it->second.expired() )
 			throw std::runtime_error( "Key already exists" );
 		
 		m_managed.emplace( _path, _ref );
