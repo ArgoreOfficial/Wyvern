@@ -22,6 +22,7 @@ class TextureAsset;
 class MeshManager;
 class MaterialManager;
 class TextureManager;
+class World;
 
 struct MeshImportOptions
 {
@@ -31,16 +32,12 @@ struct MeshImportOptions
 class MeshImporterGLTF
 {
 public:
-	MeshImporterGLTF( MeshManager* _meshManager, MaterialManager* _materialManager, TextureManager* _textureManager ) :
-		m_meshManager{ _meshManager },
-		m_materialManager{ _materialManager },
-		m_textureManager{ _textureManager }
-	{
-
-	}
+	MeshImporterGLTF();
 	
 	void load( const std::filesystem::path& _path, MeshImportOptions _options = {} );
 	bool hasLoaded() const { return m_loaded; }
+
+	void createEntity( World* _world, const std::string& _name );
 
 	Ref<MeshAsset> getMesh() const { return m_meshAsset; }
 	std::vector<Ref<MaterialAsset>> getMaterials() const { return m_materials; }

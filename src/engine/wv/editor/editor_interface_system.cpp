@@ -7,6 +7,7 @@
 #include <wv/components/camera_component.h>
 #include <wv/systems/camera_manager_system.h>
 #include <wv/editor/editor_camera_system.h>
+#include <wv/editor/mesh_importer_gltf.h>
 
 #include <wv/rendering/material.h>
 #include <wv/rendering/texture.h>
@@ -134,6 +135,25 @@ void wv::EditorInterfaceSystem::onEditorRender()
 		renderEntityView();
 		renderComponentView();
 	}
+
+	if ( m_showMeshImporter )
+	{
+		if ( ImGui::Begin( "Meshes##mesh_importer_window" ) )
+		{
+			ImGui::InputTextWithHint( "Path", "meshes/mesh.glb", m_meshImporterPath, 1024 );
+
+			if ( ImGui::Button( "Import##mesh_import_button" ) )
+			{
+				MeshImporterGLTF importer{};
+				std::string str = m_meshImporterPath;
+				importer.load( str );
+
+				if ( importer.hasLoaded() )
+					importer.createEntity( getWorld(), "New Mesh" );
+			}
+		}
+		ImGui::End();
+	}
 #endif
 }
 
@@ -208,6 +228,10 @@ void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
 			
 			if ( ImGui::Button( "Materials" ) )
 				m_showMaterialMenu = !m_showMaterialMenu;
+			
+			if ( ImGui::Button( "Meshes" ) )
+				m_showMeshImporter = !m_showMeshImporter;
+
 			//drawBuildWindow();
 			//m_runComboButton.draw();
 			ImGui::EndMenuBar();
@@ -378,8 +402,6 @@ void wv::EditorInterfaceSystem::renderComponentView()
 							}
 						}
 					}
-					
-
 				}
 			}
 		}

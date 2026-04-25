@@ -41,6 +41,7 @@ private:
 	bool m_showSystemsMenu = false;
 	bool m_showMaterialMenu = false;
 	bool m_showEntitiesMenu = true;
+	bool m_showMeshImporter = false;
 
 	bool m_hasEnabledFirstFrame = false;
 
@@ -61,6 +62,8 @@ private:
 	int m_currentMaterialViewTextureSelected = 0;
 
 	std::set<UUID> m_selectedEntities;
+
+	char m_meshImporterPath[ 1024 ];
 };
 
 }

@@ -1,7 +1,8 @@
 #include "mesh_importer_gltf.h"
 
 #include <wv/application.h>
-
+#include <wv/components/mesh_component.h>
+#include <wv/entity/world.h>
 #include <wv/filesystem/file_system.h>
 
 #include <wv/rendering/mesh.h>
@@ -24,6 +25,14 @@ struct fastgltf::ElementTraits<wv::Vector3f> : fastgltf::ElementTraitsBase<wv::V
 
 template <>
 struct fastgltf::ElementTraits<wv::Vector2f> : fastgltf::ElementTraitsBase<wv::Vector2f, AccessorType::Vec2, float> { };
+
+wv::MeshImporterGLTF::MeshImporterGLTF()
+{
+	m_meshManager = getApp()->getMeshManager();
+	m_materialManager = getApp()->getMaterialManager();
+	m_textureManager = getApp()->getTextureManager();
+}
+
 
 void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportOptions _options )
 {
@@ -224,6 +233,12 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 	}
 
 	m_loaded = true;
+}
+
+void wv::MeshImporterGLTF::createEntity( World* _world, const std::string& _name )
+{
+	Entity* entity = _world->createEntity( _name );
+	_world->addComponent<MeshComponent>( entity, MeshComponent{ .meshAsset = m_meshAsset, .materials = m_materials } );
 }
 
 void wv::MeshImporterGLTF::parseMesh( fastgltf::Asset& _asset, MeshImportOptions _options )
