@@ -333,25 +333,31 @@ void wv::EditorInterfaceSystem::renderComponentView()
 
 	int editorObjectIndex = ECSEngine::ComponentTypeDef<EditorObjectComponent>::index;
 	int editorCameraIndex = ECSEngine::ComponentTypeDef<EditorCameraComponent>::index;
+	bool destroy = false;
+
+	Entity* selectedEntity = nullptr;
+
+	if ( m_selectedEntities.size() > 0 )
+		selectedEntity = world->getEntityFromID( *m_selectedEntities.begin() );
+	
+	if( !selectedEntity )
+		return;
 
 	if ( ImGui::Begin( "Entity Properties##entity_properties_window" ) )
 	{
-		if ( m_selectedEntities.size() > 0 )
+		ImGui::SeparatorText( selectedEntity->getName().c_str() );
+		std::vector<int> allComponent = world->getRegisteredComponents();
+		std::set<int> existingComponents;
+
+		if ( selectedEntity->archetype )
 		{
-			Entity* selectedEntity = world->getEntityFromID( *m_selectedEntities.begin() );
-
-			ImGui::SeparatorText( selectedEntity->getName().c_str() );
-
-			std::vector<int> allComponent = world->getRegisteredComponents();
-			std::set<int> existingComponents;
-
-			if ( selectedEntity->archetype )
-			{
-				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-				for ( int& index : componentIndices )
-					existingComponents.insert( index );
-			}
+			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+			for ( int& index : componentIndices )
+				existingComponents.insert( index );
+		}
 			
+		if ( ImGui::BeginMenu( "Actions##entity_menu_actions" ) )
+		{
 			if ( ImGui::BeginMenu( "Add Component" ) )
 			{
 				for ( int index : allComponent )
@@ -374,32 +380,37 @@ void wv::EditorInterfaceSystem::renderComponentView()
 				ImGui::EndMenu();
 			}
 
-			WorldSerializer* serializer = world->getWorldSerializer();
+			if ( ImGui::Selectable( "Delete##entity_destroy_selectable" ) )
+				destroy = true;
 
-			if ( selectedEntity->archetype )
-			{
-				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+			ImGui::EndMenu();
+		}
+
+		WorldSerializer* serializer = world->getWorldSerializer();
+
+		if ( selectedEntity->archetype )
+		{
+			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
 				
-				for ( int& index : componentIndices )
+			for ( int& index : componentIndices )
+			{
+				if ( index == editorObjectIndex || index == editorCameraIndex )
+					continue;
+
+				std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
+				if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 				{
-					//if ( index == editorObjectIndex || index == editorCameraIndex )
-					//	continue;
+					ImGui::PushID( index );
+					if ( ImGui::Button( "Delete##component_delete_button" ) )
+						world->removeComponent( index, selectedEntity );
+					ImGui::PopID();
 
-					std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
-					if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					if ( serializer->hasSerializeInfo( index ) )
 					{
-						ImGui::PushID( index );
-						if ( ImGui::Button( "Delete##component_delete_button" ) )
-							world->removeComponent( index, selectedEntity );
-						ImGui::PopID();
-
-						if ( serializer->hasSerializeInfo( index ) )
+						const SerializeInfo& info = serializer->getSerializeInfo( index );
+						for ( auto& m : info.members )
 						{
-							const SerializeInfo& info = serializer->getSerializeInfo( index );
-							for ( auto& m : info.members )
-							{
-								ImGui::Text( "%s value: FIXME", m->name.c_str() );
-							}
+							ImGui::Text( "%s value: FIXME", m->name.c_str() );
 						}
 					}
 				}
@@ -407,6 +418,14 @@ void wv::EditorInterfaceSystem::renderComponentView()
 		}
 	}
 	ImGui::End();
+
+	if ( destroy )
+	{
+		m_selectedEntities.erase( selectedEntity->getID() );
+		getWorld()->removeAllComponents( selectedEntity );
+		getWorld()->destroyEntity( selectedEntity );
+	}
+
 }
 
 void wv::EditorInterfaceSystem::renderMaterialView()

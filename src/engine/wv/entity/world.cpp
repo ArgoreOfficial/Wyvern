@@ -219,6 +219,18 @@ wv::Entity* wv::World::createEntity( const std::string& _name )
 	return e;
 }
 
+void wv::World::destroyEntity( Entity* _entity )
+{
+	for ( size_t i = 0; i < m_entities.size(); i++ )
+	{
+		if ( m_entities[ i ] != _entity )
+			continue;
+
+		m_entities.erase( m_entities.begin() + i );
+		return;
+	}
+}
+
 void wv::World::load( const std::filesystem::path& _path )
 {
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getFullPath( _path );
