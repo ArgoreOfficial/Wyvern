@@ -10,6 +10,7 @@
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Renderer/DebugRendererSimple.h>
 
@@ -218,6 +219,43 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 			new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
 			jphPos, jphRot, motionType, layers
 		);
+	} break;
+
+	case ColliderShape_mesh:
+	{
+		JPH::TriangleList triangles;
+		if ( collider.meshColliderAsset )
+		{
+			const GeometrySurface& surface = collider.meshColliderAsset->getSurface();
+			
+			const auto& vertices = surface.vertexPositions;
+			//{ v.x, v.y, v.z }
+			for ( size_t i = 0; i < surface.indices.size(); i += 3 )
+			{
+				Vector3f v0 = vertices[ surface.indices[ i ] ];
+				Vector3f v1 = vertices[ surface.indices[ i + 1 ] ];
+				Vector3f v2 = vertices[ surface.indices[ i + 2 ] ];
+				JPH::Triangle t( 
+					JPH::Vec3{ v0.x, v0.y, v0.z },
+					JPH::Vec3{ v1.x, v1.y, v1.z },
+					JPH::Vec3{ v2.x, v2.y, v2.z }
+				);
+				triangles.push_back( t );
+			}
+
+			JPH::Shape::ShapeResult result;
+			JPH::MeshShapeSettings meshShapeSettings( triangles );
+			auto* meshShape = new JPH::MeshShape( meshShapeSettings, result );
+
+			if ( result.HasError() )
+			{
+				WV_LOG_ERROR( "Failed to create mesh collider from %s\n", collider.meshColliderAsset->getPath().string().c_str() );
+				delete meshShape;
+			}
+			else
+				bodySetting = JPH::BodyCreationSettings( meshShape, jphPos, jphRot, motionType, layers );
+		}
+
 	} break;
 	}
 

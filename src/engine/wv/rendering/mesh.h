@@ -58,6 +58,7 @@ public:
 	void initialize( const GeometrySurface& _geometry );
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
+	const GeometrySurface& getSurface() const { return m_surface; }
 	const std::vector<GeometrySurface::Primitive>& getPrimitives() const { return m_primitives; }
 	uint32_t getNumMaterials() const { return m_numMaterials; }
 

@@ -2,6 +2,7 @@
 
 #include <wv/serialize.h>
 #include <wv/math/vector3.h>
+#include <wv/rendering/mesh.h>
 
 namespace wv {
 
@@ -9,7 +10,8 @@ enum ColliderShape
 {
 	ColliderShape_box,
 	ColliderShape_cylinder,
-	ColliderShape_sphere
+	ColliderShape_sphere,
+	ColliderShape_mesh
 };
 
 struct ColliderComponent
@@ -24,6 +26,8 @@ struct ColliderComponent
 
 	// used with ColliderShape_cylinder & ColliderShape_sphere
 	float radius = 0.5f;
+
+	Ref<MeshAsset> meshColliderAsset;
 };
 
 template<>
@@ -34,6 +38,7 @@ static void serialize<ColliderComponent>( SerializeInfo& _info )
 	_info.registerMember( &ColliderComponent::boxSize, "boxSize" );
 	_info.registerMember( &ColliderComponent::cylinderHeight, "cylinderHeight" );
 	_info.registerMember( &ColliderComponent::radius, "radius" );
+	_info.registerMember( &ColliderComponent::meshColliderAsset, "meshColliderAsset" );
 }
 
 }

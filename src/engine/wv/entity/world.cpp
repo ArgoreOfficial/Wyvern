@@ -89,6 +89,9 @@ static void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
 		_json[ "boxSize" ] = _comp.boxSize;
 		_json[ "radius" ] = _comp.radius;
 		break;
+	case ColliderShape_mesh:
+		_json[ "mesh" ] = _comp.meshColliderAsset ? _comp.meshColliderAsset->getPath() : "";
+		break;
 	}
 }
 
@@ -108,6 +111,10 @@ static void from_json( const nlohmann::json& _json, ColliderComponent& _comp ) {
 	case ColliderShape_sphere:
 		_json.at( "boxSize" ).get_to( _comp.boxSize );
 		_json.at( "radius" ).get_to( _comp.radius );
+		break;
+	case ColliderShape_mesh:
+		std::string meshPath = _json.at( "mesh" );
+		_comp.meshColliderAsset = wv::MeshAsset::get( meshPath );
 		break;
 	}
 }
