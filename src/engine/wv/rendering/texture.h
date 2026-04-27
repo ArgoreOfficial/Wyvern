@@ -23,7 +23,9 @@ public:
 	TextureAsset() = default;
 	TextureAsset( const uint8_t* _data, size_t _size );
 	TextureAsset( const std::filesystem::path& _path );
-	~TextureAsset();
+	~TextureAsset() {
+		destroy();
+	}
 
 	static Ref<TextureAsset> get( const std::filesystem::path& _path );
 
@@ -35,6 +37,7 @@ public:
 	TextureData deserialize( const std::filesystem::path& _path );
 	
 	void initialize( const TextureData& _texture );
+	void destroy();
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	uint32_t   getImageSlot()     const { return m_imageSlot; }

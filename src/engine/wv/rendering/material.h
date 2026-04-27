@@ -83,19 +83,13 @@ public:
 		m_materialIndex = shaderType->createMaterial();
 	}
 
-	~MaterialAsset()
-	{
-		if ( shaderType )
-			shaderType->destroyMaterial( *this );
-
-		shaderType = {};
-		m_materialIndex = SIZE_MAX;
-
-		textureAssets.clear();
+	~MaterialAsset() { 
+		destroy(); 
 	}
 
 	static Ref<MaterialAsset> get( const std::filesystem::path& _path );
 
+	void destroy();
 	void reload();
 
 	std::filesystem::path path;

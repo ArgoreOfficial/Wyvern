@@ -127,6 +127,18 @@ wv::Ref<wv::MaterialAsset> wv::MaterialAsset::get( const std::filesystem::path& 
 	return getApp()->getMaterialManager()->get( _path );
 }
 
+void wv::MaterialAsset::destroy()
+{
+	if ( shaderType )
+		shaderType->destroyMaterial( *this );
+
+	path = "";
+	shaderType = {};
+	m_materialIndex = SIZE_MAX;
+
+	textureAssets.clear();
+}
+
 void wv::MaterialAsset::reload()
 {
 	if ( path.empty() )

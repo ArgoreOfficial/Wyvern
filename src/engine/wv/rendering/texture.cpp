@@ -18,12 +18,6 @@ wv::TextureAsset::TextureAsset( const std::filesystem::path& _path )
 	initialize( deserialize( _path ) );
 }
 
-wv::TextureAsset::~TextureAsset()
-{
-	Renderer* renderer = Application::getSingleton()->getRenderer();
-	renderer->deallocateImage( m_gpuAllocation );
-}
-
 wv::Ref<wv::TextureAsset> wv::TextureAsset::get( const std::filesystem::path& _path )
 {
     return getApp()->getTextureManager()->get( _path );
@@ -62,4 +56,15 @@ void wv::TextureAsset::initialize( const TextureData& _texture )
 	// deallocate cpu copy
 	stbi_image_free( m_data.data );
 	m_data.data = nullptr;
+}
+
+void wv::TextureAsset::destroy()
+{
+	Renderer* renderer = Application::getSingleton()->getRenderer();
+	renderer->deallocateImage( m_gpuAllocation );
+
+	m_path = "";
+	m_data = {};
+	m_gpuAllocation.invalidate();
+	m_imageSlot = 0;
 }
