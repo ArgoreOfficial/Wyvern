@@ -22,6 +22,17 @@ class PhysicsDebugRenderer;
 
 class PhysicsObjectContainer;
 
+enum PhysicsLayer
+{
+	PhysicsLayer_NonMoving = 0,
+	PhysicsLayer_Moving = 1
+};
+
+struct RaycastHit
+{
+
+};
+
 class PhysicsSystem : public ISystem
 {
 public:
@@ -41,6 +52,9 @@ public:
 	void onInternalPrePhysicsUpdate(); // runs once
 	void onInternalPhysicsUpdate( double _fixedDeltaTime ); // may run multiple times
 	void onInternalPostPhysicsUpdate( double _fraction );
+
+	bool rayCast( Vector3f _origin, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers = {} );
+	bool sphereCast( Vector3f _origin, float _radius, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers = {} );
 
 protected:
 	wv::SlotMap<JPH::BodyID> m_bodies;

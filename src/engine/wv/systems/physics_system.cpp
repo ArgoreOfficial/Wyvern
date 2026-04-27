@@ -5,6 +5,8 @@
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -117,6 +119,47 @@ public:
 			return false;
 		}
 	}
+};
+
+
+class ListBroadPhaseLayerFilter : public JPH::BroadPhaseLayerFilter
+{
+public:
+	explicit ListBroadPhaseLayerFilter( std::vector<JPH::BroadPhaseLayer> _layers ) : m_layers( _layers ) { }
+
+	virtual bool ShouldCollide( JPH::BroadPhaseLayer _layer ) const override
+	{
+		if ( m_layers.empty() )
+			return true;
+
+		for ( const auto& layer : m_layers )
+			if ( _layer == layer ) return true;
+
+		return false;
+	}
+
+private:
+	std::vector<JPH::BroadPhaseLayer> m_layers;
+};
+
+class ListObjectLayerFilter : public JPH::ObjectLayerFilter
+{
+public:
+	ListObjectLayerFilter( std::vector<JPH::ObjectLayer> _layers ) : m_layers( _layers ) { }
+
+	virtual bool ShouldCollide( JPH::ObjectLayer _layer ) const override
+	{
+		if ( m_layers.empty() )
+			return true;
+
+		for ( const auto& layer : m_layers )
+			if ( _layer == layer ) return true;
+
+		return false;
+	}
+
+private:
+	std::vector<JPH::ObjectLayer> m_layers;
 };
 
 class PhysicsDebugRenderer : public JPH::DebugRendererSimple
@@ -576,4 +619,43 @@ void wv::PhysicsSystem::onInternalPostPhysicsUpdate( double _fraction )
 			entity->getTransform().rotation = wv::Math::lerp( rigidbody.internal.previousRotation, rigidbody.rotation, _fraction );
 		}
 	}
+}
+
+bool wv::PhysicsSystem::rayCast( Vector3f _origin, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers )
+{
+	// Perform a raycast
+	// JPH::RayCast ray;
+	JPH::RRayCast ray( { _origin.x, _origin.y, _origin.z }, { _direction.x, _direction.y, _direction.z } );
+	JPH::RayCastResult rayCastResult;
+
+	_outHit = {};
+
+	const JPH::NarrowPhaseQuery& narrowPhaseQuery = m_physicsSystem->GetNarrowPhaseQuery();
+	
+	std::vector<JPH::ObjectLayer> objectLayers;
+	std::vector<JPH::BroadPhaseLayer> broadPhaseLayers;
+
+	// TODO: make these layers runtime
+	for ( auto layer : _filterLayers )
+	{
+		switch ( layer )
+		{
+		case PhysicsLayer_NonMoving: objectLayers.push_back( Layers::NON_MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::NON_MOVING ); break;
+		case PhysicsLayer_Moving: objectLayers.push_back( Layers::MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::MOVING ); break;
+		}
+	}
+
+	bool hit = narrowPhaseQuery.CastRay( 
+		ray, 
+		rayCastResult, 
+		ListBroadPhaseLayerFilter( broadPhaseLayers ),
+		ListObjectLayerFilter( objectLayers )
+	);
+	
+	return hit;
+}
+
+bool wv::PhysicsSystem::sphereCast( Vector3f _origin, float _radius, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers )
+{
+	return false;
 }
