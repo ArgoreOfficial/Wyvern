@@ -54,7 +54,7 @@ void wv::TextureAsset::initialize( const TextureData& _texture )
 	if ( _texture.data && _texture.width > 0 && _texture.height > 0 )
 	{
 		m_gpuAllocation = renderer->allocateImage( _texture.data, _texture.width, _texture.height, false );
-		m_imageSlot     = renderer->storeImage( m_gpuAllocation, SamplerState::WV_SAMPLER_LINEAR );
+		m_imageSlot     = renderer->storeImage( m_gpuAllocation, SamplerState::WV_SAMPLER_NEAREST );
 	}
 
 	m_data = _texture;
