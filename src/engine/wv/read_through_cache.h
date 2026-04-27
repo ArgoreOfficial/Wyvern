@@ -15,7 +15,10 @@ public:
 	ReadThroughCache() { }
 
 	bool contains( const std::filesystem::path& _path ) const {
-		return m_managed.contains( _path );
+		if ( m_managed.contains( _path ) )
+			return !m_managed.at( _path ).expired();
+
+		return false;
 	}
 
 	Ref<Ty> get( const std::filesystem::path& _path ) {
