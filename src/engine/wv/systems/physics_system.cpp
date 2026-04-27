@@ -227,24 +227,21 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 		if ( collider.meshColliderAsset )
 		{
 			const GeometrySurface& surface = collider.meshColliderAsset->getSurface();
-			const auto& vertices = surface.vertexPositions;
+			std::vector<Vector3f> vertices = surface.decompose();
 
-			for ( auto& prim : surface.primitives )
+			for ( size_t i = 0; i < vertices.size(); i += 3 )
 			{
-				for ( size_t i = 0; i < prim.indexCount; i += 3 )
-				{
-					Vector3f v0 = vertices[ prim.vertexOffset + surface.indices[ prim.firstIndex + i ] ];
-					Vector3f v1 = vertices[ prim.vertexOffset + surface.indices[ prim.firstIndex + i + 1 ] ];
-					Vector3f v2 = vertices[ prim.vertexOffset + surface.indices[ prim.firstIndex + i + 2 ] ];
-					JPH::Triangle t(
-						JPH::Vec3{ v0.x, v0.y, v0.z },
-						JPH::Vec3{ v1.x, v1.y, v1.z },
-						JPH::Vec3{ v2.x, v2.y, v2.z }
-					);
-					triangles.push_back( t );
-				}
+				const Vector3f v0 = vertices[ i ];
+				const Vector3f v1 = vertices[ i + 1 ];
+				const Vector3f v2 = vertices[ i + 2 ];
+				JPH::Triangle t(
+					JPH::Vec3{ v0.x, v0.y, v0.z },
+					JPH::Vec3{ v1.x, v1.y, v1.z },
+					JPH::Vec3{ v2.x, v2.y, v2.z }
+				);
+				triangles.push_back( t );
 			}
-
+		
 			JPH::Shape::ShapeResult result;
 			JPH::MeshShapeSettings meshShapeSettings( triangles );
 			auto* meshShape = new JPH::MeshShape( meshShapeSettings, result );

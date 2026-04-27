@@ -30,6 +30,22 @@ struct GeometrySurface
 	size_t indexCount()  const { return indices.size(); }
 	size_t vertexCount() const { return vertexPositions.size(); }
 
+	std::vector<Vector3f> decompose() const {
+		std::vector<Vector3f> vertices;
+
+		for ( auto& prim : primitives )
+		{
+			for ( size_t i = 0; i < prim.indexCount; i += 3 )
+			{
+				vertices.push_back( vertexPositions[ prim.vertexOffset + indices[ prim.firstIndex + i ] ] );
+				vertices.push_back( vertexPositions[ prim.vertexOffset + indices[ prim.firstIndex + i + 1 ] ] );
+				vertices.push_back( vertexPositions[ prim.vertexOffset + indices[ prim.firstIndex + i + 2 ] ] );
+			}
+		}
+
+		return vertices;
+	}
+
 	std::vector<Primitive> primitives;
 	
 	std::vector<uint32_t> indices;
