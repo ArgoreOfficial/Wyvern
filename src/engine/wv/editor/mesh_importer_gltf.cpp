@@ -73,24 +73,22 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 	ThreadWorker* worker = taskSystem->getThreadWorker();
 	Fence* loadFence = taskSystem->allocateFence();
 
-	if ( m_meshManager->contains( _path ) )
+	std::filesystem::path wvbpath = _path; wvbpath.replace_extension( ".wvb" );
+	
+	if ( m_meshManager->contains( wvbpath ) )
 	{
-		m_meshAsset = m_meshManager->get( _path );
+		m_meshAsset = m_meshManager->get( wvbpath );
 	}
 	else
 	{
 		m_meshAsset = std::make_shared<MeshAsset>();
-		m_meshManager->add( _path, m_meshAsset );
+		std::filesystem::path fullwvbpath = fullpath; fullwvbpath.replace_extension( ".wvb" );
 
-		worker->push( loadFence, [ this, _path, fullpath, _options, &asset ]( auto, auto ) {
+		m_meshAsset->m_path = wvbpath;
+		m_meshManager->add( wvbpath, m_meshAsset );
+
+		worker->push( loadFence, [ this, fullwvbpath, _options, &asset ]( auto, auto ) {
 			parseMesh( asset, _options );
-			
-			// serialize
-
-			std::filesystem::path wvbpath = _path; wvbpath.replace_extension( ".wvb" );
-			std::filesystem::path fullwvbpath = fullpath; fullwvbpath.replace_extension( ".wvb" );
-
-			m_meshAsset->m_path = wvbpath;
 			m_meshAsset->serialize( fullwvbpath );
 		} );
 	}
@@ -141,8 +139,30 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 
 	for ( fastgltf::Material& mat : asset.materials )
 	{
+		std::string materialFilename 
+			= "materials/" 
+			+ (std::string)mat.name 
+			+ "." 
+			+ _path.stem().string() 
+			+ ".wvmt";
+
 		Ref<IShader> shader = getApp()->getShaderManager()->get( "lit" );
-		Ref<MaterialAsset> material = std::make_shared<MaterialAsset>( shader );
+		Ref<MaterialAsset> material;
+
+		if ( m_materialManager->contains( materialFilename ) )
+		{
+			material = m_materialManager->get( materialFilename );
+			material->destroy();
+
+			*material = MaterialAsset( shader );
+		}
+		else
+		{
+			material = std::make_shared<MaterialAsset>( shader );
+			material->path = materialFilename;
+			m_materialManager->add( material->path, material );
+		}
+
 		LitShader::LitMaterialData materialData{};
 		
 		/*
@@ -219,15 +239,9 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 		{
 			nlohmann::ordered_json json{ { "shader", "lit" }, { "data", jsonData } };
 
-			std::string materialFilename = (std::string)mat.name + "." + _path.stem().string() + ".wvmt";
-			std::ofstream materialStream( fs->getMountedPath( "materials/" + materialFilename ) );
+			std::ofstream materialStream( fs->getMountedPath( material->path ) );
 			materialStream << json.dump( 1 );
-
-			material->path = "materials/" + materialFilename;
-
-			m_materialManager->add( material->path, material );
 		}
-
 
 		m_materials.push_back( material );
 	}
