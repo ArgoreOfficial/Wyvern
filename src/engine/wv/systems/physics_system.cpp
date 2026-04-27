@@ -5,10 +5,13 @@
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
@@ -224,15 +227,15 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	JPH::Quat  jphRot = JPH::Quat( quat.x, quat.y, quat.z, quat.w );
 
 	JPH::EMotionType motionType = JPH::EMotionType::Dynamic;
+	JPH::ObjectLayer layer = Layers::MOVING; // TODO: make runtime setting
+
 	switch ( rigidbody.bodyType )
 	{
-	case BodyType_Static:    motionType = JPH::EMotionType::Static; break;
-	case BodyType_Dynamic:   motionType = JPH::EMotionType::Dynamic; break;
-	case BodyType_Kinematic: motionType = JPH::EMotionType::Kinematic; break;
+	case BodyType_Static:    motionType = JPH::EMotionType::Static;    layer = Layers::NON_MOVING; break;
+	case BodyType_Dynamic:   motionType = JPH::EMotionType::Dynamic;   layer = Layers::MOVING; break;
+	case BodyType_Kinematic: motionType = JPH::EMotionType::Kinematic; layer = Layers::MOVING; break;
 	}
 	
-	auto layers = Layers::MOVING;
-
 	switch ( collider.shape )
 	{
 	case ColliderShape_box:
@@ -244,7 +247,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 					collider.boxSize.y / 2.0f * tfm.scale.y, 
 					collider.boxSize.z / 2.0f * tfm.scale.z 
 				} ),
-			jphPos, jphRot, motionType, layers
+			jphPos, jphRot, motionType, layer
 		);
 	} break;
 
@@ -252,7 +255,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	{
 		bodySetting = JPH::BodyCreationSettings(
 			new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
-			jphPos, jphRot, motionType, layers
+			jphPos, jphRot, motionType, layer
 		);
 	} break;
 
@@ -260,7 +263,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	{
 		bodySetting = JPH::BodyCreationSettings(
 			new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
-			jphPos, jphRot, motionType, layers
+			jphPos, jphRot, motionType, layer
 		);
 	} break;
 
@@ -295,7 +298,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 				delete meshShape;
 			}
 			else
-				bodySetting = JPH::BodyCreationSettings( meshShape, jphPos, jphRot, motionType, layers );
+				bodySetting = JPH::BodyCreationSettings( meshShape, jphPos, jphRot, motionType, layer );
 		}
 
 	} break;
@@ -623,8 +626,6 @@ void wv::PhysicsSystem::onInternalPostPhysicsUpdate( double _fraction )
 
 bool wv::PhysicsSystem::rayCast( Vector3f _origin, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers )
 {
-	// Perform a raycast
-	// JPH::RayCast ray;
 	JPH::RRayCast ray( { _origin.x, _origin.y, _origin.z }, { _direction.x, _direction.y, _direction.z } );
 	JPH::RayCastResult rayCastResult;
 
@@ -641,7 +642,7 @@ bool wv::PhysicsSystem::rayCast( Vector3f _origin, Vector3f _direction, RaycastH
 		switch ( layer )
 		{
 		case PhysicsLayer_NonMoving: objectLayers.push_back( Layers::NON_MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::NON_MOVING ); break;
-		case PhysicsLayer_Moving: objectLayers.push_back( Layers::MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::MOVING ); break;
+		case PhysicsLayer_Moving:    objectLayers.push_back( Layers::MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::MOVING ); break;
 		}
 	}
 
@@ -657,5 +658,42 @@ bool wv::PhysicsSystem::rayCast( Vector3f _origin, Vector3f _direction, RaycastH
 
 bool wv::PhysicsSystem::sphereCast( Vector3f _origin, float _radius, Vector3f _direction, RaycastHit& _outHit, const std::vector<PhysicsLayer>& _filterLayers )
 {
-	return false;
+	JPH::SphereShape sphereShape( _radius );
+
+	JPH::Mat44 worldTransform = JPH::Mat44::sTranslation( { _origin.x, _origin.y, _origin.z } );
+
+	JPH::RShapeCast cast = JPH::RShapeCast::sFromWorldTransform( 
+		&sphereShape, 
+		{ 1.0f, 1.0f, 1.0f }, 
+		worldTransform, 
+		{ _direction.x, _direction.y, _direction.z } 
+	);
+
+	std::vector<JPH::ObjectLayer> objectLayers;
+	std::vector<JPH::BroadPhaseLayer> broadPhaseLayers;
+
+	// TODO: make these layers runtime
+	for ( auto layer : _filterLayers )
+	{
+		switch ( layer )
+		{
+		case PhysicsLayer_NonMoving: objectLayers.push_back( Layers::NON_MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::NON_MOVING ); break;
+		case PhysicsLayer_Moving: objectLayers.push_back( Layers::MOVING ); broadPhaseLayers.push_back( BroadPhaseLayers::MOVING ); break;
+		}
+	}
+
+	JPH::ClosestHitCollisionCollector<JPH::CastShapeCollector> castShapeCollector;
+
+	_outHit = {};
+
+	JPH::ShapeCastSettings settings;
+	
+	m_physicsSystem->GetNarrowPhaseQuery().CastShape(
+		cast, {}, {},
+		castShapeCollector,
+		ListBroadPhaseLayerFilter( broadPhaseLayers ),
+		ListObjectLayerFilter( objectLayers )
+	);
+
+	return castShapeCollector.HadHit();
 }
