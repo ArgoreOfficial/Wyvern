@@ -90,11 +90,7 @@ protected:
 	float yaw = 0.0f;
 	float roll = 0.0f;
 
-
-
 	float cameraShake = 0.0f;
-
-	int groundLayerMask = 0;
 
 	bool isGrounded = false;
 

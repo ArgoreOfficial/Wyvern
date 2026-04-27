@@ -6,6 +6,8 @@
 #include <wv/components/rigidbody_component.h>
 #include <wv/input/input_system.h>
 
+#include <wv/systems/physics_system.h>
+
 #include <wv/application.h>
 
 void PlayerMoveSystem::configure( wv::ArchetypeConfig& _config )
@@ -160,18 +162,22 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 		_rb.linearVelocity = wv::Vector3f{ targetVelocity.x, _rb.linearVelocity.y, targetVelocity.z };
 	}
 
-	// apply damping if grounded
-	/*
-	RaycastHit hit;
-	isGrounded = Physics.SphereCast( transform.position, GroundedCheckRadius, Vector3.down, out hit, GroundedCheckDistance, groundLayerMask );
+	wv::PhysicsSystem* physicsSystem = getWorld()->getSystem<wv::PhysicsSystem>();
+
+	wv::RaycastHit hit;
+	isGrounded = physicsSystem->sphereCast( 
+		transform.position, 
+		0.25f,
+		{ 0.0f, -1.58, 0.0f },
+		hit,
+		{ wv::PhysicsLayer_NonMoving } 
+	);
 
 	if ( isGrounded )
-		_rb.linearDamping = damping;
+		_rb.linearDamping = _pc.damping;
 	else
 		_rb.linearDamping = 0.0f;
-	*/
 
-	_rb.linearDamping = _pc.damping;
 }
 
 void PlayerMoveSystem::capSpeed( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
