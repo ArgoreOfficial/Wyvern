@@ -204,6 +204,7 @@ protected:
 	Viewport* m_viewport = nullptr;
 
 	std::vector<Entity*> m_entities;
+	std::vector<Entity*> m_destroyEntities;
 	std::unordered_set<IUpdatable*> m_updatables;
 
 	WorldUpdateContext m_updateContext{};

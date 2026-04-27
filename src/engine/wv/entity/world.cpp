@@ -227,6 +227,7 @@ void wv::World::destroyEntity( Entity* _entity )
 			continue;
 
 		m_entities.erase( m_entities.begin() + i );
+		m_destroyEntities.push_back( _entity );
 		return;
 	}
 }
@@ -476,6 +477,11 @@ void wv::World::updateComponentChanges()
 		m_ecsEngine->updateSystemsArchetypes();
 	
 	m_componentChangeQueue.clear();
+
+	for ( Entity* entity : m_destroyEntities )
+		WV_FREE( entity );
+	
+	m_destroyEntities.clear();
 }
 
 void wv::World::checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _entity )
