@@ -33,6 +33,7 @@ void PlayerMoveSystem::onUpdate()
 	// special case because we are dealing with mouse *and* controller look input
 	
 	m_lookInput = playerActionGroup->getAxisValue( -1, "Look" );
+	float cameraShake = 0.0f;
 
 	for ( auto& ae : updateContext->actionEventQueue )
 	{
@@ -76,19 +77,20 @@ void PlayerMoveSystem::onUpdate()
 		{
 			auto& rb = rigidbodies[ i ];
 			auto& pc = playerComponents[ i ];
+			pc.cameraShake += cameraShake;
 
 			wv::Vector3f flatVelocity = wv::Vector3f( rb.linearVelocity.x, 0.0f, rb.linearVelocity.z );
-			speedDiff = wv::Math::clamp( flatVelocity.length() / pc.moveSpeed, 0.0f, 1.0f ); 
+			pc.speedDiff = wv::Math::clamp( flatVelocity.length() / pc.moveSpeed, 0.0f, 1.0f );
 
-			if ( m_isWalking && speedDiff > 0.1f )
+			if ( m_isWalking && pc.speedDiff > 0.1f )
 			{
-				walkTimer += deltaTime;
+				pc.walkTimer += deltaTime;
 
-				footstepTimer -= deltaTime;
-				if ( footstepTimer < 0 )
+				pc.footstepTimer -= deltaTime;
+				if ( pc.footstepTimer < 0 )
 				{
 					//footstepTimer = Random.Range( FootstepMinDelay, FootstepMaxDelay );
-					if ( isGrounded )
+					if ( pc.isGrounded )
 					{
 						//FootstepAudioSource.pitch = Random.Range( 0.8f, 1.2f );
 						//FootstepAudioSource.Play();
@@ -96,8 +98,8 @@ void PlayerMoveSystem::onUpdate()
 				}
 			}
 
-			if ( cameraShake > 0.0f )
-				cameraShake -= pc.cameraShakeDecay * deltaTime;
+			if ( pc.cameraShake > 0.0f )
+				pc.cameraShake -= pc.cameraShakeDecay * deltaTime;
 		}
 	}
 
@@ -165,7 +167,7 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 	wv::PhysicsSystem* physicsSystem = getWorld()->getSystem<wv::PhysicsSystem>();
 
 	wv::RaycastHit hit;
-	isGrounded = physicsSystem->sphereCast( 
+	_pc.isGrounded = physicsSystem->sphereCast( 
 		transform.position, 
 		0.25f,
 		{ 0.0f, -1.58, 0.0f },
@@ -173,7 +175,7 @@ void PlayerMoveSystem::updateMove( wv::Entity* _entity, wv::RigidBodyComponent& 
 		{ wv::PhysicsLayer_NonMoving } 
 	);
 
-	if ( isGrounded )
+	if ( _pc.isGrounded )
 		_rb.linearDamping = _pc.damping;
 	else
 		_rb.linearDamping = 0.0f;
@@ -195,29 +197,29 @@ void PlayerMoveSystem::updateMouseLook( wv::Entity* _entity, wv::RigidBodyCompon
 	// 0.01f here so to keep CameraSensitivity in a 1-100 range
 	wv::Vector2f cameraInput = m_lookInput * ( _pc.cameraSensitivity * 0.01f );
 	
-	yaw   -= cameraInput.x;
-	pitch -= cameraInput.y;
-	roll  = 0;
+	_pc.yaw   -= cameraInput.x;
+	_pc.pitch -= cameraInput.y;
+	_pc.roll  = 0;
 	
-	pitch = wv::Math::clamp( pitch, -85.0f, 85.0f );
+	_pc.pitch = wv::Math::clamp( _pc.pitch, -85.0f, 85.0f );
 }
 
 void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc )
 {
-	float currentRot = _pc.viewRotOffset + ( std::sinf( walkTimer * _pc.viewRotFrequency ) * _pc.viewRotting );
-	float currentBob = std::sinf( walkTimer * _pc.viewBobbingSpeed ) * _pc.viewBobbing;
+	float currentRot = _pc.viewRotOffset + ( std::sinf( _pc.walkTimer * _pc.viewRotFrequency ) * _pc.viewRotting );
+	float currentBob = std::sinf( _pc.walkTimer * _pc.viewBobbingSpeed ) * _pc.viewBobbing;
 	if ( _pc.resetBobPosition )
-		currentBob *= speedDiff;
+		currentBob *= _pc.speedDiff;
 
 	wv::Vector3f localPosition = wv::Vector3f( 0, ( _pc.cameraHeight - 1.0f ) + currentBob, 0 );
 
 	float shakePitch = 0.0f;
 	float shakeYaw = 0.0f;
 
-	if ( cameraShake > 0 )
+	if ( _pc.cameraShake > 0 )
 	{
-		shakePitch = cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
-		shakeYaw   = cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
+		shakePitch = _pc.cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
+		shakeYaw   = _pc.cameraShake * wv::Math::randomRange( -1.0f, 1.0f );
 	}
 
 	if ( _pc.cameraEntity )
@@ -226,13 +228,13 @@ void PlayerMoveSystem::updateCameraTransform( wv::Entity* _entity, wv::RigidBody
 		cameraTransform.position = localPosition;
 		cameraTransform.rotation = wv::Rotorf::euler( 
 			{ 
-				pitch + shakePitch, 
-						shakeYaw, 
-				roll  + currentRot
+				_pc.pitch + shakePitch,
+						    shakeYaw, 
+				_pc.roll  + currentRot
 			} 
 		);
 	}
-	_entity->getTransform().rotation = wv::Rotorf::euler( 0.0f, yaw, 0.0f );
+	_entity->getTransform().rotation = wv::Rotorf::euler( 0.0f, _pc.yaw, 0.0f );
 }
 
 

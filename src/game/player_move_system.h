@@ -34,6 +34,23 @@ struct PlayerMoveComponent
 	float viewRotting      = 1.5f;
 	float viewRotFrequency = 1.75f;
 	float viewRotOffset    = 0.0f;
+
+
+	// Private
+
+
+	float pitch = 0.0f;
+	float yaw = 0.0f;
+	float roll = 0.0f;
+
+	float cameraShake = 0.0f;
+
+	bool isGrounded = false;
+
+	float speedDiff = 0.0f;
+	float walkTimer = 0.0f;
+	float footstepTimer = 0.0f;
+
 };
 
 
@@ -80,24 +97,8 @@ protected:
 	void updateCameraTransform( wv::Entity* _entity, wv::RigidBodyComponent& _rb, PlayerMoveComponent& _pc );
 
 	bool isLocked = false;
-
-
-
-	bool m_isWalking = false;
 	bool jump = false;
-
-	float pitch = 0.0f;
-	float yaw = 0.0f;
-	float roll = 0.0f;
-
-	float cameraShake = 0.0f;
-
-	bool isGrounded = false;
-
-	float speedDiff = 0.0f;
-	float walkTimer = 0.0f;
-	float footstepTimer = 0.0f;
-
+	bool m_isWalking = false;
 
 	wv::Vector2f m_moveInput = {};
 	wv::Vector2f m_lookInput = {};
