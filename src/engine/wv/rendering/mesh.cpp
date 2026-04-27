@@ -18,12 +18,6 @@ wv::MeshAsset::MeshAsset( const std::filesystem::path& _path )
 	m_path = _path;
 }
 
-wv::MeshAsset::~MeshAsset()
-{
-	Renderer* renderer = Application::getSingleton()->getRenderer();
-	renderer->deallocateMesh( m_gpuAllocation );
-}
-
 wv::Ref<wv::MeshAsset> wv::MeshAsset::get( const std::filesystem::path& _path )
 {
 	return getApp()->getMeshManager()->get( _path );
@@ -202,4 +196,16 @@ void wv::MeshAsset::initialize( const GeometrySurface& _geometry )
 #ifdef WV_DEBUG
 	m_surface = _geometry;
 #endif
+}
+
+void wv::MeshAsset::destroy()
+{
+	Renderer* renderer = Application::getSingleton()->getRenderer();
+	renderer->deallocateMesh( m_gpuAllocation );
+
+	m_path = "";
+	m_primitives.clear();
+	m_numMaterials = 0;
+	m_surface = {};
+	m_gpuAllocation.invalidate();
 }

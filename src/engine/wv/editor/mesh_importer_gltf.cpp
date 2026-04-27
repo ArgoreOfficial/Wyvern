@@ -74,24 +74,25 @@ void wv::MeshImporterGLTF::load( const std::filesystem::path& _path, MeshImportO
 	Fence* loadFence = taskSystem->allocateFence();
 
 	std::filesystem::path wvbpath = _path; wvbpath.replace_extension( ".wvb" );
-	
+	std::filesystem::path fullwvbpath = fullpath; fullwvbpath.replace_extension( ".wvb" );
+
 	if ( m_meshManager->contains( wvbpath ) )
 	{
 		m_meshAsset = m_meshManager->get( wvbpath );
+		m_meshAsset->destroy();
 	}
 	else
 	{
 		m_meshAsset = std::make_shared<MeshAsset>();
-		std::filesystem::path fullwvbpath = fullpath; fullwvbpath.replace_extension( ".wvb" );
-
-		m_meshAsset->m_path = wvbpath;
 		m_meshManager->add( wvbpath, m_meshAsset );
-
-		worker->push( loadFence, [ this, fullwvbpath, _options, &asset ]( auto, auto ) {
-			parseMesh( asset, _options );
-			m_meshAsset->serialize( fullwvbpath );
-		} );
 	}
+
+	m_meshAsset->m_path = wvbpath;
+
+	worker->push( loadFence, [ this, fullwvbpath, _options, &asset ]( auto, auto ) {
+		parseMesh( asset, _options );
+		m_meshAsset->serialize( fullwvbpath );
+	} );
 
 	for ( size_t i = 0; i < asset.images.size(); i++ )
 	{

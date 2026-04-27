@@ -147,6 +147,15 @@ void wv::EditorInterfaceSystem::onEditorRender()
 				MeshImporterGLTF importer{};
 				std::string str = m_meshImporterPath;
 				importer.load( str );
+			}
+
+			ImGui::SameLine();
+
+			if ( ImGui::Button( "Import & Create##mesh_import_create_button" ) )
+			{
+				MeshImporterGLTF importer{};
+				std::string str = m_meshImporterPath;
+				importer.load( str );
 
 				if ( importer.hasLoaded() )
 					importer.createEntity( getWorld(), "New Mesh" );

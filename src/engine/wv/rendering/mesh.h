@@ -65,13 +65,16 @@ class MeshAsset : public IReflectedType
 public:
 	MeshAsset() = default;
 	MeshAsset( const std::filesystem::path& _path );
-	~MeshAsset();
+	~MeshAsset() {
+		destroy();
+	}
 
 	static Ref<MeshAsset> get( const std::filesystem::path& _path );
 
 	void serialize( const std::filesystem::path& _path );
 	GeometrySurface deserialize( const std::filesystem::path& _path );
 	void initialize( const GeometrySurface& _geometry );
+	void destroy();
 
 	ResourceID getGPUAllocation() const { return m_gpuAllocation; }
 	const GeometrySurface& getSurface() const { return m_surface; }
