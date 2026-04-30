@@ -8,11 +8,10 @@ namespace wv {
 
 struct IEvent;
 
-class IEventListener : public IReflectedType
+class IEventListener
 {
 	friend class EventManager;
 
-	WV_REFLECT_TYPE( IEventListener, IReflectedType )
 public:
 	IEventListener( TypeUUID _eventTypeUUID ) : 
 		m_eventTypeUUID{ _eventTypeUUID } 

@@ -304,8 +304,6 @@ void wv::Application::shutdown()
 		m_renderer->shutdown();
 		WV_FREE( m_renderer );
 	}
-	
-	ReflectionRegistry::destroySingleton();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

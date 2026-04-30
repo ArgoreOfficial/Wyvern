@@ -10,6 +10,8 @@
 
 #define WV_DEFINE_ID( _c ) typedef wv::strong_type<uint16_t, struct _c##_t> _c
 
+typedef uint64_t TypeUUID;
+
 namespace wv {
 
 ///////////////////////////////////////////////////////////////////////////////////////

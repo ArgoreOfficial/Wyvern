@@ -1,7 +1,6 @@
 #pragma once
 
 #include <wv/math/vector2.h>
-#include <wv/reflection/reflection.h>
 
 namespace wv {
 
@@ -13,10 +12,9 @@ struct ValueAction;
 
 enum AxisActionDirection;
 
-class IInputDriver : public IReflectedType
+class IInputDriver
 {
 	friend class InputSystem;
-	WV_REFLECT_TYPE( IInputDriver, IReflectedType )
 
 public:
 	IInputDriver() = default;

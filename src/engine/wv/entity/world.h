@@ -40,12 +40,11 @@ enum UpdateEventType
 	UpdateEvent_render
 };
 
-class World : public IReflectedType
+class World
 {
 	friend class Application;
 	friend class WorldSerializer;
 
-	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World();
 	virtual ~World();

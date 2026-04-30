@@ -56,11 +56,9 @@ struct GeometrySurface
 	std::vector<Vector3f> vertexColours;
 };
 
-class MeshAsset : public IReflectedType
+class MeshAsset
 {
 	friend class MeshImporterGLTF;
-
-	WV_REFLECT_TYPE( MeshAsset, IReflectedType )
 
 public:
 	MeshAsset() = default;
