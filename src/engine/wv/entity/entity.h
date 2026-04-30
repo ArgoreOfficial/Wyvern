@@ -99,6 +99,13 @@ private:
 
 	Entity* m_parent = nullptr;
 	std::vector<Entity*> m_children;
+
+public:
+	static inline wv::Reflection reflection{
+		wv::reflect( "id", &Entity::m_ID ),
+		wv::reflect( "name", &Entity::m_debugName ),
+		wv::reflect( "tfm", &Entity::m_transform )
+	};
 };
 
 }

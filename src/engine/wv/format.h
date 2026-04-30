@@ -63,13 +63,13 @@ struct formatter<wv::Vector4<Ty>> : std::formatter<std::string>
 	}
 };
 
-template <>
-struct formatter<wv::Transform> : std::formatter<std::string>
-{
-	auto format( wv::Transform _v, format_context& _ctx ) const {
-		wv::Vector3f v;
-		return std::formatter<std::string>::format( std::format( "[{}, {}, {}]", _v.position, v, _v.scale), _ctx);
-	}
-};
+//template <>
+//struct formatter<wv::Transform> : std::formatter<std::string>
+//{
+//	auto format( wv::Transform _v, format_context& _ctx ) const {
+//		wv::Vector3f v;
+//		return std::formatter<std::string>::format( std::format( "[{}, {}, {}]", _v.position, v, _v.scale), _ctx);
+//	}
+//};
 
 }

@@ -1,6 +1,29 @@
 {
   "name": "Test World",
-  "entities": [],
+  "entities": [
+    {
+      "id": 17554871715084017388,
+      "name": "Test",
+      "tfm": {
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  ],
   "hierarchy": [],
-  "components": []
+  "components": null
 }

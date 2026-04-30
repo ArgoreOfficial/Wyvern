@@ -1,12 +1,13 @@
 #pragma once
 
-#include <wv/string.h>
+#include <wv/types.h>
+
 #include <wv/debug/error.h>
-#include <wv/format.h>
 
 #include <wv/math/vector2.h>
 #include <wv/math/vector3.h>
 #include <wv/math/vector4.h>
+#include <wv/math/rotor.h>
 
 #include <nlohmann/json.hpp>
 
@@ -39,45 +40,102 @@ struct HasReflection <Ty, decltype( (void)Ty::reflection, 0 )> : std::true_type 
 template<typename Ty>
 struct SerializeField
 {
-	nlohmann::json operator()( Ty& _fptr ) { return _fptr; }
+	static nlohmann::json toJson( const Ty& _v ) { return _v; }
+};
+
+template<>
+struct SerializeField<UUID>
+{
+	static nlohmann::json toJson( const UUID& _v ) { return (uint64_t)_v; }
 };
 
 template<typename Ty>
 struct SerializeField<Vector2<Ty>>
 {
-	nlohmann::json operator()( Vector2<Ty>& _fptr ) { return std::vector<Ty>{ _fptr.x, _fptr.y }; }
+	static nlohmann::json toJson( const Vector2<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y }; }
 };
 
 template<typename Ty>
 struct SerializeField<Vector3<Ty>>
 {
-	nlohmann::json operator()( Vector3<Ty>& _fptr ) { return std::vector<Ty>{ _fptr.x, _fptr.y, _fptr.z }; }
+	static nlohmann::json toJson( const Vector3<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y, _v.z }; }
 };
 
 template<typename Ty>
 struct SerializeField<Vector4<Ty>>
 {
-	nlohmann::json operator()( Vector4<Ty>& _fptr ) { return std::vector<Ty>{ _fptr.x, _fptr.y, _fptr.z, _fptr.w }; }
+	static nlohmann::json toJson( const Vector4<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y, _v.z, _v.w }; }
+};
+
+template<typename Ty>
+struct SerializeField<Rotor<Ty>>
+{
+	static nlohmann::json toJson( const Rotor<Ty>& _v ) { return std::vector<Ty>{ _v.s, _v.xy, _v.xz, _v.yz }; }
 };
 
 template<typename Ty>
 struct SerializeField<Ref<Ty>>
 {
-	nlohmann::json operator()( Ref<Ty>& _fptr ) { 
-		if ( !_fptr ) return {};
+	static nlohmann::json toJson( const Ref<Ty>& _v ) { 
+		if ( !_v ) return {};
 
-		return _fptr->getPath().string();
+		return _v->getPath().string();
 	}
 };
 
 template<typename Ty>
 struct SerializeField<std::vector<Ty>>
 {
-	nlohmann::json operator()( std::vector<Ty>& _fptr ) {
-		std::vector<nlohmann::json> j;
-		for ( Ty& v : _fptr )
-			j.push_back( SerializeField<Ty>()( v ) );
-		return j;
+	static nlohmann::json toJson( const std::vector<Ty>& _v ) {
+		std::vector<nlohmann::json> jvec;
+
+		for ( const Ty& v : _v )
+		{
+			if constexpr ( HasReflection<Ty>::value )
+			{
+				nlohmann::json j{};
+
+				for ( const auto& r : reflection_of<Ty>.fields )
+					j[ r->name ] = r->serialize( &v );
+
+				jvec.push_back( j );
+			}
+			else
+			{
+				// primitive or unreflected type
+				jvec.push_back( SerializeField<Ty>::toJson( v ) );
+			}
+		}
+
+		return jvec;
+	}
+};
+
+template<typename Ty>
+struct SerializeField<std::vector<Ty*>>
+{
+	static nlohmann::json toJson( const std::vector<Ty*>& _v ) {
+		std::vector<nlohmann::json> jvec;
+
+		for ( const Ty* v : _v )
+		{
+			if constexpr ( HasReflection<Ty>::value )
+			{
+				nlohmann::json j{};
+
+				for ( const auto& r : reflection_of<Ty>.fields )
+					j[ r->name ] = r->serialize( v );
+
+				jvec.push_back( j );
+			}
+			else
+			{
+				// primitive or unreflected type
+				jvec.push_back( SerializeField<Ty>()( *v ) );
+			}
+		}
+
+		return jvec;
 	}
 };
 
@@ -87,7 +145,7 @@ struct IField
 
 	constexpr IField( const char* _name ) : name{ _name } { }
 
-	virtual nlohmann::json serialize( void* _ptr ) = 0;
+	virtual nlohmann::json serialize( const void* _ptr ) = 0;
 };
 
 template <typename Class, typename FieldTy>
@@ -98,8 +156,8 @@ struct Field : IField
 	constexpr Field() noexcept = default;
 	constexpr Field( const char* _name, FieldTy Class::* _p ) noexcept : IField{ _name }, fptr{ _p } { }
 
-	virtual nlohmann::json serialize( void* _cptr ) override {
-		Class* cptr = (Class*)_cptr;
+	virtual nlohmann::json serialize( const void* _cptr ) override {
+		const Class* cptr = (Class*)_cptr;
 		if constexpr ( HasReflection<FieldTy>::value )
 		{
 			nlohmann::json j{};
@@ -112,7 +170,7 @@ struct Field : IField
 		else
 		{
 			// primitive or unreflected type
-			return SerializeField<FieldTy>()( cptr->*fptr );
+			return SerializeField<FieldTy>::toJson( cptr->*fptr );
 		}
 	}
 };
@@ -137,12 +195,30 @@ struct Reflection
 			delete f;
 	}
 
-	nlohmann::json serialize( void* _ptr ) const {
+	nlohmann::json serialize( const void* _ptr ) const {
 		nlohmann::json j{};
-		for ( auto& r : fields )
+		for ( const auto& r : fields )
 			j[ r->name ] = r->serialize( _ptr );
 		return j;
 	}
 };
+
+// Helpers
+
+namespace Serialize {
+
+template<typename Ty>
+static nlohmann::json toJson( const Ty& _v ) {
+	return SerializeField<Ty>::toJson( _v );
+}
+
+/*
+template<typename Ty>
+static void fromJson( Ty& _v, const nlohmann::json& _json ) {
+	SerializeField<Ty>::fromJson( _v, _json );
+}
+*/
+
+}
 
 }

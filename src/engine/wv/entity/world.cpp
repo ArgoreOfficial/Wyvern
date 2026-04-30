@@ -108,8 +108,8 @@ void wv::World::load( const std::filesystem::path& _path )
 
 	nlohmann::json json = nlohmann::json::parse( stream );
 
-	// parse entities
 	/*
+	// parse entities
 	for ( auto& ent : json[ "entities" ] )
 	{
 		Entity* entity = createEntity( ent[ "name" ] );
@@ -147,26 +147,15 @@ void wv::World::save( const std::filesystem::path& _path )
 	nlohmann::ordered_json json{};
 	json[ "name" ] = "Test World";
 
-	std::vector<nlohmann::json> entities{};
+	std::vector<Entity*> entities;
 	std::vector<nlohmann::json> hierarchy{};
-	/*
-	for ( Entity* e : m_entities )
-	{
-		if ( !e->getShouldSerialize() )
-			continue;
-
-		entities.push_back(
-			nlohmann::json{
-				{ "id", (uint64_t)e->m_ID },
-				{ "name", e->m_debugName },
-				{ "tfm", e->m_transform },
-			} );
-	}
 
 	for ( Entity* e : m_entities )
 	{
 		if ( !e->getShouldSerialize() )
 			continue;
+
+		entities.push_back( e );
 
 		std::vector<uint64_t> children;
 		
@@ -182,9 +171,8 @@ void wv::World::save( const std::filesystem::path& _path )
 				} );
 		}
 	}
-
-	*/
-	json[ "entities" ] = entities;
+	
+	json[ "entities" ] = Serialize::toJson( entities );
 	json[ "hierarchy" ] = hierarchy;
 	json[ "components" ] = {};
 
