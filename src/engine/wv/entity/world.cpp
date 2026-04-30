@@ -108,14 +108,11 @@ void wv::World::load( const std::filesystem::path& _path )
 
 	nlohmann::json json = nlohmann::json::parse( stream );
 
-	/*
 	// parse entities
 	for ( auto& ent : json[ "entities" ] )
 	{
 		Entity* entity = createEntity( ent[ "name" ] );
-		
-		entity->m_transform = ent.value<Transform>( "tfm", {} );
-		entity->m_ID = ent.value<uint64_t>( "id", wv::Math::randomU64() );
+		Serialize::fromJson( ent, *entity );
 	}
 
 	// parse hierarchy
@@ -134,10 +131,11 @@ void wv::World::load( const std::filesystem::path& _path )
 	{
 		int index = comps[ "index" ];
 
-		m_serializer->deserializeComponents( index, this, comps[ "comps" ] );
-	}
-	*/
+		if ( !m_editorComponentInfos.contains( index ) )
+			continue;
 
+		m_editorComponentInfos[ index ].deserializeComponents( comps[ "comps" ] );
+	}
 }
 
 void wv::World::save( const std::filesystem::path& _path )
@@ -147,15 +145,17 @@ void wv::World::save( const std::filesystem::path& _path )
 	nlohmann::ordered_json json{};
 	json[ "name" ] = "Test World";
 
-	std::vector<Entity*> entities;
-	std::vector<nlohmann::json> hierarchy{};
+	std::vector<nlohmann::json> entities;
+	std::vector<nlohmann::json> hierarchy;
+	std::vector<nlohmann::json> components;
 
+	// Parse entity hierarchy
 	for ( Entity* e : m_entities )
 	{
 		if ( !e->getShouldSerialize() )
 			continue;
 
-		entities.push_back( e );
+		entities.push_back( Serialize::toJson( *e ) );
 
 		std::vector<uint64_t> children;
 		
@@ -172,9 +172,19 @@ void wv::World::save( const std::filesystem::path& _path )
 		}
 	}
 	
-	json[ "entities" ] = Serialize::toJson( entities );
+	// Parse components
+
+	for ( auto& [k, v] : m_editorComponentInfos )
+	{
+		nlohmann::json j = v.serializeComponents();
+
+		if ( !j.is_null() )
+			components.push_back( j );
+	}
+	
+	json[ "entities" ] = entities;
 	json[ "hierarchy" ] = hierarchy;
-	json[ "components" ] = {};
+	json[ "components" ] = components;
 
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
 	std::ofstream stream{ fullpath };

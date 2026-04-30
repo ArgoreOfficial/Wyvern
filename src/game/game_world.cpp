@@ -37,10 +37,12 @@ void GameWorld::onSceneCreate()
 	// Systems
 	addSystem<CrateController>();
 	
+	/*
 	{
 		wv::Entity* e = createEntity( "Test" );
 		addComponent<wv::MeshComponent>( e, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
 	}
+	*/
 
 	// Load World
 	load( "worlds/test_world.world" );

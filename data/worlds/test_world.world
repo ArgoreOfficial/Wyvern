@@ -2,7 +2,7 @@
   "name": "Test World",
   "entities": [
     {
-      "id": 17554871715084017388,
+      "id": 8244605545696734219,
       "name": "Test",
       "tfm": {
         "pos": [
@@ -25,5 +25,60 @@
     }
   ],
   "hierarchy": [],
-  "components": null
+  "components": [
+    {
+      "comps": [
+        {
+          "data": {
+            "boxSize": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "cylinderHeight": 1.0,
+            "meshColliderAsset": null,
+            "radius": 0.5,
+            "shape": 0
+          },
+          "entity": 8244605545696734219
+        }
+      ],
+      "index": 1
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "materials": [],
+            "meshAsset": "meshes/SM_Cube.wvb"
+          },
+          "entity": 8244605545696734219
+        }
+      ],
+      "index": 2
+    },
+    {
+      "comps": [
+        {
+          "data": {
+            "bodyType": 1,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 8244605545696734219
+        }
+      ],
+      "index": 4
+    }
+  ]
 }

@@ -77,6 +77,59 @@ public:
 		info.addComponentFunction       = []( World* _world, Entity* _entity ) { _world->addComponent<Ty>( _entity, Ty{} ); };
 		info.removeComponentFunction    = []( World* _world, Entity* _entity ) { _world->removeComponent<Ty>( _entity ); };
 		
+		info.serializeComponents =
+			[this]() -> nlohmann::json
+			{
+				std::vector<nlohmann::json> comps;
+				
+				for ( Archetype* arch : m_ecsEngine->getMatchingArchetypes( m_ecsEngine->getComponentBitset<Ty>() ) )
+				{
+					auto& components = arch->getComponents<Ty>();
+					auto& entities = arch->getEntities();
+
+					for ( size_t i = 0; i < arch->getNumEntities(); i++ )
+					{
+						if ( !entities[ i ]->getShouldSerialize() )
+							continue;
+						
+						comps.push_back(
+							nlohmann::json{
+								{ "data", Serialize::toJson( components[ i ] ) },
+								{ "entity", (uint64_t)entities[ i ]->getID() }
+							}
+						);
+					}
+				}
+
+				if ( comps.empty() )
+					return {};
+
+				return {
+					{ "index", ECSEngine::ComponentTypeDef<Ty>::index },
+					{ "comps", comps }
+				};
+			};
+
+		info.deserializeComponents =
+			[ this ]( const nlohmann::json& _json )
+			{
+				for ( auto& v : _json )
+				{
+					if ( !v.contains( "entity" ) )
+						continue;
+
+					uint64_t entityID = v.at( "entity" );
+					Entity* entity = getEntityFromID( entityID );
+
+					if ( !entity )
+						continue;
+
+					Ty comp;
+					Serialize::fromJson( v[ "data" ], comp );
+					addComponent<Ty>( entity, comp );
+				}
+			};
+
 		m_editorComponentInfos.emplace( index, info );
 
 		return index;
@@ -227,6 +280,8 @@ private:
 		std::string name;
 		std::function<void( World*, Entity* )> addComponentFunction;
 		std::function<void( World*, Entity* )> removeComponentFunction;
+		std::function<nlohmann::json()> serializeComponents;
+		std::function<void( const nlohmann::json& )> deserializeComponents;
 	};
 
 	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;

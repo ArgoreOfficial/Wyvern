@@ -15,9 +15,7 @@ struct EditorObjectComponent
 	Rotorf rotateStart{};
 	Vector3f scaleStart{};
 
-	static inline wv::Reflection reflection{
-		wv::reflect( "selected", &EditorObjectComponent::selected )
-	};
+	static inline wv::Reflection reflection{}; // empty reflection
 };
 
 }

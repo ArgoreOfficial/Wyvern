@@ -41,36 +41,82 @@ template<typename Ty>
 struct SerializeField
 {
 	static nlohmann::json toJson( const Ty& _v ) { return _v; }
+	static void fromJson( const nlohmann::json& _json, Ty& _v ) { 
+		if ( _json.is_null() )
+			return;
+
+		_json.get_to( _v ); 
+	}
 };
 
 template<>
 struct SerializeField<UUID>
 {
 	static nlohmann::json toJson( const UUID& _v ) { return (uint64_t)_v; }
+	static void fromJson( const nlohmann::json& _json, UUID& _v ) { 
+		if ( _json.is_null() )
+			return;
+
+		uint64_t v;
+		_json.get_to( v );
+		_v = v;
+	}
 };
 
 template<typename Ty>
 struct SerializeField<Vector2<Ty>>
 {
 	static nlohmann::json toJson( const Vector2<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y }; }
+	static void fromJson( const nlohmann::json& _json, Vector2<Ty>& _v ) { 
+		if ( _json.is_null() )
+			return;
+
+		std::vector<Ty> vec;
+		_json.get_to( vec );
+		_v = { vec[ 0 ], vec[ 1 ] };
+	}
 };
 
 template<typename Ty>
 struct SerializeField<Vector3<Ty>>
 {
 	static nlohmann::json toJson( const Vector3<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y, _v.z }; }
+	static void fromJson( const nlohmann::json& _json, Vector3<Ty>& _v ) {
+		if ( _json.is_null() )
+			return;
+
+		std::vector<Ty> vec;
+		_json.get_to( vec );
+		_v = { vec[ 0 ], vec[ 1 ], vec[ 2 ] };
+	}
 };
 
 template<typename Ty>
 struct SerializeField<Vector4<Ty>>
 {
 	static nlohmann::json toJson( const Vector4<Ty>& _v ) { return std::vector<Ty>{ _v.x, _v.y, _v.z, _v.w }; }
+	static void fromJson( const nlohmann::json& _json, Vector4<Ty>& _v ) {
+		if ( _json.is_null() )
+			return;
+
+		std::vector<Ty> vec;
+		_json.get_to( vec );
+		_v = { vec[ 0 ], vec[ 1 ], vec[ 2 ], vec[ 3 ] };
+	}
 };
 
 template<typename Ty>
 struct SerializeField<Rotor<Ty>>
 {
 	static nlohmann::json toJson( const Rotor<Ty>& _v ) { return std::vector<Ty>{ _v.s, _v.xy, _v.xz, _v.yz }; }
+	static void fromJson( const nlohmann::json& _json, Rotor<Ty>& _v ) {
+		if ( _json.is_null() )
+			return;
+
+		std::vector<Ty> vec;
+		_json.get_to( vec );
+		_v = { vec[ 0 ], vec[ 1 ], vec[ 2 ], vec[ 3 ] };
+	}
 };
 
 template<typename Ty>
@@ -80,6 +126,15 @@ struct SerializeField<Ref<Ty>>
 		if ( !_v ) return {};
 
 		return _v->getPath().string();
+	}
+
+	static void fromJson( const nlohmann::json& _json, Ref<Ty>& _v ) {
+		if ( _json.is_null() )
+			return;
+
+		std::string path;
+		_json.get_to( path );
+		_v = Ty::get( path );
 	}
 };
 
@@ -98,44 +153,28 @@ struct SerializeField<std::vector<Ty>>
 				for ( const auto& r : reflection_of<Ty>.fields )
 					j[ r->name ] = r->serialize( &v );
 
-				jvec.push_back( j );
+				if ( !j.is_null() )
+					jvec.push_back( j );
 			}
 			else
 			{
-				// primitive or unreflected type
-				jvec.push_back( SerializeField<Ty>::toJson( v ) );
+				nlohmann::json j = SerializeField<Ty>::toJson( v );
+				
+				if( !j.is_null() )
+					jvec.push_back( j );
 			}
 		}
 
 		return jvec;
 	}
-};
 
-template<typename Ty>
-struct SerializeField<std::vector<Ty*>>
-{
-	static nlohmann::json toJson( const std::vector<Ty*>& _v ) {
-		std::vector<nlohmann::json> jvec;
-
-		for ( const Ty* v : _v )
+	static void fromJson( const nlohmann::json& _json, std::vector<Ty>& _v ) {
+		for ( auto& [k, v] : _json.items() )
 		{
-			if constexpr ( HasReflection<Ty>::value )
-			{
-				nlohmann::json j{};
-
-				for ( const auto& r : reflection_of<Ty>.fields )
-					j[ r->name ] = r->serialize( v );
-
-				jvec.push_back( j );
-			}
-			else
-			{
-				// primitive or unreflected type
-				jvec.push_back( SerializeField<Ty>()( *v ) );
-			}
+			Ty tmp;
+			SerializeField<Ty>::fromJson( v, tmp );
+			_v.push_back( tmp );
 		}
-
-		return jvec;
 	}
 };
 
@@ -145,7 +184,8 @@ struct IField
 
 	constexpr IField( const char* _name ) : name{ _name } { }
 
-	virtual nlohmann::json serialize( const void* _ptr ) = 0;
+	virtual nlohmann::json serialize( const void* _cptr ) = 0;
+	virtual void deserialize( const nlohmann::json& _json, void* _cptr ) = 0;
 };
 
 template <typename Class, typename FieldTy>
@@ -162,15 +202,27 @@ struct Field : IField
 		{
 			nlohmann::json j{};
 
-			for ( const auto& r : reflection_of<FieldTy>.fields )
-				j[ r->name ] = r->serialize( &( cptr->*fptr ) );
+			for ( IField* f : reflection_of<FieldTy>.fields )
+				j[ f->name ] = f->serialize( &( cptr->*fptr ) );
 
 			return j;
 		}
 		else
 		{
-			// primitive or unreflected type
 			return SerializeField<FieldTy>::toJson( cptr->*fptr );
+		}
+	}
+
+	virtual void deserialize( const nlohmann::json& _json, void* _cptr ) override {
+		Class* cptr = (Class*)_cptr;
+		if constexpr ( HasReflection<FieldTy>::value )
+		{
+			for ( IField* f : reflection_of<FieldTy>.fields )
+				f->deserialize( _json[ f->name ], &( cptr->*fptr ));
+		}
+		else
+		{
+			return SerializeField<FieldTy>::fromJson( _json, cptr->*fptr );
 		}
 	}
 };
@@ -201,6 +253,11 @@ struct Reflection
 			j[ r->name ] = r->serialize( _ptr );
 		return j;
 	}
+
+	void deserialize( const nlohmann::json& _json, void* _cptr ) const {
+		for ( const auto& r : fields )
+			r->deserialize( _json[ r->name ], _cptr );
+	}
 };
 
 // Helpers
@@ -209,15 +266,19 @@ namespace Serialize {
 
 template<typename Ty>
 static nlohmann::json toJson( const Ty& _v ) {
-	return SerializeField<Ty>::toJson( _v );
+	if constexpr ( HasReflection<Ty>::value )
+		return reflection_of<Ty>.serialize( &_v );
+	else
+		return SerializeField<Ty>::toJson( _v );
 }
 
-/*
 template<typename Ty>
-static void fromJson( Ty& _v, const nlohmann::json& _json ) {
-	SerializeField<Ty>::fromJson( _v, _json );
+static void fromJson( const nlohmann::json& _json, Ty& _v ) {
+	if constexpr ( HasReflection<Ty>::value )
+		return reflection_of<Ty>.deserialize( _json, &_v );
+	else
+		return SerializeField<Ty>::fromJson( _json, _v );
 }
-*/
 
 }
 
