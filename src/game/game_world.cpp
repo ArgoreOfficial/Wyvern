@@ -1,20 +1,9 @@
 #include "game_world.h"
 
 #include <wv/application.h>
-
-#include <wv/editor/mesh_importer_gltf.h>
-
-#include <wv/entity/ecs.h>
-#include <wv/entity/entity.h>
-
-#include <wv/components/mesh_component.h>
-#include <wv/components/camera_component.h>
-#include <wv/components/rigidbody_component.h>
-#include <wv/components/collider_component.h>
-
 #include <wv/serialize.h>
 
-#include "player_move_system.h"
+#include "crate_controller.h"
 
 void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
@@ -37,57 +26,24 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->enable();
 }
 
-static void to_json( nlohmann::json& _json, const PlayerMoveComponent& _comp ) { 
+static void to_json( nlohmann::json& _json, const CrateComponent& _comp ) { 
 	_json = nlohmann::json{
-		{ "cameraSensitivity",  _comp.cameraSensitivity },
-		{ "cameraHeight",       _comp.cameraHeight },
-		{ "cameraShakeDecay",   _comp.cameraShakeDecay },
-		{ "smoothAcceleration", _comp.smoothAcceleration },
-		{ "acceleration",       _comp.acceleration },
-		{ "moveSpeed",          _comp.moveSpeed },
-		{ "damping",            _comp.damping },
-		{ "viewBobbing",        _comp.viewBobbing },
-		{ "viewBobbingSpeed",   _comp.viewBobbingSpeed },
-		{ "resetBobPosition",   _comp.resetBobPosition },
-		{ "viewRotting",        _comp.viewRotting },
-		{ "viewRotFrequency",   _comp.viewRotFrequency },
-		{ "viewRotOffset",      _comp.viewRotOffset }
+		// { "cameraSensitivity",  _comp.cameraSensitivity },
 	};
-
-	if ( _comp.cameraEntity )
-		_json[ "cameraEntity" ] = (uint64_t)_comp.cameraEntity->getID();
 }
 
-static void from_json( const nlohmann::json& _json, PlayerMoveComponent& _comp ) {
-	_json.at( "cameraSensitivity" ).get_to( _comp.cameraSensitivity );
-	_json.at( "cameraHeight" ).get_to( _comp.cameraHeight );
-	_json.at( "cameraShakeDecay" ).get_to( _comp.cameraShakeDecay );
-	_json.at( "smoothAcceleration" ).get_to( _comp.smoothAcceleration );
-	_json.at( "acceleration" ).get_to( _comp.acceleration );
-	_json.at( "moveSpeed" ).get_to( _comp.moveSpeed );
-	_json.at( "damping" ).get_to( _comp.damping );
-	_json.at( "viewBobbing" ).get_to( _comp.viewBobbing );
-	_json.at( "viewBobbingSpeed" ).get_to( _comp.viewBobbingSpeed );
-	_json.at( "resetBobPosition" ).get_to( _comp.resetBobPosition );
-	_json.at( "viewRotting" ).get_to( _comp.viewRotting );
-	_json.at( "viewRotFrequency" ).get_to( _comp.viewRotFrequency );
-	_json.at( "viewRotOffset" ).get_to( _comp.viewRotOffset );
-
-	if ( _json.contains( "cameraEntity" ) )
-	{
-		uint64_t id = (uint64_t)_json.at( "cameraEntity" );
-		_comp.cameraEntity = wv::getApp()->getActiveWorld()->getEntityFromID( id );
-	}
+static void from_json( const nlohmann::json& _json, CrateComponent& _comp ) {
+	// _json.at( "cameraSensitivity" ).get_to( _comp.cameraSensitivity );
 }
 
 void GameWorld::onSceneCreate()
 {
 	// Components
-	registerComponentType<PlayerMoveComponent>( "PlayerMoveComponent" );
-	m_serializer->addComponentFunction<PlayerMoveComponent>();
+	registerComponentType<CrateComponent>( "CrateComponent" );
+	m_serializer->addComponentFunction<CrateComponent>();
 	
 	// Systems
-	addSystem<PlayerMoveSystem>();
+	addSystem<CrateController>();
 	
 	// Load World
 	load( "worlds/test_world.world" );
