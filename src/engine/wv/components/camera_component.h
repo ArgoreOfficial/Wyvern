@@ -100,19 +100,16 @@ struct CameraComponent
 	Matrix4x4f viewMatrix{};
 	Matrix4x4f projMatrix{};
 	Matrix4x4f viewProjMatrix{};
-};
 
-template<>
-static void serialize<CameraComponent>( SerializeInfo& _info )
-{
-	_info.name = "CameraComponent";
-	_info.registerMember( &CameraComponent::active, "active" );
-	_info.registerMember( &CameraComponent::projectionType, "projectionType" );
-	_info.registerMember( &CameraComponent::fov, "fov" );
-	_info.registerMember( &CameraComponent::clipNear, "clipNear" );
-	_info.registerMember( &CameraComponent::clipFar, "clipFar" );
-	_info.registerMember( &CameraComponent::orthoScale, "orthoScale" );
-	_info.registerMember( &CameraComponent::aspect, "aspect" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "active", &CameraComponent::active ),
+		wv::reflect( "projectionType", &CameraComponent::projectionType ),
+		wv::reflect( "fov", &CameraComponent::fov ),
+		wv::reflect( "clipNear", &CameraComponent::clipNear ),
+		wv::reflect( "clipFar", &CameraComponent::clipFar ),
+		wv::reflect( "orthoScale", &CameraComponent::orthoScale ),
+		wv::reflect( "aspect", &CameraComponent::aspect )
+	};
+};
 
 }

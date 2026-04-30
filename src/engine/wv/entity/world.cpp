@@ -22,157 +22,22 @@
 
 #include <fstream>
 
-namespace wv {
-
-static void to_json( nlohmann::json& _json, const MeshComponent& _comp ) {
-	std::vector<std::string> materials;
-
-	for ( size_t i = 0; i < _comp.materials.size(); i++ )
-		materials.push_back( _comp.materials[ i ]->path.string() );
-
-	_json = nlohmann::json{
-		{ "mesh", _comp.meshAsset->getPath().string() },
-		{ "materials", materials }
-	};
-}
-
-static void from_json( const nlohmann::json& _json, MeshComponent& _comp ) {
-	std::string meshPath;
-	std::vector<std::string> materials;
-
-	_json.at( "mesh" ).get_to( meshPath );
-	_json.at( "materials" ).get_to( materials );
-
-	_comp.meshAsset = MeshAsset::get( meshPath );
-	for ( const std::string& mat : materials )
-		_comp.materials.push_back( MaterialAsset::get( mat ) );
-}
-
-static void to_json( nlohmann::json& _json, const CameraComponent& _comp ) {
-	_json = nlohmann::json{
-		{ "active", _comp.active },
-		{ "projectionType", _comp.projectionType },
-		{ "fov", _comp.fov },
-		{ "clipNear", _comp.clipNear },
-		{ "clipFar", _comp.clipFar },
-		{ "orthoScale", _comp.orthoScale },
-		{ "aspect", _comp.aspect }
-	};
-}
-
-static void from_json( const nlohmann::json& _json, CameraComponent& _comp ) {
-	_json.at( "active" ).get_to( _comp.active );
-	_json.at( "projectionType" ).get_to( _comp.projectionType );
-	_json.at( "fov" ).get_to( _comp.fov );
-	_json.at( "clipNear" ).get_to( _comp.clipNear );
-	_json.at( "clipFar" ).get_to( _comp.clipFar );
-	_json.at( "orthoScale" ).get_to( _comp.orthoScale );
-	_json.at( "aspect" ).get_to( _comp.aspect );
-}
-
-static void to_json( nlohmann::json& _json, const ColliderComponent& _comp ) {
-	_json = nlohmann::json{
-		{ "shape", _comp.shape }
-	};
-
-	switch ( _comp.shape )
-	{
-	case ColliderShape_box:
-		_json[ "boxSize" ] = _comp.boxSize;
-		break;
-	case ColliderShape_cylinder:
-		_json[ "boxSize" ] = _comp.boxSize;
-		_json[ "cylinderHeight" ] = _comp.cylinderHeight;
-		_json[ "radius" ] = _comp.radius;
-		break;
-	case ColliderShape_sphere:
-		_json[ "boxSize" ] = _comp.boxSize;
-		_json[ "radius" ] = _comp.radius;
-		break;
-	case ColliderShape_mesh:
-		_json[ "mesh" ] = _comp.meshColliderAsset ? _comp.meshColliderAsset->getPath() : "";
-		break;
-	}
-}
-
-static void from_json( const nlohmann::json& _json, ColliderComponent& _comp ) {
-	_json.at( "shape" ).get_to( _comp.shape );
-
-	switch ( _comp.shape )
-	{
-	case ColliderShape_box:
-		_json.at( "boxSize" ).get_to( _comp.boxSize );
-		break;
-	case ColliderShape_cylinder:
-		_json.at( "boxSize" ).get_to( _comp.boxSize );
-		_json.at( "cylinderHeight" ).get_to( _comp.cylinderHeight );
-		_json.at( "radius" ).get_to( _comp.radius );
-		break;
-	case ColliderShape_sphere:
-		_json.at( "boxSize" ).get_to( _comp.boxSize );
-		_json.at( "radius" ).get_to( _comp.radius );
-		break;
-	case ColliderShape_mesh:
-		std::string meshPath = _json.at( "mesh" );
-		_comp.meshColliderAsset = wv::MeshAsset::get( meshPath );
-		break;
-	}
-}
-
-static void to_json( nlohmann::json& _json, const OrbitControllerComponent& _comp ) {
-	_json = nlohmann::json{
-		{ "orbitDistance", _comp.orbitDistance },
-	};
-}
-
-static void from_json( const nlohmann::json& _json, OrbitControllerComponent& _comp ) {
-	_json.at( "orbitDistance" ).get_to( _comp.orbitDistance );
-}
-
-static void to_json( nlohmann::json& _json, const RigidBodyComponent& _comp ) {
-	_json = nlohmann::json{
-		{ "bodyType", _comp.bodyType },
-		{ "mass", _comp.mass },
-		{ "linearDamping", _comp.linearDamping },
-		{ "lockPositionAxis", _comp.lockPositionAxis },
-		{ "lockRotationAxis", _comp.lockRotationAxis }
-	};
-}
-
-static void from_json( const nlohmann::json& _json, RigidBodyComponent& _comp ) {
-	_json.at( "bodyType" ).get_to( _comp.bodyType );
-	_json.at( "mass" ).get_to( _comp.mass );
-	_json.at( "linearDamping" ).get_to( _comp.linearDamping );
-	_json.at( "lockPositionAxis" ).get_to( _comp.lockPositionAxis );
-	_json.at( "lockRotationAxis" ).get_to( _comp.lockRotationAxis );
-}
-
-}
-
 wv::World::World()
 {
 	m_ecsEngine = WV_NEW( ECSEngine );
-	m_serializer = WV_NEW( WorldSerializer, m_ecsEngine );
-
+	
 	// register order determines internal ID
 	registerComponentType<CameraComponent>( "CameraComponent" );
 	registerComponentType<ColliderComponent>( "ColliderComponent" );
 	registerComponentType<MeshComponent>( "MeshComponent" );
 	registerComponentType<OrbitControllerComponent>( "OrbitControllerComponent" );
 	registerComponentType<RigidBodyComponent>( "RigidBodyComponent" );
-
-	m_serializer->addComponentFunction<CameraComponent>();
-	m_serializer->addComponentFunction<ColliderComponent>();
-	m_serializer->addComponentFunction<MeshComponent>();
-	m_serializer->addComponentFunction<OrbitControllerComponent>();
-	m_serializer->addComponentFunction<RigidBodyComponent>();
 }
 
 wv::World::~World()
 {
 	unload( true );
 
-	WV_FREE( m_serializer );
 	WV_FREE( m_ecsEngine );
 
 	if ( m_viewport )
@@ -244,7 +109,7 @@ void wv::World::load( const std::filesystem::path& _path )
 	nlohmann::json json = nlohmann::json::parse( stream );
 
 	// parse entities
-
+	/*
 	for ( auto& ent : json[ "entities" ] )
 	{
 		Entity* entity = createEntity( ent[ "name" ] );
@@ -271,6 +136,7 @@ void wv::World::load( const std::filesystem::path& _path )
 
 		m_serializer->deserializeComponents( index, this, comps[ "comps" ] );
 	}
+	*/
 
 }
 
@@ -283,7 +149,7 @@ void wv::World::save( const std::filesystem::path& _path )
 
 	std::vector<nlohmann::json> entities{};
 	std::vector<nlohmann::json> hierarchy{};
-
+	/*
 	for ( Entity* e : m_entities )
 	{
 		if ( !e->getShouldSerialize() )
@@ -317,9 +183,10 @@ void wv::World::save( const std::filesystem::path& _path )
 		}
 	}
 
+	*/
 	json[ "entities" ] = entities;
 	json[ "hierarchy" ] = hierarchy;
-	json[ "components" ] = m_serializer->serializeComponents();
+	json[ "components" ] = {};
 
 	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
 	std::ofstream stream{ fullpath };

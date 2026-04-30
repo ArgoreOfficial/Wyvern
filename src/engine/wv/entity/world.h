@@ -13,7 +13,6 @@ namespace wv {
 class Entity;
 class IUpdatable;
 class InputSystem;
-class WorldSerializer;
 
 struct Viewport;
 
@@ -43,7 +42,6 @@ enum UpdateEventType
 class World
 {
 	friend class Application;
-	friend class WorldSerializer;
 
 public:
 	World();
@@ -191,14 +189,11 @@ public:
 		return vec;
 	}
 
-	WorldSerializer* getWorldSerializer() const { return m_serializer; }
-
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 	
 	std::filesystem::path m_path;
-	WorldSerializer* m_serializer{};
 
 	Viewport* m_viewport = nullptr;
 

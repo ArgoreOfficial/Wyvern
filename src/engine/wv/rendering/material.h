@@ -92,6 +92,8 @@ public:
 	void destroy();
 	void reload();
 
+	std::filesystem::path getPath() const { return path; }
+
 	std::filesystem::path path;
 
 	Ref<IShader> shaderType = nullptr;

@@ -58,17 +58,14 @@ struct RigidBodyComponent
 	}
 
 	RigidBodyComponentInternal internal;
-};
 
-template<>
-static void serialize<RigidBodyComponent>( SerializeInfo& _info )
-{
-	_info.name = "RigidBodyComponent";
-	_info.registerMember( &RigidBodyComponent::bodyType, "bodyType" );
-	_info.registerMember( &RigidBodyComponent::mass, "mass" );
-	_info.registerMember( &RigidBodyComponent::linearDamping, "linearDamping" );
-	_info.registerMember( &RigidBodyComponent::lockPositionAxis, "lockPositionAxis" );
-	_info.registerMember( &RigidBodyComponent::lockRotationAxis, "lockRotationAxis" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "bodyType", &RigidBodyComponent::bodyType ),
+		wv::reflect( "mass", &RigidBodyComponent::mass ),
+		wv::reflect( "linearDamping", &RigidBodyComponent::linearDamping ),
+		wv::reflect( "lockPositionAxis", &RigidBodyComponent::lockPositionAxis ),
+		wv::reflect( "lockRotationAxis", &RigidBodyComponent::lockRotationAxis )
+	};
+};
 
 }

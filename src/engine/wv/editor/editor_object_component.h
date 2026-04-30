@@ -15,13 +15,9 @@ struct EditorObjectComponent
 	Rotorf rotateStart{};
 	Vector3f scaleStart{};
 
+	static inline wv::Reflection reflection{
+		wv::reflect( "selected", &EditorObjectComponent::selected )
+	};
 };
-
-template<>
-static void serialize<EditorObjectComponent>( SerializeInfo& _info )
-{
-	_info.name = "EditorObjectComponent";
-	_info.registerMember( &EditorObjectComponent::selected, "selected" );
-}
 
 }

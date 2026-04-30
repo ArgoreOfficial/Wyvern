@@ -28,17 +28,14 @@ struct ColliderComponent
 	float radius = 0.5f;
 
 	Ref<MeshAsset> meshColliderAsset;
-};
 
-template<>
-static void serialize<ColliderComponent>( SerializeInfo& _info )
-{
-	_info.name = "ColliderComponent";
-	_info.registerMember( &ColliderComponent::shape, "shape" );
-	_info.registerMember( &ColliderComponent::boxSize, "boxSize" );
-	_info.registerMember( &ColliderComponent::cylinderHeight, "cylinderHeight" );
-	_info.registerMember( &ColliderComponent::radius, "radius" );
-	_info.registerMember( &ColliderComponent::meshColliderAsset, "meshColliderAsset" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "shape", &ColliderComponent::shape ),
+		wv::reflect( "boxSize", &ColliderComponent::boxSize ),
+		wv::reflect( "cylinderHeight", &ColliderComponent::cylinderHeight ),
+		wv::reflect( "radius", &ColliderComponent::radius ),
+		wv::reflect( "meshColliderAsset", &ColliderComponent::meshColliderAsset )
+	};
+};
 
 }

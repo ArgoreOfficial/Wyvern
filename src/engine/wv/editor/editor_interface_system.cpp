@@ -398,8 +398,6 @@ void wv::EditorInterfaceSystem::renderComponentView()
 			ImGui::EndMenu();
 		}
 
-		WorldSerializer* serializer = world->getWorldSerializer();
-
 		if ( selectedEntity->archetype )
 		{
 			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
@@ -416,15 +414,6 @@ void wv::EditorInterfaceSystem::renderComponentView()
 					if ( ImGui::Button( "Delete##component_delete_button" ) )
 						world->removeComponent( index, selectedEntity );
 					ImGui::PopID();
-
-					if ( serializer->hasSerializeInfo( index ) )
-					{
-						const SerializeInfo& info = serializer->getSerializeInfo( index );
-						for ( auto& m : info.members )
-						{
-							ImGui::Text( "%s value: FIXME", m->name.c_str() );
-						}
-					}
 				}
 			}
 		}
