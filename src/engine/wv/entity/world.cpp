@@ -134,6 +134,9 @@ void wv::World::load( const std::filesystem::path& _path )
 		if ( !m_editorComponentInfos.contains( index ) )
 			continue;
 
+		if ( !m_editorComponentInfos[ index ].deserializeComponents )
+			continue;
+
 		m_editorComponentInfos[ index ].deserializeComponents( comps[ "comps" ] );
 	}
 }
@@ -176,6 +179,9 @@ void wv::World::save( const std::filesystem::path& _path )
 
 	for ( auto& [k, v] : m_editorComponentInfos )
 	{
+		if ( !v.serializeComponents )
+			continue;
+
 		nlohmann::json j = v.serializeComponents();
 
 		if ( !j.is_null() )

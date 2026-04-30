@@ -201,8 +201,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	editorActionGroup->disable(); // default off
 
-	m_activeWorld->registerComponentType<EditorObjectComponent>( "EditorObjectComponent" );
-	m_activeWorld->registerComponentType<EditorCameraComponent>( "EditorCameraComponent" );
+	m_activeWorld->registerComponentType<EditorObjectComponent>( "EditorObjectComponent", false );
+	m_activeWorld->registerComponentType<EditorCameraComponent>( "EditorCameraComponent", false );
 
 	m_activeWorld->addSystem<EditorInterfaceSystem>();
 	m_activeWorld->addSystem<EditorCameraSystem>();
