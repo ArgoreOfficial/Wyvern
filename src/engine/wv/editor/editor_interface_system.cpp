@@ -327,6 +327,9 @@ void wv::EditorInterfaceSystem::renderEntityView()
 				if ( e->getParent() )
 					continue;
 
+				if ( e == m_editorCameraEntity )
+					continue;
+
 				renderEntityTreeNode( e );
 			}
 			ImGui::TreePop();
