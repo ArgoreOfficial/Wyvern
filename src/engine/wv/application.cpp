@@ -97,8 +97,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
-	m_inputSystem->createInputDriver<WindowsMouseDriver>();
-	m_inputSystem->initialize();
+	IMouseDriver* mouseDriver = m_inputSystem->createInputDriver<WindowsMouseDriver>();
+
+	m_inputSystem->initialize( mouseDriver );
 
 	m_displayDriver = Platform::createDisplayDriver();
 

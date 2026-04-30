@@ -15,6 +15,7 @@
 namespace wv {
 
 class IInputDriver;
+class IMouseDriver;
 class EventManager;
 
 struct MouseState
@@ -104,25 +105,15 @@ public:
 	InputSystem();
 	~InputSystem();
 
-	void initialize();
+	void initialize( IMouseDriver* _mouseDriver );
 	void shutdown();
 	
 	template<typename Ty>
-	void createInputDriver() {
+	Ty* createInputDriver() {
 		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
-		m_inputDrivers.push_back( WV_NEW( Ty ) );
-	}
-
-	// will return the *first* valid driver of type Ty
-	template<typename Ty>
-	Ty* getInputDriver() {
-		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
-
-		for ( auto it = m_inputDrivers.begin(); it != m_inputDrivers.end(); it++ )
-			if ( Ty* driver = tryCast<Ty>( *it ) )
-				return driver;
-		
-		return nullptr;
+		Ty* p = WV_NEW( Ty );
+		m_inputDrivers.push_back( p );
+		return p;
 	}
 
 	void processInputEvents( EventManager* _eventManager );
@@ -199,6 +190,8 @@ protected:
 	std::vector<VirtualDevice> m_virtualDevices;
 
 	std::vector<ActionEvent> m_actionEventQueue;
+
+	IMouseDriver* m_mouseDriver = nullptr;
 
 	bool m_shouldSendActionEvents = true;
 };

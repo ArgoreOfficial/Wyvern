@@ -32,8 +32,10 @@ wv::InputSystem::~InputSystem()
 	m_virtualDevices.clear();
 }
 
-void wv::InputSystem::initialize()
+void wv::InputSystem::initialize( IMouseDriver* _mouseDriver )
 {
+	m_mouseDriver = _mouseDriver;
+
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->initialize( this );
 }
@@ -56,10 +58,10 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->pollActions( this );
 	
-	if ( IMouseDriver* mouseDriver = getInputDriver<IMouseDriver>() )
+	if ( m_mouseDriver )
 	{
-		m_mouseState     = mouseDriver->getMouseState();
-		m_prevMouseState = mouseDriver->getPrevMouseState();
+		m_mouseState     = m_mouseDriver->getMouseState();
+		m_prevMouseState = m_mouseDriver->getPrevMouseState();
 	}
 }
 
