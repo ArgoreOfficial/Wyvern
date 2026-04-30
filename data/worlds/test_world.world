@@ -2,94 +2,6 @@
   "name": "Test World",
   "entities": [
     {
-      "id": 1743062762,
-      "name": "Ball",
-      "tfm": {
-        "pos": [
-          9.592198371887207,
-          -1.6370563507080078,
-          10.467726707458496
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "id": 1473708041,
-      "name": "Door",
-      "tfm": {
-        "pos": [
-          3.6323370933532715,
-          -3.5024659633636475,
-          2.7012417316436768
-        ],
-        "rot": [
-          0.7042003870010376,
-          0.0,
-          0.0,
-          0.7100012898445129
-        ],
-        "scl": [
-          0.19402247667312622,
-          1.1742643117904663,
-          2.3529529571533203
-        ]
-      }
-    },
-    {
-      "id": 1675939424,
-      "name": "Floor",
-      "tfm": {
-        "pos": [
-          0.0,
-          -5.0,
-          0.0
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          50.0,
-          0.5,
-          50.0
-        ]
-      }
-    },
-    {
-      "id": 2525744056,
-      "name": "Train",
-      "tfm": {
-        "pos": [
-          -2.2094688415527344,
-          -4.670501708984375,
-          1.198756217956543
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          0.6597425937652588,
-          0.6597425937652588,
-          0.6597425937652588
-        ]
-      }
-    },
-    {
       "id": 505515108,
       "name": "PlayerCamera",
       "tfm": {
@@ -116,9 +28,9 @@
       "name": "Player",
       "tfm": {
         "pos": [
-          2.2119336128234863,
-          -3.45232892036438,
-          2.574666976928711
+          -0.5373822450637817,
+          16.205875396728516,
+          -1.0490503311157227
         ],
         "rot": [
           1.0,
@@ -134,13 +46,13 @@
       }
     },
     {
-      "id": 1142609506058808892,
-      "name": "Cube",
+      "id": 9042828302906598590,
+      "name": "Terrain",
       "tfm": {
         "pos": [
-          2.183218240737915,
-          -3.441354274749756,
-          1.4963300228118896
+          0.0,
+          -14.250560760498047,
+          0.0
         ],
         "rot": [
           1.0,
@@ -149,20 +61,20 @@
           0.0
         ],
         "scl": [
-          2.3758366107940674,
-          2.5149195194244385,
-          0.18231448531150818
+          1.0,
+          1.0,
+          1.0
         ]
       }
     },
     {
-      "id": 13981410263188541432,
-      "name": "Cube",
+      "id": 6037574701757577089,
+      "name": "Test",
       "tfm": {
         "pos": [
-          2.2137436866760254,
-          -3.4393930435180664,
-          3.9015257358551025
+          0.0,
+          14.92525863647461,
+          0.0
         ],
         "rot": [
           1.0,
@@ -171,97 +83,9 @@
           0.0
         ],
         "scl": [
-          2.3880057334899902,
-          2.514887571334839,
-          0.18731127679347992
-        ]
-      }
-    },
-    {
-      "id": 4791532438078694493,
-      "name": "Cube",
-      "tfm": {
-        "pos": [
-          3.396371841430664,
-          -3.4550013542175293,
-          1.8506090641021729
-        ],
-        "rot": [
           1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          0.14092005789279938,
-          2.563934326171875,
-          0.8473038673400879
-        ]
-      }
-    },
-    {
-      "id": 2735321531309947818,
-      "name": "Cube",
-      "tfm": {
-        "pos": [
-          3.4109697341918945,
-          -3.4444212913513184,
-          3.4869632720947266
-        ],
-        "rot": [
           1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          0.13565711677074432,
-          2.6619420051574707,
-          0.9989538788795471
-        ]
-      }
-    },
-    {
-      "id": 12225400093127494073,
-      "name": "Cube",
-      "tfm": {
-        "pos": [
-          0.9410195350646973,
-          -3.515462636947632,
-          2.716017246246338
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          0.17260825634002686,
-          2.7450945377349854,
-          2.493342161178589
-        ]
-      }
-    },
-    {
-      "id": 17870608303237680470,
-      "name": "Cube",
-      "tfm": {
-        "pos": [
-          2.2069504261016846,
-          -2.20599627494812,
-          2.677476644515991
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          2.703125,
-          0.1555396318435669,
-          2.703125
+          1.0
         ]
       }
     }
@@ -296,103 +120,17 @@
       "comps": [
         {
           "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "radius": 0.5,
-            "shape": 2
+            "mesh": "meshes/SM_ExteriorTerrain.wvb",
+            "shape": 3
           },
-          "entity": 1743062762
+          "entity": 9042828302906598590
         },
         {
           "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
+            "mesh": "meshes/SM_ExteriorTest.wvb",
+            "shape": 3
           },
-          "entity": 1473708041
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 1675939424
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 1142609506058808892
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 13981410263188541432
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 4791532438078694493
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 2735321531309947818
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 12225400093127494073
-        },
-        {
-          "data": {
-            "boxSize": [
-              1.0,
-              1.0,
-              1.0
-            ],
-            "shape": 0
-          },
-          "entity": 17870608303237680470
+          "entity": 6037574701757577089
         },
         {
           "data": {
@@ -415,95 +153,22 @@
         {
           "data": {
             "materials": [
-              "materials/Under.SM_Tofumotive.wvmt",
-              "materials/Middle.SM_Tofumotive.wvmt",
-              "materials/Line.SM_Tofumotive.wvmt",
-              "materials/Top.SM_Tofumotive.wvmt"
+              "materials/game/M_Grass256.wvmt"
             ],
-            "mesh": "meshes/SM_Tofumotive.wvb"
+            "mesh": "meshes/SM_ExteriorTerrain.wvb"
           },
-          "entity": 2525744056
+          "entity": 9042828302906598590
         },
         {
           "data": {
             "materials": [
-              "materials/default_lit.wvmt"
+              "materials/game/M_Concrete_2.wvmt",
+              "materials/game/M_Concrete.wvmt",
+              "materials/game/M_Metal.wvmt"
             ],
-            "mesh": "meshes/SM_Sphere.wvb"
+            "mesh": "meshes/SM_ExteriorTest.wvb"
           },
-          "entity": 1743062762
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/door.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 1473708041
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/floor.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 1675939424
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 1142609506058808892
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 13981410263188541432
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 4791532438078694493
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 2735321531309947818
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 12225400093127494073
-        },
-        {
-          "data": {
-            "materials": [
-              "materials/game/wall.wvmt"
-            ],
-            "mesh": "meshes/SM_Cube.wvb"
-          },
-          "entity": 17870608303237680470
+          "entity": 6037574701757577089
         }
       ],
       "index": 2
@@ -512,7 +177,7 @@
       "comps": [
         {
           "data": {
-            "bodyType": 1,
+            "bodyType": 0,
             "linearDamping": 0.05000000074505806,
             "lockPositionAxis": [
               false,
@@ -526,25 +191,7 @@
             ],
             "mass": 1.0
           },
-          "entity": 1743062762
-        },
-        {
-          "data": {
-            "bodyType": 1,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 1473708041
+          "entity": 9042828302906598590
         },
         {
           "data": {
@@ -562,115 +209,7 @@
             ],
             "mass": 1.0
           },
-          "entity": 1675939424
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 1142609506058808892
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 13981410263188541432
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 4791532438078694493
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 2735321531309947818
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 12225400093127494073
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 17870608303237680470
+          "entity": 6037574701757577089
         },
         {
           "data": {

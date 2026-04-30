@@ -1,6 +1,0 @@
-{
- "shader": "lit",
- "data" : {
-    "albedo" : "textures/wall.JPG"
- }
-}

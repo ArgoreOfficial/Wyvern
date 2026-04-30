@@ -1,0 +1,6 @@
+{
+ "shader": "lit",
+ "data" : {
+    "albedo" : "textures/TX_Metal.png"
+ }
+}

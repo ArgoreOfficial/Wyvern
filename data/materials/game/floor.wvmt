@@ -1,6 +1,0 @@
-{
- "shader": "lit",
- "data" : {
-    "albedo" : "textures/texture_06.png"
- }
-}

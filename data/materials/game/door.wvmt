@@ -1,6 +1,0 @@
-{
- "shader": "lit",
- "data" : {
-    "albedo" : "textures/door_cropped.png"
- }
-}
