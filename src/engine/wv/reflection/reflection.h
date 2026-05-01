@@ -11,9 +11,175 @@
 
 #include <nlohmann/json.hpp>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 namespace wv {
+
+template<typename Ty>
+static void getTypeFormat( std::string& _format, ImGuiDataType_& _dataType ) {
+	if ( std::is_same<Ty, float>::value )
+	{
+		_dataType = ImGuiDataType_Float;
+		_format = "%.3f";
+	}
+	else if ( std::is_same<Ty, double>::value )
+	{
+		_dataType = ImGuiDataType_Double;
+		_format = "%.6f";
+	}
+	else if ( std::is_same<Ty, int32_t>::value )
+	{
+		_dataType = ImGuiDataType_S32;
+		_format = "%u";
+	}
+	else if ( std::is_same<Ty, uint32_t>::value )
+	{
+		_dataType = ImGuiDataType_U32;
+		_format = "%d";
+	}
+}
+
+template<typename Ty>
+struct EditorField
+{
+	static bool imguiInput( const char* _label, Ty& _v ) {
+		std::string format{};
+		ImGuiDataType_ dataType{};
+		getTypeFormat<Ty>( format, dataType );
+
+		if ( format.empty() )
+		{
+			ImGui::Text( _label );
+			
+			if ( ImGui::IsItemHovered() )
+			{
+				if ( ImGui::BeginErrorTooltip() )
+				{
+					ImGui::Text( "Reflection error" );
+					ImGui::EndErrorTooltip();
+				}
+			}
+
+			return false;
+		}
+
+		return ImGui::InputScalar( _label, dataType, (void*)&_v, nullptr, nullptr, format.c_str(), 0 );
+	}
+};
+
+template<typename Ty>
+struct EditorField<Vector2<Ty>>
+{
+	static bool imguiInput( const char* _label, Vector2<Ty>& _v ) {
+		std::string format{};
+		ImGuiDataType_ dataType{};
+		getTypeFormat<Ty>( format, dataType );
+
+		if ( format.empty() )
+			return false;
+
+		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 2, NULL, NULL, format.c_str(), 0 );
+	}
+};
+
+template<typename Ty>
+struct EditorField<Vector3<Ty>>
+{
+	static bool imguiInput( const char* _label, Vector3<Ty>& _v ) {
+		std::string format{};
+		ImGuiDataType_ dataType{};
+		getTypeFormat<Ty>( format, dataType );
+
+		if ( format.empty() )
+			return false;
+
+		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 3, NULL, NULL, format.c_str(), 0 );
+	}
+};
+
+template<typename Ty>
+struct EditorField<Vector4<Ty>>
+{
+	static bool imguiInput( const char* _label, Vector4<Ty>& _v ) {
+		std::string format{};
+		ImGuiDataType_ dataType{};
+		getTypeFormat<Ty>( format, dataType );
+
+		if ( format.empty() )
+			return false;
+
+		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 4, NULL, NULL, format.c_str(), 0 );
+	}
+};
+
+template<typename Ty>
+struct EditorField<Ref<Ty>>
+{
+	static bool imguiInput( const char* _label, Ref<Ty>& _v ) {
+		std::string path = "";
+		if ( _v )
+			path = _v->getPath().string();
+
+		std::string label = _label;
+		if ( label != "" )
+		{
+			label = "##" + label;
+
+			ImGui::Text( _label );
+			ImGui::SameLine();
+		}
+
+		ImGui::PushItemWidth( -1 );
+		bool edited = ImGui::InputText( label.c_str(), &path, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_ElideLeft);
+		ImGui::PopItemWidth();
+
+		if ( edited )
+			_v = Ty::get( path );
+		
+		return edited;
+	}
+};
+
+template<typename Ty>
+struct EditorField<std::vector<Ty>>
+{
+	static bool imguiInput( const char* _label, std::vector<Ty>& _v ) {
+		ImGui::Text( _label );
+		
+		ImGui::PushID( _label );
+		ImGui::PushItemWidth( -1 );
+		if ( ImGui::BeginListBox( "" ) )
+		{
+			int idx = 0;
+			for ( Ty& v : _v )
+			{
+				ImGui::PushID( idx );
+				EditorField<Ty>::imguiInput( "", v);
+				ImGui::PopID();
+				idx++;
+			}
+			ImGui::EndListBox();
+		}
+		ImGui::PopItemWidth();
+		ImGui::PopID();
+
+		return false;
+	}
+};
+
+template<>
+struct EditorField<std::string>
+{
+	static bool imguiInput( const char* _label, std::string& _v ) {
+		return ImGui::InputText( _label, &_v );
+	}
+};
 
 }
 
@@ -180,12 +346,20 @@ struct SerializeField<std::vector<Ty>>
 
 struct IField
 {
-	const char* name;
-
+	const char* name = nullptr;
+	
 	constexpr IField( const char* _name ) : name{ _name } { }
 
 	virtual nlohmann::json serialize( const void* _cptr ) = 0;
 	virtual void deserialize( const nlohmann::json& _json, void* _cptr ) = 0;
+
+	/**
+	 * @brief Get a pointer to the actual field
+	 * @param _classPtr Pointer to the class containing the field
+	 */
+	virtual void* get( void* _classPtr ) = 0;
+	
+	virtual bool imguiInput( const char* _label, void* _cptr ) = 0;
 };
 
 template <typename Class, typename FieldTy>
@@ -224,6 +398,20 @@ struct Field : IField
 		{
 			return SerializeField<FieldTy>::fromJson( _json, cptr->*fptr );
 		}
+	}
+
+	/**
+	 * @brief Get a pointer to the actual field
+	 * @param _classPtr Pointer to the class containing the field
+	 */
+	virtual void* get( void* _classPtr ) override {
+		Class* cptr = (Class*)_classPtr;
+		return &( cptr->*fptr );
+	}
+
+	virtual bool imguiInput( const char* _label, void* _cptr ) override {
+		Class* cptr = (Class*)_cptr;
+		return EditorField<FieldTy>::imguiInput( _label, cptr->*fptr );
 	}
 };
 

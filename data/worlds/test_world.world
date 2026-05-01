@@ -49,7 +49,9 @@
       "comps": [
         {
           "data": {
-            "materials": [],
+            "materials": [
+              "materials/default_lit.wvmt"
+            ],
             "meshAsset": "meshes/SM_Cube.wvb"
           },
           "entity": 8244605545696734219

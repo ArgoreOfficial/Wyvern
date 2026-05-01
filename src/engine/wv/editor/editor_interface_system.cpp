@@ -14,6 +14,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 #include <set>
 
@@ -401,7 +402,8 @@ void wv::EditorInterfaceSystem::renderComponentView()
 		if ( selectedEntity->archetype )
 		{
 			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-				
+			size_t indirectIndex = selectedEntity->archetype->getEntityIndirectIndex( selectedEntity );
+
 			for ( int& index : componentIndices )
 			{
 				if ( index == editorObjectIndex || index == editorCameraIndex )
@@ -414,6 +416,23 @@ void wv::EditorInterfaceSystem::renderComponentView()
 					if ( ImGui::Button( "Delete##component_delete_button" ) )
 						world->removeComponent( index, selectedEntity );
 					ImGui::PopID();
+					
+					IComponentContainer* container = selectedEntity->archetype->getContainer( index );
+					Reflection& refl = container->getReflection();
+
+					for ( IField* field : refl.fields )
+					{
+						field->imguiInput( field->name, container->getComponentVoidPtr( indirectIndex ) );
+					}
+
+					//if ( serializer->hasSerializeInfo( index ) )
+					//{
+					//	const SerializeInfo& info = serializer->getSerializeInfo( index );
+					//	for ( auto& m : info.members )
+					//	{
+					//		ImGui::Text( "%s value: FIXME", m->name.c_str() );
+					//	}
+					//}
 				}
 			}
 		}

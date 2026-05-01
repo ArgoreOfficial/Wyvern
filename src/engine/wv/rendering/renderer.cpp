@@ -1112,17 +1112,19 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		ResourceID meshHandle = renderMeshes[ i ].mesh;
 		if ( !meshHandle.isValid() )
 			continue; // no allocated mesh
+
 		if ( !renderMesh.pipeline.isValid() )
 			continue; // no material
 			
 		const MeshAllocation& mesh = m_meshAllocations.at( meshHandle );
-
-		WV_ASSERT( mesh.indexBuffer.buffer != VK_NULL_HANDLE );
-		vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
+		if ( mesh.indexBuffer.buffer == VK_NULL_HANDLE )
+			continue;
 
 		Pipeline pipeline = m_pipelineManager.getPipeline( renderMesh.pipeline );
+		if ( pipeline.pipeline == VK_NULL_HANDLE )
+			continue;
 
-		WV_ASSERT( pipeline.pipeline != VK_NULL_HANDLE );
+		vkCmdBindIndexBuffer( _cmd, mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
 		vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 		GPUDrawPushConstants pc{};
