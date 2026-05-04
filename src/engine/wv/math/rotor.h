@@ -102,6 +102,25 @@ public:
 		};
 	}
 
+	inline Vector3<Ty> toEuler() const {
+		const Ty w =  s;
+		const Ty x = -yz;
+		const Ty y =  xz;
+		const Ty z = -xy;
+
+		const Vector3<Ty> euler2{
+			(Ty)std::asin ( 2.0 * ( w * x - y * z ) ),
+			(Ty)std::atan2( 2.0 * ( w * y + x * z ), 1.0 - 2.0 * ( x * x + y * y ) ),
+			(Ty)std::atan2( 2.0 * ( w * z + x * y ), 1.0 - 2.0 * ( x * x + z * z ) )
+		};
+
+		return {
+			Math::degrees( euler2.x ),
+			Math::degrees( euler2.y ),
+			Math::degrees( euler2.z )
+		};
+	}
+
 	static Rotor<Ty> fromQuaternion( const Vector4<Ty>& _q ) {
 		return {
 			 _q.w, //
