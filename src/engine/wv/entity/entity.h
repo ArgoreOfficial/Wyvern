@@ -16,14 +16,14 @@ class Entity
 {
 	friend class World;
 public:
-	Entity( const std::string& _debugName = "" ) : 
+	Entity( const std::string& _name = "" ) : 
 		m_ID{ wv::Math::randomU64() },
-		m_debugName{ _debugName }
+		m_name{ _name }
 	{ }
 
-	Entity( UUID _id, const std::string& _debugName = "" ) : 
+	Entity( UUID _id, const std::string& _name = "" ) :
 		m_ID{ _id },
-		m_debugName{ _debugName }
+		m_name{ _name }
 	{ }
 
 	~Entity() { 
@@ -35,7 +35,9 @@ public:
 	}
 
 	UUID getID() const { return m_ID; }
-	std::string getName() { return m_debugName; }
+
+	std::string getName()                     const { return m_name; }
+	void        setName( const std::string& _name ) { m_name = _name; }
 
 	void update( Entity* _parent, bool _recalculateMatrix = true ) {
 		bool recalc = m_transform.update( _parent ? &_parent->getTransform() : nullptr, _recalculateMatrix );
@@ -89,7 +91,7 @@ public:
 	
 private:
 	UUID m_ID = 0;
-	std::string m_debugName = "";
+	std::string m_name = "";
 
 	bool m_isPersistent = false;
 	bool m_shouldSerialize = true;
@@ -103,7 +105,7 @@ private:
 public:
 	static inline wv::Reflection reflection{
 		wv::reflect( "id", &Entity::m_ID ),
-		wv::reflect( "name", &Entity::m_debugName ),
+		wv::reflect( "name", &Entity::m_name ),
 		wv::reflect( "tfm", &Entity::m_transform )
 	};
 };

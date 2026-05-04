@@ -3,7 +3,7 @@
   "entities": [
     {
       "id": 8244605545696734219,
-      "name": "Test",
+      "name": "Cube",
       "tfm": {
         "pos": [
           0.0,
@@ -44,6 +44,28 @@
           1.0
         ]
       }
+    },
+    {
+      "id": 12540302214675656319,
+      "name": "Floor",
+      "tfm": {
+        "pos": [
+          0.0,
+          -2.2308349609375,
+          0.0
+        ],
+        "rot": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scl": [
+          20.0,
+          0.07000000029802322,
+          20.0
+        ]
+      }
     }
   ],
   "hierarchy": [],
@@ -80,6 +102,20 @@
             "shape": 0
           },
           "entity": 8244605545696734219
+        },
+        {
+          "data": {
+            "boxSize": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "cylinderHeight": 1.0,
+            "meshColliderAsset": null,
+            "radius": 0.5,
+            "shape": 0
+          },
+          "entity": 12540302214675656319
         }
       ],
       "index": 1
@@ -101,6 +137,13 @@
             "meshAsset": "meshes/SM_Cube.wvb"
           },
           "entity": 8244605545696734219
+        },
+        {
+          "data": {
+            "materials": [],
+            "meshAsset": "meshes/SM_Cube.wvb"
+          },
+          "entity": 12540302214675656319
         }
       ],
       "index": 2
@@ -124,6 +167,24 @@
             "mass": 1.0
           },
           "entity": 8244605545696734219
+        },
+        {
+          "data": {
+            "bodyType": 0,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 12540302214675656319
         }
       ],
       "index": 4

@@ -383,6 +383,11 @@ void wv::EditorInterfaceSystem::renderComponentView()
 	if ( ImGui::Begin( "Entity Properties##entity_properties_window" ) )
 	{
 		ImGui::SeparatorText( selectedEntity->getName().c_str() );
+
+		std::string name = selectedEntity->getName();
+		if ( ImGui::InputText( "##entity_name", &name, ImGuiInputTextFlags_EnterReturnsTrue ) )
+			selectedEntity->setName( name );
+
 		std::vector<int> allComponent = world->getRegisteredComponents();
 		std::set<int> existingComponents;
 
@@ -392,7 +397,7 @@ void wv::EditorInterfaceSystem::renderComponentView()
 			for ( int& index : componentIndices )
 				existingComponents.insert( index );
 		}
-			
+		
 		if ( ImGui::BeginMenu( "Actions##entity_menu_actions" ) )
 		{
 			if ( ImGui::BeginMenu( "Add Component" ) )
