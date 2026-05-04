@@ -5,6 +5,7 @@
 #include <wv/input/input_system.h>
 
 #include <wv/components/camera_component.h>
+#include <wv/components/mesh_component.h>
 #include <wv/systems/camera_manager_system.h>
 #include <wv/editor/editor_camera_system.h>
 #include <wv/editor/mesh_importer_gltf.h>
@@ -321,6 +322,27 @@ void wv::EditorInterfaceSystem::renderEntityView()
 {
 	if ( ImGui::Begin( "Scene View##editor_scene_window" ) )
 	{
+		if ( ImGui::BeginMenu( "Actions##editor_scene_actions" ) )
+		{
+			if ( ImGui::BeginMenu( "Add New##editor_add_new" ) )
+			{
+				if ( ImGui::Selectable( "Empty Entity##editor_add_empty" ) )
+					getWorld()->createEntity( "New Entity" );
+
+				if ( ImGui::Selectable( "Mesh##editor_add_mesh" ) )
+				{
+					Entity* e = getWorld()->createEntity( "New Entity" );
+					getWorld()->addComponent<MeshComponent>( e, { .meshAsset = wv::MeshAsset::get( "meshes/SM_Cube.wvb" ) } );
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::Separator();
+
 		std::vector<Entity*> entities = getWorld()->getActiveEntities();
 		
 		if ( ImGui::TreeNodeEx( "World##world_root_node", ImGuiTreeNodeFlags_DefaultOpen ) )
