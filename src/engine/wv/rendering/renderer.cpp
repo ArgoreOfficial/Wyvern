@@ -369,6 +369,8 @@ bool wv::Renderer::initialize()
 		style.ButtonTextAlign = ImVec2( 0.5f, 0.5f );
 		style.SelectableTextAlign = ImVec2( 0.0f, 0.699999988079071f );
 
+		const ImVec4 yellow = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+
 		style.Colors[ ImGuiCol_Text ] = ImVec4( 1.0f, 0.9999899864196777f, 0.9999899864196777f, 1.0f );
 		style.Colors[ ImGuiCol_TextDisabled ] = ImVec4( 0.6000000238418579f, 0.6000000238418579f, 0.6000000238418579f, 1.0f );
 		style.Colors[ ImGuiCol_WindowBg ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
@@ -377,11 +379,11 @@ bool wv::Renderer::initialize()
 		style.Colors[ ImGuiCol_Border ] = ImVec4( 0.501960813999176f, 0.501960813999176f, 0.501960813999176f, 1.0f );
 		style.Colors[ ImGuiCol_BorderShadow ] = ImVec4( 0.1568627506494522f, 0.1803921610116959f, 0.1333333402872086f, 1.0f );
 
-		style.Colors[ ImGuiCol_DockingPreview ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
-		style.Colors[ ImGuiCol_DockingEmptyBg ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_DockingPreview ] = yellow;
+		style.Colors[ ImGuiCol_DockingEmptyBg ] = yellow;
 
 		style.Colors[ ImGuiCol_FrameBg ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
-		style.Colors[ ImGuiCol_FrameBgHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_FrameBgHovered ] = yellow;
 		style.Colors[ ImGuiCol_FrameBgActive ] = ImVec4( 0.2470588237047195f, 0.2745098173618317f, 0.2196078449487686f, 1.0f );
 		style.Colors[ ImGuiCol_TitleBg ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
 		style.Colors[ ImGuiCol_TitleBgActive ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
@@ -395,19 +397,19 @@ bool wv::Renderer::initialize()
 		style.Colors[ ImGuiCol_SliderGrab ] = ImVec4( 0.772549033164978f, 0.7137255072593689f, 0.3137255012989044f, 1.0f );
 		style.Colors[ ImGuiCol_SliderGrabActive ] = ImVec4( 0.772549033164978f, 0.7137255072593689f, 0.3137255012989044f, 1.0f );
 		style.Colors[ ImGuiCol_Button ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
-		style.Colors[ ImGuiCol_ButtonHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_ButtonHovered ] = yellow;
 		style.Colors[ ImGuiCol_ButtonActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
 		style.Colors[ ImGuiCol_Header ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
-		style.Colors[ ImGuiCol_HeaderHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_HeaderHovered ] = yellow;
 		style.Colors[ ImGuiCol_HeaderActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
-		style.Colors[ ImGuiCol_Separator ] = ImVec4( 1.0f, 0.0f, 0.0f, 0.6200000047683716f );
-		style.Colors[ ImGuiCol_SeparatorHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_Separator ] = yellow;
+		style.Colors[ ImGuiCol_SeparatorHovered ] = yellow;
 		style.Colors[ ImGuiCol_SeparatorActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
 		style.Colors[ ImGuiCol_ResizeGrip ] = ImVec4( 0.529411792755127f, 0.5647059082984924f, 0.4980392158031464f, 1.0f );
-		style.Colors[ ImGuiCol_ResizeGripHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_ResizeGripHovered ] = yellow;
 		style.Colors[ ImGuiCol_ResizeGripActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
 		style.Colors[ ImGuiCol_Tab ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
-		style.Colors[ ImGuiCol_TabHovered ] = ImVec4( 0.5882353186607361f, 0.5372549295425415f, 0.1882352977991104f, 1.0f );
+		style.Colors[ ImGuiCol_TabHovered ] = yellow;
 		style.Colors[ ImGuiCol_TabActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
 		style.Colors[ ImGuiCol_TabUnfocused ] = ImVec4( 0.2980392277240753f, 0.3450980484485626f, 0.2666666805744171f, 1.0f );
 		style.Colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.2431372553110123f, 0.2745098173618317f, 0.2156862765550613f, 1.0f );
