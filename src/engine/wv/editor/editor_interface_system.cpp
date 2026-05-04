@@ -97,10 +97,6 @@ void wv::EditorInterfaceSystem::onUpdate()
 void wv::EditorInterfaceSystem::onEditorRender()
 {
 #ifdef WV_SUPPORT_IMGUI
-	renderPrimaryMenuBar();
-	renderSecondaryMenuBar();
-	renderStatusBar();
-
 	if ( m_showSystemsMenu )
 	{
 		if ( ImGui::Begin( "Systems" ) )
@@ -164,6 +160,12 @@ void wv::EditorInterfaceSystem::onEditorRender()
 		}
 		ImGui::End();
 	}
+
+	// These are after to prevent flickering for one frame if the scene is reloaded 
+
+	renderPrimaryMenuBar();
+	renderSecondaryMenuBar();
+	renderStatusBar();
 #endif
 }
 
