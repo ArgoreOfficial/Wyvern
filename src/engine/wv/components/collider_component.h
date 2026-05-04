@@ -14,6 +14,17 @@ enum ColliderShape
 	ColliderShape_mesh
 };
 
+template <>
+struct wv::EnumReflection<ColliderShape>
+{
+	static inline ReflectedEnums values = {
+		{ "Box", ColliderShape_box },
+		{ "Cylinder", ColliderShape_cylinder },
+		{ "Sphere", ColliderShape_sphere },
+		{ "Mesh", ColliderShape_mesh }
+	};
+};
+
 struct ColliderComponent
 {
 	ColliderShape shape = ColliderShape_box;

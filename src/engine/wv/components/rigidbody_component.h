@@ -14,9 +14,19 @@ enum ForceType
 
 enum BodyType
 {
-	BodyType_Static,
+	BodyType_Static = 0,
 	BodyType_Dynamic,
 	BodyType_Kinematic
+};
+
+template <>
+struct wv::EnumReflection<BodyType>
+{
+	static inline ReflectedEnums values = {
+		{ "Static", BodyType_Static },
+		{ "Dynamic", BodyType_Dynamic },
+		{ "Kinematic", BodyType_Kinematic }
+	};
 };
 
 struct RigidBodyComponentInternal
