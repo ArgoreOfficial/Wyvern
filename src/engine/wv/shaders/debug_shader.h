@@ -14,7 +14,7 @@ public:
 
 	virtual void initialize() override {
 		setDebugName( "Debug" );
-		setTopology( wv::TopologyClass::WV_LINE );
+		setTopology( wv::TopologyClass::TopologyClass_Line );
 		setVertPath( "shaders/default_debug.vert.spv" );
 		setFragPath( "shaders/default_debug.frag.spv" );
 		create( sizeof( DebugMaterialData ) );

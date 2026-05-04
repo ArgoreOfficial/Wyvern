@@ -11,7 +11,7 @@ class EditorTransformSystem : public ISystem
 public:
 	virtual void configure( ArchetypeConfig& _config ) override {
 		setDebugName( "EditorTransformSystem" );
-		setUpdateMode( UpdateMode_always );
+		setUpdateMode( UpdateMode_Always );
 
 		_config.addComponentType<EditorObjectComponent>();
 	}

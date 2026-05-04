@@ -140,21 +140,21 @@ VkBool32 wv::Renderer::debugCallback(
 	void* _pUserData )
 {
 
-	wv::Debug::PrintLevel level = wv::Debug::WV_PRINT_INFO;
+	wv::Debug::PrintLevel level = wv::Debug::PrintLevel_Info;
 
 	switch ( _messageSeverity )
 	{
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::WV_PRINT_DEBUG; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::WV_PRINT_INFO; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: level = wv::Debug::WV_PRINT_WARN; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::WV_PRINT_ERROR; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: level = wv::Debug::PrintLevel_Debug; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    level = wv::Debug::PrintLevel_Info; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: level = wv::Debug::PrintLevel_Warn; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   level = wv::Debug::PrintLevel_Error; break;
 	}
 
 	wv::Renderer* renderer = wv::Application::getSingleton()->getRenderer();
 
 	for ( auto errorInfo : renderer->m_errorInfos )
 		if ( errorInfo.first == _pCallbackData->messageIdNumber )
-			wv::Debug::Print( wv::Debug::WV_PRINT_DEBUG, "%s\n", errorInfo.second.c_str() );
+			wv::Debug::Print( wv::Debug::PrintLevel_Debug, "%s\n", errorInfo.second.c_str() );
 	
 	wv::Debug::Print( level, "%s\n", _pCallbackData->pMessage );
 	

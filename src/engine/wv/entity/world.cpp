@@ -238,31 +238,31 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 		// init, shutdown, and debug rendering will always run
 		switch ( _type )
 		{
-		case UpdateEvent_initialize:
+		case UpdateEvent_Initialize:
 			if ( !updatable->m_initialized )
 				updatable->onInitialize();
 			updatable->m_initialized = true;
 			break;
 
-		case UpdateEvent_shutdown:
+		case UpdateEvent_Shutdown:
 			if ( updatable->m_initialized )
 				updatable->onShutdown();
 			updatable->m_initialized = false;
 			break;
 
-		case UpdateEvent_debugRender:
+		case UpdateEvent_DebugRender:
 			if ( updatable->getDebugRenderEnabled() )
 				updatable->onDebugRender();
 			break;
 
-		case UpdateEvent_editorRender:
+		case UpdateEvent_EditorRender:
 			if ( updatable->getEditorRenderEnabled() )
 				updatable->onEditorRender();
 			break;
 		}
 
-		bool runInRuntime = updatable->getUpdateMode() & UpdateMode_runtime;
-		bool runInEditor  = updatable->getUpdateMode() & UpdateMode_editor;
+		bool runInRuntime = updatable->getUpdateMode() & UpdateMode_Runtime;
+		bool runInEditor  = updatable->getUpdateMode() & UpdateMode_Editor;
 
 		if ( m_isInEditorState && !runInEditor )
 			continue;
@@ -271,15 +271,15 @@ void wv::World::dispatchUpdateMessage( UpdateEventType _type )
 
 		switch ( _type )
 		{
-		case UpdateEvent_preUpdate:  updatable->onPreUpdate();  break;
-		case UpdateEvent_update:     updatable->onUpdate();     break;
-		case UpdateEvent_postUpdate: updatable->onPostUpdate(); break;
+		case UpdateEvent_PreUpdate:  updatable->onPreUpdate();  break;
+		case UpdateEvent_Update:     updatable->onUpdate();     break;
+		case UpdateEvent_PostUpdate: updatable->onPostUpdate(); break;
 
-		case UpdateEvent_physicsUpdate: 
+		case UpdateEvent_PhysicsUpdate: 
 			updatable->onPhysicsUpdate(); 
 			break;
 
-		case UpdateEvent_render:
+		case UpdateEvent_Render:
 			updatable->onRender();
 			break;
 		}
@@ -318,7 +318,7 @@ void wv::World::updateComponentChanges()
 			newBitmask = oldArchetype->m_bitmask;
 		}
 
-		if ( change.type == ComponentChange::ComponentChangeType_add )
+		if ( change.type == ComponentChange::ComponentChangeType_Add )
 		{
 			newBitmask[ change.componentTypeIndex ] = true;
 
@@ -326,7 +326,7 @@ void wv::World::updateComponentChanges()
 			change.callback();
 			checkComponentAddChanges( oldBitmask, newBitmask, change.entity );
 		}
-		else if ( change.type == ComponentChange::ComponentChangeType_remove )
+		else if ( change.type == ComponentChange::ComponentChangeType_Remove )
 		{
 			newBitmask[ change.componentTypeIndex ] = false;
 
@@ -334,7 +334,7 @@ void wv::World::updateComponentChanges()
 			checkComponentRemoveChanges( oldBitmask, newBitmask, change.entity );
 			change.callback();
 		}
-		else if ( change.type == ComponentChange::ComponentChangeType_removeAll )
+		else if ( change.type == ComponentChange::ComponentChangeType_RemoveAll )
 		{
 			newBitmask = {};
 

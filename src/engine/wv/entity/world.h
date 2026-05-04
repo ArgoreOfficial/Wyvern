@@ -24,19 +24,19 @@ struct WorldUpdateContext
 
 enum UpdateEventType
 {
-	UpdateEvent_initialize,
-	UpdateEvent_shutdown,
+	UpdateEvent_Initialize,
+	UpdateEvent_Shutdown,
 
-	UpdateEvent_preUpdate,
-	UpdateEvent_update,
-	UpdateEvent_postUpdate,
+	UpdateEvent_PreUpdate,
+	UpdateEvent_Update,
+	UpdateEvent_PostUpdate,
 	
-	UpdateEvent_physicsUpdate,
+	UpdateEvent_PhysicsUpdate,
 
-	UpdateEvent_debugRender,  // for world debug rendering, such as lines, icons, and text
-	UpdateEvent_editorRender, // for editor interface and debug windows
+	UpdateEvent_DebugRender,  // for world debug rendering, such as lines, icons, and text
+	UpdateEvent_EditorRender, // for editor interface and debug windows
 
-	UpdateEvent_render
+	UpdateEvent_Render
 };
 
 class World
@@ -156,7 +156,7 @@ public:
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_add;
+		compChange.type = ComponentChange::ComponentChangeType_Add;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		compChange.callback = [ this, _entity, _component ]() { m_ecsEngine->addComponent<Ty>( _entity, _component ); };
@@ -167,7 +167,7 @@ public:
 	template<typename Ty>
 	void removeComponent( Entity* _entity ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_remove;
+		compChange.type = ComponentChange::ComponentChangeType_Remove;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeComponent<Ty>( _entity ); };
@@ -197,7 +197,7 @@ public:
 
 	void removeAllComponents( Entity* _entity ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_removeAll;
+		compChange.type = ComponentChange::ComponentChangeType_RemoveAll;
 		compChange.entity = _entity;
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeAllComponents( _entity ); };
 
@@ -268,9 +268,9 @@ private:
 	{
 		enum ComponentChangeType
 		{
-			ComponentChangeType_add,
-			ComponentChangeType_remove,
-			ComponentChangeType_removeAll
+			ComponentChangeType_Add,
+			ComponentChangeType_Remove,
+			ComponentChangeType_RemoveAll
 		};
 		ComponentChangeType type;
 		Entity* entity;

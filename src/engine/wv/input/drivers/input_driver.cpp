@@ -26,23 +26,23 @@ void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vd
 	{
 		switch ( _direction )
 		{
-		case AXIS_DIRECTION_NORTH: value.y += _value.x; break;
-		case AXIS_DIRECTION_SOUTH: value.y -= _value.x; break;
-		case AXIS_DIRECTION_EAST:  value.x += _value.x; break;
-		case AXIS_DIRECTION_WEST:  value.x -= _value.x; break;
+		case AxisActionDirection_North: value.y += _value.x; break;
+		case AxisActionDirection_South: value.y -= _value.x; break;
+		case AxisActionDirection_East:  value.x += _value.x; break;
+		case AxisActionDirection_West:  value.x -= _value.x; break;
 		}
 	}
 	else
 	{
 		switch ( _direction )
 		{
-		case AXIS_DIRECTION_NORTH:      value.y = _value.x; break;
-		case AXIS_DIRECTION_SOUTH:      value.y = _value.x; break;
-		case AXIS_DIRECTION_EAST:       value.x = _value.x; break;
-		case AXIS_DIRECTION_WEST:       value.x = _value.x; break;
-		case AXIS_DIRECTION_VERTICAL:   value = _value; break;
-		case AXIS_DIRECTION_HORIZONTAL: value = _value; break;
-		case AXIS_DIRECTION_ALL:        value = _value; break;
+		case AxisActionDirection_North:      value.y = _value.x; break;
+		case AxisActionDirection_South:      value.y = _value.x; break;
+		case AxisActionDirection_East:       value.x = _value.x; break;
+		case AxisActionDirection_West:       value.x = _value.x; break;
+		case AxisActionDirection_Vertical:   value = _value; break;
+		case AxisActionDirection_Horizontal: value = _value; break;
+		case AxisActionDirection_All:        value = _value; break;
 		}
 	}
 

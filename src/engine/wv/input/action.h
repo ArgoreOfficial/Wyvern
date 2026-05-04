@@ -47,12 +47,12 @@ struct AxisAction : IAction<wv::Vector2f> {
 
 enum ActionType
 {
-	ACTION_TYPE_TRIGGER,
-	ACTION_TYPE_VALUE,
-	ACTION_TYPE_AXIS,
+	ActionType_Trigger,
+	ActionType_Value,
+	ActionType_Axis,
 
-	ACTION_DEVICE_CONNECTED,
-	ACTION_DEVICE_DISCONNECTED
+	ActionType_DeviceConnected,
+	ActionType_DeviceDisconnected
 };
 
 struct TriggerActionMapping
@@ -69,21 +69,21 @@ struct ValueActionMapping
 
 enum AxisActionDirection
 {
-	AXIS_DIRECTION_NORTH,
-	AXIS_DIRECTION_SOUTH,
-	AXIS_DIRECTION_EAST,
-	AXIS_DIRECTION_WEST,
+	AxisActionDirection_North,
+	AxisActionDirection_South,
+	AxisActionDirection_East,
+	AxisActionDirection_West,
 
-	AXIS_DIRECTION_VERTICAL,
-	AXIS_DIRECTION_HORIZONTAL,
+	AxisActionDirection_Vertical,
+	AxisActionDirection_Horizontal,
 
-	AXIS_DIRECTION_ALL // Used with joysticks
+	AxisActionDirection_All // Used with joysticks
 };
 
 struct AxisActionMapping
 {
 	uint32_t inputID = 0;
-	AxisActionDirection direction = AXIS_DIRECTION_ALL;
+	AxisActionDirection direction = AxisActionDirection_All;
 	AxisAction* action = nullptr;
 };
 

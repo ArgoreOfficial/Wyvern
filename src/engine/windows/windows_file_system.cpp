@@ -62,15 +62,15 @@ wv::FileID wv::WindowsFileSystem::openFile( const char* _path, const OpenMode& _
 
 	switch( _mode )
 	{
-	case WV_OPEN_MODE_READ:
+	case OpenMode_Read:
 		desiredAccess = GENERIC_READ; 
 		shareMode = FILE_SHARE_READ;
 		break;
-	case WV_OPEN_MODE_READWRITE:
+	case OpenMode_ReadWrite:
 		desiredAccess = GENERIC_READ | GENERIC_WRITE; 
 		shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 		break;
-	case WV_OPEN_MODE_WRITE:
+	case OpenMode_Write:
 		desiredAccess = GENERIC_WRITE; 
 		shareMode = FILE_SHARE_WRITE;
 		break;

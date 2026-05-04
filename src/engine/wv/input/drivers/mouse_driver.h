@@ -39,14 +39,14 @@ protected:
 	void sendAxisEvents( InputSystem* _inputSystem );
 
 	bool hasStateChanged( MouseInputs _state ) {
-		if( _state >= MOUSE_BUTTON_LEFT && _state <= MOUSE_BUTTON_X2 )
+		if( _state >= MouseInput_Left && _state <= MouseInput_X2 )
 			return m_state.buttonStates[ (size_t)_state ] != m_prevState.buttonStates[ (size_t)_state ];
 		
 		switch ( _state )
 		{
-		case MOUSE_SCROLL_DELTA:  return m_state.scrollDelta != m_prevState.scrollDelta;
-		case MOUSE_POSITION_AXIS: return m_state.position    != m_prevState.position;
-		case MOUSE_MOTION_AXIS:   return m_state.motion      != m_prevState.motion;
+		case MouseInput_ScrollDelta:  return m_state.scrollDelta != m_prevState.scrollDelta;
+		case MouseInput_PositionAxis: return m_state.position    != m_prevState.position;
+		case MouseInput_MotionAxis:   return m_state.motion      != m_prevState.motion;
 		}
 
 		return false;

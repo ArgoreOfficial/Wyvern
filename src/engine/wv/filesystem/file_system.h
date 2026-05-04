@@ -25,9 +25,9 @@ typedef wv::strong_type<uint64_t, struct FileID_t> FileID;
 
 enum OpenMode
 {
-	WV_OPEN_MODE_READ,
-	WV_OPEN_MODE_WRITE,
-	WV_OPEN_MODE_READWRITE,
+	OpenMode_Read,
+	OpenMode_Write,
+	OpenMode_ReadWrite,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

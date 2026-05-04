@@ -8,34 +8,34 @@ namespace wv {
 
 enum ColliderShape
 {
-	ColliderShape_box,
-	ColliderShape_cylinder,
-	ColliderShape_sphere,
-	ColliderShape_mesh
+	ColliderShape_Box,
+	ColliderShape_Cylinder,
+	ColliderShape_Sphere,
+	ColliderShape_Mesh
 };
 
 template <>
 struct wv::EnumReflection<ColliderShape>
 {
 	static inline ReflectedEnums values = {
-		{ "Box", ColliderShape_box },
-		{ "Cylinder", ColliderShape_cylinder },
-		{ "Sphere", ColliderShape_sphere },
-		{ "Mesh", ColliderShape_mesh }
+		{ "Box", ColliderShape_Box },
+		{ "Cylinder", ColliderShape_Cylinder },
+		{ "Sphere", ColliderShape_Sphere },
+		{ "Mesh", ColliderShape_Mesh }
 	};
 };
 
 struct ColliderComponent
 {
-	ColliderShape shape = ColliderShape_box;
+	ColliderShape shape = ColliderShape_Box;
 
-	// used with ColliderShape_box
+	// used with ColliderShape_Box
 	Vector3f boxSize{ 1.0f, 1.0f, 1.0f };
 
-	// used with ColliderShape_cylinder
+	// used with ColliderShape_Cylinder
 	float cylinderHeight = 1.0f;
 
-	// used with ColliderShape_cylinder & ColliderShape_sphere
+	// used with ColliderShape_Cylinder & ColliderShape_Sphere
 	float radius = 0.5f;
 
 	Ref<MeshAsset> meshColliderAsset;

@@ -53,7 +53,7 @@ void wv::XInputControllerDriver::handleDeviceConnected( InputSystem* _inputSyste
 
 	m_connectedDevices.push_back( device );	
 
-	_inputSystem->pushActionEvent( { ActionType::ACTION_DEVICE_CONNECTED, device->vdID } );
+	_inputSystem->pushActionEvent( { ActionType::ActionType_DeviceConnected, device->vdID } );
 }
 
 void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSystem, int _deviceID )
@@ -65,7 +65,7 @@ void wv::XInputControllerDriver::handleDeviceDisconnected( InputSystem* _inputSy
 	if ( it == m_connectedDevices.end() )
 		return;
 
-	_inputSystem->pushActionEvent( { ActionType::ACTION_DEVICE_DISCONNECTED, ( *it )->vdID } );
+	_inputSystem->pushActionEvent( { ActionType::ActionType_DeviceDisconnected, ( *it )->vdID } );
 
 	WV_FREE( *it );
 	m_connectedDevices.erase( it );

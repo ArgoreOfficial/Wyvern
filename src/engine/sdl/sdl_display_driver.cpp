@@ -35,7 +35,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 	{
 		_inputEventQueue.pushEvent(
 			{
-				.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+				.type = LowLevelInputQueue::EventType_Move,
 				.mouse = {
 					.move = {
 						.position = (wv::Vector2f)dd->getWindowSize() / 2.0f,
@@ -75,7 +75,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 
 			_inputEventQueue.pushEvent(
 				{
-					.type = LowLevelInputQueue::WV_MOUSE_MOVE,
+					.type = LowLevelInputQueue::EventType_Move,
 					.mouse = {
 						.move = {
 							.position = { ev.motion.x,    ev.motion.y },
@@ -94,7 +94,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 
 			_inputEventQueue.pushEvent(
 				{
-					.type = LowLevelInputQueue::WV_MOUSE_SCROLL,
+					.type = LowLevelInputQueue::EventType_Scroll,
 					.mouse = {
 						.scroll = {
 							.delta = ev.wheel.integer_y
@@ -113,7 +113,7 @@ void wv::Platform::pollEvents( LowLevelInputQueue& _inputEventQueue )
 
 			_inputEventQueue.pushEvent(
 				{
-					.type = LowLevelInputQueue::WV_MOUSE_BUTTON,
+					.type = LowLevelInputQueue::EventType_Button,
 					.mouse = {
 						.button = {
 							.index = ev.button.button - 1, // SDL buttons are 1 indexed https://wiki.libsdl.org/SDL3/SDL_MouseButtonFlags

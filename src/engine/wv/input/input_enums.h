@@ -81,18 +81,18 @@ enum MouseInputs : uint32_t
 {
 	// Only Trigger and Value actions
 
-	MOUSE_BUTTON_LEFT = 0,
-	MOUSE_BUTTON_MIDDLE,
-	MOUSE_BUTTON_RIGHT,
-	MOUSE_BUTTON_X1,
-	MOUSE_BUTTON_X2,
+	MouseInput_Left = 0,
+	MouseInput_Middle,
+	MouseInput_Right,
+	MouseInput_X1,
+	MouseInput_X2,
 
-	MOUSE_SCROLL_DELTA,
+	MouseInput_ScrollDelta,
 
 	// Only axis actions
 
-	MOUSE_POSITION_AXIS,
-	MOUSE_MOTION_AXIS
+	MouseInput_PositionAxis,
+	MouseInput_MotionAxis
 };
 
 enum ControllerInputs : uint32_t

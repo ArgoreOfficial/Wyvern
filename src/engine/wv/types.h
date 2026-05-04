@@ -18,9 +18,9 @@ namespace wv {
 
 enum class TopologyClass
 {
-	WV_POINT = 1,
-	WV_LINE,
-	WV_TRIANGLE
+	TopologyClass_Point = 1,
+	TopologyClass_Line,
+	TopologyClass_Triangle
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

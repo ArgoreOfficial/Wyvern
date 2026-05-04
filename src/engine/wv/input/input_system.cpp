@@ -116,9 +116,9 @@ void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 
 		switch ( action.type )
 		{
-		case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_VALUE:   action.action.value->setValue( _playerIndex, action.action.value->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_AXIS:    action.action.axis->setValue( _playerIndex, action.action.axis->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Trigger: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Value:   action.action.value->setValue( _playerIndex, action.action.value->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Axis:    action.action.axis->setValue( _playerIndex, action.action.axis->getValue( prevPlayerIndex ) ); break;
 		}
 	}
 }

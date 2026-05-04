@@ -47,7 +47,7 @@ std::vector<uint8_t> wv::IFileSystem::loadEntireFile( const std::filesystem::pat
 		return {};
 	}
 
-	FileID file = openFile( path.string().c_str(), wv::OpenMode::WV_OPEN_MODE_READ );
+	FileID file = openFile( path.string().c_str(), wv::OpenMode::OpenMode_Read );
 	if( !file.is_valid() )
 		return {};
 
@@ -89,7 +89,7 @@ std::string wv::IFileSystem::loadString( const std::filesystem::path& _path )
 
 bool wv::IFileSystem::fileExists( const std::filesystem::path& _path )
 {
-	FileID f = openFile( _path.string().c_str(), OpenMode::WV_OPEN_MODE_READ );
+	FileID f = openFile( _path.string().c_str(), OpenMode::OpenMode_Read );
 	if( f.is_valid() )
 	{
 		closeFile( f );

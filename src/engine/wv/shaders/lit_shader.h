@@ -17,7 +17,7 @@ public:
 
 	virtual void initialize() override {
 		setDebugName( "Lit" );
-		setTopology( wv::TopologyClass::WV_TRIANGLE );
+		setTopology( wv::TopologyClass::TopologyClass_Triangle );
 		setVertPath( "shaders/default_lit.vert.spv" );
 		setFragPath( "shaders/default_lit.frag.spv" );
 		create( sizeof( LitMaterialData ) );

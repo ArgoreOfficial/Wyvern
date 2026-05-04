@@ -408,9 +408,9 @@ void wv::EditorInterfaceSystem::renderComponentView()
 			Vector3f oldEuler = euler;
 			if ( ImGui::DragFloat3( "Rotation##transform_rotation", &euler.x ) )
 			{
-				if ( euler.x != oldEuler.x ) transform.rotation.rotate( euler - oldEuler, RotateSpace_local );
-				if ( euler.y != oldEuler.y ) transform.rotation.rotate( euler - oldEuler, RotateSpace_world );
-				if ( euler.z != oldEuler.z ) transform.rotation.rotate( euler - oldEuler, RotateSpace_local );
+				if ( euler.x != oldEuler.x ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
+				if ( euler.y != oldEuler.y ) transform.rotation.rotate( euler - oldEuler, RotateSpace_World );
+				if ( euler.z != oldEuler.z ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
 			}
 
 			ImGui::DragFloat3( "Scale##transform_rotation", &transform.scale.x );

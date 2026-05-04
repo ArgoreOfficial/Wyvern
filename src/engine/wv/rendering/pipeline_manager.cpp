@@ -76,9 +76,9 @@ wv::ResourceID wv::PipelineManager::createGraphicsPipeline( VkShaderModule _vert
 	
 	switch ( _topology )
 	{
-	case TopologyClass::WV_POINT:    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;    break;
-	case TopologyClass::WV_LINE:     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;     break;
-	case TopologyClass::WV_TRIANGLE: inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; break;
+	case TopologyClass::TopologyClass_Point:    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;    break;
+	case TopologyClass::TopologyClass_Line:     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;     break;
+	case TopologyClass::TopologyClass_Triangle: inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; break;
 	}
 
 	inputAssembly.primitiveRestartEnable = VK_FALSE;

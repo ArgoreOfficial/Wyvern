@@ -11,7 +11,7 @@ void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "CameraManagerSystem";
 
-	setUpdateMode( UpdateMode_always );
+	setUpdateMode( UpdateMode_Always );
 
 	_config.addComponentType<CameraComponent>();
 }

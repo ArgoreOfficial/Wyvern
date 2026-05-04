@@ -9,7 +9,7 @@ void wv::EditorCameraSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "EditorCameraSystem";
 
-	setUpdateMode( UpdateMode_editor );
+	setUpdateMode( UpdateMode_Editor );
 
 	_config.addComponentType<CameraComponent>();
 	_config.addComponentType<EditorCameraComponent>();
@@ -27,9 +27,9 @@ void wv::EditorCameraSystem::onUpdate()
 	Application* app = getApp();
 	InputSystem* inputSystem = app->getInputSystem();
 
-	if ( inputSystem->getMouseButtonDown( MOUSE_BUTTON_RIGHT ) )
+	if ( inputSystem->getMouseButtonDown( MouseInput_Right ) )
 		app->setCursorLock( true );
-	else if ( inputSystem->getMouseButtonUp( MOUSE_BUTTON_RIGHT ) )
+	else if ( inputSystem->getMouseButtonUp( MouseInput_Right ) )
 		app->setCursorLock( false );
 	
 	for ( auto& ae : updateContext->actionEventQueue )
@@ -39,7 +39,7 @@ void wv::EditorCameraSystem::onUpdate()
 	const float friction = 10.f;
 	const float frictionDecay = 1 / ( 1 + ( deltaTime * friction ) );
 
-	m_isCameraLocked = inputSystem->getMouseButtonState( MOUSE_BUTTON_RIGHT );
+	m_isCameraLocked = inputSystem->getMouseButtonState( MouseInput_Right );
 
 	if ( m_isCameraLocked )
 	{
@@ -91,7 +91,7 @@ void wv::EditorCameraSystem::onUpdate()
 			wv::Transform& transform = entity->getTransform();
 
 			transform.rotation.rotate( Vector3f{ -editorComp.look.y, 0.0f, 0.0f } );
-			transform.rotation.rotate( Vector3f{ 0.0f, -editorComp.look.x, 0.0f }, RotateSpace_world );
+			transform.rotation.rotate( Vector3f{ 0.0f, -editorComp.look.x, 0.0f }, RotateSpace_World );
 
 			wv::Vector3f moveDirection = 
 				transform.forward() * editorComp.move.y + 
