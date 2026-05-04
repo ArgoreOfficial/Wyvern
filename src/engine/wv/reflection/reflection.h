@@ -75,7 +75,7 @@ struct EditorField
 			return false;
 		}
 
-		return ImGui::InputScalar( _label, dataType, (void*)&_v, nullptr, nullptr, format.c_str(), 0 );
+		return ImGui::DragScalar( _label, dataType, (void*)&_v, 1.0f, nullptr, nullptr, format.c_str(), 0 );
 	}
 };
 
@@ -90,7 +90,7 @@ struct EditorField<Vector2<Ty>>
 		if ( format.empty() )
 			return false;
 
-		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 2, NULL, NULL, format.c_str(), 0 );
+		return ImGui::DragScalarN( _label, dataType, (void*)&_v.x, 2, 1.0f, NULL, NULL, format.c_str(), 0 );
 	}
 };
 
@@ -105,7 +105,7 @@ struct EditorField<Vector3<Ty>>
 		if ( format.empty() )
 			return false;
 
-		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 3, NULL, NULL, format.c_str(), 0 );
+		return ImGui::DragScalarN( _label, dataType, (void*)&_v.x, 3, 1.0f, NULL, NULL, format.c_str(), 0 );
 	}
 };
 
@@ -119,8 +119,8 @@ struct EditorField<Vector4<Ty>>
 
 		if ( format.empty() )
 			return false;
-
-		return ImGui::InputScalarN( _label, dataType, (void*)&_v.x, 4, NULL, NULL, format.c_str(), 0 );
+		
+		return ImGui::DragScalarN( _label, dataType, (void*)&_v.x, 4, 1.0f, NULL, NULL, format.c_str(), 0 );
 	}
 };
 
@@ -184,6 +184,14 @@ struct EditorField<std::string>
 {
 	static bool imguiInput( const char* _label, std::string& _v ) {
 		return ImGui::InputText( _label, &_v );
+	}
+};
+
+template<>
+struct EditorField<bool>
+{
+	static bool imguiInput( const char* _label, bool& _v ) {
+		return ImGui::Checkbox( _label, &_v );
 	}
 };
 
