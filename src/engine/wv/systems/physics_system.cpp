@@ -199,7 +199,7 @@ void wv::PhysicsSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "PhysicsSystem";
 
-	setUpdateMode( UpdateMode_always );
+	setUpdateMode( UpdateMode_Always );
 
 	_config.addComponentType<RigidBodyComponent>();
 	_config.addComponentType<ColliderComponent>();
@@ -238,7 +238,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	
 	switch ( collider.shape )
 	{
-	case ColliderShape_box:
+	case ColliderShape_Box:
 	{
 		bodySetting = JPH::BodyCreationSettings(
 			new JPH::BoxShape( 
@@ -251,7 +251,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 		);
 	} break;
 
-	case ColliderShape_cylinder:
+	case ColliderShape_Cylinder:
 	{
 		bodySetting = JPH::BodyCreationSettings(
 			new JPH::CylinderShape( collider.cylinderHeight / 2.0f, collider.radius ),
@@ -259,7 +259,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 		);
 	} break;
 
-	case ColliderShape_sphere:
+	case ColliderShape_Sphere:
 	{
 		bodySetting = JPH::BodyCreationSettings(
 			new JPH::SphereShape( wv::Math::max( 0.0000001f, collider.radius ) ),
@@ -267,7 +267,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 		);
 	} break;
 
-	case ColliderShape_mesh:
+	case ColliderShape_Mesh:
 	{
 		JPH::TriangleList triangles;
 		if ( collider.meshColliderAsset )

@@ -89,7 +89,7 @@ inline void MemoryTracker::relinquish( const entry_container_t::iterator& _itr )
 		m_entries.erase( _itr );
 		}
 	else
-		wv::Debug::Print( wv::Debug::WV_PRINT_WARN, "Pointer was not allocated with WV_NEW()\n" );
+		wv::Debug::Print( wv::Debug::PrintLevel_Warn, "Pointer was not allocated with WV_NEW()\n" );
 	}
 
 template<typename _Ty>
@@ -125,7 +125,7 @@ inline void MemoryTracker::track_free( _Ty* _ptr )
 	if ( itr != m_entries.end() )
 	{
 		if ( itr->second.isArray )
-			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free used for %s[]. Allocated at %s:%zu\n", 
+			wv::Debug::Print( wv::Debug::PrintLevel_Error, "track_free used for %s[]. Allocated at %s:%zu\n", 
 							  itr->second.typestr, 
 							  itr->second.file, 
 							  itr->second.line );
@@ -145,7 +145,7 @@ inline void MemoryTracker::track_free_arr( _Ty* _ptr )
 	if ( itr != m_entries.end() )
 	{
 		if ( !itr->second.isArray )
-			wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "track_free_arr used for %s. Allocated at %s:%zu\n", 
+			wv::Debug::Print( wv::Debug::PrintLevel_Error, "track_free_arr used for %s. Allocated at %s:%zu\n", 
 							  itr->second.typestr, 
 							  itr->second.file, 
 							  itr->second.line );

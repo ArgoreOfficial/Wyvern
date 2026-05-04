@@ -15,6 +15,7 @@
 namespace wv {
 
 class IInputDriver;
+class IMouseDriver;
 class EventManager;
 
 struct MouseState
@@ -33,7 +34,7 @@ struct VirtualDevice
 
 struct ActionEvent
 {
-	ActionType type = ACTION_TYPE_TRIGGER;
+	ActionType type = ActionType_Trigger;
 	uint32_t vdID = 0;
 	int playerIndex = -1;
 	ActionID actionID = 0;
@@ -52,9 +53,9 @@ class LowLevelInputQueue
 public:
 	enum EventType
 	{
-		WV_MOUSE_MOVE,
-		WV_MOUSE_BUTTON,
-		WV_MOUSE_SCROLL
+		EventType_Move,
+		EventType_Button,
+		EventType_Scroll
 	};
 
 	struct Event
@@ -104,25 +105,15 @@ public:
 	InputSystem();
 	~InputSystem();
 
-	void initialize();
+	void initialize( IMouseDriver* _mouseDriver );
 	void shutdown();
 	
 	template<typename Ty>
-	void createInputDriver() {
+	Ty* createInputDriver() {
 		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
-		m_inputDrivers.push_back( WV_NEW( Ty ) );
-	}
-
-	// will return the *first* valid driver of type Ty
-	template<typename Ty>
-	Ty* getInputDriver() {
-		static_assert( std::is_base_of<IInputDriver, Ty>(), "Must be a valid IInputDriver" );
-
-		for ( auto it = m_inputDrivers.begin(); it != m_inputDrivers.end(); it++ )
-			if ( Ty* driver = tryCast<Ty>( *it ) )
-				return driver;
-		
-		return nullptr;
+		Ty* p = WV_NEW( Ty );
+		m_inputDrivers.push_back( p );
+		return p;
 	}
 
 	void processInputEvents( EventManager* _eventManager );
@@ -133,9 +124,9 @@ public:
 	int  getDevicePlayer( uint32_t _vdID );
 	
 	void pushActionEvent( const ActionEvent& _event ) { m_actionEventQueue.push_back( _event ); }
-	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_TRIGGER, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
-	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_VALUE,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
-	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { pushActionEvent( { ACTION_TYPE_AXIS,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { pushActionEvent( { ActionType_Trigger, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { pushActionEvent( { ActionType_Value,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
+	void pushActionEvent( AxisAction*    _action, uint32_t _vdID ) { pushActionEvent( { ActionType_Axis,    _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 
 	std::vector<ActionEvent> getActionEventQueue() const {
 		return m_actionEventQueue;
@@ -199,6 +190,8 @@ protected:
 	std::vector<VirtualDevice> m_virtualDevices;
 
 	std::vector<ActionEvent> m_actionEventQueue;
+
+	IMouseDriver* m_mouseDriver = nullptr;
 
 	bool m_shouldSendActionEvents = true;
 };

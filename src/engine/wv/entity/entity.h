@@ -12,11 +12,9 @@ class World;
 
 struct Archetype;
 
-class Entity final : wv::IReflectedType
+class Entity
 {
 	friend class World;
-
-	WV_REFLECT_TYPE( Entity, IReflectedType )
 public:
 	Entity( const std::string& _debugName = "" ) : 
 		m_ID{ wv::Math::randomU64() },
@@ -102,10 +100,12 @@ private:
 	Entity* m_parent = nullptr;
 	std::vector<Entity*> m_children;
 
-private:
-	WV_REFLECT_MEMBER( m_ID, "UUID" )
-	WV_REFLECT_MEMBER( m_debugName, "DebugName" )
-	WV_REFLECT_MEMBER( m_transform, "Transform" )
+public:
+	static inline wv::Reflection reflection{
+		wv::reflect( "id", &Entity::m_ID ),
+		wv::reflect( "name", &Entity::m_debugName ),
+		wv::reflect( "tfm", &Entity::m_transform )
+	};
 };
 
 }

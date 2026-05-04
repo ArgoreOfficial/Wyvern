@@ -13,7 +13,6 @@ namespace wv {
 class Entity;
 class IUpdatable;
 class InputSystem;
-class WorldSerializer;
 
 struct Viewport;
 
@@ -25,27 +24,25 @@ struct WorldUpdateContext
 
 enum UpdateEventType
 {
-	UpdateEvent_initialize,
-	UpdateEvent_shutdown,
+	UpdateEvent_Initialize,
+	UpdateEvent_Shutdown,
 
-	UpdateEvent_preUpdate,
-	UpdateEvent_update,
-	UpdateEvent_postUpdate,
+	UpdateEvent_PreUpdate,
+	UpdateEvent_Update,
+	UpdateEvent_PostUpdate,
 	
-	UpdateEvent_physicsUpdate,
+	UpdateEvent_PhysicsUpdate,
 
-	UpdateEvent_debugRender,  // for world debug rendering, such as lines, icons, and text
-	UpdateEvent_editorRender, // for editor interface and debug windows
+	UpdateEvent_DebugRender,  // for world debug rendering, such as lines, icons, and text
+	UpdateEvent_EditorRender, // for editor interface and debug windows
 
-	UpdateEvent_render
+	UpdateEvent_Render
 };
 
-class World : public IReflectedType
+class World
 {
 	friend class Application;
-	friend class WorldSerializer;
 
-	WV_REFLECT_TYPE( World, IReflectedType )
 public:
 	World();
 	virtual ~World();
@@ -72,14 +69,70 @@ public:
 	std::filesystem::path getPath() const { return m_path; }
 
 	template<typename Ty>
-	int registerComponentType( const std::string& _name = "Unnamed Component" ) {
+	int registerComponentType( const std::string& _name = "Unnamed Component", bool _serialize = true ) {
 		int index = m_ecsEngine->registerComponentType<Ty>();
 
 		EditorComponentInfo info{};
 		info.name = _name;
-		info.addComponentFunction       = []( World* _world, Entity* _entity ) { _world->addComponent<Ty>( _entity, Ty{} ); };
-		info.removeComponentFunction    = []( World* _world, Entity* _entity ) { _world->removeComponent<Ty>( _entity ); };
+		info.addComponentFunction    = []( World* _world, Entity* _entity ) { _world->addComponent<Ty>( _entity, Ty{} ); };
+		info.removeComponentFunction = []( World* _world, Entity* _entity ) { _world->removeComponent<Ty>( _entity ); };
 		
+		if ( _serialize )
+		{
+			info.serializeComponents =
+				[this]() -> nlohmann::json
+				{
+					std::vector<nlohmann::json> comps;
+				
+					for ( Archetype* arch : m_ecsEngine->getMatchingArchetypes( m_ecsEngine->getComponentBitset<Ty>() ) )
+					{
+						auto& components = arch->getComponents<Ty>();
+						auto& entities = arch->getEntities();
+
+						for ( size_t i = 0; i < arch->getNumEntities(); i++ )
+						{
+							if ( !entities[ i ]->getShouldSerialize() )
+								continue;
+						
+							comps.push_back(
+								nlohmann::json{
+									{ "data", Serialize::toJson( components[ i ] ) },
+									{ "entity", (uint64_t)entities[ i ]->getID() }
+								}
+							);
+						}
+					}
+
+					if ( comps.empty() )
+						return {};
+
+					return {
+						{ "index", ECSEngine::ComponentTypeDef<Ty>::index },
+						{ "comps", comps }
+					};
+				};
+
+			info.deserializeComponents =
+				[ this ]( const nlohmann::json& _json )
+				{
+					for ( auto& v : _json )
+					{
+						if ( !v.contains( "entity" ) )
+							continue;
+
+						uint64_t entityID = v.at( "entity" );
+						Entity* entity = getEntityFromID( entityID );
+
+						if ( !entity )
+							continue;
+
+						Ty comp;
+						Serialize::fromJson( v[ "data" ], comp );
+						addComponent<Ty>( entity, comp );
+					}
+				};
+		}
+
 		m_editorComponentInfos.emplace( index, info );
 
 		return index;
@@ -103,7 +156,7 @@ public:
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_add;
+		compChange.type = ComponentChange::ComponentChangeType_Add;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		compChange.callback = [ this, _entity, _component ]() { m_ecsEngine->addComponent<Ty>( _entity, _component ); };
@@ -114,7 +167,7 @@ public:
 	template<typename Ty>
 	void removeComponent( Entity* _entity ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_remove;
+		compChange.type = ComponentChange::ComponentChangeType_Remove;
 		compChange.entity = _entity;
 		compChange.componentTypeIndex = ECSEngine::ComponentTypeDef<Ty>::index;
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeComponent<Ty>( _entity ); };
@@ -144,7 +197,7 @@ public:
 
 	void removeAllComponents( Entity* _entity ) {
 		ComponentChange compChange{};
-		compChange.type = ComponentChange::ComponentChangeType_removeAll;
+		compChange.type = ComponentChange::ComponentChangeType_RemoveAll;
 		compChange.entity = _entity;
 		compChange.callback = [ this, _entity ]() { m_ecsEngine->removeAllComponents( _entity ); };
 
@@ -192,14 +245,11 @@ public:
 		return vec;
 	}
 
-	WorldSerializer* getWorldSerializer() const { return m_serializer; }
-
 protected:
 	virtual void onSceneCreate() { }
 	virtual void onSetupInput( InputSystem* _inputSystem ) { }
 	
 	std::filesystem::path m_path;
-	WorldSerializer* m_serializer{};
 
 	Viewport* m_viewport = nullptr;
 
@@ -218,9 +268,9 @@ private:
 	{
 		enum ComponentChangeType
 		{
-			ComponentChangeType_add,
-			ComponentChangeType_remove,
-			ComponentChangeType_removeAll
+			ComponentChangeType_Add,
+			ComponentChangeType_Remove,
+			ComponentChangeType_RemoveAll
 		};
 		ComponentChangeType type;
 		Entity* entity;
@@ -233,6 +283,8 @@ private:
 		std::string name;
 		std::function<void( World*, Entity* )> addComponentFunction;
 		std::function<void( World*, Entity* )> removeComponentFunction;
+		std::function<nlohmann::json()> serializeComponents;
+		std::function<void( const nlohmann::json& )> deserializeComponents;
 	};
 
 	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;

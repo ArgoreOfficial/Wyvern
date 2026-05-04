@@ -12,14 +12,24 @@ namespace wv {
 
 class ViewVolume;
 
+enum CameraType
+{
+	CameraType_Perspective,
+	CameraType_Orthographic
+};
+
+
+template <>
+struct wv::EnumReflection<CameraType>
+{
+	static inline ReflectedEnums values = {
+		{ "Perspective",  CameraType_Perspective },
+		{ "Orthographic", CameraType_Orthographic }
+	};
+};
+
 struct CameraComponent
 {
-	enum CameraType
-	{
-		kPerspective,
-		kOrthographic
-	};
-
 	float getAspect() { return viewDimensions.x / viewDimensions.y; }
 
 	inline void recalculateViewMatrix( Transform* _parent, bool _cacheViewProj = true )
@@ -36,11 +46,11 @@ struct CameraComponent
 	inline void recalculateProjMatrix( bool _cacheViewProj = true ) {
 		switch ( projectionType )
 		{
-		case kPerspective:  
+		case CameraType_Perspective:  
 			projMatrix = Math::perspective( getAspect(), Math::radians(fov), clipNear, clipFar);
 			break;
 
-		case kOrthographic: 
+		case CameraType_Orthographic: 
 			projMatrix = Math::orthographic(
 				viewDimensions.x * orthoScale / 2.0f,
 				viewDimensions.y * orthoScale / 2.0f,
@@ -87,7 +97,7 @@ struct CameraComponent
 ///////////////////////////////////////////////////////////////////////////////////////
 
 	bool active;
-	CameraType projectionType = kPerspective;
+	CameraType projectionType = CameraType_Perspective;
 	
 	float fov        = 60.0f;
 	float clipNear   = 0.01f;
@@ -100,19 +110,16 @@ struct CameraComponent
 	Matrix4x4f viewMatrix{};
 	Matrix4x4f projMatrix{};
 	Matrix4x4f viewProjMatrix{};
-};
 
-template<>
-static void serialize<CameraComponent>( SerializeInfo& _info )
-{
-	_info.name = "CameraComponent";
-	_info.registerMember( &CameraComponent::active, "active" );
-	_info.registerMember( &CameraComponent::projectionType, "projectionType" );
-	_info.registerMember( &CameraComponent::fov, "fov" );
-	_info.registerMember( &CameraComponent::clipNear, "clipNear" );
-	_info.registerMember( &CameraComponent::clipFar, "clipFar" );
-	_info.registerMember( &CameraComponent::orthoScale, "orthoScale" );
-	_info.registerMember( &CameraComponent::aspect, "aspect" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "active", &CameraComponent::active ),
+		wv::reflect( "projectionType", &CameraComponent::projectionType ),
+		wv::reflect( "fov", &CameraComponent::fov ),
+		wv::reflect( "clipNear", &CameraComponent::clipNear ),
+		wv::reflect( "clipFar", &CameraComponent::clipFar ),
+		wv::reflect( "orthoScale", &CameraComponent::orthoScale ),
+		wv::reflect( "aspect", &CameraComponent::aspect )
+	};
+};
 
 }

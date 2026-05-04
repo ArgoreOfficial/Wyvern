@@ -97,8 +97,9 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 	m_inputSystem->createInputDriver<XInputControllerDriver>();
 	m_inputSystem->createInputDriver<WindowsKeyboardDriver>();
-	m_inputSystem->createInputDriver<WindowsMouseDriver>();
-	m_inputSystem->initialize();
+	IMouseDriver* mouseDriver = m_inputSystem->createInputDriver<WindowsMouseDriver>();
+
+	m_inputSystem->initialize( mouseDriver );
 
 	m_displayDriver = Platform::createDisplayDriver();
 
@@ -180,13 +181,13 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 #ifndef WV_PACKAGE
 	wv::ActionGroup* editorActionGroup = m_inputSystem->createActionGroup( "Editor" );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_NORTH, wv::SCANCODE_W );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_North, wv::SCANCODE_W );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_South, wv::SCANCODE_S );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_East, wv::SCANCODE_D );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_West, wv::SCANCODE_A );
 	
-	editorActionGroup->bindTriggerAction( "MouseLeft", "Mouse", wv::MOUSE_BUTTON_LEFT );
-	editorActionGroup->bindTriggerAction( "MouseRight", "Mouse", wv::MOUSE_BUTTON_RIGHT );
+	editorActionGroup->bindTriggerAction( "MouseLeft", "Mouse", wv::MouseInput_Left );
+	editorActionGroup->bindTriggerAction( "MouseRight", "Mouse", wv::MouseInput_Right );
 
 	editorActionGroup->bindTriggerAction( "Translate", "Keyboard", wv::SCANCODE_G );
 	editorActionGroup->bindTriggerAction( "Rotate",    "Keyboard", wv::SCANCODE_R );
@@ -200,8 +201,8 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	
 	editorActionGroup->disable(); // default off
 
-	m_activeWorld->registerComponentType<EditorObjectComponent>( "EditorObjectComponent" );
-	m_activeWorld->registerComponentType<EditorCameraComponent>( "EditorCameraComponent" );
+	m_activeWorld->registerComponentType<EditorObjectComponent>( "EditorObjectComponent", false );
+	m_activeWorld->registerComponentType<EditorCameraComponent>( "EditorCameraComponent", false );
 
 	m_activeWorld->addSystem<EditorInterfaceSystem>();
 	m_activeWorld->addSystem<EditorCameraSystem>();
@@ -223,7 +224,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_activeWorld->onSceneCreate();
 
 	m_activeWorld->updateFrameData( 0.0f, 0.0f );
-	m_activeWorld->dispatchUpdateMessage( UpdateEvent_initialize );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_Initialize );
 	m_activeWorld->updateComponentChanges();
 	
 	// Update material buffers, as new materials have likely been loaded during world creation
@@ -238,7 +239,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 void wv::Application::shutdown()
 {
 	m_activeWorld->unload( true );
-	m_activeWorld->dispatchUpdateMessage( UpdateEvent_shutdown );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_Shutdown );
 
 	m_renderer->waitForRenderer();
 
@@ -270,7 +271,7 @@ void wv::Application::shutdown()
 	
 	if ( m_taskSystem )
 	{
-		Debug::Print( Debug::WV_PRINT_DEBUG, "Waiting for threads\n" );
+		Debug::Print( Debug::PrintLevel_Debug, "Waiting for threads\n" );
 		m_taskSystem->shutdownThreads();
 		WV_FREE( m_taskSystem );
 	}
@@ -303,8 +304,6 @@ void wv::Application::shutdown()
 		m_renderer->shutdown();
 		WV_FREE( m_renderer );
 	}
-	
-	ReflectionRegistry::destroySingleton();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -382,7 +381,7 @@ void wv::Application::update()
 		m_accumulator += m_deltatime;
 		while ( m_accumulator > m_fixedDeltaTime )
 		{
-			m_activeWorld->dispatchUpdateMessage( UpdateEvent_physicsUpdate );
+			m_activeWorld->dispatchUpdateMessage( UpdateEvent_PhysicsUpdate );
 
 
 			physicsSystem->onInternalPhysicsUpdate( m_fixedDeltaTime );
@@ -396,9 +395,9 @@ void wv::Application::update()
 
 	// normal update
 
-	m_activeWorld->dispatchUpdateMessage( UpdateEvent_preUpdate );
-	m_activeWorld->dispatchUpdateMessage( UpdateEvent_update );
-	m_activeWorld->dispatchUpdateMessage( UpdateEvent_postUpdate );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_PreUpdate );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_Update );
+	m_activeWorld->dispatchUpdateMessage( UpdateEvent_PostUpdate );
 
 	for ( Entity* entity : m_activeWorld->m_entities )
 	{
@@ -435,17 +434,17 @@ void wv::Application::render()
 #ifdef WV_DEBUG
 	if ( shouldRender )
 	{
-		m_activeWorld->dispatchUpdateMessage( UpdateEvent_debugRender );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_DebugRender );
 		
 		m_renderer->beginDebugRender();
-		m_activeWorld->dispatchUpdateMessage( UpdateEvent_editorRender );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_EditorRender );
 		m_renderer->endDebugRender();
 	}
 #endif
 
 	if ( shouldRender )
 	{
-		m_activeWorld->dispatchUpdateMessage( UpdateEvent_render );
+		m_activeWorld->dispatchUpdateMessage( UpdateEvent_Render );
 		m_shaderManager->updateBuffers();
 		m_renderer->render( m_activeWorld );
 	}

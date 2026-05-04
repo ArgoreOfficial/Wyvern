@@ -4,9 +4,9 @@ namespace wv {
 
 enum UpdateMode
 {
-	UpdateMode_runtime = 1 << 0,
-	UpdateMode_editor  = 1 << 1,
-	UpdateMode_always  = UpdateMode_runtime | UpdateMode_editor,
+	UpdateMode_Runtime = 1 << 0,
+	UpdateMode_Editor  = 1 << 1,
+	UpdateMode_Always  = UpdateMode_Runtime | UpdateMode_Editor,
 };
 
 class IUpdatable
@@ -46,7 +46,7 @@ protected:
 	std::string m_debugName = "";
 
 private:
-	UpdateMode m_updateMode = UpdateMode_runtime;
+	UpdateMode m_updateMode = UpdateMode_Runtime;
 	World* m_world = nullptr;
 
 	bool m_editorRenderEnabled = false;

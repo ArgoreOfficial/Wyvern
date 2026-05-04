@@ -85,8 +85,8 @@ struct GPUDrawPushConstants
 
 enum class SamplerState
 {
-	WV_SAMPLER_LINEAR,
-	WV_SAMPLER_NEAREST
+	SamplerState_Linear,
+	SamplerState_Nearest
 };
 
 struct VirtualAllocSpan
@@ -205,7 +205,7 @@ public:
 
 	bool isSwapchainOutOfDate() const { return m_resizeRequested; }
 
-	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize, TopologyClass _topology = TopologyClass::WV_TRIANGLE );
+	ResourceID createPipeline( uint32_t* _vertSrc, uint32_t _vertSize, uint32_t* _fragSrc, uint32_t _fragSize, TopologyClass _topology = TopologyClass::TopologyClass_Triangle );
 	void destroyPipeline( ResourceID _pipeline );
 
 	ResourceID allocateMesh( uint32_t _numIndices, uint32_t _numPositions, uint32_t _vertexDataSize = 0 );
@@ -225,8 +225,8 @@ public:
 		VkSampler sampler = VK_NULL_HANDLE;
 		switch ( _filter )
 		{
-		case SamplerState::WV_SAMPLER_LINEAR:  sampler = m_samplerLinear;  break;
-		case SamplerState::WV_SAMPLER_NEAREST: sampler = m_samplerNearest; break;
+		case SamplerState::SamplerState_Linear:  sampler = m_samplerLinear;  break;
+		case SamplerState::SamplerState_Nearest: sampler = m_samplerNearest; break;
 		}
 
 		uint32_t index = 0;

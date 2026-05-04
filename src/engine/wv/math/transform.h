@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wv/reflection/reflection.h>
+
 #include <wv/math/vector3.h>
 #include <wv/math/matrix.h>
 #include <wv/math/rotor.h>
@@ -23,7 +25,7 @@ public:
 	inline void setScale( const wv::Vector3f& _scale ) { scale = _scale; }
 
 	inline void translate( const Vector3f& _translation ) { position += _translation; }
-	inline void rotate   ( const Vector3f& _rotation, RotateSpace _space = RotateSpace_local ) { rotation.rotate( _rotation, _space ); }
+	inline void rotate   ( const Vector3f& _rotation, RotateSpace _space = RotateSpace_Local ) { rotation.rotate( _rotation, _space ); }
 
 	inline Matrix4x4f getMatrix() const { return m_matrix; }
 
@@ -40,6 +42,12 @@ public:
 	Vector3f scale{ 1, 1, 1 };
 
 	Matrix4x4f m_matrix{ 1 };
+
+	static inline wv::Reflection reflection{
+		wv::reflect( "pos", &Transform::position ),
+		wv::reflect( "rot", &Transform::rotation ),
+		wv::reflect( "scl", &Transform::scale )
+	};
 
 private:
 

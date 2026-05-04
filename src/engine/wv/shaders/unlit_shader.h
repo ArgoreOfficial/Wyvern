@@ -16,7 +16,7 @@ public:
 
 	virtual void initialize() override {
 		setDebugName( "Unlit" );
-		setTopology( wv::TopologyClass::WV_TRIANGLE );
+		setTopology( wv::TopologyClass::TopologyClass_Triangle );
 		setVertPath( "shaders/default_unlit.vert.spv" );
 		setFragPath( "shaders/default_unlit.frag.spv" );
 		create( sizeof( UnlitMaterialData ) );

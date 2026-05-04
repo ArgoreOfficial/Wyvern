@@ -10,15 +10,17 @@
 
 #define WV_DEFINE_ID( _c ) typedef wv::strong_type<uint16_t, struct _c##_t> _c
 
+typedef uint64_t TypeUUID;
+
 namespace wv {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 enum class TopologyClass
 {
-	WV_POINT = 1,
-	WV_LINE,
-	WV_TRIANGLE
+	TopologyClass_Point = 1,
+	TopologyClass_Line,
+	TopologyClass_Triangle
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

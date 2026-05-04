@@ -21,10 +21,10 @@ void wv::IMouseDriver::sendTriggerEvents( InputSystem* _inputSystem )
 
 		for ( auto& mapping : group->getTriggerActionsByDevice( "Mouse" ) )
 		{
-			if ( mapping.inputID >= MOUSE_BUTTON_LEFT && mapping.inputID <= MOUSE_BUTTON_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
+			if ( mapping.inputID >= MouseInput_Left && mapping.inputID <= MouseInput_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
 				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ] );
 			
-			if ( mapping.inputID == MOUSE_SCROLL_DELTA && hasStateChanged( (MouseInputs)mapping.inputID ) )
+			if ( mapping.inputID == MouseInput_ScrollDelta && hasStateChanged( (MouseInputs)mapping.inputID ) )
 				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta != 0 );
 		}
 	}
@@ -39,10 +39,10 @@ void wv::IMouseDriver::sendValueEvents( InputSystem* _inputSystem )
 
 		for ( auto& mapping : group->getValueActionsByDevice( "Mouse" ) )
 		{
-			if ( mapping.inputID >= MOUSE_BUTTON_LEFT && mapping.inputID <= MOUSE_BUTTON_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
+			if ( mapping.inputID >= MouseInput_Left && mapping.inputID <= MouseInput_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
 				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ] ? 1.0f : 0.0f );
 			
-			if ( mapping.inputID == MOUSE_SCROLL_DELTA && hasStateChanged( MOUSE_SCROLL_DELTA ) )
+			if ( mapping.inputID == MouseInput_ScrollDelta && hasStateChanged( MouseInput_ScrollDelta ) )
 				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta );
 		}
 	}
@@ -57,10 +57,10 @@ void wv::IMouseDriver::sendAxisEvents( InputSystem* _inputSystem )
 
 		for ( auto& mapping : group->getAxisActionsByDevice( "Mouse" ) )
 		{
-			if ( mapping.inputID == MOUSE_POSITION_AXIS && hasStateChanged( MOUSE_POSITION_AXIS ) )
+			if ( mapping.inputID == MouseInput_PositionAxis && hasStateChanged( MouseInput_PositionAxis ) )
 				handleAxisAction( _inputSystem, m_vdID, mapping.action, mapping.direction, m_state.position, group->isEnabled() );
 
-			if ( mapping.inputID == MOUSE_MOTION_AXIS && hasStateChanged( MOUSE_MOTION_AXIS ) )
+			if ( mapping.inputID == MouseInput_MotionAxis && hasStateChanged( MouseInput_MotionAxis ) )
 			{
 				double dt = wv::Application::getSingleton()->getDeltaTime(); // mouse movement needs to be un-scaled by delta time
 

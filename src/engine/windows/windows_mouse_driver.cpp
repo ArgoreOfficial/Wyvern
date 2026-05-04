@@ -32,26 +32,26 @@ void wv::WindowsMouseDriver::pollActions( InputSystem* _inputSystem )
 	{
 		switch ( event.type )
 		{
-		case LowLevelInputQueue::WV_MOUSE_MOVE:
+		case LowLevelInputQueue::EventType_Move:
 			m_state.position = event.mouse.move.position;
 			m_state.motion   = event.mouse.move.delta;
 			break;
 
-		case LowLevelInputQueue::WV_MOUSE_BUTTON:
+		case LowLevelInputQueue::EventType_Button:
 		{
 			int buttonIndex = event.mouse.button.index;
 			if ( lrFlipped )
 			{
-				if ( buttonIndex == MOUSE_BUTTON_LEFT )
-					buttonIndex = MOUSE_BUTTON_RIGHT;
-				else if ( buttonIndex == MOUSE_BUTTON_RIGHT )
-					buttonIndex = MOUSE_BUTTON_LEFT;
+				if ( buttonIndex == MouseInput_Left )
+					buttonIndex = MouseInput_Right;
+				else if ( buttonIndex == MouseInput_Right )
+					buttonIndex = MouseInput_Left;
 			}
 
 			m_state.buttonStates[ buttonIndex ] = event.mouse.button.state;
 		} break;
 
-		case LowLevelInputQueue::WV_MOUSE_SCROLL:
+		case LowLevelInputQueue::EventType_Scroll:
 			m_state.scrollDelta += event.mouse.scroll.delta;
 			break;
 		}

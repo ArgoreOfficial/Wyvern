@@ -19,8 +19,8 @@ class PlayerInputSystem : public ISystem
 public:
 	enum class SelectionMode
 	{
-		ANY_TRIGGER_ACTION = 0,
-		SPECIFIC_TRIGGER_ACTION
+		SelectionMode_AnyTriggerAction = 0,
+		SelectionMode_SpecificTriggerAction
 	};
 
 	void setSelectionMode( SelectionMode _mode ) { m_selectionMode = _mode; }
@@ -45,7 +45,7 @@ public:
 
 	InputSystem* m_inputSystem = nullptr;
 
-	SelectionMode m_selectionMode = SelectionMode::ANY_TRIGGER_ACTION;
+	SelectionMode m_selectionMode = SelectionMode::SelectionMode_AnyTriggerAction;
 	ActionID m_joinActionID = 0;
 
 	int m_maxPlayers = -1; // -1 is unlimited

@@ -10,7 +10,7 @@ void wv::MemoryStream::set( uint8_t* _data, size_t _size )
 {
 	if ( m_pAllocatedData )
 	{
-		Debug::Print( Debug::WV_PRINT_WARN, "cMemoryStream::set used on already allocated memory block. Deallocating old memory" );
+		Debug::Print( Debug::PrintLevel_Warn, "cMemoryStream::set used on already allocated memory block. Deallocating old memory" );
 		deallocate();
 	}
 
@@ -33,7 +33,7 @@ void wv::MemoryStream::allocate( size_t _size )
 {
 	if ( m_pAllocatedData )
 	{
-		Debug::Print( Debug::WV_PRINT_WARN, "cMemoryStream::allocate used on already allocated memory block. Deallocating old memory" );
+		Debug::Print( Debug::PrintLevel_Warn, "cMemoryStream::allocate used on already allocated memory block. Deallocating old memory" );
 		deallocate();
 	}
 

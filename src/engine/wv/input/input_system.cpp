@@ -32,8 +32,10 @@ wv::InputSystem::~InputSystem()
 	m_virtualDevices.clear();
 }
 
-void wv::InputSystem::initialize()
+void wv::InputSystem::initialize( IMouseDriver* _mouseDriver )
 {
+	m_mouseDriver = _mouseDriver;
+
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->initialize( this );
 }
@@ -56,10 +58,10 @@ void wv::InputSystem::processInputEvents( EventManager* _eventManager )
 	for ( IInputDriver* driver : m_inputDrivers )
 		driver->pollActions( this );
 	
-	if ( IMouseDriver* mouseDriver = getInputDriver<IMouseDriver>() )
+	if ( m_mouseDriver )
 	{
-		m_mouseState     = mouseDriver->getMouseState();
-		m_prevMouseState = mouseDriver->getPrevMouseState();
+		m_mouseState     = m_mouseDriver->getMouseState();
+		m_prevMouseState = m_mouseDriver->getPrevMouseState();
 	}
 }
 
@@ -114,9 +116,9 @@ void wv::InputSystem::setDevicePlayer( uint32_t _vdID, int _playerIndex )
 
 		switch ( action.type )
 		{
-		case ACTION_TYPE_TRIGGER: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_VALUE:   action.action.value->setValue( _playerIndex, action.action.value->getValue( prevPlayerIndex ) ); break;
-		case ACTION_TYPE_AXIS:    action.action.axis->setValue( _playerIndex, action.action.axis->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Trigger: action.action.trigger->setValue( _playerIndex, action.action.trigger->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Value:   action.action.value->setValue( _playerIndex, action.action.value->getValue( prevPlayerIndex ) ); break;
+		case ActionType_Axis:    action.action.axis->setValue( _playerIndex, action.action.axis->getValue( prevPlayerIndex ) ); break;
 		}
 	}
 }

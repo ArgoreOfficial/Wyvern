@@ -8,7 +8,7 @@ void wv::OrbitControllerSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "OrbitControllerSystem";
 
-	setUpdateMode( UpdateMode_runtime );
+	setUpdateMode( UpdateMode_Runtime );
 
 	_config.addComponentType<OrbitControllerComponent>();
 }
@@ -27,7 +27,7 @@ void wv::OrbitControllerSystem::onUpdate()
 			OrbitControllerComponent& component = controllers[ i ];
 			Entity* entity = entities[ i ];
 
-			if ( inputSystem->getMouseButtonState( MOUSE_BUTTON_MIDDLE ) )
+			if ( inputSystem->getMouseButtonState( MouseInput_Middle ) )
 			{
 				component.cameraMove = {};
 
@@ -48,7 +48,7 @@ void wv::OrbitControllerSystem::onUpdate()
 			wv::Transform& entityTransform = entity->getTransform();
 
 			entityTransform.rotate( { -component.cameraMove.y, 0.0f, 0.0f } );
-			entityTransform.rotate( { 0.0f, -component.cameraMove.x, 0.0f }, RotateSpace_world );
+			entityTransform.rotate( { 0.0f, -component.cameraMove.x, 0.0f }, RotateSpace_World );
 
 			entityTransform.setPosition( -entityTransform.forward() * component.orbitDistance );
 		}

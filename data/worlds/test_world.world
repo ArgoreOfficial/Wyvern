@@ -2,78 +2,12 @@
   "name": "Test World",
   "entities": [
     {
-      "id": 505515108,
-      "name": "PlayerCamera",
-      "tfm": {
-        "pos": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "id": 3132744809,
-      "name": "Player",
-      "tfm": {
-        "pos": [
-          -0.5373822450637817,
-          16.205875396728516,
-          -1.0490503311157227
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "id": 9042828302906598590,
-      "name": "Terrain",
-      "tfm": {
-        "pos": [
-          0.0,
-          -14.250560760498047,
-          0.0
-        ],
-        "rot": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scl": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "id": 6037574701757577089,
+      "id": 8244605545696734219,
       "name": "Test",
       "tfm": {
         "pos": [
           0.0,
-          14.92525863647461,
+          0.0,
           0.0
         ],
         "rot": [
@@ -88,16 +22,31 @@
           1.0
         ]
       }
-    }
-  ],
-  "hierarchy": [
+    },
     {
-      "children": [
-        505515108
-      ],
-      "entity": 3132744809
+      "id": 2384719384791587193,
+      "name": "Camera",
+      "tfm": {
+        "pos": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.6762089729309082,
+          -0.20673823356628418,
+          0.6762093901634216,
+          0.20673806965351105
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
     }
   ],
+  "hierarchy": [],
   "components": [
     {
       "comps": [
@@ -111,7 +60,7 @@
             "orthoScale": 0.10000000149011612,
             "projectionType": 0
           },
-          "entity": 505515108
+          "entity": 2384719384791587193
         }
       ],
       "index": 0
@@ -120,30 +69,17 @@
       "comps": [
         {
           "data": {
-            "mesh": "meshes/SM_ExteriorTerrain.wvb",
-            "shape": 3
-          },
-          "entity": 9042828302906598590
-        },
-        {
-          "data": {
-            "mesh": "meshes/SM_ExteriorTest.wvb",
-            "shape": 3
-          },
-          "entity": 6037574701757577089
-        },
-        {
-          "data": {
             "boxSize": [
               1.0,
               1.0,
               1.0
             ],
-            "cylinderHeight": 2.0,
-            "radius": 0.25,
-            "shape": 1
+            "cylinderHeight": 1.0,
+            "meshColliderAsset": null,
+            "radius": 0.5,
+            "shape": 0
           },
-          "entity": 3132744809
+          "entity": 8244605545696734219
         }
       ],
       "index": 1
@@ -152,23 +88,19 @@
       "comps": [
         {
           "data": {
-            "materials": [
-              "materials/game/M_Grass256.wvmt"
-            ],
-            "mesh": "meshes/SM_ExteriorTerrain.wvb"
+            "materials": [],
+            "meshAsset": "meshes/SM_Cube.wvb"
           },
-          "entity": 9042828302906598590
+          "entity": 2384719384791587193
         },
         {
           "data": {
             "materials": [
-              "materials/game/M_Concrete_2.wvmt",
-              "materials/game/M_Concrete.wvmt",
-              "materials/game/M_Metal.wvmt"
+              "materials/default_lit.wvmt"
             ],
-            "mesh": "meshes/SM_ExteriorTest.wvb"
+            "meshAsset": "meshes/SM_Cube.wvb"
           },
-          "entity": 6037574701757577089
+          "entity": 8244605545696734219
         }
       ],
       "index": 2
@@ -191,70 +123,10 @@
             ],
             "mass": 1.0
           },
-          "entity": 9042828302906598590
-        },
-        {
-          "data": {
-            "bodyType": 0,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 6037574701757577089
-        },
-        {
-          "data": {
-            "bodyType": 1,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              true,
-              true,
-              true
-            ],
-            "mass": 1.0
-          },
-          "entity": 3132744809
+          "entity": 8244605545696734219
         }
       ],
       "index": 4
-    },
-    {
-      "comps": [
-        {
-          "data": {
-            "acceleration": 3.0,
-            "cameraEntity": 505515108,
-            "cameraHeight": 1.600000023841858,
-            "cameraSensitivity": 15.0,
-            "cameraShakeDecay": 0.5,
-            "damping": 6.0,
-            "moveSpeed": 2.0,
-            "resetBobPosition": false,
-            "smoothAcceleration": true,
-            "viewBobbing": 0.05000000074505806,
-            "viewBobbingSpeed": 7.0,
-            "viewRotFrequency": 1.75,
-            "viewRotOffset": 0.0,
-            "viewRotting": 1.5
-          },
-          "entity": 3132744809
-        }
-      ],
-      "index": 7
     }
   ]
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wv/reflection/reflection.h>
 #include <wv/entity/entity.h>
 #include <wv/memory/memory.h>
 #include <wv/slot_map.h>
@@ -34,16 +35,24 @@ struct IComponentContainer
 	 * @brief move component between `_from` to this container
 	 * @return new index of component
 	 */
+	virtual void* getComponentVoidPtr( size_t _indirectIndex ) = 0;
 	virtual size_t moveComponent( IComponentContainer* _from, size_t _index ) = 0;
 	virtual void eraseComponent( size_t _index ) = 0;
 	virtual size_t getRealIndex( size_t _indirectIndex ) const = 0;
-
+	virtual Reflection& getReflection() const = 0;
 };
 
 template<typename Ty>
 struct ComponentContainer : public IComponentContainer
 {
+	// TODO: change indirect index to Entity ID ?
 	wv::SlotMap<Ty> components;
+
+	virtual void* getComponentVoidPtr( size_t _indirectIndex ) override {
+		if ( !components.contains( _indirectIndex ) )
+			return nullptr;
+		return (void*)&components.at( _indirectIndex );
+	}
 
 	virtual size_t moveComponent( IComponentContainer* _from, size_t _index ) override {
 		wv::SlotMap<Ty>& fromComponents = ( ( ComponentContainer<Ty>* )_from )->components;
@@ -58,6 +67,10 @@ struct ComponentContainer : public IComponentContainer
 
 	virtual size_t getRealIndex( size_t _indirectIndex ) const override {
 		return components.dataIndices[ _indirectIndex ];
+	}
+
+	virtual Reflection& getReflection() const override {
+		return Ty::reflection;
 	}
 };
 
@@ -209,7 +222,7 @@ public:
 		return 0;
 	}
 
-	IComponentContainer* container( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
+	IComponentContainer* getContainer( int _compTypeIndex ) { return m_containers.at( _compTypeIndex ); }
 
 	std::vector<int> getComponentIndices() const {
 		std::vector<int> vec;
@@ -308,7 +321,7 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 	{
 		for ( auto& [compTypeIndex, oldContainer] : oldArchetype->m_containers )
 		{
-			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
+			IComponentContainer* newContainer = newArchetype->getContainer( compTypeIndex );
 			newIndex = newContainer->moveComponent( oldContainer, indirectIndex );
 		}
 
@@ -353,7 +366,7 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 			if ( compTypeIndex == index )
 				continue;
 
-			IComponentContainer* newContainer = newArchetype->container( compTypeIndex );
+			IComponentContainer* newContainer = newArchetype->getContainer( compTypeIndex );
 			newContainer->moveComponent( oldContainer, indirectIndex );
 		}
 
@@ -365,7 +378,7 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 		_entity->archetype = nullptr;
 	}
 	
-	oldArchetype->container( index )->eraseComponent( indirectIndex );
+	oldArchetype->getContainer( index )->eraseComponent( indirectIndex );
 	oldArchetype->m_entities.erase( indirectIndex );
 }
 

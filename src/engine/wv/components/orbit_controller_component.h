@@ -9,14 +9,11 @@ struct OrbitControllerComponent
 {
 	float orbitDistance = 16.0f;
 	wv::Vector2f cameraMove = { 0.0f, 0.0f };
-};
 
-template<>
-static void serialize<OrbitControllerComponent>( SerializeInfo& _info )
-{
-	_info.name = "OrbitControllerComponent";
-	_info.registerMember( &OrbitControllerComponent::orbitDistance, "orbitDistance" );
-	_info.registerMember( &OrbitControllerComponent::cameraMove, "cameraMove" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "orbitDistance", &OrbitControllerComponent::orbitDistance ),
+		wv::reflect( "cameraMove", &OrbitControllerComponent::cameraMove )
+	};
+};
 
 }

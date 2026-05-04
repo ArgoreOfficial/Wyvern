@@ -60,7 +60,7 @@ private:
 	std::vector<uint8_t> m_materialData;
 
 	std::string m_debugName = "";
-	wv::TopologyClass m_topology = wv::TopologyClass::WV_TRIANGLE;
+	wv::TopologyClass m_topology = wv::TopologyClass::TopologyClass_Triangle;
 
 	bool m_useVertShader = false;
 	bool m_useFragShader = false;
@@ -91,6 +91,8 @@ public:
 
 	void destroy();
 	void reload();
+
+	std::filesystem::path getPath() const { return path; }
 
 	std::filesystem::path path;
 

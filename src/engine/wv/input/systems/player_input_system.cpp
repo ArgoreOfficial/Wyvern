@@ -21,7 +21,7 @@ void wv::PlayerInputSystem::joinPlayer( uint32_t _deviceID, int _playerIndex )
 	m_inputSystem->setDevicePlayer( _deviceID, _playerIndex );
 	m_activePlayers.insert( _playerIndex );
 
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Joined Player %i\n", _playerIndex );
+	Debug::Print( Debug::PrintLevel_Debug, "Joined Player %i\n", _playerIndex );
 
 	updateNextAvailableIndex();
 }
@@ -35,7 +35,7 @@ void wv::PlayerInputSystem::disconnectDevice( uint32_t _vDeviceID )
 	m_activePlayers.erase( playerIndex );
 	m_inputSystem->setDevicePlayer( _vDeviceID, -1 );
 
-	Debug::Print( Debug::WV_PRINT_DEBUG, "Disconnected Player %i\n", playerIndex );
+	Debug::Print( Debug::PrintLevel_Debug, "Disconnected Player %i\n", playerIndex );
 
 	updateNextAvailableIndex();
 }
@@ -72,7 +72,7 @@ void wv::PlayerInputSystem::onUpdate()
 	// Handle disconnect
 	for ( ActionEvent& action : _ctx.actionEventQueue )
 	{
-		if ( action.type != ACTION_DEVICE_DISCONNECTED )
+		if ( action.type != ActionType_DeviceDisconnected )
 			continue;
 
 		disconnectDevice( action.vdID );
@@ -84,7 +84,7 @@ void wv::PlayerInputSystem::onUpdate()
 	for ( ActionEvent& action : _ctx.actionEventQueue )
 	{
 		// TODO: any (unmapped or mapped) button
-		if ( action.type != ACTION_TYPE_TRIGGER ) // must be a trigger action
+		if ( action.type != ActionType_Trigger ) // must be a trigger action
 			continue;
 
 		if ( action.playerIndex != -1 ) // must be an unused device
@@ -93,9 +93,9 @@ void wv::PlayerInputSystem::onUpdate()
 		if ( action.action.trigger->getValue( -1 ) == false ) // must be a press, not a release
 			continue;
 
-		if ( m_selectionMode == SelectionMode::ANY_TRIGGER_ACTION )
+		if ( m_selectionMode == SelectionMode::SelectionMode_AnyTriggerAction )
 			joinPlayer( action.vdID );
-		else if ( m_selectionMode == SelectionMode::SPECIFIC_TRIGGER_ACTION )
+		else if ( m_selectionMode == SelectionMode::SelectionMode_SpecificTriggerAction )
 		{
 			if ( action.actionID == m_joinActionID )
 				joinPlayer( action.vdID );

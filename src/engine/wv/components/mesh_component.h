@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/serialize.h>
+#include <wv/reflection/reflection.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 
@@ -27,14 +27,11 @@ struct MeshComponent
 {
 	Ref<MeshAsset> meshAsset;
 	std::vector<Ref<MaterialAsset>> materials;
-};
 
-template<>
-static void serialize<MeshComponent>( SerializeInfo& _info )
-{
-	_info.name = "MeshComponent";
-	_info.registerMember( &MeshComponent::meshAsset, "meshAsset" );
-	_info.registerMember( &MeshComponent::materials, "materials" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "meshAsset", &MeshComponent::meshAsset ),
+		wv::reflect( "materials", &MeshComponent::materials )
+	};
+};
 
 }

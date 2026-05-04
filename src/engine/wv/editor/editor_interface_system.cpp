@@ -14,6 +14,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 #include <set>
 
@@ -327,6 +328,9 @@ void wv::EditorInterfaceSystem::renderEntityView()
 				if ( e->getParent() )
 					continue;
 
+				if ( e == m_editorCameraEntity )
+					continue;
+
 				renderEntityTreeNode( e );
 			}
 			ImGui::TreePop();
@@ -395,34 +399,61 @@ void wv::EditorInterfaceSystem::renderComponentView()
 			ImGui::EndMenu();
 		}
 
-		WorldSerializer* serializer = world->getWorldSerializer();
+		{
+			auto& transform = selectedEntity->getTransform();
+
+			ImGui::DragFloat3( "Position##transform_rotation", &transform.position.x );
+			
+			Vector3f euler = transform.rotation.toEuler();
+			Vector3f oldEuler = euler;
+			if ( ImGui::DragFloat3( "Rotation##transform_rotation", &euler.x ) )
+			{
+				if ( euler.x != oldEuler.x ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
+				if ( euler.y != oldEuler.y ) transform.rotation.rotate( euler - oldEuler, RotateSpace_World );
+				if ( euler.z != oldEuler.z ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
+			}
+
+			ImGui::DragFloat3( "Scale##transform_rotation", &transform.scale.x );
+		}
 
 		if ( selectedEntity->archetype )
 		{
 			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-				
+			size_t indirectIndex = selectedEntity->archetype->getEntityIndirectIndex( selectedEntity );
+
 			for ( int& index : componentIndices )
 			{
 				if ( index == editorObjectIndex || index == editorCameraIndex )
 					continue;
 
 				std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
-				if ( ImGui::CollapsingHeader( componentNameID.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+				
+				ImGui::SeparatorText( componentNameID.c_str() );
 				{
 					ImGui::PushID( index );
-					if ( ImGui::Button( "Delete##component_delete_button" ) )
-						world->removeComponent( index, selectedEntity );
-					ImGui::PopID();
 
-					if ( serializer->hasSerializeInfo( index ) )
+					bool deleteComp = false;
+
+					if ( ImGui::BeginMenu( "Actions##entity_component_actions" ) )
 					{
-						const SerializeInfo& info = serializer->getSerializeInfo( index );
-						for ( auto& m : info.members )
-						{
-							ImGui::Text( "%s value: FIXME", m->name.c_str() );
-						}
+						if ( ImGui::Selectable( "Delete##component_delete" ) )
+							deleteComp = true;
+						
+						ImGui::EndMenu();
 					}
+
+					ImGui::PopID();
+					
+					IComponentContainer* container = selectedEntity->archetype->getContainer( index );
+					Reflection& refl = container->getReflection();
+
+					for ( IField* field : refl.fields )
+						field->imguiInput( field->name, container->getComponentVoidPtr( indirectIndex ) );
+					
+					if ( deleteComp )
+						world->removeComponent( index, selectedEntity );
 				}
+
 			}
 		}
 	}

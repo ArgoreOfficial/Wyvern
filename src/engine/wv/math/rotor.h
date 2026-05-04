@@ -28,8 +28,8 @@ inline Vector3<Ty> wedge( const Vector3<Ty>& u, const Vector3<Ty>& v )
 
 enum RotateSpace
 {
-	RotateSpace_local,
-	RotateSpace_world
+	RotateSpace_Local,
+	RotateSpace_World
 };
 
 template<typename Ty>
@@ -76,8 +76,8 @@ public:
 	Ty length() const;
 	Rotor<Ty> reverse() const;
 
-	void rotate( const Rotor<Ty>& _r,       RotateSpace _space = RotateSpace_local );
-	void rotate( const Vector3<Ty>& _euler, RotateSpace _space = RotateSpace_local );
+	void rotate( const Rotor<Ty>& _r,       RotateSpace _space = RotateSpace_Local );
+	void rotate( const Vector3<Ty>& _euler, RotateSpace _space = RotateSpace_Local );
 	
 	inline Vector3<Ty> rotateVector( const Vector3<Ty>& _v ) const; 
 	inline Matrix<Ty, 4, 4> toMatrix4x4() const;
@@ -99,6 +99,25 @@ public:
 			 xz, 
 			-xy,
 			  s 
+		};
+	}
+
+	inline Vector3<Ty> toEuler() const {
+		const Ty w =  s;
+		const Ty x = -yz;
+		const Ty y =  xz;
+		const Ty z = -xy;
+
+		const Vector3<Ty> euler2{
+			(Ty)std::asin ( 2.0 * ( w * x - y * z ) ),
+			(Ty)std::atan2( 2.0 * ( w * y + x * z ), 1.0 - 2.0 * ( x * x + y * y ) ),
+			(Ty)std::atan2( 2.0 * ( w * z + x * y ), 1.0 - 2.0 * ( x * x + z * z ) )
+		};
+
+		return {
+			Math::degrees( euler2.x ),
+			Math::degrees( euler2.y ),
+			Math::degrees( euler2.z )
 		};
 	}
 
@@ -148,7 +167,7 @@ template<typename Ty>
 inline void Rotor<Ty>::rotate( const Rotor<Ty>& _r, RotateSpace _space )
 {
 	Rotor<Ty>& r = *this;
-	if( _space == RotateSpace_local )
+	if( _space == RotateSpace_Local )
 		r = r * _r;
 	else
 		r = _r * r;

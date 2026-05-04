@@ -115,7 +115,7 @@ int wv::RemoteTarget3DS::remoteLaunchExecutable( const std::string& _name, const
 
 	if( pingErr )
 	{
-		wv::Debug::Print( wv::Debug::WV_PRINT_ERROR, "Failed to ping 3DS '%s'\n", m_address );
+		wv::Debug::Print( wv::Debug::PrintLevel_Error, "Failed to ping 3DS '%s'\n", m_address );
 		return pingErr;
 	}
 

@@ -13,7 +13,7 @@ class EditorInterfaceSystem : public ISystem
 public:
 	virtual void configure( ArchetypeConfig& _config ) override {
 		setDebugName( "EditorInterfaceSystem" );
-		setUpdateMode( UpdateMode_always );
+		setUpdateMode( UpdateMode_Always );
 
 		_config.addComponentType<EditorObjectComponent>();
 	}

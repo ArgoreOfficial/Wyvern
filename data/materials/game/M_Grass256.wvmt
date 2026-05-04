@@ -1,6 +1,0 @@
-{
- "shader": "lit",
- "data": {
-  "albedo": "textures/grass_256.png"
- }
-}

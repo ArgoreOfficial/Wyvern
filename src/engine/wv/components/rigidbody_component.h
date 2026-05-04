@@ -7,16 +7,26 @@ namespace wv {
 
 enum ForceType
 {
-	ForceType_force,       // force per second. Eg. pushing an object
-	ForceType_impulse,     // instant force. Eg. jumping
-	ForceType_acceleration // acceleration per second. Eg. falling
+	ForceType_Force,       // force per second. Eg. pushing an object
+	ForceType_Impulse,     // instant force. Eg. jumping
+	ForceType_Acceleration // acceleration per second. Eg. falling
 };
 
 enum BodyType
 {
-	BodyType_Static,
+	BodyType_Static = 0,
 	BodyType_Dynamic,
 	BodyType_Kinematic
+};
+
+template <>
+struct wv::EnumReflection<BodyType>
+{
+	static inline ReflectedEnums values = {
+		{ "Static", BodyType_Static },
+		{ "Dynamic", BodyType_Dynamic },
+		{ "Kinematic", BodyType_Kinematic }
+	};
 };
 
 struct RigidBodyComponentInternal
@@ -51,24 +61,21 @@ struct RigidBodyComponent
 	void addForce( Vector3f _force, ForceType _forceType ) {
 		switch ( _forceType )
 		{
-		case ForceType_force:        linearVelocity += ( _force * internal.fixedDeltaTime ) / mass; break;
-		case ForceType_impulse:      linearVelocity += _force / mass;                               break;
-		case ForceType_acceleration: linearVelocity += _force * internal.fixedDeltaTime;            break;
+		case ForceType_Force:        linearVelocity += ( _force * internal.fixedDeltaTime ) / mass; break;
+		case ForceType_Impulse:      linearVelocity += _force / mass;                               break;
+		case ForceType_Acceleration: linearVelocity += _force * internal.fixedDeltaTime;            break;
 		}
 	}
 
 	RigidBodyComponentInternal internal;
-};
 
-template<>
-static void serialize<RigidBodyComponent>( SerializeInfo& _info )
-{
-	_info.name = "RigidBodyComponent";
-	_info.registerMember( &RigidBodyComponent::bodyType, "bodyType" );
-	_info.registerMember( &RigidBodyComponent::mass, "mass" );
-	_info.registerMember( &RigidBodyComponent::linearDamping, "linearDamping" );
-	_info.registerMember( &RigidBodyComponent::lockPositionAxis, "lockPositionAxis" );
-	_info.registerMember( &RigidBodyComponent::lockRotationAxis, "lockRotationAxis" );
-}
+	static inline wv::Reflection reflection{
+		wv::reflect( "bodyType", &RigidBodyComponent::bodyType ),
+		wv::reflect( "mass", &RigidBodyComponent::mass ),
+		wv::reflect( "linearDamping", &RigidBodyComponent::linearDamping ),
+		wv::reflect( "lockPositionAxis", &RigidBodyComponent::lockPositionAxis ),
+		wv::reflect( "lockRotationAxis", &RigidBodyComponent::lockRotationAxis )
+	};
+};
 
 }
