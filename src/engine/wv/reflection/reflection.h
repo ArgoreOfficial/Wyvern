@@ -16,6 +16,7 @@
 #include <imgui/misc/cpp/imgui_stdlib.h>
 
 #include <vector>
+#include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,11 @@ static void getTypeFormat( std::string& _format, ImGuiDataType_& _dataType ) {
 		_format = "%d";
 	}
 }
+
+typedef std::vector<std::pair<const char*, uint32_t>> ReflectedEnums;
+
+template<typename Ty>
+struct EnumReflection { };
 
 template<typename Ty>
 struct EditorField
@@ -181,6 +187,31 @@ struct EditorField<std::string>
 	}
 };
 
+template<typename Ty>
+struct EditorField<EnumReflection<Ty>>
+{
+	static bool imguiInput( const char* _label, Ty& _v ) {
+		std::vector<const char*> items;
+		const ReflectedEnums enumRefl = EnumReflection<Ty>::values;
+		items.reserve( enumRefl.size() );
+
+		int selected; // index into the items list
+		for ( auto& [k, v] : enumRefl )
+		{
+			if ( static_cast<uint32_t>( _v ) == v )
+				selected = items.size();
+
+			items.push_back( k );
+		}
+
+		bool changed = ImGui::Combo( _label, &selected, items.data(), (int)items.size());
+		
+		_v = static_cast<Ty>( enumRefl.at( selected ).second );
+
+		return changed;
+	}
+};
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +233,12 @@ struct HasReflection : std::false_type { };
 
 template <typename Ty>
 struct HasReflection <Ty, decltype( (void)Ty::reflection, 0 )> : std::true_type { };
+
+template <typename Ty, typename = int>
+struct HasEnumReflection : std::false_type { };
+
+template <typename Ty>
+struct HasEnumReflection <Ty, decltype( (void)EnumReflection<Ty>::values, 0 )> : std::true_type { };
 
 template<typename Ty>
 struct SerializeField
@@ -411,7 +448,11 @@ struct Field : IField
 
 	virtual bool imguiInput( const char* _label, void* _cptr ) override {
 		Class* cptr = (Class*)_cptr;
-		return EditorField<FieldTy>::imguiInput( _label, cptr->*fptr );
+
+		if constexpr ( HasEnumReflection<FieldTy>::value )
+			return EditorField<EnumReflection<FieldTy>>::imguiInput( _label, cptr->*fptr );
+		else
+			return EditorField<FieldTy>::imguiInput( _label, cptr->*fptr );
 	}
 };
 
