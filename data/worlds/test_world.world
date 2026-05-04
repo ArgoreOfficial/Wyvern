@@ -109,7 +109,7 @@
       "comps": [
         {
           "data": {
-            "bodyType": 0,
+            "bodyType": 1,
             "linearDamping": 0.05000000074505806,
             "lockPositionAxis": [
               false,

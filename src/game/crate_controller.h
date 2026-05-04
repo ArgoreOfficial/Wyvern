@@ -10,7 +10,7 @@ class CrateController : public wv::ISystem
 public:
 	virtual void configure( wv::ArchetypeConfig& _config ) override {
 		setDebugName( "CrateController" );
-		setUpdateMode( wv::UpdateMode_runtime );
+		setUpdateMode( wv::UpdateMode_Runtime );
 
 		_config.addComponentType<CrateComponent>();
 	}

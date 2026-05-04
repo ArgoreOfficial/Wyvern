@@ -17,14 +17,14 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	
 	playerActionGroup->bindTriggerAction( "DebugMouseLock", "Keyboard", wv::SCANCODE_R );
 
-	playerActionGroup->bindAxisAction( "Move", "Controller", wv::AXIS_DIRECTION_ALL, wv::CONTROLLER_JOYSTICK_LEFT );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_NORTH, wv::SCANCODE_W );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_SOUTH, wv::SCANCODE_S );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_EAST, wv::SCANCODE_D );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AXIS_DIRECTION_WEST, wv::SCANCODE_A );
+	playerActionGroup->bindAxisAction( "Move", "Controller", wv::AxisActionDirection_All, wv::CONTROLLER_JOYSTICK_LEFT );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_North, wv::SCANCODE_W );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_South, wv::SCANCODE_S );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_East, wv::SCANCODE_D );
+	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_West, wv::SCANCODE_A );
 
-	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AXIS_DIRECTION_ALL, wv::CONTROLLER_JOYSTICK_RIGHT );
-	playerActionGroup->bindAxisAction( "Look", "Mouse", wv::AXIS_DIRECTION_ALL, wv::MOUSE_MOTION_AXIS );
+	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AxisActionDirection_All, wv::CONTROLLER_JOYSTICK_RIGHT );
+	playerActionGroup->bindAxisAction( "Look", "Mouse", wv::AxisActionDirection_All, wv::MouseInput_MotionAxis );
 
 	playerActionGroup->enable();
 }

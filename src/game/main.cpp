@@ -33,7 +33,7 @@ int main( int _argc, char* _argv[] )
 		wv::Remote::initializeRemoteTarget();
 	}
 
-	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Initializing Application Configuration\n" );
+	wv::Debug::Print( "Initializing Application Configuration\n" );
 
 	wv::Application app{};
 	GameWorld* world = WV_NEW( GameWorld );
@@ -51,7 +51,7 @@ int main( int _argc, char* _argv[] )
 		app.shutdown();
 	}
 
-	wv::Debug::Print( wv::Debug::WV_PRINT_INFO, "Program Exit\n" );
+	wv::Debug::Print( "Program Exit\n" );
 
 	wv::Platform::cleanup();
 
