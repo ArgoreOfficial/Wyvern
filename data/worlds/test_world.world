@@ -22,10 +22,49 @@
           1.0
         ]
       }
+    },
+    {
+      "id": 2384719384791587193,
+      "name": "Camera",
+      "tfm": {
+        "pos": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.6762089729309082,
+          -0.20673823356628418,
+          0.6762093901634216,
+          0.20673806965351105
+        ],
+        "scl": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
     }
   ],
   "hierarchy": [],
   "components": [
+    {
+      "comps": [
+        {
+          "data": {
+            "active": true,
+            "aspect": 1.7777777910232544,
+            "clipFar": 10000.0,
+            "clipNear": 0.009999999776482582,
+            "fov": 60.0,
+            "orthoScale": 0.10000000149011612,
+            "projectionType": 0
+          },
+          "entity": 2384719384791587193
+        }
+      ],
+      "index": 0
+    },
     {
       "comps": [
         {
@@ -49,6 +88,13 @@
       "comps": [
         {
           "data": {
+            "materials": [],
+            "meshAsset": "meshes/SM_Cube.wvb"
+          },
+          "entity": 2384719384791587193
+        },
+        {
+          "data": {
             "materials": [
               "materials/default_lit.wvmt"
             ],
@@ -63,7 +109,7 @@
       "comps": [
         {
           "data": {
-            "bodyType": 1,
+            "bodyType": 0,
             "linearDamping": 0.05000000074505806,
             "lockPositionAxis": [
               false,
