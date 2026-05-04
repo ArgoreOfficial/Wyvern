@@ -36,6 +36,8 @@ private:
 	void renderComponentView();
 	void renderMaterialView();
 
+	static constexpr const char* c_dragEntityTypeName = "WV_DND_ENTITY";
+
 	Entity* m_editorCameraEntity  = nullptr;
 	
 	bool m_showSystemsMenu = false;
@@ -64,6 +66,8 @@ private:
 	std::set<UUID> m_selectedEntities;
 
 	char m_meshImporterPath[ 1024 ];
+
+	std::pair<Entity*, Entity*> m_moveEntityHierarchyChange{ nullptr, nullptr };
 };
 
 }

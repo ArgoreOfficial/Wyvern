@@ -49,7 +49,25 @@ public:
 	Transform& getTransform() { return m_transform; }
 
 	std::vector<Entity*> getChildren() const { return m_children; }
+	
 	Entity* getParent() const { return m_parent; }
+	void setParent( Entity* _newParent ) { 
+		if ( m_parent )
+			m_parent->removeChild( this );
+		
+		if( _newParent )
+			_newParent->addChild( this );
+	}
+
+	bool isChildOf( Entity* _parent ) const {
+		if ( m_parent == nullptr )
+			return false;
+
+		if ( m_parent == _parent )
+			return true;
+
+		return m_parent->isChildOf( _parent );
+	}
 
 	inline void addChild( Entity* _child ) {
 		if ( _child == nullptr )
@@ -72,6 +90,7 @@ public:
 			if ( m_children[ i ] != _child )
 				continue;
 
+			m_children[ i ]->m_parent = nullptr;
 			m_children.erase( m_children.begin() + i );
 			return;
 		}

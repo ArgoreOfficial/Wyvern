@@ -311,6 +311,27 @@ void wv::EditorInterfaceSystem::renderEntityTreeNode( Entity* _entity )
 				m_selectedEntities.insert( id );
 		}
 
+		if ( ImGui::BeginDragDropSource() )
+		{
+			ImGui::SetDragDropPayload( c_dragEntityTypeName, &_entity, sizeof( Entity* ) );
+			ImGui::EndDragDropSource();
+		}
+
+
+		ImGui::PushID( (int)id );
+		if ( ImGui::BeginDragDropTarget() )
+		{
+			if ( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( c_dragEntityTypeName ) )
+			{
+				WV_ASSERT( payload->DataSize == sizeof( Entity* ) );
+				Entity* payloadEntity = *(Entity**)payload->Data;
+				
+				m_moveEntityHierarchyChange = { payloadEntity, _entity };
+			}
+			ImGui::EndDragDropTarget();
+		}
+		ImGui::PopID();
+
 		for ( Entity* e : children )
 			renderEntityTreeNode( e );
 
@@ -347,6 +368,21 @@ void wv::EditorInterfaceSystem::renderEntityView()
 		
 		if ( ImGui::TreeNodeEx( "World##world_root_node", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
+			ImGui::PushID( "world_root_node_dnd" );
+			if ( ImGui::BeginDragDropTarget() )
+			{
+				if ( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( c_dragEntityTypeName ) )
+				{
+					WV_ASSERT( payload->DataSize == sizeof( Entity* ) );
+					Entity* payloadEntity = *(Entity**)payload->Data;
+
+					m_moveEntityHierarchyChange = { payloadEntity, nullptr };
+
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+
 			for ( Entity* e : entities )
 			{
 				if ( e->getParent() )
@@ -357,9 +393,17 @@ void wv::EditorInterfaceSystem::renderEntityView()
 
 				renderEntityTreeNode( e );
 			}
+
+			
+			
 			ImGui::TreePop();
 		}
 
+		if ( m_moveEntityHierarchyChange.first )
+		{
+			m_moveEntityHierarchyChange.first->setParent( m_moveEntityHierarchyChange.second );
+			m_moveEntityHierarchyChange = { nullptr, nullptr };
+		}
 	}
 	ImGui::End();
 }
