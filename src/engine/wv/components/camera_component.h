@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/serialize.h>
+#include <wv/reflection.h>
 
 #include <wv/math/transform.h>
 #include <wv/math/vector3.h>

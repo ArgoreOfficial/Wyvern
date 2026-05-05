@@ -6,7 +6,7 @@
 #include <wv/math/matrix.h>
 
 #include <wv/read_through_cache.h>
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 #include <wv/debug/log.h>
 
 #include <filesystem>

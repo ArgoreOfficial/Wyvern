@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/entity/entity.h>
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 
 struct CrateComponent
 {

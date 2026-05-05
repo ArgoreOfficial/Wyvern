@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wv/event/event_listener.h>
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 #include <wv/memory/memory.h>
 #include <wv/helpers/unordered_array.hpp>
 

@@ -18,7 +18,7 @@
 
 #include <wv/filesystem/file_system.h>
 
-#include <wv/serialize.h>
+#include <wv/reflection.h>
 
 #include <fstream>
 

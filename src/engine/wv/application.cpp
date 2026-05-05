@@ -23,7 +23,7 @@
 #include <wv/rendering/material.h>
 #include <wv/rendering/viewport.h>
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 
 #include <wv/shaders/lit_shader.h>
 #include <wv/shaders/unlit_shader.h>

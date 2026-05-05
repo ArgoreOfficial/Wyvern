@@ -1,8 +1,8 @@
 #include "game_world.h"
 
 #include <wv/application.h>
-#include <wv/serialize.h>
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
+#include <wv/reflection.h>
 
 #include <wv/components/mesh_component.h>
 

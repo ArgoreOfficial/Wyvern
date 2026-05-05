@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 #include <wv/rendering/material.h>
 #include <wv/rendering/mesh.h>
 

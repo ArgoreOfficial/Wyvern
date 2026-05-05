@@ -2,7 +2,7 @@
 
 #include <wv/math/transform.h>
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 #include <wv/memory/memory.h>
 #include <wv/types.h>
 

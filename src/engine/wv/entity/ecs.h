@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 #include <wv/entity/entity.h>
 #include <wv/memory/memory.h>
 #include <wv/slot_map.h>

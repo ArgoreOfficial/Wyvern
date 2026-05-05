@@ -2,7 +2,7 @@
 
 #include <wv/entity/ecs.h>
 #include <wv/input/input_system.h>
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 
 #include <filesystem>
 

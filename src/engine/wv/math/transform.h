@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 
 #include <wv/math/vector3.h>
 #include <wv/math/matrix.h>

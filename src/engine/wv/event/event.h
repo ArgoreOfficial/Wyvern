@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/reflection/reflection.h>
+#include <wv/reflection.h>
 
 namespace wv {
 
