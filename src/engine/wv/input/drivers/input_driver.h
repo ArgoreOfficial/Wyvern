@@ -27,8 +27,8 @@ protected:
 	virtual void shutdown( InputSystem* _inputSystem ) { }
 	virtual void pollActions( InputSystem* _inputSystem ) = 0;
 
-	void handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state );
-	void handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value );
+	void handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state, bool _sendEvent );
+	void handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value, bool _sendEvent );
 	void handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _sendEvent, bool _additive = false );
 
 };

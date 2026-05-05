@@ -7,13 +7,10 @@ void wv::IControllerDriver::sendTriggerEvents( InputSystem* _inputSystem, Contro
 {
 	for ( ActionGroup* group : _inputSystem->getActionGroups() )
 	{
-		if ( !group->isEnabled() )
-			continue;
-
 		for ( auto& mapping : group->getTriggerActionsByDevice( "Controller" ) )
 		{
 			if( mapping.inputID >= CONTROLLER_BUTTON_A && mapping.inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
-				handleTriggerAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( (ControllerInputs)mapping.inputID ) );
+				handleTriggerAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( (ControllerInputs)mapping.inputID ), group->isEnabled() );
 			else
 				WV_LOG_WARNING( "Input ID %u is not handled as a TriggerAction input.\n", mapping.inputID );
 		}
@@ -24,9 +21,6 @@ void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, Controll
 {
 	for ( ActionGroup* group : _inputSystem->getActionGroups() )
 	{
-		if ( !group->isEnabled() )
-			continue;
-
 		for ( auto& mapping : group->getValueActionsByDevice( "Controller" ) )
 		{
 			const ControllerInputs inputID = (ControllerInputs)mapping.inputID;
@@ -35,12 +29,12 @@ void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, Controll
 			{
 			case CONTROLLER_TRIGGER_LEFT:
 				if ( _device->leftTrigger != _prevDeviceState->leftTrigger )
-					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->leftTrigger );
+					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->leftTrigger, group->isEnabled() );
 				break;
 
 			case CONTROLLER_TRIGGER_RIGHT:
 				if ( _device->rightTrigger != _prevDeviceState->rightTrigger )
-					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->rightTrigger );
+					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->rightTrigger, group->isEnabled() );
 				break;
 
 			default:
@@ -49,7 +43,7 @@ void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, Controll
 				if ( inputID >= CONTROLLER_BUTTON_A && inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
 				{
 					if ( _device->getButtonState( inputID ) != _prevDeviceState->getButtonState( inputID ) )
-						handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( inputID ) ? 1.0f : 0.0f );
+						handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( inputID ) ? 1.0f : 0.0f, group->isEnabled() );
 				}
 				else
 					WV_LOG_WARNING( "Input ID %u is not handled as a ValueAction input.\n", inputID );

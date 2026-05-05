@@ -2,20 +2,22 @@
 
 #include <wv/input/input_system.h>
 
-void wv::IInputDriver::handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state )
+void wv::IInputDriver::handleTriggerAction( InputSystem* _inputSystem, uint32_t _vdID, TriggerAction* _action, bool _state, bool _sendEvent )
 {
 	if ( !_action->setValue( _inputSystem->getDevicePlayer( _vdID ), _state ) )
 		return;
 
-	_inputSystem->pushActionEvent( _action, _vdID );
+	if ( _sendEvent && _inputSystem->getActionsEnabled() )
+		_inputSystem->pushActionEvent( _action, _vdID );
 }
 
-void wv::IInputDriver::handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value )
+void wv::IInputDriver::handleValueAction( InputSystem* _inputSystem, uint32_t _vdID, ValueAction* _action, float _value, bool _sendEvent )
 {
 	if ( !_action->setValue( _inputSystem->getDevicePlayer( _vdID ), _value ) )
 		return;
 
-	_inputSystem->pushActionEvent( _action, _vdID );
+	if ( _sendEvent && _inputSystem->getActionsEnabled() )
+		_inputSystem->pushActionEvent( _action, _vdID );
 }
 
 void wv::IInputDriver::handleAxisAction( InputSystem* _inputSystem, uint32_t _vdID, AxisAction* _action, AxisActionDirection _direction, const wv::Vector2f& _value, bool _sendEvent, bool _additive )

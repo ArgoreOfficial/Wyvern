@@ -16,16 +16,13 @@ void wv::IMouseDriver::sendTriggerEvents( InputSystem* _inputSystem )
 {
 	for ( ActionGroup* group : _inputSystem->getActionGroups() )
 	{
-		if ( !group->isEnabled() )
-			continue;
-
 		for ( auto& mapping : group->getTriggerActionsByDevice( "Mouse" ) )
 		{
 			if ( mapping.inputID >= MouseInput_Left && mapping.inputID <= MouseInput_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
-				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ] );
+				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ], group->isEnabled() );
 			
 			if ( mapping.inputID == MouseInput_ScrollDelta && hasStateChanged( (MouseInputs)mapping.inputID ) )
-				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta != 0 );
+				handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta != 0, group->isEnabled() );
 		}
 	}
 }
@@ -34,16 +31,13 @@ void wv::IMouseDriver::sendValueEvents( InputSystem* _inputSystem )
 {
 	for ( ActionGroup* group : _inputSystem->getActionGroups() )
 	{
-		if ( !group->isEnabled() )
-			continue;
-
 		for ( auto& mapping : group->getValueActionsByDevice( "Mouse" ) )
 		{
 			if ( mapping.inputID >= MouseInput_Left && mapping.inputID <= MouseInput_X2 && hasStateChanged( (MouseInputs)mapping.inputID ) )
-				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ] ? 1.0f : 0.0f );
+				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.buttonStates[ mapping.inputID ] ? 1.0f : 0.0f, group->isEnabled() );
 			
 			if ( mapping.inputID == MouseInput_ScrollDelta && hasStateChanged( MouseInput_ScrollDelta ) )
-				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta );
+				handleValueAction( _inputSystem, m_vdID, mapping.action, m_state.scrollDelta, group->isEnabled() );
 		}
 	}
 }
