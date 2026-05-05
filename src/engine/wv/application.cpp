@@ -450,3 +450,8 @@ void wv::Application::render()
 	}
 	
 }
+
+wv::Entity* wv::getEntityFromID( wv::UUID _id )
+{
+	return wv::getApp()->getActiveWorld()->getEntityFromID( _id );
+}

@@ -64,6 +64,8 @@ private:
 	int m_currentMaterialViewTextureSelected = 0;
 
 	std::set<UUID> m_selectedEntities;
+	UUID m_mainSelectedEntity{};
+	bool m_lockSelectedEntity = false;
 
 	char m_meshImporterPath[ 1024 ];
 

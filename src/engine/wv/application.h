@@ -14,6 +14,7 @@ namespace wv {
 
 class IFileSystem;
 class DisplayDriver;
+class Entity;
 class World;
 class InputSystem;
 class EventManager;
@@ -117,5 +118,7 @@ private:
 static Application* getApp() {
 	return wv::Application::getSingleton();
 }
+
+Entity* getEntityFromID( wv::UUID _id );
 
 }

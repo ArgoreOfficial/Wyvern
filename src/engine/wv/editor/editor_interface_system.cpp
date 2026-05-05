@@ -416,119 +416,128 @@ void wv::EditorInterfaceSystem::renderComponentView()
 	int editorCameraIndex = ECSEngine::ComponentTypeDef<EditorCameraComponent>::index;
 	bool destroy = false;
 
-	Entity* selectedEntity = nullptr;
-
-	if ( m_selectedEntities.size() > 0 )
-		selectedEntity = world->getEntityFromID( *m_selectedEntities.begin() );
+	Entity* selectedEntity = world->getEntityFromID( m_mainSelectedEntity ); // get the saved selected entity
+	if ( !m_selectedEntities.empty() && ( !m_lockSelectedEntity || !selectedEntity ) )
+	{
+		m_mainSelectedEntity = *m_selectedEntities.begin(); // grab first selected one
+		selectedEntity = world->getEntityFromID( m_mainSelectedEntity );
+	}
 	
-	if( !selectedEntity )
+	if( !selectedEntity ) // none selected or UUID is invalid
 		return;
 
 	if ( ImGui::Begin( "Entity Properties##entity_properties_window" ) )
 	{
+		ImGui::Checkbox( "Lock##entity_lock_selected", &m_lockSelectedEntity );
 		ImGui::SeparatorText( selectedEntity->getName().c_str() );
 
-		std::string name = selectedEntity->getName();
-		if ( ImGui::InputText( "##entity_name", &name, ImGuiInputTextFlags_EnterReturnsTrue ) )
-			selectedEntity->setName( name );
-
-		std::vector<int> allComponent = world->getRegisteredComponents();
-		std::set<int> existingComponents;
-
-		if ( selectedEntity->archetype )
+		if ( ImGui::BeginChild( "##entity_properties" ) )
 		{
-			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-			for ( int& index : componentIndices )
-				existingComponents.insert( index );
-		}
-		
-		if ( ImGui::BeginMenu( "Actions##entity_menu_actions" ) )
-		{
-			if ( ImGui::BeginMenu( "Add Component" ) )
+
+			std::string name = selectedEntity->getName();
+			if ( ImGui::InputText( "##entity_name", &name, ImGuiInputTextFlags_EnterReturnsTrue ) )
+				selectedEntity->setName( name );
+
+			std::vector<int> allComponent = world->getRegisteredComponents();
+			std::set<int> existingComponents;
+
+			if ( selectedEntity->archetype )
 			{
-				for ( int index : allComponent )
+				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+				for ( int& index : componentIndices )
+					existingComponents.insert( index );
+			}
+			
+			if ( ImGui::BeginMenu( "Actions##entity_menu_actions" ) )
+			{
+				if ( ImGui::BeginMenu( "Add Component" ) )
+				{
+					for ( int index : allComponent )
+					{
+						if ( index == editorObjectIndex || index == editorCameraIndex )
+							continue;
+
+						std::string compName = world->getComponentName( index );
+						bool hasComponent = existingComponents.contains( index );
+
+						if ( hasComponent )
+							ImGui::BeginDisabled();
+
+						if ( ImGui::Selectable( compName.c_str() ) )
+							world->addComponent( index, selectedEntity );
+
+						if ( hasComponent )
+							ImGui::EndDisabled();
+					}
+					ImGui::EndMenu();
+				}
+
+				if ( ImGui::Selectable( "Delete##entity_destroy_selectable" ) )
+					destroy = true;
+
+				ImGui::EndMenu();
+			}
+
+			{
+				auto& transform = selectedEntity->getTransform();
+
+				ImGui::DragFloat3( "Position##transform_rotation", &transform.position.x );
+			
+				Vector3f euler = transform.rotation.toEuler();
+				Vector3f oldEuler = euler;
+				if ( ImGui::DragFloat3( "Rotation##transform_rotation", &euler.x ) )
+				{
+					if ( euler.x != oldEuler.x ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
+					if ( euler.y != oldEuler.y ) transform.rotation.rotate( euler - oldEuler, RotateSpace_World );
+					if ( euler.z != oldEuler.z ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
+				}
+
+				ImGui::DragFloat3( "Scale##transform_rotation", &transform.scale.x );
+			}
+
+			if ( selectedEntity->archetype )
+			{
+				std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
+				size_t indirectIndex = selectedEntity->archetype->getEntityIndirectIndex( selectedEntity );
+
+				for ( int& index : componentIndices )
 				{
 					if ( index == editorObjectIndex || index == editorCameraIndex )
 						continue;
 
-					std::string compName = world->getComponentName( index );
-					bool hasComponent = existingComponents.contains( index );
-
-					if ( hasComponent )
-						ImGui::BeginDisabled();
-
-					if ( ImGui::Selectable( compName.c_str() ) )
-						world->addComponent( index, selectedEntity );
-
-					if ( hasComponent )
-						ImGui::EndDisabled();
-				}
-				ImGui::EndMenu();
-			}
-
-			if ( ImGui::Selectable( "Delete##entity_destroy_selectable" ) )
-				destroy = true;
-
-			ImGui::EndMenu();
-		}
-
-		{
-			auto& transform = selectedEntity->getTransform();
-
-			ImGui::DragFloat3( "Position##transform_rotation", &transform.position.x );
-			
-			Vector3f euler = transform.rotation.toEuler();
-			Vector3f oldEuler = euler;
-			if ( ImGui::DragFloat3( "Rotation##transform_rotation", &euler.x ) )
-			{
-				if ( euler.x != oldEuler.x ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
-				if ( euler.y != oldEuler.y ) transform.rotation.rotate( euler - oldEuler, RotateSpace_World );
-				if ( euler.z != oldEuler.z ) transform.rotation.rotate( euler - oldEuler, RotateSpace_Local );
-			}
-
-			ImGui::DragFloat3( "Scale##transform_rotation", &transform.scale.x );
-		}
-
-		if ( selectedEntity->archetype )
-		{
-			std::vector<int> componentIndices = selectedEntity->archetype->getComponentIndices();
-			size_t indirectIndex = selectedEntity->archetype->getEntityIndirectIndex( selectedEntity );
-
-			for ( int& index : componentIndices )
-			{
-				if ( index == editorObjectIndex || index == editorCameraIndex )
-					continue;
-
-				std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
+					std::string componentNameID = world->getComponentName( index ) + "##" + std::to_string( selectedEntity->getID() );
 				
-				ImGui::SeparatorText( componentNameID.c_str() );
-				{
-					ImGui::PushID( index );
-
-					bool deleteComp = false;
-
-					if ( ImGui::BeginMenu( "Actions##entity_component_actions" ) )
+					ImGui::SeparatorText( componentNameID.c_str() );
 					{
-						if ( ImGui::Selectable( "Delete##component_delete" ) )
-							deleteComp = true;
+						ImGui::PushID( index );
+
+						bool deleteComp = false;
+
+						if ( ImGui::BeginMenu( "Actions##entity_component_actions" ) )
+						{
+							if ( ImGui::Selectable( "Delete##component_delete" ) )
+								deleteComp = true;
 						
-						ImGui::EndMenu();
+							ImGui::EndMenu();
+						}
+
+						ImGui::PopID();
+					
+						IComponentContainer* container = selectedEntity->archetype->getContainer( index );
+						Reflection& refl = container->getReflection();
+
+						for ( IField* field : refl.fields )
+							field->imguiInput( field->name, container->getComponentVoidPtr( indirectIndex ) );
+					
+						if ( deleteComp )
+							world->removeComponent( index, selectedEntity );
 					}
 
-					ImGui::PopID();
-					
-					IComponentContainer* container = selectedEntity->archetype->getContainer( index );
-					Reflection& refl = container->getReflection();
-
-					for ( IField* field : refl.fields )
-						field->imguiInput( field->name, container->getComponentVoidPtr( indirectIndex ) );
-					
-					if ( deleteComp )
-						world->removeComponent( index, selectedEntity );
 				}
-
 			}
 		}
+		ImGui::EndChild();
+
 	}
 	ImGui::End();
 

@@ -6,6 +6,10 @@
 #include <wv/memory/memory.h>
 #include <wv/types.h>
 
+#include <wv/application.h>
+
+#include <imgui/imgui.h>
+
 namespace wv {
 
 class World;
@@ -129,4 +133,55 @@ public:
 	};
 };
 
+
+template<>
+struct SerializeField<Entity*>
+{
+	static nlohmann::json toJson( const Entity*& _v ) { return (uint64_t)_v->getID(); }
+	static void fromJson( const nlohmann::json& _json, Entity*& _v ) {
+		if ( _json.is_null() )
+			return;
+
+		uint64_t v;
+		_json.get_to( v );
+		_v = wv::getEntityFromID( v );
+	}
+};
+
+
+template<>
+struct EditorField<Entity*>
+{
+	static bool imguiInput( const char* _label, Entity*& _v ) 
+	{
+		std::string entityName;
+		if ( _v )
+			entityName = _v->getName();
+		else
+			entityName = "None";
+		
+		ImGui::PushID( _label );
+		ImGui::InputText( "", &entityName, ImGuiInputTextFlags_ReadOnly );
+		ImGui::PopID();
+
+		ImGui::PushID( "entity_editor_field" );
+		if ( ImGui::BeginDragDropTarget() )
+		{
+			if ( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "WV_DND_ENTITY" ) )
+			{
+				// WV_ASSERT( payload->DataSize == sizeof( Entity* ) );
+				_v = *(Entity**)payload->Data;
+			}
+			ImGui::EndDragDropTarget();
+		}
+		ImGui::PopID();
+		
+
+		// ImGui::PushItemWidth( -1 );
+		// bool edited = ImGui::InputText( label.c_str(), &path, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_ElideLeft);
+		// ImGui::PopItemWidth();
+
+		return false;
+	}
+};
 }

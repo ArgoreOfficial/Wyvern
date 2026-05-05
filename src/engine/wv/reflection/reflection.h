@@ -407,6 +407,8 @@ struct IField
 	virtual bool imguiInput( const char* _label, void* _cptr ) = 0;
 };
 
+class Entity;
+
 template <typename Class, typename FieldTy>
 struct Field : IField
 {
@@ -425,6 +427,11 @@ struct Field : IField
 				j[ f->name ] = f->serialize( &( cptr->*fptr ) );
 
 			return j;
+		}
+		else if constexpr ( std::is_same_v<Entity*, FieldTy> ) // special case
+		{
+			const Entity* p = cptr->*fptr;
+			return SerializeField<FieldTy>::toJson( p );
 		}
 		else
 		{
