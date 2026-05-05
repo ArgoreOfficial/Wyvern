@@ -500,7 +500,12 @@ struct Reflection
 
 	void deserialize( const nlohmann::json& _json, void* _cptr ) const {
 		for ( const auto& r : fields )
+		{
+			if ( !_json.contains( r->name ) )
+				continue;
+
 			r->deserialize( _json[ r->name ], _cptr );
+		}
 	}
 };
 
