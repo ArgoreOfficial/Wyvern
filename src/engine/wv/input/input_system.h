@@ -46,6 +46,21 @@ struct ActionEvent
 		ValueAction* value;
 		AxisAction* axis;
 	} action{};
+
+	bool getTrigger( int _playerIndex = -1 ) const {
+		if ( type != ActionType_Trigger ) return false;
+		return action.trigger->getValue( _playerIndex );
+	}
+	
+	float getValue( int _playerIndex = -1 ) const {
+		if ( type != ActionType_Value ) return 0.0f;
+		return action.value->getValue( _playerIndex );
+	}
+	
+	Vector2f getAxis( int _playerIndex = -1 ) const {
+		if ( type != ActionType_Axis ) return {};
+		return action.axis->getValue( _playerIndex );
+	}
 };
 
 class LowLevelInputQueue
