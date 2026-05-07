@@ -307,6 +307,7 @@ void wv::PhysicsSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	bodySetting.mMassPropertiesOverride = {};
 	bodySetting.mMassPropertiesOverride.ScaleToMass( rigidbody.mass ); // actual mass in kg
 	bodySetting.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+	bodySetting.mFriction = rigidbody.friction;
 
 	bodySetting.mAllowedDOFs = JPH::EAllowedDOFs::None;
 	if ( !rigidbody.lockPositionAxis.x ) bodySetting.mAllowedDOFs |= JPH::EAllowedDOFs::TranslationX;
@@ -390,13 +391,26 @@ void wv::PhysicsSystem::onShutdown()
 	JPH::Factory::sInstance = nullptr;
 }
 
+namespace wv::Physics {
+
+wv::Vector3f vec( const JPH::Vec3& _v ) { 
+	return { _v.GetX(), _v.GetY(), _v.GetZ() };
+}
+
+JPH::Vec3 vec( const wv::Vector3f& _v ) {
+	return { _v.x, _v.y, _v.z };
+}
+
+}
+
 void wv::PhysicsSystem::onUpdate()
 {
+	// Editor update of physics objects
+
 	if ( getWorld()->isEditorState() )
 	{
 		JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
-	// set velocities
 		for ( Archetype* archetype : getArchetypes() )
 		{
 			auto& rigidbodies = archetype->getComponents<RigidBodyComponent>();
@@ -419,29 +433,11 @@ void wv::PhysicsSystem::onUpdate()
 				rigidbody.rotation = tfm.rotation;
 				
 				// Set pos, rot, vel
-				bodyInterface.SetPositionRotationAndVelocity(
+				bodyInterface.SetPositionAndRotation(
 					bodyID,
-					{
-						rigidbody.position.x,
-						rigidbody.position.y,
-						rigidbody.position.z
-					},
-				{
-					quat.x,
-					quat.y,
-					quat.z,
-					quat.w
-				},
-				{
-					rigidbody.linearVelocity.x,
-					rigidbody.linearVelocity.y,
-					rigidbody.linearVelocity.z
-				},
-				{
-					rigidbody.angularVelocity.x,
-					rigidbody.angularVelocity.y,
-					rigidbody.angularVelocity.z
-				}
+					Physics::vec( rigidbody.position ),
+					{ quat.x, quat.y, quat.z, quat.w },
+					JPH::EActivation::Activate
 				);
 			}
 		}
@@ -524,28 +520,19 @@ void wv::PhysicsSystem::onInternalPhysicsUpdate( double _fixedDeltaTime )
 			// Set pos, rot, vel
 			bodyInterface.SetPositionRotationAndVelocity(
 				bodyID,
-				{
-					rigidbody.position.x,
-					rigidbody.position.y,
-					rigidbody.position.z
-				},
-				{
-					quat.x,
-					quat.y,
-					quat.z,
-					quat.w
-				},
-				{
-					rigidbody.linearVelocity.x,
-					rigidbody.linearVelocity.y,
-					rigidbody.linearVelocity.z
-				},
-				{
-					rigidbody.angularVelocity.x,
-					rigidbody.angularVelocity.y,
-					rigidbody.angularVelocity.z
-				}
+				Physics::vec( rigidbody.position ),
+				{ quat.x, quat.y, quat.z, quat.w },
+				Physics::vec( rigidbody.linearVelocity ),
+				Physics::vec( rigidbody.angularVelocity )
 			);
+
+
+			if ( rigidbody.internal.accumulatedTorque.length() > 0.0f )
+			{
+				//bodyInterface.AddTorque( bodyID, Physics::vec( rigidbody.internal.accumulatedTorque ) );
+				bodyInterface.AddAngularImpulse( bodyID, Physics::vec( rigidbody.internal.accumulatedTorque ) );
+				rigidbody.internal.accumulatedTorque = { 0.0f, 0.0f, 0.0f };
+			}
 		}
 	}
 

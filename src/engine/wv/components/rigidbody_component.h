@@ -38,6 +38,8 @@ private:
 	Vector3f previousPosition{};
 	Rotorf   previousRotation{};
 
+	Vector3f accumulatedTorque{};
+
 	double fixedDeltaTime = 0.02;
 };
 
@@ -49,6 +51,7 @@ struct RigidBodyComponent
 
 	float mass = 1.0f;
 	float linearDamping = 0.05f;
+	float friction = 0.2f;
 
 	Vector3<bool> lockPositionAxis{ false, false, false };
 	Vector3<bool> lockRotationAxis{ false, false, false };
@@ -67,11 +70,16 @@ struct RigidBodyComponent
 		}
 	}
 
+	void addTorque( Vector3f _torque ) {
+		internal.accumulatedTorque += _torque;
+	}
+
 	RigidBodyComponentInternal internal;
 
 	static inline wv::Reflection reflection{
 		wv::reflect( "bodyType", &RigidBodyComponent::bodyType ),
 		wv::reflect( "mass", &RigidBodyComponent::mass ),
+		wv::reflect( "friction", &RigidBodyComponent::friction ),
 		wv::reflect( "linearDamping", &RigidBodyComponent::linearDamping ),
 		wv::reflect( "lockPositionAxis", &RigidBodyComponent::lockPositionAxis ),
 		wv::reflect( "lockRotationAxis", &RigidBodyComponent::lockRotationAxis )
