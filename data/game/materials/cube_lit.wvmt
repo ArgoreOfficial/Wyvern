@@ -1,0 +1,6 @@
+{
+ "shader": "lit",
+ "data" : {
+    "albedo" : "game/textures/4.png"
+ }
+}

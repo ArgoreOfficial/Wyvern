@@ -2,6 +2,7 @@
 
 #include <wv/entity/world.h>
 #include <wv/rendering/renderer.h>
+#include <wv/systems/physics_system.h>
 
 void CrateController::onInitialize()
 {
@@ -15,6 +16,12 @@ void CrateController::onInitialize()
 
 void CrateController::onUpdate()
 {
+	std::vector<wv::Vector3f> cratePositions;
+	wv::Entity* cameraEntity = nullptr;
+	wv::Vector3f cameraOffset{};
+
+	wv::PhysicsSystem* physics = getWorld()->getSystem<wv::PhysicsSystem>();
+
 	for ( wv::Archetype* archetype : getArchetypes() )
 	{
 		auto& crates = archetype->getComponents<CrateComponent>();
@@ -27,18 +34,28 @@ void CrateController::onUpdate()
 			wv::RigidBodyComponent& rb = rbs[ i ];
 			wv::Entity* entity = entities[ i ];
 
-			if ( !crate.cameraEntity )
-				continue;
+			cratePositions.push_back( entity->getTransform().position );
 
+			if ( crate.cameraEntity )
+			{
+				cameraEntity = crate.cameraEntity;
+				cameraOffset = crate.positionOffset;
+			}
+			
 			bool grow = false;
+			bool grounded = false;
 
+			wv::RaycastHit hit;
+			if ( physics->sphereCast( entity->getTransform().position, 0.5f, { 0.0f, -0.15f, 0.0f }, hit, { wv::PhysicsLayer_NonMoving } ) )
+				grounded = true;
+			
 			// Grab inputs
 
 			for ( auto& ev : updateContext->actionEventQueue )
 			{
 				if ( ev.actionID == m_jumpAction )
 				{
-					if( crate.charge >= 0.0f )
+					if( crate.charge >= 0.0f && grounded )
 						crate.charge = ev.getValue();
 				}
 				if ( ev.actionID == m_moveAction )
@@ -50,13 +67,6 @@ void CrateController::onUpdate()
 			}
 
 			crate.currentAim.normalize();
-
-			// Camera update
-
-			wv::Vector3f pos = entity->getTransform().position;
-			pos += crate.positionOffset;
-			
-			crate.cameraEntity->getTransform().position = pos;
 
 			// Move update
 
@@ -102,7 +112,42 @@ void CrateController::onUpdate()
 					crate.jumpScale = { 1.0f, 1.0f, -1.0f };
 			}
 
-			entity->getTransform().scale = wv::Vector3f{ 1.0f, 1.0f, 1.0f } + crate.jumpScale * jumpPower * crate.visualChargeScale;
+			if ( crate.meshEntity )
+			{
+				crate.meshEntity->getTransform().scale = wv::Vector3f{ 1.0f, 1.0f, 1.0f } + crate.jumpScale * jumpPower * crate.visualChargeScale;
+
+				if ( crate.charge > 0.0f && jumpPower > 0.6f )
+				{
+					float shake = ( jumpPower - 0.6f ) * 0.1f;
+					crate.meshEntity->getTransform().position = {
+						wv::Math::randomRange( -shake, shake ),
+						wv::Math::randomRange( -shake, shake ),
+						wv::Math::randomRange( -shake, shake )
+					};
+				}
+				else
+				{
+					crate.meshEntity->getTransform().position = {};
+				}
+			}
+			
 		}
 	}
+
+	if ( !cameraEntity )
+		return;
+
+	wv::Vector3f centrePosition{};
+	float height = 0.0f;
+	float cameraDistance = 5.0f;
+
+	for ( auto& p : cratePositions )
+		centrePosition += p;
+	centrePosition /= cratePositions.size();
+
+	for ( auto& p : cratePositions )
+		cameraDistance = wv::Math::max( cameraDistance, ( p - centrePosition ).length() );
+	
+	cameraEntity->getTransform().position = centrePosition + cameraOffset * cameraDistance * 1.5f;
+
 }
