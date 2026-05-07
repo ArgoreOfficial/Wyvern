@@ -137,10 +137,18 @@ public:
 template<>
 struct SerializeField<Entity*>
 {
-	static nlohmann::json toJson( const Entity*& _v ) { return (uint64_t)_v->getID(); }
+	static nlohmann::json toJson( const Entity*& _v ) {
+		if ( _v )
+			return (uint64_t)_v->getID();
+		return {};
+	}
+
 	static void fromJson( const nlohmann::json& _json, Entity*& _v ) {
 		if ( _json.is_null() )
+		{
+			_v = nullptr;
 			return;
+		}
 
 		uint64_t v;
 		_json.get_to( v );
