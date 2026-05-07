@@ -23,7 +23,7 @@ struct ControllerDevice
 	float rightTrigger = 0.0f;
 
 	// Mask, use ControllerInputs enum for bits 
-	uint32_t buttonStates = CONTROLLER_BUTTON_NONE;
+	uint32_t buttonStates = ControllerInput_None;
 
 	inline bool getButtonState( ControllerInputs _button ) {
 		return ( buttonStates & _button ) != 0;

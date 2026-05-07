@@ -17,7 +17,7 @@ void wv::IKeyboardDriver::sendTriggerEvents( InputSystem* _inputSystem )
 		for ( auto& mapping : group->getTriggerActionsByDevice( "Keyboard" ) )
 		{
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
-			if ( mapping.inputID >= SCANCODE_MAX ) continue;
+			if ( mapping.inputID >= Scancode_MAX ) continue;
 
 			handleTriggerAction( _inputSystem, m_vdID, mapping.action, m_scancodeStates[ mapping.inputID ], group->isEnabled() );
 		}
@@ -31,7 +31,7 @@ void wv::IKeyboardDriver::sendValueEvents( InputSystem* _inputSystem )
 		for ( auto& mapping : group->getValueActionsByDevice( "Keyboard" ) )
 		{
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
-			if ( mapping.inputID >= SCANCODE_MAX ) continue;
+			if ( mapping.inputID >= Scancode_MAX ) continue;
 
 			handleValueAction( _inputSystem, m_vdID, mapping.action, m_scancodeStates[ mapping.inputID ] ? 1.0f : 0.0f, group->isEnabled() );
 		}
@@ -45,7 +45,7 @@ void wv::IKeyboardDriver::sendAxisEvents( InputSystem* _inputSystem )
 		for ( auto& mapping : group->getAxisActionsByDevice( "Keyboard" ) )
 		{
 			if ( !scancodeStateChanged( mapping.inputID ) ) continue;
-			if ( mapping.inputID >= SCANCODE_MAX ) continue;
+			if ( mapping.inputID >= Scancode_MAX ) continue;
 
 			handleAxisAction( 
 				_inputSystem, m_vdID, 

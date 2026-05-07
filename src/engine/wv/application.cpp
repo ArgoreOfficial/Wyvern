@@ -181,23 +181,23 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 
 #ifndef WV_PACKAGE
 	wv::ActionGroup* editorActionGroup = m_inputSystem->createActionGroup( "Editor" );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_North, wv::SCANCODE_W );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_South, wv::SCANCODE_S );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_East, wv::SCANCODE_D );
-	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_West, wv::SCANCODE_A );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_North, wv::Scancode_W );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_South, wv::Scancode_S );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_East, wv::Scancode_D );
+	editorActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_West, wv::Scancode_A );
 	
 	editorActionGroup->bindTriggerAction( "MouseLeft", "Mouse", wv::MouseInput_Left );
 	editorActionGroup->bindTriggerAction( "MouseRight", "Mouse", wv::MouseInput_Right );
 
-	editorActionGroup->bindTriggerAction( "Translate", "Keyboard", wv::SCANCODE_G );
-	editorActionGroup->bindTriggerAction( "Rotate",    "Keyboard", wv::SCANCODE_R );
-	editorActionGroup->bindTriggerAction( "Scale",     "Keyboard", wv::SCANCODE_S );
+	editorActionGroup->bindTriggerAction( "Translate", "Keyboard", wv::Scancode_G );
+	editorActionGroup->bindTriggerAction( "Rotate",    "Keyboard", wv::Scancode_R );
+	editorActionGroup->bindTriggerAction( "Scale",     "Keyboard", wv::Scancode_S );
 
-	editorActionGroup->bindTriggerAction( "LockAxisX", "Keyboard", wv::SCANCODE_X );
-	editorActionGroup->bindTriggerAction( "LockAxisY", "Keyboard", wv::SCANCODE_Y );
-	editorActionGroup->bindTriggerAction( "LockAxisZ", "Keyboard", wv::SCANCODE_Z );
+	editorActionGroup->bindTriggerAction( "LockAxisX", "Keyboard", wv::Scancode_X );
+	editorActionGroup->bindTriggerAction( "LockAxisY", "Keyboard", wv::Scancode_Y );
+	editorActionGroup->bindTriggerAction( "LockAxisZ", "Keyboard", wv::Scancode_Z );
 	
-	editorActionGroup->bindValueAction( "ShiftLeft", "Keyboard", wv::SCANCODE_LEFT_SHIFT );
+	editorActionGroup->bindValueAction( "ShiftLeft", "Keyboard", wv::Scancode_LeftShift );
 	
 	editorActionGroup->disable(); // default off
 

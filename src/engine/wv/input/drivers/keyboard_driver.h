@@ -23,8 +23,8 @@ protected:
 	void sendValueEvents( InputSystem* _inputSystem );
 	void sendAxisEvents( InputSystem* _inputSystem );
 
-	bool m_prevScancodeStates[ SCANCODE_MAX ] = { 0 };
-	bool m_scancodeStates[ SCANCODE_MAX ] = { 0 };
+	bool m_prevScancodeStates[ Scancode_MAX ] = { 0 };
+	bool m_scancodeStates[ Scancode_MAX ] = { 0 };
 
 	uint32_t m_vdID = wv::Math::randomU32();
 };

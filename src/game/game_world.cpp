@@ -12,19 +12,20 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
 
-	playerActionGroup->bindTriggerAction( "Shake", "Controller", wv::CONTROLLER_BUTTON_A );
-	playerActionGroup->bindTriggerAction( "Shake", "Keyboard", wv::SCANCODE_SPACE );
+	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::ControllerInput_ButtonA );
+	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", wv::Scancode_Space );
 	
-	playerActionGroup->bindTriggerAction( "DebugMouseLock", "Keyboard", wv::SCANCODE_R );
+	playerActionGroup->bindAxisAction( "Aim", "Controller", wv::AxisActionDirection_All, wv::ControllerInput_JoystickLeft );
+	playerActionGroup->bindAxisAction( "Aim", "Keyboard", wv::AxisActionDirection_North, wv::Scancode_W );
+	playerActionGroup->bindAxisAction( "Aim", "Keyboard", wv::AxisActionDirection_South, wv::Scancode_S );
+	playerActionGroup->bindAxisAction( "Aim", "Keyboard", wv::AxisActionDirection_East, wv::Scancode_D );
+	playerActionGroup->bindAxisAction( "Aim", "Keyboard", wv::AxisActionDirection_West, wv::Scancode_A );
 
-	playerActionGroup->bindAxisAction( "Move", "Controller", wv::AxisActionDirection_All, wv::CONTROLLER_JOYSTICK_LEFT );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_North, wv::SCANCODE_W );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_South, wv::SCANCODE_S );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_East, wv::SCANCODE_D );
-	playerActionGroup->bindAxisAction( "Move", "Keyboard", wv::AxisActionDirection_West, wv::SCANCODE_A );
-
-	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AxisActionDirection_All, wv::CONTROLLER_JOYSTICK_RIGHT );
+	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AxisActionDirection_All, wv::ControllerInput_JoystickRight );
 	playerActionGroup->bindAxisAction( "Look", "Mouse", wv::AxisActionDirection_All, wv::MouseInput_MotionAxis );
+	
+	playerActionGroup->bindValueAction( "Grow", "Controller", wv::Scancode_LeftShift );
+	playerActionGroup->bindValueAction( "Grow", "Keyboard", wv::Scancode_LeftShift );
 
 	playerActionGroup->enable();
 }

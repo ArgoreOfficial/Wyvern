@@ -114,22 +114,22 @@ void wv::XInputControllerDriver::updateButtonStates( InputSystem* _inputSystem, 
 
 	m_xinputButtonStateMap.at( _device->deviceID ) = _state.Gamepad.wButtons;
 
-	_device->setButtonState( CONTROLLER_BUTTON_A, _state.Gamepad.wButtons & XINPUT_GAMEPAD_A );
-	_device->setButtonState( CONTROLLER_BUTTON_B, _state.Gamepad.wButtons & XINPUT_GAMEPAD_B );
-	_device->setButtonState( CONTROLLER_BUTTON_X, _state.Gamepad.wButtons & XINPUT_GAMEPAD_X );
-	_device->setButtonState( CONTROLLER_BUTTON_Y, _state.Gamepad.wButtons & XINPUT_GAMEPAD_Y );
-	_device->setButtonState( CONTROLLER_BUTTON_DPAD_UP, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP );
-	_device->setButtonState( CONTROLLER_BUTTON_DPAD_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT );
-	_device->setButtonState( CONTROLLER_BUTTON_DPAD_DOWN, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN );
-	_device->setButtonState( CONTROLLER_BUTTON_DPAD_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT );
+	_device->setButtonState( ControllerInput_ButtonA, _state.Gamepad.wButtons & XINPUT_GAMEPAD_A );
+	_device->setButtonState( ControllerInput_ButtonB, _state.Gamepad.wButtons & XINPUT_GAMEPAD_B );
+	_device->setButtonState( ControllerInput_ButtonX, _state.Gamepad.wButtons & XINPUT_GAMEPAD_X );
+	_device->setButtonState( ControllerInput_ButtonY, _state.Gamepad.wButtons & XINPUT_GAMEPAD_Y );
+	_device->setButtonState( ControllerInput_DpadUp, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP );
+	_device->setButtonState( ControllerInput_DpadRight, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT );
+	_device->setButtonState( ControllerInput_DpadDown, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN );
+	_device->setButtonState( ControllerInput_DpadLeft, _state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT );
 
-	_device->setButtonState( CONTROLLER_BUTTON_START, _state.Gamepad.wButtons & XINPUT_GAMEPAD_START );
-	_device->setButtonState( CONTROLLER_BUTTON_SELECT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK );
-	_device->setButtonState( CONTROLLER_BUTTON_HOME, false );
+	_device->setButtonState( ControllerInput_Start, _state.Gamepad.wButtons & XINPUT_GAMEPAD_START );
+	_device->setButtonState( ControllerInput_Select, _state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK );
+	_device->setButtonState( ControllerInput_Home, false );
 
-	_device->setButtonState( CONTROLLER_BUTTON_JOYSTICK_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB );
-	_device->setButtonState( CONTROLLER_BUTTON_JOYSTICK_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB );
-	_device->setButtonState( CONTROLLER_BUTTON_SHOULDER_LEFT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER );
-	_device->setButtonState( CONTROLLER_BUTTON_SHOULDER_RIGHT, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER );
+	_device->setButtonState( ControllerInput_JoystickButtonLeft, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB );
+	_device->setButtonState( ControllerInput_JoystickButtonRight, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB );
+	_device->setButtonState( ControllerInput_ShoulderLeft, _state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER );
+	_device->setButtonState( ControllerInput_ShoulderRight, _state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER );
 
 }

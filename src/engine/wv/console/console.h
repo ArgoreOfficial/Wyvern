@@ -59,22 +59,22 @@ const char* const ANSI_EscapeStrsFG[] = {
 // https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 enum Color : uint8_t
 {
-	Black          =  0,
-	Red            =  1,
-	Green          =  2,
-	Yellow         =  3,
-	Blue           =  4,
-	Magenta        =  5,
-	Cyan           =  6,
-	White          =  7,
-	Gray           =  8,
-	Bright_Red     =  9,
-	Bright_Green   = 10,
-	Bright_Yellow  = 11,
-	Bright_Blue    = 12,
-	Bright_Magenta = 13,
-	Bright_Cyan    = 14,
-	Bright_White   = 15
+	Color_Black         =  0,
+	Color_Red           =  1,
+	Color_Green         =  2,
+	Color_Yellow        =  3,
+	Color_Blue          =  4,
+	Color_Magenta       =  5,
+	Color_Cyan          =  6,
+	Color_White         =  7,
+	Color_Gray          =  8,
+	Color_BrightRed     =  9,
+	Color_BrightGreen   = 10,
+	Color_BrightYellow  = 11,
+	Color_BrightBlue    = 12,
+	Color_BrightMagenta = 13,
+	Color_BrightCyan    = 14,
+	Color_BrightWhite   = 15
 };
 
 bool isInitialized();

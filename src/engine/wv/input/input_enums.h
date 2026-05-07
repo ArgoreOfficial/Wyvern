@@ -6,75 +6,75 @@ namespace wv {
 
 enum Scancode : uint32_t
 {
-	SCANCODE_NONE = 0,
+	Scancode_None = 0,
 	
 	// Alphabetical Keys
-	SCANCODE_A,
-	SCANCODE_B,
-	SCANCODE_C,
-	SCANCODE_D,
-	SCANCODE_E,
-	SCANCODE_F,
-	SCANCODE_G,
-	SCANCODE_H,
-	SCANCODE_I,
-	SCANCODE_J,
-	SCANCODE_K,
-	SCANCODE_L,
-	SCANCODE_M,
-	SCANCODE_N,
-	SCANCODE_O,
-	SCANCODE_P,
-	SCANCODE_Q,
-	SCANCODE_R,
-	SCANCODE_S,
-	SCANCODE_T,
-	SCANCODE_U,
-	SCANCODE_V,
-	SCANCODE_W,
-	SCANCODE_X,
-	SCANCODE_Y,
-	SCANCODE_Z,
+	Scancode_A,
+	Scancode_B,
+	Scancode_C,
+	Scancode_D,
+	Scancode_E,
+	Scancode_F,
+	Scancode_G,
+	Scancode_H,
+	Scancode_I,
+	Scancode_J,
+	Scancode_K,
+	Scancode_L,
+	Scancode_M,
+	Scancode_N,
+	Scancode_O,
+	Scancode_P,
+	Scancode_Q,
+	Scancode_R,
+	Scancode_S,
+	Scancode_T,
+	Scancode_U,
+	Scancode_V,
+	Scancode_W,
+	Scancode_X,
+	Scancode_Y,
+	Scancode_Z,
 
 	// Alphanumerical Keys (1,2,3,4,5,6,7,8,9,0)
-	SCANCODE_ALPHA_1,
-	SCANCODE_ALPHA_2, 
-	SCANCODE_ALPHA_3, 
-	SCANCODE_ALPHA_4, 
-	SCANCODE_ALPHA_5, 
-	SCANCODE_ALPHA_6, 
-	SCANCODE_ALPHA_7, 
-	SCANCODE_ALPHA_8, 
-	SCANCODE_ALPHA_9, 
-	SCANCODE_ALPHA_0,
+	Scancode_1,
+	Scancode_2, 
+	Scancode_3, 
+	Scancode_4, 
+	Scancode_5, 
+	Scancode_6, 
+	Scancode_7, 
+	Scancode_8, 
+	Scancode_9, 
+	Scancode_0,
 
-	SCANCODE_RETURN,
-	SCANCODE_ESCAPE,
-	SCANCODE_BACKSPACE,
-	SCANCODE_TAB,
-	SCANCODE_SPACE,
-	SCANCODE_MINUS,
-	SCANCODE_EQUALS,
-	SCANCODE_LEFT_BRACKET,
-	SCANCODE_RIGHT_BRACKET,
-	SCANCODE_BACKSLASH,
-	SCANCODE_SEMICOLON,
-	SCANCODE_APOSTROPHE,
-	SCANCODE_GRAVE,
-	SCANCODE_COMMA,
-	SCANCODE_PERIOD,
-	SCANCODE_SLASH,
-	SCANCODE_CAPSLOCK,
+	Scancode_Return,
+	Scancode_Escape,
+	Scancode_Backspace,
+	Scancode_Tab,
+	Scancode_Space,
+	Scancode_Mins,
+	Scancode_Equals,
+	Scancode_LeftBracket,
+	Scancode_RightBracket,
+	Scancode_Backslash,
+	Scancode_SemiColon,
+	Scancode_Apostrophe,
+	Scancode_Grave,
+	Scancode_Comma,
+	Scancode_Period,
+	Scancode_Slash,
+	Scancode_Capslock,
 
-	SCANCODE_ARROW_UP,
-	SCANCODE_ARROW_DOWN,
-	SCANCODE_ARROW_LEFT,
-	SCANCODE_ARROW_RIGHT,
+	Scancode_ArrowUp,
+	Scancode_ArrowDown,
+	Scancode_ArrowLeft,
+	Scancode_ArrowRight,
 
-	SCANCODE_LEFT_SHIFT,
-	SCANCODE_RIGHT_SHIFT,
+	Scancode_LeftShift,
+	Scancode_RightShift,
 
-	SCANCODE_MAX
+	Scancode_MAX
 };
 
 enum MouseInputs : uint32_t
@@ -97,37 +97,38 @@ enum MouseInputs : uint32_t
 
 enum ControllerInputs : uint32_t
 {
-	CONTROLLER_BUTTON_NONE = 0,
-	CONTROLLER_BUTTON_A = 1 << 0, 
-	CONTROLLER_BUTTON_B = 1 << 1, 
-	CONTROLLER_BUTTON_X = 1 << 2, 
-	CONTROLLER_BUTTON_Y = 1 << 3,
+	ControllerInput_None = 0,
+	ControllerInput_ButtonA = 1 << 0, 
+	ControllerInput_ButtonB = 1 << 1, 
+	ControllerInput_ButtonX = 1 << 2, 
+	ControllerInput_ButtonY = 1 << 3,
 	
-	CONTROLLER_BUTTON_DPAD_UP    = 1 << 4,
-	CONTROLLER_BUTTON_DPAD_RIGHT = 1 << 5,
-	CONTROLLER_BUTTON_DPAD_DOWN  = 1 << 6,
-	CONTROLLER_BUTTON_DPAD_LEFT  = 1 << 7,
+	ControllerInput_DpadUp    = 1 << 4,
+	ControllerInput_DpadRight = 1 << 5,
+	ControllerInput_DpadDown  = 1 << 6,
+	ControllerInput_DpadLeft  = 1 << 7,
 
-	CONTROLLER_BUTTON_START  = 1 << 8,
-	CONTROLLER_BUTTON_SELECT = 1 << 9,
-	CONTROLLER_BUTTON_HOME   = 1 << 10, // Centre Button
+	ControllerInput_Start  = 1 << 8,
+	ControllerInput_Select = 1 << 9,
+	ControllerInput_Home   = 1 << 10, // Centre Button
 
-	CONTROLLER_BUTTON_JOYSTICK_LEFT  = 1 << 11,
-	CONTROLLER_BUTTON_JOYSTICK_RIGHT = 1 << 12,
+	ControllerInput_JoystickButtonLeft  = 1 << 11,
+	ControllerInput_JoystickButtonRight = 1 << 12,
 
-	CONTROLLER_BUTTON_SHOULDER_LEFT  = 1 << 13,
-	CONTROLLER_BUTTON_SHOULDER_RIGHT = 1 << 14,
+	ControllerInput_ShoulderLeft  = 1 << 13,
+	ControllerInput_ShoulderRight = 1 << 14,
 
 	// Joystick
 
-	CONTROLLER_JOYSTICK_LEFT  = 1 << 15,
-	CONTROLLER_JOYSTICK_RIGHT = 1 << 16,
+	ControllerInput_JoystickLeft  = 1 << 15,
+	ControllerInput_JoystickRight = 1 << 16,
 
 	// Analogue Triggers
 
-	CONTROLLER_TRIGGER_LEFT  = 1 << 17,
-	CONTROLLER_TRIGGER_RIGHT = 1 << 18,
-	CONTROLLER_BUTTON_MAX
+	ControllerInput_TriggerLeft  = 1 << 17,
+	ControllerInput_TriggerRight = 1 << 18,
+
+	ControllerInput_MAX
 };
 
 }

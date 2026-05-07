@@ -37,12 +37,12 @@ namespace wv
 			};
 
 			static const wv::Console::Color LEVEL_COL[] = {
-				Console::White,           // info
-				Console::Bright_Cyan,     // debug
-				Console::Bright_Yellow,   // warning
-				Console::Red,             // error
-				Console::Bright_Red,      // fatal
-				Console::Bright_Magenta   // trace
+				Console::Color_White,          // info
+				Console::Color_BrightCyan,     // debug
+				Console::Color_BrightYellow,   // warning
+				Console::Color_Red,            // error
+				Console::Color_BrightRed,      // fatal
+				Console::Color_BrightMagenta   // trace
 			};
 
 			std::mutex& getMutex();
@@ -54,7 +54,7 @@ namespace wv
 				if( _level >= 0 )
 					wv::Console::setForegroundColor( LEVEL_COL[ _level ] );
 				else
-					wv::Console::setForegroundColor( Console::White );
+					wv::Console::setForegroundColor( Console::Color_White );
 
 			}
 		}
@@ -95,7 +95,7 @@ namespace wv
 			printf( "[ " );
 			wv::Console::setForegroundColor( _color );
 			printf( _levelStr );
-			wv::Console::setForegroundColor( Console::White );
+			wv::Console::setForegroundColor( Console::Color_White );
 			printf( " ] " );
 			
 			printf( _str, _args... );

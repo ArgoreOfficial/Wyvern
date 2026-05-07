@@ -9,7 +9,7 @@ void wv::IControllerDriver::sendTriggerEvents( InputSystem* _inputSystem, Contro
 	{
 		for ( auto& mapping : group->getTriggerActionsByDevice( "Controller" ) )
 		{
-			if( mapping.inputID >= CONTROLLER_BUTTON_A && mapping.inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
+			if( mapping.inputID >= ControllerInput_ButtonA && mapping.inputID <= ControllerInput_ShoulderRight )
 				handleTriggerAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( (ControllerInputs)mapping.inputID ), group->isEnabled() );
 			else
 				WV_LOG_WARNING( "Input ID %u is not handled as a TriggerAction input.\n", mapping.inputID );
@@ -27,12 +27,12 @@ void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, Controll
 
 			switch ( inputID )
 			{
-			case CONTROLLER_TRIGGER_LEFT:
+			case ControllerInput_TriggerLeft:
 				if ( _device->leftTrigger != _prevDeviceState->leftTrigger )
 					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->leftTrigger, group->isEnabled() );
 				break;
 
-			case CONTROLLER_TRIGGER_RIGHT:
+			case ControllerInput_TriggerRight:
 				if ( _device->rightTrigger != _prevDeviceState->rightTrigger )
 					handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->rightTrigger, group->isEnabled() );
 				break;
@@ -40,7 +40,7 @@ void wv::IControllerDriver::sendValueEvents( InputSystem* _inputSystem, Controll
 			default:
 			{
 				// if mapping is button
-				if ( inputID >= CONTROLLER_BUTTON_A && inputID <= CONTROLLER_BUTTON_SHOULDER_RIGHT )
+				if ( inputID >= ControllerInput_ButtonA && inputID <= ControllerInput_ShoulderRight )
 				{
 					if ( _device->getButtonState( inputID ) != _prevDeviceState->getButtonState( inputID ) )
 						handleValueAction( _inputSystem, _device->vdID, mapping.action, _device->getButtonState( inputID ) ? 1.0f : 0.0f, group->isEnabled() );
@@ -61,10 +61,10 @@ void wv::IControllerDriver::sendAxisEvents( InputSystem* _inputSystem, Controlle
 		{
 			switch ( mapping.inputID )
 			{
-			case CONTROLLER_BUTTON_DPAD_UP:    [[fallthrough]];
-			case CONTROLLER_BUTTON_DPAD_RIGHT: [[fallthrough]];
-			case CONTROLLER_BUTTON_DPAD_DOWN:  [[fallthrough]];
-			case CONTROLLER_BUTTON_DPAD_LEFT:
+			case ControllerInput_DpadUp:    [[fallthrough]];
+			case ControllerInput_DpadRight: [[fallthrough]];
+			case ControllerInput_DpadDown:  [[fallthrough]];
+			case ControllerInput_DpadLeft:
 				if ( _device->getButtonState( (ControllerInputs)mapping.inputID ) != _prevDeviceState->getButtonState( (ControllerInputs)mapping.inputID ) )
 				{
 					handleAxisAction( 
@@ -81,12 +81,12 @@ void wv::IControllerDriver::sendAxisEvents( InputSystem* _inputSystem, Controlle
 				}
 				break;
 				
-			case CONTROLLER_JOYSTICK_LEFT:  
+			case ControllerInput_JoystickLeft:  
 				if( _device->leftJoystick != _prevDeviceState->leftJoystick )
 					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->leftJoystick, group->isEnabled() );
 				break;
 
-			case CONTROLLER_JOYSTICK_RIGHT: 
+			case ControllerInput_JoystickRight: 
 				if( _device->rightJoystick != _prevDeviceState->rightJoystick )
 					handleAxisAction( _inputSystem, _device->vdID, mapping.action, mapping.direction, _device->rightJoystick, group->isEnabled() );
 				break;
