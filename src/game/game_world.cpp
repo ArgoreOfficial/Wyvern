@@ -12,8 +12,8 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 { 
 	wv::ActionGroup* playerActionGroup = _inputSystem->createActionGroup( "Player" );
 
-	playerActionGroup->bindTriggerAction( "Jump", "Controller", wv::ControllerInput_ButtonA );
-	playerActionGroup->bindTriggerAction( "Jump", "Keyboard", wv::Scancode_Space );
+	playerActionGroup->bindValueAction( "ChargeJump", "Controller", wv::ControllerInput_ButtonA );
+	playerActionGroup->bindValueAction( "ChargeJump", "Keyboard", wv::Scancode_Space );
 	
 	playerActionGroup->bindAxisAction( "Aim", "Controller", wv::AxisActionDirection_All, wv::ControllerInput_JoystickLeft );
 	playerActionGroup->bindAxisAction( "Aim", "Keyboard", wv::AxisActionDirection_North, wv::Scancode_W );
