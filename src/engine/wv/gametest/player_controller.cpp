@@ -1,6 +1,6 @@
 #include "player_controller.h"
 
-#include <wv/input/components/player_input_component.h>
+#include <wv/components/player_input_component.h>
 #include <wv/gametest/player_component.h>
 
 #include <wv/application.h>

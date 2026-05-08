@@ -1,5 +1,7 @@
 #include "player_input_system.h"
 
+#include <wv/components/player_input_component.h>
+
 #include <wv/application.h>
 #include <wv/entity/entity.h>
 #include <wv/entity/world.h>
@@ -53,7 +55,7 @@ void wv::PlayerInputSystem::clearPlayers()
 
 void wv::PlayerInputSystem::configure( ArchetypeConfig& _config )
 {
-
+	_config.addComponentType<PlayerInputComponent>();
 }
 
 void wv::PlayerInputSystem::onInitialize()
@@ -64,13 +66,12 @@ void wv::PlayerInputSystem::onInitialize()
 
 void wv::PlayerInputSystem::onUpdate()
 {
-	/*
 	
 	while ( m_activePlayers.contains( m_nextAvailableIndex ) )
 		m_nextAvailableIndex++;
 
 	// Handle disconnect
-	for ( ActionEvent& action : _ctx.actionEventQueue )
+	for ( ActionEvent& action : updateContext->actionEventQueue )
 	{
 		if ( action.type != ActionType_DeviceDisconnected )
 			continue;
@@ -81,7 +82,7 @@ void wv::PlayerInputSystem::onUpdate()
 	if ( m_maxPlayers != -1 && m_nextAvailableIndex > m_maxPlayers )
 		return; // max players reached, skip
 
-	for ( ActionEvent& action : _ctx.actionEventQueue )
+	for ( ActionEvent& action : updateContext->actionEventQueue )
 	{
 		// TODO: any (unmapped or mapped) button
 		if ( action.type != ActionType_Trigger ) // must be a trigger action
@@ -101,5 +102,5 @@ void wv::PlayerInputSystem::onUpdate()
 				joinPlayer( action.vdID );
 		}
 	}
-	*/
+
 }

@@ -8,6 +8,7 @@
 #include <wv/components/orbit_controller_component.h>
 #include <wv/components/rigidbody_component.h>
 #include <wv/components/collider_component.h>
+#include <wv/components/player_input_component.h>
 
 #include <wv/rendering/mesh.h>
 #include <wv/rendering/material.h>
@@ -32,6 +33,7 @@ wv::World::World()
 	registerComponentType<MeshComponent>( "MeshComponent" );
 	registerComponentType<OrbitControllerComponent>( "OrbitControllerComponent" );
 	registerComponentType<RigidBodyComponent>( "RigidBodyComponent" );
+	registerComponentType<PlayerInputComponent>( "PlayerInputComponent" );
 }
 
 wv::World::~World()

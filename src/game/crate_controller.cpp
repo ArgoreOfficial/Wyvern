@@ -11,7 +11,6 @@ void CrateController::onInitialize()
 
 	m_moveAction = m_playerActionGroup->getAxisActionID( "Aim" );
 	m_jumpAction = m_playerActionGroup->getValueActionID( "ChargeJump" );
-	m_growAction = m_playerActionGroup->getValueActionID( "Grow" );
 }
 
 void CrateController::onUpdate()
@@ -26,6 +25,7 @@ void CrateController::onUpdate()
 	{
 		auto& crates = archetype->getComponents<CrateComponent>();
 		auto& rbs = archetype->getComponents<wv::RigidBodyComponent>();
+		auto& playerInputs = archetype->getComponents<wv::PlayerInputComponent>();
 		auto& entities = archetype->getEntities();
 
 		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
@@ -53,15 +53,18 @@ void CrateController::onUpdate()
 
 			for ( auto& ev : updateContext->actionEventQueue )
 			{
+				if ( ev.playerIndex != playerInputs[ i ].playerIndex )
+					continue;
+
 				if ( ev.actionID == m_jumpAction )
 				{
 					if( crate.charge >= 0.0f && grounded )
-						crate.charge = ev.getValue();
+						crate.charge = ev.getValue( ev.playerIndex );
 				}
 				if ( ev.actionID == m_moveAction )
 				{
-					crate.currentAim.x = ev.getAxis().x;
-					crate.currentAim.z = -ev.getAxis().y;
+					crate.currentAim.x = ev.getAxis( ev.playerIndex ).x;
+					crate.currentAim.z = -ev.getAxis( ev.playerIndex ).y;
 					crate.currentAim.y = 1.0f;
 				}
 			}

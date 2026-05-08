@@ -1,10 +1,6 @@
 #include "game_world.h"
 
-#include <wv/application.h>
-#include <wv/reflection.h>
-#include <wv/reflection.h>
-
-#include <wv/components/mesh_component.h>
+#include <wv/systems/player_input_system.h>
 
 #include "crate_controller.h"
 
@@ -24,8 +20,8 @@ void GameWorld::onSetupInput( wv::InputSystem* _inputSystem )
 	playerActionGroup->bindAxisAction( "Look", "Controller", wv::AxisActionDirection_All, wv::ControllerInput_JoystickRight );
 	playerActionGroup->bindAxisAction( "Look", "Mouse", wv::AxisActionDirection_All, wv::MouseInput_MotionAxis );
 	
-	playerActionGroup->bindValueAction( "Grow", "Controller", wv::Scancode_LeftShift );
-	playerActionGroup->bindValueAction( "Grow", "Keyboard", wv::Scancode_LeftShift );
+	playerActionGroup->bindTriggerAction( "Join", "Controller", wv::ControllerInput_Start );
+	playerActionGroup->bindTriggerAction( "Join", "Keyboard", wv::Scancode_Return );
 
 	playerActionGroup->enable();
 }
@@ -36,6 +32,7 @@ void GameWorld::onSceneCreate()
 	registerComponentType<CrateComponent>( "CrateComponent" );
 	
 	// Systems
+	addSystem<wv::PlayerInputSystem>();
 	addSystem<CrateController>();
 	
 	// Load World

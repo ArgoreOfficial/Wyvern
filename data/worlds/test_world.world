@@ -318,6 +318,23 @@
       "comps": [
         {
           "data": {
+            "playerIndex": 0
+          },
+          "entity": 8244605545696734219
+        },
+        {
+          "data": {
+            "playerIndex": 1
+          },
+          "entity": 2521920867968720058
+        }
+      ],
+      "index": 5
+    },
+    {
+      "comps": [
+        {
+          "data": {
             "cameraEntity": 2384719384791587193,
             "jumpForceExponent": 2.4000000953674316,
             "jumpForceMultiplier": 10.0,
@@ -349,7 +366,7 @@
           "entity": 2521920867968720058
         }
       ],
-      "index": 7
+      "index": 8
     }
   ]
 }

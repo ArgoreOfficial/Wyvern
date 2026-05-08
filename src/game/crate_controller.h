@@ -4,7 +4,7 @@
 #include <wv/input/action_group.h>
 
 #include <wv/components/rigidbody_component.h>
-#include <wv/components/mesh_component.h>
+#include <wv/components/player_input_component.h>
 
 #include "crate_component.h"
 
@@ -15,8 +15,9 @@ public:
 		setDebugName( "CrateController" );
 		setUpdateMode( wv::UpdateMode_Runtime );
 
-		_config.addComponentType<CrateComponent>();
+		_config.addComponentType<wv::PlayerInputComponent>();
 		_config.addComponentType<wv::RigidBodyComponent>();
+		_config.addComponentType<CrateComponent>();
 	}
 
 	virtual void onInitialize() override;
@@ -27,5 +28,4 @@ private:
 	wv::ActionGroup* m_playerActionGroup = nullptr;
 	wv::ActionID m_moveAction;
 	wv::ActionID m_jumpAction;
-	wv::ActionID m_growAction;
 };
