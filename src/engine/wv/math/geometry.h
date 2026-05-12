@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wv/math/math.h>
-#include <wv/math/vector3.h>
+#include "vector3.h"
 
 namespace wv {
 namespace Math {

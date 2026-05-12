@@ -1,5 +1,4 @@
 #include <string>
-#include <stdint.h>
 
 namespace wv {
 namespace Hash{

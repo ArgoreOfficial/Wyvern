@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/math/math.h>
+#include "../math/math.h"
 
 #ifdef WV_CPP20
 #include <compare>
