@@ -6,7 +6,7 @@
 #include <wv/math/vector3.h>
 #include <wv/math/vector4.h>
 
-#include <wv/math/transform.h>
+#include <wv/transform.h>
 
 #include <filesystem>
 #include <type_traits>

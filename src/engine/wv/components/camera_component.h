@@ -2,9 +2,7 @@
 
 #include <wv/reflection.h>
 
-#include <wv/math/transform.h>
-#include <wv/math/vector3.h>
-#include <wv/math/vector2.h>
+#include <wv/transform.h>
 
 #include <wv/decl.h>
 

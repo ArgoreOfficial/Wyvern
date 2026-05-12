@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wv/math/transform.h>
+#include <wv/transform.h>
 
 #include <wv/reflection.h>
 #include <wv/memory/memory.h>
