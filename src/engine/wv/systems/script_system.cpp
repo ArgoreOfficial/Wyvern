@@ -25,12 +25,7 @@ void wv::ScriptSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 	info.env = sol::environment( m_lua, sol::create, m_lua.globals() );
 	
 	info.env[ "entity" ] = sol::new_table();
-	info.env[ "game" ] = sol::new_table();
-
 	info.env[ "entity" ][ "getTransform" ] = [ entity ]() -> Transform& { return entity->getTransform(); };
-
-	info.env[ "game" ][ "time" ]      = []() -> float { return getApp()->getApplicationTime(); };
-	info.env[ "game" ][ "deltaTime" ] = []() -> float { return getApp()->getDeltaTime(); };
 
 	IFileSystem* fs = getApp()->getFileSystem();
 
@@ -74,6 +69,10 @@ void wv::ScriptSystem::onInitialize()
 		"position",
 		&Transform::position
 	);
+
+	m_lua[ "game" ] = sol::new_table();
+	m_lua[ "game" ][ "time" ]      = []() -> float { return getApp()->getApplicationTime(); };
+	m_lua[ "game" ][ "deltaTime" ] = []() -> float { return getApp()->getDeltaTime(); };
 }
 
 void wv::ScriptSystem::onPreUpdate()
