@@ -194,7 +194,7 @@
             "radius": 0.5,
             "shape": 0
           },
-          "entity": 8244605545696734219
+          "entity": 2521920867968720058
         },
         {
           "data": {
@@ -208,7 +208,7 @@
             "radius": 0.5,
             "shape": 0
           },
-          "entity": 2521920867968720058
+          "entity": 8244605545696734219
         }
       ],
       "index": 1
@@ -276,25 +276,6 @@
         {
           "data": {
             "bodyType": 1,
-            "friction": 0.5,
-            "linearDamping": 0.05000000074505806,
-            "lockPositionAxis": [
-              false,
-              false,
-              false
-            ],
-            "lockRotationAxis": [
-              false,
-              false,
-              false
-            ],
-            "mass": 1.0
-          },
-          "entity": 8244605545696734219
-        },
-        {
-          "data": {
-            "bodyType": 1,
             "friction": 0.20000000298023224,
             "linearDamping": 0.05000000074505806,
             "lockPositionAxis": [
@@ -310,6 +291,25 @@
             "mass": 1.0
           },
           "entity": 2521920867968720058
+        },
+        {
+          "data": {
+            "bodyType": 1,
+            "friction": 0.5,
+            "linearDamping": 0.05000000074505806,
+            "lockPositionAxis": [
+              false,
+              false,
+              false
+            ],
+            "lockRotationAxis": [
+              false,
+              false,
+              false
+            ],
+            "mass": 1.0
+          },
+          "entity": 8244605545696734219
         }
       ],
       "index": 4
@@ -318,15 +318,15 @@
       "comps": [
         {
           "data": {
-            "playerIndex": 0
-          },
-          "entity": 8244605545696734219
-        },
-        {
-          "data": {
             "playerIndex": 1
           },
           "entity": 2521920867968720058
+        },
+        {
+          "data": {
+            "playerIndex": 0
+          },
+          "entity": 8244605545696734219
         }
       ],
       "index": 5
@@ -335,20 +335,15 @@
       "comps": [
         {
           "data": {
-            "cameraEntity": 2384719384791587193,
-            "jumpForceExponent": 2.4000000953674316,
-            "jumpForceMultiplier": 10.0,
-            "jumpTorqueMultiplier": 1.7000000476837158,
-            "meshEntity": 8499622492000284710,
-            "positionOffset": [
-              0.0,
-              1.0,
-              1.25
-            ],
-            "visualChargeScale": 0.1599999964237213
+            "path": "scripts/test.lua"
           },
           "entity": 8244605545696734219
-        },
+        }
+      ],
+      "index": 6
+    },
+    {
+      "comps": [
         {
           "data": {
             "cameraEntity": null,
@@ -364,9 +359,25 @@
             "visualChargeScale": 0.20000000298023224
           },
           "entity": 2521920867968720058
+        },
+        {
+          "data": {
+            "cameraEntity": 2384719384791587193,
+            "jumpForceExponent": 2.4000000953674316,
+            "jumpForceMultiplier": 10.0,
+            "jumpTorqueMultiplier": 1.7000000476837158,
+            "meshEntity": 8499622492000284710,
+            "positionOffset": [
+              0.0,
+              1.0,
+              1.25
+            ],
+            "visualChargeScale": 0.1599999964237213
+          },
+          "entity": 8244605545696734219
         }
       ],
-      "index": 8
+      "index": 9
     }
   ]
 }

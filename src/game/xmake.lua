@@ -8,7 +8,7 @@ target("Game")
     add_files("**.cpp")
     add_includedirs("./", "../engine/")
     
-    add_packages("nlohmann_json", "joltphysics")
+    add_packages("nlohmann_json", "joltphysics", "sol2")
 
     if not is_mode("package") then 
         add_packages("tracy")

@@ -33,6 +33,7 @@
 #include <wv/systems/camera_manager_system.h>
 #include <wv/systems/orbit_controller_system.h>
 #include <wv/systems/physics_system.h>
+#include <wv/systems/script_system.h>
 
 #include <wv/math/math.h>
 #include <wv/memory/memory.h>
@@ -220,6 +221,7 @@ bool wv::Application::initialize( World* _world, int _windowWidth, int _windowHe
 	m_activeWorld->addSystem<PhysicsSystem>();
 	m_activeWorld->addSystem<CameraManagerSystem>();
 	m_activeWorld->addSystem<OrbitControllerSystem>();
+	m_activeWorld->addSystem<ScriptSystem>();
 
 	m_activeWorld->onSceneCreate();
 

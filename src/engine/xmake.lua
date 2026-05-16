@@ -16,7 +16,7 @@ target "Wyvern"
     add_headerfiles()
     add_files("**.cpp")
 
-    add_packages("fastgltf", "libsdl3", "joltphysics", "nlohmann_json")
+    add_packages("fastgltf", "libsdl3", "joltphysics", "nlohmann_json", "sol2")
 
     if not is_mode("package") then 
         add_packages("tracy")
@@ -24,7 +24,7 @@ target "Wyvern"
 
     if has_vulkansdk then -- Vulkan Shaders
         add_rules("utils.glsl2spv", {outputdir = "data/shaders/"})
-        add_files("**.comp", "**.vert", "**.frag")
+        add_files("**.vert", "**.frag")
 
         add_packages(
             "vulkan-headers",

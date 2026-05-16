@@ -24,19 +24,21 @@ struct WorldUpdateContext
 
 enum UpdateEventType
 {
-	UpdateEvent_Initialize,
-	UpdateEvent_Shutdown,
+	UpdateEvent_None,
 
-	UpdateEvent_PreUpdate,
-	UpdateEvent_Update,
-	UpdateEvent_PostUpdate,
+	UpdateEvent_Initialize = 1 << 0,
+	UpdateEvent_Shutdown   = 1 << 1,
+
+	UpdateEvent_PreUpdate  = 1 << 2,
+	UpdateEvent_Update     = 1 << 3,
+	UpdateEvent_PostUpdate = 1 << 4,
 	
-	UpdateEvent_PhysicsUpdate,
+	UpdateEvent_PhysicsUpdate = 1 << 5,
 
-	UpdateEvent_DebugRender,  // for world debug rendering, such as lines, icons, and text
-	UpdateEvent_EditorRender, // for editor interface and debug windows
+	UpdateEvent_DebugRender  = 1 << 6,  // for world debug rendering, such as lines, icons, and text
+	UpdateEvent_EditorRender = 1 << 7, // for editor interface and debug windows
 
-	UpdateEvent_Render
+	UpdateEvent_Render = 1 << 8
 };
 
 class World
