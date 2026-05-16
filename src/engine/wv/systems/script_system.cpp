@@ -12,20 +12,31 @@ void wv::ScriptSystem::configure( ArchetypeConfig& _config )
 
 void wv::ScriptSystem::onComponentAdded( Archetype* _archetype, size_t _index )
 {
-	UUID id = _archetype->getEntities()[ _index ]->getID();
-
+	Entity* entity = _archetype->getEntities()[ _index ];
+	
 	ScriptComponent& script = _archetype->getComponents<ScriptComponent>()[ _index ];
 
-	ScriptInternalData& info = m_scriptInfos[ id ];
+	ScriptInternalData& info = m_scriptInfos[ entity->getID() ];
 	info = { };
+	
+	if ( getWorld()->isEditorState() )
+		return;
+	
 	info.env = sol::environment( m_lua, sol::create, m_lua.globals() );
 	
+	info.env[ "entity" ] = sol::new_table();
+	info.env[ "game" ] = sol::new_table();
+
+	info.env[ "entity" ][ "getTransform" ] = [ entity ]() -> Transform& { return entity->getTransform(); };
+
+	info.env[ "game" ][ "time" ]      = []() -> float { return getApp()->getApplicationTime(); };
+	info.env[ "game" ][ "deltaTime" ] = []() -> float { return getApp()->getDeltaTime(); };
+
 	IFileSystem* fs = getApp()->getFileSystem();
 
 	if ( fs->fileExists( fs->getFullPath( script.path ) ) )
 	{
 		script.script = fs->loadString( script.path );
-
 		m_lua.script( script.script, info.env );
 
 		if ( m_lua.script( "return update ~= nil", info.env ).get<bool>() == true )
@@ -49,7 +60,19 @@ void wv::ScriptSystem::onInitialize()
 		sol::constructors<wv::Vector3f( float, float, float )>(),
 
 		"length",
-		&Vector3f::length
+		&Vector3f::length,
+
+		"x", &Vector3f::x,
+		"y", &Vector3f::y,
+		"z", &Vector3f::z
+	);
+
+	m_lua.new_usertype<Transform>(
+		"Transform",
+		sol::constructors<Transform>(),
+
+		"position",
+		&Transform::position
 	);
 }
 
