@@ -30,31 +30,42 @@ void wv::PlayerInputSystem::joinPlayer( uint32_t _deviceID, int _playerIndex )
 
 void wv::PlayerInputSystem::disconnectDevice( uint32_t _vDeviceID )
 {
+	if ( _vDeviceID == 0 )
+		return; // device id invalid
+
 	int playerIndex = m_inputSystem->getDevicePlayer( _vDeviceID );
 	if ( playerIndex == -1 || !m_activePlayers.contains( playerIndex ) )
 		return; // player not connected
 
-	m_activePlayers.erase( playerIndex );
-	m_inputSystem->setDevicePlayer( _vDeviceID, -1 );
+	disconnect( _vDeviceID, playerIndex );
+}
 
-	Debug::Print( Debug::PrintLevel_Debug, "Disconnected Player %i\n", playerIndex );
+void wv::PlayerInputSystem::disconnectPlayer( int _playerIndex )
+{
+	if ( _playerIndex == -1 || !m_activePlayers.contains( _playerIndex ) )
+		return; // player not connected
 
-	updateNextAvailableIndex();
+	uint32_t vDeviceID = m_inputSystem->getPlayerDevice( _playerIndex );
+	if ( vDeviceID == 0 )
+		return; // device id invalid
+
+	disconnect( vDeviceID, _playerIndex );
 }
 
 void wv::PlayerInputSystem::clearPlayers()
 {
-	std::set<uint32_t> devices = m_activeDevices; // create temp copy
+	auto players = m_activePlayers; // create temp copy
 
-	for ( auto device : devices )
-		disconnectDevice( device );
+	for ( auto p : players )
+		disconnectPlayer( p );
 	
-	WV_ASSERT( m_activeDevices.size() == 0 );
 	WV_ASSERT( m_activePlayers.size() == 0 );
 }
 
 void wv::PlayerInputSystem::configure( ArchetypeConfig& _config )
 {
+	setUpdateMode( UpdateMode_Always );
+
 	_config.addComponentType<PlayerInputComponent>();
 }
 
@@ -66,7 +77,14 @@ void wv::PlayerInputSystem::onInitialize()
 
 void wv::PlayerInputSystem::onUpdate()
 {
-	
+	if ( getWorld()->isEditorState() )
+	{
+		if ( !m_activePlayers.empty() )
+			clearPlayers();
+
+		return;
+	}
+
 	while ( m_activePlayers.contains( m_nextAvailableIndex ) )
 		m_nextAvailableIndex++;
 
@@ -103,4 +121,14 @@ void wv::PlayerInputSystem::onUpdate()
 		}
 	}
 
+}
+
+void wv::PlayerInputSystem::disconnect( uint32_t _vDeviceID, int _playerIndex )
+{
+	m_activePlayers.erase( _playerIndex );
+	m_inputSystem->setDevicePlayer( _vDeviceID, -1 );
+
+	Debug::Print( Debug::PrintLevel_Debug, "Disconnected Player %i\n", _playerIndex );
+
+	updateNextAvailableIndex();
 }

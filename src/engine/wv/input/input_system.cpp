@@ -136,6 +136,19 @@ int wv::InputSystem::getDevicePlayer( uint32_t _vdID )
 	return -1;
 }
 
+uint32_t wv::InputSystem::getPlayerDevice( int _playerIndex )
+{
+	for ( auto& device : m_virtualDevices )
+	{
+		if ( device.playerIndex != _playerIndex )
+			continue;
+
+		return device.virtualDeviceID;
+	}
+
+	return 0;
+}
+
 wv::ActionGroup* wv::InputSystem::createActionGroup( const std::string& _name )
 {
 	if ( m_actionGroupNameMap.contains( _name ) && m_actionGroupNameMap.at( _name ) != nullptr )

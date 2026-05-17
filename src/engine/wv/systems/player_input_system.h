@@ -26,8 +26,10 @@ public:
 	void setActionID( ActionID _actionID ) { m_joinActionID = _actionID; }
 	void setMaxPlayers( int _maxPlayers ) { m_maxPlayers = wv::Math::max( -1, _maxPlayers ); }
 
-	void joinPlayer( uint32_t _deviceID, int _playerIndex = -1 );
-	void disconnectDevice( uint32_t _deviceID );
+	void joinPlayer( uint32_t _vDeviceID, int _playerIndex = -1 );
+	void disconnectDevice( uint32_t _vDeviceID );
+
+	void disconnectPlayer( int _playerIndex );
 
 	void clearPlayers();
 
@@ -42,6 +44,9 @@ public:
 			m_nextAvailableIndex++;
 	}
 
+private:
+	void disconnect( uint32_t _vDeviceID, int _playerIndex );
+
 	InputSystem* m_inputSystem = nullptr;
 
 	SelectionMode m_selectionMode = SelectionMode::SelectionMode_AnyTriggerAction;
@@ -50,7 +55,6 @@ public:
 	int m_maxPlayers = -1; // -1 is unlimited
 	int m_nextAvailableIndex = 0;
 	std::set<int> m_activePlayers;
-	std::set<uint32_t> m_activeDevices;
 };
 
 }

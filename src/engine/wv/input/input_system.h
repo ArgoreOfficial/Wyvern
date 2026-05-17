@@ -138,6 +138,8 @@ public:
 	void setDevicePlayer( uint32_t _vdID, int _playerIndex );
 	int  getDevicePlayer( uint32_t _vdID );
 	
+	uint32_t getPlayerDevice( int _playerIndex );
+	
 	void pushActionEvent( const ActionEvent& _event ) { m_actionEventQueue.push_back( _event ); }
 	void pushActionEvent( TriggerAction* _action, uint32_t _vdID ) { pushActionEvent( { ActionType_Trigger, _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
 	void pushActionEvent( ValueAction*   _action, uint32_t _vdID ) { pushActionEvent( { ActionType_Value,   _vdID, getDevicePlayer( _vdID ), _action->actionID, _action } ); }
