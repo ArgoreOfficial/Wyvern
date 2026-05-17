@@ -40,7 +40,7 @@ wv::Archetype* wv::ECSEngine::registerArchetype( ArchetypeConfig& _config )
 	return archetype;
 }
 
-wv::Archetype* wv::ECSEngine::getExactArchetype( std::bitset<256> _bitmask )
+wv::Archetype* wv::ECSEngine::getExactArchetype( ComponentBitmask _bitmask )
 {
 	for ( auto a : m_archetypes )
 	{
@@ -51,7 +51,7 @@ wv::Archetype* wv::ECSEngine::getExactArchetype( std::bitset<256> _bitmask )
 	return nullptr;
 }
 
-wv::Archetype* wv::ECSEngine::registerArchetype( std::bitset<256> _bitmask )
+wv::Archetype* wv::ECSEngine::registerArchetype( ComponentBitmask _bitmask )
 {
 	ArchetypeConfig config{};
 	
@@ -68,7 +68,7 @@ void wv::ECSEngine::updateSystemsArchetypes()
 	{
 		s->m_archetypes.clear();
 
-		std::bitset<256> bitmask = s->getArchetypeBitmask();
+		ComponentBitmask bitmask = s->getArchetypeBitmask();
 		if ( bitmask.any() )
 		{
 			for ( auto& archetype : m_archetypes )
@@ -83,7 +83,7 @@ void wv::ECSEngine::updateSystemsArchetypes()
 	}
 }
 
-std::vector<wv::Archetype*> wv::ECSEngine::getMatchingArchetypes( std::bitset<256> _bitmask )
+std::vector<wv::Archetype*> wv::ECSEngine::getMatchingArchetypes( ComponentBitmask _bitmask )
 {
 	if ( _bitmask.none() )
 		return {};

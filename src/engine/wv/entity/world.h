@@ -290,8 +290,8 @@ private:
 	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;
 
 	void updateComponentChanges();
-	void checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _change );
-	void checkComponentRemoveChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _change );
+	void checkComponentAddChanges( ComponentBitmask _oldBitmask, ComponentBitmask _newBitmask, Entity* _change );
+	void checkComponentRemoveChanges( ComponentBitmask _oldBitmask, ComponentBitmask _newBitmask, Entity* _change );
 
 	std::vector<ComponentChange> m_componentChangeQueue;
 };

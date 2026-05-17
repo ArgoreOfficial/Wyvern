@@ -1,9 +1,9 @@
 #pragma once
 
 #include <wv/updatable.h>
+#include <wv/types.h>
 
 #include <vector>
-#include <bitset>
 
 namespace wv {
 
@@ -24,8 +24,8 @@ public:
 		return m_archetypes;
 	}
 
-	std::bitset<256> getArchetypeBitmask() const { return m_archetypeBitmask; }
-	bool matchesBitmask( std::bitset<256> _bitmask ) const {
+	ComponentBitmask getArchetypeBitmask() const { return m_archetypeBitmask; }
+	bool matchesBitmask( ComponentBitmask _bitmask ) const {
 		return ( m_archetypeBitmask & _bitmask ) == m_archetypeBitmask;
 	}
 
@@ -40,7 +40,7 @@ protected:
 	WorldUpdateContext* updateContext = nullptr;
 
 private:
-	std::bitset<256> m_archetypeBitmask{};
+	ComponentBitmask m_archetypeBitmask{};
 	std::vector<Archetype*> m_archetypes;
 };
 

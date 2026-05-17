@@ -6,7 +6,8 @@
 #include <wv/slot_map.h>
 #include <wv/entity/system.h>
 
-#include <bitset>
+#include <wv/types.h>
+
 #include <vector>
 #include <unordered_map>
 
@@ -17,9 +18,9 @@ class Archetype;
 
 struct ArchetypeConfig;
 
-static std::bitset<256> bitmaskFromComponentTypeIndices( const std::vector<int>& _componentTypeIndices )
+static ComponentBitmask bitmaskFromComponentTypeIndices( const std::vector<int>& _componentTypeIndices )
 {
-	std::bitset<256> bitmask{};
+	ComponentBitmask bitmask{};
 	for ( int i : _componentTypeIndices )
 	{
 		if ( i < 0 )
@@ -86,8 +87,8 @@ public:
 	~ECSEngine();
 
 	template<typename Ty>
-	std::bitset<256> getComponentBitset() const {
-		std::bitset<256> b{};
+	ComponentBitmask getComponentBitset() const {
+		ComponentBitmask b{};
 		b[ ComponentTypeDef<Ty>::index ] = true;
 		return b;
 	}
@@ -131,11 +132,11 @@ public:
 	}
 
 	Archetype* registerArchetype( ArchetypeConfig& _config );
-	Archetype* registerArchetype( std::bitset<256> _bitmask );
-	Archetype* getExactArchetype( std::bitset<256> _bitmask );
+	Archetype* registerArchetype( ComponentBitmask _bitmask );
+	Archetype* getExactArchetype( ComponentBitmask _bitmask );
 
 	void updateSystemsArchetypes();
-	std::vector<Archetype*> getMatchingArchetypes( std::bitset<256> _bitmask );
+	std::vector<Archetype*> getMatchingArchetypes( ComponentBitmask _bitmask );
 	
 	template<typename Ty>
 	void addComponent( Entity* _entity, const Ty& _component );
@@ -162,7 +163,7 @@ struct ArchetypeConfig
 	void addComponentType() { addComponentType( ECSEngine::ComponentTypeDef<Ty>::index ); }
 	void addComponentType( int _typeIndex );
 
-	std::bitset<256> getBitmask() {
+	ComponentBitmask getBitmask() {
 		return bitmaskFromComponentTypeIndices( componentTypeIndices );
 	}
 };
@@ -234,7 +235,7 @@ public:
 private:
 	std::unordered_map<int, IComponentContainer*> m_containers;
 	wv::SlotMap<Entity*> m_entities;
-	std::bitset<256> m_bitmask{};
+	ComponentBitmask m_bitmask{};
 };
 
 template<typename Ty>
@@ -294,7 +295,7 @@ void ECSEngine::addComponent( Entity* _entity, const Ty& _component )
 	if ( oldArchetype )
 		indirectIndex = oldArchetype->getEntityIndirectIndex( _entity );
 	
-	std::bitset<256> bitmask{};
+	ComponentBitmask bitmask{};
 	int compTypeIndex = ComponentTypeDef<Ty>::index;
 	WV_ASSERT( compTypeIndex >= 0 );
 	bitmask[ compTypeIndex ] = true;
@@ -350,7 +351,7 @@ inline void ECSEngine::removeComponent( Entity* _entity )
 	}
 
 	// create new bitmask for this archetype
-	std::bitset<256> bitmask = oldArchetype->m_bitmask;
+	ComponentBitmask bitmask = oldArchetype->m_bitmask;
 	bitmask[ index ] = false;
 
 	if ( bitmask.any() )

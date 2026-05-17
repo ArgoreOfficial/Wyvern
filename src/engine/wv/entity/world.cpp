@@ -310,8 +310,8 @@ void wv::World::updateComponentChanges()
 {
 	for ( auto& change : m_componentChangeQueue )
 	{
-		std::bitset<256> oldBitmask{};
-		std::bitset<256> newBitmask{};
+		ComponentBitmask oldBitmask{};
+		ComponentBitmask newBitmask{};
 
 		// get old archetype, if any
 		if ( Archetype* oldArchetype = change.entity->archetype )
@@ -357,7 +357,7 @@ void wv::World::updateComponentChanges()
 	m_destroyEntities.clear();
 }
 
-void wv::World::checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _entity )
+void wv::World::checkComponentAddChanges( ComponentBitmask _oldBitmask, ComponentBitmask _newBitmask, Entity* _entity )
 {
 	// find systems that previously didn't match
 	std::vector<ISystem*> systemsToCheck;
@@ -376,7 +376,7 @@ void wv::World::checkComponentAddChanges( std::bitset<256> _oldBitmask, std::bit
 	}
 }
 
-void wv::World::checkComponentRemoveChanges( std::bitset<256> _oldBitmask, std::bitset<256> _newBitmask, Entity* _entity )
+void wv::World::checkComponentRemoveChanges( ComponentBitmask _oldBitmask, ComponentBitmask _newBitmask, Entity* _entity )
 {
 	// find systems that previously matched
 	std::vector<ISystem*> systemsToCheck;
