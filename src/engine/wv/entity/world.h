@@ -4,6 +4,8 @@
 #include <wv/input/input_system.h>
 #include <wv/reflection.h>
 
+#include <wv/math/hash.h>
+
 #include <filesystem>
 
 #include <nlohmann/json.hpp>
@@ -69,18 +71,20 @@ public:
 	std::filesystem::path getPath() const { return m_path; }
 
 	template<typename Ty>
-	int registerComponentType( const std::string& _name = "Unnamed Component", bool _serialize = true ) {
+	int registerComponentType( const std::string& _name, bool _serialize = true ) {
 		int index = m_ecsEngine->registerComponentType<Ty>();
+		uint32_t hashIndex = wv::Hash::djb2( _name );
 
 		EditorComponentInfo info{};
 		info.name = _name;
+		info.hashIndex = hashIndex;
 		info.addComponentFunction    = []( World* _world, Entity* _entity ) { _world->addComponent<Ty>( _entity, Ty{} ); };
 		info.removeComponentFunction = []( World* _world, Entity* _entity ) { _world->removeComponent<Ty>( _entity ); };
 		
 		if ( _serialize )
 		{
 			info.serializeComponents =
-				[this]() -> nlohmann::json
+				[ this, hashIndex ]() -> nlohmann::json
 				{
 					std::vector<nlohmann::json> comps;
 				
@@ -107,7 +111,7 @@ public:
 						return {};
 
 					return {
-						{ "index", ECSEngine::ComponentTypeDef<Ty>::index },
+						{ "type", hashIndex },
 						{ "comps", comps }
 					};
 				};
@@ -134,6 +138,7 @@ public:
 		}
 
 		m_editorComponentInfos.emplace( index, info );
+		m_editorComponentHashIndices.emplace( hashIndex, index );
 
 		return index;
 	}
@@ -281,6 +286,7 @@ private:
 	struct EditorComponentInfo
 	{
 		std::string name;
+		uint32_t hashIndex;
 		std::function<void( World*, Entity* )> addComponentFunction;
 		std::function<void( World*, Entity* )> removeComponentFunction;
 		std::function<nlohmann::json()> serializeComponents;
@@ -288,6 +294,7 @@ private:
 	};
 
 	std::unordered_map<int, EditorComponentInfo> m_editorComponentInfos;
+	std::unordered_map<uint32_t, int> m_editorComponentHashIndices;
 
 	void updateComponentChanges();
 	void checkComponentAddChanges( ComponentBitmask _oldBitmask, ComponentBitmask _newBitmask, Entity* _change );

@@ -131,12 +131,14 @@ void wv::World::load( const std::filesystem::path& _path )
 	// parse components
 	for ( auto& comps : json[ "components" ] )
 	{
-		int index = comps[ "index" ];
+		uint32_t hashIndex = comps.value( "type", 0 );
 
-		if ( !m_editorComponentInfos.contains( index ) )
+		if ( !m_editorComponentHashIndices.contains( hashIndex ) )
 			continue;
 
-		if ( !m_editorComponentInfos[ index ].deserializeComponents )
+		int index = m_editorComponentHashIndices.at( hashIndex );
+
+		if ( !m_editorComponentInfos.contains( index ) || !m_editorComponentInfos[ index ].deserializeComponents )
 			continue;
 
 		m_editorComponentInfos[ index ].deserializeComponents( comps[ "comps" ] );
