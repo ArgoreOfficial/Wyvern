@@ -8,8 +8,8 @@ layout(set = 0, binding = 1) uniform samplerCube u_globalTexturesCube[];
 layout (location = 0) in vec3 inColor;
 layout (location = 1) in vec2 inTexCoord0;
 layout (location = 2) in vec3 inNormal;
-
-layout (location = 3) flat in uint inAlbedoIndex;
+layout (location = 3) in vec3 inViewToVert;
+layout (location = 4) flat in uint inAlbedoIndex;
 
 //output write
 layout (location = 0) out vec4 outFragColor;
@@ -27,18 +27,23 @@ void main()
 	if( alpha < 0.5 )
 		discard;
 
-	// Lighting stuff
+	// Basic blinn-phong
 
-	float ambientStrength = 0.4;
-	vec3 ambientColor = vec3(1, 1, 1);
-	vec3 ambient = ambientStrength * ambientColor;
+	vec3 diffuseColor = color.rgb * inColor;
+	vec3 ambientColor = diffuseColor * 0.2;
+	
+	vec3 viewDir = normalize(-inViewToVert);
 
-	float diffuseStrength = max(dot(normal, lightDir), 0.0);
-	vec3 diffuseColor = vec3(1, 1, 1);
-	vec3 diffuse = diffuseStrength * diffuseColor;
+	float lambertian  = max(dot(lightDir, normal), 0.0);
+	float specular = 0.0;
 
-	vec3 finalColor = (ambient + diffuse) * color.rgb;
+	if( lambertian > 0.0 )
+	{
+		vec3 halfDir = normalize(lightDir + viewDir);
+		float specAngle = max(dot(halfDir, normal), 0.0);
+		specular = pow(specAngle, 100.0) * 0.2;
+	}
 
-	outFragColor.rgb = finalColor * inColor;
+	outFragColor.rgb = ambientColor + diffuseColor * lambertian + specular;
 	outFragColor.a = alpha;
 }

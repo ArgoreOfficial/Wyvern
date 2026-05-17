@@ -16,8 +16,8 @@ struct MaterialData {
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoord0;
 layout (location = 2) out vec3 outNormal;
-
-layout (location = 3) flat out uint outAlbedoIndex;
+layout (location = 3) out vec3 outViewToVert;
+layout (location = 4) flat out uint outAlbedoIndex;
 
 #include "vertex.glsl"
 
@@ -36,5 +36,7 @@ void main()
 	outColor       = unpackFloat3(v.color) * material.albedoColor.rgb;
 	outTexCoord0   = unpackFloat2(v.texCoord0);
 	outNormal      = normalMatrix * unpackFloat3(v.normal);
+	outViewToVert  = vec3(modelMatrix * vec4(pos, 1.0f)) - vec3(sceneData.viewPos);
+
 	outAlbedoIndex = material.albedoIndex;
 }
