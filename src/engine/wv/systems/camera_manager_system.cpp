@@ -77,5 +77,6 @@ void wv::CameraManagerSystem::updateCamera( Entity* _entity, CameraComponent& _c
 	_component.recalculateProjMatrix( true );
 
 	world->getViewport()->viewProj = _component.viewProjMatrix;
+	world->getViewport()->viewPos = _entity->getTransform().position;
 	
 }

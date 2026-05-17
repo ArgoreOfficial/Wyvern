@@ -70,7 +70,8 @@ struct MeshAllocation
 
 struct SceneData
 {
-	wv::Matrix4x4f viewProj;
+	Matrix4x4f viewProj;
+	Vector4f viewPos; // w unused
 };
 
 struct GPUDrawPushConstants

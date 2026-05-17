@@ -20,6 +20,7 @@
 layout(buffer_reference, std430)
 readonly buffer SceneData{
 	mat4 viewProjMatrix;
+	vec4 viewPos;
 };
 
 DEFINE_POSITION_BUFFER();

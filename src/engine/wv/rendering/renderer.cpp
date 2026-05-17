@@ -510,7 +510,8 @@ void wv::Renderer::render( World* _world )
 		{
 			SceneData sceneData{};
 			sceneData.viewProj = worldViewport->viewProj;
-
+			sceneData.viewPos  = { worldViewport->viewPos.x, worldViewport->viewPos.y, worldViewport->viewPos.z, 0.0f };
+			
 			uploadGPUBuffer( sceneDataBuffer, &sceneData, sizeof( SceneData ) );
 		}
 	}
