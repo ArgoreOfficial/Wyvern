@@ -33,11 +33,6 @@ namespace wv {
 class World;
 class Swapchain;
 
-struct SceneData
-{
-	wv::Matrix4x4f viewProj;
-};
-
 struct DeleteQueue
 {
 	std::vector<std::function<void()>> deleteQueue;
@@ -73,13 +68,18 @@ struct MeshAllocation
 	VkDeviceAddress vertexDataBufferAddress;
 };
 
-struct GPUDrawPushConstants
+struct SceneData
 {
 	wv::Matrix4x4f viewProj;
-	wv::Matrix4x4f model;
+};
+
+struct GPUDrawPushConstants
+{
+	VkDeviceAddress sceneDataBuffer;
 	VkDeviceAddress positionBuffer;
 	VkDeviceAddress vertexDataBuffer;
 	VkDeviceAddress materialDataBuffer;
+	Matrix4x4f model;
 	uint32_t materialIndex;
 };
 
@@ -360,10 +360,13 @@ protected:
 	unordered_array<ResourceID, MeshAllocation> m_meshAllocations;
 	wv::SlotMap<AllocatedBuffer> m_bufferAllocations;
 
-	// Debug drawing
+	// Drawing
+
+	GenericRingPool<ResourceID> m_sceneDataRing{};
 
 	GenericRingPool<AllocatedBuffer> m_debugLineBuffers{};
 	std::vector<wv::Vector3f> m_debugLinePositions{ };
+
 
 	// Debug error 
 

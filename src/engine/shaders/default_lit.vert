@@ -2,8 +2,6 @@
 #extension GL_ARB_shading_language_include : require
 #extension GL_EXT_buffer_reference : require
 
-#include "vertex.glsl"
-
 struct Vertex {
 	float normal[3];
 	float color[3];
@@ -15,24 +13,13 @@ struct MaterialData {
 	uint albedoIndex;
 };
 
-DEFINE_POSITION_BUFFER();
-DEFINE_VERTEX_BUFFER(Vertex);
-DEFINE_MATERIAL_BUFFER(MaterialData);
-
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoord0;
 layout (location = 2) out vec3 outNormal;
 
 layout (location = 3) flat out uint outAlbedoIndex;
 
-layout(std430, push_constant) uniform pushConstant {
-    mat4 viewProjMatrix;
-    mat4 modelMatrix;
-	PositionBuffer positionBuffer;
-	VertexBuffer vertexBuffer;
-	MaterialBuffer materialBuffer;
-	uint materialIndex;
-};
+#include "vertex.glsl"
 
 void main() 
 {
@@ -42,7 +29,7 @@ void main()
 	vec3 pos = getPosition(gl_VertexIndex);
 	
 	//output the position of each vertex
-	gl_Position = viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
+	gl_Position = sceneData.viewProjMatrix * modelMatrix * vec4(pos, 1.0f);
 	
 	mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
 

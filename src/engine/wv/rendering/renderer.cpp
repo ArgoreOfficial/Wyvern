@@ -255,10 +255,14 @@ bool wv::Renderer::initialize()
 
 	m_initialized = true;
 
-	// Debug drawing buffers
+	// Drawing buffers
 
 	m_debugLineBuffers.initialize( FRAME_OVERLAP );
+	m_sceneDataRing.initialize( FRAME_OVERLAP );
 
+	for ( auto& b : m_sceneDataRing.getObjects() )
+		b = createGPUBuffer( sizeof( SceneData ), "SceneDataBuffer" );
+	
 	// Setup imgui
 
 #ifdef WV_SUPPORT_IMGUI
@@ -444,8 +448,11 @@ void wv::Renderer::shutdown()
 
 		for ( auto& b : m_debugLineBuffers.getObjects() )
 			destroyBuffer( b );
-
 		m_debugLineBuffers.shutdown();
+
+		for ( auto& b : m_sceneDataRing.getObjects() )
+			destroyGPUBuffer( b );
+		m_sceneDataRing.shutdown();
 
 		m_stagingRing.shutdown();
 		m_commandPoolRing.shutdown();
@@ -480,8 +487,9 @@ void wv::Renderer::render( World* _world )
 	m_deleteQueueRing.setCycle( m_frameNumber );
 	m_deleteQueueRing.get().flush();
 
+	m_sceneDataRing.setCycle( m_frameNumber );
 	m_debugLineBuffers.setCycle( m_frameNumber );
-	
+
 	m_fencePool.resetAvailable();
 
 	uint32_t swapchainImageIndex;
@@ -494,6 +502,18 @@ void wv::Renderer::render( World* _world )
 	}
 
 	// Draw
+
+	// Update scene buffer
+	{
+		ResourceID sceneDataBuffer = m_sceneDataRing.get();
+		if ( Viewport* worldViewport = _world->getViewport() )
+		{
+			SceneData sceneData{};
+			sceneData.viewProj = worldViewport->viewProj;
+
+			uploadGPUBuffer( sceneDataBuffer, &sceneData, sizeof( SceneData ) );
+		}
+	}
 
 	VkCommandBuffer cmd = m_commandPoolRing.createBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
 	// vkResetCommandBuffer( cmd, 0 );
@@ -1079,10 +1099,6 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 	if ( !worldRenderSystem )
 		return;
 
-	Viewport* worldViewport = _world->getViewport();
-	if ( !worldViewport )
-		return;
-
 	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
@@ -1130,18 +1146,15 @@ void wv::Renderer::drawGeometry( VkCommandBuffer _cmd, World* _world )
 		vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 		GPUDrawPushConstants pc{};
-		pc.viewProj       = worldViewport->viewProj;
-		pc.model          = matrices[ i ];
+		pc.sceneDataBuffer = m_bufferAllocations.at( m_sceneDataRing.get() ).deviceAddress;
 		pc.positionBuffer = mesh.positionBufferAddress;
 
 		if ( mesh.vertexDataBuffer.buffer != VK_NULL_HANDLE )
 			pc.vertexDataBuffer = mesh.vertexDataBufferAddress;
 
-		{
-			size_t idx = (size_t)renderMesh.materialBuffer.value;
-			pc.materialDataBuffer = m_bufferAllocations.at( idx ).deviceAddress;
-		}
-
+		pc.materialDataBuffer = m_bufferAllocations.at( renderMesh.materialBuffer.value ).deviceAddress;
+		
+		pc.model          = matrices[ i ];
 		pc.materialIndex = renderMesh.materialIndex;
 
 		vkCmdPushConstants(
@@ -1204,10 +1217,6 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 
 	// bind and draw
 
-	Viewport* worldViewport = _world->getViewport();
-	if ( !worldViewport )
-		return;
-
 	AllocatedImage drawImage = m_imageManager.getAllocatedImage( m_drawImage );
 	AllocatedImage depthImage = m_imageManager.getAllocatedImage( m_depthImage );
 
@@ -1237,7 +1246,7 @@ void wv::Renderer::drawDebug( VkCommandBuffer _cmd, World* _world )
 	vkCmdBindPipeline( _cmd, pipeline.bindPoint, pipeline.pipeline );
 
 	GPUDrawPushConstants pc{};
-	pc.viewProj = worldViewport->viewProj;
+	pc.sceneDataBuffer = m_bufferAllocations.at( m_sceneDataRing.get() ).deviceAddress;
 	pc.model = wv::Matrix4x4f::identity( 1.0 );
 	pc.positionBuffer = debugBuffer.deviceAddress;
 

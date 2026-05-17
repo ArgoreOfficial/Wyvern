@@ -16,3 +16,21 @@
 
 #define unpackFloat2(_value) vec2(_value[0], _value[1])
 #define unpackFloat3(_value) vec3(_value[0], _value[1], _value[2])
+
+layout(buffer_reference, std430)
+readonly buffer SceneData{
+	mat4 viewProjMatrix;
+};
+
+DEFINE_POSITION_BUFFER();
+DEFINE_VERTEX_BUFFER(Vertex);
+DEFINE_MATERIAL_BUFFER(MaterialData);
+
+layout(std430, push_constant) uniform pushConstant {
+    SceneData sceneData;
+	PositionBuffer positionBuffer;
+	VertexBuffer vertexBuffer;
+	MaterialBuffer materialBuffer;
+    mat4 modelMatrix;
+	uint materialIndex;
+};
