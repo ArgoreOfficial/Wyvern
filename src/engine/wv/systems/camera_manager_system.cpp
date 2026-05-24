@@ -45,14 +45,12 @@ void wv::CameraManagerSystem::onInternalCameraUpdate()
 
 		if ( getArchetypes().empty() )
 		{
-			WV_LOG_ERROR( "No Camera\n" );
+			//WV_LOG_ERROR( "No Camera\n" );
 			return;
 		}
 
 		CameraComponent& camera = getArchetypes()[ 0 ]->getComponents<CameraComponent>()[ 0 ];
 		cameraToUpdate = getArchetypes()[ 0 ]->getEntities()[ 0 ];
-
-		camera.active = true;
 	}
 
 	if ( m_cameraOverride )
