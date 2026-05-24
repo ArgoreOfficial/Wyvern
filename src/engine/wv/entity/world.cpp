@@ -147,7 +147,8 @@ void wv::World::load( const std::filesystem::path& _path )
 
 void wv::World::save( const std::filesystem::path& _path )
 {
-	m_path = _path;
+	if( _path != "" )
+		m_path = _path;
 
 	nlohmann::ordered_json json{};
 	json[ "name" ] = "Test World";
@@ -196,7 +197,7 @@ void wv::World::save( const std::filesystem::path& _path )
 	json[ "hierarchy" ] = hierarchy;
 	json[ "components" ] = components;
 
-	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( _path );
+	std::filesystem::path fullpath = getApp()->getFileSystem()->getMountedPath( m_path );
 	std::ofstream stream{ fullpath };
 	stream << json.dump( 2 );
 }

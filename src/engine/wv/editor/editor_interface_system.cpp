@@ -167,6 +167,9 @@ void wv::EditorInterfaceSystem::onEditorRender()
 	renderPrimaryMenuBar();
 	renderSecondaryMenuBar();
 	renderStatusBar();
+
+	renderSaveAsPopup();
+	renderOpenPopup();
 #endif
 }
 
@@ -174,12 +177,26 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 {
 	World* world = getWorld();
 
+	bool showSaveAs = false;
+	bool showOpen = false;
+
 	if ( ImGui::BeginMainMenuBar() )
 	{
 		if ( ImGui::BeginMenu( "File" ) )
 		{
+			if ( ImGui::MenuItem( "Open" ) )
+				showOpen = true;
+
 			if ( ImGui::MenuItem( "Save" ) )
-				world->save( "worlds/test_world.world" );
+			{
+				if ( world->getPath().empty() )
+					showSaveAs = true;
+				else
+					world->save();
+			}
+
+			if ( ImGui::MenuItem( "Save As" ) )
+				showSaveAs = true;
 			
 			if ( ImGui::MenuItem( "Reload" ) ) 
 				world->reload( false );
@@ -202,6 +219,12 @@ void wv::EditorInterfaceSystem::renderPrimaryMenuBar()
 		}
 	}
 	ImGui::EndMainMenuBar();
+
+	if ( showSaveAs )
+		openSaveAs();
+
+	if ( showOpen )
+		openOpenPopup();
 }
 
 void wv::EditorInterfaceSystem::renderSecondaryMenuBar()
@@ -585,7 +608,58 @@ void wv::EditorInterfaceSystem::renderMaterialView()
 
 	}
 
-
-
 	ImGui::End();
+}
+
+void wv::EditorInterfaceSystem::openSaveAs()
+{
+	ImGui::OpenPopup( "Save As##save_as_popup" );
+}
+
+void wv::EditorInterfaceSystem::openOpenPopup()
+{
+	ImGui::OpenPopup( "Open World##open_world_popup" );
+}
+
+void wv::EditorInterfaceSystem::renderSaveAsPopup()
+{
+	if ( ImGui::BeginPopupModal( "Save As##save_as_popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
+	{
+		ImGui::InputTextWithHint( "##save_as_path_input_text", "unnamed_world", &m_saveAsPath );
+
+		if ( ImGui::Button( "Save" ) && !m_saveAsPath.empty() )
+		{
+			getWorld()->save( "worlds/" + m_saveAsPath + ".world" );
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if ( ImGui::Button( "Cancel" ) )
+			ImGui::CloseCurrentPopup();
+
+		ImGui::EndPopup();
+	}
+}
+
+void wv::EditorInterfaceSystem::renderOpenPopup()
+{
+	if ( ImGui::BeginPopupModal( "Open World##open_world_popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize ) )
+	{
+		ImGui::InputTextWithHint( "##open_world_path_input_text", "unnamed_world", &m_openWorldPath );
+
+		if ( ImGui::Button( "Open" ) && !m_openWorldPath.empty() )
+		{
+			getWorld()->unload( false );
+			getWorld()->load( "worlds/" + m_openWorldPath + ".world" );
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if ( ImGui::Button( "Cancel" ) )
+			ImGui::CloseCurrentPopup();
+
+		ImGui::EndPopup();
+	}
 }

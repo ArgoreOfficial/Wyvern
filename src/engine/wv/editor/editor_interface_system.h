@@ -36,6 +36,11 @@ private:
 	void renderComponentView();
 	void renderMaterialView();
 
+	void openSaveAs();
+	void openOpenPopup();
+	void renderSaveAsPopup();
+	void renderOpenPopup();
+
 	static constexpr const char* c_dragEntityTypeName = "WV_DND_ENTITY";
 
 	Entity* m_editorCameraEntity  = nullptr;
@@ -44,6 +49,10 @@ private:
 	bool m_showMaterialMenu = false;
 	bool m_showEntitiesMenu = true;
 	bool m_showMeshImporter = false;
+	bool m_showSaveAs = false;
+
+	std::string m_openWorldPath = "";
+	std::string m_saveAsPath = "";
 
 	bool m_hasEnabledFirstFrame = false;
 
