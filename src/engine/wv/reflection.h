@@ -509,6 +509,8 @@ struct Reflection
 	}
 };
 
+#define WV_REFLECTION static inline wv::Reflection reflection
+
 // Helpers
 
 namespace Serialize {
