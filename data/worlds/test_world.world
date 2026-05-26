@@ -155,7 +155,7 @@
           "data": {
             "active": true,
             "aspect": 1.7777777910232544,
-            "clipFar": 10000.0,
+            "clipFar": 1000.0,
             "clipNear": 0.009999999776482582,
             "fov": 60.0,
             "orthoScale": 0.10000000149011612,
@@ -215,13 +215,6 @@
     },
     {
       "comps": [
-        {
-          "data": {
-            "materials": [],
-            "meshAsset": "meshes/SM_Cube.wvb"
-          },
-          "entity": 2384719384791587193
-        },
         {
           "data": {
             "materials": [
