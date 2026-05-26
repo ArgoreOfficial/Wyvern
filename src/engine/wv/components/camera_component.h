@@ -72,20 +72,22 @@ struct CameraComponent
 	}
 
 	Vector3f screenToWorld( float _clipX, float _clipY, float _depth ) {
-		Matrix4x4f invViewProj = viewProjMatrix.inverse();
+		Matrix4x4f invViewProj = projMatrix.inverse() * viewMatrix.inverse();
 
-		_depth = wv::Math::clamp( _depth, 0.0f, 1.0f );
+		Vector4f v{ 0.0f, 0.0f, -_depth, 1.0f }; // get screen space depth
+		Vector4f depthV = v * projMatrix;
 
-		Vector4f screenspacePoint{ _clipX, _clipY, 1.0f - _depth, 1.0f };
-		Vector4f worldPoint = screenspacePoint * invViewProj;
+		Vector4f worldPoint = Vector4f{ _clipX * depthV.w, _clipY * depthV.w, depthV.z, depthV.w} * invViewProj;
 
-		return Vector3f{
-			worldPoint.x / worldPoint.w,
-			worldPoint.y / worldPoint.w,
-			worldPoint.z / worldPoint.w
-		};
+		return { worldPoint.x, worldPoint.y, worldPoint.z };
 	}
-
+	
+	Vector4f objectToClip( const Vector3f& _position ) const {
+		Vector4f v4{ _position.x, _position.y, _position.z, 1.0f };
+		Vector4f v = v4 * projMatrix;
+		return Vector4f{ v.x / v.w, v.y / v.w, v.z / v.w, v.w };
+	}
+	
 	void screenToWorldRay( int _pixelX, int _pixelY, float _minDepth, float _maxDepth, Vector3f& _outStart, Vector3f& _outEnd )
 	{
 		_outStart = screenToWorld( _pixelX, _pixelY, _minDepth );
@@ -99,7 +101,7 @@ struct CameraComponent
 	
 	float fov        = 60.0f;
 	float clipNear   = 0.01f;
-	float clipFar    = 10000.0f;
+	float clipFar    = 1000.0f;
 	float orthoScale = 0.1f;
 	float aspect     = 1.777777778f;
 
