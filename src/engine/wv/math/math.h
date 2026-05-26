@@ -147,6 +147,11 @@ Ty lerp( const Ty& _a, const Ty& _b, float _t ) {
 	return _a + ( _b - _a ) * _t; 
 }
 
+template<typename Ty>
+Ty mapRange( const Ty& _v, const Ty& _fromMin, const Ty& _fromMax, const Ty& _toMin, const Ty& _toMax ) {
+	return ( ( _v - _fromMin ) / ( _fromMax - _fromMin ) ) * ( _toMax - _toMin ) + _toMin;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 }
