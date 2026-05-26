@@ -16,6 +16,8 @@ class CameraManagerSystem : public ISystem
 public:
 	virtual void configure( ArchetypeConfig& _config ) override;
 	
+	virtual void onEditorRender() override;
+
 	const std::vector<Entity*>& getActiveCameras() const { return m_activeCameras; };
 
 	Entity* getCameraOverride()            const { return m_cameraOverride; }

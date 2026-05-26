@@ -7,13 +7,68 @@
 #include <wv/entity/world.h>
 #include <wv/rendering/viewport.h>
 
+#include <wv/rendering/renderer.h>
+
 void wv::CameraManagerSystem::configure( ArchetypeConfig& _config )
 {
 	m_debugName = "CameraManagerSystem";
 
 	setUpdateMode( UpdateMode_Always );
+	setEditorRenderEnabled( true );
 
 	_config.addComponentType<CameraComponent>();
+}
+
+void wv::CameraManagerSystem::onEditorRender()
+{
+	auto renderer = getApp()->getRenderer();
+	World* world = getWorld();
+
+	for ( Archetype* archetype : getArchetypes() )
+	{
+		auto& cameras = archetype->getComponents<CameraComponent>();
+		auto& entities = archetype->getEntities();
+
+		for ( size_t i = 0; i < archetype->getNumEntities(); i++ )
+		{
+			if ( !cameras[ i ].active )
+				continue;
+
+			auto& cam = cameras[ i ];
+			
+			cam.viewDimensions = world->getViewport()->size;
+
+			cam.recalculateViewMatrix( &entities[ i ]->getTransform(), false);
+			cam.recalculateProjMatrix( true );
+
+			{
+				const Vector3f tlNear = cam.screenToWorld( -1.0f,  1.0f, 0.25f );
+				const Vector3f trNear = cam.screenToWorld(  1.0f,  1.0f, 0.25f );
+				const Vector3f blNear = cam.screenToWorld( -1.0f, -1.0f, 0.25f );
+				const Vector3f brNear = cam.screenToWorld(  1.0f, -1.0f, 0.25f );
+			
+				const Vector3f tlFar = cam.screenToWorld( -1.0f,  1.0f, 5.0f );
+				const Vector3f trFar = cam.screenToWorld(  1.0f,  1.0f, 5.0f );
+				const Vector3f blFar = cam.screenToWorld( -1.0f, -1.0f, 5.0f );
+				const Vector3f brFar = cam.screenToWorld(  1.0f, -1.0f, 5.0f );
+			
+				renderer->addDebugLine( tlNear, trNear );
+				renderer->addDebugLine( trNear, brNear );
+				renderer->addDebugLine( brNear, blNear );
+				renderer->addDebugLine( blNear, tlNear );
+			
+				renderer->addDebugLine( tlFar, trFar );
+				renderer->addDebugLine( trFar, brFar );
+				renderer->addDebugLine( brFar, blFar );
+				renderer->addDebugLine( blFar, tlFar );
+				
+				renderer->addDebugLine( tlNear, tlFar );
+				renderer->addDebugLine( trNear, trFar );
+				renderer->addDebugLine( brNear, brFar );
+				renderer->addDebugLine( blNear, blFar );
+			}
+		}
+	}
 }
 
 void wv::CameraManagerSystem::onInternalCameraUpdate()
